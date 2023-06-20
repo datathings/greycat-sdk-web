@@ -1,0 +1,49 @@
+gui-scatter-plot-chart {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+gui-scatter-plot-chart .legend {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin-top: 10px;
+  margin-bottom: 50px;
+  cursor: pointer;
+}
+gui-scatter-plot-chart .legend .legend-item {
+  flex: 1;
+  display: flex;
+  width: 150px;
+}
+gui-scatter-plot-chart .legend .legend-item .legend-text {
+  pointer-events: none;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  margin-left: 5px;
+  opacity: 0.4;
+  user-select: none;
+}
+gui-scatter-plot-chart .legend .legend-item .legend-btn {
+  pointer-events: none;
+  width: 15px;
+  opacity: 0.4;
+}
+gui-scatter-plot-chart .legend .legend-item:not(:first-child) .legend-btn {
+  margin-top: 1px;
+}
+gui-scatter-plot-chart .legend .legend-item.active .legend-text,
+gui-scatter-plot-chart .legend .legend-item.active .legend-btn {
+  opacity: 1;
+}
+gui-scatter-plot-chart .incomplete-msg {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1em;
+}

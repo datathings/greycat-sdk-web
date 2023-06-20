@@ -1,0 +1,25 @@
+.gui-tooltip {
+  font-size: 12px;
+  background-color: rgb(var(--base-0));
+  border: 1px solid rgb(var(--base-1));
+  border-radius: var(--gui-border-radius);
+  padding: 5px;
+}
+
+.gui-tooltip .gui-tooltip-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--gui-border-color-1);
+  margin-bottom: 5px;
+}
+
+.gui-tooltip .gui-tooltip-content {
+  display: flex;
+  flex-direction: column;
+}
+
+.gui-tooltip .gui-tooltip-content .gui-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 5px;
+}

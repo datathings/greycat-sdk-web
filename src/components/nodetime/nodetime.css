@@ -1,0 +1,14 @@
+gui-nodetime-info .gui-nodetime-info-title {
+  font-weight: bold;
+}
+
+gui-nodetime-info .gui-nodetime-info-line {
+  display: flex;
+  gap: 2rem;
+  justify-content: space-between;
+}
+
+gui-nodetime-info .gui-nodetime-info-line > div {
+  min-width: 75px;
+  text-align: right;
+}

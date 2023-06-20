@@ -1,0 +1,84 @@
+gui-table {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: auto;
+  height: 100%;
+  width: 100%;
+}
+gui-table gui-thead {
+  position: sticky;
+  top: 0;
+  display: flex;
+  width: 100%;
+  min-width: fit-content;
+  z-index: 1;
+  opacity: 1;
+  background-color: rgb(var(--base-0));
+  border-bottom: 1px solid rgb(var(--base-2));
+}
+gui-table gui-thead.gui-table-resizing > * {
+  cursor: ew-resize !important;
+  background-color: rgb(var(--base-0)) !important;
+}
+gui-table gui-thead gui-thead-cell {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  user-select: none;
+}
+gui-table gui-thead gui-thead-cell:hover {
+  background-color: rgba(var(--base-1), 0.8);
+}
+gui-table gui-thead gui-thead-cell.active .gui-thead-sorter,
+gui-table gui-thead gui-thead-cell.active .gui-thead-title {
+  color: rgb(var(--accent-0));
+}
+gui-table gui-thead gui-thead-cell .gui-thead-title {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  flex: 1;
+  padding-left: 4px;
+}
+gui-table gui-thead gui-thead-cell .gui-thead-sorter {
+  font-family: monospace;
+  font-size: 1.5rem;
+  line-height: 1.5rem;
+  padding: 0 4px 4px 0;
+}
+gui-table gui-thead gui-thead-cell .gui-thead-resizer {
+  width: 3px;
+  background-color: rgba(var(--accent-0));
+  height: 100%;
+  cursor: ew-resize;
+}
+gui-table gui-tbody {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  font-family: Arial, sans-serif;
+}
+gui-table gui-tbody gui-tbody-row {
+  display: flex;
+  width: 100%;
+  min-width: fit-content;
+  position: absolute;
+}
+gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
+  background-color: rgba(var(--base-1), 0.8);
+}
+gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
+  background-color: rgba(var(--base-1), 0.3);
+}
+gui-table gui-tbody gui-tbody-row gui-tbody-cell {
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  padding: 2px 4px;
+  line-height: 100%;
+  border-bottom: 1px solid rgb(var(--base-1));
+}

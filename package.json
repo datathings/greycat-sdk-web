@@ -1,0 +1,37 @@
+{
+  "name": "@greycat/ui",
+  "version": "0.0.0",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "license": "MIT",
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "pnpm build:bundle && pnpm build:manifest && cp -R fonts dist/",
+    "build:bundle": "tsc --noEmit && esbuild --bundle src/index.ts --platform=browser --outfile=dist/greycat.ui.js --minify --sourcemap",
+    "build:manifest": "cem analyze --globs 'src/components/**/*.ts' --exclude '**/index.ts' && mv custom-elements.json dist/",
+    "watch": "esbuild --bundle src/index.ts --platform=browser --outfile=dist/greycat.ui.js --sourcemap --watch",
+    "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx"
+  },
+  "dependencies": {
+    "@greycat/utils": "5.9.83-testing",
+    "@greycat/lib-std": "5.9.83-testing",
+    "@greycat/rpc": "5.9.83-testing",
+    "d3": "7.6.1",
+    "maplibre-gl": "2.4.0"
+  },
+  "devDependencies": {
+    "@greycat/cli": "5.9.83-testing",
+    "@custom-elements-manifest/analyzer": "0.6.6",
+    "@types/d3": "7.4.0",
+    "typescript": "5.0.4",
+    "esbuild": "0.15.10",
+    "eslint": "8.25.0",
+    "@typescript-eslint/eslint-plugin": "5.48.1"
+  },
+  "publishConfig": {
+    "@greycat:registry": "https://hub.datathings.com/api/v4/projects/289/packages/npm/"
+  },
+  "engines" : { 
+    "node" : ">=16.13.0"
+  }
+}
