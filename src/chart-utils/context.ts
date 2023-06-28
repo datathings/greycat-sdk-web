@@ -16,10 +16,16 @@ import {
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
+type Scale = (x: number) => number;
+
 export class Context {
   readonly ctx: CanvasRenderingContext2D;
 
-  constructor(readonly canvas: HTMLCanvasElement, public width: number, public height: number) {
+  constructor(
+    readonly canvas: HTMLCanvasElement,
+    public width: number,
+    public height: number
+  ) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.ctx = canvas.getContext('2d')!;
   }
@@ -59,6 +65,50 @@ export class Context {
     this.ctx.stroke();
     this.ctx.closePath();
     this.ctx.setLineDash([]);
+    this.ctx.globalAlpha = 1;
+    this.ctx.restore();
+  }
+
+  sLine(line: Line, xScale: Scale, yScale: Scale, opts: LineOptions) {
+    if (line.length === 0) {
+      return;
+    }
+
+    const segments = [5, 8];
+
+    this.ctx.save();
+    this.ctx.lineWidth = opts.width;
+    this.ctx.strokeStyle = opts.color;
+    this.ctx.globalAlpha = opts.opacity ?? 1;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(xScale(line[0].x), yScale(line[0].y));
+    if (opts.dashed || line[0].dashed) {
+      this.ctx.setLineDash(segments);
+    }
+
+    for (let i = 1; i < line.length; i++) {
+      const x = xScale(line[i].x);
+      const y = yScale(line[i].y);
+      this.ctx.lineTo(x, y);
+      if (line[i].dashed) {
+        this.ctx.stroke();
+        this.ctx.closePath();
+        this.ctx.setLineDash(segments);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+      }
+      if (line[i].dashed === false) {
+        this.ctx.stroke();
+        this.ctx.closePath();
+        this.ctx.setLineDash([]);
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, y);
+      }
+    }
+
+    this.ctx.stroke();
+    this.ctx.closePath();
     this.ctx.globalAlpha = 1;
     this.ctx.restore();
   }
@@ -161,7 +211,9 @@ export class Context {
       if (opts.clusterClass) {
         const className = opts.clusterClass?.lineClassList[i];
         const index =
-          opts.clusterClass && className ? opts.clusterClass.classes.indexOf(className) : -1;
+          opts.clusterClass && className
+            ? opts.clusterClass.classes.indexOf(className)
+            : -1;
         if (index >= 0) {
           for (const { x, y } of line) {
             this.ctx.fillStyle = opts.clusterClass.colorList[i];
@@ -222,7 +274,13 @@ export class Context {
       for (let i = 0; i < line.length; i++) {
         this.ctx.fillStyle = opts.color;
         this.ctx.beginPath();
-        this.ctx.arc(line[i].x, line[i].y, opts.radius ?? 2, 0, CIRCLE_END_ANGLE);
+        this.ctx.arc(
+          line[i].x,
+          line[i].y,
+          opts.radius ?? 2,
+          0,
+          CIRCLE_END_ANGLE
+        );
         this.ctx.fill();
       }
     }
@@ -251,6 +309,7 @@ export class Context {
       this.ctx.restore();
     }
   }
+
   circles(circles: Point[], opts: CircleOptions) {
     this.ctx.save();
 
@@ -258,7 +317,13 @@ export class Context {
     this.ctx.strokeStyle = opts.color;
     for (let i = 0; i < circles.length; i++) {
       this.ctx.beginPath();
-      this.ctx.arc(circles[i].x, circles[i].y, opts.radius, 0, CIRCLE_END_ANGLE);
+      this.ctx.arc(
+        circles[i].x,
+        circles[i].y,
+        opts.radius,
+        0,
+        CIRCLE_END_ANGLE
+      );
       this.ctx.fill();
       this.ctx.closePath();
     }
@@ -317,13 +382,18 @@ export class Context {
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = opts.iqrColor;
     this.ctx.globalAlpha = 0.2;
-    this.ctx.fillRect(boxPlot.x - opts.width / 2, boxPlot.q3, opts.width, boxPlot.q1 - boxPlot.q3);
+    this.ctx.fillRect(
+      boxPlot.x - opts.width / 2,
+      boxPlot.q3,
+      opts.width,
+      boxPlot.q1 - boxPlot.q3
+    );
     this.ctx.globalAlpha = 1;
     this.ctx.strokeRect(
       boxPlot.x - opts.width / 2,
       boxPlot.q3,
       opts.width,
-      boxPlot.q1 - boxPlot.q3,
+      boxPlot.q1 - boxPlot.q3
     );
     this.ctx.closePath();
 

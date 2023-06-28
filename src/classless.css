@@ -32,35 +32,6 @@ h6 {
   margin: 0.5rem 0;
 }
 
-/* button {
-  font-weight: 600;
-  line-height: 1.6;
-  text-align: center;
-  text-decoration: none;
-  white-space: nowrap;
-  vertical-align: middle;
-  cursor: pointer;
-  user-select: none;
-  border: 1px solid transparent;
-  border-radius: var(--border-radius);
-  color: rgb(var(--text-1));
-  background-color: rgb(var(--accent-0));
-  border-color: #b2f63a;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-button.inverted {
-  color: rgb(var(--text-1));
-  background-color: rgb(var(--accent-0));
-  border-color: #b2f63a;
-}
-
-button:hover,
-button:focus {
-  background-color: rgb(var(--accent-1));
-} */
-
 blockquote {
   position: relative;
   padding-left: 1.5rem;
@@ -198,8 +169,8 @@ input[type='checkbox'],
 input[type='range'],
 input[type='radio'] {
   cursor: pointer;
-  transition: color 0.15s ease-in-out, background-color 0.15s ease-in-out,
-    border-color 0.15s ease-in-out;
+  transition: color 0.08s ease-in-out, background-color 0.08s ease-in-out,
+    border-color 0.08s ease-in-out;
 }
 
 button,
@@ -223,11 +194,14 @@ input[type='submit']:focus {
 }
 
 button.inverted:hover,
-button.inverted:focus,
-input.inverted[type='submit']:hover,
-input.inverted[type='submit']:focus {
+input.inverted[type='submit']:hover {
   color: rgb(var(--text-inverse));
   background-color: rgb(var(--accent-0), 0.9);
+}
+
+button.inverted:active,
+input.inverted[type='submit']:active {
+  background-color: rgb(var(--accent-2), 0.9) !important;
 }
 
 button:active {

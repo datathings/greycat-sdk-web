@@ -1,6 +1,6 @@
 export type CanvasColor = string | CanvasGradient | CanvasPattern;
 export type Line = Point[];
-export type Point = { x: number; y: number };
+export type Point = { x: number; y: number; dashed?: boolean };
 
 export interface LineOptions {
   width: number;

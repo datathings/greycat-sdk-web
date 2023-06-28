@@ -2,7 +2,7 @@
 
 ## Build
 ```sh
-npm run build
+pnpm build
 ```
 Produces:
 - `bundle/`:
@@ -13,3 +13,9 @@ Produces:
 - `fonts/`
   - Raleway TTF file (GreyCat's default font)
 - `custom-elements.json`: WebComponents manifest
+
+## Dev
+```sh
+pnpm dev
+```
+Starts a ViteJs dev server that you can browse at `http://localhost:5173/examples/`

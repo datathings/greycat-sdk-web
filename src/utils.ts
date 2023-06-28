@@ -197,3 +197,5 @@ export function emptyDataElement(cssClass: string) {
   incompleteTableEl.textContent = `Table is empty or is missing an index`;
   return incompleteTableEl;
 }
+
+

@@ -166,11 +166,11 @@ export class GuiBarChart extends HTMLElement {
   }
 
   // title
-  get title(): string {
+  override get title(): string {
     return this._title ?? '';
   }
 
-  set title(title: string | null) {
+  override set title(title: string | null) {
     this._title = title;
     this._drawChart();
     this.render();

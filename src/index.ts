@@ -3,7 +3,7 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 import './base.css';
 import './classless.css';
 import './chart-utils/tooltip.css';
-import './components/doughnut-chart/doughnut-chart.css';
+import './components/donut/donut.css';
 import './components/map/map.css';
 import './components/nodetime/nodetime.css';
 import './components/scatter-plot/scatter-plot.css';

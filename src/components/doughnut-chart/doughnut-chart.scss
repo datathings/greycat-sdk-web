@@ -1,0 +1,33 @@
+gui-doughnut-chart {
+  position: relative;
+
+  .svg-plot {
+    position: absolute;
+  }
+
+  .pie-info {
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: inherit;
+    border-radius: 50%;
+    
+    &.no-data {
+      color: var(--gui-color-9, 'inherit');
+    }
+
+    .pie-info-percent {
+      color: grey;
+    }
+  }
+
+  .pie-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+}

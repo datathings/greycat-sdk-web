@@ -1,3 +1,4 @@
-node_modules
-gcdata
-dist
+/node_modules
+/gcdata
+/dist
+/docs

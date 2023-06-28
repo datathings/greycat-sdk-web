@@ -20,11 +20,12 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
+    "noImplicitOverride": true,
 
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "include": ["src"],
-  "exclude": ["src/_boilerplate"]
+  "include": ["src", "examples"],
+  "exclude": ["src/_boilerplate", "src/bundle.ts"]
 }

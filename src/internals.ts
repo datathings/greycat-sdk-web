@@ -1,4 +1,4 @@
-import { core } from "@greycat/lib-std";
+import { core } from '@greycat/lib-std';
 
 export type Disposable = () => void;
 
@@ -24,7 +24,11 @@ type GuiHTMLElement<K extends keyof HTMLElementTagNameMap> = Omit<
 };
 
 type ElementProps<K extends keyof HTMLElementTagNameMap> = GuiHTMLElement<K> & {
-  content: string | HTMLElement | DocumentFragment | Array<HTMLElement | DocumentFragment>;
+  content:
+    | string
+    | HTMLElement
+    | DocumentFragment
+    | Array<HTMLElement | DocumentFragment>;
   classes: string[];
 };
 
@@ -38,7 +42,7 @@ type ElementProps<K extends keyof HTMLElementTagNameMap> = GuiHTMLElement<K> & {
  */
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
-  props: Partial<ElementProps<K>> = {},
+  props: Partial<ElementProps<K>> = {}
 ): HTMLElementTagNameMap[K] {
   const el = document.createElement(tagName);
   const { content, classes, style, ...rest } = props;
@@ -59,6 +63,38 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   }
   Object.assign(el, rest);
   return el;
+}
+
+export function throttle<T extends (...args: unknown[]) => void>(
+  callback: T,
+  interval: number
+) {
+  let enableCall = true;
+
+  return function <U>(this: U, ...args: Parameters<typeof callback>) {
+    if (!enableCall) return;
+
+    enableCall = false;
+    callback.apply(this, args);
+    setTimeout(() => (enableCall = true), interval);
+  };
+}
+
+export function debounce<T extends (...args: unknown[]) => void>(
+  callback: T,
+  delay: number,
+  immediate = false
+) {
+  let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return function <U>(this: U, ...args: Parameters<typeof callback>) {
+    clearTimeout(debounceTimeoutId);
+    debounceTimeoutId = setTimeout(() => callback.apply(this, args), delay);
+
+    if (immediate) {
+      callback.apply(this, args);
+    }
+  };
 }
 
 export type TableClassColumnMeta = core.TableColumnMeta & { class?: string };

@@ -12,9 +12,9 @@ export class GuiGauge extends HTMLElement {
   private _disposables: Disposable[] = [];
 
   connectedCallback() {
-    this.style.display = 'block';
-    this.style.width = '100%';
-    this.style.height = '100%';
+    if (this.style.display === '') {
+      this.style.display = 'block';
+    }
 
     this._initialize();
     this.render();
@@ -135,13 +135,6 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'gui-gauge': GuiGauge;
-  }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'gui-gauge': any;
-    }
   }
 }
 
