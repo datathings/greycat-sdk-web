@@ -70,6 +70,12 @@
         prev += 5 - Math.random() * 10;
         prev = Math.max(0, prev);
         data1[i].y = prev;
+        if (i === 20) {
+          data1[i].dashed = true;
+        }
+        if (i === 45) {
+          data1[i].dashed = false;
+        }
         prev2 += 5 - Math.random() * 10;
         prev2 = Math.max(0, prev2);
         data2[i].y = prev2;
