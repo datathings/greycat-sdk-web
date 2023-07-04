@@ -68,7 +68,7 @@ export function bar(
   line: Point[],
   xScale: Scale,
   yScale: Scale,
-  opts: BarOptions
+  opts: BarOptions & { opacity: number },
 ) {
   if (line.length === 0) {
     return;
@@ -76,8 +76,8 @@ export function bar(
 
   ctx.save();
   ctx.fillStyle = opts.color;
+  ctx.globalAlpha = opts.opacity;
 
-  const [xMin] = xScale.range();
   const [yMin] = yScale.range();
   const shift = Math.round(opts.width / 2);
 

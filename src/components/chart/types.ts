@@ -7,6 +7,12 @@ export type Margin = {
   bottom: number;
   left: number;
 };
+export type Domain = {
+  xMin: number;
+  xMax: number;
+  yMin: number;
+  yMax: number;
+};
 
 export interface Point {
   x: number;
@@ -17,6 +23,8 @@ export interface Point {
 export interface Serie {
   type?: Type;
   data: Point[];
+  xScale?: ScaleType;
+  yScale?: ScaleType;
   color?: Color;
   width?: number;
   dashed?: number[];
@@ -24,18 +32,11 @@ export interface Serie {
   markers?: boolean;
 }
 
-export interface SerieData {
-  series: Serie[];
-  xMin?: number;
-  xMax?: number;
-  yMin?: number;
-  yMax?: number;
-}
-
-export type Data = SerieData | Point[];
-
 export interface ChartConfig {
   type?: Type;
-  data: Data;
+  series: Serie[];
+  xScale?: ScaleType;
+  yScale?: ScaleType;
+  domain?: Partial<Domain>;
   margin?: Partial<Margin>;
 }

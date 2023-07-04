@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { debounce } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
-import { ChartConfig, Margin, ScaleType, Serie } from './types';
+import { ChartConfig, Domain, Margin, ScaleType, Serie } from './types';
 
 type Datum = unknown;
 const DEFAULT_MARGINS: Margin = { top: 5, right: 5, bottom: 20, left: 35 };
@@ -15,11 +15,12 @@ export class GuiChart extends HTMLElement {
   private _svg!: d3.Selection<SVGSVGElement, Datum, null, undefined>;
   private _ctx: CanvasRenderingContext2D;
   private _colors: string[];
+  gb: any = {};
 
   constructor() {
     super();
 
-    this._config = { type: 'line', data: [] };
+    this._config = { type: 'line', series: [] };
     this._canvas = document.createElement('canvas');
     this._canvas.style.display = 'block';
     this._canvas.style.position = 'absolute';
@@ -31,7 +32,7 @@ export class GuiChart extends HTMLElement {
         let { width, height } = this.getBoundingClientRect();
         width = Math.round(width);
         height = Math.round(height);
-        console.log('resize', { width, height });
+
         this._canvas.width = width;
         this._canvas.height = height;
         this._svg.attr(
@@ -59,11 +60,12 @@ export class GuiChart extends HTMLElement {
       .style('background', 'transparent')
       .style('position', 'absolute');
 
-    // const renderLoop = () => {
-    //   this.update();
-    //   requestAnimationFrame(renderLoop);
-    // };
-    // requestAnimationFrame(renderLoop);
+    // this._svg.on(
+    //   'mousemove',
+    //   throttle(function (event) {
+    //     console.log('mousemove', event);
+    //   }, 100)
+    // );
   }
 
   disconnectedCallback() {
@@ -82,82 +84,79 @@ export class GuiChart extends HTMLElement {
   update(): void {
     const margin = { ...DEFAULT_MARGINS, ...this._config.margin };
 
-    console.log('margin', margin);
-
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
     // clean previous stuff
     this._svg.selectChildren().remove();
 
-    let scales: ReturnType<typeof computeScales>;
+    // compute range based on available width, height and margins
+    const range = {
+      x: [margin.left, this._canvas.width - margin.right] as const,
+      y: [this._canvas.height - margin.bottom, margin.top] as const,
+    };
 
-    if (Array.isArray(this._config.data)) {
-      scales = computeScales([{ data: this._config.data }], {
-        width: this._canvas.width,
-        height: this._canvas.height,
-        margin,
-        xType: 'linear',
-        yType: 'linear',
-      });
+    // compute x and y domains based on the data or the optional min/max bounds
+    const domain = computeDomain(this._config.series, this._config.domain);
 
-      switch (this._config.type) {
+    // compute the default scales
+    let xScale = computeScale(
+      this._config.xScale ?? 'linear',
+      range.x,
+      domain.x
+    );
+    let yScale = computeScale(
+      this._config.yScale ?? 'linear',
+      range.y,
+      domain.y
+    );
+
+    this.gb.xScale = xScale;
+    this.gb.yScale = yScale;
+
+    for (let i = 0; i < this._config.series.length; i++) {
+      const serie = this._config.series[i];
+
+      let localXScale = xScale;
+      if (serie.xScale) {
+        localXScale = computeScale(serie.xScale, range.x, domain.x);
+      }
+      let localYScale = yScale;
+      if (serie.yScale) {
+        localYScale = computeScale(serie.yScale, range.y, domain.y);
+        if (serie.yScale !== (this._config.yScale ?? 'linear')) {
+          this._svg
+            .append('g')
+            .attr(
+              'transform',
+              `translate(${this._canvas.width - margin.right}, 0)`
+            )
+            .call(d3.axisRight(localYScale));
+        }
+      }
+
+      switch (serie.type) {
         default:
         case 'line':
-          draw.line(this._ctx, this._config.data, scales.x, scales.y, {
-            color: this._colors[0],
-            width: 1,
+          draw.line(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 1,
+            dashed: serie.dashed,
+            opacity: serie.opacity,
           });
           break;
         case 'bar':
-          draw.bar(this._ctx, this._config.data, scales.x, scales.y, {
-            color: this._colors[0],
-            width: 4,
+          draw.bar(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 15,
+            opacity: serie.opacity ?? 1,
           });
           break;
         case 'scatter':
-          draw.scatter(this._ctx, this._config.data, scales.x, scales.y, {
-            color: this._colors[0],
+          draw.scatter(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
             radius: 2,
           });
           break;
-      }
-    } else {
-      scales = computeScales(this._config.data.series, {
-        width: this._canvas.width,
-        height: this._canvas.height,
-        margin,
-        xType: 'linear',
-        yType: 'linear',
-        xMin: this._config.data.xMin,
-        xMax: this._config.data.xMax,
-        yMin: this._config.data.yMin,
-        yMax: this._config.data.yMax,
-      });
-      for (let i = 0; i < this._config.data.series.length; i++) {
-        const serie = this._config.data.series[i];
-        switch (serie.type) {
-          default:
-          case 'line':
-            draw.line(this._ctx, serie.data, scales.x, scales.y, {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              dashed: serie.dashed,
-              opacity: serie.opacity,
-            });
-            break;
-          case 'bar':
-            draw.bar(this._ctx, serie.data, scales.x, scales.y, {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 15,
-            });
-            break;
-          case 'scatter':
-            draw.scatter(this._ctx, serie.data, scales.x, scales.y, {
-              color: serie.color ?? this._colors[i],
-              radius: 2,
-            });
-            break;
-        }
       }
     }
 
@@ -165,30 +164,17 @@ export class GuiChart extends HTMLElement {
     this._svg
       .append('g')
       .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
-      .call(d3.axisBottom(scales.x));
+      .call(d3.axisBottom(xScale));
 
     // Add the y-axis.
     this._svg
       .append('g')
       .attr('transform', `translate(${margin.left}, 0)`)
-      .call(d3.axisLeft(scales.y));
+      .call(d3.axisLeft(yScale));
   }
 }
 
-type ScalesOptions = {
-  width: number;
-  height: number;
-  margin: Margin;
-  xType: ScaleType;
-  yType: ScaleType;
-  xMin?: number;
-  xMax?: number;
-  yMin?: number;
-  yMax?: number;
-};
-export type Scale = (x: number) => number;
-
-function computeScales(series: Serie[], opts: ScalesOptions) {
+function computeDomain(series: Serie[], opts: Partial<Domain> = {}) {
   let xMin = opts.xMin ?? Infinity;
   let xMax = opts.xMax ?? -Infinity;
   let yMin = opts.yMin ?? Infinity;
@@ -223,61 +209,36 @@ function computeScales(series: Serie[], opts: ScalesOptions) {
     }
   }
 
-  const xRange = [opts.margin.left, opts.width - opts.margin.right];
-  const yRange = [opts.height - opts.margin.bottom, opts.margin.top];
+  return {
+    x: [xMin, xMax] as const,
+    y: [yMin, yMax] as const,
+  };
+}
 
-  const xDomain = [xMin, xMax];
-  const yDomain = [yMin, yMax];
-
-  let xScale;
-  switch (opts.xType) {
+function computeScale(
+  type: ScaleType = 'linear',
+  range: readonly [number, number],
+  domain: readonly [number, number]
+):
+  | d3.ScaleLinear<number, number, never>
+  | d3.ScaleTime<number, number, never>
+  | d3.ScaleLogarithmic<number, number, never> {
+  let scale;
+  switch (type) {
     case 'linear':
-      xScale = d3
-        .scaleLinear(xRange)
-        .domain(xDomain)
-        .interpolate(d3.interpolateRound);
+      scale = d3.scaleLinear(domain, range).interpolate(d3.interpolateRound);
       break;
 
     case 'log':
-      xScale = d3
-        .scaleLog(xRange)
-        .domain(xDomain)
-        .interpolate(d3.interpolateRound);
+      scale = d3.scaleLog(domain, range).interpolate(d3.interpolateRound);
       break;
 
     case 'time':
-      xScale = d3
-        .scaleTime(xRange)
-        .domain(xDomain)
-        .interpolate(d3.interpolateRound);
+      scale = d3.scaleTime(domain, range).interpolate(d3.interpolateRound);
       break;
   }
 
-  let yScale;
-  switch (opts.yType) {
-    case 'linear':
-      yScale = d3
-        .scaleLinear(yRange)
-        .domain(yDomain)
-        .interpolate(d3.interpolateRound);
-      break;
-
-    case 'log':
-      yScale = d3
-        .scaleLog(yRange)
-        .domain(yDomain)
-        .interpolate(d3.interpolateRound);
-      break;
-
-    case 'time':
-      yScale = d3
-        .scaleTime(yRange)
-        .domain(yDomain)
-        .interpolate(d3.interpolateRound);
-      break;
-  }
-
-  return { x: xScale, y: yScale };
+  return scale;
 }
 
 declare global {

@@ -43,33 +43,52 @@
     const max = 100;
     const data1 = Array.from({ length: max }, (_, i) => ({ x: i, y: 0 }));
     const data2 = Array.from({ length: max }, (_, i) => ({ x: i, y: 0 }));
+    const data3 = [
+      { x: 0, y: 0 },
+      { x: 1, y: 0 },
+      { x: 2, y: 0 },
+      { x: 3, y: 0 },
+      { x: 4, y: 0 },
+      { x: 95, y: 0 },
+      { x: 96, y: 0 },
+      { x: 97, y: 0 },
+      { x: 98, y: 0 },
+      { x: 99, y: 0 },
+    ];
     const chart = document.querySelector('gui-chart');
 
     randomize();
 
     chart.config = {
-      data: {
-        xMin: -1,
-        series: [
-          { data: data1 },
-          { type: 'scatter', data: data2 },
-          {
-            type: 'bar',
-            data: [
-              { x: 0, y: 10 }, { x: 1, y: 2 }, { x: 2, y: 6 }, { x: 3, y: 8 }, { x: 4, y: 15 }
-            ]
-          }
-        ],
+      margin: {
+        top: 20,
+        right: 35,
+        bottom: 25,
+        left: 35,
       },
+      domain: {
+        xMin: -1,
+        xMax: max,
+        yMin: 1,
+        yMax: 200,
+      },
+      series: [
+        { data: data1 },
+        { type: 'scatter', data: data2, yScale: 'log' },
+        {
+          type: 'bar',
+          data: data3,
+        },
+      ],
     };
 
     function randomize() {
-      let prev = 100;
+      let prev1 = 100;
       let prev2 = 80;
       for (let i = 0; i < max; i++) {
-        prev += 5 - Math.random() * 10;
-        prev = Math.max(0, prev);
-        data1[i].y = prev;
+        prev1 += 5 - Math.random() * 10;
+        prev1 = Math.max(0, prev1);
+        data1[i].y = prev1;
         if (i === 20) {
           data1[i].dashed = true;
         }
@@ -79,13 +98,31 @@
         prev2 += 5 - Math.random() * 10;
         prev2 = Math.max(0, prev2);
         data2[i].y = prev2;
+
+        if (i >= 0 && i < 5) {
+          data3[i].y = randomInt(1, 40);
+        }
+
+        if (i >= (max - 5) && i < max) {
+          data3[(i % 5) + 5].y = randomInt(1, 40);
+        }
+      }
+
+      /**
+       * The maximum is exclusive and the minimum is inclusive
+       */
+      function randomInt(min, max) {
+        min = Math.ceil(min);
+        max = Math.floor(max);
+        return Math.floor(Math.random() * (max - min) + min);
       }
     }
 
     document.querySelector('#randomize').onclick = () => {
       randomize();
-      chart.config.data.series[0].data = data1;
-      chart.config.data.series[1].data = data2;
+      chart.config.series[0].data = data1;
+      chart.config.series[1].data = data2;
+      chart.config.series[2].data = data3;
       chart.update();
     };
   </script>
