@@ -15,7 +15,6 @@ export class GuiChart extends HTMLElement {
   private _svg!: d3.Selection<SVGSVGElement, Datum, null, undefined>;
   private _ctx: CanvasRenderingContext2D;
   private _colors: string[];
-  gb: any = {};
 
   constructor() {
     super();
@@ -110,9 +109,6 @@ export class GuiChart extends HTMLElement {
       domain.y
     );
 
-    this.gb.xScale = xScale;
-    this.gb.yScale = yScale;
-
     for (let i = 0; i < this._config.series.length; i++) {
       const serie = this._config.series[i];
 
@@ -123,19 +119,18 @@ export class GuiChart extends HTMLElement {
       let localYScale = yScale;
       if (serie.yScale) {
         localYScale = computeScale(serie.yScale, range.y, domain.y);
-        if (serie.yScale !== (this._config.yScale ?? 'linear')) {
-          this._svg
-            .append('g')
-            .attr(
-              'transform',
-              `translate(${this._canvas.width - margin.right}, 0)`
-            )
-            .call(d3.axisRight(localYScale));
-        }
+        // if (serie.yScale !== (this._config.yScale ?? 'linear')) {
+        //   this._svg
+        //     .append('g')
+        //     .attr(
+        //       'transform',
+        //       `translate(${this._canvas.width - margin.right}, 0)`
+        //     )
+        //     .call(d3.axisRight(localYScale));
+        // }
       }
 
-      switch (serie.type) {
-        default:
+      switch (serie.type ?? 'line') {
         case 'line':
           draw.line(this._ctx, serie.data, localXScale, localYScale, {
             color: serie.color ?? this._colors[i],
@@ -156,6 +151,20 @@ export class GuiChart extends HTMLElement {
             color: serie.color ?? this._colors[i],
             radius: 2,
           });
+          break;
+        case 'line+scatter':
+          draw.line(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 1,
+            dashed: serie.dashed,
+            opacity: serie.opacity,
+          });
+          draw.scatter(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            radius: 2,
+          });
+          break;
+        default:
           break;
       }
     }
@@ -218,11 +227,8 @@ function computeDomain(series: Serie[], opts: Partial<Domain> = {}) {
 function computeScale(
   type: ScaleType = 'linear',
   range: readonly [number, number],
-  domain: readonly [number, number]
-):
-  | d3.ScaleLinear<number, number, never>
-  | d3.ScaleTime<number, number, never>
-  | d3.ScaleLogarithmic<number, number, never> {
+  domain: readonly [any, any]
+) {
   let scale;
   switch (type) {
     case 'linear':

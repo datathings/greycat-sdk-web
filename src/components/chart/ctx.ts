@@ -11,6 +11,7 @@ const CIRCLE_END_ANGLE = Math.PI * 2;
 export type Scale =
   | d3.ScaleLinear<number, number, never>
   | d3.ScaleTime<number, number, never>;
+
 type Ctx = CanvasRenderingContext2D;
 
 export function line(
@@ -68,7 +69,7 @@ export function bar(
   line: Point[],
   xScale: Scale,
   yScale: Scale,
-  opts: BarOptions & { opacity: number },
+  opts: BarOptions & { opacity: number }
 ) {
   if (line.length === 0) {
     return;
