@@ -111,7 +111,6 @@ export class GuiChart extends HTMLElement {
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie = this._config.series[i];
-
       let localXScale = xScale;
       if (serie.xScale) {
         localXScale = computeScale(serie.xScale, range.x, domain.x);
@@ -139,6 +138,14 @@ export class GuiChart extends HTMLElement {
             opacity: serie.opacity,
           });
           break;
+        case 'area':
+          draw.area(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 1,
+            opacity: serie.opacity,
+            kind: serie.kind ?? 'below',
+          });
+          break;
         case 'bar':
           draw.bar(this._ctx, serie.data, localXScale, localYScale, {
             color: serie.color ?? this._colors[i],
@@ -162,6 +169,20 @@ export class GuiChart extends HTMLElement {
           draw.scatter(this._ctx, serie.data, localXScale, localYScale, {
             color: serie.color ?? this._colors[i],
             radius: 2,
+          });
+          break;
+        case 'line+area':
+          draw.area(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 1,
+            opacity: serie.opacity,
+            kind: serie.kind ?? 'below',
+          });
+          draw.line(this._ctx, serie.data, localXScale, localYScale, {
+            color: serie.color ?? this._colors[i],
+            width: serie.width ?? 1,
+            dashed: serie.dashed,
+            opacity: serie.opacity,
           });
           break;
         default:

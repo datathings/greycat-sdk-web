@@ -1,8 +1,10 @@
 export type Color = string;
 
-export type Type = 'line' | 'bar' | 'scatter' | 'line+scatter';
+export type Type = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
 
 export type ScaleType = 'linear' | 'log' | 'time';
+
+export type AreaKind = 'below' | 'above';
 
 export type Margin = {
   top: number;
@@ -33,6 +35,7 @@ export interface Serie {
   width?: number;
   dashed?: number[];
   opacity?: number;
+  kind?: AreaKind;
 }
 
 export interface ChartConfig {

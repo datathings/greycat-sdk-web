@@ -1,10 +1,4 @@
-import {
-  BarOptions,
-  CircleOptions,
-  LineOptions,
-  PlotlineOptions,
-} from '../../chart-utils';
-import { Point } from './types';
+import { AreaKind, Color, Point } from './types';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -13,6 +7,36 @@ export type Scale =
   | d3.ScaleTime<number, number, never>;
 
 type Ctx = CanvasRenderingContext2D;
+
+export type LineOptions = {
+  width: number;
+  color: Color;
+  dashed?: number[];
+  opacity?: number;
+};
+
+export type BarOptions = {
+  width: number;
+  color: Color;
+};
+
+export type ScatterOptions = {
+  radius: number;
+  color: Color;
+};
+
+export type AreaOptions = {
+  width: number;
+  color: Color;
+  kind: AreaKind;
+  opacity?: number;
+};
+
+export type CircleOptions = {
+  radius: number;
+  color: Color;
+  fill?: string;
+};
 
 export function line(
   ctx: Ctx,
@@ -97,7 +121,7 @@ export function scatter(
   line: Point[],
   xScale: Scale,
   yScale: Scale,
-  opts: PlotlineOptions
+  opts: ScatterOptions
 ) {
   if (line.length === 0) {
     return;
@@ -138,4 +162,48 @@ export function circle(ctx: Ctx, x: number, y: number, opts: CircleOptions) {
     ctx.fill();
     ctx.restore();
   }
+}
+
+export function area(
+  ctx: Ctx,
+  line: Point[],
+  xScale: Scale,
+  yScale: Scale,
+  opts: AreaOptions
+) {
+  if (line.length === 0) {
+    return;
+  }
+
+  let { x: firstX, y: firstY } = line[0];
+  firstX = xScale(firstX);
+  firstY = yScale(firstY);
+
+  ctx.save();
+  ctx.globalAlpha = opts.opacity ?? 0.2;
+  ctx.fillStyle = opts.color;
+
+  ctx.beginPath();
+
+  // Upper line
+  ctx.moveTo(firstX, firstY);
+  for (let i = 1; i < line.length; i++) {
+    const { x, y } = line[i];
+    ctx.lineTo(xScale(x), yScale(y));
+  }
+
+  // below => fill to yMin, above => fill to yMax
+  const yBound = opts.kind === 'below' ? yScale.range()[0] : yScale.range()[1];
+  // fill
+  const lastX = xScale(line[line.length - 1].x);
+  // bottom right
+  ctx.lineTo(lastX, yBound);
+  // bottom left
+  ctx.lineTo(firstX, yBound);
+  // start of area
+  ctx.lineTo(firstX, firstY);
+
+  ctx.fill();
+
+  ctx.restore();
 }
