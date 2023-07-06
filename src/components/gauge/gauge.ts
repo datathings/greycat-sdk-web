@@ -88,9 +88,7 @@ export class GuiGauge extends HTMLElement {
   render() {
     d3.select(this)
       .select('g path')
-      .data([
-        { value: this._value, thickness: this._thickness, width: this._width },
-      ])
+      .data([{ value: this._value, thickness: this._thickness, width: this._width }])
       .join('path')
       .attr('d', (d) => computePath(d.width, d.thickness, d.value));
 

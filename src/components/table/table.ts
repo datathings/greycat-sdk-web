@@ -617,7 +617,10 @@ type SortOrd = 'asc' | 'desc' | 'default';
  * To reset to the default "unsorted" state, call `reset()`.
  */
 class SortCol {
-  constructor(private _index: number, private _ord: SortOrd) {}
+  constructor(
+    private _index: number,
+    private _ord: SortOrd,
+  ) {}
 
   reset() {
     this._index = -1;

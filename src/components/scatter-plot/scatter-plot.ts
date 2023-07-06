@@ -45,10 +45,7 @@ export interface ScatterPlotChartProps {
   yAxisWidth?: number;
 }
 
-export class GuiScatterPlotChart
-  extends HTMLElement
-  implements ScatterPlotChartProps
-{
+export class GuiScatterPlotChart extends HTMLElement implements ScatterPlotChartProps {
   private _container = document.createElement('div');
   private _errorMsg = document.createElement('div');
   private _canvas: Canvas | undefined;
@@ -61,9 +58,7 @@ export class GuiScatterPlotChart
   private _width = 0;
   private _height = 0;
   private _yAxisWidth = Y_SCALE_WIDTH;
-  private _svg:
-    | d3.Selection<SVGSVGElement, unknown, null, undefined>
-    | undefined;
+  private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined;
   private _disposeResizer: Disposable | undefined;
   private _cursor: { x: number; y: number } = { x: 0, y: 0 };
   private _hover = false;
@@ -217,9 +212,7 @@ export class GuiScatterPlotChart
       this.render();
     } else {
       this._activeClasses =
-        this._clusterClasses.length > 0
-          ? this._clusterClasses.map((_, idx) => idx)
-          : undefined;
+        this._clusterClasses.length > 0 ? this._clusterClasses.map((_, idx) => idx) : undefined;
       this._recomputeScales();
       this._drawLegend();
       this.render();
@@ -272,8 +265,11 @@ export class GuiScatterPlotChart
   }
 
   connectedCallback() {
-    const [backlineColor = this._backlineColor, gridColor = this._gridColor] =
-      getCSSVars(this, 'chart-backline', 'chart-grid');
+    const [backlineColor = this._backlineColor, gridColor = this._gridColor] = getCSSVars(
+      this,
+      'chart-backline',
+      'chart-grid',
+    );
     this._backlineColor = backlineColor;
     this._gridColor = gridColor;
 
@@ -282,7 +278,7 @@ export class GuiScatterPlotChart
       'scatterplot-selected-color',
       'scatterplot-selected-radius',
       'scatterplot-selected-threshold',
-      'scatterplot-tooltip-dasharray'
+      'scatterplot-tooltip-dasharray',
     );
 
     this._colorSteps = getColors(this);
@@ -367,20 +363,14 @@ export class GuiScatterPlotChart
       if (row) {
         for (let i = 0; i < row.length; i += 2) {
           const rowValueRounded =
-            typeof row[i] === 'number'
-              ? round(row[i] as number, TOOLTIP_DECIMAL_PLACES)
-              : row[i];
-          const realValueXRounded = Number(
-            realValueX.toFixed(TOOLTIP_DECIMAL_PLACES)
-          );
+            typeof row[i] === 'number' ? round(row[i] as number, TOOLTIP_DECIMAL_PLACES) : row[i];
+          const realValueXRounded = Number(realValueX.toFixed(TOOLTIP_DECIMAL_PLACES));
           if (rowValueRounded === realValueXRounded) {
             const rowValueRounded =
               typeof row[i + 1] === 'number'
                 ? round(row[i + 1] as number, TOOLTIP_DECIMAL_PLACES)
                 : row[i + 1];
-            const realValueYRounded = Number(
-              predictedValueY.toFixed(TOOLTIP_DECIMAL_PLACES)
-            );
+            const realValueYRounded = Number(predictedValueY.toFixed(TOOLTIP_DECIMAL_PLACES));
             if (rowValueRounded === realValueYRounded) {
               // only add active classes to the tooltip
               if (!this._activeClasses || this._activeClasses.includes(i / 2)) {
@@ -401,7 +391,7 @@ export class GuiScatterPlotChart
         {
           key: 'Classes',
           value: { value: 'Count', tiny: true },
-        }
+        },
       );
       // claculate the amount and classes to display in the tooltip
       const classCounters: { name: string; counter: number }[] = [];
@@ -409,9 +399,7 @@ export class GuiScatterPlotChart
       for (let i = 0; i < classIndexes.length; i++) {
         const index = classIndexes[i];
         if (index >= 0) {
-          const found = classCounters.findIndex(
-            (c) => c.name === this._clusterClasses[index]
-          );
+          const found = classCounters.findIndex((c) => c.name === this._clusterClasses[index]);
           if (found >= 0) {
             // already set, increment
             classCounters[found].counter++;
@@ -457,10 +445,8 @@ export class GuiScatterPlotChart
     this._width = width;
     this._height = height;
 
-    const widthOccupiedByLegend =
-      this._clusterClasses.length > 0 ? LEGEND_CONTAINER_WIDTH : 0;
-    const canvasWidth =
-      width - this._m.left - this._m.right - widthOccupiedByLegend;
+    const widthOccupiedByLegend = this._clusterClasses.length > 0 ? LEGEND_CONTAINER_WIDTH : 0;
+    const canvasWidth = width - this._m.left - this._m.right - widthOccupiedByLegend;
 
     // svg
     this._svg = d3
@@ -496,7 +482,7 @@ export class GuiScatterPlotChart
       const closest = this._quadtree.find(
         this._cursor.x,
         this._cursor.y,
-        this._selectedThresholdCss
+        this._selectedThresholdCss,
       );
 
       if (closest) {
@@ -517,7 +503,7 @@ export class GuiScatterPlotChart
             color: this._selectedColorCss,
             width: 1,
             dashed: this._tooltipDasharrayCss,
-          }
+          },
         );
         // y backline
         ctx.line(
@@ -529,7 +515,7 @@ export class GuiScatterPlotChart
             color: this._selectedColorCss,
             width: 1,
             dashed: this._tooltipDasharrayCss,
-          }
+          },
         );
 
         const rows = this._computeTooltipRows(scales, x, y);
@@ -545,23 +531,18 @@ export class GuiScatterPlotChart
       return requestAnimationFrame(onHover);
     };
 
-    this._canvas = new Canvas(
-      canvasWidth,
-      height - this._m.top - this._m.bottom,
-      this._tooltip,
-      {
-        enter: () => {
-          this._hover = true;
-          requestAnimationFrame(onHover);
-        },
-        move: (cursor) => {
-          this._cursor = cursor;
-        },
-        leave: () => {
-          this._hover = false;
-        },
-      }
-    );
+    this._canvas = new Canvas(canvasWidth, height - this._m.top - this._m.bottom, this._tooltip, {
+      enter: () => {
+        this._hover = true;
+        requestAnimationFrame(onHover);
+      },
+      move: (cursor) => {
+        this._cursor = cursor;
+      },
+      leave: () => {
+        this._hover = false;
+      },
+    });
     this._canvas.root.style.top = `${this._m.top}px`;
     this._canvas.root.style.left = `${this._m.left}px`;
     this._canvas.root.style.position = 'absolute';
@@ -607,29 +588,16 @@ export class GuiScatterPlotChart
       if (this._tableScales) {
         if (this._normalizeAxis) {
           // update the domains to get the min & max of both columns
-          const min = Math.min(
-            this._table.meta[0].min,
-            this._table.meta[1].min
-          );
-          const max = Math.max(
-            this._table.meta[0].max,
-            this._table.meta[1].max
-          );
+          const min = Math.min(this._table.meta[0].min, this._table.meta[1].min);
+          const max = Math.max(this._table.meta[0].max, this._table.meta[1].max);
           this._tableScales.x.domain([min, max]);
           this._tableScales.y[0].domain([min, max]);
         }
         this._updateWidthAndHeight(this._tableScales, this._table);
         if (this._canvas && this._tableScales.lines.length > 0) {
           const flattenedLines: Line = [];
-          for (
-            let lineIdx = 0;
-            lineIdx < this._tableScales.lines.length;
-            lineIdx++
-          ) {
-            if (
-              this._activeClasses == null ||
-              this._activeClasses.indexOf(lineIdx) >= 0
-            ) {
+          for (let lineIdx = 0; lineIdx < this._tableScales.lines.length; lineIdx++) {
+            if (this._activeClasses == null || this._activeClasses.indexOf(lineIdx) >= 0) {
               const line = this._tableScales.lines[lineIdx];
               for (let ptIdx = 0; ptIdx < line.length; ptIdx++) {
                 flattenedLines.push(line[ptIdx]);
@@ -645,21 +613,13 @@ export class GuiScatterPlotChart
     }
   }
 
-  private _updateWidthAndHeight(
-    scales: TableScales,
-    table: core.Table<unknown>
-  ) {
+  private _updateWidthAndHeight(scales: TableScales, table: core.Table<unknown>) {
     const canvasLeft = this._m.left + this._yAxisWidth;
     const widthOccupiedByAxis = this._yAxisWidth;
-    const widthOccupiedByLegend =
-      this._clusterClasses.length > 0 ? LEGEND_CONTAINER_WIDTH : 0;
+    const widthOccupiedByLegend = this._clusterClasses.length > 0 ? LEGEND_CONTAINER_WIDTH : 0;
 
     const newWidth =
-      this._width -
-      this._m.left -
-      this._m.right -
-      widthOccupiedByAxis -
-      widthOccupiedByLegend;
+      this._width - this._m.left - this._m.right - widthOccupiedByAxis - widthOccupiedByLegend;
     const newHeight = this._height - this._m.top - this._m.bottom;
     if (this._canvas) {
       this._canvas.resize(newWidth, newHeight);
@@ -681,7 +641,7 @@ export class GuiScatterPlotChart
       newHeight,
       this._clusterClasses,
       paddingBase + paddingNumber,
-      isScatterPlot
+      isScatterPlot,
     );
   }
 
@@ -689,11 +649,7 @@ export class GuiScatterPlotChart
     const clusterClasses: string[] = [];
     const colorSteps: string[] = [];
     if (this._clusterClasses.length > 0) {
-      for (
-        let stepIndex = 0;
-        stepIndex < this._colorSteps.length;
-        stepIndex++
-      ) {
+      for (let stepIndex = 0; stepIndex < this._colorSteps.length; stepIndex++) {
         const custerClass = this._clusterClasses[stepIndex];
         const step = this._colorSteps[stepIndex];
         if (custerClass != null) {
@@ -723,9 +679,7 @@ export class GuiScatterPlotChart
         legendItem.setAttribute('key', `legend-item-${i}`);
         legendItem.setAttribute('cluster-class', clusterClasses[i]);
         legendItem.addEventListener('click', this._legendClicked);
-        this._disposables.push(() =>
-          legendItem.removeEventListener('click', this._legendClicked)
-        );
+        this._disposables.push(() => legendItem.removeEventListener('click', this._legendClicked));
         if (active) {
           legendItem.classList.add('active');
         }
@@ -814,18 +768,14 @@ export class GuiScatterPlotChart
     }
 
     if (this._normalizeAxis) {
-      const [xMin, xMax] = (
-        scales.x as d3.ScaleLinear<number, number>
-      ).domain();
-      const [yMin, yMax] = (
-        scales.y[0] as d3.ScaleLinear<number, number>
-      ).domain();
+      const [xMin, xMax] = (scales.x as d3.ScaleLinear<number, number>).domain();
+      const [yMin, yMax] = (scales.y[0] as d3.ScaleLinear<number, number>).domain();
       ctx.line(
         [
           { x: scales.x(xMin), y: scales.y[0](yMin) },
           { x: scales.x(xMax), y: scales.y[0](yMax) },
         ],
-        { color: this._selectedColorCss, width: 1, dashed: undefined }
+        { color: this._selectedColorCss, width: 1, dashed: undefined },
       );
     }
 
@@ -836,27 +786,20 @@ export class GuiScatterPlotChart
       .append('g')
       .attr(
         'transform',
-        `translate(${this._m.left + this._yAxisWidth}, ${
-          this._height - this._m.bottom
-        })`
+        `translate(${this._m.left + this._yAxisWidth}, ${this._height - this._m.bottom})`,
       )
       .call(
         d3
           .axisBottom(scales.x as d3.AxisScale<number>)
           .ticks(this._ticks)
-          .tickPadding(5)
+          .tickPadding(5),
       );
 
     // y-axis
     this._svg
       .append('g')
-      .attr(
-        'transform',
-        `translate(${this._m.left + this._yAxisWidth}, ${this._m.top})`
-      )
-      .call(
-        d3.axisLeft(scales.y[0] as d3.AxisScale<number>).tickSizeOuter(-20)
-      );
+      .attr('transform', `translate(${this._m.left + this._yAxisWidth}, ${this._m.top})`)
+      .call(d3.axisLeft(scales.y[0] as d3.AxisScale<number>).tickSizeOuter(-20));
 
     // Hide axis
     if (this._hideAxis) {
@@ -893,9 +836,7 @@ export class GuiScatterPlotChart
 
     if (scales.y.length === 1) {
       const axisBottom = d3.axisBottom(scales.x as d3.AxisScale<number>);
-      const leftAxis = d3
-        .axisLeft(scales.y[0] as d3.AxisScale<number>)
-        .ticks(this._ticks);
+      const leftAxis = d3.axisLeft(scales.y[0] as d3.AxisScale<number>).ticks(this._ticks);
       if (this._showGrid) {
         ctx.ctx.save();
         ctx.ctx.globalAlpha = 0.4;
@@ -915,7 +856,7 @@ export class GuiScatterPlotChart
               {
                 ...dashedLine,
                 color: this._gridColor,
-              }
+              },
             );
           });
 
@@ -932,7 +873,7 @@ export class GuiScatterPlotChart
               {
                 ...dashedLine,
                 color: this._gridColor,
-              }
+              },
             );
           });
 

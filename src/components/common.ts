@@ -12,9 +12,7 @@ export class GuiRenderEvent extends CustomEvent<number> {
 
 export interface BaseGuiElementProps {}
 
-export abstract class GuiElement<
-  P extends BaseGuiElementProps
-> extends HTMLElement {
+export abstract class GuiElement<P extends BaseGuiElementProps> extends HTMLElement {
   protected _props!: P;
 
   // @ts-ignore

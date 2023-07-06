@@ -1,11 +1,6 @@
 import * as d3 from 'd3';
 import { core } from '@greycat/lib-std';
-import {
-  getColors,
-  getCSSVars,
-  processCssVars,
-  emptyDataElement,
-} from '../../utils';
+import { getColors, getCSSVars, processCssVars, emptyDataElement } from '../../utils';
 import {
   Serie,
   TableScales,
@@ -306,7 +301,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
       'linechart-circle-radius',
       'linechart-circle-fill',
       'linechart-lineserie-width',
-      'linechart-confidence-opacity'
+      'linechart-confidence-opacity',
     );
 
     /** Process the CSS vars */
@@ -389,9 +384,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         if (cursor) {
           if (cursor.x !== x) {
             // take the closest to the actual mouse cursor
-            if (
-              Math.abs(this._cursor.x - cursor.x) < Math.abs(this._cursor.x - x)
-            ) {
+            if (Math.abs(this._cursor.x - cursor.x) < Math.abs(this._cursor.x - x)) {
               // current cursor is already the closest
             } else {
               cursor = {
@@ -428,7 +421,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
             { x, y: 0 },
             { x, y: hoverCtx.height },
           ],
-          dashedLine
+          dashedLine,
         );
         hoverCtx.ctx.restore();
       } else {
@@ -460,9 +453,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
           return {
             color:
               this._colors[
-                colorMappings[
-                  confidenceColIndex != null ? confidenceColIndex : c.s.colIdx
-                ]
+                colorMappings[confidenceColIndex != null ? confidenceColIndex : c.s.colIdx]
               ],
             key: c.name,
             value: {
@@ -517,9 +508,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
                 .attr('width', width)
                 .attr(
                   'transform',
-                  `translate(${this.xOffset}, ${
-                    this.margin.top + INNER_PADDING
-                  })`
+                  `translate(${this.xOffset}, ${this.margin.top + INNER_PADDING})`,
                 );
             },
             selection: ({ start, end }) => {
@@ -532,9 +521,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
                   // click
                   this._computeTable();
                   const domain = this._tableScales.x.domain();
-                  this.dispatchEvent(
-                    new LineChartZoomEvent(domain[0], domain[1])
-                  );
+                  this.dispatchEvent(new LineChartZoomEvent(domain[0], domain[1]));
                   this.render();
                   return;
                 }
@@ -545,16 +532,14 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
                 ];
                 // shrink domain to the selection
                 this._tableScales.x.domain(selectedDomain as [Date, Date]);
-                this.dispatchEvent(
-                  new LineChartZoomEvent(selectedDomain[0], selectedDomain[1])
-                );
+                this.dispatchEvent(new LineChartZoomEvent(selectedDomain[0], selectedDomain[1]));
                 // ask the TableScales to recompute
                 this._updateWidthAndHeight(this._tableScales, this._table);
                 // re-render
                 this.render();
               }
             },
-          }
+          },
     ));
     this._canvas.root.style.top = `${this.margin.top}px`;
     this._canvas.root.style.left = `${this.margin.left}px`;
@@ -576,10 +561,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
   }
 
   private _getUsedColumns(cols = this._columns) {
-    if (
-      this._confidenceColumns?.length === 0 ||
-      this._confidenceColumns == null
-    ) {
+    if (this._confidenceColumns?.length === 0 || this._confidenceColumns == null) {
       return cols;
     }
 
@@ -617,10 +599,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
     }
   }
 
-  private _updateWidthAndHeight(
-    scales: TableScales,
-    table: core.Table<unknown>
-  ) {
+  private _updateWidthAndHeight(scales: TableScales, table: core.Table<unknown>) {
     let canvasLeft = this.margin.left;
     let widthOccupiedByAxis = 0;
     if (scales.y.length === 1) {
@@ -637,13 +616,9 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
       canvasLeft += Y_SCALE_WIDTH * scales.y.length;
     }
 
-    const newWidth =
-      this._width - this.margin.left - this.margin.right - widthOccupiedByAxis;
+    const newWidth = this._width - this.margin.left - this.margin.right - widthOccupiedByAxis;
     const newHeight =
-      this._height -
-      this.margin.top -
-      this.margin.bottom -
-      (this._axisLabels ? X_LABEL_HEIGHT : 0);
+      this._height - this.margin.top - this.margin.bottom - (this._axisLabels ? X_LABEL_HEIGHT : 0);
     if (this._canvas) {
       this._canvas.resize(newWidth, newHeight);
       this._canvas.root.style.left = `${canvasLeft}px`;
@@ -672,9 +647,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
 
     const scales = this._tableScales;
 
-    this.querySelectorAll('.gui-line-chart-incomplete').forEach((n) =>
-      n.remove()
-    );
+    this.querySelectorAll('.gui-line-chart-incomplete').forEach((n) => n.remove());
     if (!scales || scales.lines.length === 0) {
       const incompleteTableEl = emptyDataElement('gui-line-chart-incomplete');
       this.appendChild(incompleteTableEl);
@@ -716,7 +689,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
           {
             ...dashedLine,
             color: this._colors[colorMappings[s.colIdx]],
-          }
+          },
         );
       });
       ctx.ctx.restore();
@@ -785,12 +758,10 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
           for (let i = 0; i < colSize; i++) {
             const tableColIndex = scales.indexes?.[0].colIdx;
             const x = s.x.position(table.data[i][tableColIndex ?? 0]);
-            const upperYDataPoint = (
-              table.data[i][colIndex] as core.Tuple<number, number> | null
-            )?.x;
-            const bottomYDataPoint = (
-              table.data[i][colIndex] as core.Tuple<number, number> | null
-            )?.y;
+            const upperYDataPoint = (table.data[i][colIndex] as core.Tuple<number, number> | null)
+              ?.x;
+            const bottomYDataPoint = (table.data[i][colIndex] as core.Tuple<number, number> | null)
+              ?.y;
 
             // Pushing Point while it is valid, until...
             if (upperYDataPoint != null && bottomYDataPoint != null) {
@@ -843,9 +814,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
       }
       const customTicks = d3.range(min, max, Math.abs(max - min) / this._ticks);
       // 1 y-axis: left
-      const leftAxis = d3
-        .axisLeft(yScale as d3.AxisScale<number>)
-        .tickValues(customTicks);
+      const leftAxis = d3.axisLeft(yScale as d3.AxisScale<number>).tickValues(customTicks);
       if (this._showGrid) {
         ctx.ctx.save();
         ctx.ctx.globalAlpha = this._gridOpacityCss;
@@ -860,7 +829,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
             ],
             {
               ...dashedLineGrid,
-            }
+            },
           );
         });
         ctx.ctx.restore();
@@ -870,9 +839,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         .append('g')
         .attr(
           'transform',
-          `translate(${this.margin.left + Y_SCALE_WIDTH + INNER_PADDING}, ${
-            this.margin.top
-          })`
+          `translate(${this.margin.left + Y_SCALE_WIDTH + INNER_PADDING}, ${this.margin.top})`,
         )
         .call(leftAxis);
     } else if (scales.y.length === 2) {
@@ -891,39 +858,31 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         leftMax = domainNumber[domainNumber.length - 1];
       }
       const leftDomainDifference = Math.abs(leftMax - leftMin);
-      const customLeftTicks = d3.range(
-        leftMin,
-        leftMax,
-        leftDomainDifference / this._ticks
-      );
+      const customLeftTicks = d3.range(leftMin, leftMax, leftDomainDifference / this._ticks);
       const leftAxis = d3
         .axisLeft(yScale0 as d3.AxisScale<number | Date>)
         .tickValues(customLeftTicks);
       if (this._showGrid) {
         ctx.ctx.save();
         ctx.ctx.globalAlpha = this._gridOpacityCss;
-        customLeftTicks
-          .map(leftAxis.scale())
-          .forEach((y: number | undefined) => {
-            ctx.line(
-              [
-                { x: 0, y: y ?? 0 },
-                { x: ctx.width, y: y ?? 0 },
-              ],
-              {
-                ...dashedLineGrid,
-              }
-            );
-          });
+        customLeftTicks.map(leftAxis.scale()).forEach((y: number | undefined) => {
+          ctx.line(
+            [
+              { x: 0, y: y ?? 0 },
+              { x: ctx.width, y: y ?? 0 },
+            ],
+            {
+              ...dashedLineGrid,
+            },
+          );
+        });
         ctx.ctx.restore();
       }
       this._svg
         .append('g')
         .attr(
           'transform',
-          `translate(${this.margin.left + Y_SCALE_WIDTH + INNER_PADDING}, ${
-            this.margin.top
-          })`
+          `translate(${this.margin.left + Y_SCALE_WIDTH + INNER_PADDING}, ${this.margin.top})`,
         )
         .attr('color', this._colors[colorMappings[scales.series[0].colIdx]])
         .call(leftAxis);
@@ -942,11 +901,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         rightMax = domainNumber[domainNumber.length - 1];
       }
       const rightDomainDifference = Math.abs(rightMax - rightMin);
-      const customRightTicks = d3.range(
-        rightMin,
-        rightMax,
-        rightDomainDifference / this._ticks
-      );
+      const customRightTicks = d3.range(rightMin, rightMax, rightDomainDifference / this._ticks);
       const rightAxis = d3
         .axisRight(yScale1 as d3.AxisScale<number | Date>)
         .tickValues(customRightTicks);
@@ -956,28 +911,26 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         // Looks like the typings definition of Scale is not compliant with what's actually
         // available, here we can retrieve the ticks domain values by calling "ticks" on the scale
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        customRightTicks
-          .map(rightAxis.scale())
-          .forEach((y: number | undefined) => {
-            ctx.line(
-              [
-                { x: 0, y: y ?? 0 },
-                { x: ctx.width, y: y ?? 0 },
-              ],
-              {
-                ...dashedLineGrid,
-              }
-            );
-          });
+        customRightTicks.map(rightAxis.scale()).forEach((y: number | undefined) => {
+          ctx.line(
+            [
+              { x: 0, y: y ?? 0 },
+              { x: ctx.width, y: y ?? 0 },
+            ],
+            {
+              ...dashedLineGrid,
+            },
+          );
+        });
         ctx.ctx.restore();
       }
       this._svg
         .append('g')
         .attr(
           'transform',
-          `translate(${
-            this.margin.left + Y_SCALE_WIDTH + ctx.width - INNER_PADDING
-          }, ${this.margin.top})`
+          `translate(${this.margin.left + Y_SCALE_WIDTH + ctx.width - INNER_PADDING}, ${
+            this.margin.top
+          })`,
         )
         .attr('color', this._colors[colorMappings[scales.series[1].colIdx]])
         .call(rightAxis);
@@ -999,9 +952,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
         }
         const domainDifference = Math.abs(max - min);
         const customTicks = d3.range(min, max, domainDifference / this._ticks);
-        const axis = d3
-          .axisLeft(yScale as d3.AxisScale<number | Date>)
-          .tickValues(customTicks);
+        const axis = d3.axisLeft(yScale as d3.AxisScale<number | Date>).tickValues(customTicks);
         if (i === scales.y.length - 1) {
           if (this._showGrid) {
             ctx.ctx.save();
@@ -1017,7 +968,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
                 ],
                 {
                   ...dashedLineGrid,
-                }
+                },
               );
             });
             ctx.ctx.restore();
@@ -1027,9 +978,9 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
           .append('g')
           .attr(
             'transform',
-            `translate(${
-              this.margin.left + (i + 1) * Y_SCALE_WIDTH + INNER_PADDING
-            }, ${this.margin.top})`
+            `translate(${this.margin.left + (i + 1) * Y_SCALE_WIDTH + INNER_PADDING}, ${
+              this.margin.top
+            })`,
           )
           .attr('color', this._colors[colorMappings[scales.series[i].colIdx]])
           .call(axis);
@@ -1071,9 +1022,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
     }
     const domainDifference = Math.abs(max - min);
     const customTicks = d3.range(min, max, domainDifference / xTicks);
-    const xAxis = d3
-      .axisBottom(xScale as d3.AxisScale<number | Date>)
-      .tickValues(customTicks);
+    const xAxis = d3.axisBottom(xScale as d3.AxisScale<number | Date>).tickValues(customTicks);
 
     // format ticks according to meta type
     const dateFmt = this._dateFmt?.format ?? getGlobalDateTimeFormat().format;
@@ -1107,7 +1056,7 @@ export class GuiLineChart extends HTMLElement implements LineChartProps {
           this.margin.bottom -
           (this._axisLabels ? X_LABEL_HEIGHT : 0) -
           INNER_PADDING
-        })`
+        })`,
       )
       .call(xAxis);
 

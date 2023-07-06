@@ -67,7 +67,10 @@ export class TableScales {
     for (let i = 0; i < table.meta.length; i++) {
       const meta = table.meta[i];
 
-      if ((meta.type === null && !opts.ignoreIndex) || (usedColumns.length !== 0 && usedColumns.indexOf(i) === -1)) {
+      if (
+        (meta.type === null && !opts.ignoreIndex) ||
+        (usedColumns.length !== 0 && usedColumns.indexOf(i) === -1)
+      ) {
         // skip null-typed column and columns that are not "to be used"
         continue;
       }
@@ -194,13 +197,13 @@ export class TableScales {
       }
     }
 
-    const indexes = opts.ignoreIndex 
+    const indexes = opts.ignoreIndex
       ? valueCols.map((c) => {
-        return new Index(c.colIdx, c.meta, x);
-      }) 
+          return new Index(c.colIdx, c.meta, x);
+        })
       : indexCols.map((c) => {
-        return new Index(c.colIdx, c.meta, x);
-      });
+          return new Index(c.colIdx, c.meta, x);
+        });
 
     const series = valueCols.map((c) => {
       // we just verified that all value columns have a matching index column, so we are
@@ -334,7 +337,12 @@ export class Index extends Column {
  * Represents a value column
  */
 export class Serie extends Column {
-  constructor(readonly x: Index, colIdx: number, meta: core.TableColumnMeta, scale: D3Scale) {
+  constructor(
+    readonly x: Index,
+    colIdx: number,
+    meta: core.TableColumnMeta,
+    scale: D3Scale,
+  ) {
     super(colIdx, meta, scale);
   }
 }

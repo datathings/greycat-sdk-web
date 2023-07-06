@@ -52,7 +52,10 @@ export class GuiDoughnutChart extends HTMLElement implements GuiDoughnutProps {
   private _resizeObserver?: ResizeObserver;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  private _pie = d3.pie().value((d: any) => d).sort(null);
+  private _pie = d3
+    .pie()
+    .value((d: any) => d)
+    .sort(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _arc = d3.arc<any>();
   private _line = d3.line();

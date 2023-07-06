@@ -24,7 +24,7 @@ export class Context {
   constructor(
     readonly canvas: HTMLCanvasElement,
     public width: number,
-    public height: number
+    public height: number,
   ) {
     // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     this.ctx = canvas.getContext('2d')!;
@@ -211,9 +211,7 @@ export class Context {
       if (opts.clusterClass) {
         const className = opts.clusterClass?.lineClassList[i];
         const index =
-          opts.clusterClass && className
-            ? opts.clusterClass.classes.indexOf(className)
-            : -1;
+          opts.clusterClass && className ? opts.clusterClass.classes.indexOf(className) : -1;
         if (index >= 0) {
           for (const { x, y } of line) {
             this.ctx.fillStyle = opts.clusterClass.colorList[i];
@@ -274,13 +272,7 @@ export class Context {
       for (let i = 0; i < line.length; i++) {
         this.ctx.fillStyle = opts.color;
         this.ctx.beginPath();
-        this.ctx.arc(
-          line[i].x,
-          line[i].y,
-          opts.radius ?? 2,
-          0,
-          CIRCLE_END_ANGLE
-        );
+        this.ctx.arc(line[i].x, line[i].y, opts.radius ?? 2, 0, CIRCLE_END_ANGLE);
         this.ctx.fill();
       }
     }
@@ -317,13 +309,7 @@ export class Context {
     this.ctx.strokeStyle = opts.color;
     for (let i = 0; i < circles.length; i++) {
       this.ctx.beginPath();
-      this.ctx.arc(
-        circles[i].x,
-        circles[i].y,
-        opts.radius,
-        0,
-        CIRCLE_END_ANGLE
-      );
+      this.ctx.arc(circles[i].x, circles[i].y, opts.radius, 0, CIRCLE_END_ANGLE);
       this.ctx.fill();
       this.ctx.closePath();
     }
@@ -382,18 +368,13 @@ export class Context {
     this.ctx.lineWidth = 2;
     this.ctx.strokeStyle = opts.iqrColor;
     this.ctx.globalAlpha = 0.2;
-    this.ctx.fillRect(
-      boxPlot.x - opts.width / 2,
-      boxPlot.q3,
-      opts.width,
-      boxPlot.q1 - boxPlot.q3
-    );
+    this.ctx.fillRect(boxPlot.x - opts.width / 2, boxPlot.q3, opts.width, boxPlot.q1 - boxPlot.q3);
     this.ctx.globalAlpha = 1;
     this.ctx.strokeRect(
       boxPlot.x - opts.width / 2,
       boxPlot.q3,
       opts.width,
-      boxPlot.q1 - boxPlot.q3
+      boxPlot.q1 - boxPlot.q3,
     );
     this.ctx.closePath();
 

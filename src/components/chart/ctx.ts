@@ -42,7 +42,7 @@ export function line(
   yCol: number,
   xScale: Scale,
   yScale: Scale,
-  opts: LineOptions
+  opts: LineOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {
@@ -95,7 +95,7 @@ export function bar(
   yCol: number,
   xScale: Scale,
   yScale: Scale,
-  opts: BarOptions & { opacity: number }
+  opts: BarOptions & { opacity: number },
 ) {
   const rows = table.data;
   if (rows.length === 0) {
@@ -125,7 +125,7 @@ export function scatter(
   yCol: number,
   xScale: Scale,
   yScale: Scale,
-  opts: ScatterOptions
+  opts: ScatterOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {
@@ -139,7 +139,13 @@ export function scatter(
   for (let i = 0; i < rows.length; i++) {
     ctx.fillStyle = opts.color;
     ctx.beginPath();
-    ctx.arc(xScale(xCol === undefined ? i : rows[i][xCol]), yScale(rows[i][yCol]), opts.radius, 0, CIRCLE_END_ANGLE);
+    ctx.arc(
+      xScale(xCol === undefined ? i : rows[i][xCol]),
+      yScale(rows[i][yCol]),
+      opts.radius,
+      0,
+      CIRCLE_END_ANGLE,
+    );
     ctx.fill();
   }
 
@@ -175,7 +181,7 @@ export function area(
   yCol: number,
   xScale: Scale,
   yScale: Scale,
-  opts: AreaOptions
+  opts: AreaOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {

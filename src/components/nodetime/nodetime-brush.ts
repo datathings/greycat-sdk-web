@@ -201,7 +201,7 @@ export class GuiNodeTimeBrush extends HTMLElement {
       this._maxRows,
       this._mode,
       null,
-      this._tz
+      this._tz,
     );
 
     // update scale & axis graphically
@@ -212,10 +212,7 @@ export class GuiNodeTimeBrush extends HTMLElement {
     if (this._width === 0) {
       return;
     }
-    this.children[1].setAttribute(
-      'viewBox',
-      `0,0,${this._width},${this._height}`
-    );
+    this.children[1].setAttribute('viewBox', `0,0,${this._width},${this._height}`);
     this._scale.range([this._m.left, this._width - this._m.right]);
     this._xAxis.call(xAxis, this._scale, this._m, this._width, this._height);
     this._brush.extent(this._extent());
@@ -244,9 +241,7 @@ export class GuiNodeTimeBrushEvent extends CustomEvent<NodeTimeSelection | null>
   }
 }
 
-function computeRange(
-  info: core.NodeTimeInfo[]
-): readonly [core.time, core.time] {
+function computeRange(info: core.NodeTimeInfo[]): readonly [core.time, core.time] {
   let min = core.time.max;
   let max = core.time.min;
   for (let i = 0; i < info.length; i++) {
@@ -261,18 +256,12 @@ function computeRange(
   return [min, max];
 }
 
-function xAxis(
-  g: XAxis,
-  x: XScale,
-  margin: Margin,
-  width: number,
-  height: number
-) {
+function xAxis(g: XAxis, x: XScale, margin: Margin, width: number, height: number) {
   return g.attr('transform', `translate(0,${height - margin.bottom})`).call(
     d3
       .axisBottom(x)
       .ticks(width / 80)
-      .tickSizeOuter(0)
+      .tickSizeOuter(0),
   );
 }
 

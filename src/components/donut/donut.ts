@@ -31,7 +31,7 @@ export class GuiDonut extends GuiElement<GuiDonutProps> {
       this._props.width = width;
       this._props.height = height;
       this.update();
-    }, 500)
+    }, 500),
   );
 
   private svg!: d3.Selection<SVGSVGElement, DonutEntry[], null, undefined>;
@@ -66,16 +66,8 @@ export class GuiDonut extends GuiElement<GuiDonutProps> {
   }
 
   override update() {
-    const {
-      width,
-      height,
-      data,
-      innerRadius,
-      stroke,
-      overStroke,
-      strokeWidth,
-      opacity,
-    } = this._props;
+    const { width, height, data, innerRadius, stroke, overStroke, strokeWidth, opacity } =
+      this._props;
 
     // The radius of the pieplot is half the width or half the height (smallest one).
     var radius = Math.min(width, height) / 2;

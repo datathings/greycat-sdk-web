@@ -1,13 +1,6 @@
 import { core } from '@greycat/lib-std';
 import * as d3 from 'd3';
-import {
-  Bar,
-  Canvas,
-  Line,
-  Point,
-  Rect,
-  SimpleTooltip,
-} from '../../chart-utils';
+import { Bar, Canvas, Line, Point, Rect, SimpleTooltip } from '../../chart-utils';
 import { getGlobalNumberFormat } from '../../globals';
 import { emptyDataElement, getCSSVars, processCssVars } from '../../utils';
 
@@ -28,13 +21,9 @@ export interface HistogramChartProps {
  * Display an histogram chart based on a given `core.Table`
  */
 export class GuiHistogramChart extends HTMLElement {
-  private _svg?:
-    | d3.Selection<SVGGElement, unknown, null, undefined>
-    | undefined;
+  private _svg?: d3.Selection<SVGGElement, unknown, null, undefined> | undefined;
   private _canvas?: Canvas;
-  private _xAxis:
-    | d3.ScaleLogarithmic<number, number>
-    | d3.ScaleLinear<number, number>;
+  private _xAxis: d3.ScaleLogarithmic<number, number> | d3.ScaleLinear<number, number>;
   private _yAxis: d3.ScaleLinear<number, number, never>;
   private _zAxis: d3.ScaleLinear<number, number, never>;
   private _table: core.Table<unknown> | null = null;
@@ -116,7 +105,7 @@ export class GuiHistogramChart extends HTMLElement {
       this,
       'histogram-bar-color',
       'histogram-line-color',
-      'histogram-tooltip-dasharray'
+      'histogram-tooltip-dasharray',
     );
     processCssVars(this, cssVars);
 
@@ -182,10 +171,7 @@ export class GuiHistogramChart extends HTMLElement {
         const x2 = this._xAxis(Number(point[1]));
         zCumul += Number(point[this._columns[1]]);
         const z = this._zAxis(zCumul);
-        cumuls.push([
-          (cumuls[idx][0] += Number(point[2])),
-          (cumuls[idx][1] += Number(point[3])),
-        ]);
+        cumuls.push([(cumuls[idx][0] += Number(point[2])), (cumuls[idx][1] += Number(point[3]))]);
         return { x: (x + x2) / 2, y: z };
       });
 
@@ -206,8 +192,7 @@ export class GuiHistogramChart extends HTMLElement {
 
       // x line
       const tooltipX = this._cursor.x;
-      const tooltipY =
-        ctx.height < this._cursor.y ? ctx.height : this._cursor.y;
+      const tooltipY = ctx.height < this._cursor.y ? ctx.height : this._cursor.y;
       ctx.ctx.save();
       const x = Math.round(this._cursorInfo.x);
       ctx.line(
@@ -219,15 +204,15 @@ export class GuiHistogramChart extends HTMLElement {
           color: 'gray',
           width: 1,
           dashed: this._tooltipDasharrayCss,
-        }
+        },
       );
       ctx.ctx.restore();
 
       if (this._tooltip) {
         this._tooltip.updateHeader({
-          value: `${formatter.format(
-            this._cursorInfo.xRange[0]
-          )} - ${formatter.format(this._cursorInfo.xRange[1])}`,
+          value: `${formatter.format(this._cursorInfo.xRange[0])} - ${formatter.format(
+            this._cursorInfo.xRange[1],
+          )}`,
         });
         this._tooltip.updateRows([
           {
@@ -278,7 +263,7 @@ export class GuiHistogramChart extends HTMLElement {
         leave: () => {
           this._hover = false;
         },
-      }
+      },
     ));
     this._canvas.root.style.top = `${MARGINS.top + INNER_PADDING}px`;
     this._canvas.root.style.left = `${MARGINS.left}px`;
@@ -297,9 +282,7 @@ export class GuiHistogramChart extends HTMLElement {
     }
 
     svg.selectChildren().remove();
-    this.querySelectorAll('.gui-histogram-incomplete').forEach((n) =>
-      n.remove()
-    );
+    this.querySelectorAll('.gui-histogram-incomplete').forEach((n) => n.remove());
 
     if (table.data.length <= 0) {
       this._canvas?.ctx.clear();
@@ -361,9 +344,7 @@ export class GuiHistogramChart extends HTMLElement {
 
     canvas.ctx.clear();
     this._xAxis.domain([extent[0] ?? 0, extent[1] ?? 1]);
-    const zSum = d3.sum(
-      table.data.map<number>((v) => Number(v[this._columns[1]])) ?? []
-    );
+    const zSum = d3.sum(table.data.map<number>((v) => Number(v[this._columns[1]])) ?? []);
     this._yAxis.domain([0, table.meta[this._columns[0]].max]);
     this._zAxis.domain([0, zSum]);
     const xAxis = d3.axisBottom(this._xAxis);
@@ -372,17 +353,11 @@ export class GuiHistogramChart extends HTMLElement {
       .append('g')
       .attr('transform', `translate(0, ${height + INNER_PADDING})`)
       .call(xAxis);
-    svg
-      .append('g')
-      .attr('transform', `translate(0, ${INNER_PADDING})`)
-      .call(yAxis);
+    svg.append('g').attr('transform', `translate(0, ${INNER_PADDING})`).call(yAxis);
 
     if (!this._hideCumulative) {
       const zAxis = d3.axisRight(this._zAxis);
-      svg
-        .append('g')
-        .attr('transform', `translate(${width}, ${INNER_PADDING})`)
-        .call(zAxis);
+      svg.append('g').attr('transform', `translate(${width}, ${INNER_PADDING})`).call(zAxis);
     }
 
     const bar: Bar[] = [];

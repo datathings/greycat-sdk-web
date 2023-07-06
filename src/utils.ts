@@ -35,10 +35,7 @@ export function getScrollBarWidth() {
  * @param el the element to get the computed styles from (defaults to `document.body`)
  * @returns
  */
-export function getCSSVar(
-  name: string,
-  el: HTMLElement = document.body
-): string | undefined {
+export function getCSSVar(name: string, el: HTMLElement = document.body): string | undefined {
   const s = getComputedStyle(el);
   const value = s.getPropertyValue(name).trim();
   return value.length ? value : undefined;
@@ -108,15 +105,12 @@ export function parseCssVar<T>(cssVarString: string, defaultValue: T): T {
  * ending in order for this to properly identify and process them.
  *
  */
-export const processCssVars = (
-  component: HTMLElement,
-  cssVars: (string | undefined)[]
-) => {
+export const processCssVars = (component: HTMLElement, cssVars: (string | undefined)[]) => {
   /**
    * First check that both object CSS properties and in-function CSS vars arrays are of the same length.
    */
   const propNames = Object.getOwnPropertyNames(component).filter((propName) =>
-    propName.endsWith('Css')
+    propName.endsWith('Css'),
   );
   if (propNames.length !== cssVars.length) {
     return;
@@ -197,5 +191,3 @@ export function emptyDataElement(cssClass: string) {
   incompleteTableEl.textContent = `Table is empty or is missing an index`;
   return incompleteTableEl;
 }
-
-

@@ -24,11 +24,7 @@ type GuiHTMLElement<K extends keyof HTMLElementTagNameMap> = Omit<
 };
 
 type ElementProps<K extends keyof HTMLElementTagNameMap> = GuiHTMLElement<K> & {
-  content:
-    | string
-    | HTMLElement
-    | DocumentFragment
-    | Array<HTMLElement | DocumentFragment>;
+  content: string | HTMLElement | DocumentFragment | Array<HTMLElement | DocumentFragment>;
   classes: string[];
 };
 
@@ -42,7 +38,7 @@ type ElementProps<K extends keyof HTMLElementTagNameMap> = GuiHTMLElement<K> & {
  */
 export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
-  props: Partial<ElementProps<K>> = {}
+  props: Partial<ElementProps<K>> = {},
 ): HTMLElementTagNameMap[K] {
   const el = document.createElement(tagName);
   const { content, classes, style, ...rest } = props;
@@ -65,10 +61,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   return el;
 }
 
-export function throttle<T extends (...args: unknown[]) => void>(
-  callback: T,
-  interval: number
-) {
+export function throttle<T extends (...args: unknown[]) => void>(callback: T, interval: number) {
   let enableCall = true;
 
   return function <U>(this: U, ...args: Parameters<typeof callback>) {
@@ -83,7 +76,7 @@ export function throttle<T extends (...args: unknown[]) => void>(
 export function debounce<T extends (...args: unknown[]) => void>(
   callback: T,
   delay: number,
-  immediate = false
+  immediate = false,
 ) {
   let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
 

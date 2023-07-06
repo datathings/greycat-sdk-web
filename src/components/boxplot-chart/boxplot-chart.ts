@@ -2,12 +2,7 @@ import * as d3 from 'd3';
 import { core, util } from '@greycat/lib-std';
 import { timeToMs } from '@greycat/utils';
 import { emptyDataElement, getColors, processCssVars } from '../../utils';
-import {
-  BoxPlotCanvas,
-  BoxPlotOptions,
-  Canvas,
-  SimpleTooltip,
-} from '../../chart-utils';
+import { BoxPlotCanvas, BoxPlotOptions, Canvas, SimpleTooltip } from '../../chart-utils';
 import { getCSSVars } from '../../utils';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
 
@@ -114,7 +109,7 @@ export class GuiBoxPlotChart extends HTMLElement {
       'boxplot-iqr-color',
       'boxplot-whisker-color',
       'boxplot-median-color',
-      'boxplot-tooltip-dasharray'
+      'boxplot-tooltip-dasharray',
     );
 
     /** Process the CSS vars */
@@ -185,8 +180,7 @@ export class GuiBoxPlotChart extends HTMLElement {
       };
       // x line
       const tooltipX = this._cursor.x;
-      const tooltipY =
-        ctx.height < this._cursor.y ? ctx.height : this._cursor.y;
+      const tooltipY = ctx.height < this._cursor.y ? ctx.height : this._cursor.y;
       ctx.ctx.save();
       const x = Math.round(this._cursorInfo.x);
       ctx.line(
@@ -198,7 +192,7 @@ export class GuiBoxPlotChart extends HTMLElement {
           color: 'gray',
           width: 1,
           dashed: this._tooltipDasharrayCss,
-        }
+        },
       );
       ctx.ctx.restore();
 
@@ -252,7 +246,7 @@ export class GuiBoxPlotChart extends HTMLElement {
         leave: () => {
           this._hover = false;
         },
-      }
+      },
     ));
 
     this._canvas.root.style.top = `${MARGINS.top}px`;
@@ -326,19 +320,13 @@ export class GuiBoxPlotChart extends HTMLElement {
 
     const yDomain = d3.extent(
       table.data.flatMap((v) => {
-        return [
-          (v[1] as util.BoxPlot<number>).min,
-          (v[1] as util.BoxPlot<number>).max,
-        ];
-      })
+        return [(v[1] as util.BoxPlot<number>).min, (v[1] as util.BoxPlot<number>).max];
+      }),
     );
 
     const yPadding = ((yDomain[1] ?? 0) - (yDomain[0] ?? 0)) * 0.1;
 
-    this._yAxis.domain([
-      (yDomain[0] ?? 0) - yPadding,
-      (yDomain[1] ?? 1) + yPadding,
-    ]);
+    this._yAxis.domain([(yDomain[0] ?? 0) - yPadding, (yDomain[1] ?? 1) + yPadding]);
     const yAxis = d3.axisLeft(this._yAxis);
 
     const xAxis = d3.axisBottom(this._xAxis as d3.AxisScale<Date | string>);
@@ -448,13 +436,9 @@ export class GuiBoxPlotChart extends HTMLElement {
   private _handleXAxisValue(table: core.Table<unknown>, val: unknown): number {
     if (this._xAxis) {
       if (table.meta[0].type === core.Date._type) {
-        return (this._xAxis as d3.ScaleTime<number, number>)(
-          new Date((val as core.Date).iso)
-        );
+        return (this._xAxis as d3.ScaleTime<number, number>)(new Date((val as core.Date).iso));
       } else if (table.meta[0].type === core.time._type) {
-        return (this._xAxis as d3.ScaleTime<number, number>)(
-          timeToMs(val as core.time)
-        );
+        return (this._xAxis as d3.ScaleTime<number, number>)(timeToMs(val as core.time));
       } else if (table.meta[0].type === 'core.String') {
         return (
           ((this._xAxis as d3.ScaleBand<string>)(val as string) ?? 0) +

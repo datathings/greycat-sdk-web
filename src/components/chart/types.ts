@@ -9,7 +9,7 @@ export type AreaPosition = 'below' | 'above';
 export type AxisPosition = 'left' | 'right';
 
 export type TableLike = {
-  data: any[][],
+  data: any[][];
 };
 
 export type Margin = {
@@ -63,7 +63,7 @@ export interface ChartConfig {
   xAxis?: Partial<Axis>;
   /**
    * One or more axes that will be used for y-axes.
-   * 
+   *
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
   yAxes?: Record<string, Partial<Ordinate>>;

@@ -27,9 +27,7 @@ export interface HeatmapChartProps {
  * Displays an heatmap chart based on a given `core.Table`
  */
 export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
-  private _svg:
-    | d3.Selection<SVGSVGElement, unknown, null, undefined>
-    | undefined;
+  private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined;
   private _canvas?: Canvas | undefined;
   private _xAxis: d3.ScaleBand<string>;
   private _yAxis: d3.ScaleBand<string>;
@@ -175,10 +173,11 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
       this._colors = DEFAULT_COLORS;
     }
 
-    const [
-      selectedColor = this._selectedColor,
-      nullValueColor = this._nullValueColor,
-    ] = getCSSVars(this, 'heatmap-selected-color', 'heatmap-null-color');
+    const [selectedColor = this._selectedColor, nullValueColor = this._nullValueColor] = getCSSVars(
+      this,
+      'heatmap-selected-color',
+      'heatmap-null-color',
+    );
     this._nullValueColor = nullValueColor;
     this._selectedColor = selectedColor;
 
@@ -201,11 +200,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
     this._width = width;
     this._height = height;
 
-    this._svg = d3
-      .select(this)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height);
+    this._svg = d3.select(this).append('svg').attr('width', width).attr('height', height);
 
     this._tooltip = new SimpleTooltip();
 
@@ -231,9 +226,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
 
       // update
       const xIndex = this._scaleBandInvert(this._xAxis)(this._cursor.x);
-      const yIndex = this._scaleBandInvert(this._yAxis)(
-        canvas.height - this._cursor.y
-      );
+      const yIndex = this._scaleBandInvert(this._yAxis)(canvas.height - this._cursor.y);
 
       /*       if (!table.data?.[yIndex[1]]?.[xIndex[1]]) {
         // do not display rect when no value present
@@ -276,7 +269,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
           ]);
           canvas.moveTooltip(
             this._cursor.x,
-            ctx.height < this._cursor.y ? ctx.height : this._cursor.y
+            ctx.height < this._cursor.y ? ctx.height : this._cursor.y,
           );
         }
       }
@@ -284,11 +277,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
       return requestAnimationFrame(onHover);
     };
     const canvas = (this._canvas = new Canvas(
-      width -
-        this._m.left -
-        this._m.right -
-        this._colorScaleWidth -
-        this._colorScaleM.right,
+      width - this._m.left - this._m.right - this._colorScaleWidth - this._colorScaleM.right,
       height - this._m.top - this._m.bottom,
       this._tooltip,
       {
@@ -302,16 +291,15 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
         leave: () => {
           this._hover = false;
         },
-      }
+      },
     ));
 
     this._colorScaleCanvas = new Canvas(
       this._colorScaleWidth - this._colorScaleM.left - this._colorScaleM.right,
-      height - this._colorScaleM.top - this._colorScaleM.bottom
+      height - this._colorScaleM.top - this._colorScaleM.bottom,
     );
     const canvasLeft = this._m.left;
-    const colorScaleLeft =
-      this._canvas.width + canvasLeft + this._colorScaleM.left;
+    const colorScaleLeft = this._canvas.width + canvasLeft + this._colorScaleM.left;
 
     this._canvas.root.style.top = `${this._m.top}px`;
     this._canvas.root.style.left = `${canvasLeft}px`;
@@ -381,11 +369,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
     svg.selectChildren().remove();
 
     const newWidth =
-      this._width -
-      this._m.left -
-      this._m.right -
-      this._colorScaleWidth -
-      this._colorScaleM.right;
+      this._width - this._m.left - this._m.right - this._colorScaleWidth - this._colorScaleM.right;
     const newHeight = this._height - this._m.top - this._m.bottom;
 
     this._xAxis
@@ -393,7 +377,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
         this._xLabels ??
           table.data[0].map((_v, i) => {
             return ` ${i}`;
-          })
+          }),
       )
       .range([0, newWidth])
       .padding(0.05);
@@ -403,7 +387,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
         this.yLabels ??
           table.data.map((_v, i) => {
             return `${i}`;
-          })
+          }),
       )
       .range([newHeight, 0])
       .padding(0.05);
@@ -411,7 +395,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
     const extent = d3.extent<number>(
       table.meta.flatMap((v) => {
         return [v.min === 0 ? 1 : v.min, v.max];
-      })
+      }),
     );
     this._colorScaleRange = extent[0] !== undefined ? extent : [1, 10];
 
@@ -428,15 +412,11 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
     const xLabels = this._xLabels;
 
     if (yTicks !== undefined && yLabels) {
-      const newYLabels = yLabels.filter(
-        (_v, i) => !(i % Math.floor(yLabels.length / yTicks))
-      );
+      const newYLabels = yLabels.filter((_v, i) => !(i % Math.floor(yLabels.length / yTicks)));
       yAxis.tickValues(newYLabels);
     }
     if (xTicks !== undefined && xLabels) {
-      const newXLabels = xLabels.filter(
-        (_v, i) => !(i % Math.floor(xLabels.length / xTicks))
-      );
+      const newXLabels = xLabels.filter((_v, i) => !(i % Math.floor(xLabels.length / xTicks)));
       xAxis.tickValues(newXLabels);
     }
 
@@ -485,10 +465,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
     //x axis ticks
     svg
       .append('g')
-      .attr(
-        'transform',
-        `translate(${this._m.left}, ${this._height - this._m.bottom})`
-      )
+      .attr('transform', `translate(${this._m.left}, ${this._height - this._m.bottom})`)
       .call(xAxis)
       .selectAll('text')
       .attr('dx', '-2.2em')
@@ -538,7 +515,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
         'transform',
         `translate(${canvas.width + this._m.left + this._colorScaleM.left}, ${
           this._colorScaleM.top
-        })`
+        })`,
       )
       .call(yColorScaleAxis)
       .selectAll('text')
@@ -555,10 +532,7 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
 
     gradient.addColorStop(0, this._colors[0]);
     for (let index = 1; index < this._colors.length; index++) {
-      gradient.addColorStop(
-        index / (this._colors.length - 1),
-        this._colors[index]
-      );
+      gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
 
     ctx.fillStyle = gradient;
@@ -566,13 +540,11 @@ export class GuiHeatmapChart extends HTMLElement implements HeatmapChartProps {
       this._colorScaleXAxis(0) ?? 0,
       this._colorScaleYAxis(_max),
       this._colorScaleXAxis.bandwidth(),
-      this._height ?? 0
+      this._height ?? 0,
     );
   }
 
-  private _scaleBandInvert(
-    scale: d3.ScaleBand<string>
-  ): (value: number) => [string, number] {
+  private _scaleBandInvert(scale: d3.ScaleBand<string>): (value: number) => [string, number] {
     const domain = scale.domain();
     const eachBand = scale.step();
 
