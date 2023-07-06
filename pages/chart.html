@@ -40,58 +40,60 @@
   <script type="module">
     import '../src/bundle.ts';
 
-    const max = 100;
-    const lineData = Array.from({ length: max }, (_, i) => ({ x: i, y: 0 }));
-    const areaData = Array.from({ length: max }, (_, i) => ({ x: i, y: 0 }));
-    const scatterData = Array.from({ length: max }, (_, i) => ({ x: i, y: 0 }));
-    const barData = [
-      { x: 0, y: 0 },
-      { x: 1, y: 0 },
-      { x: 2, y: 0 },
-      { x: 3, y: 0 },
-      { x: 4, y: 0 },
-      { x: max - 5, y: 0 },
-      { x: max - 4, y: 0 },
-      { x: max - 3, y: 0 },
-      { x: max - 2, y: 0 },
-      { x: max - 1, y: 0 },
-    ];
+    const rows = 100;
+    const cols = 4;
+    const table = {
+      data: Array.from({ length: rows }, () => new Array(cols)),
+      meta: new Array(cols),
+    };
+
+    const lineOffset = 0;
+    const scatterOffset = 1;
+    const areaOffset = 2;
+    const barOffset = 3;
+
     const chart = document.querySelector('gui-chart');
 
     randomize();
 
     chart.config = {
       margin: {
-        top: 20,
-        right: 35,
-        bottom: 25,
-        left: 35,
+        // right: 25,
       },
-      domain: {
-        xMin: -1,
-        xMax: max,
-        yMin: 1,
-        yMax: 200,
+      xAxis: {
+        min: -1,
+        max: 100,
       },
+      yAxes: {
+        left: {
+          min: 1,
+          max: 200,
+        },
+        right: {
+          position: 'right',
+        },
+      },
+      table,
       series: [
         {
-          type: 'line+scatter',
-          data: lineData,
+          type: 'line',
+          yAxis: 'left',
+          yCol: 0,
         },
         {
-          type: 'scatter',
-          data: scatterData,
-          yScale: 'log',
+          yAxis: 'left',
+          yCol: 1,
         },
         {
           type: 'line+area',
-          data: areaData,
-          kind: 'below',
-          // color: 'orange',
+          yAxis: 'right',
+          yCol: 2,
         },
         {
           type: 'bar',
-          data: barData,
+          yAxis: 'left',
+          yCol: 3,
+          width: 10,
         },
       ],
     };
@@ -99,47 +101,45 @@
     function randomize() {
       let prev1 = 100;
       let prev2 = 80;
-      for (let i = 0; i < max; i++) {
+      for (let row = 0; row < rows; row++) {
         prev1 += 5 - Math.random() * 10;
         prev1 = Math.max(0, prev1);
-        lineData[i].y = prev1;
-        areaData[i].y = randomInt(prev1 - 10, prev1 + 10);
-        if (i === 20) {
-          lineData[i].dashed = true;
-        }
-        if (i === 45) {
-          lineData[i].dashed = false;
-        }
+        table.data[row][lineOffset] = prev1;
+        table.data[row][areaOffset] = randomInt(prev1 - 10, prev1 + 10);
+        // if (i === 20) {
+
+        //   lineData[i].dashed = true;
+        // }
+        // if (i === 45) {
+        //   lineData[i].dashed = false;
+        // }
         prev2 += 5 - Math.random() * 10;
         prev2 = Math.max(0, prev2);
-        scatterData[i].y = prev2;
+        table.data[row][scatterOffset] = prev2;
 
-        if (i >= 0 && i < 5) {
-          barData[i].y = randomInt(1, 40);
+        if (row >= 0 && row < 5) {
+          table.data[row][barOffset] = randomInt(1, 40);
         }
 
-        if (i >= (max - 5) && i < max) {
-          barData[(i % 5) + 5].y = randomInt(1, 40);
+        if (row >= (rows - 5) && row < rows) {
+          table.data[row][barOffset] = randomInt(1, 40);
         }
       }
 
-      /**
-       * The maximum is exclusive and the minimum is inclusive
-       */
-      function randomInt(min, max) {
-        min = Math.ceil(min);
-        max = Math.floor(max);
-        return Math.floor(Math.random() * (max - min) + min);
-      }
+      console.log({ table });
+    }
+
+    /**
+     * The maximum is exclusive and the minimum is inclusive
+     */
+    function randomInt(min, max) {
+      min = Math.ceil(min);
+      max = Math.floor(max);
+      return Math.floor(Math.random() * (max - min) + min);
     }
 
     document.querySelector('#randomize').onclick = () => {
       randomize();
-      // order is important here, make sure it matches 'chart.config.series'
-      chart.config.series[0].data = lineData;
-      chart.config.series[1].data = scatterData;
-      chart.config.series[2].data = areaData;
-      chart.config.series[3].data = barData;
       chart.update();
     };
   </script>

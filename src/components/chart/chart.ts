@@ -1,25 +1,25 @@
 import * as d3 from 'd3';
 
+(window as any).d3 = d3;
+
 import { debounce } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
-import { ChartConfig, Domain, Margin, ScaleType, Serie } from './types';
-
-type Datum = unknown;
-const DEFAULT_MARGINS: Margin = { top: 5, right: 5, bottom: 20, left: 35 };
+import { Axis, ChartConfig, Margin, ScaleType } from './types';
+import { Scale } from './internals';
 
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
   private _canvas: HTMLCanvasElement;
-  private _svg!: d3.Selection<SVGSVGElement, Datum, null, undefined>;
+  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private _ctx: CanvasRenderingContext2D;
   private _colors: string[];
 
   constructor() {
     super();
 
-    this._config = { type: 'line', series: [] };
+    this._config = { type: 'line', table: { data: [] }, series: [] };
     this._canvas = document.createElement('canvas');
     this._canvas.style.display = 'block';
     this._canvas.style.position = 'absolute';
@@ -34,12 +34,9 @@ export class GuiChart extends HTMLElement {
 
         this._canvas.width = width;
         this._canvas.height = height;
-        this._svg.attr(
-          'viewBox',
-          `0 0 ${this._canvas.width} ${this._canvas.height}`
-        );
+        this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
         this.update();
-      }, 250)
+      }, 250),
     );
   }
 
@@ -81,114 +78,215 @@ export class GuiChart extends HTMLElement {
   }
 
   update(): void {
-    const margin = { ...DEFAULT_MARGINS, ...this._config.margin };
-
+    // clear the canvas content
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
-    // clean previous stuff
+    // clear svg elements
     this._svg.selectChildren().remove();
 
-    // compute range based on available width, height and margins
-    const range = {
-      x: [margin.left, this._canvas.width - margin.right] as const,
-      y: [this._canvas.height - margin.bottom, margin.top] as const,
+    let leftAxes = 0;
+    let rightAxes = 0;
+    if (this._config.yAxes) {
+      for (const yAxisName in this._config.yAxes) {
+        const pos = this._config.yAxes[yAxisName].position;
+        if (pos === undefined || pos === 'left') {
+          leftAxes++;
+        } else {
+          rightAxes++;
+        }
+      }
+    }
+
+    const margin: Margin = {
+      // sane defaults based on the x-axis & y-axes
+      top: 20,
+      right: rightAxes === 0 ? 10 : 35,
+      bottom: 25,
+      left: leftAxes === 0 ? 10 : 35,
+      ...this._config.margin,
     };
 
-    // compute x and y domains based on the data or the optional min/max bounds
-    const domain = computeDomain(this._config.series, this._config.domain);
+    // compute ranges based on available width, height and margins
+    const xRange = [
+      leftAxes === 0 ? margin.left : margin.left + margin.left * (leftAxes - 1),
+      rightAxes === 0
+        ? this._canvas.width - margin.right
+        : this._canvas.width - margin.right - margin.right * (rightAxes - 1),
+    ];
+    const yRange = [this._canvas.height - margin.bottom, margin.top];
 
-    // compute the default scales
-    let xScale = computeScale(
-      this._config.xScale ?? 'linear',
-      range.x,
-      domain.x
-    );
-    let yScale = computeScale(
-      this._config.yScale ?? 'linear',
-      range.y,
-      domain.y
-    );
+    const xAxis: Omit<Axis, 'title'> = {
+      min: 0,
+      max: Math.max(0, this._config.table.data.length - 1),
+      scale: 'linear',
+      ...this._config.xAxis,
+    };
+    const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+
+    const yScales: Record<string, Scale> = {};
+    if (this._config.yAxes) {
+      for (const yAxisName in this._config.yAxes) {
+        const yAxis = this._config.yAxes[yAxisName];
+
+        const type = yAxis.scale ?? 'linear';
+        let min: number | null = null;
+        let max: number | null = null;
+
+        if (yAxis.min === undefined || yAxis.max === undefined) {
+          // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
+          for (let i = 0; i < this._config.series.length; i++) {
+            const serie = this._config.series[i];
+            if (serie.yAxis === yAxisName) {
+              for (let row = 0; row < this._config.table.data.length; row++) {
+                const value = this._config.table.data[row][serie.yCol];
+                if (min == null) {
+                  min = value;
+                } else if (value <= min) {
+                  min = value;
+                }
+                if (max == null) {
+                  max = value;
+                } else if (value >= max) {
+                  max = value;
+                }
+              }
+            }
+          }
+        }
+
+        yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
+      }
+    }
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie = this._config.series[i];
-      let localXScale = xScale;
-      if (serie.xScale) {
-        localXScale = computeScale(serie.xScale, range.x, domain.x);
-      }
-      let localYScale = yScale;
-      if (serie.yScale) {
-        localYScale = computeScale(serie.yScale, range.y, domain.y);
-        // if (serie.yScale !== (this._config.yScale ?? 'linear')) {
-        //   this._svg
-        //     .append('g')
-        //     .attr(
-        //       'transform',
-        //       `translate(${this._canvas.width - margin.right}, 0)`
-        //     )
-        //     .call(d3.axisRight(localYScale));
-        // }
-      }
-
       switch (serie.type ?? 'line') {
         case 'line':
-          draw.line(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 1,
-            dashed: serie.dashed,
-            opacity: serie.opacity,
-          });
-          break;
-        case 'area':
-          draw.area(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 1,
-            opacity: serie.opacity,
-            kind: serie.kind ?? 'below',
-          });
-          break;
-        case 'bar':
-          draw.bar(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 15,
-            opacity: serie.opacity ?? 1,
-          });
-          break;
-        case 'scatter':
-          draw.scatter(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            radius: 2,
-          });
+          draw.line(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              dashed: serie.dashed,
+              opacity: serie.opacity,
+            },
+          );
           break;
         case 'line+scatter':
-          draw.line(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 1,
-            dashed: serie.dashed,
-            opacity: serie.opacity,
-          });
-          draw.scatter(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            radius: 2,
-          });
+          draw.line(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              dashed: serie.dashed,
+              opacity: serie.opacity,
+            },
+          );
+          draw.scatter(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              radius: serie.width ?? 2,
+            },
+          );
           break;
         case 'line+area':
-          draw.area(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 1,
-            opacity: serie.opacity,
-            kind: serie.kind ?? 'below',
-          });
-          draw.line(this._ctx, serie.data, localXScale, localYScale, {
-            color: serie.color ?? this._colors[i],
-            width: serie.width ?? 1,
-            dashed: serie.dashed,
-            opacity: serie.opacity,
-          });
+          draw.area(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              kind: serie.kind ?? 'below',
+              opacity: serie.opacity,
+            },
+          );
+          draw.line(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              dashed: serie.dashed,
+              opacity: serie.opacity,
+            },
+          );
+          break;
+        case 'area':
+          draw.area(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              kind: serie.kind ?? 'below',
+              opacity: serie.opacity,
+            },
+          );
+          break;
+        case 'bar':
+          draw.bar(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              width: serie.width ?? 1,
+              opacity: serie.opacity ?? 1,
+            },
+          );
+          break;
+        case 'scatter':
+          draw.scatter(
+            this._ctx,
+            this._config.table,
+            serie.xCol,
+            serie.yCol,
+            xScale,
+            yScales[serie.yAxis],
+            {
+              color: serie.color ?? this._colors[i],
+              radius: serie.width ?? 2,
+            },
+          );
           break;
         default:
+          console.warn(`unhandled serie type '${serie.type}'`);
           break;
       }
     }
+
+    console.log({ xAxis, x: xScale, y: yScales });
 
     // Add the x-axis.
     this._svg
@@ -196,76 +294,43 @@ export class GuiChart extends HTMLElement {
       .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
       .call(d3.axisBottom(xScale));
 
-    // Add the y-axis.
-    this._svg
-      .append('g')
-      .attr('transform', `translate(${margin.left}, 0)`)
-      .call(d3.axisLeft(yScale));
-  }
-}
-
-function computeDomain(series: Serie[], opts: Partial<Domain> = {}) {
-  let xMin = opts.xMin ?? Infinity;
-  let xMax = opts.xMax ?? -Infinity;
-  let yMin = opts.yMin ?? Infinity;
-  let yMax = opts.yMax ?? -Infinity;
-  if (
-    opts.xMin !== undefined &&
-    opts.xMax !== undefined &&
-    opts.yMin !== undefined &&
-    opts.yMax !== undefined
-  ) {
-    // noop
-  } else {
-    // I'm too lazy to unroll the combinatorial, and it will be unmaintanable
-    // so let's guard against undefined for every opts.x(Min|Max)
-    for (let i = 0; i < series.length; i++) {
-      const serie = series[i];
-      for (let i = 0; i < serie.data.length; i++) {
-        const { x, y } = serie.data[i];
-        if (opts.xMin === undefined && xMin > x) {
-          xMin = x;
-        }
-        if (opts.xMax === undefined && xMax < x) {
-          xMax = x;
-        }
-        if (opts.yMin === undefined && yMin > y) {
-          yMin = y;
-        }
-        if (opts.yMax === undefined && yMax < y) {
-          yMax = y;
-        }
+    // Add the y-axes.
+    let leftAxesIdx = -1;
+    let rightAxesIdx = -1;
+    for (const yAxisName in yScales) {
+      // safety: if we have a scale then we must have a yAxes definition
+      const pos = this._config.yAxes![yAxisName].position;
+      if (pos === undefined || pos === 'left') {
+        leftAxesIdx++;
+        this._svg
+          .append('g')
+          .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
+          .call(d3.axisLeft(yScales[yAxisName]));
+      } else {
+        rightAxesIdx++;
+        this._svg
+          .append('g')
+          .attr(
+            'transform',
+            `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
+          )
+          .call(d3.axisRight(yScales[yAxisName]));
       }
     }
   }
-
-  return {
-    x: [xMin, xMax] as const,
-    y: [yMin, yMax] as const,
-  };
 }
 
-function computeScale(
-  type: ScaleType = 'linear',
-  range: readonly [number, number],
-  domain: readonly [any, any]
-) {
-  let scale;
+function createScale(type: ScaleType = 'linear', domain: any[], range: any[]) {
   switch (type) {
     case 'linear':
-      scale = d3.scaleLinear(domain, range).interpolate(d3.interpolateRound);
-      break;
-
+      return d3.scaleLinear().domain(domain).rangeRound(range);
     case 'log':
-      scale = d3.scaleLog(domain, range).interpolate(d3.interpolateRound);
-      break;
-
+      return d3.scaleLog().domain(domain).rangeRound(range);
     case 'time':
-      scale = d3.scaleTime(domain, range).interpolate(d3.interpolateRound);
-      break;
+      return d3.scaleTime().domain(domain).rangeRound(range);
+    // case 'ordinal':
+    //   return d3.scaleOrdinal().domain(domain).range(range).unknown(null);
   }
-
-  return scale;
 }
 
 declare global {
