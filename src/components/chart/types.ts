@@ -12,21 +12,24 @@ export type TableLike = {
   data: any[][];
 };
 
-export type Margin = {
-  top: number;
-  right: number;
-  bottom: number;
-  left: number;
-};
-
 export type Axis = {
   title: string;
   min: number;
   max: number;
   scale: ScaleType;
+  /**
+   * See https://d3js.org/d3-format#format
+   */
+  format: string;
+  // /**
+  //  * See https://d3js.org/d3-format#formatLocale
+  //  */
+  // formatLocale: d3.FormatLocaleDefinition;
 };
 
-export type Ordinate = Axis & { position: AxisPosition };
+export type Ordinate = Axis & {
+  position: AxisPosition;
+};
 
 export interface Serie {
   type?: SerieType;
@@ -54,7 +57,6 @@ export interface Serie {
 
 export interface ChartConfig {
   type?: SerieType;
-  margin?: Partial<Margin>;
   table: TableLike;
   series: Array<Serie>;
   /**

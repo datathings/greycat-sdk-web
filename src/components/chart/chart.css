@@ -1,3 +1,10 @@
 gui-chart {
+  --m-top: 10px;
+  --m-right: 40px;
+  --m-right-empty: 10px;
+  --m-bottom: 20px;
+  --m-left: 40px;
+  --m-left-empty: 10px;
+
   user-select: none;
 }

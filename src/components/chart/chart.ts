@@ -5,7 +5,7 @@ import * as d3 from 'd3';
 import { debounce } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
-import { Axis, ChartConfig, Margin, ScaleType } from './types';
+import { Axis, ChartConfig, ScaleType } from './types';
 import { Scale } from './internals';
 
 export class GuiChart extends HTMLElement {
@@ -97,13 +97,14 @@ export class GuiChart extends HTMLElement {
       }
     }
 
-    const margin: Margin = {
-      // sane defaults based on the x-axis & y-axes
-      top: 20,
-      right: rightAxes === 0 ? 10 : 35,
-      bottom: 25,
-      left: leftAxes === 0 ? 10 : 35,
-      ...this._config.margin,
+    const style = getComputedStyle(this);
+    const margin = {
+      top: parseInt(style.getPropertyValue('--m-top')),
+      right: parseInt(style.getPropertyValue('--m-right')),
+      rightEmpty: parseInt(style.getPropertyValue('--m-right-empty')),
+      bottom: parseInt(style.getPropertyValue('--m-bottom')),
+      left: parseInt(style.getPropertyValue('--m-left')),
+      leftEmpty: parseInt(style.getPropertyValue('--m-left-empty')),
     };
 
     // compute ranges based on available width, height and margins
@@ -115,13 +116,16 @@ export class GuiChart extends HTMLElement {
     ];
     const yRange = [this._canvas.height - margin.bottom, margin.top];
 
-    const xAxis: Omit<Axis, 'title'> = {
-      min: 0,
-      max: Math.max(0, this._config.table.data.length - 1),
-      scale: 'linear',
-      ...this._config.xAxis,
-    };
-    const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+    let xScale;
+    {
+      const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
+        min: 0,
+        max: Math.max(0, this._config.table.data.length - 1),
+        scale: 'linear',
+        ...this._config.xAxis,
+      };
+      xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+    }
 
     const yScales: Record<string, Scale> = {};
     if (this._config.yAxes) {
@@ -286,35 +290,42 @@ export class GuiChart extends HTMLElement {
       }
     }
 
-    console.log({ xAxis, x: xScale, y: yScales });
-
     // Add the x-axis.
+    const xAxis = d3.axisBottom(xScale);
     this._svg
       .append('g')
       .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
-      .call(d3.axisBottom(xScale));
+      .call(xAxis);
 
     // Add the y-axes.
     let leftAxesIdx = -1;
     let rightAxesIdx = -1;
     for (const yAxisName in yScales) {
       // safety: if we have a scale then we must have a yAxes definition
-      const pos = this._config.yAxes![yAxisName].position;
-      if (pos === undefined || pos === 'left') {
+      const { format = '', position } = this._config.yAxes![yAxisName];
+      const fmt = d3.format(format);
+
+      if (position === undefined || position === 'left') {
         leftAxesIdx++;
+        const yAxis = d3.axisLeft(yScales[yAxisName]);
+        yAxis.tickFormat(fmt);
+
         this._svg
           .append('g')
           .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
-          .call(d3.axisLeft(yScales[yAxisName]));
+          .call(yAxis);
       } else {
         rightAxesIdx++;
+        const yAxis = d3.axisRight(yScales[yAxisName]);
+        yAxis.tickFormat(fmt);
+
         this._svg
           .append('g')
           .attr(
             'transform',
             `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
           )
-          .call(d3.axisRight(yScales[yAxisName]));
+          .call(yAxis);
       }
     }
   }

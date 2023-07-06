@@ -57,9 +57,6 @@
     randomize();
 
     chart.config = {
-      margin: {
-        // right: 25,
-      },
       xAxis: {
         min: -1,
         max: 100,
@@ -68,6 +65,17 @@
         left: {
           min: 1,
           max: 200,
+        },
+        three: {
+          min: 10e5,
+          max: 10e9,
+          format: '.2s',
+        },
+        four: {
+          min: 10000,
+          max: 100000,
+          format: '.2s',
+          position: 'right'
         },
         right: {
           position: 'right',
