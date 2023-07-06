@@ -20,7 +20,6 @@ import {
   processCssVars,
   round,
 } from '../../utils';
-import { ScaleType } from '../heatmap-chart';
 
 // Scale constant
 const Y_SCALE_WIDTH = 35;
@@ -38,7 +37,6 @@ export interface ScatterPlotChartProps {
   axisLabels: [string, string] | undefined;
   showReferenceLines: boolean;
 
-  scaleType: ScaleType | undefined;
   colorSteps?: string[];
   clusterClasses?: string[];
   activeClasses?: number[];
@@ -81,7 +79,6 @@ export class GuiScatterPlotChart extends HTMLElement implements ScatterPlotChart
   private _referenceLineStyles: string | undefined;
 
   // Clustering
-  private _scaleType = ScaleType.log;
   private _colorSteps = getColors();
   private _clusterClasses: string[] = [];
   private _activeClasses: number[] | undefined;
@@ -165,18 +162,6 @@ export class GuiScatterPlotChart extends HTMLElement implements ScatterPlotChart
     this.render();
   }
 
-  get scaleType(): ScaleType {
-    return this._scaleType;
-  }
-
-  set scaleType(scaleType: ScaleType | undefined) {
-    if (scaleType) {
-      this._scaleType = scaleType;
-      this._drawLegend();
-      this.render();
-    }
-  }
-
   get colorSteps(): string[] {
     return this._colorSteps;
   }
@@ -235,7 +220,6 @@ export class GuiScatterPlotChart extends HTMLElement implements ScatterPlotChart
     normalizeAxis = this._normalizeAxis,
     axisLabels = this._axisLabels,
     showReferenceLines = this._showReferenceLines,
-    scaleType = this._scaleType,
     colorSteps = this._colorSteps,
     clusterClasses = this._clusterClasses,
     activeClasses = this._activeClasses,
@@ -248,7 +232,6 @@ export class GuiScatterPlotChart extends HTMLElement implements ScatterPlotChart
     this._normalizeAxis = normalizeAxis;
     this._axisLabels = axisLabels;
     this._showReferenceLines = showReferenceLines;
-    this._scaleType = scaleType;
     this._colorSteps = colorSteps;
     this._clusterClasses = clusterClasses;
     this._activeClasses =

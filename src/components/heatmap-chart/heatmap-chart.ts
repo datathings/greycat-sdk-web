@@ -6,7 +6,7 @@ import { getCSSVars, getHeatmapColors } from '../../utils';
 
 const DEFAULT_COLORS = ['red', 'blue'];
 
-export enum ScaleType {
+enum ScaleType {
   linear,
   log,
 }

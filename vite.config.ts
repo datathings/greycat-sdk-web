@@ -17,7 +17,6 @@ readdirSync(input_dir).forEach((file) => {
 export default defineConfig({
   base: '',
   build: {
-    outDir: 'docs',
     rollupOptions: {
       input,
     },
