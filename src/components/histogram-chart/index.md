@@ -1,0 +1,3 @@
+# `<gui-histogram-chart />`
+
+TODO

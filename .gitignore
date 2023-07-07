@@ -1,3 +1,5 @@
 /node_modules
 /gcdata
 /dist
+/.vitepress/cache
+/.vitepress/dist

@@ -13,6 +13,9 @@
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify --sourcemap",
     "build:manifest": "cem analyze --globs 'src/components/**/*.ts' --exclude '**/index.ts' --exclude '**/bundle.ts' && mv custom-elements.json dist/",
     "build:docs": "vite build",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
+    "docs:preview": "vitepress preview",
     "watch": "esbuild --bundle src/index.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --sourcemap --watch",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
@@ -34,7 +37,9 @@
     "eslint": "8.25.0",
     "prettier": "^3.0.0",
     "typescript": "5.0.4",
-    "vite": "^4.3.9"
+    "vite": "^4.3.9",
+    "vitepress": "1.0.0-beta.5",
+    "vue": "^3.3.4"
   },
   "publishConfig": {
     "@greycat:registry": "https://hub.datathings.com/api/v4/projects/289/packages/npm/"

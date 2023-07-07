@@ -1,0 +1,3 @@
+# `<gui-heatmap-chart />`
+
+TODO
