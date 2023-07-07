@@ -8,7 +8,7 @@ type Ctx = CanvasRenderingContext2D;
 export type LineOptions = {
   width: number;
   color: Color;
-  dashed?: number[];
+  lineTypeCol?: number;
   opacity?: number;
 };
 
@@ -49,37 +49,37 @@ export function line(
     return;
   }
 
-  // const segments = [5, 8];
+  const lineTypeCol = opts.lineTypeCol ?? -1;
 
   ctx.save();
+
   ctx.lineWidth = opts.width;
   ctx.strokeStyle = opts.color;
   ctx.globalAlpha = opts.opacity ?? 1;
+  const segments: Record<number, number[]> = {
+    0: [], // solid
+    1: [5, 5], // dashed
+  };
 
   ctx.beginPath();
   ctx.moveTo(xScale(xCol === undefined ? 0 : rows[0][xCol]), yScale(rows[0][yCol]));
-  // if (opts.dashed || line[0].dashed) {
-  //   ctx.setLineDash(segments);
-  // }
+
+  let prevSegments = segments[rows[0][lineTypeCol] ?? 0];
+  ctx.setLineDash(prevSegments);
 
   for (let i = 1; i < rows.length; i++) {
     const x = xScale(xCol === undefined ? i : rows[i][xCol]);
     const y = yScale(rows[i][yCol]);
     ctx.lineTo(x, y);
-    // if (line[i].dashed) {
-    //   ctx.stroke();
-    //   ctx.closePath();
-    //   ctx.setLineDash(segments);
-    //   ctx.beginPath();
-    //   ctx.moveTo(x, y);
-    // }
-    // if (line[i].dashed === false) {
-    //   ctx.stroke();
-    //   ctx.closePath();
-    //   ctx.setLineDash([]);
-    //   ctx.beginPath();
-    //   ctx.moveTo(x, y);
-    // }
+    const currSegments = segments[rows[i][lineTypeCol] ?? 0];
+    if (prevSegments !== currSegments) {
+      ctx.stroke();
+      ctx.closePath();
+      ctx.setLineDash(currSegments);
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      prevSegments = currSegments;
+    }
   }
 
   ctx.stroke();

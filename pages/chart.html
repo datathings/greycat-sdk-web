@@ -41,16 +41,16 @@
     import '../src/bundle.ts';
 
     const rows = 100;
-    const cols = 4;
+    const cols = 5;
     const table = {
       data: Array.from({ length: rows }, () => new Array(cols)),
-      meta: new Array(cols),
     };
 
-    const lineOffset = 0;
-    const scatterOffset = 1;
-    const areaOffset = 2;
-    const barOffset = 3;
+    const lineCol = 0;
+    const scatterCol = 1;
+    const areaCol = 2;
+    const barCol = 3;
+    const lineTypeCol = 4;
 
     const chart = document.querySelector('gui-chart');
 
@@ -86,21 +86,22 @@
         {
           type: 'line',
           yAxis: 'left',
-          yCol: 0,
+          yCol: lineCol,
+          lineTypeCol: lineTypeCol,
         },
         {
           yAxis: 'left',
-          yCol: 1,
+          yCol: scatterCol,
         },
         {
           type: 'line+area',
           yAxis: 'right',
-          yCol: 2,
+          yCol: areaCol,
         },
         {
           type: 'bar',
           yAxis: 'left',
-          yCol: 3,
+          yCol: barCol,
           width: 10,
         },
       ],
@@ -112,25 +113,25 @@
       for (let row = 0; row < rows; row++) {
         prev1 += 5 - Math.random() * 10;
         prev1 = Math.max(0, prev1);
-        table.data[row][lineOffset] = prev1;
-        table.data[row][areaOffset] = randomInt(prev1 - 10, prev1 + 10);
-        // if (i === 20) {
-
-        //   lineData[i].dashed = true;
-        // }
-        // if (i === 45) {
-        //   lineData[i].dashed = false;
-        // }
+        table.data[row][lineCol] = prev1;
+        table.data[row][areaCol] = randomInt(prev1 - 10, prev1 + 10);
+        if (row >= 20 && row <= 45) {
+          // dashed
+          table.data[row][lineTypeCol] = 1;
+        } else {
+          // solid
+          table.data[row][lineTypeCol] = 0;
+        }
         prev2 += 5 - Math.random() * 10;
         prev2 = Math.max(0, prev2);
-        table.data[row][scatterOffset] = prev2;
+        table.data[row][scatterCol] = prev2;
 
         if (row >= 0 && row < 5) {
-          table.data[row][barOffset] = randomInt(1, 40);
+          table.data[row][barCol] = randomInt(1, 40);
         }
 
         if (row >= (rows - 5) && row < rows) {
-          table.data[row][barOffset] = randomInt(1, 40);
+          table.data[row][barCol] = randomInt(1, 40);
         }
       }
 

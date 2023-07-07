@@ -1,11 +1,7 @@
 export type Color = string;
-
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
-
 export type ScaleType = 'linear' | 'log' | 'time';
-
 export type AreaPosition = 'below' | 'above';
-
 export type AxisPosition = 'left' | 'right';
 
 export type TableLike = {
@@ -50,7 +46,7 @@ export interface Serie {
 
   color?: Color;
   width?: number;
-  dashed?: number[];
+  lineTypeCol?: number;
   opacity?: number;
   kind?: AreaPosition;
 }

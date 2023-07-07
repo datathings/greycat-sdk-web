@@ -176,7 +176,7 @@ export class GuiChart extends HTMLElement {
             {
               color: serie.color ?? this._colors[i],
               width: serie.width ?? 1,
-              dashed: serie.dashed,
+              lineTypeCol: serie.lineTypeCol,
               opacity: serie.opacity,
             },
           );
@@ -192,7 +192,7 @@ export class GuiChart extends HTMLElement {
             {
               color: serie.color ?? this._colors[i],
               width: serie.width ?? 1,
-              dashed: serie.dashed,
+              lineTypeCol: serie.lineTypeCol,
               opacity: serie.opacity,
             },
           );
@@ -234,7 +234,7 @@ export class GuiChart extends HTMLElement {
             {
               color: serie.color ?? this._colors[i],
               width: serie.width ?? 1,
-              dashed: serie.dashed,
+              lineTypeCol: serie.lineTypeCol,
               opacity: serie.opacity,
             },
           );
