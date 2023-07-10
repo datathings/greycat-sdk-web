@@ -97,8 +97,7 @@ export class GuiChart extends HTMLElement {
     // this.addEventListener('click', this._leaveHandler);
 
     const mainLoop = () => {
-      var { xRange, yRange, rightAxes, xScale, yScales, margin } = this._compute();
-      this.updateUX(xRange, yRange, rightAxes, style, xScale, yScales, margin);
+      this.updateUX();
       requestAnimationFrame(mainLoop);
     };
     requestAnimationFrame(mainLoop);
@@ -139,26 +138,15 @@ export class GuiChart extends HTMLElement {
   }
 
   /**
-   * This is all about cursor interactions. This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
+   * This is all about cursor interactions.
+   *
+   * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
-  private updateUX(
-    xRange: number[],
-    yRange: number[],
-    rightAxes: number,
-    style: CSSStyleDeclaration,
-    xScale: Scale,
-    yScales: Record<string, Scale>,
-    margin: {
-      top: number;
-      right: number;
-      rightEmpty: number;
-      bottom: number;
-      left: number;
-      leftEmpty: number;
-    },
-  ) {
+  private updateUX() {
     // clear the canvas
     this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+
+    const { xRange, yRange, rightAxes, style, xScale, yScales, margin } = this._compute();
 
     if (
       this._cursor.x !== -1 &&
