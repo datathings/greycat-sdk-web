@@ -1,29 +1,36 @@
 import * as d3 from 'd3';
 
-(window as any).d3 = d3;
-
 import { debounce } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
-import { Axis, ChartConfig, ScaleType } from './types';
+import { Axis, ChartConfig, ScaleType, Serie, SerieOptions } from './types';
 import { Scale } from './internals';
 
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
-  private _canvas: HTMLCanvasElement;
-  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  private _ctx: CanvasRenderingContext2D;
   private _colors: string[];
+  private _cursor = { x: -1, y: -1 };
+
+  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _yAxisGroups: Record<string, d3.Selection<SVGGElement, unknown, null, undefined>> = {};
+
+  private _canvas: HTMLCanvasElement;
+  private _ctx: CanvasRenderingContext2D;
 
   constructor() {
     super();
 
     this._config = { type: 'line', table: { data: [] }, series: [] };
+
+    // main canvas
     this._canvas = document.createElement('canvas');
     this._canvas.style.display = 'block';
     this._canvas.style.position = 'absolute';
+    this._canvas.style.background = 'transparent';
     this._ctx = this._canvas.getContext('2d') as CanvasRenderingContext2D;
+
     this._colors = getColors(this);
 
     this._obs = new ResizeObserver(
@@ -35,6 +42,7 @@ export class GuiChart extends HTMLElement {
         this._canvas.width = width;
         this._canvas.height = height;
         this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
+
         this.update();
       }, 250),
     );
@@ -49,24 +57,53 @@ export class GuiChart extends HTMLElement {
     }
     this.style.position = 'relative';
 
-    this.appendChild(this._canvas);
     this._svg = d3
       .select(this)
       .append('svg')
       .style('background', 'transparent')
       .style('position', 'absolute');
 
-    // this._svg.on(
-    //   'mousemove',
-    //   throttle(function (event) {
-    //     console.log('mousemove', event);
-    //   }, 100)
-    // );
+    this._xAxisGroup = this._svg.append('g');
+
+    this.appendChild(this._canvas);
+
+    this.addEventListener('mousemove', this._moveHandler);
+    this.addEventListener('touchmove', this._moveHandler);
+    this.addEventListener('mouseleave', this._leaveHandler);
+    this.addEventListener('touchend', this._leaveHandler);
+    // this.addEventListener('click', this._leaveHandler);
+
+    const mainLoop = () => {
+      this.update();
+      requestAnimationFrame(mainLoop);
+    };
+    requestAnimationFrame(mainLoop);
   }
 
   disconnectedCallback() {
     this._obs.disconnect();
+    this.removeEventListener('mousemove', this._moveHandler);
+    this.removeEventListener('touchmove', this._moveHandler);
+    this.removeEventListener('mouseleave', this._leaveHandler);
+    this.removeEventListener('touchend', this._leaveHandler);
+    // this.removeEventListener('click', this._leaveHandler);
   }
+
+  private _moveHandler = (event: MouseEvent | TouchEvent) => {
+    const { left, top } = this._canvas.getBoundingClientRect();
+    if (event instanceof MouseEvent) {
+      this._cursor.x = event.pageX - left;
+      this._cursor.y = event.pageY - top;
+    } else {
+      this._cursor.x = event.touches[0].pageX - left;
+      this._cursor.y = event.touches[0].pageY - top;
+    }
+  };
+
+  private _leaveHandler = () => {
+    this._cursor.x = -1;
+    this._cursor.y = -1;
+  };
 
   set config(config: ChartConfig) {
     this._config = config;
@@ -80,9 +117,6 @@ export class GuiChart extends HTMLElement {
   update(): void {
     // clear the canvas content
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
-
-    // clear svg elements
-    this._svg.selectChildren().remove();
 
     let leftAxes = 0;
     let rightAxes = 0;
@@ -116,7 +150,7 @@ export class GuiChart extends HTMLElement {
     ];
     const yRange = [this._canvas.height - margin.bottom, margin.top];
 
-    let xScale;
+    let xScale: Scale;
     {
       const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
         min: 0,
@@ -127,180 +161,193 @@ export class GuiChart extends HTMLElement {
       xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
     }
 
+    // TODO handle the case where no yAxes have been defined at all
     const yScales: Record<string, Scale> = {};
-    if (this._config.yAxes) {
-      for (const yAxisName in this._config.yAxes) {
-        const yAxis = this._config.yAxes[yAxisName];
+    for (const yAxisName in this._config.yAxes) {
+      const yAxis = this._config.yAxes[yAxisName];
 
-        const type = yAxis.scale ?? 'linear';
-        let min: number | null = null;
-        let max: number | null = null;
+      const type = yAxis.scale ?? 'linear';
+      let min: number | null = null;
+      let max: number | null = null;
 
-        if (yAxis.min === undefined || yAxis.max === undefined) {
-          // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
-          for (let i = 0; i < this._config.series.length; i++) {
-            const serie = this._config.series[i];
-            if (serie.yAxis === yAxisName) {
-              for (let row = 0; row < this._config.table.data.length; row++) {
-                const value = this._config.table.data[row][serie.yCol];
-                if (min == null) {
-                  min = value;
-                } else if (value <= min) {
-                  min = value;
-                }
-                if (max == null) {
-                  max = value;
-                } else if (value >= max) {
-                  max = value;
-                }
+      if (yAxis.min === undefined || yAxis.max === undefined) {
+        // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
+        for (let i = 0; i < this._config.series.length; i++) {
+          const serie = this._config.series[i];
+          if (serie.yAxis === yAxisName) {
+            for (let row = 0; row < this._config.table.data.length; row++) {
+              const value = this._config.table.data[row][serie.yCol];
+              if (min == null) {
+                min = value;
+              } else if (value <= min) {
+                min = value;
+              }
+              if (max == null) {
+                max = value;
+              } else if (value >= max) {
+                max = value;
               }
             }
           }
         }
-
-        yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
       }
+
+      yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
     }
 
     for (let i = 0; i < this._config.series.length; i++) {
-      const serie = this._config.series[i];
+      const serie: Serie & SerieOptions = {
+        color: this._colors[i],
+        width: 1,
+        markerWidth: 2,
+        markerShape: 'circle',
+        opacity: 1,
+        fillOpacity: 0.2,
+        kind: 'below',
+        ...this._config.series[i],
+      };
+
       switch (serie.type ?? 'line') {
         case 'line':
-          draw.line(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              lineTypeCol: serie.lineTypeCol,
-              opacity: serie.opacity,
-            },
-          );
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+scatter':
-          draw.line(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              lineTypeCol: serie.lineTypeCol,
-              opacity: serie.opacity,
-            },
-          );
-          draw.scatter(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              radius: serie.width ?? 2,
-            },
-          );
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+area':
-          draw.area(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              kind: serie.kind ?? 'below',
-              opacity: serie.opacity,
-            },
-          );
-          draw.line(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              lineTypeCol: serie.lineTypeCol,
-              opacity: serie.opacity,
-            },
-          );
+          // draw area "under" (before) line
+          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'area':
-          draw.area(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              kind: serie.kind ?? 'below',
-              opacity: serie.opacity,
-            },
-          );
+          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'bar':
-          draw.bar(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              width: serie.width ?? 1,
-              opacity: serie.opacity ?? 1,
-            },
-          );
+          draw.bar(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'scatter':
-          draw.scatter(
-            this._ctx,
-            this._config.table,
-            serie.xCol,
-            serie.yCol,
-            xScale,
-            yScales[serie.yAxis],
-            {
-              color: serie.color ?? this._colors[i],
-              radius: serie.width ?? 2,
-            },
-          );
+          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
-        default:
-          console.warn(`unhandled serie type '${serie.type}'`);
-          break;
+      }
+    }
+
+    if (
+      this._cursor.x !== -1 &&
+      this._cursor.y !== -1 &&
+      this._cursor.x >= xRange[0] &&
+      this._cursor.x <= xRange[1] &&
+      this._cursor.y >= yRange[1] &&
+      this._cursor.y <= yRange[0]
+    ) {
+      // if cursor: true, then display cursor info in realtime
+      if (this._config.cursor) {
+        // cursor horizontal dashed
+        draw.simpleLine(
+          this._ctx,
+          xRange[0],
+          this._cursor.y,
+          rightAxes === 0 ? this._cursor.x : xRange[1],
+          this._cursor.y,
+          {
+            color: style.getPropertyValue('--cursor-line-c'),
+            dashed: true,
+          },
+        );
+        // cursor vertical dashed
+        draw.simpleLine(this._ctx, this._cursor.x, yRange[0], this._cursor.x, this._cursor.y, {
+          color: style.getPropertyValue('--cursor-line-c'),
+          dashed: true,
+        });
+        // cursor cross
+        draw.cross(this._ctx, this._cursor.x, this._cursor.y, 12, {
+          color: style.getPropertyValue('--cursor-c'),
+          thickness: 2,
+        });
+
+        draw.text(
+          this._ctx,
+          this._cursor.x,
+          yRange[0] + 8,
+          d3.format(this._config.xAxis?.format ?? '.2f')(xScale.invert(this._cursor.x)),
+          {
+            color: style.getPropertyValue('--cursor-c'),
+            backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+            align: 'center',
+            baseline: 'top',
+          },
+        );
+        let leftAxesIdx = -1;
+        let rightAxesIdx = -1;
+        for (const yAxisName in yScales) {
+          const yAxis = this._config.yAxes![yAxisName];
+          if (yAxis.position === undefined || yAxis.position === 'left') {
+            leftAxesIdx++;
+            draw.text(
+              this._ctx,
+              margin.left + leftAxesIdx * margin.left - 8,
+              this._cursor.y,
+              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              {
+                color: style.getPropertyValue('--cursor-c'),
+                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                align: 'end',
+                baseline: 'middle',
+              },
+            );
+          } else {
+            rightAxesIdx++;
+            draw.text(
+              this._ctx,
+              this._canvas.width - (margin.right + rightAxesIdx * margin.right) + 8,
+              this._cursor.y,
+              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              {
+                color: style.getPropertyValue('--cursor-c'),
+                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                align: 'start',
+                baseline: 'middle',
+              },
+            );
+          }
+        }
+      }
+
+      // display markers on series based on cursor
+      for (let i = 0; i < this._config.series.length; i++) {
+        const serie = this._config.series[i];
+
+        const xValue = Math.round(+xScale.invert(this._cursor.x));
+        const row = this._config.table.data[xValue];
+        if (row !== undefined) {
+          const yValue = this._config.table.data[xValue][serie.yCol];
+          const x = xScale(xValue);
+          const y = yScales[serie.yAxis](yValue);
+          draw.circle(this._ctx, x, y, 5, {
+            color: this._colors[i],
+            fill: this._colors[i],
+          });
+        }
       }
     }
 
     // Add the x-axis.
     const xAxis = d3.axisBottom(xScale);
-    this._svg
-      .append('g')
+    xAxis.tickFormat(d3.format(this._config.xAxis?.format ?? ''));
+    this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
       .call(xAxis);
 
     // Add the y-axes.
     let leftAxesIdx = -1;
     let rightAxesIdx = -1;
+
     for (const yAxisName in yScales) {
+      if (this._yAxisGroups[yAxisName] === undefined) {
+        // create a yAxisGroup only if needed
+        this._yAxisGroups[yAxisName] = this._svg.append('g');
+      }
+
       // safety: if we have a scale then we must have a yAxes definition
       const { format = '', position } = this._config.yAxes![yAxisName];
       const fmt = d3.format(format);
@@ -310,8 +357,7 @@ export class GuiChart extends HTMLElement {
         const yAxis = d3.axisLeft(yScales[yAxisName]);
         yAxis.tickFormat(fmt);
 
-        this._svg
-          .append('g')
+        this._yAxisGroups[yAxisName]
           .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
           .call(yAxis);
       } else {
@@ -319,8 +365,7 @@ export class GuiChart extends HTMLElement {
         const yAxis = d3.axisRight(yScales[yAxisName]);
         yAxis.tickFormat(fmt);
 
-        this._svg
-          .append('g')
+        this._yAxisGroups[yAxisName]
           .attr(
             'transform',
             `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
@@ -328,10 +373,18 @@ export class GuiChart extends HTMLElement {
           .call(yAxis);
       }
     }
+
+    // remove no longer used yAxisGroup
+    for (const yAxisName in this._yAxisGroups) {
+      if (yScales[yAxisName] === undefined) {
+        this._yAxisGroups[yAxisName].remove();
+        delete this._yAxisGroups[yAxisName];
+      }
+    }
   }
 }
 
-function createScale(type: ScaleType = 'linear', domain: any[], range: any[]) {
+function createScale(type: ScaleType = 'linear', domain: any[], range: any[]): Scale {
   switch (type) {
     case 'linear':
       return d3.scaleLinear().domain(domain).rangeRound(range);

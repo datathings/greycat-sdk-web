@@ -169,7 +169,9 @@ input[type='checkbox'],
 input[type='range'],
 input[type='radio'] {
   cursor: pointer;
-  transition: color 0.08s ease-in-out, background-color 0.08s ease-in-out,
+  transition:
+    color 0.08s ease-in-out,
+    background-color 0.08s ease-in-out,
     border-color 0.08s ease-in-out;
 }
 
@@ -291,7 +293,7 @@ select {
   color: var(--text);
   background: rgb(var(--base-1));
   margin: 0;
-  margin-bottom: 1rem;
+  /* margin-bottom: 1rem; */
   padding: 0.4em;
   max-width: fit-content;
   box-sizing: border-box;
@@ -306,18 +308,31 @@ select:is([multiple]) {
   height: fit-content;
 }
 
+/* focus-within */
+button:focus-within,
 fieldset:focus-within,
 input:focus-within,
 textarea:focus-within,
-select:focus-within {
-  border-color: rgb(var(--accent-1));
-}
-
+select:focus-within,
+/* focus-visible */
+button:focus-visible,
+fieldset:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+/* hover */
+button:hover,
 fieldset:hover,
 input:hover,
 textarea:hover,
-select:hover {
-  border-color: rgb(var(--accent-1));
+select:hover,
+/* focus */
+button:focus,
+fieldset:focus,
+input:focus,
+textarea:focus,
+select:focus {
+  border: 1px solid rgb(var(--accent-1));
 }
 
 meter {

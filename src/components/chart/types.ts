@@ -3,6 +3,7 @@ export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | '
 export type ScaleType = 'linear' | 'log' | 'time';
 export type AreaPosition = 'below' | 'above';
 export type AxisPosition = 'left' | 'right';
+export type MarkerShape = 'circle' | 'square' | 'triangle';
 
 export type TableLike = {
   data: any[][];
@@ -27,7 +28,17 @@ export type Ordinate = Axis & {
   position: AxisPosition;
 };
 
-export interface Serie {
+export type SerieOptions = {
+  color: Color;
+  width: number;
+  markerWidth: number;
+  markerShape: MarkerShape;
+  opacity: number;
+  fillOpacity: number;
+  kind: AreaPosition;
+};
+
+export interface Serie extends Partial<SerieOptions> {
   type?: SerieType;
   /**
    * optional offset of the x column in the given table
@@ -43,12 +54,10 @@ export interface Serie {
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: string;
-
-  color?: Color;
-  width?: number;
+  /**
+   * offset of the column in the table to use to read lineType values for each x
+   */
   lineTypeCol?: number;
-  opacity?: number;
-  kind?: AreaPosition;
 }
 
 export interface ChartConfig {
@@ -67,4 +76,5 @@ export interface ChartConfig {
   yAxes?: Record<string, Partial<Ordinate>>;
   startOffset?: number;
   endOffset?: number;
+  cursor?: boolean;
 }

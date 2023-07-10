@@ -1,75 +1,64 @@
 import { Scale } from './internals';
-import { AreaPosition, Color, TableLike } from './types';
+import { Color, Serie, SerieOptions, TableLike } from './types';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
 type Ctx = CanvasRenderingContext2D;
 
-export type LineOptions = {
-  width: number;
-  color: Color;
-  lineTypeCol?: number;
-  opacity?: number;
-};
+type SerieWithOptions = Serie & SerieOptions;
 
-export type BarOptions = {
-  width: number;
-  color: Color;
-};
-
-export type ScatterOptions = {
-  radius: number;
-  color: Color;
-};
-
-export type AreaOptions = {
-  width: number;
-  color: Color;
-  kind: AreaPosition;
-  opacity?: number;
-};
-
-export type CircleOptions = {
-  radius: number;
+export type ShapeOptions = {
   color: Color;
   fill?: string;
+  thickness?: number;
+  opacity?: number;
+  dashed?: boolean;
+};
+
+export type TextOptions = {
+  color: Color;
+  backgroundColor?: Color;
+  font?: string;
+  baseline?: CanvasTextBaseline;
+  align?: CanvasTextAlign;
 };
 
 export function line(
   ctx: Ctx,
   table: TableLike,
-  xCol: number | undefined,
-  yCol: number,
+  serie: SerieWithOptions,
   xScale: Scale,
   yScale: Scale,
-  opts: LineOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {
     return;
   }
 
-  const lineTypeCol = opts.lineTypeCol ?? -1;
+  const lineTypeCol = serie.lineTypeCol ?? -1;
 
   ctx.save();
 
-  ctx.lineWidth = opts.width;
-  ctx.strokeStyle = opts.color;
-  ctx.globalAlpha = opts.opacity ?? 1;
+  ctx.lineWidth = serie.width;
+  ctx.strokeStyle = serie.color;
+  ctx.globalAlpha = serie.opacity ?? 1;
   const segments: Record<number, number[]> = {
     0: [], // solid
     1: [5, 5], // dashed
   };
 
   ctx.beginPath();
-  ctx.moveTo(xScale(xCol === undefined ? 0 : rows[0][xCol]), yScale(rows[0][yCol]));
+  ctx.moveTo(
+    xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]),
+    yScale(rows[0][serie.yCol]),
+  );
 
   let prevSegments = segments[rows[0][lineTypeCol] ?? 0];
   ctx.setLineDash(prevSegments);
 
   for (let i = 1; i < rows.length; i++) {
-    const x = xScale(xCol === undefined ? i : rows[i][xCol]);
-    const y = yScale(rows[i][yCol]);
+    const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]);
+    const y = yScale(rows[i][serie.yCol]);
     ctx.lineTo(x, y);
     const currSegments = segments[rows[i][lineTypeCol] ?? 0];
     if (prevSegments !== currSegments) {
@@ -91,11 +80,9 @@ export function line(
 export function bar(
   ctx: Ctx,
   table: TableLike,
-  xCol: number | undefined,
-  yCol: number,
+  serie: SerieWithOptions,
   xScale: Scale,
   yScale: Scale,
-  opts: BarOptions & { opacity: number },
 ) {
   const rows = table.data;
   if (rows.length === 0) {
@@ -103,16 +90,16 @@ export function bar(
   }
 
   ctx.save();
-  ctx.fillStyle = opts.color;
-  ctx.globalAlpha = opts.opacity;
+  ctx.fillStyle = serie.color;
+  ctx.globalAlpha = serie.opacity;
 
   const [yMin] = yScale.range();
-  const shift = Math.round(opts.width / 2);
+  const shift = Math.round(serie.width / 2);
 
   for (let i = 0; i < rows.length; i++) {
-    const x = xScale(xCol === undefined ? i : rows[i][xCol]) - shift;
-    const y = yScale(rows[i][yCol]);
-    ctx.fillRect(x, y, opts.width, yMin - y);
+    const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]) - shift;
+    const y = yScale(rows[i][serie.yCol]);
+    ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
   ctx.restore();
@@ -121,11 +108,9 @@ export function bar(
 export function scatter(
   ctx: Ctx,
   table: TableLike,
-  xCol: number | undefined,
-  yCol: number,
+  serie: SerieWithOptions,
   xScale: Scale,
   yScale: Scale,
-  opts: ScatterOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {
@@ -134,79 +119,88 @@ export function scatter(
 
   ctx.save();
 
-  ctx.fillStyle = opts.color;
-
   for (let i = 0; i < rows.length; i++) {
-    ctx.fillStyle = opts.color;
-    ctx.beginPath();
-    ctx.arc(
-      xScale(xCol === undefined ? i : rows[i][xCol]),
-      yScale(rows[i][yCol]),
-      opts.radius,
-      0,
-      CIRCLE_END_ANGLE,
-    );
-    ctx.fill();
+    switch (serie.markerShape) {
+      case 'circle':
+        circle(
+          ctx,
+          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
+          yScale(rows[i][serie.yCol]),
+          serie.markerWidth / 2,
+          {
+            color: serie.color,
+            fill: serie.color,
+          },
+        );
+        break;
+      case 'square':
+        rectangle(
+          ctx,
+          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]) - serie.markerWidth / 2,
+          yScale(rows[i][serie.yCol]) - serie.markerWidth / 2,
+          serie.markerWidth,
+          serie.markerWidth,
+          {
+            color: serie.color,
+            fill: serie.color,
+          },
+        );
+        break;
+      case 'triangle':
+        triangle(
+          ctx,
+          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
+          yScale(rows[i][serie.yCol]),
+          serie.markerWidth,
+          serie.markerWidth,
+          {
+            color: serie.color,
+            fill: serie.color,
+          },
+        );
+        break;
+    }
   }
 
   ctx.restore();
-}
-
-export function circle(ctx: Ctx, x: number, y: number, opts: CircleOptions) {
-  ctx.save();
-
-  // Draw circle "stroke"
-  ctx.beginPath();
-  ctx.fillStyle = opts.color;
-  ctx.strokeStyle = opts.color;
-  ctx.arc(x, y, opts.radius, 0, CIRCLE_END_ANGLE);
-  ctx.fill();
-
-  ctx.restore();
-
-  // Draw circle fill
-  if (opts.fill) {
-    ctx.fillStyle = opts.fill;
-    ctx.beginPath();
-    ctx.arc(x, y, opts.radius - 2, 0, CIRCLE_END_ANGLE);
-    ctx.fill();
-    ctx.restore();
-  }
 }
 
 export function area(
   ctx: Ctx,
   table: TableLike,
-  xCol: number | undefined,
-  yCol: number,
+  serie: SerieWithOptions,
   xScale: Scale,
   yScale: Scale,
-  opts: AreaOptions,
 ) {
   const rows = table.data;
   if (rows.length === 0) {
     return;
   }
 
-  const firstX = xScale(xCol === undefined ? 0 : rows[0][xCol]);
-  const firstY = yScale(rows[0][yCol]);
+  const firstX = xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]);
+  const firstY = yScale(rows[0][serie.yCol]);
 
   ctx.save();
-  ctx.globalAlpha = opts.opacity ?? 0.2;
-  ctx.fillStyle = opts.color;
+  ctx.globalAlpha = serie.fillOpacity;
+  ctx.fillStyle = serie.color;
 
   ctx.beginPath();
 
   // Upper line
   ctx.moveTo(firstX, firstY);
   for (let i = 1; i < rows.length; i++) {
-    ctx.lineTo(xScale(xCol === undefined ? i : rows[i][xCol]), yScale(rows[i][yCol]));
+    ctx.lineTo(
+      xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
+      yScale(rows[i][serie.yCol]),
+    );
   }
 
   // below => fill to yMin, above => fill to yMax
-  const yBound = opts.kind === 'below' ? yScale.range()[0] : yScale.range()[1];
+  const yBound = serie.kind === 'below' ? yScale.range()[0] : yScale.range()[1];
   // fill
-  const lastX = xScale(xCol === undefined ? rows.length - 1 : rows[rows.length - 1][xCol]);
+  const lastX = xScale(
+    serie.xCol === undefined ? rows.length - 1 : rows[rows.length - 1][serie.xCol],
+  );
   // bottom right
   ctx.lineTo(lastX, yBound);
   // bottom left
@@ -215,6 +209,153 @@ export function area(
   ctx.lineTo(firstX, firstY);
 
   ctx.fill();
+
+  ctx.restore();
+}
+
+export function circle(ctx: Ctx, x: number, y: number, radius: number, opts: ShapeOptions) {
+  ctx.save();
+
+  ctx.strokeStyle = opts.color;
+
+  ctx.beginPath();
+  ctx.arc(x, y, radius, 0, CIRCLE_END_ANGLE);
+
+  if (opts.fill) {
+    ctx.fillStyle = opts.fill;
+    ctx.fill();
+  } else {
+    ctx.stroke();
+  }
+
+  ctx.restore();
+}
+
+export function cross(ctx: Ctx, x: number, y: number, width: number, opts: ShapeOptions) {
+  ctx.save();
+
+  ctx.strokeStyle = opts.color;
+  ctx.lineWidth = opts.thickness ?? 1;
+  const shift = width / 2;
+
+  ctx.beginPath();
+  ctx.moveTo(x - shift, y);
+  ctx.lineTo(x + shift, y);
+  ctx.stroke();
+
+  ctx.beginPath();
+  ctx.moveTo(x, y - shift);
+  ctx.lineTo(x, y + shift);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+export function simpleLine(
+  ctx: Ctx,
+  startX: number,
+  startY: number,
+  endX: number,
+  endY: number,
+  opts: ShapeOptions,
+) {
+  ctx.save();
+  ctx.setLineDash(opts.dashed ? [5, 5] : []);
+  ctx.strokeStyle = opts.color;
+  ctx.globalAlpha = opts.opacity ?? 1;
+
+  // horizontal
+  ctx.beginPath();
+  ctx.moveTo(startX, startY);
+  ctx.lineTo(endX, endY);
+  ctx.stroke();
+
+  ctx.restore();
+}
+
+export function text(ctx: Ctx, x: number, y: number, text: string, opts: TextOptions) {
+  const mx = ctx.measureText(text);
+  if (opts.backgroundColor) {
+    const xPadding = 4;
+    const yPadding = 4;
+
+    if (opts.align === 'end') {
+      rectangle(
+        ctx,
+        x - (mx.width + xPadding),
+        y - (mx.fontBoundingBoxAscent / 2 + yPadding),
+        mx.width + xPadding * 2,
+        mx.fontBoundingBoxAscent + yPadding * 2,
+        { color: opts.backgroundColor, fill: opts.backgroundColor },
+      );
+    } else if (opts.align === 'start') {
+      rectangle(
+        ctx,
+        x - xPadding,
+        y - (mx.fontBoundingBoxAscent / 2 + yPadding),
+        mx.width + xPadding * 2,
+        mx.fontBoundingBoxAscent + yPadding * 2,
+        { color: opts.backgroundColor, fill: opts.backgroundColor },
+      );
+    } else if (opts.align === 'center') {
+      rectangle(
+        ctx,
+        x - (mx.width / 2 + xPadding),
+        y - yPadding,
+        mx.width + xPadding * 2,
+        mx.fontBoundingBoxAscent + yPadding * 2,
+        { color: opts.backgroundColor, fill: opts.backgroundColor },
+      );
+    }
+  }
+
+  ctx.save();
+
+  ctx.fillStyle = opts.color;
+  ctx.font = opts.font ?? `bold 10px sans-serif`;
+  ctx.textBaseline = opts.baseline ?? 'bottom';
+  ctx.textAlign = opts.align ?? 'start';
+  ctx.fillText(text, x, y);
+
+  ctx.restore();
+}
+
+export function rectangle(
+  ctx: Ctx,
+  x: number,
+  y: number,
+  w: number,
+  h: number,
+  opts: ShapeOptions,
+) {
+  ctx.save();
+
+  ctx.strokeStyle = opts.color;
+
+  if (opts.fill) {
+    ctx.fillStyle = opts.fill;
+    ctx.fillRect(x, y, w, h);
+  } else {
+    ctx.rect(x, y, w, h);
+  }
+
+  ctx.restore();
+}
+
+export function triangle(ctx: Ctx, x: number, y: number, w: number, h: number, opts: ShapeOptions) {
+  ctx.save();
+
+  ctx.strokeStyle = opts.color;
+  ctx.beginPath();
+  ctx.moveTo(x - w / 2, y + h / 2);
+  ctx.lineTo(x, y - h / 2);
+  ctx.lineTo(x + w / 2, y + h / 2);
+  if (opts.fill) {
+    ctx.fillStyle = opts.fill;
+    ctx.fill();
+  } else {
+    ctx.stroke();
+  }
 
   ctx.restore();
 }

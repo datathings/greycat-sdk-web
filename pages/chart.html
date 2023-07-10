@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -40,6 +40,9 @@
   <script type="module">
     import '../src/bundle.ts';
 
+    let shapeIdx = 0;
+    const shapes = ['circle', 'square', 'triangle'];
+
     const rows = 100;
     const cols = 5;
     const table = {
@@ -52,11 +55,13 @@
     const barCol = 3;
     const lineTypeCol = 4;
 
+    const randomizeBtn = document.querySelector('#randomize');
     const chart = document.querySelector('gui-chart');
 
     randomize();
 
     chart.config = {
+      // cursor: true,
       xAxis: {
         min: -1,
         max: 100,
@@ -66,17 +71,6 @@
           min: 1,
           max: 200,
         },
-        three: {
-          min: 10e5,
-          max: 10e9,
-          format: '.2s',
-        },
-        four: {
-          min: 10000,
-          max: 100000,
-          format: '.2s',
-          position: 'right'
-        },
         right: {
           position: 'right',
         },
@@ -84,14 +78,16 @@
       table,
       series: [
         {
-          type: 'line',
           yAxis: 'left',
           yCol: lineCol,
           lineTypeCol: lineTypeCol,
         },
         {
+          type: 'line+scatter',
           yAxis: 'left',
           yCol: scatterCol,
+          markerShape: 'triangle',
+          markerWidth: 8,
         },
         {
           type: 'line+area',
@@ -110,6 +106,7 @@
     function randomize() {
       let prev1 = 100;
       let prev2 = 80;
+
       for (let row = 0; row < rows; row++) {
         prev1 += 5 - Math.random() * 10;
         prev1 = Math.max(0, prev1);
@@ -147,8 +144,9 @@
       return Math.floor(Math.random() * (max - min) + min);
     }
 
-    document.querySelector('#randomize').onclick = () => {
+    randomizeBtn.onclick = () => {
       randomize();
+      chart.config.series[1].markerShape = shapes[shapeIdx++ % shapes.length];
       chart.update();
     };
   </script>

@@ -61,7 +61,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   return el;
 }
 
-export function throttle<T extends (...args: unknown[]) => void>(callback: T, interval: number) {
+export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
   let enableCall = true;
 
   return function <U>(this: U, ...args: Parameters<typeof callback>) {
@@ -73,7 +73,7 @@ export function throttle<T extends (...args: unknown[]) => void>(callback: T, in
   };
 }
 
-export function debounce<T extends (...args: unknown[]) => void>(
+export function debounce<T extends (...args: any[]) => void>(
   callback: T,
   delay: number,
   immediate = false,
@@ -89,5 +89,23 @@ export function debounce<T extends (...args: unknown[]) => void>(
     }
   };
 }
+
+// export function binsearch(elem: any, arr: any[]): number {
+//   let l = 0;
+//   let r = arr.length - 1;
+
+//   while (l <= r) {
+//     let m = (l + r) >> 1; // clever way to do `Math.floor(l + r) / 2`, avoiding the division
+//     if (arr[m] < elem) {
+//       l = m + 1;
+//     } else if (arr[m] > elem) {
+//       r = m - 1;
+//     } else {
+//       return m;
+//     }
+//   }
+
+//   return -1;
+// }
 
 export type TableClassColumnMeta = core.TableColumnMeta & { class?: string };
