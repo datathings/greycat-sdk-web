@@ -149,6 +149,11 @@ export class GuiChart extends HTMLElement {
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
     const { xRange, yRange, rightAxes, style, xScale, yScales, margin } = this._compute();
 
+    // clear tooltip
+    this._tooltip.style.left = `${xRange[0] + 8}px`;
+    this._tooltip.style.top = `${yRange[1]}px`;
+    this._tooltip.replaceChildren();
+
     if (
       this._cursor.x !== -1 &&
       this._cursor.y !== -1 &&
@@ -232,11 +237,6 @@ export class GuiChart extends HTMLElement {
           }
         }
       }
-
-      // clear tooltip
-      this._tooltip.style.left = `${xRange[0] + 8}px`;
-      this._tooltip.style.top = `${yRange[1]}px`;
-      this._tooltip.replaceChildren();
 
       // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
