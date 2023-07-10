@@ -64,7 +64,7 @@
       // cursor: true,
       xAxis: {
         min: -1,
-        // max: 100,
+        max: 100,
       },
       yAxes: {
         left: {
@@ -78,6 +78,7 @@
       table,
       series: [
         {
+          title: 'Custom',
           yAxis: 'left',
           yCol: lineCol,
           lineTypeCol: lineTypeCol,
@@ -99,6 +100,12 @@
           yAxis: 'left',
           yCol: barCol,
           width: 10,
+        },
+        {
+          type: 'line+area',
+          yAxis: 'left',
+          yCol: areaCol,
+          area: lineCol,
         },
       ],
     };

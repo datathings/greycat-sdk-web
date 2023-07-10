@@ -186,7 +186,7 @@ export function area(
 
   ctx.beginPath();
 
-  // Upper line
+  // line
   ctx.moveTo(firstX, firstY);
   for (let i = 1; i < rows.length; i++) {
     ctx.lineTo(
@@ -195,18 +195,37 @@ export function area(
     );
   }
 
-  // below => fill to yMin, above => fill to yMax
-  const yBound = serie.kind === 'below' ? yScale.range()[0] : yScale.range()[1];
-  // fill
-  const lastX = xScale(
-    serie.xCol === undefined ? rows.length - 1 : rows[rows.length - 1][serie.xCol],
-  );
-  // bottom right
-  ctx.lineTo(lastX, yBound);
-  // bottom left
-  ctx.lineTo(firstX, yBound);
-  // start of area
-  ctx.lineTo(firstX, firstY);
+  // first let's stroke the previous line
+  ctx.stroke();
+
+  if (serie.area === 'above' || serie.area === 'below') {
+    // below => fill to yMin, above => fill to yMax
+    const yBound = serie.area === 'below' ? yScale.range()[0] : yScale.range()[1];
+    // fill
+    const lastX = xScale(
+      serie.xCol === undefined ? rows.length - 1 : rows[rows.length - 1][serie.xCol],
+    );
+    // bottom right
+    ctx.lineTo(lastX, yBound);
+    // bottom left
+    ctx.lineTo(firstX, yBound);
+    // start of area
+    ctx.lineTo(firstX, firstY);
+  } else {
+    // fill in regard to another serie
+    // ctx.lineTo(
+    //   xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]),
+    //   yScale(rows[0][serie.area]),
+    // );
+    for (let i = rows.length - 1; i >= 0; i--) {
+      ctx.lineTo(
+        xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
+        yScale(rows[i][serie.area]),
+      );
+    }
+    // start of area
+    ctx.lineTo(firstX, firstY);
+  }
 
   ctx.fill();
 

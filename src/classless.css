@@ -1,6 +1,5 @@
 html,
-body,
-* {
+body {
   color: rgb(var(--text-0));
   background-color: rgb(var(--base-0));
 }

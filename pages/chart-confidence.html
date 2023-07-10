@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    html,
+    body {
+      margin: 0;
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    gui-chart {
+      display: block;
+      width: 100%;
+      height: 100vh;
+    }
+  </style>
+  <title>@greycat/ui - gui-chart</title>
+</head>
+
+<body>
+  <gui-chart></gui-chart>
+
+  <script type="module">
+    import '../src/bundle.ts';
+
+    const chart = document.querySelector('gui-chart');
+
+    chart.config = {
+      // cursor: true,
+      xAxis: {},
+      yAxes: {
+        left: {
+          min: 0,
+        },
+      },
+      table: {
+        data: [
+          [5, 6, 4],
+          [5, 5, 4],
+          [6, 9, 5],
+          [7, 10, 3],
+          [15, 16, 13],
+        ],
+      },
+      series: [
+        {
+          title: 'Actual data',
+          yAxis: 'left',
+          yCol: 0,
+        },
+        {
+          title: 'P+',
+          type: 'line+area',
+          yAxis: 'left',
+          yCol: 1,
+          area: 0,
+        },
+        {
+          title: 'P-',
+          type: 'line+area',
+          yAxis: 'left',
+          yCol: 2,
+          area: 0,
+        },
+      ],
+    };
+  </script>
+</body>
+
+</html>

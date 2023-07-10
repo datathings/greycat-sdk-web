@@ -1,7 +1,7 @@
 export type Color = string;
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
 export type ScaleType = 'linear' | 'log' | 'time';
-export type AreaPosition = 'below' | 'above';
+export type AreaPosition = 'below' | 'above' | number;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 
@@ -35,7 +35,12 @@ export type SerieOptions = {
   markerShape: MarkerShape;
   opacity: number;
   fillOpacity: number;
-  kind: AreaPosition;
+  /**
+   * - `'above'`: draws the area from `yCol` to the top
+   * - `'below'`: draws the area from `yCol` to the bottom
+   * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
+   */
+  area: AreaPosition;
 };
 
 export interface Serie extends Partial<SerieOptions> {
@@ -58,6 +63,10 @@ export interface Serie extends Partial<SerieOptions> {
    * offset of the column in the table to use to read lineType values for each x
    */
   lineTypeCol?: number;
+  /**
+   * Optional title used to name the serie.
+   */
+  title?: string;
 }
 
 export interface ChartConfig {

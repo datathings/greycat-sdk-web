@@ -11,3 +11,8 @@ gui-chart {
 
   user-select: none;
 }
+
+gui-chart .gui-chart-tooltip {
+  font-size: 10px;
+  font-family: monospace;
+}

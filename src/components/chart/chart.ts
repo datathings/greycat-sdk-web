@@ -146,6 +146,7 @@ export class GuiChart extends HTMLElement {
     // clear the canvas
     this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
 
+    // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
     const { xRange, yRange, rightAxes, style, xScale, yScales, margin } = this._compute();
 
     if (
@@ -156,7 +157,7 @@ export class GuiChart extends HTMLElement {
       this._cursor.y >= yRange[1] &&
       this._cursor.y <= yRange[0]
     ) {
-      // XXX The dashed lines, cursor, and axis texts could arguably be configured by the user
+      // The dashed lines, cursor, and axis texts could arguably be configured by the user
       // if cursor: true, then display cursor info in realtime
       if (this._config.cursor) {
         // cursor horizontal dashed
@@ -232,7 +233,12 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      // display markers on series based on cursor location
+      // clear tooltip
+      this._tooltip.style.left = `${xRange[0] + 8}px`;
+      this._tooltip.style.top = `${yRange[1]}px`;
+      this._tooltip.replaceChildren();
+
+      // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
         const serie = this._config.series[i];
 
@@ -242,10 +248,19 @@ export class GuiChart extends HTMLElement {
           const yValue = this._config.table.data[xValue][serie.yCol];
           const x = xScale(xValue);
           const y = yScales[serie.yAxis](yValue);
+
+          // marker
           draw.circle(this._uxCtx, x, y, 5, {
-            color: this._colors[i],
-            fill: this._colors[i],
+            color: serie.color ?? this._colors[i],
+            fill: serie.color ?? this._colors[i],
           });
+
+          // tooltip
+          const name = serie.title ?? `Serie ${i}`;
+          const serieEl = document.createElement('div');
+          serieEl.style.color = serie.color ?? this._colors[i];
+          serieEl.innerHTML = `<span>${name}</span>:&nbsp;<span>${yValue}</span>`;
+          this._tooltip.append(serieEl);
         }
       }
     }
@@ -269,7 +284,7 @@ export class GuiChart extends HTMLElement {
         markerShape: 'circle',
         opacity: 1,
         fillOpacity: 0.2,
-        kind: 'below',
+        area: 'below',
         ...this._config.series[i],
       };
 
