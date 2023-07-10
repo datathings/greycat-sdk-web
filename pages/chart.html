@@ -64,7 +64,7 @@
       // cursor: true,
       xAxis: {
         min: -1,
-        max: 100,
+        // max: 100,
       },
       yAxes: {
         left: {
@@ -129,6 +129,14 @@
 
         if (row >= (rows - 5) && row < rows) {
           table.data[row][barCol] = randomInt(1, 40);
+        }
+
+        if (row === 10) {
+          table.data[row][lineCol] = undefined;
+        }
+
+        if (row === 75) {
+          table.data[row][lineCol] = null;
         }
       }
 

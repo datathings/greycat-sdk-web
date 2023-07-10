@@ -19,6 +19,11 @@ export class GuiChart extends HTMLElement {
   private _canvas: HTMLCanvasElement;
   private _ctx: CanvasRenderingContext2D;
 
+  private _uxCanvas: HTMLCanvasElement;
+  private _uxCtx: CanvasRenderingContext2D;
+
+  private _tooltip = document.createElement('div');
+
   constructor() {
     super();
 
@@ -31,6 +36,18 @@ export class GuiChart extends HTMLElement {
     this._canvas.style.background = 'transparent';
     this._ctx = this._canvas.getContext('2d') as CanvasRenderingContext2D;
 
+    // ux canvas
+    this._uxCanvas = document.createElement('canvas');
+    this._uxCanvas.style.display = 'block';
+    this._uxCanvas.style.position = 'absolute';
+    this._uxCanvas.style.background = 'transparent';
+    this._uxCtx = this._uxCanvas.getContext('2d') as CanvasRenderingContext2D;
+
+    // tooltip
+    this._tooltip.style.display = 'block';
+    this._tooltip.style.position = 'absolute';
+    this._tooltip.classList.add('gui-chart-tooltip');
+
     this._colors = getColors(this);
 
     this._obs = new ResizeObserver(
@@ -39,8 +56,13 @@ export class GuiChart extends HTMLElement {
         width = Math.round(width);
         height = Math.round(height);
 
+        // resize main canvas
         this._canvas.width = width;
         this._canvas.height = height;
+        // resize ux canvas
+        this._uxCanvas.width = width;
+        this._uxCanvas.height = height;
+        // resize svg
         this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
 
         this.update();
@@ -53,6 +75,7 @@ export class GuiChart extends HTMLElement {
 
     const style = getComputedStyle(this);
     if (style.display === 'inline') {
+      // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
       this.style.display = 'block';
     }
     this.style.position = 'relative';
@@ -65,7 +88,7 @@ export class GuiChart extends HTMLElement {
 
     this._xAxisGroup = this._svg.append('g');
 
-    this.appendChild(this._canvas);
+    this.append(this._canvas, this._uxCanvas, this._tooltip);
 
     this.addEventListener('mousemove', this._moveHandler);
     this.addEventListener('touchmove', this._moveHandler);
@@ -74,7 +97,8 @@ export class GuiChart extends HTMLElement {
     // this.addEventListener('click', this._leaveHandler);
 
     const mainLoop = () => {
-      this.update();
+      var { xRange, yRange, rightAxes, xScale, yScales, margin } = this._compute();
+      this.updateUX(xRange, yRange, rightAxes, style, xScale, yScales, margin);
       requestAnimationFrame(mainLoop);
     };
     requestAnimationFrame(mainLoop);
@@ -114,10 +138,231 @@ export class GuiChart extends HTMLElement {
     return this._config;
   }
 
+  /**
+   * This is all about cursor interactions. This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
+   */
+  private updateUX(
+    xRange: number[],
+    yRange: number[],
+    rightAxes: number,
+    style: CSSStyleDeclaration,
+    xScale: Scale,
+    yScales: Record<string, Scale>,
+    margin: {
+      top: number;
+      right: number;
+      rightEmpty: number;
+      bottom: number;
+      left: number;
+      leftEmpty: number;
+    },
+  ) {
+    // clear the canvas
+    this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+
+    if (
+      this._cursor.x !== -1 &&
+      this._cursor.y !== -1 &&
+      this._cursor.x >= xRange[0] &&
+      this._cursor.x <= xRange[1] &&
+      this._cursor.y >= yRange[1] &&
+      this._cursor.y <= yRange[0]
+    ) {
+      // XXX The dashed lines, cursor, and axis texts could arguably be configured by the user
+      // if cursor: true, then display cursor info in realtime
+      if (this._config.cursor) {
+        // cursor horizontal dashed
+        draw.simpleLine(
+          this._uxCtx,
+          xRange[0],
+          this._cursor.y,
+          rightAxes === 0 ? this._cursor.x : xRange[1],
+          this._cursor.y,
+          {
+            color: style.getPropertyValue('--cursor-line-c'),
+            dashed: true,
+          },
+        );
+        // cursor vertical dashed
+        draw.simpleLine(this._uxCtx, this._cursor.x, yRange[0], this._cursor.x, this._cursor.y, {
+          color: style.getPropertyValue('--cursor-line-c'),
+          dashed: true,
+        });
+        // cursor cross
+        draw.cross(this._uxCtx, this._cursor.x, this._cursor.y, 12, {
+          color: style.getPropertyValue('--cursor-c'),
+          thickness: 2,
+        });
+
+        // bottom axis text
+        draw.text(
+          this._uxCtx,
+          this._cursor.x,
+          yRange[0] + 8,
+          d3.format(this._config.xAxis?.format ?? '.2f')(xScale.invert(this._cursor.x)),
+          {
+            color: style.getPropertyValue('--cursor-c'),
+            backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+            align: 'center',
+            baseline: 'top',
+          },
+        );
+        let leftAxesIdx = -1;
+        let rightAxesIdx = -1;
+        // y axes texts
+        for (const yAxisName in yScales) {
+          const yAxis = this._config.yAxes![yAxisName];
+          if (yAxis.position === undefined || yAxis.position === 'left') {
+            leftAxesIdx++;
+            draw.text(
+              this._uxCtx,
+              margin.left + leftAxesIdx * margin.left - 8,
+              this._cursor.y,
+              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              {
+                color: style.getPropertyValue('--cursor-c'),
+                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                align: 'end',
+                baseline: 'middle',
+              },
+            );
+          } else {
+            rightAxesIdx++;
+            draw.text(
+              this._uxCtx,
+              this._canvas.width - (margin.right + rightAxesIdx * margin.right) + 8,
+              this._cursor.y,
+              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              {
+                color: style.getPropertyValue('--cursor-c'),
+                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                align: 'start',
+                baseline: 'middle',
+              },
+            );
+          }
+        }
+      }
+
+      // display markers on series based on cursor location
+      for (let i = 0; i < this._config.series.length; i++) {
+        const serie = this._config.series[i];
+
+        const xValue = Math.round(+xScale.invert(this._cursor.x));
+        const row = this._config.table.data[xValue];
+        if (row !== undefined) {
+          const yValue = this._config.table.data[xValue][serie.yCol];
+          const x = xScale(xValue);
+          const y = yScales[serie.yAxis](yValue);
+          draw.circle(this._uxCtx, x, y, 5, {
+            color: this._colors[i],
+            fill: this._colors[i],
+          });
+        }
+      }
+    }
+  }
+
+  /**
+   * This is all about drawing the series onto the main canvas. This can be a tiny bit heavy as opposed to `updateUX` as it is
+   * only called when the config changes.
+   */
   update(): void {
     // clear the canvas content
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
 
+    var { xScale, yScales, margin } = this._compute();
+
+    for (let i = 0; i < this._config.series.length; i++) {
+      const serie: Serie & SerieOptions = {
+        color: this._colors[i],
+        width: 1,
+        markerWidth: 2,
+        markerShape: 'circle',
+        opacity: 1,
+        fillOpacity: 0.2,
+        kind: 'below',
+        ...this._config.series[i],
+      };
+
+      switch (serie.type ?? 'line') {
+        case 'line':
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'line+scatter':
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'line+area':
+          // draw area "under" (before) line
+          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'area':
+          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'bar':
+          draw.bar(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'scatter':
+          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+      }
+    }
+
+    // Add the x-axis.
+    const xAxis = d3.axisBottom(xScale);
+    xAxis.tickFormat(d3.format(this._config.xAxis?.format ?? ''));
+    this._xAxisGroup
+      .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
+      .call(xAxis);
+
+    // Add the y-axes.
+    let leftAxesIdx = -1;
+    let rightAxesIdx = -1;
+
+    for (const yAxisName in yScales) {
+      if (this._yAxisGroups[yAxisName] === undefined) {
+        // create a yAxisGroup only if needed
+        this._yAxisGroups[yAxisName] = this._svg.append('g');
+      }
+
+      // safety: if we have a scale then we must have a yAxes definition
+      const { format = '', position } = this._config.yAxes![yAxisName];
+      const fmt = d3.format(format);
+
+      if (position === undefined || position === 'left') {
+        leftAxesIdx++;
+        const yAxis = d3.axisLeft(yScales[yAxisName]);
+        yAxis.tickFormat(fmt);
+
+        this._yAxisGroups[yAxisName]
+          .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
+          .call(yAxis);
+      } else {
+        rightAxesIdx++;
+        const yAxis = d3.axisRight(yScales[yAxisName]);
+        yAxis.tickFormat(fmt);
+
+        this._yAxisGroups[yAxisName]
+          .attr(
+            'transform',
+            `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
+          )
+          .call(yAxis);
+      }
+    }
+
+    // remove no longer used yAxisGroup
+    for (const yAxisName in this._yAxisGroups) {
+      if (yScales[yAxisName] === undefined) {
+        this._yAxisGroups[yAxisName].remove();
+        delete this._yAxisGroups[yAxisName];
+      }
+    }
+  }
+
+  private _compute() {
     let leftAxes = 0;
     let rightAxes = 0;
     if (this._config.yAxes) {
@@ -194,193 +439,7 @@ export class GuiChart extends HTMLElement {
 
       yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
     }
-
-    for (let i = 0; i < this._config.series.length; i++) {
-      const serie: Serie & SerieOptions = {
-        color: this._colors[i],
-        width: 1,
-        markerWidth: 2,
-        markerShape: 'circle',
-        opacity: 1,
-        fillOpacity: 0.2,
-        kind: 'below',
-        ...this._config.series[i],
-      };
-
-      switch (serie.type ?? 'line') {
-        case 'line':
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'line+scatter':
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'line+area':
-          // draw area "under" (before) line
-          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'area':
-          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'bar':
-          draw.bar(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'scatter':
-          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-      }
-    }
-
-    if (
-      this._cursor.x !== -1 &&
-      this._cursor.y !== -1 &&
-      this._cursor.x >= xRange[0] &&
-      this._cursor.x <= xRange[1] &&
-      this._cursor.y >= yRange[1] &&
-      this._cursor.y <= yRange[0]
-    ) {
-      // if cursor: true, then display cursor info in realtime
-      if (this._config.cursor) {
-        // cursor horizontal dashed
-        draw.simpleLine(
-          this._ctx,
-          xRange[0],
-          this._cursor.y,
-          rightAxes === 0 ? this._cursor.x : xRange[1],
-          this._cursor.y,
-          {
-            color: style.getPropertyValue('--cursor-line-c'),
-            dashed: true,
-          },
-        );
-        // cursor vertical dashed
-        draw.simpleLine(this._ctx, this._cursor.x, yRange[0], this._cursor.x, this._cursor.y, {
-          color: style.getPropertyValue('--cursor-line-c'),
-          dashed: true,
-        });
-        // cursor cross
-        draw.cross(this._ctx, this._cursor.x, this._cursor.y, 12, {
-          color: style.getPropertyValue('--cursor-c'),
-          thickness: 2,
-        });
-
-        draw.text(
-          this._ctx,
-          this._cursor.x,
-          yRange[0] + 8,
-          d3.format(this._config.xAxis?.format ?? '.2f')(xScale.invert(this._cursor.x)),
-          {
-            color: style.getPropertyValue('--cursor-c'),
-            backgroundColor: style.getPropertyValue('--cursor-bg-c'),
-            align: 'center',
-            baseline: 'top',
-          },
-        );
-        let leftAxesIdx = -1;
-        let rightAxesIdx = -1;
-        for (const yAxisName in yScales) {
-          const yAxis = this._config.yAxes![yAxisName];
-          if (yAxis.position === undefined || yAxis.position === 'left') {
-            leftAxesIdx++;
-            draw.text(
-              this._ctx,
-              margin.left + leftAxesIdx * margin.left - 8,
-              this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
-              {
-                color: style.getPropertyValue('--cursor-c'),
-                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
-                align: 'end',
-                baseline: 'middle',
-              },
-            );
-          } else {
-            rightAxesIdx++;
-            draw.text(
-              this._ctx,
-              this._canvas.width - (margin.right + rightAxesIdx * margin.right) + 8,
-              this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
-              {
-                color: style.getPropertyValue('--cursor-c'),
-                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
-                align: 'start',
-                baseline: 'middle',
-              },
-            );
-          }
-        }
-      }
-
-      // display markers on series based on cursor
-      for (let i = 0; i < this._config.series.length; i++) {
-        const serie = this._config.series[i];
-
-        const xValue = Math.round(+xScale.invert(this._cursor.x));
-        const row = this._config.table.data[xValue];
-        if (row !== undefined) {
-          const yValue = this._config.table.data[xValue][serie.yCol];
-          const x = xScale(xValue);
-          const y = yScales[serie.yAxis](yValue);
-          draw.circle(this._ctx, x, y, 5, {
-            color: this._colors[i],
-            fill: this._colors[i],
-          });
-        }
-      }
-    }
-
-    // Add the x-axis.
-    const xAxis = d3.axisBottom(xScale);
-    xAxis.tickFormat(d3.format(this._config.xAxis?.format ?? ''));
-    this._xAxisGroup
-      .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
-      .call(xAxis);
-
-    // Add the y-axes.
-    let leftAxesIdx = -1;
-    let rightAxesIdx = -1;
-
-    for (const yAxisName in yScales) {
-      if (this._yAxisGroups[yAxisName] === undefined) {
-        // create a yAxisGroup only if needed
-        this._yAxisGroups[yAxisName] = this._svg.append('g');
-      }
-
-      // safety: if we have a scale then we must have a yAxes definition
-      const { format = '', position } = this._config.yAxes![yAxisName];
-      const fmt = d3.format(format);
-
-      if (position === undefined || position === 'left') {
-        leftAxesIdx++;
-        const yAxis = d3.axisLeft(yScales[yAxisName]);
-        yAxis.tickFormat(fmt);
-
-        this._yAxisGroups[yAxisName]
-          .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
-          .call(yAxis);
-      } else {
-        rightAxesIdx++;
-        const yAxis = d3.axisRight(yScales[yAxisName]);
-        yAxis.tickFormat(fmt);
-
-        this._yAxisGroups[yAxisName]
-          .attr(
-            'transform',
-            `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
-          )
-          .call(yAxis);
-      }
-    }
-
-    // remove no longer used yAxisGroup
-    for (const yAxisName in this._yAxisGroups) {
-      if (yScales[yAxisName] === undefined) {
-        this._yAxisGroups[yAxisName].remove();
-        delete this._yAxisGroups[yAxisName];
-      }
-    }
+    return { leftAxes, rightAxes, xRange, yRange, style, xScale, yScales, margin };
   }
 }
 
