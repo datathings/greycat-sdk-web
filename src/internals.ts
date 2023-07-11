@@ -65,7 +65,9 @@ export function throttle<T extends (...args: any[]) => void>(callback: T, interv
   let enableCall = true;
 
   return function <U>(this: U, ...args: Parameters<typeof callback>) {
-    if (!enableCall) return;
+    if (!enableCall) {
+      return;
+    }
 
     enableCall = false;
     callback.apply(this, args);

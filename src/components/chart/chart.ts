@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { debounce } from '../../internals';
+import { debounce, throttle } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
 import { Axis, ChartConfig, ScaleType, Serie, SerieOptions } from './types';
@@ -68,6 +68,11 @@ export class GuiChart extends HTMLElement {
         this.update();
       }, 250),
     );
+
+    this.addEventListener('mousemove', this._moveHandler);
+    this.addEventListener('touchmove', this._moveHandler);
+    this.addEventListener('mouseleave', this._leaveHandler);
+    this.addEventListener('touchend', this._leaveHandler);
   }
 
   connectedCallback() {
@@ -89,30 +94,14 @@ export class GuiChart extends HTMLElement {
     this._xAxisGroup = this._svg.append('g');
 
     this.append(this._canvas, this._uxCanvas, this._tooltip);
-
-    this.addEventListener('mousemove', this._moveHandler);
-    this.addEventListener('touchmove', this._moveHandler);
-    this.addEventListener('mouseleave', this._leaveHandler);
-    this.addEventListener('touchend', this._leaveHandler);
-    // this.addEventListener('click', this._leaveHandler);
-
-    const mainLoop = () => {
-      this.updateUX();
-      requestAnimationFrame(mainLoop);
-    };
-    requestAnimationFrame(mainLoop);
   }
 
   disconnectedCallback() {
     this._obs.disconnect();
-    this.removeEventListener('mousemove', this._moveHandler);
-    this.removeEventListener('touchmove', this._moveHandler);
-    this.removeEventListener('mouseleave', this._leaveHandler);
-    this.removeEventListener('touchend', this._leaveHandler);
-    // this.removeEventListener('click', this._leaveHandler);
   }
 
-  private _moveHandler = (event: MouseEvent | TouchEvent) => {
+  // throttle(..., 16) makes it be ~60FPS
+  private _moveHandler = throttle((event: MouseEvent | TouchEvent) => {
     const { left, top } = this._canvas.getBoundingClientRect();
     if (event instanceof MouseEvent) {
       this._cursor.x = event.pageX - left;
@@ -121,11 +110,15 @@ export class GuiChart extends HTMLElement {
       this._cursor.x = event.touches[0].pageX - left;
       this._cursor.y = event.touches[0].pageY - top;
     }
-  };
+
+    this.updateUX();
+  }, 16);
 
   private _leaveHandler = () => {
     this._cursor.x = -1;
     this._cursor.y = -1;
+
+    this.updateUX();
   };
 
   set config(config: ChartConfig) {
@@ -142,9 +135,8 @@ export class GuiChart extends HTMLElement {
    *
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
-  private updateUX() {
-    // clear the canvas
-    this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+  private updateUX = () => {
+    this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
     const { xRange, yRange, rightAxes, style, xScale, yScales, margin } = this._compute();
@@ -152,7 +144,6 @@ export class GuiChart extends HTMLElement {
     // clear tooltip
     this._tooltip.style.left = `${xRange[0] + 8}px`;
     this._tooltip.style.top = `${yRange[1]}px`;
-    this._tooltip.replaceChildren();
 
     if (
       this._cursor.x !== -1 &&
@@ -205,6 +196,7 @@ export class GuiChart extends HTMLElement {
         let rightAxesIdx = -1;
         // y axes texts
         for (const yAxisName in yScales) {
+          // safety: we are iterating over 'yScales' keys so we have to have a matching y-axis of name 'yAxisName'
           const yAxis = this._config.yAxes![yAxisName];
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
@@ -264,6 +256,13 @@ export class GuiChart extends HTMLElement {
         }
       }
     }
+  };
+
+  private _clearUX(): void {
+    // clear ux canvas
+    this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+    // clear tooltip
+    this._tooltip.replaceChildren();
   }
 
   /**
@@ -271,8 +270,10 @@ export class GuiChart extends HTMLElement {
    * only called when the config changes.
    */
   update(): void {
-    // clear the canvas content
+    // clear the main canvas
     this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    // clear the ux canvas too (to prevent phantom markers)
+    this._clearUX();
 
     var { xScale, yScales, margin } = this._compute();
 
