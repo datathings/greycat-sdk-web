@@ -139,11 +139,7 @@ export class GuiChart extends HTMLElement {
     this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
-    const { xRange, yRange, rightAxes, style, xScale, yScales, margin } = this._compute();
-
-    // clear tooltip
-    this._tooltip.style.left = `${xRange[0] + 8}px`;
-    this._tooltip.style.top = `${yRange[1]}px`;
+    const { xRange, yRange, rightAxes, style, xScale, yScales } = this._compute();
 
     if (
       this._cursor.x !== -1 &&
@@ -153,6 +149,27 @@ export class GuiChart extends HTMLElement {
       this._cursor.y >= yRange[1] &&
       this._cursor.y <= yRange[0]
     ) {
+      // make tooltip visible and located properly
+      this._tooltip.style.visibility = 'visible';
+      switch (this._config.tooltip ?? 'top-left') {
+        case 'top-left':
+          this._tooltip.style.left = `${xRange[0] + 10}px`;
+          this._tooltip.style.top = `${yRange[1]}px`;
+          break;
+        case 'top-right':
+          this._tooltip.style.right = `${xRange[0] + 10}px`;
+          this._tooltip.style.top = `${yRange[1]}px`;
+          break;
+        case 'bottom-left':
+          this._tooltip.style.left = `${xRange[0] + 10}px`;
+          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+          break;
+        case 'bottom-right':
+          this._tooltip.style.right = `${xRange[0] + 10}px`;
+          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+          break;
+      }
+
       // The dashed lines, cursor, and axis texts could arguably be configured by the user
       // if cursor: true, then display cursor info in realtime
       if (this._config.cursor) {
@@ -164,18 +181,18 @@ export class GuiChart extends HTMLElement {
           rightAxes === 0 ? this._cursor.x : xRange[1],
           this._cursor.y,
           {
-            color: style.getPropertyValue('--cursor-line-c'),
+            color: style.cursor.lineColor,
             dashed: true,
           },
         );
         // cursor vertical dashed
         draw.simpleLine(this._uxCtx, this._cursor.x, yRange[0], this._cursor.x, this._cursor.y, {
-          color: style.getPropertyValue('--cursor-line-c'),
+          color: style.cursor.lineColor,
           dashed: true,
         });
         // cursor cross
         draw.cross(this._uxCtx, this._cursor.x, this._cursor.y, 12, {
-          color: style.getPropertyValue('--cursor-c'),
+          color: style.cursor.color,
           thickness: 2,
         });
 
@@ -186,8 +203,8 @@ export class GuiChart extends HTMLElement {
           yRange[0] + 8,
           d3.format(this._config.xAxis?.format ?? '.2f')(xScale.invert(this._cursor.x)),
           {
-            color: style.getPropertyValue('--cursor-c'),
-            backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+            color: style.cursor.color,
+            backgroundColor: style.cursor.bgColor,
             align: 'center',
             baseline: 'top',
           },
@@ -202,12 +219,12 @@ export class GuiChart extends HTMLElement {
             leftAxesIdx++;
             draw.text(
               this._uxCtx,
-              margin.left + leftAxesIdx * margin.left - 8,
+              style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
               d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
               {
-                color: style.getPropertyValue('--cursor-c'),
-                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                color: style.cursor.color,
+                backgroundColor: style.cursor.bgColor,
                 align: 'end',
                 baseline: 'middle',
               },
@@ -216,12 +233,12 @@ export class GuiChart extends HTMLElement {
             rightAxesIdx++;
             draw.text(
               this._uxCtx,
-              this._canvas.width - (margin.right + rightAxesIdx * margin.right) + 8,
+              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
               d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
               {
-                color: style.getPropertyValue('--cursor-c'),
-                backgroundColor: style.getPropertyValue('--cursor-bg-c'),
+                color: style.cursor.color,
+                backgroundColor: style.cursor.bgColor,
                 align: 'start',
                 baseline: 'middle',
               },
@@ -232,7 +249,16 @@ export class GuiChart extends HTMLElement {
 
       // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
-        const serie = this._config.series[i];
+        const serie: Serie & SerieOptions = {
+          color: this._colors[i],
+          width: 1,
+          markerWidth: 2,
+          markerShape: 'circle',
+          opacity: 1,
+          fillOpacity: 0.2,
+          area: 'below',
+          ...this._config.series[i],
+        };
 
         const xValue = Math.round(+xScale.invert(this._cursor.x));
         const row = this._config.table.data[xValue];
@@ -242,15 +268,28 @@ export class GuiChart extends HTMLElement {
           const y = yScales[serie.yAxis](yValue);
 
           // marker
-          draw.circle(this._uxCtx, x, y, 5, {
-            color: serie.color ?? this._colors[i],
-            fill: serie.color ?? this._colors[i],
-          });
+          switch (serie.type ?? 'line') {
+            case 'line':
+            case 'line+area':
+            case 'line+scatter':
+            case 'scatter':
+            case 'area':
+              draw.circle(this._uxCtx, x, y, 6, {
+                color: serie.color,
+                // fill: serie.color,
+              });
+              break;
+            case 'bar':
+              draw.rectangle(this._uxCtx, x - serie.width / 2, y, serie.width, yRange[0] - y, {
+                color: style.accent,
+              });
+              break;
+          }
 
           // tooltip
           const name = serie.title ?? `Serie ${i}`;
           const serieEl = document.createElement('div');
-          serieEl.style.color = serie.color ?? this._colors[i];
+          serieEl.style.color = serie.color;
           serieEl.innerHTML = `<span>${name}</span>:&nbsp;<span>${yValue}</span>`;
           this._tooltip.append(serieEl);
         }
@@ -263,6 +302,11 @@ export class GuiChart extends HTMLElement {
     this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
     // clear tooltip
     this._tooltip.replaceChildren();
+    this._tooltip.style.visibility = 'hidden';
+    this._tooltip.style.top = '';
+    this._tooltip.style.right = '';
+    this._tooltip.style.bottom = '';
+    this._tooltip.style.left = '';
   }
 
   /**
@@ -275,7 +319,7 @@ export class GuiChart extends HTMLElement {
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
-    var { xScale, yScales, margin } = this._compute();
+    var { xScale, yScales, style } = this._compute();
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie: Serie & SerieOptions = {
@@ -318,7 +362,7 @@ export class GuiChart extends HTMLElement {
     const xAxis = d3.axisBottom(xScale);
     xAxis.tickFormat(d3.format(this._config.xAxis?.format ?? ''));
     this._xAxisGroup
-      .attr('transform', `translate(0,${this._canvas.height - margin.bottom})`)
+      .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(xAxis);
 
     // Add the y-axes.
@@ -341,7 +385,7 @@ export class GuiChart extends HTMLElement {
         yAxis.tickFormat(fmt);
 
         this._yAxisGroups[yAxisName]
-          .attr('transform', `translate(${margin.left + leftAxesIdx * margin.left}, 0)`)
+          .attr('transform', `translate(${style.margin.left + leftAxesIdx * style.margin.left}, 0)`)
           .call(yAxis);
       } else {
         rightAxesIdx++;
@@ -351,7 +395,9 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName]
           .attr(
             'transform',
-            `translate(${this._canvas.width - (margin.right + rightAxesIdx * margin.right)}, 0)`,
+            `translate(${
+              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right)
+            }, 0)`,
           )
           .call(yAxis);
       }
@@ -381,23 +427,31 @@ export class GuiChart extends HTMLElement {
     }
 
     const style = getComputedStyle(this);
-    const margin = {
-      top: parseInt(style.getPropertyValue('--m-top')),
-      right: parseInt(style.getPropertyValue('--m-right')),
-      rightEmpty: parseInt(style.getPropertyValue('--m-right-empty')),
-      bottom: parseInt(style.getPropertyValue('--m-bottom')),
-      left: parseInt(style.getPropertyValue('--m-left')),
-      leftEmpty: parseInt(style.getPropertyValue('--m-left-empty')),
+    const props = {
+      accent: `rgb(${style.getPropertyValue('--accent-0')})`,
+      cursor: {
+        color: style.getPropertyValue('--cursor-c'),
+        bgColor: style.getPropertyValue('--cursor-bg-c'),
+        lineColor: style.getPropertyValue('--cursor-line-c'),
+      },
+      margin: {
+        top: parseInt(style.getPropertyValue('--m-top')),
+        right: parseInt(style.getPropertyValue('--m-right')),
+        rightEmpty: parseInt(style.getPropertyValue('--m-right-empty')),
+        bottom: parseInt(style.getPropertyValue('--m-bottom')),
+        left: parseInt(style.getPropertyValue('--m-left')),
+        leftEmpty: parseInt(style.getPropertyValue('--m-left-empty')),
+      },
     };
 
     // compute ranges based on available width, height and margins
     const xRange = [
-      leftAxes === 0 ? margin.left : margin.left + margin.left * (leftAxes - 1),
+      leftAxes === 0 ? props.margin.left : props.margin.left + props.margin.left * (leftAxes - 1),
       rightAxes === 0
-        ? this._canvas.width - margin.right
-        : this._canvas.width - margin.right - margin.right * (rightAxes - 1),
+        ? this._canvas.width - props.margin.right
+        : this._canvas.width - props.margin.right - props.margin.right * (rightAxes - 1),
     ];
-    const yRange = [this._canvas.height - margin.bottom, margin.top];
+    const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
     let xScale: Scale;
     {
@@ -443,7 +497,7 @@ export class GuiChart extends HTMLElement {
 
       yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
     }
-    return { leftAxes, rightAxes, xRange, yRange, style, xScale, yScales, margin };
+    return { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
   }
 }
 

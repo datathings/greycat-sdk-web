@@ -56,18 +56,32 @@ export function line(
   let prevSegments = segments[rows[0][lineTypeCol] ?? 0];
   ctx.setLineDash(prevSegments);
 
+  let start = false;
   for (let i = 1; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]);
-    const y = yScale(rows[i][serie.yCol]);
-    ctx.lineTo(x, y);
-    const currSegments = segments[rows[i][lineTypeCol] ?? 0];
-    if (prevSegments !== currSegments) {
+    if (rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null) {
       ctx.stroke();
       ctx.closePath();
-      ctx.setLineDash(currSegments);
-      ctx.beginPath();
-      ctx.moveTo(x, y);
-      prevSegments = currSegments;
+      start = true;
+    } else {
+      const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]);
+      const y = yScale(rows[i][serie.yCol]);
+      if (start) {
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+      } else {
+        ctx.lineTo(x, y);
+      }
+
+      const currSegments = segments[rows[i][lineTypeCol] ?? 0];
+      if (prevSegments !== currSegments) {
+        ctx.stroke();
+        ctx.closePath();
+        ctx.setLineDash(currSegments);
+        ctx.beginPath();
+        ctx.moveTo(x, y);
+        prevSegments = currSegments;
+      }
+      start = false;
     }
   }
 
@@ -349,13 +363,12 @@ export function rectangle(
 ) {
   ctx.save();
 
-  ctx.strokeStyle = opts.color;
-
   if (opts.fill) {
     ctx.fillStyle = opts.fill;
     ctx.fillRect(x, y, w, h);
   } else {
-    ctx.rect(x, y, w, h);
+    ctx.strokeStyle = opts.color;
+    ctx.strokeRect(x, y, w, h);
   }
 
   ctx.restore();

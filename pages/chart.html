@@ -34,6 +34,11 @@
 <body>
   <div id="actions">
     <button class="inverted" id="randomize">Randomize</button>
+    <button id="top-left">Top-left</button>
+    <button id="top-right">Top-right</button>
+    <button id="bottom-left">Bottom-left</button>
+    <button id="bottom-right">Bottom-right</button>
+    <button class="inverted" id="toggle-cursor">Toggle cursor</button>
   </div>
   <gui-chart></gui-chart>
 
@@ -57,6 +62,22 @@
 
     const randomizeBtn = document.querySelector('#randomize');
     const chart = document.querySelector('gui-chart');
+
+    document.querySelector('#top-left').onclick = () => {
+      chart.config.tooltip = 'top-left';
+    };
+    document.querySelector('#top-right').onclick = () => {
+      chart.config.tooltip = 'top-right';
+    };
+    document.querySelector('#bottom-left').onclick = () => {
+      chart.config.tooltip = 'bottom-left';
+    };
+    document.querySelector('#bottom-right').onclick = () => {
+      chart.config.tooltip = 'bottom-right';
+    };
+    document.querySelector('#toggle-cursor').onclick = () => {
+      chart.config.cursor = !chart.config.cursor;
+    };
 
     randomize();
 
@@ -100,6 +121,7 @@
           yAxis: 'left',
           yCol: barCol,
           width: 10,
+          color: 'orange',
         },
         {
           type: 'line+area',
@@ -146,8 +168,6 @@
           table.data[row][lineCol] = null;
         }
       }
-
-      console.log({ table });
     }
 
     /**

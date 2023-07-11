@@ -1,10 +1,12 @@
 gui-chart {
+  /* margin variables */
   --m-top: 10px;
   --m-right: 40px;
   --m-right-empty: 10px;
   --m-bottom: 25px;
   --m-left: 40px;
   --m-left-empty: 10px;
+  /* cursor variables */
   --cursor-c: rgb(var(--accent-0));
   --cursor-line-c: rgb(var(--neutral-0));
   --cursor-bg-c: rgb(var(--base-1));
@@ -15,4 +17,7 @@ gui-chart {
 gui-chart .gui-chart-tooltip {
   font-size: 10px;
   font-family: monospace;
+  /* background-color: rgb(var(--base-1)); */
+  /* padding: 0.5em; */
+  /* border: 1px solid rgb(var(--neutral-0)); */
 }

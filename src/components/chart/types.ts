@@ -4,6 +4,7 @@ export type ScaleType = 'linear' | 'log' | 'time';
 export type AreaPosition = 'below' | 'above' | number;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
+export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 
 export type TableLike = {
   data: any[][];
@@ -86,4 +87,8 @@ export interface ChartConfig {
   startOffset?: number;
   endOffset?: number;
   cursor?: boolean;
+  /**
+   * Tooltip position, defaults to 'top-left'
+   */
+  tooltip?: TooltipPosition;
 }
