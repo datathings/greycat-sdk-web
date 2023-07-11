@@ -10,7 +10,7 @@ export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
   private _colors: string[];
-  private _cursor = { x: -1, y: -1 };
+  private _cursor = { x: -1, y: -1, startX: -1, selection: false };
 
   private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -44,7 +44,6 @@ export class GuiChart extends HTMLElement {
     this._uxCtx = this._uxCanvas.getContext('2d') as CanvasRenderingContext2D;
 
     // tooltip
-    this._tooltip.style.display = 'block';
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
 
@@ -69,10 +68,14 @@ export class GuiChart extends HTMLElement {
       }, 250),
     );
 
+    this.addEventListener('mousedown', this._downHandler);
+    this.addEventListener('mouseup', this._upHandler);
+    this.addEventListener('touchend', this._upHandler);
+    this.addEventListener('touchstart', this._downHandler);
     this.addEventListener('mousemove', this._moveHandler);
     this.addEventListener('touchmove', this._moveHandler);
     this.addEventListener('mouseleave', this._leaveHandler);
-    this.addEventListener('touchend', this._leaveHandler);
+    this.addEventListener('touchcancel', this._leaveHandler);
   }
 
   connectedCallback() {
@@ -100,23 +103,41 @@ export class GuiChart extends HTMLElement {
     this._obs.disconnect();
   }
 
+  private _downHandler = (event: MouseEvent | TouchEvent) => {
+    const { left } = this._canvas.getBoundingClientRect();
+    if (event instanceof MouseEvent) {
+      this._cursor.startX = Math.round(event.pageX - left);
+      this.updateUX();
+    } else if (event.touches.length > 0) {
+      this._cursor.startX = Math.round(event.touches[0].pageX - left);
+      this.updateUX();
+    }
+  };
+
+  private _upHandler = () => {
+    this._cursor.selection = true;
+    this.updateUX();
+  };
+
   // throttle(..., 16) makes it be ~60FPS
   private _moveHandler = throttle((event: MouseEvent | TouchEvent) => {
     const { left, top } = this._canvas.getBoundingClientRect();
     if (event instanceof MouseEvent) {
-      this._cursor.x = event.pageX - left;
-      this._cursor.y = event.pageY - top;
-    } else {
-      this._cursor.x = event.touches[0].pageX - left;
-      this._cursor.y = event.touches[0].pageY - top;
+      this._cursor.x = Math.round(event.pageX - left);
+      this._cursor.y = Math.round(event.pageY - top);
+      this.updateUX();
+    } else if (event.touches.length > 0) {
+      this._cursor.x = Math.round(event.touches[0].pageX - left);
+      this._cursor.y = Math.round(event.touches[0].pageY - top);
+      this.updateUX();
     }
-
-    this.updateUX();
   }, 16);
 
   private _leaveHandler = () => {
-    this._cursor.x = -1;
-    this._cursor.y = -1;
+    // this._cursor.x = -1;
+    // this._cursor.y = -1;
+    this._cursor.startX = -1;
+    this._cursor.selection = false;
 
     this.updateUX();
   };
@@ -151,7 +172,7 @@ export class GuiChart extends HTMLElement {
     ) {
       // make tooltip visible and located properly
       this._tooltip.style.visibility = 'visible';
-      switch (this._config.tooltip ?? 'top-left') {
+      switch (this._config.tooltip?.position ?? 'top-left') {
         case 'top-left':
           this._tooltip.style.left = `${xRange[0] + 10}px`;
           this._tooltip.style.top = `${yRange[1]}px`;
@@ -252,47 +273,156 @@ export class GuiChart extends HTMLElement {
         const serie: Serie & SerieOptions = {
           color: this._colors[i],
           width: 1,
-          markerWidth: 2,
+          markerWidth: 4,
           markerShape: 'circle',
+          markerColor: this._config.series[i].color ?? this._colors[i],
           opacity: 1,
           fillOpacity: 0.2,
-          area: 'below',
+          yCol2: 'min',
           ...this._config.series[i],
         };
 
-        const xValue = Math.round(+xScale.invert(this._cursor.x));
-        const row = this._config.table.data[xValue];
-        if (row !== undefined) {
-          const yValue = this._config.table.data[xValue][serie.yCol];
-          const x = xScale(xValue);
-          const y = yScales[serie.yAxis](yValue);
+        const approxRowIdx = Math.round(+xScale.invert(this._cursor.x));
+        for (let row = 0; row < this._config.table.data.length; row++) {
+          const xValue = serie.xCol === undefined ? row : this._config.table.data[row][serie.xCol];
+          if (xValue === approxRowIdx) {
+            const yValue = this._config.table.data[row][serie.yCol];
+            const x = xScale(xValue);
+            const y = yScales[serie.yAxis](yValue);
+            const w = serie.markerWidth;
 
-          // marker
-          switch (serie.type ?? 'line') {
-            case 'line':
-            case 'line+area':
-            case 'line+scatter':
-            case 'scatter':
-            case 'area':
-              draw.circle(this._uxCtx, x, y, 6, {
-                color: serie.color,
-                // fill: serie.color,
-              });
-              break;
-            case 'bar':
-              draw.rectangle(this._uxCtx, x - serie.width / 2, y, serie.width, yRange[0] - y, {
-                color: style.accent,
-              });
-              break;
+            // marker
+            switch (serie.type ?? 'line') {
+              case 'line+scatter':
+              case 'scatter':
+              case 'line':
+              case 'line+area':
+              case 'area':
+                switch (serie.markerShape ?? 'circle') {
+                  case 'circle':
+                    draw.circle(this._uxCtx, x, y, w, {
+                      fill: serie.color,
+                    });
+                    break;
+                  case 'square':
+                    draw.rectangle(this._uxCtx, x, y, w, w, {
+                      fill: serie.color,
+                    });
+                    break;
+                  case 'triangle':
+                    draw.triangle(this._uxCtx, x, y, w, w, {
+                      fill: serie.color,
+                    });
+                    break;
+                }
+                break;
+              case 'bar':
+                draw.rectangle(
+                  this._uxCtx,
+                  x,
+                  y + (yRange[0] - y) / 2,
+                  serie.width + 1,
+                  yRange[0] - y,
+                  {
+                    color: style.accent,
+                  },
+                );
+                break;
+            }
+
+            // tooltip
+            if (!this._config.tooltip?.render) {
+              const nameEl = document.createElement('div');
+              nameEl.style.color = serie.color;
+              nameEl.textContent = `${serie.title ?? `Serie ${i}`}:`;
+              const valueEl = document.createElement('div');
+              valueEl.style.color = serie.color;
+              valueEl.textContent = d3.format(this._config.yAxes?.[serie.yAxis].format ?? '.2f')(
+                yValue,
+              );
+              this._tooltip.append(nameEl, valueEl);
+            }
+
+            break;
           }
-
-          // tooltip
-          const name = serie.title ?? `Serie ${i}`;
-          const serieEl = document.createElement('div');
-          serieEl.style.color = serie.color;
-          serieEl.innerHTML = `<span>${name}</span>:&nbsp;<span>${yValue}</span>`;
-          this._tooltip.append(serieEl);
         }
+      }
+
+      if (this._config.tooltip?.render) {
+        this._config.tooltip.render(
+          this._config.series.map((s, i) => {
+            const serie: Serie & SerieOptions = {
+              color: this._colors[i],
+              width: 1,
+              markerWidth: 3,
+              markerShape: 'circle',
+              markerColor: this._config.series[i].color ?? this._colors[i],
+              opacity: 1,
+              fillOpacity: 0.2,
+              yCol2: 'min',
+              ...s,
+            };
+            const x = Math.round(+xScale.invert(this._cursor.x));
+            return {
+              x,
+              y: this._config.table.data[x][serie.yCol],
+              serie,
+            };
+          }),
+        );
+      }
+    }
+
+    if (this._cursor.startX !== -1) {
+      let startX = this._cursor.startX;
+      if (startX < xRange[0]) {
+        startX = xRange[0];
+      } else if (startX > xRange[1]) {
+        startX = xRange[1];
+      }
+      let endX = this._cursor.x;
+      if (endX < xRange[0]) {
+        endX = xRange[0];
+      } else if (endX > xRange[1]) {
+        endX = xRange[1];
+      }
+      if (startX > endX) {
+        const tmp = endX;
+        endX = startX;
+        startX = tmp;
+      }
+
+      if (this._cursor.selection) {
+        // selection is done
+        console.log('TODO selection', [xScale.invert(startX), xScale.invert(endX)]);
+        // reset selection
+        this._cursor.startX = -1;
+        this._cursor.selection = false;
+      } else {
+        // selection in progress
+        const w = endX - startX;
+        const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
+        draw.rectangle(
+          this._uxCtx,
+          Math.round(startX + w / 2),
+          Math.round(yRange[1] + h / 2),
+          w,
+          h,
+          {
+            fill: style.accent,
+            opacity: 0.1,
+          },
+        );
+
+        const nameEl = document.createElement('div');
+        nameEl.style.color = style.accent;
+        nameEl.textContent = 'Selection:';
+        const valueEl = document.createElement('div');
+        valueEl.style.color = style.accent;
+        valueEl.textContent = `${Math.round(+xScale.invert(startX))}, ${Math.round(
+          +xScale.invert(endX),
+        )}`;
+        this._tooltip.append(nameEl, valueEl);
       }
     }
   };
@@ -325,15 +455,16 @@ export class GuiChart extends HTMLElement {
       const serie: Serie & SerieOptions = {
         color: this._colors[i],
         width: 1,
-        markerWidth: 2,
+        markerWidth: 3,
         markerShape: 'circle',
+        markerColor: this._config.series[i].color ?? this._colors[i],
         opacity: 1,
         fillOpacity: 0.2,
-        area: 'below',
+        yCol2: 'min',
         ...this._config.series[i],
       };
 
-      switch (serie.type ?? 'line') {
+      switch (serie.type) {
         case 'line':
           draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
@@ -343,6 +474,10 @@ export class GuiChart extends HTMLElement {
           break;
         case 'line+area':
           // draw area "under" (before) line
+          if (typeof serie.yCol2 === 'number') {
+            // TODO draw line for yCol2
+            // draw.line(this._ctx, this._config.table, , xScale, yScales[serie.yAxis]);
+          }
           draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
@@ -454,15 +589,33 @@ export class GuiChart extends HTMLElement {
     const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
     let xScale: Scale;
-    {
-      const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
-        min: 0,
-        max: Math.max(0, this._config.table.data.length - 1),
-        scale: 'linear',
-        ...this._config.xAxis,
-      };
-      xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+    let xMin: number | null = null;
+    let xMax: number | null = null;
+
+    for (const serie of this._config.series) {
+      if (serie.xCol !== undefined) {
+        for (let row = 0; row < this._config.table.data.length; row++) {
+          const value = this._config.table.data[row][serie.xCol];
+          if (xMin == null) {
+            xMin = value;
+          } else if (value <= xMin) {
+            xMin = value;
+          }
+          if (xMax == null) {
+            xMax = value;
+          } else if (value >= xMax) {
+            xMax = value;
+          }
+        }
+      }
     }
+
+    const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
+      min: xMin ?? 0,
+      max: xMax ?? Math.max(0, this._config.table.data.length - 1),
+      scale: 'linear',
+      ...this._config.xAxis,
+    };
 
     // TODO handle the case where no yAxes have been defined at all
     const yScales: Record<string, Scale> = {};
@@ -497,6 +650,9 @@ export class GuiChart extends HTMLElement {
 
       yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
     }
+
+    xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+
     return { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
   }
 }

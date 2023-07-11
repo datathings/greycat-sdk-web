@@ -1,10 +1,15 @@
 export type Color = string;
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
 export type ScaleType = 'linear' | 'log' | 'time';
-export type AreaPosition = 'below' | 'above' | number;
+export type SecondOrdinate = 'min' | 'max' | number;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
+
+export type Tooltip = {
+  position: TooltipPosition;
+  render: (data: { x: any; y: any; serie: Serie & SerieOptions }[]) => HTMLElement;
+};
 
 export type TableLike = {
   data: any[][];
@@ -34,6 +39,7 @@ export type SerieOptions = {
   width: number;
   markerWidth: number;
   markerShape: MarkerShape;
+  markerColor: Color;
   opacity: number;
   fillOpacity: number;
   /**
@@ -41,11 +47,11 @@ export type SerieOptions = {
    * - `'below'`: draws the area from `yCol` to the bottom
    * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
    */
-  area: AreaPosition;
+  yCol2: SecondOrdinate;
 };
 
 export interface Serie extends Partial<SerieOptions> {
-  type?: SerieType;
+  type: SerieType;
   /**
    * optional offset of the x column in the given table
    *
@@ -90,5 +96,5 @@ export interface ChartConfig {
   /**
    * Tooltip position, defaults to 'top-left'
    */
-  tooltip?: TooltipPosition;
+  tooltip?: Partial<Tooltip>;
 }

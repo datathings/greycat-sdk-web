@@ -8,7 +8,7 @@ type Ctx = CanvasRenderingContext2D;
 type SerieWithOptions = Serie & SerieOptions;
 
 export type ShapeOptions = {
-  color: Color;
+  color?: Color;
   fill?: string;
   thickness?: number;
   opacity?: number;
@@ -140,7 +140,7 @@ export function scatter(
           ctx,
           xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
           yScale(rows[i][serie.yCol]),
-          serie.markerWidth / 2,
+          serie.markerWidth,
           {
             color: serie.color,
             fill: serie.color,
@@ -150,8 +150,8 @@ export function scatter(
       case 'square':
         rectangle(
           ctx,
-          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]) - serie.markerWidth / 2,
-          yScale(rows[i][serie.yCol]) - serie.markerWidth / 2,
+          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
+          yScale(rows[i][serie.yCol]),
           serie.markerWidth,
           serie.markerWidth,
           {
@@ -212,9 +212,9 @@ export function area(
   // first let's stroke the previous line
   ctx.stroke();
 
-  if (serie.area === 'above' || serie.area === 'below') {
+  if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
     // below => fill to yMin, above => fill to yMax
-    const yBound = serie.area === 'below' ? yScale.range()[0] : yScale.range()[1];
+    const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
     // fill
     const lastX = xScale(
       serie.xCol === undefined ? rows.length - 1 : rows[rows.length - 1][serie.xCol],
@@ -229,12 +229,12 @@ export function area(
     // fill in regard to another serie
     // ctx.lineTo(
     //   xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]),
-    //   yScale(rows[0][serie.area]),
+    //   yScale(rows[0][serie.yCol2]),
     // );
     for (let i = rows.length - 1; i >= 0; i--) {
       ctx.lineTo(
         xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-        yScale(rows[i][serie.area]),
+        yScale(rows[i][serie.yCol2]),
       );
     }
     // start of area
@@ -249,7 +249,7 @@ export function area(
 export function circle(ctx: Ctx, x: number, y: number, radius: number, opts: ShapeOptions) {
   ctx.save();
 
-  ctx.strokeStyle = opts.color;
+  ctx.strokeStyle = opts.color ?? 'inherit';
 
   ctx.beginPath();
   ctx.arc(x, y, radius, 0, CIRCLE_END_ANGLE);
@@ -267,7 +267,7 @@ export function circle(ctx: Ctx, x: number, y: number, radius: number, opts: Sha
 export function cross(ctx: Ctx, x: number, y: number, width: number, opts: ShapeOptions) {
   ctx.save();
 
-  ctx.strokeStyle = opts.color;
+  ctx.strokeStyle = opts.color ?? 'inherit';
   ctx.lineWidth = opts.thickness ?? 1;
   const shift = width / 2;
 
@@ -294,7 +294,7 @@ export function simpleLine(
 ) {
   ctx.save();
   ctx.setLineDash(opts.dashed ? [5, 5] : []);
-  ctx.strokeStyle = opts.color;
+  ctx.strokeStyle = opts.color ?? 'inherit';
   ctx.globalAlpha = opts.opacity ?? 1;
 
   // horizontal
@@ -362,13 +362,14 @@ export function rectangle(
   opts: ShapeOptions,
 ) {
   ctx.save();
+  ctx.globalAlpha = opts.opacity ?? 1;
 
   if (opts.fill) {
     ctx.fillStyle = opts.fill;
-    ctx.fillRect(x, y, w, h);
+    ctx.fillRect(x - w / 2, y - h / 2, w, h);
   } else {
-    ctx.strokeStyle = opts.color;
-    ctx.strokeRect(x, y, w, h);
+    ctx.strokeStyle = opts.color ?? 'inherit';
+    ctx.strokeRect(x - w / 2, y - h / 2, w, h);
   }
 
   ctx.restore();
@@ -377,15 +378,18 @@ export function rectangle(
 export function triangle(ctx: Ctx, x: number, y: number, w: number, h: number, opts: ShapeOptions) {
   ctx.save();
 
-  ctx.strokeStyle = opts.color;
   ctx.beginPath();
   ctx.moveTo(x - w / 2, y + h / 2);
   ctx.lineTo(x, y - h / 2);
   ctx.lineTo(x + w / 2, y + h / 2);
   if (opts.fill) {
+    // no need to close for the fill
     ctx.fillStyle = opts.fill;
     ctx.fill();
   } else {
+    // close the triangle, when stroke
+    ctx.lineTo(x - w / 2, y + h / 2);
+    ctx.strokeStyle = opts.color ?? 'inherit';
     ctx.stroke();
   }
 

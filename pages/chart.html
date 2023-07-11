@@ -20,12 +20,18 @@
       padding: 10px;
       display: flex;
       gap: 10px;
+      flex-wrap: wrap;
     }
 
     gui-chart {
       display: block;
       width: 100%;
       height: 100vh;
+    }
+
+    .align-right {
+      align-self: self-end;
+      margin: 0 0 0 auto;
     }
   </style>
   <title>@greycat/ui - gui-chart</title>
@@ -39,6 +45,7 @@
     <button id="bottom-left">Bottom-left</button>
     <button id="bottom-right">Bottom-right</button>
     <button class="inverted" id="toggle-cursor">Toggle cursor</button>
+    <button class="inverted align-right" id="toggle-theme">Light/Dark</button>
   </div>
   <gui-chart></gui-chart>
 
@@ -64,19 +71,35 @@
     const chart = document.querySelector('gui-chart');
 
     document.querySelector('#top-left').onclick = () => {
-      chart.config.tooltip = 'top-left';
+      if (chart.config.tooltip === undefined) {
+        chart.config.tooltip = {};
+      }
+      chart.config.tooltip.position = 'top-left';
     };
     document.querySelector('#top-right').onclick = () => {
-      chart.config.tooltip = 'top-right';
+      if (chart.config.tooltip === undefined) {
+        chart.config.tooltip = {};
+      }
+      chart.config.tooltip.position = 'top-right';
     };
     document.querySelector('#bottom-left').onclick = () => {
-      chart.config.tooltip = 'bottom-left';
+      if (chart.config.tooltip === undefined) {
+        chart.config.tooltip = {};
+      }
+      chart.config.tooltip.position = 'bottom-left';
     };
     document.querySelector('#bottom-right').onclick = () => {
-      chart.config.tooltip = 'bottom-right';
+      if (chart.config.tooltip === undefined) {
+        chart.config.tooltip = {};
+      }
+      chart.config.tooltip.position = 'bottom-right';
     };
     document.querySelector('#toggle-cursor').onclick = () => {
       chart.config.cursor = !chart.config.cursor;
+    };
+    document.querySelector('#toggle-theme').onclick = () => {
+      const theme = document.documentElement.getAttribute('data-theme') ?? 'black';
+      document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
     };
 
     randomize();
@@ -108,8 +131,6 @@
           type: 'line+scatter',
           yAxis: 'left',
           yCol: scatterCol,
-          markerShape: 'triangle',
-          markerWidth: 8,
         },
         {
           type: 'line+area',
@@ -127,7 +148,7 @@
           type: 'line+area',
           yAxis: 'left',
           yCol: areaCol,
-          area: lineCol,
+          yCol2: lineCol,
         },
       ],
     };
