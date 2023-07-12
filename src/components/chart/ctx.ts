@@ -315,8 +315,8 @@ export function text(ctx: Ctx, x: number, y: number, text: string, opts: TextOpt
     if (opts.align === 'end') {
       rectangle(
         ctx,
-        x - (mx.width + xPadding),
-        y - (mx.fontBoundingBoxAscent / 2 + yPadding),
+        x - mx.width / 2,
+        y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
         mx.width + xPadding * 2,
         mx.fontBoundingBoxAscent + yPadding * 2,
         { color: opts.backgroundColor, fill: opts.backgroundColor },
@@ -324,8 +324,8 @@ export function text(ctx: Ctx, x: number, y: number, text: string, opts: TextOpt
     } else if (opts.align === 'start') {
       rectangle(
         ctx,
-        x - xPadding,
-        y - (mx.fontBoundingBoxAscent / 2 + yPadding),
+        x + mx.width / 2,
+        y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
         mx.width + xPadding * 2,
         mx.fontBoundingBoxAscent + yPadding * 2,
         { color: opts.backgroundColor, fill: opts.backgroundColor },
@@ -333,8 +333,8 @@ export function text(ctx: Ctx, x: number, y: number, text: string, opts: TextOpt
     } else if (opts.align === 'center') {
       rectangle(
         ctx,
-        x - (mx.width / 2 + xPadding),
-        y - yPadding,
+        x,
+        y + mx.fontBoundingBoxAscent / 2,
         mx.width + xPadding * 2,
         mx.fontBoundingBoxAscent + yPadding * 2,
         { color: opts.backgroundColor, fill: opts.backgroundColor },

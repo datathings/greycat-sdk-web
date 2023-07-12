@@ -207,7 +207,7 @@ export class GuiChart extends HTMLElement {
           },
         );
         // cursor vertical dashed
-        draw.simpleLine(this._uxCtx, this._cursor.x, yRange[0], this._cursor.x, this._cursor.y, {
+        draw.simpleLine(this._uxCtx, this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
           color: style.cursor.lineColor,
           dashed: true,
         });
