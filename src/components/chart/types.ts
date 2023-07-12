@@ -8,10 +8,14 @@ export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'botto
 
 export type Tooltip = {
   position: TooltipPosition;
+  // we don't care about the type here, it is user-defined
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   render: (data: { x: any; y: any; serie: Serie & SerieOptions }[]) => HTMLElement;
 };
 
 export type TableLike = {
+  // table data are always unknown
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   data: any[][];
 };
 

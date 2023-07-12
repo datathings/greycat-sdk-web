@@ -235,6 +235,7 @@ export class GuiChart extends HTMLElement {
         // y axes texts
         for (const yAxisName in yScales) {
           // safety: we are iterating over 'yScales' keys so we have to have a matching y-axis of name 'yAxisName'
+          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
           const yAxis = this._config.yAxes![yAxisName];
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
@@ -449,7 +450,7 @@ export class GuiChart extends HTMLElement {
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
-    var { xScale, yScales, style } = this._compute();
+    const { xScale, yScales, style } = this._compute();
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie: Serie & SerieOptions = {
@@ -511,6 +512,7 @@ export class GuiChart extends HTMLElement {
       }
 
       // safety: if we have a scale then we must have a yAxes definition
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       const { format = '', position } = this._config.yAxes![yAxisName];
       const fmt = d3.format(format);
 
@@ -588,7 +590,6 @@ export class GuiChart extends HTMLElement {
     ];
     const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
-    let xScale: Scale;
     let xMin: number | null = null;
     let xMax: number | null = null;
 
@@ -651,12 +652,14 @@ export class GuiChart extends HTMLElement {
       yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
     }
 
-    xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+    const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
 
     return { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
   }
 }
 
+// TODO validate the usage of 'any' here
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createScale(type: ScaleType = 'linear', domain: any[], range: any[]): Scale {
   switch (type) {
     case 'linear':

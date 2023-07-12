@@ -61,6 +61,8 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   return el;
 }
 
+// TODO we should most likely use 'lodash.throttle' here
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
   let enableCall = true;
 
@@ -75,6 +77,8 @@ export function throttle<T extends (...args: any[]) => void>(callback: T, interv
   };
 }
 
+// TODO we should most likely use 'lodash.debounce' here
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   callback: T,
   delay: number,

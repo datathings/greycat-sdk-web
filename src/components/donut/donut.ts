@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import { getCSSVar, getColors } from '../../utils';
-import { GuiElement } from '../common';
 import { debounce } from '../../internals';
 
 export interface DonutEntry {
@@ -24,7 +23,7 @@ interface GuiDonutProps {
   opacity: number;
 }
 
-export class GuiDonut extends GuiElement<GuiDonutProps> {
+export class GuiDonut extends HTMLElement {
   private _obs = new ResizeObserver(
     debounce(() => {
       const { width, height } = this.getBoundingClientRect();
@@ -33,11 +32,21 @@ export class GuiDonut extends GuiElement<GuiDonutProps> {
       this.update();
     }, 500),
   );
+  private _props: GuiDonutProps = {
+    width: 0,
+    height: 0,
+    strokeWidth: 2,
+    opacity: 0.7,
+    stroke: 'black',
+    overStroke: `black`,
+    innerRadius: 0.6,
+    data: [],
+  };
 
   private svg!: d3.Selection<SVGSVGElement, DonutEntry[], null, undefined>;
   private g!: d3.Selection<SVGGElement, DonutEntry[], null, undefined>;
 
-  override onConnect(): GuiDonutProps {
+  connectedCallback(): void {
     this._obs.observe(this);
 
     if (this.style.display === '') {
@@ -49,28 +58,22 @@ export class GuiDonut extends GuiElement<GuiDonutProps> {
 
     const { width, height } = this.getBoundingClientRect();
     const accent = getCSSVar('--accent-0') ?? '255,255,255';
-    return {
-      width: Math.round(width),
-      height: Math.round(height),
-      strokeWidth: 2,
-      opacity: 0.7,
-      stroke: 'black',
-      overStroke: `rgb(${accent})`,
-      innerRadius: 0.6,
-      data: [],
-    };
+
+    this._props.width = Math.round(width);
+    this._props.height = Math.round(height);
+    this._props.overStroke = `rgb(${accent})`;
   }
 
-  override onDisconnect(): void {
+  disconnectedCallback(): void {
     this._obs.disconnect();
   }
 
-  override update() {
+  update() {
     const { width, height, data, innerRadius, stroke, overStroke, strokeWidth, opacity } =
       this._props;
 
     // The radius of the pieplot is half the width or half the height (smallest one).
-    var radius = Math.min(width, height) / 2;
+    const radius = Math.min(width, height) / 2;
 
     // update the svg object to the web component root
     this.svg

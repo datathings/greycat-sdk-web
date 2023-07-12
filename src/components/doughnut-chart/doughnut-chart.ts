@@ -54,6 +54,7 @@ export class GuiDoughnutChart extends HTMLElement implements GuiDoughnutProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _pie = d3
     .pie()
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .value((d: any) => d)
     .sort(null);
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
