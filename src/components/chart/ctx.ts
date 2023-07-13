@@ -1,4 +1,4 @@
-import { Scale } from './internals';
+import { Scale, vMap } from './internals';
 import { Color, Serie, SerieOptions, TableLike } from './types';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
@@ -47,30 +47,29 @@ export function line(
     1: [5, 5], // dashed
   };
 
-  ctx.beginPath();
-  ctx.moveTo(
-    xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]),
-    yScale(rows[0][serie.yCol]),
-  );
-
   let prevSegments = segments[rows[0][lineTypeCol] ?? 0];
   ctx.setLineDash(prevSegments);
 
-  let start = false;
-  for (let i = 1; i < rows.length; i++) {
-    if (rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null) {
-      ctx.stroke();
-      ctx.closePath();
-      start = true;
-    } else {
-      const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]);
-      const y = yScale(rows[i][serie.yCol]);
-      if (start) {
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
+  const [xMin, xMax] = xScale.range();
+
+  let first = true;
+  for (let i = 0; i < rows.length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
+    if (first) {
+      if (x < xMin || x > xMax) {
+        // prevent drawing out of range or xScale
+        continue;
       }
+      ctx.beginPath();
+      ctx.moveTo(x, yScale(vMap(rows[i][serie.yCol])));
+      first = false;
+    } else {
+      if (x > xMax) {
+        // prevent drawing out of range or xScale
+        break;
+      }
+      const y = yScale(vMap(rows[i][serie.yCol]));
+      ctx.lineTo(x, y);
 
       const currSegments = segments[rows[i][lineTypeCol] ?? 0];
       if (prevSegments !== currSegments) {
@@ -81,7 +80,10 @@ export function line(
         ctx.moveTo(x, y);
         prevSegments = currSegments;
       }
-      start = false;
+      first = rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null;
+      if (first) {
+        ctx.stroke();
+      }
     }
   }
 
@@ -108,11 +110,20 @@ export function bar(
   ctx.globalAlpha = serie.opacity;
 
   const [yMin] = yScale.range();
+  const [xMin, xMax] = xScale.range();
   const shift = Math.round(serie.width / 2);
 
   for (let i = 0; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]) - shift;
-    const y = yScale(rows[i][serie.yCol]);
+    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol])) - shift;
+    if (x < xMin) {
+      // prevent drawing out of range or xScale
+      continue;
+    }
+    if (x > xMax) {
+      // prevent drawing out of range or xScale
+      break;
+    }
+    const y = yScale(vMap(rows[i][serie.yCol]));
     ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
@@ -133,45 +144,38 @@ export function scatter(
 
   ctx.save();
 
+  const [xMin, xMax] = xScale.range();
+
   for (let i = 0; i < rows.length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
+    if (x < xMin) {
+      // prevent drawing out of range or xScale
+      continue;
+    }
+    if (x > xMax) {
+      // prevent drawing out of range or xScale
+      break;
+    }
+    const y = yScale(vMap(rows[i][serie.yCol]));
+
     switch (serie.markerShape) {
       case 'circle':
-        circle(
-          ctx,
-          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-          yScale(rows[i][serie.yCol]),
-          serie.markerWidth,
-          {
-            color: serie.color,
-            fill: serie.color,
-          },
-        );
+        circle(ctx, x, y, serie.markerWidth, {
+          color: serie.color,
+          fill: serie.color,
+        });
         break;
       case 'square':
-        rectangle(
-          ctx,
-          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-          yScale(rows[i][serie.yCol]),
-          serie.markerWidth,
-          serie.markerWidth,
-          {
-            color: serie.color,
-            fill: serie.color,
-          },
-        );
+        rectangle(ctx, x, y, serie.markerWidth, serie.markerWidth, {
+          color: serie.color,
+          fill: serie.color,
+        });
         break;
       case 'triangle':
-        triangle(
-          ctx,
-          xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-          yScale(rows[i][serie.yCol]),
-          serie.markerWidth,
-          serie.markerWidth,
-          {
-            color: serie.color,
-            fill: serie.color,
-          },
-        );
+        triangle(ctx, x, y, serie.markerWidth, serie.markerWidth, {
+          color: serie.color,
+          fill: serie.color,
+        });
         break;
     }
   }
@@ -191,8 +195,8 @@ export function area(
     return;
   }
 
-  const firstX = xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]);
-  const firstY = yScale(rows[0][serie.yCol]);
+  let firstX = xScale(serie.xCol === undefined ? 0 : vMap(rows[0][serie.xCol]));
+  let firstY = yScale(vMap(rows[0][serie.yCol]));
 
   ctx.save();
   ctx.globalAlpha = serie.fillOpacity;
@@ -200,25 +204,36 @@ export function area(
 
   ctx.beginPath();
 
-  // line
-  ctx.moveTo(firstX, firstY);
-  for (let i = 1; i < rows.length; i++) {
-    ctx.lineTo(
-      xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-      yScale(rows[i][serie.yCol]),
-    );
-  }
+  const [xMin, xMax] = xScale.range();
 
-  // first let's stroke the previous line
-  ctx.stroke();
+  // line
+  let first = true;
+  for (let i = 0; i < rows.length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
+    if (x < xMin) {
+      // prevent drawing out of range or xScale
+      continue;
+    }
+    if (first) {
+      firstX = x;
+      firstY = yScale(vMap(rows[i][serie.yCol]));
+      ctx.moveTo(x, firstY);
+      first = false;
+    } else {
+      if (x > xMax) {
+        // prevent drawing out of range or xScale
+        break;
+      }
+      const y = yScale(vMap(rows[i][serie.yCol]));
+      ctx.lineTo(x, y);
+    }
+  }
 
   if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
     // below => fill to yMin, above => fill to yMax
     const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
     // fill
-    const lastX = xScale(
-      serie.xCol === undefined ? rows.length - 1 : rows[rows.length - 1][serie.xCol],
-    );
+    const lastX = xMax;
     // bottom right
     ctx.lineTo(lastX, yBound);
     // bottom left
@@ -227,15 +242,14 @@ export function area(
     ctx.lineTo(firstX, firstY);
   } else {
     // fill in regard to another serie
-    // ctx.lineTo(
-    //   xScale(serie.xCol === undefined ? 0 : rows[0][serie.xCol]),
-    //   yScale(rows[0][serie.yCol2]),
-    // );
     for (let i = rows.length - 1; i >= 0; i--) {
-      ctx.lineTo(
-        xScale(serie.xCol === undefined ? i : rows[i][serie.xCol]),
-        yScale(rows[i][serie.yCol2]),
-      );
+      const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
+      if (x < xMin || x > xMax) {
+        // prevent drawing out of range or xScale
+        continue;
+      }
+      const y = yScale(vMap(rows[i][serie.yCol2]));
+      ctx.lineTo(x, y);
     }
     // start of area
     ctx.lineTo(firstX, firstY);
@@ -293,6 +307,7 @@ export function simpleLine(
   opts: ShapeOptions,
 ) {
   ctx.save();
+
   ctx.setLineDash(opts.dashed ? [5, 5] : []);
   ctx.strokeStyle = opts.color ?? 'inherit';
   ctx.globalAlpha = opts.opacity ?? 1;

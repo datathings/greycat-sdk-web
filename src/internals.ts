@@ -1,4 +1,5 @@
 import { core } from '@greycat/lib-std';
+import { TableLike } from './components';
 
 export type Disposable = () => void;
 
@@ -113,5 +114,48 @@ export function debounce<T extends (...args: any[]) => void>(
 
 //   return -1;
 // }
+
+export function closest(arr: number[], v: number): number | null {
+  let res: number | null = null;
+  let distance: number | null = null;
+  for (let i = 0; i < arr.length; i++) {
+    if (arr[i] === v) {
+      return v;
+    }
+    const d2 = Math.abs(arr[i] - v);
+    if (distance == null || distance > d2) {
+      res = arr[i];
+      distance = d2;
+    } else if (distance != null && arr[i] > v && distance < d2) {
+      return res;
+    }
+  }
+  return res;
+}
+
+export function closest2(
+  table: TableLike,
+  col: number | undefined,
+  v: number,
+): { xValue: number; rowIdx: number } {
+  let rowIdx = 0;
+  let res = 0;
+  let distance: number | null = null;
+  for (let i = 0; i < table.data.length; i++) {
+    const x = col === undefined ? i : table.data[i][col];
+    if (x === v) {
+      return { xValue: x, rowIdx: i };
+    }
+    const d2 = Math.abs(x - v);
+    if (distance == null || distance > d2) {
+      rowIdx = i;
+      res = x;
+      distance = d2;
+    } else if (distance != null && x > v && distance < d2) {
+      return { xValue: res, rowIdx };
+    }
+  }
+  return { xValue: res, rowIdx };
+}
 
 export type TableClassColumnMeta = core.TableColumnMeta & { class?: string };

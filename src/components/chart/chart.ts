@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
 
-import { debounce, throttle } from '../../internals';
+import { closest2, debounce, throttle } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
-import { Axis, ChartConfig, ScaleType, Serie, SerieOptions } from './types';
-import { Scale } from './internals';
+import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
+import { Scale, vMap } from './internals';
 
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
@@ -27,7 +27,7 @@ export class GuiChart extends HTMLElement {
   constructor() {
     super();
 
-    this._config = { type: 'line', table: { data: [] }, series: [] };
+    this._config = { type: 'line', table: { data: [] }, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -134,8 +134,8 @@ export class GuiChart extends HTMLElement {
   }, 16);
 
   private _leaveHandler = () => {
-    // this._cursor.x = -1;
-    // this._cursor.y = -1;
+    this._cursor.x = -1;
+    this._cursor.y = -1;
     this._cursor.startX = -1;
     this._cursor.selection = false;
 
@@ -222,7 +222,9 @@ export class GuiChart extends HTMLElement {
           this._uxCtx,
           this._cursor.x,
           yRange[0] + 8,
-          d3.format(this._config.xAxis?.format ?? '.2f')(xScale.invert(this._cursor.x)),
+          this._config.xAxis.format
+            ? d3.format(this._config.xAxis.format)(xScale.invert(this._cursor.x))
+            : `${xScale.invert(this._cursor.x)}`,
           {
             color: style.cursor.color,
             backgroundColor: style.cursor.bgColor,
@@ -234,16 +236,14 @@ export class GuiChart extends HTMLElement {
         let rightAxesIdx = -1;
         // y axes texts
         for (const yAxisName in yScales) {
-          // safety: we are iterating over 'yScales' keys so we have to have a matching y-axis of name 'yAxisName'
-          // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-          const yAxis = this._config.yAxes![yAxisName];
+          const yAxis = this._config.yAxes[yAxisName];
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
             draw.text(
               this._uxCtx,
               style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -257,7 +257,7 @@ export class GuiChart extends HTMLElement {
               this._uxCtx,
               this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(yScales[yAxisName].invert(this._cursor.y)),
+              d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -283,95 +283,94 @@ export class GuiChart extends HTMLElement {
           ...this._config.series[i],
         };
 
-        const approxRowIdx = Math.round(+xScale.invert(this._cursor.x));
-        for (let row = 0; row < this._config.table.data.length; row++) {
-          const xValue = serie.xCol === undefined ? row : this._config.table.data[row][serie.xCol];
-          if (xValue === approxRowIdx) {
-            const yValue = this._config.table.data[row][serie.yCol];
-            const x = xScale(xValue);
-            const y = yScales[serie.yAxis](yValue);
-            const w = serie.markerWidth;
+        const v = +xScale.invert(this._cursor.x);
+        const { xValue, rowIdx } = closest2(this._config.table, serie.xCol, v);
+        const yValue =
+          typeof this._config.table.data[rowIdx][serie.yCol] === 'bigint'
+            ? Number(this._config.table.data[rowIdx][serie.yCol])
+            : this._config.table.data[rowIdx][serie.yCol];
+        const x = xScale(vMap(xValue));
+        const y = yScales[serie.yAxis](vMap(yValue));
+        const w = serie.markerWidth;
+        let yValue2;
+        if (typeof serie.yCol2 === 'number') {
+          yValue2 = this._config.table.data[rowIdx][serie.yCol2];
+        }
 
-            // marker
-            switch (serie.type ?? 'line') {
-              case 'line+scatter':
-              case 'scatter':
-              case 'line':
-              case 'line+area':
-              case 'area':
-                switch (serie.markerShape ?? 'circle') {
-                  case 'circle':
-                    draw.circle(this._uxCtx, x, y, w, {
-                      fill: serie.color,
-                    });
-                    break;
-                  case 'square':
-                    draw.rectangle(this._uxCtx, x, y, w, w, {
-                      fill: serie.color,
-                    });
-                    break;
-                  case 'triangle':
-                    draw.triangle(this._uxCtx, x, y, w, w, {
-                      fill: serie.color,
-                    });
-                    break;
-                }
-                break;
-              case 'bar':
-                draw.rectangle(
-                  this._uxCtx,
-                  x,
-                  y + (yRange[0] - y) / 2,
-                  serie.width + 1,
-                  yRange[0] - y,
-                  {
-                    color: style.accent,
-                  },
-                );
-                break;
+        // marker
+        switch (serie.type ?? 'line') {
+          case 'line+scatter':
+          case 'scatter':
+          case 'line':
+          case 'line+area':
+          case 'area': {
+            // make sure to also add a marker when 'yCol2' is defined
+            this._drawMarker(serie, x, y, w, serie.markerColor);
+            if (yValue2 !== undefined) {
+              const y2 = yScales[serie.yAxis](vMap(yValue2));
+              this._drawMarker(serie, x, y2, w, serie.markerColor);
             }
-
-            // tooltip
-            if (!this._config.tooltip?.render) {
-              const nameEl = document.createElement('div');
-              nameEl.style.color = serie.color;
-              nameEl.textContent = `${serie.title ?? `Serie ${i}`}:`;
-              const valueEl = document.createElement('div');
-              valueEl.style.color = serie.color;
-              valueEl.textContent = d3.format(this._config.yAxes?.[serie.yAxis].format ?? '.2f')(
-                yValue,
-              );
-              this._tooltip.append(nameEl, valueEl);
-            }
-
             break;
+          }
+          case 'bar':
+            draw.rectangle(
+              this._uxCtx,
+              x,
+              y + (yRange[0] - y) / 2,
+              serie.width + 1,
+              yRange[0] - y,
+              {
+                color: style.accent,
+              },
+            );
+            break;
+        }
+
+        // tooltip
+        if (!this._config.tooltip?.render) {
+          const nameEl = document.createElement('div');
+          nameEl.style.color = serie.color;
+          nameEl.textContent = `${serie.title ?? `Col ${serie.yCol}`}:`;
+          const valueEl = document.createElement('div');
+          valueEl.style.color = serie.color;
+          valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue);
+          this._tooltip.append(nameEl, valueEl);
+
+          if (yValue2 !== undefined) {
+            const nameEl = document.createElement('div');
+            nameEl.style.color = serie.color;
+            nameEl.textContent = `${serie.title ?? `Col ${serie.yCol2}`}:`;
+            const valueEl = document.createElement('div');
+            valueEl.style.color = serie.color;
+            valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue2);
+            this._tooltip.append(nameEl, valueEl);
           }
         }
       }
 
-      if (this._config.tooltip?.render) {
-        this._config.tooltip.render(
-          this._config.series.map((s, i) => {
-            const serie: Serie & SerieOptions = {
-              color: this._colors[i],
-              width: 1,
-              markerWidth: 3,
-              markerShape: 'circle',
-              markerColor: this._config.series[i].color ?? this._colors[i],
-              opacity: 1,
-              fillOpacity: 0.2,
-              yCol2: 'min',
-              ...s,
-            };
-            const x = Math.round(+xScale.invert(this._cursor.x));
-            return {
-              x,
-              y: this._config.table.data[x][serie.yCol],
-              serie,
-            };
-          }),
-        );
-      }
+      const data = this._config.series.map((s, i) => {
+        const serie: SerieData = {
+          color: this._colors[i],
+          width: 1,
+          markerWidth: 3,
+          markerShape: 'circle',
+          markerColor: this._config.series[i].color ?? this._colors[i],
+          opacity: 1,
+          fillOpacity: 0.2,
+          yCol2: 'min',
+          ...s,
+        };
+
+        const v = +xScale.invert(this._cursor.x);
+        const { xValue, rowIdx } = closest2(this._config.table, serie.xCol, v);
+        serie.xValue = xValue;
+        serie.yValue = this._config.table.data[rowIdx][serie.yCol];
+        return serie;
+      });
+      // call tooltip render if defined
+      this._config.tooltip?.render?.(data);
+      // dispatch event
+      this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
     if (this._cursor.startX !== -1) {
@@ -393,40 +392,57 @@ export class GuiChart extends HTMLElement {
         startX = tmp;
       }
 
-      if (this._cursor.selection) {
-        // selection is done
-        console.log('TODO selection', [xScale.invert(startX), xScale.invert(endX)]);
-        // reset selection
-        this._cursor.startX = -1;
-        this._cursor.selection = false;
-      } else {
-        // selection in progress
-        const w = endX - startX;
-        const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
-        draw.rectangle(
-          this._uxCtx,
-          Math.round(startX + w / 2),
-          Math.round(yRange[1] + h / 2),
-          w,
-          h,
-          {
+      if (startX !== endX) {
+        const from = Math.round(+xScale.invert(startX));
+        const to = Math.round(+xScale.invert(endX));
+
+        if (this._cursor.selection) {
+          // selection is done
+          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+
+          // reset selection
+          this._cursor.startX = -1;
+          this._cursor.selection = false;
+        } else {
+          // selection in progress
+          const w = endX - startX;
+          const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
+          draw.rectangle(this._uxCtx, startX + w / 2, yRange[1] + h / 2, w, h, {
             fill: style.accent,
             opacity: 0.1,
-          },
-        );
+          });
 
-        const nameEl = document.createElement('div');
-        nameEl.style.color = style.accent;
-        nameEl.textContent = 'Selection:';
-        const valueEl = document.createElement('div');
-        valueEl.style.color = style.accent;
-        valueEl.textContent = `${Math.round(+xScale.invert(startX))}, ${Math.round(
-          +xScale.invert(endX),
-        )}`;
-        this._tooltip.append(nameEl, valueEl);
+          const nameEl = document.createElement('div');
+          nameEl.style.color = style.accent;
+          nameEl.textContent = 'Selection:';
+          const valueEl = document.createElement('div');
+          valueEl.style.color = style.accent;
+          valueEl.textContent = `${from}, ${to}`;
+          this._tooltip.append(nameEl, valueEl);
+        }
       }
     }
   };
+
+  private _drawMarker(serie: Serie & SerieOptions, x: number, y2: number, w: number, color: Color) {
+    switch (serie.markerShape ?? 'circle') {
+      case 'circle':
+        draw.circle(this._uxCtx, x, y2, w, {
+          fill: color,
+        });
+        break;
+      case 'square':
+        draw.rectangle(this._uxCtx, x, y2, w, w, {
+          fill: color,
+        });
+        break;
+      case 'triangle':
+        draw.triangle(this._uxCtx, x, y2, w, w, {
+          fill: color,
+        });
+        break;
+    }
+  }
 
   private _clearUX(): void {
     // clear ux canvas
@@ -475,10 +491,6 @@ export class GuiChart extends HTMLElement {
           break;
         case 'line+area':
           // draw area "under" (before) line
-          if (typeof serie.yCol2 === 'number') {
-            // TODO draw line for yCol2
-            // draw.line(this._ctx, this._config.table, , xScale, yScales[serie.yAxis]);
-          }
           draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
@@ -496,7 +508,9 @@ export class GuiChart extends HTMLElement {
 
     // Add the x-axis.
     const xAxis = d3.axisBottom(xScale);
-    xAxis.tickFormat(d3.format(this._config.xAxis?.format ?? ''));
+    if (this._config.xAxis.format) {
+      xAxis.tickFormat(d3.format(this._config.xAxis.format));
+    }
     this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(xAxis);
@@ -511,9 +525,7 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName] = this._svg.append('g');
       }
 
-      // safety: if we have a scale then we must have a yAxes definition
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const { format = '', position } = this._config.yAxes![yAxisName];
+      const { format = '', position } = this._config.yAxes[yAxisName];
       const fmt = d3.format(format);
 
       if (position === undefined || position === 'left') {
@@ -552,14 +564,12 @@ export class GuiChart extends HTMLElement {
   private _compute() {
     let leftAxes = 0;
     let rightAxes = 0;
-    if (this._config.yAxes) {
-      for (const yAxisName in this._config.yAxes) {
-        const pos = this._config.yAxes[yAxisName].position;
-        if (pos === undefined || pos === 'left') {
-          leftAxes++;
-        } else {
-          rightAxes++;
-        }
+    for (const yAxisName in this._config.yAxes) {
+      const pos = this._config.yAxes[yAxisName].position;
+      if (pos === undefined || pos === 'left') {
+        leftAxes++;
+      } else {
+        rightAxes++;
       }
     }
 
@@ -644,6 +654,20 @@ export class GuiChart extends HTMLElement {
               } else if (value >= max) {
                 max = value;
               }
+              // make sure to account for 'yCol2' if used
+              if (typeof serie.yCol2 === 'number') {
+                const value = this._config.table.data[row][serie.yCol2];
+                if (min == null) {
+                  min = value;
+                } else if (value <= min) {
+                  min = value;
+                }
+                if (max == null) {
+                  max = value;
+                } else if (value >= max) {
+                  max = value;
+                }
+              }
             }
           }
         }
@@ -661,6 +685,8 @@ export class GuiChart extends HTMLElement {
 // TODO validate the usage of 'any' here
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function createScale(type: ScaleType = 'linear', domain: any[], range: any[]): Scale {
+  domain = [vMap(domain[0]), vMap(domain[1])];
+
   switch (type) {
     case 'linear':
       return d3.scaleLinear().domain(domain).rangeRound(range);
@@ -668,8 +694,27 @@ function createScale(type: ScaleType = 'linear', domain: any[], range: any[]): S
       return d3.scaleLog().domain(domain).rangeRound(range);
     case 'time':
       return d3.scaleTime().domain(domain).rangeRound(range);
-    // case 'ordinal':
-    //   return d3.scaleOrdinal().domain(domain).range(range).unknown(null);
+  }
+}
+
+const SELECTION_EVENT_TYPE = 'selection';
+const CURSOR_EVENT_TYPE = 'cursor';
+
+/**
+ * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ */
+export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
+  constructor(from: unknown, to: unknown) {
+    super(SELECTION_EVENT_TYPE, { detail: { from, to }, bubbles: true });
+  }
+}
+
+/**
+ * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ */
+export class GuiChartCursorEvent extends CustomEvent<SerieData[]> {
+  constructor(data: SerieData[]) {
+    super(CURSOR_EVENT_TYPE, { detail: data, bubbles: true });
   }
 }
 
@@ -680,6 +725,11 @@ declare global {
 
   interface HTMLElementTagNameMap {
     'gui-chart': GuiChart;
+  }
+
+  interface HTMLElementEventMap {
+    [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
+    [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
   }
 }
 

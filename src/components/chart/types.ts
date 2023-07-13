@@ -6,11 +6,13 @@ export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 
+// we don't care about the type here, it is user-defined
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any };
+
 export type Tooltip = {
   position: TooltipPosition;
-  // we don't care about the type here, it is user-defined
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  render: (data: { x: any; y: any; serie: Serie & SerieOptions }[]) => HTMLElement;
+  render: (data: SerieData[]) => HTMLElement;
 };
 
 export type TableLike = {
@@ -87,18 +89,24 @@ export interface ChartConfig {
   /**
    * The x-axis definition
    */
-  xAxis?: Partial<Axis>;
+  xAxis: Partial<Axis>;
   /**
    * One or more axes that will be used for y-axes.
    *
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
-  yAxes?: Record<string, Partial<Ordinate>>;
-  startOffset?: number;
-  endOffset?: number;
+  yAxes: Record<string, Partial<Ordinate>>;
+  from?: number;
+  to?: number;
   cursor?: boolean;
   /**
    * Tooltip position, defaults to 'top-left'
    */
   tooltip?: Partial<Tooltip>;
+  /**
+   * If a selection is smalled than this value in pixels it will be ignored.
+   *
+   * Defaults: `2`
+   */
+  selectionThreshold?: number;
 }

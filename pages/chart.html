@@ -55,7 +55,7 @@
     let shapeIdx = 0;
     const shapes = ['circle', 'square', 'triangle'];
 
-    const rows = 100;
+    const rows = 150;
     const cols = 5;
     const table = {
       data: Array.from({ length: rows }, () => new Array(cols)),
@@ -69,6 +69,10 @@
 
     const randomizeBtn = document.querySelector('#randomize');
     const chart = document.querySelector('gui-chart');
+
+    chart.addEventListener('selection', (ev) => {
+      console.log('selection', ev.detail);
+    });
 
     document.querySelector('#top-left').onclick = () => {
       if (chart.config.tooltip === undefined) {
@@ -108,7 +112,7 @@
       cursor: true,
       xAxis: {
         min: -1,
-        max: 100,
+        max: 150,
       },
       yAxes: {
         left: {
@@ -131,6 +135,7 @@
           type: 'line+scatter',
           yAxis: 'left',
           yCol: scatterCol,
+          markerColor: 'yellow',
         },
         {
           type: 'line+area',
@@ -189,6 +194,8 @@
           table.data[row][lineCol] = null;
         }
       }
+
+      console.log(table);
     }
 
     /**
