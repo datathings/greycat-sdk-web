@@ -23,6 +23,11 @@ export type TextOptions = {
   align?: CanvasTextAlign;
 };
 
+const SEGMENTS: Record<number, number[]> = {
+  0: [], // solid
+  1: [5, 5], // dashed
+};
+
 export function line(
   ctx: Ctx,
   table: TableLike,
@@ -36,55 +41,60 @@ export function line(
   }
 
   const lineTypeCol = serie.lineTypeCol ?? -1;
+  // const colorCol = serie.colorCol ?? -1;
 
   ctx.save();
 
   ctx.lineWidth = serie.width;
   ctx.strokeStyle = serie.color;
   ctx.globalAlpha = serie.opacity ?? 1;
-  const segments: Record<number, number[]> = {
-    0: [], // solid
-    1: [5, 5], // dashed
-  };
-
-  let prevSegments = segments[rows[0][lineTypeCol] ?? 0];
-  ctx.setLineDash(prevSegments);
 
   const [xMin, xMax] = xScale.range();
+  const [yMin, yMax] = yScale.range();
 
+  let prevSegments = SEGMENTS[0];
+  // let prevColor = serie.color;
   let first = true;
+  console.log('=====');
   for (let i = 0; i < rows.length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
+    const y = yScale(vMap(rows[i][serie.yCol]));
+    const notDefined = rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null;
+    const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[rows[i][lineTypeCol] ?? 0];
+    // const currColor = rows[i][colorCol] ?? serie.color;
+
+    console.log(ctx.strokeStyle);
+
+    if (x < xMin || x > xMax || y > yMin || y < yMax) {
+      // prevent drawing out of range
+      prevSegments = lineDash;
+      // prevColor = currColor;
+      continue;
+    }
+
     if (first) {
-      if (x < xMin || x > xMax) {
-        // prevent drawing out of range or xScale
-        continue;
-      }
+      ctx.setLineDash(lineDash);
       ctx.beginPath();
-      ctx.moveTo(x, yScale(vMap(rows[i][serie.yCol])));
+      ctx.moveTo(x, y);
       first = false;
     } else {
-      if (x > xMax) {
-        // prevent drawing out of range or xScale
-        break;
-      }
-      const y = yScale(vMap(rows[i][serie.yCol]));
       ctx.lineTo(x, y);
-
-      const currSegments = segments[rows[i][lineTypeCol] ?? 0];
-      if (prevSegments !== currSegments) {
-        ctx.stroke();
-        ctx.closePath();
-        ctx.setLineDash(currSegments);
-        ctx.beginPath();
-        ctx.moveTo(x, y);
-        prevSegments = currSegments;
-      }
-      first = rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null;
-      if (first) {
-        ctx.stroke();
-      }
     }
+
+    if (prevSegments !== lineDash /* || prevColor !== currColor */) {
+      // close previous path
+      ctx.stroke();
+      ctx.closePath();
+
+      // start new path type
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+      ctx.setLineDash(lineDash);
+      // ctx.strokeStyle = currColor;
+    }
+
+    prevSegments = lineDash;
+    // prevColor = currColor;
   }
 
   ctx.stroke();

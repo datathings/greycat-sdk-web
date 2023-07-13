@@ -36,14 +36,12 @@ export type Axis = {
    * Formats the cursor hover text on the axis
    *
    * Specifying `'iso'` when the axis is of type `'time'` will format as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
-   * Otherwise, if the axis type is `'time'`, the `tz` property can be used to specify the ts offset.
    *
    * See https://d3js.org/d3-format#format for number values
    * See https://d3js.org/d3-time-format#utcFormat for time values in UTC
    * See https://d3js.org/d3-time-format#timeFormat for time values in default locale
    */
   cursorFormat?: string;
-  tz?: 'utc' | 'locale';
 };
 
 export type Ordinate = Axis & {
@@ -86,6 +84,10 @@ export interface Serie extends Partial<SerieOptions> {
    * offset of the column in the table to use to read lineType values for each x
    */
   lineTypeCol?: number;
+  // /**
+  //  * offset of the column in the table to use to read the line color values for segment
+  //  */
+  // colorCol?: number;
   /**
    * Optional title used to name the serie.
    */

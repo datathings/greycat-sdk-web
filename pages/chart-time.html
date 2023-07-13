@@ -31,6 +31,10 @@
 
     const chart = document.querySelector('gui-chart');
 
+    chart.addEventListener('selection', (ev) => {
+      console.log('selection', ev.detail);
+    });
+
     class Time {
       constructor(value) {
         this.value = value;
@@ -41,7 +45,6 @@
       cursor: true,
       xAxis: {
         scale: 'time',
-        // cursorFormat: '%Y',
       },
       yAxes: {
         left: {
@@ -59,7 +62,7 @@
       },
       series: [
         {
-          title: 'Data 0',
+          title: 'My Data',
           type: 'line+scatter',
           yAxis: 'left',
           xCol: 0,

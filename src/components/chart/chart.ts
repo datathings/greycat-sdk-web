@@ -4,7 +4,7 @@ import { closest2, debounce, throttle } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
 import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
-import { Scale, vMap } from './internals';
+import { Scale, dateFormat, vMap } from './internals';
 
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
@@ -218,24 +218,13 @@ export class GuiChart extends HTMLElement {
         });
 
         // bottom axis text
-        const xValue = xScale.invert(this._cursor.x) as Date;
+        const xValue = xScale.invert(this._cursor.x);
         let bottomText = `${xValue}`;
         if (this._config.xAxis.scale === 'time') {
-          if (
-            this._config.xAxis.cursorFormat === undefined ||
-            this._config.xAxis.cursorFormat === 'iso'
-          ) {
-            bottomText = d3.isoFormat(xValue);
+          if (this._config.xAxis.cursorFormat === undefined) {
+            bottomText = d3.isoFormat(xValue as Date);
           } else {
-            switch (this._config.xAxis.tz) {
-              case 'locale':
-                bottomText = d3.timeFormat(this._config.xAxis.cursorFormat)(xValue);
-                break;
-              case 'utc':
-              default:
-                bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(xValue);
-                break;
-            }
+            bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(xValue as Date);
           }
         } else {
           if (this._config.xAxis.cursorFormat) {
@@ -337,7 +326,7 @@ export class GuiChart extends HTMLElement {
               serie.width + 1,
               yRange[0] - y,
               {
-                color: style.accent,
+                color: style['accent-0'],
               },
             );
             break;
@@ -410,8 +399,8 @@ export class GuiChart extends HTMLElement {
       }
 
       if (startX !== endX) {
-        const from = Math.round(+xScale.invert(startX));
-        const to = Math.round(+xScale.invert(endX));
+        let from: unknown = xScale.invert(startX);
+        let to: unknown = xScale.invert(endX);
 
         if (this._cursor.selection) {
           // selection is done
@@ -425,16 +414,26 @@ export class GuiChart extends HTMLElement {
           const w = endX - startX;
           const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
           draw.rectangle(this._uxCtx, startX + w / 2, yRange[1] + h / 2, w, h, {
-            fill: style.accent,
+            fill: style['accent-0'],
             opacity: 0.1,
           });
 
           const nameEl = document.createElement('div');
-          nameEl.style.color = style.accent;
+          nameEl.style.color = style['text-0'];
           nameEl.textContent = 'Selection:';
           const valueEl = document.createElement('div');
-          valueEl.style.color = style.accent;
+          valueEl.style.color = style['text-0'];
+          if (this._config.xAxis.scale === 'time') {
+            if (this._config.xAxis.cursorFormat === undefined) {
+              from = d3.isoFormat(from as Date);
+              to = d3.isoFormat(to as Date);
+            } else {
+              from = d3.utcFormat(this._config.xAxis.cursorFormat)(from as Date);
+              to = d3.utcFormat(this._config.xAxis.cursorFormat)(to as Date);
+            }
+          }
           valueEl.textContent = `${from}, ${to}`;
+
           this._tooltip.append(nameEl, valueEl);
         }
       }
@@ -525,7 +524,9 @@ export class GuiChart extends HTMLElement {
 
     // Add the x-axis.
     const xAxis = d3.axisBottom(xScale);
-    if (this._config.xAxis.format) {
+    if (this._config.xAxis.scale === 'time') {
+      xAxis.tickFormat((v) => dateFormat(v as Date));
+    } else if (this._config.xAxis.format) {
       xAxis.tickFormat(d3.format(this._config.xAxis.format));
     }
     this._xAxisGroup
@@ -542,13 +543,19 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName] = this._svg.append('g');
       }
 
-      const { format = '', position } = this._config.yAxes[yAxisName];
-      const fmt = d3.format(format);
+      const { format, position, scale } = this._config.yAxes[yAxisName];
+
+      // safety: either `(x: number) => string` or `(x: Date) => string` or `null`
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const fmt: ((domainValue: any, index: number) => string) | null =
+        scale === 'time' ? dateFormat : format ? d3.format(format) : null;
 
       if (position === undefined || position === 'left') {
         leftAxesIdx++;
         const yAxis = d3.axisLeft(yScales[yAxisName]);
-        yAxis.tickFormat(fmt);
+        if (fmt) {
+          yAxis.tickFormat(fmt);
+        }
 
         this._yAxisGroups[yAxisName]
           .attr('transform', `translate(${style.margin.left + leftAxesIdx * style.margin.left}, 0)`)
@@ -556,7 +563,9 @@ export class GuiChart extends HTMLElement {
       } else {
         rightAxesIdx++;
         const yAxis = d3.axisRight(yScales[yAxisName]);
-        yAxis.tickFormat(fmt);
+        if (fmt) {
+          yAxis.tickFormat(fmt);
+        }
 
         this._yAxisGroups[yAxisName]
           .attr(
@@ -592,7 +601,8 @@ export class GuiChart extends HTMLElement {
 
     const style = getComputedStyle(this);
     const props = {
-      accent: `rgb(${style.getPropertyValue('--accent-0')})`,
+      'text-0': `rgb(${style.getPropertyValue('--text-0')})`,
+      'accent-0': `rgb(${style.getPropertyValue('--accent-0')})`,
       cursor: {
         color: style.getPropertyValue('--cursor-c'),
         bgColor: style.getPropertyValue('--cursor-bg-c'),

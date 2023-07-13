@@ -19,7 +19,7 @@ gui-chart .gui-chart-tooltip {
   font-family: monospace;
 
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto;
   grid-auto-rows: auto;
   grid-auto-flow: row;
 
@@ -29,5 +29,6 @@ gui-chart .gui-chart-tooltip {
 }
 
 gui-chart .gui-chart-tooltip div:nth-child(even) {
-  justify-self: end;
+  padding-left: 1em;
+  justify-self: start;
 }
