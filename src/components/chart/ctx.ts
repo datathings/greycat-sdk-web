@@ -55,15 +55,12 @@ export function line(
   let prevSegments = SEGMENTS[0];
   // let prevColor = serie.color;
   let first = true;
-  console.log('=====');
   for (let i = 0; i < rows.length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
     const y = yScale(vMap(rows[i][serie.yCol]));
     const notDefined = rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null;
     const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[rows[i][lineTypeCol] ?? 0];
     // const currColor = rows[i][colorCol] ?? serie.color;
-
-    console.log(ctx.strokeStyle);
 
     if (x < xMin || x > xMax || y > yMin || y < yMax) {
       // prevent drawing out of range

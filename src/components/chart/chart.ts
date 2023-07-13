@@ -399,12 +399,15 @@ export class GuiChart extends HTMLElement {
       }
 
       if (startX !== endX) {
-        let from: unknown = xScale.invert(startX);
-        let to: unknown = xScale.invert(endX);
+        const from: number | Date = xScale.invert(startX);
+        const to: number | Date = xScale.invert(endX);
 
         if (this._cursor.selection) {
           // selection is done
           this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+          this._config.from = from;
+          this._config.to = to;
+          this.update();
 
           // reset selection
           this._cursor.startX = -1;
@@ -424,15 +427,19 @@ export class GuiChart extends HTMLElement {
           const valueEl = document.createElement('div');
           valueEl.style.color = style['text-0'];
           if (this._config.xAxis.scale === 'time') {
+            let fromStr: string;
+            let toStr: string;
             if (this._config.xAxis.cursorFormat === undefined) {
-              from = d3.isoFormat(from as Date);
-              to = d3.isoFormat(to as Date);
+              fromStr = d3.isoFormat(from as Date);
+              toStr = d3.isoFormat(to as Date);
             } else {
-              from = d3.utcFormat(this._config.xAxis.cursorFormat)(from as Date);
-              to = d3.utcFormat(this._config.xAxis.cursorFormat)(to as Date);
+              fromStr = d3.utcFormat(this._config.xAxis.cursorFormat)(from as Date);
+              toStr = d3.utcFormat(this._config.xAxis.cursorFormat)(to as Date);
             }
+            valueEl.textContent = `${fromStr}, ${toStr}`;
+          } else {
+            valueEl.textContent = `${from}, ${to}`;
           }
-          valueEl.textContent = `${from}, ${to}`;
 
           this._tooltip.append(nameEl, valueEl);
         }

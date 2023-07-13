@@ -108,8 +108,8 @@ export interface ChartConfig {
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
   yAxes: Record<string, Partial<Ordinate>>;
-  from?: number;
-  to?: number;
+  from?: number | Date;
+  to?: number | Date;
   cursor?: boolean;
   /**
    * Tooltip position, defaults to 'top-left'
