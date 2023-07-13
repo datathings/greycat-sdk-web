@@ -218,20 +218,37 @@ export class GuiChart extends HTMLElement {
         });
 
         // bottom axis text
-        draw.text(
-          this._uxCtx,
-          this._cursor.x,
-          yRange[0] + 8,
-          this._config.xAxis.format
-            ? d3.format(this._config.xAxis.format)(xScale.invert(this._cursor.x))
-            : `${xScale.invert(this._cursor.x)}`,
-          {
-            color: style.cursor.color,
-            backgroundColor: style.cursor.bgColor,
-            align: 'center',
-            baseline: 'top',
-          },
-        );
+        const xValue = xScale.invert(this._cursor.x) as Date;
+        let bottomText = `${xValue}`;
+        if (this._config.xAxis.scale === 'time') {
+          if (
+            this._config.xAxis.cursorFormat === undefined ||
+            this._config.xAxis.cursorFormat === 'iso'
+          ) {
+            bottomText = d3.isoFormat(xValue);
+          } else {
+            switch (this._config.xAxis.tz) {
+              case 'locale':
+                bottomText = d3.timeFormat(this._config.xAxis.cursorFormat)(xValue);
+                break;
+              case 'utc':
+              default:
+                bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(xValue);
+                break;
+            }
+          }
+        } else {
+          if (this._config.xAxis.cursorFormat) {
+            bottomText = d3.format(this._config.xAxis.cursorFormat)(xScale.invert(this._cursor.x));
+          }
+        }
+        // TODO clip on boundaries
+        draw.text(this._uxCtx, this._cursor.x, yRange[0] + 8, bottomText, {
+          color: style.cursor.color,
+          backgroundColor: style.cursor.bgColor,
+          align: 'center',
+          baseline: 'top',
+        });
         let leftAxesIdx = -1;
         let rightAxesIdx = -1;
         // y axes texts
