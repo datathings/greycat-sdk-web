@@ -17,7 +17,7 @@ type Cursor = {
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
-  private _colors: string[];
+  private _colors: string[] = [];
   private _cursor: Cursor = { x: -1, y: -1, startX: -1, selection: false, lastTouchEnd: -1 };
 
   private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
@@ -57,8 +57,6 @@ export class GuiChart extends HTMLElement {
     // tooltip
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
-
-    this._colors = getColors(this);
 
     this._obs = new ResizeObserver(
       debounce(() => {
@@ -204,6 +202,8 @@ export class GuiChart extends HTMLElement {
   }
 
   connectedCallback() {
+    this._colors = getColors(this);
+
     this._obs.observe(this);
 
     const style = getComputedStyle(this);
