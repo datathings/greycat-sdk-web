@@ -1,5 +1,5 @@
 @expose
-fn table() {
+fn table(): Table {
   var nbRows = 5;
   var table = Table::new(5);
   for (var colIdx = 0; colIdx < table.cols(); colIdx++) {

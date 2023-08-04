@@ -14,3 +14,4 @@ app.appendChild(tableEl);
 const table = await greycat.call<core.Table>('project::table');
 console.log({ table });
 tableEl.table = table;
+
