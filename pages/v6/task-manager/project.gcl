@@ -1,5 +1,3 @@
-use runtime;
-
 @expose
 task whatever() {
   return 42;
