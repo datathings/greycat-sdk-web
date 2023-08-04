@@ -1,4 +1,4 @@
-import { stringify } from '@greycat/utils';
+import { utils } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
 import { Disposable } from '../../internals';
 
@@ -167,7 +167,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
 
     // reset content
-    const content = stringify({
+    const content = utils.stringify({
       value: this._value,
       name: this._name,
       tiny: this._tiny,
@@ -197,7 +197,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     }
 
     el.textContent = content;
-    el.title = stringify({
+    el.title = utils.stringify({
       value: this._value,
       dateFmt,
       numFmt,

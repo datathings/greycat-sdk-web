@@ -111,13 +111,13 @@
     chart.config = {
       cursor: true,
       xAxis: {
-        min: -1,
+        // min: -1,
         max: 150,
         cursorFormat: '.0f',
       },
       yAxes: {
         left: {
-          min: 1,
+          min: 0,
           max: 200,
         },
         right: {
@@ -136,7 +136,6 @@
           type: 'line+scatter',
           yAxis: 'left',
           yCol: scatterCol,
-          markerColor: 'yellow',
         },
         {
           type: 'line+area',

@@ -1,1 +1,1 @@
-export * from './heatmap-chart';
+// export * from './heatmap-chart';

@@ -5,26 +5,28 @@
 //
 // It imports the ESM index and registers it on the global 'greycat' namespace under 'ui'
 import * as ui from './index';
-import * as std from '@greycat/lib-std';
-import * as rpc from '@greycat/rpc';
-import * as utils from '@greycat/utils';
-
-// register the std library in the rpc layer
-rpc.setFactory(std.stdFactory);
+import * as sdk from '@greycat/sdk';
 
 window.greycat = {
   ui,
-  std,
-  rpc,
-  utils,
+  sdk,
+  utils: sdk.utils,
 };
 
 declare global {
   interface GreyCat {
+    /**
+     * `@greycat/ui` package
+     */
     ui: typeof ui;
-    std: typeof std;
-    rpc: typeof rpc;
-    utils: typeof utils;
+    /**
+     * `@greycat/sdk` package
+     */
+    sdk: typeof sdk;
+    /**
+     * Convenience re-export from `@greycat/sdk/utils`
+     */
+    utils: typeof sdk.utils,
   }
 
   interface Window {

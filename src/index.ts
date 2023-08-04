@@ -1,7 +1,6 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import './base.css';
-import './classless.css';
 import './chart-utils/tooltip.css';
 import './components/donut/donut.css';
 import './components/map/map.css';

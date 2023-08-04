@@ -62,11 +62,17 @@ export function line(
     const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[rows[i][lineTypeCol] ?? 0];
     // const currColor = rows[i][colorCol] ?? serie.color;
 
-    if (x < xMin || x > xMax || y > yMin || y < yMax) {
+    if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
       prevSegments = lineDash;
       // prevColor = currColor;
       continue;
+    }
+
+    if (x > xMax) {
+      // here we can break, cause we are out of range on the right side
+      // meaning we no longer have to draw anything we are done
+      break;
     }
 
     if (first) {
@@ -116,21 +122,24 @@ export function bar(
   ctx.fillStyle = serie.color;
   ctx.globalAlpha = serie.opacity;
 
-  const [yMin] = yScale.range();
+  const [yMin, yMax] = yScale.range();
   const [xMin, xMax] = xScale.range();
   const shift = Math.round(serie.width / 2);
 
   for (let i = 0; i < rows.length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol])) - shift;
-    if (x < xMin) {
-      // prevent drawing out of range or xScale
+    const y = yScale(vMap(rows[i][serie.yCol]));
+    if (x < xMin || y > yMin || y < yMax) {
+      // prevent drawing out of range
+      // prevColor = currColor;
       continue;
     }
+
     if (x > xMax) {
-      // prevent drawing out of range or xScale
+      // here we can break, cause we are out of range on the right side
+      // meaning we no longer have to draw anything we are done
       break;
     }
-    const y = yScale(vMap(rows[i][serie.yCol]));
     ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
@@ -152,18 +161,22 @@ export function scatter(
   ctx.save();
 
   const [xMin, xMax] = xScale.range();
+  const [yMin, yMax] = yScale.range();
 
   for (let i = 0; i < rows.length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-    if (x < xMin) {
-      // prevent drawing out of range or xScale
+    const y = yScale(vMap(rows[i][serie.yCol]));
+    if (x < xMin || y > yMin || y < yMax) {
+      // prevent drawing out of range
+      // prevColor = currColor;
       continue;
     }
+
     if (x > xMax) {
-      // prevent drawing out of range or xScale
+      // here we can break, cause we are out of range on the right side
+      // meaning we no longer have to draw anything we are done
       break;
     }
-    const y = yScale(vMap(rows[i][serie.yCol]));
 
     switch (serie.markerShape) {
       case 'circle':
@@ -212,18 +225,27 @@ export function area(
   ctx.beginPath();
 
   const [xMin, xMax] = xScale.range();
+  const [yMin, yMax] = yScale.range();
 
   // line
   let first = true;
   for (let i = 0; i < rows.length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-    if (x < xMin) {
-      // prevent drawing out of range or xScale
+    const y = yScale(vMap(rows[i][serie.yCol]));
+    if (x < xMin || y > yMin || y < yMax) {
+      // prevent drawing out of range
+      // prevColor = currColor;
       continue;
+    }
+
+    if (x > xMax) {
+      // here we can break, cause we are out of range on the right side
+      // meaning we no longer have to draw anything we are done
+      break;
     }
     if (first) {
       firstX = x;
-      firstY = yScale(vMap(rows[i][serie.yCol]));
+      firstY = y;
       ctx.moveTo(x, firstY);
       first = false;
     } else {
@@ -231,7 +253,6 @@ export function area(
         // prevent drawing out of range or xScale
         break;
       }
-      const y = yScale(vMap(rows[i][serie.yCol]));
       ctx.lineTo(x, y);
     }
   }
@@ -251,11 +272,11 @@ export function area(
     // fill in regard to another serie
     for (let i = rows.length - 1; i >= 0; i--) {
       const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-      if (x < xMin || x > xMax) {
-        // prevent drawing out of range or xScale
+      const y = yScale(vMap(rows[i][serie.yCol2]));
+      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+        // prevent drawing out of range
         continue;
       }
-      const y = yScale(vMap(rows[i][serie.yCol2]));
       ctx.lineTo(x, y);
     }
     // start of area

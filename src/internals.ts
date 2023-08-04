@@ -1,4 +1,4 @@
-import { core } from '@greycat/lib-std';
+import { core } from '@greycat/sdk';
 import { TableLike } from './components';
 
 export type Disposable = () => void;
@@ -97,43 +97,7 @@ export function debounce<T extends (...args: any[]) => void>(
   };
 }
 
-// export function binsearch(elem: any, arr: any[]): number {
-//   let l = 0;
-//   let r = arr.length - 1;
-
-//   while (l <= r) {
-//     let m = (l + r) >> 1; // clever way to do `Math.floor(l + r) / 2`, avoiding the division
-//     if (arr[m] < elem) {
-//       l = m + 1;
-//     } else if (arr[m] > elem) {
-//       r = m - 1;
-//     } else {
-//       return m;
-//     }
-//   }
-
-//   return -1;
-// }
-
-export function closest(arr: number[], v: number): number | null {
-  let res: number | null = null;
-  let distance: number | null = null;
-  for (let i = 0; i < arr.length; i++) {
-    if (arr[i] === v) {
-      return v;
-    }
-    const d2 = Math.abs(arr[i] - v);
-    if (distance == null || distance > d2) {
-      res = arr[i];
-      distance = d2;
-    } else if (distance != null && arr[i] > v && distance < d2) {
-      return res;
-    }
-  }
-  return res;
-}
-
-export function closest2(
+export function closest(
   table: TableLike,
   col: number | undefined,
   v: number,

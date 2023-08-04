@@ -1,4 +1,4 @@
-import { core } from '@greycat/lib-std';
+import { core } from '@greycat/sdk';
 
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
@@ -160,7 +160,7 @@ export function getHeatmapColors(el?: HTMLElement): string[] {
 }
 
 export function isNumberColumn(meta: core.TableColumnMeta): boolean {
-  return meta.type === core.int._type || meta.type === core.float._type;
+  return meta.$type.name === 'core::int' || meta.$type.name === 'core::float';
 }
 
 // source: https://stackoverflow.com/questions/9453421/how-to-round-float-numbers-in-javascript

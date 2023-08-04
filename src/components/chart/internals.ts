@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
-import { core } from '@greycat/lib-std';
-import { timeToMs } from '@greycat/utils';
+import { core } from '@greycat/sdk';
 
 export type Scale =
   | d3.ScaleLinear<number, number, never>
@@ -18,15 +17,19 @@ export function vMap(x: unknown): number {
         return NaN;
       }
       if (x instanceof core.time) {
-        return timeToMs(x);
+        return Math.round(Number(BigInt(x.value) / 1000n));
       } else if (x instanceof core.Date) {
-        return +Date.parse(x.iso);
+        return Number(BigInt(x.epochUs) / 1000n);
       }
       return +x;
     }
     default:
       return NaN;
   }
+}
+
+export function vMapRound(x: unknown): number {
+  return Math.round(vMap(x));
 }
 
 const formatMillisecond = d3.utcFormat('.%L'),

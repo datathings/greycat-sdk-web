@@ -1,10 +1,9 @@
-import { core } from '@greycat/lib-std';
-import { StringifyProps, stringify } from '@greycat/utils';
+import { core, utils, std_n } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
 import { GuiValue, GuiValueProps } from '../value';
 import { GuiRenderEvent } from '../common';
 
-type ValueProps = Omit<StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
+type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
   Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
 export type CellProps = (
   row: Value[],
@@ -23,7 +22,8 @@ const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
 };
 
 export class GuiTable extends HTMLElement {
-  private _table = new core.Table<Value>({ data: [], meta: [] });
+  private _table: core.Table | undefined;
+  private _rows: Array<Value[]> = [];
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
   private _minColWidth = 150;
@@ -48,18 +48,23 @@ export class GuiTable extends HTMLElement {
     return this._table;
   }
 
-  set table(table: core.Table<unknown>) {
+  set table(table: core.Table | undefined) {
+    if (table === undefined) {
+      this._table = undefined;
+      this._update();
+      return;
+    }
     this._computeTable(table);
     this._update();
   }
 
-  private _computeTable(table: core.Table<unknown>) {
-    this._table = new core.Table({ data: new Array(table.data.length), meta: table.meta });
-    for (let rowIdx = 0; rowIdx < this._table.data.length; rowIdx++) {
-      const originalRow = table.data[rowIdx];
-      this._table.data[rowIdx] = new Array(originalRow.length);
-      for (let colIdx = 0; colIdx < originalRow.length; colIdx++) {
-        this._table.data[rowIdx][colIdx] = { value: originalRow[colIdx], originalIndex: rowIdx };
+  private _computeTable(table: core.Table) {
+    this._rows.length = table.cols[0]?.length ?? 0;
+    for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
+      // initialize an empty col of the proper length
+      this._rows[rowIdx] = new Array(table.cols.length);
+      for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
+        this._rows[rowIdx][colIdx] = { value: table.cols[colIdx][rowIdx], originalIndex: rowIdx };
       }
     }
   }
@@ -118,12 +123,12 @@ export class GuiTable extends HTMLElement {
     cellProps = this._cellProps,
     headers = this._headers,
   }: {
-    table: core.Table<unknown>;
+    table: core.Table | undefined;
     filter: string;
     cellProps: CellProps;
     headers: string[] | undefined;
   }) {
-    if (this._table !== table) {
+    if (this._table !== table && table !== undefined) {
       this._computeTable(table);
     }
     this._filterText = filter;
@@ -222,7 +227,7 @@ export class GuiTable extends HTMLElement {
   }
 
   private _update() {
-    if (!this._initialized) {
+    if (!this._initialized || !this._table) {
       return;
     }
     const start = Date.now();
@@ -238,7 +243,8 @@ export class GuiTable extends HTMLElement {
       this._sortCol.reset();
     } else {
       const ord = this._sortCol.ord;
-      this._table.data.sort((rowA, rowB) => {
+
+      this._rows.sort((rowA, rowB) => {
         if (ord === 'default') {
           return rowA[this._sortCol.index].originalIndex >= rowB[this._sortCol.index].originalIndex
             ? 1
@@ -269,25 +275,10 @@ export class GuiTable extends HTMLElement {
       });
     }
 
-    let rows = this._table.data;
+    let rows = this._rows;
     if (this._filterText.length > 0) {
       // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
-      rows = this._table.data.filter((row) => {
-        for (let colIdx = 0; colIdx < row.length; colIdx++) {
-          if (
-            stringify({
-              value: row[colIdx].value,
-              dateFmt: getGlobalDateTimeFormat(),
-              numFmt: getGlobalNumberFormat(),
-            })
-              .toLowerCase()
-              .includes(this._filterText)
-          ) {
-            return true;
-          }
-        }
-        return false;
-      });
+      rows = this._rows.filter((row) => filterRow(this._filterText, row));
     }
 
     this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps);
@@ -296,11 +287,28 @@ export class GuiTable extends HTMLElement {
   }
 }
 
+function filterRow(text: string, row: Value[]): boolean {
+  for (let colIdx = 0; colIdx < row.length; colIdx++) {
+    if (
+      utils.stringify({
+        value: row[colIdx].value,
+        dateFmt: getGlobalDateTimeFormat(),
+        numFmt: getGlobalNumberFormat(),
+      })
+        .toLowerCase()
+        .includes(text)
+    ) {
+      return true;
+    }
+  }
+  return false;
+}
+
 class GuiTableHead extends HTMLElement {
   widths: number[] = [];
 
   update(
-    meta: core.TableColumnMeta[],
+    meta: std_n.core.NativeTableColumnMeta[],
     minColWidth: number,
     sortCol: SortCol,
     headers?: string[],
@@ -446,9 +454,9 @@ class GuiTableHeadCell extends HTMLElement {
     });
   }
 
-  update(index: number, meta: core.TableColumnMeta, sort: SortOrd, title?: string) {
+  update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
     this._index = index;
-    this._title.textContent = title ?? meta.type ?? `Column ${index + 1}`;
+    this._title.textContent = title ?? meta.typeName ?? `Column ${index + 1}`;
     this._sorter.textContent = this._sortGraphemes[sort];
   }
 }
@@ -620,7 +628,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) {}
+  ) { }
 
   reset() {
     this._index = -1;

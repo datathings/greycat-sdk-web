@@ -1,16 +1,24 @@
 import * as d3 from 'd3';
 
-import { closest2, debounce, throttle } from '../../internals';
+import { closest, debounce, throttle } from '../../internals';
 import { getColors } from '../../utils';
 import * as draw from './ctx';
 import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
 import { Scale, dateFormat, vMap } from './internals';
 
+type Cursor = {
+  x: number;
+  y: number;
+  startX: number;
+  selection: boolean;
+  lastTouchEnd: number;
+};
+
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
   private _colors: string[];
-  private _cursor = { x: -1, y: -1, startX: -1, selection: false };
+  private _cursor: Cursor = { x: -1, y: -1, startX: -1, selection: false, lastTouchEnd: -1 };
 
   private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
   private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
@@ -23,6 +31,9 @@ export class GuiChart extends HTMLElement {
   private _uxCtx: CanvasRenderingContext2D;
 
   private _tooltip = document.createElement('div');
+
+  private _userMin: number | Date | undefined;
+  private _userMax: number | Date | undefined;
 
   constructor() {
     super();
@@ -68,14 +79,128 @@ export class GuiChart extends HTMLElement {
       }, 250),
     );
 
-    this.addEventListener('mousedown', this._downHandler);
-    this.addEventListener('mouseup', this._upHandler);
-    this.addEventListener('touchend', this._upHandler);
-    this.addEventListener('touchstart', this._downHandler);
-    this.addEventListener('mousemove', this._moveHandler);
-    this.addEventListener('touchmove', this._moveHandler);
-    this.addEventListener('mouseleave', this._leaveHandler);
-    this.addEventListener('touchcancel', this._leaveHandler);
+    let touchstart = -1;
+    let prevTap = -1;
+    this.addEventListener('touchstart', () => {
+      touchstart = Date.now();
+    });
+    this.addEventListener('touchend', () => {
+      const now = Date.now();
+      if (now - touchstart < 500) {
+        // tap
+        if (now - prevTap < 500) {
+          // dbl tap
+          this.dispatchEvent(new Event('dbltap', { bubbles: false }));
+        } else {
+          this.dispatchEvent(new Event('tap', { bubbles: false }));
+        }
+        prevTap = now;
+      }
+      touchstart = -1;
+    });
+
+    this.addEventListener('tap', () => {
+      console.log('tap');
+    });
+    this.addEventListener('dbltap', () => {
+      console.log('dbltap');
+    });
+
+    // mouse events
+    this.addEventListener('mousedown', (event) => {
+      const { left } = this._canvas.getBoundingClientRect();
+      this._cursor.startX = Math.round(event.pageX - left);
+      this.updateUX();
+    });
+    this.addEventListener(
+      'mousemove',
+      // throttle(..., 16) makes it ~60FPS
+      throttle((event) => {
+        const { left, top } = this._canvas.getBoundingClientRect();
+        this._cursor.x = Math.round(event.pageX - left);
+        this._cursor.y = Math.round(event.pageY - top);
+        this.updateUX();
+      }, 16),
+    );
+    this.addEventListener('mouseup', () => {
+      if (
+        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+      ) {
+        this._cursor.selection = true;
+      } else {
+        // too small selection, reset cursor
+        this._resetCursor();
+      }
+      this.updateUX();
+    });
+    this.addEventListener('mouseleave', this._resetCursor);
+    this.addEventListener('dblclick', () => {
+      this._resetCursor();
+      // reset X configuration
+      this._config.xAxis.min = this._userMin;
+      this._config.xAxis.max = this._userMax;
+      this.update();
+    });
+
+    // touch events
+    this.addEventListener('touchstart', (event) => {
+      // prevents the browser from processing emulated mouse events
+      event.preventDefault();
+      if (event.touches.length > 0) {
+        const { left } = this._canvas.getBoundingClientRect();
+        this._cursor.startX = Math.round(event.touches[0].pageX - left);
+        this.updateUX();
+      }
+    });
+    this.addEventListener('touchend', (event) => {
+      // prevents the browser from processing emulated mouse events
+      event.preventDefault();
+      let delta = Infinity;
+      if (this._cursor.lastTouchEnd === -1) {
+        this._cursor.lastTouchEnd = Date.now();
+      } else {
+        delta = Date.now() - this._cursor.lastTouchEnd;
+        this._cursor.lastTouchEnd = -1;
+      }
+
+      if (delta <= (this._config.dblTapThreshold ?? 500)) {
+        // dbl tap
+        this._resetCursor();
+        // reset X configuration
+        this._config.xAxis.min = this._userMin;
+        this._config.xAxis.max = this._userMax;
+        this.update();
+      } else {
+        // touch end classic
+        if (
+          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+        ) {
+          this._cursor.selection = true;
+        } else {
+          // too small selection, reset cursor
+          this._resetCursor();
+        }
+        this.updateUX();
+      }
+    });
+    // throttle(..., 16) makes it ~60FPS
+    this.addEventListener(
+      'touchmove',
+      throttle((event) => {
+        // prevents the browser from processing emulated mouse events
+        event.preventDefault();
+        if (event.touches.length > 0) {
+          const { left, top } = this._canvas.getBoundingClientRect();
+          this._cursor.x = Math.round(event.touches[0].pageX - left);
+          this._cursor.y = Math.round(event.touches[0].pageY - top);
+          this.updateUX();
+        }
+      }, 16),
+    );
+
+    this.addEventListener('touchcancel', () => {
+      this._resetCursor();
+    });
   }
 
   connectedCallback() {
@@ -103,40 +228,11 @@ export class GuiChart extends HTMLElement {
     this._obs.disconnect();
   }
 
-  private _downHandler = (event: MouseEvent | TouchEvent) => {
-    const { left } = this._canvas.getBoundingClientRect();
-    if (event instanceof MouseEvent) {
-      this._cursor.startX = Math.round(event.pageX - left);
-      this.updateUX();
-    } else if (event.touches.length > 0) {
-      this._cursor.startX = Math.round(event.touches[0].pageX - left);
-      this.updateUX();
-    }
-  };
-
-  private _upHandler = () => {
-    this._cursor.selection = true;
-    this.updateUX();
-  };
-
-  // throttle(..., 16) makes it be ~60FPS
-  private _moveHandler = throttle((event: MouseEvent | TouchEvent) => {
-    const { left, top } = this._canvas.getBoundingClientRect();
-    if (event instanceof MouseEvent) {
-      this._cursor.x = Math.round(event.pageX - left);
-      this._cursor.y = Math.round(event.pageY - top);
-      this.updateUX();
-    } else if (event.touches.length > 0) {
-      this._cursor.x = Math.round(event.touches[0].pageX - left);
-      this._cursor.y = Math.round(event.touches[0].pageY - top);
-      this.updateUX();
-    }
-  }, 16);
-
-  private _leaveHandler = () => {
+  private _resetCursor = () => {
     this._cursor.x = -1;
     this._cursor.y = -1;
     this._cursor.startX = -1;
+    this._cursor.lastTouchEnd = -1;
     this._cursor.selection = false;
 
     this.updateUX();
@@ -144,6 +240,9 @@ export class GuiChart extends HTMLElement {
 
   set config(config: ChartConfig) {
     this._config = config;
+    // update local user X min/max with the configuration values
+    this._userMin = config.xAxis.min;
+    this._userMax = config.xAxis.max;
     this.update();
   }
 
@@ -218,13 +317,13 @@ export class GuiChart extends HTMLElement {
         });
 
         // bottom axis text
-        const xValue = xScale.invert(this._cursor.x);
+        const xValue = +xScale.invert(this._cursor.x);
         let bottomText = `${xValue}`;
         if (this._config.xAxis.scale === 'time') {
           if (this._config.xAxis.cursorFormat === undefined) {
-            bottomText = d3.isoFormat(xValue as Date);
+            bottomText = d3.isoFormat(new Date(xValue));
           } else {
-            bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(xValue as Date);
+            bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(xValue));
           }
         } else {
           if (this._config.xAxis.cursorFormat) {
@@ -290,7 +389,7 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest2(this._config.table, serie.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
         const yValue =
           typeof this._config.table.data[rowIdx][serie.yCol] === 'bigint'
             ? Number(this._config.table.data[rowIdx][serie.yCol])
@@ -338,6 +437,13 @@ export class GuiChart extends HTMLElement {
           nameEl.style.color = serie.color;
           nameEl.textContent = `${serie.title ?? `Col ${serie.yCol}`}:`;
           const valueEl = document.createElement('div');
+          valueEl.classList.add('gui-chart-tooltip-value');
+          if (
+            this._config.tooltip?.position === 'bottom-right' ||
+            this._config.tooltip?.position === 'top-right'
+          ) {
+            valueEl.classList.add('right');
+          }
           valueEl.style.color = serie.color;
           valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue);
           this._tooltip.append(nameEl, valueEl);
@@ -347,6 +453,13 @@ export class GuiChart extends HTMLElement {
             nameEl.style.color = serie.color;
             nameEl.textContent = `${serie.title ?? `Col ${serie.yCol2}`}:`;
             const valueEl = document.createElement('div');
+            valueEl.classList.add('gui-chart-tooltip-value');
+            if (
+              this._config.tooltip?.position === 'bottom-right' ||
+              this._config.tooltip?.position === 'top-right'
+            ) {
+              valueEl.classList.add('right');
+            }
             valueEl.style.color = serie.color;
             valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue2);
             this._tooltip.append(nameEl, valueEl);
@@ -368,7 +481,7 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest2(this._config.table, serie.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
         serie.xValue = xValue;
         serie.yValue = this._config.table.data[rowIdx][serie.yCol];
         return serie;
@@ -379,7 +492,8 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (this._cursor.startX !== -1) {
+    if (this._cursor.x !== -1 && this._cursor.startX !== -1) {
+      // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
         startX = xRange[0];
@@ -398,51 +512,67 @@ export class GuiChart extends HTMLElement {
         startX = tmp;
       }
 
-      if (startX !== endX) {
-        const from: number | Date = xScale.invert(startX);
-        const to: number | Date = xScale.invert(endX);
+      const from: number = Math.floor(+xScale.invert(startX));
+      const to: number = Math.ceil(+xScale.invert(endX));
 
-        if (this._cursor.selection) {
-          // selection is done
-          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-          this._config.from = from;
-          this._config.to = to;
-          this.update();
+      if (this._cursor.selection) {
+        // selection is done
+        const selectionEvt = new GuiChartSelectionEvent(from, to);
 
-          // reset selection
-          this._cursor.startX = -1;
-          this._cursor.selection = false;
-        } else {
-          // selection in progress
-          const w = endX - startX;
-          const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
-          draw.rectangle(this._uxCtx, startX + w / 2, yRange[1] + h / 2, w, h, {
-            fill: style['accent-0'],
-            opacity: 0.1,
+        // reset selection
+        this._resetCursor();
+
+        // call update to apply zoom
+        xScale.domain([from, to]);
+        this._xAxisGroup
+          .transition()
+          .duration(250)
+          .call(d3.axisBottom(xScale))
+          .end()
+          .then(() => {
+            this._config.xAxis.min = from;
+            this._config.xAxis.max = to;
+            // XXX do we want to dispatch after the animation or not?
+            this.dispatchEvent(selectionEvt);
+            this.update();
           });
+      } else {
+        // selection in progress
+        const w = endX - startX;
+        const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
+        draw.rectangle(this._uxCtx, startX + w / 2, yRange[1] + h / 2, w, h, {
+          fill: style['accent-0'],
+          opacity: 0.1,
+        });
 
-          const nameEl = document.createElement('div');
-          nameEl.style.color = style['text-0'];
-          nameEl.textContent = 'Selection:';
-          const valueEl = document.createElement('div');
-          valueEl.style.color = style['text-0'];
-          if (this._config.xAxis.scale === 'time') {
-            let fromStr: string;
-            let toStr: string;
-            if (this._config.xAxis.cursorFormat === undefined) {
-              fromStr = d3.isoFormat(from as Date);
-              toStr = d3.isoFormat(to as Date);
-            } else {
-              fromStr = d3.utcFormat(this._config.xAxis.cursorFormat)(from as Date);
-              toStr = d3.utcFormat(this._config.xAxis.cursorFormat)(to as Date);
-            }
-            valueEl.textContent = `${fromStr}, ${toStr}`;
-          } else {
-            valueEl.textContent = `${from}, ${to}`;
-          }
-
-          this._tooltip.append(nameEl, valueEl);
+        const nameEl = document.createElement('div');
+        nameEl.style.color = style['text-0'];
+        nameEl.textContent = 'Selection:';
+        const valueEl = document.createElement('div');
+        valueEl.style.color = style['text-0'];
+        valueEl.classList.add('gui-chart-tooltip-value');
+        if (
+          this._config.tooltip?.position === 'bottom-right' ||
+          this._config.tooltip?.position === 'top-right'
+        ) {
+          valueEl.classList.add('right');
         }
+        if (this._config.xAxis.scale === 'time') {
+          let fromStr: string;
+          let toStr: string;
+          if (this._config.xAxis.cursorFormat === undefined) {
+            fromStr = d3.isoFormat(new Date(from));
+            toStr = d3.isoFormat(new Date(to));
+          } else {
+            fromStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(from));
+            toStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(to));
+          }
+          valueEl.textContent = `${fromStr}, ${toStr}`;
+        } else {
+          valueEl.textContent = `${from}, ${to}`;
+        }
+
+        this._tooltip.append(nameEl, valueEl);
       }
     }
   };
@@ -656,10 +786,10 @@ export class GuiChart extends HTMLElement {
     }
 
     const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
-      min: xMin ?? 0,
-      max: xMax ?? Math.max(0, this._config.table.data.length - 1),
+      min: this._config.xAxis.min ?? xMin ?? 0,
+      max: this._config.xAxis.max ?? xMax ?? Math.max(0, this._config.table.data.length - 1),
       scale: 'linear',
-      ...this._config.xAxis,
+      cursorFormat: this._config.xAxis.cursorFormat,
     };
 
     // TODO handle the case where no yAxes have been defined at all

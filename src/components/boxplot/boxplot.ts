@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { util } from '@greycat/lib-std';
+import { util } from '@greycat/sdk';
 import { processCssVars } from '../../utils';
 import { BoxPlotCanvas, BoxPlotOptions, Canvas, SimpleTooltip } from '../../chart-utils';
 import { getCSSVars } from '../../utils';
@@ -9,10 +9,10 @@ const DEFAULT_AXIS_LABEL = ['x-Axis', 'y-Axis', 'z-Axis'];
 const DEFAULT_SIZE = { height: 100, width: 100 };
 const BOX_SIZE = 10;
 
-// const checkTableDateTime = (table: core.Table<unknown>): boolean => table.meta[0].type === core.Date._type || table.meta[0].type === core.time._type;
+// const checkTableDateTime = (table: core.Table table.meta[0].type === core.Date._type || table.meta[0].type === core.time._type;
 
 export interface BoxPlotProps {
-  boxPlot: util.BoxPlotF64 | null;
+  boxPlot: util.BoxPlotFloat | null;
   columns: number[];
   axisLabel: string[];
   xAxisFormat: (v: unknown) => string;
@@ -28,7 +28,7 @@ export class GuiBoxPlot extends HTMLElement {
   private _container?: d3.Selection<HTMLDivElement, unknown, null, undefined>;
   private _xAxis: d3.ScaleTime<number, number, never>;
   private _yAxis: d3.ScaleLinear<number, number, never>;
-  private _boxPlot: util.BoxPlotF64 | null = null;
+  private _boxPlot: util.BoxPlotFloat | null = null;
   private _outerWidth: number = DEFAULT_SIZE.height;
   private _outerHeight: number = DEFAULT_SIZE.width;
   private _axisLabel = DEFAULT_AXIS_LABEL;
@@ -56,11 +56,11 @@ export class GuiBoxPlot extends HTMLElement {
     this._numberFormatter = (v) => v.toString();
   }
 
-  get boxPlot(): util.BoxPlotF64 | null {
+  get boxPlot(): util.BoxPlotFloat | null {
     return this._boxPlot;
   }
 
-  set boxPlot(boxPlot: util.BoxPlotF64 | null) {
+  set boxPlot(boxPlot: util.BoxPlotFloat | null) {
     this._boxPlot = boxPlot;
     this.render();
   }

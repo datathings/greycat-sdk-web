@@ -1,4 +1,4 @@
-import { core } from '@greycat/lib-std';
+import { core } from '@greycat/sdk';
 
 // default number format
 let numFmt = new Intl.NumberFormat(navigator.language);
@@ -24,7 +24,7 @@ export function setGlobalDateTimeFormatTimezone(tz: core.TimeZone) {
   const opts = dateFmt.resolvedOptions();
   dateFmt = new Intl.DateTimeFormat(opts.locale, {
     ...(opts as Intl.DateTimeFormatOptions),
-    timeZone: tz.field.replace('_', '/'),
+    timeZone: tz.key.replace('_', '/'),
   });
 }
 

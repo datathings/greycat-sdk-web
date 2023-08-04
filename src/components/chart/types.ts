@@ -23,8 +23,8 @@ export type TableLike = {
 
 export type Axis = {
   title: string;
-  min: number;
-  max: number;
+  min: number | Date;
+  max: number | Date;
   scale: ScaleType;
   /**
    * Formats the ticks on the axis
@@ -108,8 +108,6 @@ export interface ChartConfig {
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
   yAxes: Record<string, Partial<Ordinate>>;
-  from?: number | Date;
-  to?: number | Date;
   cursor?: boolean;
   /**
    * Tooltip position, defaults to 'top-left'
@@ -118,7 +116,15 @@ export interface ChartConfig {
   /**
    * If a selection is smalled than this value in pixels it will be ignored.
    *
-   * Defaults: `2`
+   * Defaults: `4`
    */
   selectionThreshold?: number;
+  /**
+   * Delta in milliseconds between two `touchend` event.
+   *
+   * If under this threshold the touch event is processed as a `dbltap` rather than a `touchend`
+   *
+   * Defaults: `500`
+   */
+  dblTapThreshold?: number;
 }

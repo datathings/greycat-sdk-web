@@ -1,4 +1,4 @@
-import { core } from '@greycat/lib-std';
+import { core } from '@greycat/sdk';
 import * as ml from 'maplibre-gl';
 import { GuiValueProps } from '../value';
 

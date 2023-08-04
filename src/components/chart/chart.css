@@ -28,7 +28,11 @@ gui-chart .gui-chart-tooltip {
   /* border: 1px solid rgb(var(--neutral-0)); */
 }
 
-gui-chart .gui-chart-tooltip div:nth-child(even) {
+gui-chart .gui-chart-tooltip-value {
   padding-left: 1em;
   justify-self: start;
+}
+
+gui-chart .gui-chart-tooltip-value.right {
+  justify-self: end;
 }

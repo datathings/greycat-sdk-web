@@ -7,9 +7,9 @@
     "lib": ["DOM", "ES2020"],
     "moduleResolution": "Node",
 
-    "sourceMap": true,
+    "sourceMap": false,
     "declaration": true,
-    "declarationMap": true,
+    "declarationMap": false,
 
     "strict": true,
     "esModuleInterop": true,
