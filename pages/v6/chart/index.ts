@@ -36,4 +36,3 @@ const table = await greycat.call<core.Table>('project::table', []);
 console.log({ table });
 chartEl.config.table = table;
 chartEl.update();
-
