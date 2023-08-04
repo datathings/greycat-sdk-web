@@ -1,11 +1,11 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 import './base.css';
-import './chart-utils/tooltip.css';
+// import './chart-utils/tooltip.css';
 import './components/donut/donut.css';
 import './components/map/map.css';
-import './components/nodetime/nodetime.css';
-import './components/scatter-plot/scatter-plot.css';
+// import './components/nodetime/nodetime.css';
+// import './components/scatter-plot/scatter-plot.css';
 import './components/table/table.css';
 import './components/chart/chart.css';
 

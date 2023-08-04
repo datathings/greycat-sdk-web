@@ -38,7 +38,7 @@ export class GuiChart extends HTMLElement {
   constructor() {
     super();
 
-    this._config = { type: 'line', table: { data: [] }, series: [], xAxis: {}, yAxes: {} };
+    this._config = { type: 'line', table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -391,15 +391,15 @@ export class GuiChart extends HTMLElement {
         const v = +xScale.invert(this._cursor.x);
         const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
         const yValue =
-          typeof this._config.table.data[rowIdx][serie.yCol] === 'bigint'
-            ? Number(this._config.table.data[rowIdx][serie.yCol])
-            : this._config.table.data[rowIdx][serie.yCol];
+          typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
+            ? Number(this._config.table.cols[serie.yCol][rowIdx])
+            : this._config.table.cols[serie.yCol][rowIdx];
         const x = xScale(vMap(xValue));
         const y = yScales[serie.yAxis](vMap(yValue));
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
-          yValue2 = this._config.table.data[rowIdx][serie.yCol2];
+          yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
         }
 
         // marker
@@ -483,7 +483,7 @@ export class GuiChart extends HTMLElement {
         const v = +xScale.invert(this._cursor.x);
         const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
         serie.xValue = xValue;
-        serie.yValue = this._config.table.data[rowIdx][serie.yCol];
+        serie.yValue = this._config.table.cols[serie.yCol][rowIdx];
         return serie;
       });
       // call tooltip render if defined
@@ -707,8 +707,7 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName]
           .attr(
             'transform',
-            `translate(${
-              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right)
+            `translate(${this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right)
             }, 0)`,
           )
           .call(yAxis);
@@ -769,8 +768,8 @@ export class GuiChart extends HTMLElement {
 
     for (const serie of this._config.series) {
       if (serie.xCol !== undefined) {
-        for (let row = 0; row < this._config.table.data.length; row++) {
-          const value = this._config.table.data[row][serie.xCol];
+        for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
+          const value = this._config.table.cols[serie.xCol][row];
           if (xMin == null) {
             xMin = value;
           } else if (value <= xMin) {
@@ -787,7 +786,7 @@ export class GuiChart extends HTMLElement {
 
     const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
       min: this._config.xAxis.min ?? xMin ?? 0,
-      max: this._config.xAxis.max ?? xMax ?? Math.max(0, this._config.table.data.length - 1),
+      max: this._config.xAxis.max ?? xMax ?? Math.max(0, (this._config.table.cols[0]?.length ?? 0) - 1),
       scale: 'linear',
       cursorFormat: this._config.xAxis.cursorFormat,
     };
@@ -806,8 +805,8 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < this._config.table.data.length; row++) {
-              const value = this._config.table.data[row][serie.yCol];
+            for (let row = 0; row < this._config.table.cols[serie.yCol].length; row++) {
+              const value = this._config.table.cols[serie.yCol][row];
               if (min == null) {
                 min = value;
               } else if (value <= min) {
@@ -820,7 +819,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = this._config.table.data[row][serie.yCol2];
+                const value = this._config.table.cols[serie.yCol2][row];
                 if (min == null) {
                   min = value;
                 } else if (value <= min) {

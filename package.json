@@ -4,6 +4,10 @@
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
   "license": "MIT",
+  "files": [
+    "dist/bundle",
+    "dist/esm"
+  ],
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist docs",
@@ -11,7 +15,7 @@
     "build:esm": "tsc",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
     "build:manifest": "cem analyze --globs 'src/components/**/*.ts' --exclude '**/index.ts' --exclude '**/bundle.ts' && mv custom-elements.json dist/",
-    "build:docs": "vite build",
+    "build:app": "vite build",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
@@ -20,7 +24,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.12-dev-package.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.13-dev-package.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },

@@ -35,8 +35,7 @@ export function line(
   xScale: Scale,
   yScale: Scale,
 ) {
-  const rows = table.data;
-  if (rows.length === 0) {
+  if (table.cols.length === 0) {
     return;
   }
 
@@ -55,11 +54,11 @@ export function line(
   let prevSegments = SEGMENTS[0];
   // let prevColor = serie.color;
   let first = true;
-  for (let i = 0; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-    const y = yScale(vMap(rows[i][serie.yCol]));
-    const notDefined = rows[i][serie.yCol] === undefined || rows[i][serie.yCol] === null;
-    const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[rows[i][lineTypeCol] ?? 0];
+  for (let i = 0; i < table.cols[0].length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+    const y = yScale(vMap(table.cols[serie.yCol][i]));
+    const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+    const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[lineTypeCol]?.[i] ?? 0];
     // const currColor = rows[i][colorCol] ?? serie.color;
 
     if (x < xMin || y > yMin || y < yMax) {
@@ -113,8 +112,7 @@ export function bar(
   xScale: Scale,
   yScale: Scale,
 ) {
-  const rows = table.data;
-  if (rows.length === 0) {
+  if (table.cols.length === 0) {
     return;
   }
 
@@ -126,9 +124,9 @@ export function bar(
   const [xMin, xMax] = xScale.range();
   const shift = Math.round(serie.width / 2);
 
-  for (let i = 0; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol])) - shift;
-    const y = yScale(vMap(rows[i][serie.yCol]));
+  for (let i = 0; i < table.cols[0].length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
+    const y = yScale(vMap(table.cols[serie.yCol][i]));
     if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
       // prevColor = currColor;
@@ -153,8 +151,7 @@ export function scatter(
   xScale: Scale,
   yScale: Scale,
 ) {
-  const rows = table.data;
-  if (rows.length === 0) {
+  if (table.cols.length === 0) {
     return;
   }
 
@@ -163,9 +160,9 @@ export function scatter(
   const [xMin, xMax] = xScale.range();
   const [yMin, yMax] = yScale.range();
 
-  for (let i = 0; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-    const y = yScale(vMap(rows[i][serie.yCol]));
+  for (let i = 0; i < table.cols[0].length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+    const y = yScale(vMap(table.cols[serie.yCol][i]));
     if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
       // prevColor = currColor;
@@ -210,13 +207,12 @@ export function area(
   xScale: Scale,
   yScale: Scale,
 ) {
-  const rows = table.data;
-  if (rows.length === 0) {
+  if (table.cols.length === 0) {
     return;
   }
 
-  let firstX = xScale(serie.xCol === undefined ? 0 : vMap(rows[0][serie.xCol]));
-  let firstY = yScale(vMap(rows[0][serie.yCol]));
+  let firstX = xScale(serie.xCol === undefined ? 0 : vMap(table.cols[serie.xCol][0]));
+  let firstY = yScale(vMap(table.cols[serie.yCol][0]));
 
   ctx.save();
   ctx.globalAlpha = serie.fillOpacity;
@@ -229,9 +225,9 @@ export function area(
 
   // line
   let first = true;
-  for (let i = 0; i < rows.length; i++) {
-    const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-    const y = yScale(vMap(rows[i][serie.yCol]));
+  for (let i = 0; i < table.cols[0].length; i++) {
+    const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+    const y = yScale(vMap(table.cols[serie.yCol][i]));
     if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
       // prevColor = currColor;
@@ -270,9 +266,9 @@ export function area(
     ctx.lineTo(firstX, firstY);
   } else {
     // fill in regard to another serie
-    for (let i = rows.length - 1; i >= 0; i--) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(rows[i][serie.xCol]));
-      const y = yScale(vMap(rows[i][serie.yCol2]));
+    for (let i = table.cols[0].length - 1; i >= 0; i--) {
+      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const y = yScale(vMap(table.cols[serie.yCol2][i]));
       if (x < xMin || x > xMax || y > yMin || y < yMax) {
         // prevent drawing out of range
         continue;

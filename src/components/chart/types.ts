@@ -18,7 +18,7 @@ export type Tooltip = {
 export type TableLike = {
   // table data are always unknown
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data: any[][];
+  cols: any[][];
 };
 
 export type Axis = {

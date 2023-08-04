@@ -105,8 +105,8 @@ export function closest(
   let rowIdx = 0;
   let res = 0;
   let distance: number | null = null;
-  for (let i = 0; i < table.data.length; i++) {
-    const x = col === undefined ? i : table.data[i][col];
+  for (let i = 0; i < table.cols[0].length; i++) {
+    const x = col === undefined ? i : table.cols[col][i];
     if (x === v) {
       return { xValue: x, rowIdx: i };
     }

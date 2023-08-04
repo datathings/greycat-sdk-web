@@ -1,0 +1,11 @@
+@expose
+fn table() {
+  var nbRows = 5;
+  var table = Table::new(2);
+  for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
+    table.set(rowIdx, 0, rowIdx);
+    table.set(rowIdx, 1, rowIdx * 2);
+  }
+
+  return table;
+}

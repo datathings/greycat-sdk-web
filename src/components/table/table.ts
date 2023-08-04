@@ -59,6 +59,7 @@ export class GuiTable extends HTMLElement {
   }
 
   private _computeTable(table: core.Table) {
+    this._table = table;
     this._rows.length = table.cols[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
