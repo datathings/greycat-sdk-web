@@ -1,5 +1,6 @@
 import { GreyCat, runtime } from '@greycat/sdk';
 import * as sdk from '@greycat/sdk';
+import timeToDate from './utils';
 
 export class GuiTaskInfo extends HTMLElement {
   private _greyCat: GreyCat | null;
@@ -76,11 +77,10 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskNameDiv.textContent = (t.mod ?? "") + "::" + (t.fun ?? "");
     const durationMicroseconds = sdk.utils.toDuration(this._greyCat, t.duration?.us, sdk.core.DurationUnit.microseconds(this._greyCat));
     const durationMicrosecondsString = sdk.utils.durationToStr(durationMicroseconds);
-
     const properties: { name: string, description: string}[] = [
       { name: 'User ID', description: t.user_id },
-      { name: 'Creation epochs', description: t.creation?.epoch },
-      { name: 'Start epochs', description: t.start?.epoch },
+      { name: 'Creation', description: timeToDate(t.creation!) },
+      { name: 'Start', description: timeToDate(t.start!) },
       { name: 'Duration', description: durationMicrosecondsString, },
     ];
     this.updateTaskDetails(properties);
