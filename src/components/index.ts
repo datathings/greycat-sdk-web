@@ -16,6 +16,7 @@ import { type GuiTable } from './table';
 import { type GuiValue } from './value';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart';
+import { type GuiTaskInfo } from './task-info';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -36,6 +37,7 @@ export * from './table';
 export * from './value';
 // export * from './doughnut-chart';
 export * from './chart';
+export * from './task-info';
 
 export type GuiElement =
   // | GuiBarChart
@@ -54,4 +56,5 @@ export type GuiElement =
   // | GuiScatterPlotChart
   | GuiTable
   // | GuiTimezoneSelect
-  | GuiValue;
+  | GuiValue
+  | GuiTaskInfo;
