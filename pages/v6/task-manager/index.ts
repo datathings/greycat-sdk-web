@@ -1,4 +1,4 @@
-import { GreyCat, runtime } from '@greycat/sdk';
+import { GreyCat, runtime, core } from '@greycat/sdk';
 
 // @greycat/ui
 import '../../../src';
@@ -13,6 +13,6 @@ app.appendChild(taskInfoComponent);
 taskInfoComponent.greyCat = greycat;
 
 const task = await greycat.call('project::whatever') as runtime.Task;
-const info = await greycat.call('runtime::Task::info', [task.user_id, task.task_id]);
+const info = await greycat.call('runtime::Task::info', [task.user_id, task.task_id]) as runtime.TaskInfo;
 
 taskInfoComponent.taskInfo = info;

@@ -2,3 +2,8 @@
 task whatever() {
   return 42;
 }
+
+@expose
+task paramsFn(name: String, age: int) {
+  return name;
+}
