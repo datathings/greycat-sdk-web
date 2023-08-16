@@ -1,9 +1,9 @@
 @expose
-task whatever() {
+task task_without_params() {
   return 42;
 }
 
 @expose
-task paramsFn(name: String, age: int) {
+task task_with_params(name: String, age: int) {
   return name;
 }

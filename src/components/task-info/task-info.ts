@@ -115,8 +115,7 @@ export class GuiTaskInfo extends HTMLElement {
     if (!this._taskInfo || !this._greyCat || !taskStatus)
       return;
     if (this._taskIsBeingExecuted(taskStatus)) {
-      console.log(taskStatus);
-      console.log('Cannot run the task. It is being executed.');
+      console.error('Cannot run the task. It is being executed.');
       return;
     }
     const newTask = await this._greyCat?.call(`${this._taskInfo.mod}::${this._taskInfo.fun}`, this._params) as runtime.Task;
@@ -129,7 +128,7 @@ export class GuiTaskInfo extends HTMLElement {
     if (!this._taskInfo || !this._greyCat || !taskStatus)
       return;
     if (!this._taskIsBeingExecuted(taskStatus)) {
-      console.log('Task is not being executed.');
+      console.error('Task is not being executed.');
       return;
     }
     const isCancelled = await runtime.Task.cancel(this._greyCat, this._taskInfo.task_id);
