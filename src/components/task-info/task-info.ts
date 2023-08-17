@@ -10,6 +10,7 @@ export class GuiTaskInfo extends HTMLElement {
   private _taskReRunButton: HTMLButtonElement;
   private _taskCancelButton: HTMLButtonElement;
   private _taskDetailsDiv: HTMLDivElement;
+  private _timeZone: string;
 
   constructor() {
     super();
@@ -19,6 +20,7 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskReRunButton = document.createElement('button');
     this._taskCancelButton = document.createElement('button');
     this._taskDetailsDiv = document.createElement('div');
+    this._timeZone = 'Europe/Luxembourg';
   }
 
   connectedCallback() {
@@ -26,9 +28,9 @@ export class GuiTaskInfo extends HTMLElement {
 
     const componentDiv = document.createElement('div');
     componentDiv.classList.add('component');
+    componentDiv.style.flexDirection = 'column';
     componentDiv.style.border = '1px solid #ccc';
     componentDiv.style.padding = '10px';
-    componentDiv.style.width = '500px';
 
     const headerDiv = document.createElement('div');
     headerDiv.classList.add('header');
@@ -39,6 +41,8 @@ export class GuiTaskInfo extends HTMLElement {
 
     this._taskNameDiv .setAttribute('id', 'task-name');
     this._taskNameDiv .textContent = 'Task name';
+
+    const timezoneSelect = this._createTimezoneSelect();
 
     const buttonsDiv = document.createElement('div');
     buttonsDiv.classList.add('buttons');
@@ -60,6 +64,7 @@ export class GuiTaskInfo extends HTMLElement {
     buttonsDiv.appendChild(this._taskCancelButton);
 
     headerDiv.appendChild(this._taskNameDiv);
+    headerDiv.appendChild(timezoneSelect);
     headerDiv.appendChild(buttonsDiv);
 
     this._taskDetailsDiv.classList.add('task-details');
@@ -80,6 +85,40 @@ export class GuiTaskInfo extends HTMLElement {
     this._updateTaskInfo(t);
   }
 
+  private _createTimezoneSelect() {
+    const timezoneSelect = document.createElement('select');
+    timezoneSelect.setAttribute('id', 'timezone-select');
+  
+    let timezones = [this._timeZone];
+
+    // TODO: Populate all the timezones from the backend
+    if (Intl.supportedValuesOf) {
+      timezones = Intl.supportedValuesOf('timeZone');
+    } else {
+      console.error('Your browser does not support Intl.supportedValuesOf().');
+    }
+
+    timezones.forEach(timezone => {
+      const option = document.createElement('option');
+      option.value = timezone;
+      option.textContent = timezone;
+      timezoneSelect.appendChild(option);
+    });
+  
+    timezoneSelect.value = this._timeZone;
+    timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
+  
+    return timezoneSelect;
+  }
+
+  private _timezoneSelectHandler(event: Event) {
+    if (!this._taskInfo)
+      return;
+    const selectedTimezone = (event.target as HTMLSelectElement).value;
+    this._timeZone = selectedTimezone;
+    this._updateTaskInfo(this._taskInfo);
+  }
+
   private _updateTaskInfo(t: runtime.TaskInfo) {
     if (!this._greyCat)
       return;
@@ -89,8 +128,8 @@ export class GuiTaskInfo extends HTMLElement {
     const durationMicrosecondsString = sdk.utils.durationToStr(durationMicroseconds);
     const properties: { name: string, description: string | number | bigint}[] = [
       { name: 'User ID', description: t.user_id },
-      { name: 'Creation', description: timeToDate(t.creation!) },
-      { name: 'Start', description: timeToDate(t.start!) },
+      { name: 'Creation', description: timeToDate(t.creation!, this._timeZone) },
+      { name: 'Start', description: timeToDate(t.start!, this._timeZone) },
       { name: 'Duration', description: durationMicrosecondsString, },
     ];
     this._updateTaskDetails(properties);

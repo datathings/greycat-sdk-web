@@ -1,16 +1,17 @@
 import * as sdk from '@greycat/sdk';
 
-function destructuredTimeToMs(epoch: number, us: number): number {
-  const ms_n = BigInt(epoch) * BigInt(1_000) + BigInt(us) / BigInt(1_000);
-  return Number(ms_n);
-}
+type LocaleDateOptions = {
+  year: string,
+  month: string,
+  day: string,
+  hour: string,
+  minute: string,
+  second: string,
+  timeZone?: string,
+};
 
-function timeToMs(t: sdk.core.time): number {
-  return destructuredTimeToMs(t.epoch, t.us);
-}
-
-function formatDateWithTimezone(date: Date): string {
-  const options = {
+function formatDateWithTimezone(date: Date, timeZone?: string): string {
+  const options: LocaleDateOptions = {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',
@@ -18,6 +19,9 @@ function formatDateWithTimezone(date: Date): string {
     minute: '2-digit',
     second: '2-digit',
   };
+
+  if (timeZone)
+    options.timeZone = timeZone;
 
   const formattedDate = date.toLocaleString('en-US', options);
   const timezoneOffset = date.getTimezoneOffset();
@@ -31,9 +35,8 @@ function formatDateWithTimezone(date: Date): string {
   return formattedDate + ' ' + timezoneFormatted;
 }
 
-export default function timeToDate(time: sdk.core.time): string {
-  if (time.iso) {
-    return formatDateWithTimezone(new Date(time.iso));
-  }
-  return formatDateWithTimezone(new Date(timeToMs(time)));
+// If timeZone variable is not passed, it uses current time zone of running environment.
+export default function timeToDate(time: sdk.core.time, timeZone?: string): string {
+  const timeInMs = Number(BigInt(time.value) / BigInt(1_000));
+  return formatDateWithTimezone(new Date(timeInMs), timeZone);
 }
