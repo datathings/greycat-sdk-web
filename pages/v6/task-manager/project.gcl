@@ -1,5 +1,8 @@
 @expose
 task task_without_params() {
+  for (var i = 0; i < 1_000_000_000; i++) {
+    println("test");
+  }
   return 42;
 }
 
