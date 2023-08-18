@@ -76,3 +76,28 @@ export async function parseTaskParams(g: GreyCat, t: runtime.TaskInfo | runtime.
 
   return params;
 }
+
+export function createTimezoneSelect(defaultTimezone: string): HTMLSelectElement {
+  const timezoneSelect = document.createElement('select');
+  timezoneSelect.setAttribute('id', 'timezone-select');
+
+  let timezones = [defaultTimezone];
+
+  // TODO: Populate all the timezones from the backend
+  if (Intl.supportedValuesOf) {
+    timezones = Intl.supportedValuesOf('timeZone');
+  } else {
+    console.error('Your browser does not support Intl.supportedValuesOf().');
+  }
+
+  timezones.forEach(timezone => {
+    const option = document.createElement('option');
+    option.value = timezone;
+    option.textContent = timezone;
+    timezoneSelect.appendChild(option);
+  });
+
+  timezoneSelect.value = defaultTimezone;
+
+  return timezoneSelect;
+}

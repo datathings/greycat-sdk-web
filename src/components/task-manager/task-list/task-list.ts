@@ -1,5 +1,5 @@
-import { GreyCat, runtime, Value, AbiReader } from '@greycat/sdk';
-import { TaskStatusEnum, parseTaskParams } from '../utils';
+import { GreyCat, runtime, Value } from '@greycat/sdk';
+import { TaskStatusEnum, parseTaskParams, createTimezoneSelect, timeToDate } from '../utils';
 
 export class GuiTaskList extends HTMLElement {
   private _greyCat: GreyCat;
@@ -9,9 +9,10 @@ export class GuiTaskList extends HTMLElement {
     'Task Id',
     'User Id',
     '\"module\".\"fn\"',
-    'Created / Started',
+    'Created',
     'Status',
   ];
+  private _timeZone: string = 'Europe/Luxembourg';
   
   connectedCallback() {
     const componentDiv = document.createElement('div');
@@ -20,6 +21,10 @@ export class GuiTaskList extends HTMLElement {
     componentDiv.style.padding = '10px';
     componentDiv.style.overflow = 'auto';
     
+    const timezoneSelect = createTimezoneSelect(this._timeZone);
+    timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
+    timezoneSelect.style.marginBottom = '10px';
+
     this._table = document.createElement('table');
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
@@ -30,6 +35,7 @@ export class GuiTaskList extends HTMLElement {
     thead.appendChild(headerRow);
     this._table.appendChild(thead);
 
+    componentDiv.appendChild(timezoneSelect);
     componentDiv.appendChild(this._table);
 
     this.appendChild(componentDiv);
@@ -72,8 +78,8 @@ export class GuiTaskList extends HTMLElement {
             return task.user_id;
           case '\"module\".\"fn\"':
             return `${task.mod}::${task.fun}`;
-          case 'Created / Started':
-            return task.creation.value;
+          case 'Created':
+            return timeToDate(task.creation!, this._timeZone);
           case 'Status':
             return TaskStatusEnum[task.status.value as number] ?? "";
           default:
@@ -104,6 +110,11 @@ export class GuiTaskList extends HTMLElement {
     return false;
   }
 
+  private _timezoneSelectHandler(event: Event) {
+    const selectedTimezone = (event.target as HTMLSelectElement).value;
+    this._timeZone = selectedTimezone;
+    this.render();
+  }
 
   private async _taskReRunButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
@@ -122,7 +133,6 @@ export class GuiTaskList extends HTMLElement {
 if (!customElements.get('gui-task-list')) {
   customElements.define('gui-task-list', GuiTaskList);
 }
-
 
 declare global {
   interface Window {

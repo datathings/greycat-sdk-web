@@ -1,6 +1,6 @@
-import { GreyCat, runtime, Value, AbiReader } from '@greycat/sdk';
+import { GreyCat, runtime, Value } from '@greycat/sdk';
 import * as sdk from '@greycat/sdk';
-import { timeToDate, parseTaskParams } from '../utils';
+import { timeToDate, parseTaskParams, createTimezoneSelect } from '../utils';
 
 export class GuiTaskInfo extends HTMLElement {
   private _greyCat: GreyCat | null;
@@ -41,7 +41,8 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskNameDiv .setAttribute('id', 'task-name');
     this._taskNameDiv .textContent = 'Task name';
 
-    const timezoneSelect = this._createTimezoneSelect();
+    const timezoneSelect = createTimezoneSelect(this._timeZone);
+    timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
 
     const buttonsDiv = document.createElement('div');
     buttonsDiv.classList.add('buttons');
@@ -82,32 +83,6 @@ export class GuiTaskInfo extends HTMLElement {
 
   set taskInfo(t: runtime.TaskInfo) {
     this._updateTaskInfo(t);
-  }
-
-  private _createTimezoneSelect() {
-    const timezoneSelect = document.createElement('select');
-    timezoneSelect.setAttribute('id', 'timezone-select');
-  
-    let timezones = [this._timeZone];
-
-    // TODO: Populate all the timezones from the backend
-    if (Intl.supportedValuesOf) {
-      timezones = Intl.supportedValuesOf('timeZone');
-    } else {
-      console.error('Your browser does not support Intl.supportedValuesOf().');
-    }
-
-    timezones.forEach(timezone => {
-      const option = document.createElement('option');
-      option.value = timezone;
-      option.textContent = timezone;
-      timezoneSelect.appendChild(option);
-    });
-  
-    timezoneSelect.value = this._timeZone;
-    timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
-  
-    return timezoneSelect;
   }
 
   private _timezoneSelectHandler(event: Event) {
