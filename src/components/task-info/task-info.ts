@@ -1,4 +1,4 @@
-import { GreyCat, runtime, Value } from '@greycat/sdk';
+import { GreyCat, runtime, Value, AbiReader } from '@greycat/sdk';
 import * as sdk from '@greycat/sdk';
 import timeToDate from './utils';
 
@@ -16,6 +16,7 @@ export class GuiTaskInfo extends HTMLElement {
     super();
     this._greyCat = null;
     this._taskInfo = null;
+    this._params = [];
     this._taskNameDiv = document.createElement('div');
     this._taskReRunButton = document.createElement('button');
     this._taskCancelButton = document.createElement('button');
@@ -24,8 +25,6 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   connectedCallback() {
-    this._params = ['Beket', 27];
-
     const componentDiv = document.createElement('div');
     componentDiv.classList.add('component');
     componentDiv.style.flexDirection = 'column';
@@ -149,6 +148,32 @@ export class GuiTaskInfo extends HTMLElement {
     return false;
   }
 
+  private async _parseTaskParams(t: runtime.TaskInfo): Promise<Value | undefined> {
+    if (!this._greyCat)
+      return undefined;
+    
+    const params: Value[] = [];
+
+    try {
+      const response = await fetch(`${this._greyCat.api}/files/${t.user_id}/tasks/${t.task_id}/params.gcb`);
+      if (!response.ok) {
+        throw new Error('Network response error');
+      }
+
+      const data = await response.arrayBuffer();
+      const reader = new AbiReader(this._greyCat.abi, data);
+      reader.headers();
+      while (!reader.is_empty) {
+        params.push(reader.deserialize());
+      }
+    } catch (error) {
+        console.error('Error fetching data:', error);
+        return undefined;
+    }
+
+    return params;
+  }
+
   private async _taskReRunButtonHandler() {
     const taskStatus = (await this._getTaskStatus()) as runtime.TaskStatus | null;
     if (!this._taskInfo || !this._greyCat || !taskStatus)
@@ -157,6 +182,7 @@ export class GuiTaskInfo extends HTMLElement {
       console.error('Cannot run the task. It is being executed.');
       return;
     }
+    this._params = await this._parseTaskParams(this._taskInfo) as Value[];
     const newTask = await this._greyCat?.call(`${this._taskInfo.mod}::${this._taskInfo.fun}`, this._params) as runtime.Task;
     const newTaskInfo = await this._greyCat?.call('runtime::Task::info', [newTask.user_id, newTask.task_id]) as runtime.TaskInfo;
     this._updateTaskInfo(newTaskInfo);

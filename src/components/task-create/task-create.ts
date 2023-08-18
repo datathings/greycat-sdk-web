@@ -54,17 +54,21 @@ export class GuiTaskCreate extends HTMLElement {
   }
 
   private _handleCreateTaskButtonClick() {
+    if (!this._greyCat)
+      return
     const moduleName = this._taskModuleAndFunctionInput.value;
     const params = this._paramsJsonInput.value;
-    const url = `http://localhost:8080/${moduleName}`;
+    const url = `${this._greyCat.api}/${moduleName}`;
   
     const requestOptions: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
       },
-      body: params
     };
+
+    if (params.length)
+      requestOptions.body = params;
   
     this._performFetch(url, requestOptions);
   }
