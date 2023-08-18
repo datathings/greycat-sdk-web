@@ -1,5 +1,5 @@
 import { GreyCat, runtime, Value, AbiReader } from '@greycat/sdk';
-import { TaskStatusEnum } from './utils';
+import { TaskStatusEnum, parseTaskParams } from '../utils';
 
 export class GuiTaskList extends HTMLElement {
   private _greyCat: GreyCat;
@@ -104,31 +104,6 @@ export class GuiTaskList extends HTMLElement {
     return false;
   }
 
-  private async _parseTaskParams(t: runtime.Task): Promise<Value | undefined> {
-    if (!this._greyCat)
-      return undefined;
-
-    const params: Value[] = [];
-
-    try {
-      const response = await fetch(`${this._greyCat.api}/files/${t.user_id}/tasks/${t.task_id}/params.gcb`);
-      if (!response.ok) {
-        throw new Error('Network response error');
-      }
-
-      const data = await response.arrayBuffer();
-      const reader = new AbiReader(this._greyCat.abi, data);
-      reader.headers();
-      while (!reader.is_empty) {
-        params.push(reader.deserialize());
-      }
-    } catch (error) {
-        console.error('Error fetching data:', error);
-        return undefined;
-    }
-
-    return params;
-  }
 
   private async _taskReRunButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
@@ -138,7 +113,7 @@ export class GuiTaskList extends HTMLElement {
       console.error('Cannot run the task. It is being executed.');
       return;
     }
-    const params = await this._parseTaskParams(task) as Value[];
+    const params = await parseTaskParams(this._greyCat, task) as Value[];
     await this._greyCat?.call(`${task.mod}::${task.fun}`, params);
     this.render();
   }

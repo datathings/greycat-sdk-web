@@ -16,9 +16,9 @@ import { type GuiTable } from './table';
 import { type GuiValue } from './value';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart';
-import { type GuiTaskInfo } from './task-info';
-import { type GuiTaskCreate } from './task-create';
-import { type GuiTaskList } from './task-list';
+import { type GuiTaskInfo } from './task-manager/task-info';
+import { type GuiTaskCreate } from './task-manager/task-create';
+import { type GuiTaskList } from './task-manager/task-list';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -39,9 +39,9 @@ export * from './table';
 export * from './value';
 // export * from './doughnut-chart';
 export * from './chart';
-export * from './task-info';
-export * from './task-create';
-export * from './task-list';
+export * from './task-manager/task-info';
+export * from './task-manager/task-create';
+export * from './task-manager/task-list';
 
 export type GuiElement =
   // | GuiBarChart

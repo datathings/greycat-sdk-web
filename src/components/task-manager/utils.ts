@@ -1,4 +1,5 @@
 import * as sdk from '@greycat/sdk';
+import { GreyCat, Value, AbiReader, runtime } from '@greycat/sdk';
 
 type LocaleDateOptions = {
   year: string,
@@ -35,8 +36,43 @@ function formatDateWithTimezone(date: Date, timeZone?: string): string {
   return formattedDate + ' ' + timezoneFormatted;
 }
 
+export enum TaskStatusEnum {
+  empty,
+  waiting,
+  running,
+  cancelled,
+  error,
+  ended,
+}
+
 // If timeZone variable is not passed, it uses current time zone of running environment.
-export default function timeToDate(time: sdk.core.time, timeZone?: string): string {
+export function timeToDate(time: sdk.core.time, timeZone?: string): string {
   const timeInMs = Number(BigInt(time.value) / BigInt(1_000));
   return formatDateWithTimezone(new Date(timeInMs), timeZone);
+}
+
+export async function parseTaskParams(g: GreyCat, t: runtime.TaskInfo | runtime.Task): Promise<Value | undefined> {
+  if (!g)
+    return undefined;
+  
+  const params: Value[] = [];
+
+  try {
+    const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/params.gcb`);
+    if (!response.ok) {
+      throw new Error('Network response error');
+    }
+
+    const data = await response.arrayBuffer();
+    const reader = new AbiReader(g.abi, data);
+    reader.headers();
+    while (!reader.is_empty) {
+      params.push(reader.deserialize());
+    }
+  } catch (error) {
+      console.error('Error fetching data:', error);
+      return undefined;
+  }
+
+  return params;
 }
