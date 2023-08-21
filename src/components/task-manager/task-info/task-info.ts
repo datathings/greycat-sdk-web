@@ -11,6 +11,7 @@ export class GuiTaskInfo extends HTMLElement {
   private _taskCancelButton: HTMLButtonElement;
   private _taskDetailsDiv: HTMLDivElement;
   private _timeZone: string;
+  private _fileLinksDiv: HTMLDivElement;
 
   constructor() {
     super();
@@ -22,6 +23,7 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskCancelButton = document.createElement('button');
     this._taskDetailsDiv = document.createElement('div');
     this._timeZone = 'Europe/Luxembourg';
+    this._fileLinksDiv = document.createElement('div');
   }
 
   connectedCallback() {
@@ -38,8 +40,8 @@ export class GuiTaskInfo extends HTMLElement {
     headerDiv.style.alignItems = 'center';
     headerDiv.style.marginBottom = '10px';
 
-    this._taskNameDiv .setAttribute('id', 'task-name');
-    this._taskNameDiv .textContent = 'Task name';
+    this._taskNameDiv.setAttribute('id', 'task-name');
+    this._taskNameDiv.textContent = 'Task name';
 
     const timezoneSelect = createTimezoneSelect(this._timeZone);
     timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
@@ -70,9 +72,22 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskDetailsDiv.classList.add('task-details');
     this._taskDetailsDiv.setAttribute('id', 'task-details');
     this._taskDetailsDiv.style.fontSize = '14px';
+    this._taskDetailsDiv.style.marginBottom = '15px';
+
+    const filesSectionText = document.createElement('div');
+    filesSectionText.textContent = 'Files:';
+    filesSectionText.style.fontWeight = 'bold';
+    filesSectionText.style.marginBottom = '5px';
+
+    this._fileLinksDiv.classList.add('file-links');
+    this._fileLinksDiv.style.border = '1px solid #ccc';
+    this._fileLinksDiv.style.borderRadius = '5px';
+    this._fileLinksDiv.style.padding = '10px';
 
     componentDiv.appendChild(headerDiv);
     componentDiv.appendChild(this._taskDetailsDiv);
+    componentDiv.appendChild(filesSectionText);
+    componentDiv.appendChild(this._fileLinksDiv);
 
     this.appendChild(componentDiv);
   }
@@ -106,7 +121,15 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'Start', description: timeToDate(t.start!, this._timeZone) },
       { name: 'Duration', description: durationMicrosecondsString, },
     ];
-    this._updateTaskDetails(properties);
+    const prefixURI = `${this._greyCat.api}/files/${t.user_id}/tasks/${t.task_id}`;
+    const fileURIs = [
+      { text: 'info.gcb', uri: `${prefixURI}/info.gcb` },
+      { text: 'log', uri: `${prefixURI}/log` },
+      { text: 'params.gcb', uri: `${prefixURI}/params.gcb` },
+      { text: 'result.gcb', uri: `${prefixURI}/result.gcb` },
+    ];
+
+    this._updateTaskDetails(properties, fileURIs);
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
@@ -170,14 +193,28 @@ export class GuiTaskInfo extends HTMLElement {
     return propertyDiv;
   }
 
-  private _updateTaskDetails(properties: { name: string, description: string | number | bigint }[]) {
+  private _updateTaskDetails(properties: { name: string, description: string | number | bigint }[], fileURIs: {text: string, uri: string; }[]) {
     while (this._taskDetailsDiv.firstChild) {
       this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
+    }
+    while(this._fileLinksDiv.firstChild) {
+      this._fileLinksDiv.removeChild(this._fileLinksDiv.firstChild);
     }
 
     properties.forEach(property => {
       const propertyDiv = this._createTaskDetailDiv(property.name, property.description);
       this._taskDetailsDiv.appendChild(propertyDiv);
+    });
+
+    fileURIs.forEach(fileURI => {
+      const link = document.createElement('a');
+      link.textContent = fileURI.text;
+      link.href = fileURI.uri;
+      link.classList.add('file-link');
+      const lineBreak = document.createElement('br');
+
+      this._fileLinksDiv.appendChild(link);
+      this._fileLinksDiv.appendChild(lineBreak);
     });
   }
 }
