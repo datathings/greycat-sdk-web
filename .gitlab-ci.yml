@@ -1,0 +1,35 @@
+image: oci.datathings.com/greycat/build/js:1.0.8-main
+
+stages:
+  - build
+  # - publish
+
+before_script:
+  - export VERSION=`git2version -s`
+
+# This folder is cached between builds
+# https://docs.gitlab.com/ee/ci/yaml/index.html#cache
+cache:
+  paths:
+    - node_modules/
+
+build:
+  stage: build
+  script:
+    - ./build.sh
+  artifacts:
+    when: on_success
+    expire_in: '30 days'
+    paths:
+      - dist
+
+# publish:
+#   stage: publish
+#   when: manual
+#   script:
+#     - ./publish.sh
+#   artifacts:
+#     expire_in: 1 week
+#     paths:
+#       - dist
+
