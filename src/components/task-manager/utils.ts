@@ -1,18 +1,8 @@
 import * as sdk from '@greycat/sdk';
 import { GreyCat, Value, AbiReader, runtime } from '@greycat/sdk';
 
-type LocaleDateOptions = {
-  year: string,
-  month: string,
-  day: string,
-  hour: string,
-  minute: string,
-  second: string,
-  timeZone?: string,
-};
-
 function formatDateWithTimezone(date: Date, timeZone?: string): string {
-  const options: LocaleDateOptions = {
+  const options: Intl.DateTimeFormatOptions = {
     year: 'numeric',
     month: '2-digit',
     day: '2-digit',

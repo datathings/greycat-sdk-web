@@ -22,3 +22,5 @@ taskCreateComponent.greyCat = greycat;
 
 taskListComponent.greyCat = greycat;
 taskInfoComponent.taskInfo = info;
+
+console.log(Intl.DateTimeFormat().resolvedOptions().timeZone);

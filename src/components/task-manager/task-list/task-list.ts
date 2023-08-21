@@ -2,9 +2,9 @@ import { GreyCat, runtime, Value } from '@greycat/sdk';
 import { TaskStatusEnum, parseTaskParams, createTimezoneSelect, timeToDate } from '../utils';
 
 export class GuiTaskList extends HTMLElement {
-  private _greyCat: GreyCat;
+  private _greyCat: GreyCat | null = null;
   private _tasks: Array<runtime.Task> = [];
-  private _table: HTMLTableElement;
+  private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<String> = [
     'Task Id',
     'User Id',
@@ -25,7 +25,6 @@ export class GuiTaskList extends HTMLElement {
     timezoneSelect.addEventListener('change', this._timezoneSelectHandler.bind(this));
     timezoneSelect.style.marginBottom = '10px';
 
-    this._table = document.createElement('table');
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
 
