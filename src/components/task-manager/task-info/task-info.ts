@@ -127,6 +127,7 @@ export class GuiTaskInfo extends HTMLElement {
       { text: 'log', uri: `${prefixURI}/log` },
       { text: 'params.gcb', uri: `${prefixURI}/params.gcb` },
       { text: 'result.gcb', uri: `${prefixURI}/result.gcb` },
+      { text: './files', uri: `${prefixURI}/` },
     ];
 
     this._updateTaskDetails(properties, fileURIs);
@@ -211,8 +212,8 @@ export class GuiTaskInfo extends HTMLElement {
       link.textContent = fileURI.text;
       link.href = fileURI.uri;
       link.classList.add('file-link');
-      const lineBreak = document.createElement('br');
 
+      const lineBreak = document.createElement('br');
       this._fileLinksDiv.appendChild(link);
       this._fileLinksDiv.appendChild(lineBreak);
     });

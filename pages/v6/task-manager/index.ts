@@ -15,8 +15,7 @@ app.appendChild(taskCreateComponent);
 app.appendChild(taskListComponent);
 
 const task = await greycat.call('project::task_with_params', ['Beket', 24]) as runtime.Task;
-// TODO Use runtime.Task.info();
-const info = await greycat.call('runtime::Task::info', [task.user_id, task.task_id]) as runtime.TaskInfo;
+const info = await runtime.Task.info(greycat, task.user_id, task.task_id);
 
 taskInfoComponent.greyCat = greycat;
 taskCreateComponent.greyCat = greycat;
