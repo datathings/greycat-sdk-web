@@ -1,8 +1,12 @@
 image: oci.datathings.com/greycat/build/js:1.0.8-main
 
+variables:
+  GIT_STRATEGY: clone
+  GIT_DEPTH: "0"
+
 stages:
   - build
-  # - publish
+  - publish
 
 before_script:
   - export VERSION=`git2version -s`
@@ -23,13 +27,13 @@ build:
     paths:
       - dist
 
-# publish:
-#   stage: publish
-#   when: manual
-#   script:
-#     - ./publish.sh
-#   artifacts:
-#     expire_in: 1 week
-#     paths:
-#       - dist
+publish:
+  stage: publish
+  when: manual
+  script:
+    - ./publish.sh
+  artifacts:
+    expire_in: 1 week
+    paths:
+      - dist
 

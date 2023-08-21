@@ -23,19 +23,3 @@ taskCreateComponent.greyCat = greycat;
 
 taskListComponent.greyCat = greycat;
 taskInfoComponent.taskInfo = info;
-/*
-
-const data = await fetch(`${greycat.api}/files/${task.user_id}/tasks/${task.task_id}/`)
-  .then(response => response.arrayBuffer());
-
-console.log(data);
-const reader = new AbiReader(greycat.abi, data);
-
-let res: Value[] = [];
-
-reader.headers();
-while (!reader.is_empty) {
-  res.push(reader.deserialize());
-}
-
-console.log(res);*/
