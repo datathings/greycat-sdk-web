@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
@@ -8,7 +8,17 @@
 </head>
 
 <body>
-  <div id="app"></div>
+  <div id="actions">
+    <input name="nb-rows" id="nb-rows" type="number" min="1" max="10000" value="150"></input>
+    <button class="inverted" id="randomize">Randomize</button>
+    <button id="top-left">Top-left</button>
+    <button id="top-right">Top-right</button>
+    <button id="bottom-left">Bottom-left</button>
+    <button id="bottom-right">Bottom-right</button>
+    <button class="inverted" id="toggle-cursor">Toggle cursor</button>
+    <button class="inverted align-right" id="toggle-theme">Light/Dark</button>
+  </div>
+  <gui-chart></gui-chart>
   <script type="module" src="./index.ts"></script>
 </body>
 
