@@ -18,3 +18,6 @@ zip -r $file ui
 curl -s -X PUT -H "Authorization: $token" -T $file "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
 curl -s -X PUT -H "Authorization: $token" -T $file "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/latest.zip"
 curl -s -X PUT -H "Authorization: $token" -T ui/package.tgz "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}-package.tgz"
+curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.css "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}-ui.js"
+curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.js "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}-ui.css"
+
