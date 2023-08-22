@@ -18,7 +18,7 @@ import { type GuiValue } from './value';
 import { type GuiChart } from './chart';
 import { type GuiTaskInfo } from './task-manager/task-info';
 import { type GuiTaskCreate } from './task-manager/task-create';
-import { type GuiTaskList } from './task-manager/task-list';
+import { type GuiTaskHistoryList } from './task-manager/task-history-list';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -41,7 +41,7 @@ export * from './value';
 export * from './chart';
 export * from './task-manager/task-info';
 export * from './task-manager/task-create';
-export * from './task-manager/task-list';
+export * from './task-manager/task-history-list';
 
 export type GuiElement =
   // | GuiBarChart
@@ -63,5 +63,5 @@ export type GuiElement =
   | GuiValue
   | GuiTaskInfo
   | GuiTaskCreate
-  | GuiTaskList;
+  | GuiTaskHistoryList;
   
