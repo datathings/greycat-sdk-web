@@ -1,4 +1,4 @@
-import { GreyCat, runtime, Abi, AbiReader, stdlib, Value } from '@greycat/sdk';
+import { GreyCat, runtime, core } from '@greycat/sdk';
 
 // @greycat/ui
 import '../../../src';
@@ -16,17 +16,16 @@ app.appendChild(taskCreateComponent);
 app.appendChild(taskHistoryListComponent);
 app.appendChild(taskRunningListComponent);
 
-taskInfoComponent.greyCat = greycat;
-taskCreateComponent.greyCat = greycat;
-taskHistoryListComponent.greyCat = greycat;
-taskRunningListComponent.greyCat = greycat;
-
-const task_long = await greycat.call('project::task_long_running') as runtime.Task;
-
-console.log(task_long);
+taskInfoComponent.greycat = greycat;
+taskCreateComponent.greycat = greycat;
+taskHistoryListComponent.greycat = greycat;
+taskRunningListComponent.greycat = greycat;
 
 
 const task = await greycat.call('project::task_with_params', ['Beket', 24]) as runtime.Task;
 const info = await runtime.Task.info(greycat, task.user_id, task.task_id);
 
+//const task_long = await greycat.call('project::task_long_running') as runtime.Task;
+
 taskInfoComponent.taskInfo = info;
+taskInfoComponent.timeZone = 'Europe/Luxembourg';

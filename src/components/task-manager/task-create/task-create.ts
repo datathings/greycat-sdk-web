@@ -76,12 +76,7 @@ export class GuiTaskCreate extends HTMLElement {
   private async _performFetch(url: String, requestOptions: RequestInit) {
     try {
       const response = await fetch(url as RequestInfo, requestOptions);
-      if (response.ok) {
-        const result = await response.json();
-        console.log('Result:', result);
-      } else {
-        console.error('Error:', response.statusText);
-      }
+      await response.json();
     } catch (error) {
       console.error('Error:', error);
     }

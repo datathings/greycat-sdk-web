@@ -51,7 +51,6 @@ export class GuiTaskRunningList extends HTMLElement {
       return;
     
     this._tasks = await this._greyCat?.call('runtime::Task::running') as runtime.Task[];
-    console.log(this._tasks);
 
     const tbody = this._table.querySelector('tbody');
     if (tbody) {
@@ -110,8 +109,7 @@ export class GuiTaskRunningList extends HTMLElement {
       console.error('Cannot cancel task. It is not being executed.');
       return;
     }
-    const logCancelTask = runtime.Task.cancel(this._greyCat, task.task_id);
-    console.info(logCancelTask);
+    await runtime.Task.cancel(this._greyCat, task.task_id);
     this.render();
   }
 }

@@ -14,16 +14,22 @@ function formatDateWithTimezone(date: Date, timeZone?: string): string {
   if (timeZone)
     options.timeZone = timeZone;
 
-  const formattedDate = date.toLocaleString('en-US', options);
-  const timezoneOffset = date.getTimezoneOffset();
+  try {
+    const formattedDate = date.toLocaleString('en-US', options);
+    const timezoneOffset = date.getTimezoneOffset();
 
-  const sign = timezoneOffset > 0 ? '-' : '+';
-  const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60);
-  const offsetMinutes = Math.abs(timezoneOffset) % 60;
+    const sign = timezoneOffset > 0 ? '-' : '+';
+    const offsetHours = Math.floor(Math.abs(timezoneOffset) / 60);
+    const offsetMinutes = Math.abs(timezoneOffset) % 60;
 
-  const timezoneFormatted = `${sign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
+    const timezoneFormatted = `${sign}${offsetHours.toString().padStart(2, '0')}:${offsetMinutes.toString().padStart(2, '0')}`;
 
-  return formattedDate + ' ' + timezoneFormatted;
+    return formattedDate + ' ' + timezoneFormatted;
+  } catch (error) {
+    // TODO: Replace with proper user notification for any specific error
+    console.error("An error occured: ", error);
+    return "";
+  }
 }
 
 export enum TaskStatusEnum {

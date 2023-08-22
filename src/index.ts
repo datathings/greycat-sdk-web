@@ -8,6 +8,7 @@ import './components/map/map.css';
 // import './components/scatter-plot/scatter-plot.css';
 import './components/table/table.css';
 import './components/chart/chart.css';
+import './components/task-manager/task-info/task-info.css';
 
 // importing @greycat/gui will import all the components
 // this is necessary as WebComponent need to be registered
