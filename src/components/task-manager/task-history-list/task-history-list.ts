@@ -1,8 +1,8 @@
-import { GreyCat, runtime, Value } from '@greycat/sdk';
+import { GreyCat, runtime, Value, core } from '@greycat/sdk';
 import { TaskStatusEnum, parseTaskParams, timeToDate } from '../utils';
 
 export class GuiTaskHistoryList extends HTMLElement {
-  private _greyCat: GreyCat | null = null;
+  private _greycat: GreyCat | null = null;
   private _tasks: Array<runtime.Task> = [];
   private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<String> = [
@@ -12,7 +12,7 @@ export class GuiTaskHistoryList extends HTMLElement {
     'Created',
     'Status',
   ];
-  private _timeZone: string = 'Europe/Luxembourg';
+  private _timeZone: core.TimeZone | null = null;
   private _currentPage: number = 1;
   private _tasksPerPage: number = 10;
   private _totalPages: number = 1;
@@ -61,22 +61,29 @@ export class GuiTaskHistoryList extends HTMLElement {
     this.appendChild(componentDiv);
   }
 
-  set greyCat(greyCat: GreyCat) {
-    this._greyCat = greyCat;
+  set greycat(greycat: GreyCat) {
+    this._greycat = greycat;
     this.render();
   }
 
-  set timeZone(timeZone: string) {
-    this._timeZone = timeZone;
-    this.render();
+  set timeZone(t: core.TimeZone) {
+    if (!this._greycat) {
+      return;
+    }
+    this._timeZone = t;
   }
 
   private async render() {
-    if (!this._greyCat)
+    if (!this._greycat) {
       return;
+    }
+
+    if (!this._timeZone) {
+      this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
+    }
     
     const startIndex = (this._currentPage - 1) * this._tasksPerPage;
-    this._tasks = await this._greyCat?.call('runtime::Task::history', [startIndex, this._tasksPerPage]) as runtime.Task[];
+    this._tasks = await this._greycat?.call('runtime::Task::history', [startIndex, this._tasksPerPage]) as runtime.Task[];
     await this._updateTotalPagesNumber();
 
     const tbody = this._table.querySelector('tbody');
@@ -97,7 +104,8 @@ export class GuiTaskHistoryList extends HTMLElement {
           case '\"module\".\"fn\"':
             return `${task.mod}::${task.fun}`;
           case 'Created':
-            return timeToDate(task.creation!, this._timeZone);
+            // Time zone is set at the beginning of this function
+            return task.creation ? timeToDate(task.creation, this._timeZone!) : "undefined";
           case 'Status':
             return TaskStatusEnum[task.status.value as number] ?? "";
           default:
@@ -145,7 +153,7 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 
   private async _updateTotalPagesNumber() {
-    const lastTask = await this._greyCat?.call('runtime::Task::history', [0, 1]) as runtime.Task[];
+    const lastTask = await this._greycat?.call('runtime::Task::history', [0, 1]) as runtime.Task[];
     const lastTaskId = lastTask ? (lastTask[0] as runtime.Task).task_id : 0;
     this._totalPages = Math.ceil(lastTaskId as number / this._tasksPerPage);
   }
@@ -171,9 +179,9 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greyCat && 
-      (taskStatus === runtime.TaskStatus.running(this._greyCat)
-      || taskStatus === runtime.TaskStatus.waiting(this._greyCat))) {
+    if (this._greycat && 
+      (taskStatus === runtime.TaskStatus.running(this._greycat)
+      || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
         return true;
     }
     return false;
@@ -181,14 +189,14 @@ export class GuiTaskHistoryList extends HTMLElement {
 
   private async _taskReRunButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
-    if (!this._greyCat)
+    if (!this._greycat)
       return;
     if (this._taskIsBeingExecuted(taskStatus)) {
       console.error('Cannot run the task. It is being executed.');
       return;
     }
-    const params = await parseTaskParams(this._greyCat, task) as Value[];
-    await this._greyCat?.call(`${task.mod}::${task.fun}`, params);
+    const params = await parseTaskParams(this._greycat, task) as Value[];
+    await this._greycat?.call(`${task.mod}::${task.fun}`, params);
     this.render();
   }
 }

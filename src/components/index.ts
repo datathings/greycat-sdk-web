@@ -16,6 +16,7 @@ import { type GuiTable } from './table';
 import { type GuiValue } from './value';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart';
+import { type GuiTask } from './task-manager/task';
 import { type GuiTaskInfo } from './task-manager/task-info';
 import { type GuiTaskCreate } from './task-manager/task-create';
 import { type GuiTaskHistoryList } from './task-manager/task-history-list';
@@ -40,6 +41,7 @@ export * from './table';
 export * from './value';
 // export * from './doughnut-chart';
 export * from './chart';
+export * from './task-manager/task';
 export * from './task-manager/task-info';
 export * from './task-manager/task-create';
 export * from './task-manager/task-history-list';
@@ -63,6 +65,7 @@ export type GuiElement =
   | GuiTable
   // | GuiTimezoneSelect
   | GuiValue
+  | GuiTask
   | GuiTaskInfo
   | GuiTaskCreate
   | GuiTaskHistoryList

@@ -1,10 +1,9 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
-import * as sdk from '@greycat/sdk';
-import { timeToDate, parseTaskParams } from '../utils';
+import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils';
 
-export class GuiTaskInfo extends HTMLElement {
+export class GuiTask extends HTMLElement {
   private _greycat: GreyCat | null;
-  private _taskInfo: runtime.TaskInfo | null;
+  private _task: runtime.Task | null;
   private _params: Value[];
   private _taskNameDiv: HTMLDivElement;
   private _taskReRunButton: HTMLButtonElement;
@@ -15,7 +14,7 @@ export class GuiTaskInfo extends HTMLElement {
   constructor() {
     super();
     this._greycat = null;
-    this._taskInfo = null;
+    this._task = null;
     this._params = [];
     this._taskNameDiv = document.createElement('div');
     this._taskReRunButton = document.createElement('button');
@@ -67,9 +66,9 @@ export class GuiTaskInfo extends HTMLElement {
     this._greycat = g;
   }
 
-  set taskInfo(t: runtime.TaskInfo) {
-    this._taskInfo = t;
-    this._updateTaskInfo(t);
+  set task(t: runtime.Task) {
+    this._task = t;
+    this._updateTask(t);
   }
 
   set timeZone(t: core.TimeZone) {
@@ -77,19 +76,19 @@ export class GuiTaskInfo extends HTMLElement {
       return;
     }
     this._timeZone = t;
-    if (this._taskInfo) {
-      this._updateTaskInfo(this._taskInfo);
+    if (this._task) {
+      this._updateTask(this._task);
     }
   }
 
-  private _updateTaskInfo(t: runtime.TaskInfo) {
+  private _updateTask(t: runtime.Task) {
     if (!this._greycat) {
       return;
     }
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
-    this._taskInfo = t;
+    this._task = t;
     this._taskNameDiv.textContent = (t.mod ?? "") + "::" + (t.fun ?? "");
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}`;
     const undefinedProperty = 'undefined';
@@ -98,12 +97,7 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'User ID', description: t.user_id.toString() },
       { name: 'Task ID', description: t.task_id.toString() },
       { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
-      { name: 'Start', description: t.start ? timeToDate(t.start, this._timeZone) : undefinedProperty },
-      { name: 'Progress', description: t.progress ? t.progress.toString() : undefinedProperty },
-      { name: 'Remaining', description: t.duration ? sdk.utils.durationToStr(t.duration) : undefinedProperty },
-      { name: 'Duration', description: t.duration ? sdk.utils.durationToStr(t.duration) : undefinedProperty },
-      { name: 'Sub waiting', description: t.sub_waiting ? t.sub_waiting.toString() : "0" },
-      { name: 'Sub tasks', description: t.sub_tasks_all ? t.sub_tasks_all.toString() : "0" },
+      { name: 'Status', description: TaskStatusEnum[t.status.value as number] ?? undefinedProperty },
       { name: 'Files', description: `${prefixURI}/` },
     ];
     
@@ -111,11 +105,11 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
-    if (!this._taskInfo || !this._greycat) {
+    if (!this._task || !this._greycat) {
       return null;
     }
     try {
-      const updatedTaskInfo = await runtime.Task.info(this._greycat, this._taskInfo.user_id, this._taskInfo.task_id);
+      const updatedTaskInfo = await runtime.Task.info(this._greycat, this._task.user_id, this._task.task_id);
       if (updatedTaskInfo) {
         return updatedTaskInfo.status;
       }
@@ -138,17 +132,16 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskReRunButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !this._greycat || !taskStatus) {
+      if (!this._task || !this._greycat || !taskStatus) {
         return;
       }
       if (this._taskIsBeingExecuted(taskStatus)) {
         throw new Error('Cannot re-run the task since it\'s being already executed');
       }
-      this._params = await parseTaskParams(this._greycat, this._taskInfo) as Value[];
-      const newTask = await this._greycat.call<runtime.Task>(`${this._taskInfo.mod}::${this._taskInfo.fun}`, this._params);
-      const newTaskInfo = await runtime.Task.info(this._greycat, newTask.user_id, newTask.task_id);
-      if (newTaskInfo) {
-        this._updateTaskInfo(newTaskInfo);
+      this._params = await parseTaskParams(this._greycat, this._task) as Value[];
+      const newTask = await this._greycat.call<runtime.Task>(`${this._task.mod}::${this._task.fun}`, this._params);
+      if (newTask) {
+        this._updateTask(newTask);
       }
     } catch (error) {
       this._handleError(error as Error);
@@ -158,19 +151,13 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskCancelButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !this._greycat || !taskStatus) {
+      if (!this._task || !this._greycat || !taskStatus) {
         return;
       }
       if (!this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error('Cannot re-run the task since it\'s not being executed');         
+        throw new Error('Cannot re-run the task since it\'s not being executed');
       }
-      const isCancelled = await runtime.Task.cancel(this._greycat, this._taskInfo.task_id);
-      if (isCancelled) {
-        const cancelledTaskInfo = await runtime.Task.info(this._greycat, this._taskInfo.user_id, this._taskInfo.task_id);
-        if (cancelledTaskInfo) {
-          this._updateTaskInfo(cancelledTaskInfo);
-        }
-      }
+      await runtime.Task.cancel(this._greycat, this._task.task_id);
     } catch(error) {
       this._handleError(error as Error);
     }
@@ -217,15 +204,15 @@ export class GuiTaskInfo extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task-info')) {
-  customElements.define('gui-task-info', GuiTaskInfo);
+if (!customElements.get('gui-task')) {
+  customElements.define('gui-task', GuiTask);
 }
 
 declare global {
   interface Window {
-    GuiTaskInfo: typeof GuiTaskInfo;
+    GuiTask: typeof GuiTask;
   }
   interface HTMLElementTagNameMap {
-    'gui-task-info': GuiTaskInfo;
+    'gui-task': GuiTask;
   }
 }

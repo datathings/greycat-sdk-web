@@ -1,8 +1,8 @@
-import { GreyCat, runtime } from '@greycat/sdk';
+import { GreyCat, runtime, core } from '@greycat/sdk';
 import { TaskStatusEnum, timeToDate } from '../utils';
 
 export class GuiTaskRunningList extends HTMLElement {
-  private _greyCat: GreyCat | null = null;
+  private _greycat: GreyCat | null = null;
   private _tasks: Array<runtime.Task> = [];
   private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<String> = [
@@ -12,7 +12,7 @@ export class GuiTaskRunningList extends HTMLElement {
     'Created',
     'Status',
   ];
-  private _timeZone: string = 'Europe/Luxembourg';
+  private _timeZone: core.TimeZone | null = null;
   
   connectedCallback() {
     const componentDiv = document.createElement('div');
@@ -36,21 +36,29 @@ export class GuiTaskRunningList extends HTMLElement {
     this.appendChild(componentDiv);
   }
 
-  set greyCat(greyCat: GreyCat) {
-    this._greyCat = greyCat;
+  set greycat(greycat: GreyCat) {
+    this._greycat = greycat;
     this.render();
   }
 
-  set timeZone(timeZone: string) {
-    this._timeZone = timeZone;
+  set timeZone(t: core.TimeZone) {
+    if (!this._greycat) {
+      return;
+    }
+    this._timeZone = t;
     this.render();
   }
 
   private async render() {
-    if (!this._greyCat)
+    if (!this._greycat) {
       return;
+    }
+
+    if (!this._timeZone) {
+      this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
+    }
     
-    this._tasks = await this._greyCat?.call('runtime::Task::running') as runtime.Task[];
+    this._tasks = await this._greycat?.call('runtime::Task::running') as runtime.Task[];
 
     const tbody = this._table.querySelector('tbody');
     if (tbody) {
@@ -70,7 +78,8 @@ export class GuiTaskRunningList extends HTMLElement {
           case '\"module\".\"fn\"':
             return `${task.mod}::${task.fun}`;
           case 'Created':
-            return timeToDate(task.creation!, this._timeZone);
+            // timezone is set at the beginning of this function
+            return timeToDate(task.creation!, this._timeZone!);
           case 'Status':
             return TaskStatusEnum[task.status.value as number] ?? "";
           default:
@@ -93,9 +102,9 @@ export class GuiTaskRunningList extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greyCat && 
-      (taskStatus === runtime.TaskStatus.running(this._greyCat)
-      || taskStatus === runtime.TaskStatus.waiting(this._greyCat))) {
+    if (this._greycat && 
+      (taskStatus === runtime.TaskStatus.running(this._greycat)
+      || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
         return true;
     }
     return false;
@@ -103,13 +112,13 @@ export class GuiTaskRunningList extends HTMLElement {
 
   private async _taskCancelTaskButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
-    if (!this._greyCat)
+    if (!this._greycat)
       return;
     if (!this._taskIsBeingExecuted(taskStatus)) {
       console.error('Cannot cancel task. It is not being executed.');
       return;
     }
-    await runtime.Task.cancel(this._greyCat, task.task_id);
+    await runtime.Task.cancel(this._greycat, task.task_id);
     this.render();
   }
 }

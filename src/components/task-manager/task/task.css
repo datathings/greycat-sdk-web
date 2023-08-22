@@ -1,0 +1,29 @@
+gui-task .component {
+  flex-direction: column;
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+gui-task .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+gui-task .button {
+  margin-right: 10px;
+}
+
+gui-task .task-details {
+  font-size: 14px;
+  margin-bottom: 15px;
+}
+
+gui-task .property {
+  display: flex;
+}
+
+gui-task .property-name {
+  flex: 1;
+}
