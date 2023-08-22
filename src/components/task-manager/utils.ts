@@ -37,6 +37,8 @@ export enum TaskStatusEnum {
 
 // If timeZone variable is not passed, it uses current time zone of running environment.
 export function timeToDate(time: sdk.core.time, timeZone?: string): string {
+  if (!time)
+    return "undefined";
   const timeInMs = Number(BigInt(time.value) / BigInt(1_000));
   return formatDateWithTimezone(new Date(timeInMs), timeZone);
 }

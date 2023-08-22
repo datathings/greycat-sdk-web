@@ -117,8 +117,8 @@ export class GuiTaskInfo extends HTMLElement {
     const durationMicrosecondsString = sdk.utils.durationToStr(durationMicroseconds);
     const properties: { name: string, description: string | number | bigint}[] = [
       { name: 'User ID', description: t.user_id },
-      { name: 'Creation', description: timeToDate(t.creation!, this._timeZone) },
-      { name: 'Start', description: timeToDate(t.start!, this._timeZone) },
+      { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : "undefined" },
+      { name: 'Start', description: t.start ? timeToDate(t.start, this._timeZone) : "undefined" },
       { name: 'Duration', description: durationMicrosecondsString, },
     ];
     const prefixURI = `${this._greyCat.api}/files/${t.user_id}/tasks/${t.task_id}`;

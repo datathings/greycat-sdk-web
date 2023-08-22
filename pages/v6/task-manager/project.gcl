@@ -1,3 +1,5 @@
+use runtime;
+
 @expose
 task task_without_params() {
   for (var i = 0; i < 1_000_000_000; i++) {
@@ -9,4 +11,9 @@ task task_without_params() {
 @expose
 task task_with_params(name: String, age: int) {
   return name;
+}
+
+@expose
+task task_long_running() {
+  Runtime::sleep(10_s);
 }
