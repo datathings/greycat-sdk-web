@@ -5,6 +5,7 @@ import { getColors } from '../../utils';
 import * as draw from './ctx';
 import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
 import { Scale, dateFormat, vMap } from './internals';
+import { core } from '@greycat/sdk';
 
 type Cursor = {
   x: number;
@@ -32,8 +33,8 @@ export class GuiChart extends HTMLElement {
 
   private _tooltip = document.createElement('div');
 
-  private _userMin: number | Date | undefined;
-  private _userMax: number | Date | undefined;
+  private _userMin: number | Date | core.time | core.Date | undefined;
+  private _userMax: number | Date | core.time | core.Date | undefined;
 
   constructor() {
     super();

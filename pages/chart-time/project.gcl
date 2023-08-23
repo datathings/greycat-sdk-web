@@ -1,0 +1,19 @@
+use util;
+
+@expose
+fn table(): Table {
+  var table = Table::new(2);
+
+  var rand = Random::new();
+
+  var prevTime = time::now();
+
+  for (var i = 0; i < 100; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, rand.uniformf(0f, 150f));
+
+    prevTime = prevTime + 24_hour;
+  }
+
+  return table;
+}

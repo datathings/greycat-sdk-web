@@ -3,6 +3,7 @@
   "version": "0.0.0",
   "module": "./dist/esm/index.js",
   "types": "./dist/esm/index.d.ts",
+  "type": "module",
   "license": "MIT",
   "files": [
     "dist/bundle",
@@ -11,10 +12,9 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist docs",
-    "build": "pnpm build:esm && pnpm build:bundle && pnpm build:manifest && cp -R fonts dist/",
-    "build:esm": "tsc",
+    "build": "pnpm build:esm && pnpm build:bundle && cp -R fonts dist/",
+    "build:esm": "esbuild src/index.ts --platform=browser --outdir=dist/esm",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
-    "build:manifest": "cem analyze --globs 'src/components/**/*.ts' --exclude '**/index.ts' --exclude '**/bundle.ts' && mv custom-elements.json dist/",
     "build:app": "vite build",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
@@ -24,12 +24,11 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.28-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.30-dev.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "0.8.4",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",
@@ -38,6 +37,7 @@
     "prettier": "3.0.0",
     "typescript": "5.1.6",
     "vite": "4.4.8",
+    "vite-plugin-dts": "3.5.2",
     "vitepress": "1.0.0-beta.7",
     "vue": "3.3.4"
   },
