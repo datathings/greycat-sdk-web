@@ -78,32 +78,7 @@ export class GuiChart extends HTMLElement {
       }, 250),
     );
 
-    let touchstart = -1;
-    let prevTap = -1;
-    this.addEventListener('touchstart', () => {
-      touchstart = Date.now();
-    });
-    this.addEventListener('touchend', () => {
-      const now = Date.now();
-      if (now - touchstart < 500) {
-        // tap
-        if (now - prevTap < 500) {
-          // dbl tap
-          this.dispatchEvent(new Event('dbltap', { bubbles: false }));
-        } else {
-          this.dispatchEvent(new Event('tap', { bubbles: false }));
-        }
-        prevTap = now;
-      }
-      touchstart = -1;
-    });
-
-    this.addEventListener('tap', () => {
-      console.log('tap');
-    });
-    this.addEventListener('dbltap', () => {
-      console.log('dbltap');
-    });
+    // TODO touchstart, touchend
 
     // mouse events
     this.addEventListener('mousedown', (event) => {
