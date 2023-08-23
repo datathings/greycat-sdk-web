@@ -1,0 +1,39 @@
+gui-task-history-list .component {
+  border: 1px solid #ccc;
+  padding: 10px;
+  overflow: auto;
+  margin: 0 auto;
+}
+
+gui-task-history-list .table-style {
+  width: 100%;
+  margin-bottom: 10px;
+  border-collapse: collapse;
+}
+
+gui-task-history-list .table-style th, .table-style td {
+  border: 1px #ccc;
+  padding: 5px 10px;
+  text-align: left;
+}
+
+gui-task-history-list .pagination-controls {
+  margin-bottom: 10px;
+}
+
+gui-task-history-list .page-selector input {
+  width: 40px;
+  padding: 2px;
+}
+
+gui-task-history-list .page-selector button {
+  padding: 2px 5px;
+  margin-left: 5px;
+}
+
+gui-task-history-list .pagination-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 10px;
+}
