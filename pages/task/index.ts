@@ -26,6 +26,7 @@ app.appendChild(taskHistoryListComponent);
 app.appendChild(taskRunningListComponent);
 
 const task = await greycat.call<runtime.Task>('project::task_with_params', ['Beket', 24]);
+console.log({ task });
 taskComponent.task = task;
 
 const info = await runtime.Task.info(greycat, task.user_id, task.task_id);

@@ -10,8 +10,9 @@ gui-task-history-list .table-style th, .table-style td {
   text-align: left;
 }
 
-gui-task-history-list .pagination-controls {
-  margin-bottom: 10px;
+gui-task-history-list .page-selector {
+  display: flex;
+  justify-content: space-between;
 }
 
 gui-task-history-list .page-selector input {
@@ -35,10 +36,11 @@ gui-task-history-list .pagination-controls {
 gui-task-history-list .tasks-per-page-container {
   display: flex;
   align-items: center;
+  margin-bottom: 10px;
 }
 
 gui-task-history-list .tasks-per-page-input {
-  margin-right: 5px;
+  margin: 0 5px 0 0;
 }
 
 gui-task-history-list .tasks-per-page-label {

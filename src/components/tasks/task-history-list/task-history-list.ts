@@ -67,10 +67,10 @@ export class GuiTaskHistoryList extends HTMLElement {
     jumpPageContainer.appendChild(jumpButton);
 
     pageSelector.appendChild(jumpPageContainer);
+    pageSelector.appendChild(this._paginationControls);
     pageSelector.appendChild(tasksPerPageContainer);
 
     fragment.appendChild(this._table);
-    fragment.appendChild(this._paginationControls);
     fragment.appendChild(pageSelector);
 
     this.appendChild(fragment);

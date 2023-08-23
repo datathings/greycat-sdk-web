@@ -89,7 +89,11 @@ export class GuiTaskInfo extends HTMLElement {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
     this._taskInfo = t;
-    this._taskNameDiv.textContent = (t.mod ?? "") + "::" + (t.fun ?? "");
+    if (t.type) {
+      this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
+    } else {
+      this._taskNameDiv.textContent = `${t.mod}::${t.fun}`;
+    }
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}`;
     const undefinedProperty = 'undefined';
 
@@ -106,7 +110,14 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'Files', description: `${prefixURI}/` },
     ];
 
-    this._updateTaskDetails(properties);
+    while (this._taskDetailsDiv.firstChild) {
+      this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
+    }
+
+    properties.forEach(property => {
+      const propertyDiv = this._createTaskDetailDiv(property.name, property.description);
+      this._taskDetailsDiv.appendChild(propertyDiv);
+    });
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
@@ -191,7 +202,7 @@ export class GuiTaskInfo extends HTMLElement {
 
     if (name === 'Files') {
       const link = document.createElement('a');
-      link.textContent = './files';
+      link.textContent = new URL(description).pathname;
       link.href = description;
       link.classList.add('file-link');
       propertyDiv.appendChild(link);
@@ -202,17 +213,6 @@ export class GuiTaskInfo extends HTMLElement {
     }
 
     return propertyDiv;
-  }
-
-  private _updateTaskDetails(properties: { name: string, description: string }[]) {
-    while (this._taskDetailsDiv.firstChild) {
-      this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
-    }
-
-    properties.forEach(property => {
-      const propertyDiv = this._createTaskDetailDiv(property.name, property.description);
-      this._taskDetailsDiv.appendChild(propertyDiv);
-    });
   }
 }
 

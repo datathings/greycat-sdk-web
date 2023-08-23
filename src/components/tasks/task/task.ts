@@ -89,7 +89,11 @@ export class GuiTask extends HTMLElement {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
     this._task = t;
-    this._taskNameDiv.textContent = (t.mod ?? "") + "::" + (t.fun ?? "");
+    if (t.type) {
+      this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
+    } else {
+      this._taskNameDiv.textContent = `${t.mod}::${t.fun}`;
+    }
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}`;
     const undefinedProperty = 'undefined';
 
@@ -101,7 +105,14 @@ export class GuiTask extends HTMLElement {
       { name: 'Files', description: `${prefixURI}/` },
     ];
 
-    this._updateTaskDetails(properties);
+    while (this._taskDetailsDiv.firstChild) {
+      this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
+    }
+
+    properties.forEach((property) => {
+      const propertyDiv = this._createTaskDetailDiv(property);
+      this._taskDetailsDiv.appendChild(propertyDiv);
+    });
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
@@ -114,19 +125,18 @@ export class GuiTask extends HTMLElement {
         return updatedTaskInfo.status;
       }
     } catch (error) {
-      this._handleError(error as Error);
+      this._handleError(error);
     }
 
     return null;
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat &&
-      (taskStatus === runtime.TaskStatus.running(this._greycat)
-        || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
-      return true;
+    if (!this._greycat) {
+      return false;
     }
-    return false;
+    return (taskStatus === runtime.TaskStatus.running(this._greycat)
+      || taskStatus === runtime.TaskStatus.waiting(this._greycat));
   }
 
   private async _taskReRunButtonHandler() {
@@ -136,15 +146,15 @@ export class GuiTask extends HTMLElement {
         return;
       }
       if (this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error('Cannot re-run the task since it\'s being already executed');
+        throw new Error(`Cannot re-run the task since it's being already executed`);
       }
-      this._params = await parseTaskParams(this._greycat, this._task) as Value[];
+      this._params = await parseTaskParams(this._greycat, this._task);
       const newTask = await this._greycat.call<runtime.Task>(`${this._task.mod}::${this._task.fun}`, this._params);
       if (newTask) {
         this._updateTask(newTask);
       }
     } catch (error) {
-      this._handleError(error as Error);
+      this._handleError(error);
     }
   }
 
@@ -155,15 +165,15 @@ export class GuiTask extends HTMLElement {
         return;
       }
       if (!this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error('Cannot re-run the task since it\'s not being executed');
+        throw new Error(`Cannot re-run the task since it's not being executed`);
       }
       await runtime.Task.cancel(this._greycat, this._task.task_id);
     } catch (error) {
-      this._handleError(error as Error);
+      this._handleError(error);
     }
   }
 
-  private _handleError(error: Error) {
+  private _handleError(error: unknown) {
     // TODO: Replace with user notification for any specific error
     console.error('An error occured: ', error);
   }
@@ -179,7 +189,7 @@ export class GuiTask extends HTMLElement {
 
     if (name === 'Files') {
       const link = document.createElement('a');
-      link.textContent = './files';
+      link.textContent = new URL(description).pathname;
       link.href = description;
       link.classList.add('file-link');
       propertyDiv.appendChild(link);
@@ -190,17 +200,6 @@ export class GuiTask extends HTMLElement {
     }
 
     return propertyDiv;
-  }
-
-  private _updateTaskDetails(properties: Property[]) {
-    while (this._taskDetailsDiv.firstChild) {
-      this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
-    }
-
-    properties.forEach((property) => {
-      const propertyDiv = this._createTaskDetailDiv(property);
-      this._taskDetailsDiv.appendChild(propertyDiv);
-    });
   }
 }
 
