@@ -15,6 +15,12 @@ import './components/map/map.css';
 // import './components/scatter-plot/scatter-plot.css';
 import './components/table/table.css';
 import './components/chart/chart.css';
+import './components/tasks/task/task.css';
+import './components/tasks/task-info/task-info.css';
+import './components/tasks/task-create/task-create.css';
+import './components/tasks/task-history-list/task-history-list.css';
+import './components/tasks/task-running-list/task-running-list.css';
+
 
 import * as ui from './index';
 

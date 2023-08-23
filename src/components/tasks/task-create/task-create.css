@@ -1,0 +1,17 @@
+gui-task-create .top-line {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+gui-task-create .module-input {
+  flex: 1;
+  width: 60%;
+}
+
+gui-task-create .params-input {
+  height: 100px;
+  width: 100%;
+}

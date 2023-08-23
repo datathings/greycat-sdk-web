@@ -1,0 +1,27 @@
+gui-task {
+  display: flex;
+  flex-direction: column;
+}
+
+gui-task .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+gui-task .button {
+  margin-right: 10px;
+}
+
+gui-task .task-details {
+  margin-bottom: 15px;
+}
+
+gui-task .property {
+  display: flex;
+}
+
+gui-task .property-name {
+  flex: 1;
+}

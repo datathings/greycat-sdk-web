@@ -1,4 +1,0 @@
-@expose
-task whatever() {
-  return 42;
-}

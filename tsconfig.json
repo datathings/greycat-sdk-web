@@ -26,6 +26,6 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "include": ["src"],
+  "include": ["src", "custom-intl.d.ts"],
   "exclude": ["src/_boilerplate", "src/bundle.ts"]
 }
