@@ -745,7 +745,7 @@ export class GuiChart extends HTMLElement {
     for (const serie of this._config.series) {
       if (serie.xCol !== undefined) {
         for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
-          const value = this._config.table.cols[serie.xCol][row];
+          const value = vMap(this._config.table.cols[serie.xCol][row]);
           if (xMin == null) {
             xMin = value;
           } else if (value <= xMin) {
@@ -782,7 +782,7 @@ export class GuiChart extends HTMLElement {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
             for (let row = 0; row < this._config.table.cols[serie.yCol].length; row++) {
-              const value = this._config.table.cols[serie.yCol][row];
+              const value = vMap(this._config.table.cols[serie.yCol][row]);
               if (min == null) {
                 min = value;
               } else if (value <= min) {
@@ -795,7 +795,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = this._config.table.cols[serie.yCol2][row];
+                const value = vMap(this._config.table.cols[serie.yCol2][row]);
                 if (min == null) {
                   min = value;
                 } else if (value <= min) {

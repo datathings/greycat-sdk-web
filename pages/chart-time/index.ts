@@ -25,8 +25,8 @@ try {
     cursor: true,
     xAxis: {
       scale: 'time',
-      min: table.cols[0][0] as core.time,
-      max: table.cols[0][table.cols[0].length - 1] as core.time,
+      // min: table.cols[0][0] as core.time,
+      // max: table.cols[0][table.cols[0].length - 1] as core.time,
     },
     yAxes: {
       y: {
