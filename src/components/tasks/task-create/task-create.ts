@@ -1,23 +1,13 @@
 import { GreyCat } from '@greycat/sdk';
 
 export class GuiTaskCreate extends HTMLElement {
-  private _greycat: GreyCat | null;  
-  private _taskModuleAndFunctionInput: HTMLInputElement;
-  private _paramsJsonInput: HTMLTextAreaElement;
-  private _createTaskButton: HTMLButtonElement;
-  
-
-  constructor() {
-    super();
-    this._greycat = null;
-    this._taskModuleAndFunctionInput = document.createElement('input');
-    this._paramsJsonInput = document.createElement('textarea');
-    this._createTaskButton = document.createElement('button');
-  }
+  private _greycat: GreyCat | null = null;
+  private _taskModuleAndFunctionInput = document.createElement('input');
+  private _paramsJsonInput = document.createElement('textarea');
+  private _createTaskButton = document.createElement('button');
 
   connectedCallback() {
-    const container = document.createElement('div');
-    container.classList.add('task-create-container');
+    const fragment = document.createDocumentFragment();
 
     const topLine = document.createElement('div');
     topLine.classList.add('top-line');
@@ -36,10 +26,10 @@ export class GuiTaskCreate extends HTMLElement {
     topLine.appendChild(this._taskModuleAndFunctionInput);
     topLine.appendChild(this._createTaskButton);
 
-    container.appendChild(topLine);
-    container.appendChild(this._paramsJsonInput);
+    fragment.appendChild(topLine);
+    fragment.appendChild(this._paramsJsonInput);
 
-    this.appendChild(container);
+    this.appendChild(fragment);
   }
 
   set greycat(g: GreyCat) {
@@ -53,7 +43,7 @@ export class GuiTaskCreate extends HTMLElement {
     const moduleName = this._taskModuleAndFunctionInput.value;
     const params = this._paramsJsonInput.value;
     const url = `${this._greycat.api}/${moduleName}`;
-  
+
     const requestOptions: RequestInit = {
       method: 'POST',
       headers: {
@@ -66,11 +56,11 @@ export class GuiTaskCreate extends HTMLElement {
     } else {
       requestOptions.body = '[]';
     }
-  
+
     this._performFetch(url, requestOptions);
   }
-  
-  private async _performFetch(url: String, requestOptions: RequestInit) {
+
+  private async _performFetch(url: string, requestOptions: RequestInit) {
     try {
       const response = await fetch(url as RequestInfo, requestOptions);
       await response.json();

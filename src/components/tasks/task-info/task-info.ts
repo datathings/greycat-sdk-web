@@ -25,8 +25,7 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   connectedCallback() {
-    const componentDiv = document.createElement('div');
-    componentDiv.classList.add('component');
+    const fragment = document.createDocumentFragment();
 
     const headerDiv = document.createElement('div');
     headerDiv.classList.add('header');
@@ -47,7 +46,7 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskCancelButton.textContent = 'Cancel';
     this._taskCancelButton.addEventListener('click', this._taskCancelButtonHandler.bind(this));
 
-    
+
     buttonsDiv.appendChild(this._taskReRunButton);
     buttonsDiv.appendChild(this._taskCancelButton);
 
@@ -57,10 +56,10 @@ export class GuiTaskInfo extends HTMLElement {
     this._taskDetailsDiv.classList.add('task-details');
     this._taskDetailsDiv.setAttribute('id', 'task-details');
 
-    componentDiv.appendChild(headerDiv);
-    componentDiv.appendChild(this._taskDetailsDiv);
+    fragment.appendChild(headerDiv);
+    fragment.appendChild(this._taskDetailsDiv);
 
-    this.appendChild(componentDiv);
+    this.appendChild(fragment);
   }
 
   set greycat(g: GreyCat) {
@@ -94,7 +93,7 @@ export class GuiTaskInfo extends HTMLElement {
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}`;
     const undefinedProperty = 'undefined';
 
-    const properties: { name: string, description: string}[] = [
+    const properties: { name: string, description: string }[] = [
       { name: 'User ID', description: t.user_id.toString() },
       { name: 'Task ID', description: t.task_id.toString() },
       { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
@@ -106,7 +105,7 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'Sub tasks', description: t.sub_tasks_all ? t.sub_tasks_all.toString() : "0" },
       { name: 'Files', description: `${prefixURI}/` },
     ];
-    
+
     this._updateTaskDetails(properties);
   }
 
@@ -119,7 +118,7 @@ export class GuiTaskInfo extends HTMLElement {
       if (updatedTaskInfo) {
         return updatedTaskInfo.status;
       }
-    } catch(error) {
+    } catch (error) {
       this._handleError(error as Error);
     }
 
@@ -127,10 +126,10 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat && 
+    if (this._greycat &&
       (taskStatus === runtime.TaskStatus.running(this._greycat)
-      || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
-        return true;
+        || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
+      return true;
     }
     return false;
   }
@@ -162,7 +161,7 @@ export class GuiTaskInfo extends HTMLElement {
         return;
       }
       if (!this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error('Cannot re-run the task since it\'s not being executed');         
+        throw new Error('Cannot re-run the task since it\'s not being executed');
       }
       const isCancelled = await runtime.Task.cancel(this._greycat, this._taskInfo.task_id);
       if (isCancelled) {
@@ -171,7 +170,7 @@ export class GuiTaskInfo extends HTMLElement {
           this._updateTaskInfo(cancelledTaskInfo);
         }
       }
-    } catch(error) {
+    } catch (error) {
       this._handleError(error as Error);
     }
   }

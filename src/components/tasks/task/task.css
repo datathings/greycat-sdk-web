@@ -1,7 +1,6 @@
-gui-task .component {
+gui-task {
+  display: flex;
   flex-direction: column;
-  border: 1px solid #ccc;
-  padding: 10px;
 }
 
 gui-task .header {
@@ -16,7 +15,6 @@ gui-task .button {
 }
 
 gui-task .task-details {
-  font-size: 14px;
   margin-bottom: 15px;
 }
 

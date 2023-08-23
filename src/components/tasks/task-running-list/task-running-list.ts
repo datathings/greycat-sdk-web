@@ -9,8 +9,6 @@ export class GuiTaskRunningList extends HTMLElement {
   private _timeZone: core.TimeZone | null = null;
 
   connectedCallback() {
-    const componentDiv = document.createElement('div');
-    componentDiv.classList.add('component');
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
     this._headers.forEach((headerName) => {
@@ -22,8 +20,7 @@ export class GuiTaskRunningList extends HTMLElement {
     this._table.appendChild(thead);
     this._table.classList.add('table-style');
 
-    componentDiv.appendChild(this._table);
-    this.appendChild(componentDiv);
+    this.appendChild(this._table);
   }
 
   set greycat(greycat: GreyCat) {

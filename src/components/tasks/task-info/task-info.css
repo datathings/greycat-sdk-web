@@ -1,7 +1,5 @@
-gui-task-info .component {
+gui-task-info {
   flex-direction: column;
-  border: 1px solid #ccc;
-  padding: 10px;
 }
 
 gui-task-info .header {

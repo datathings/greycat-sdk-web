@@ -1,6 +1,8 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
 import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils';
 
+type Property = { name: string; description: string };
+
 export class GuiTask extends HTMLElement {
   private _greycat: GreyCat | null;
   private _task: runtime.Task | null;
@@ -24,8 +26,7 @@ export class GuiTask extends HTMLElement {
   }
 
   connectedCallback() {
-    const componentDiv = document.createElement('div');
-    componentDiv.classList.add('component');
+    const fragment = document.createDocumentFragment();
 
     const headerDiv = document.createElement('div');
     headerDiv.classList.add('header');
@@ -46,7 +47,6 @@ export class GuiTask extends HTMLElement {
     this._taskCancelButton.textContent = 'Cancel';
     this._taskCancelButton.addEventListener('click', this._taskCancelButtonHandler.bind(this));
 
-    
     buttonsDiv.appendChild(this._taskReRunButton);
     buttonsDiv.appendChild(this._taskCancelButton);
 
@@ -56,10 +56,10 @@ export class GuiTask extends HTMLElement {
     this._taskDetailsDiv.classList.add('task-details');
     this._taskDetailsDiv.setAttribute('id', 'task-details');
 
-    componentDiv.appendChild(headerDiv);
-    componentDiv.appendChild(this._taskDetailsDiv);
+    fragment.appendChild(headerDiv);
+    fragment.appendChild(this._taskDetailsDiv);
 
-    this.appendChild(componentDiv);
+    this.appendChild(fragment);
   }
 
   set greycat(g: GreyCat) {
@@ -93,14 +93,14 @@ export class GuiTask extends HTMLElement {
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}`;
     const undefinedProperty = 'undefined';
 
-    const properties: { name: string, description: string}[] = [
+    const properties: Property[] = [
       { name: 'User ID', description: t.user_id.toString() },
       { name: 'Task ID', description: t.task_id.toString() },
       { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
       { name: 'Status', description: TaskStatusEnum[t.status.value as number] ?? undefinedProperty },
       { name: 'Files', description: `${prefixURI}/` },
     ];
-    
+
     this._updateTaskDetails(properties);
   }
 
@@ -113,7 +113,7 @@ export class GuiTask extends HTMLElement {
       if (updatedTaskInfo) {
         return updatedTaskInfo.status;
       }
-    } catch(error) {
+    } catch (error) {
       this._handleError(error as Error);
     }
 
@@ -121,10 +121,10 @@ export class GuiTask extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat && 
+    if (this._greycat &&
       (taskStatus === runtime.TaskStatus.running(this._greycat)
-      || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
-        return true;
+        || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
+      return true;
     }
     return false;
   }
@@ -158,7 +158,7 @@ export class GuiTask extends HTMLElement {
         throw new Error('Cannot re-run the task since it\'s not being executed');
       }
       await runtime.Task.cancel(this._greycat, this._task.task_id);
-    } catch(error) {
+    } catch (error) {
       this._handleError(error as Error);
     }
   }
@@ -168,7 +168,7 @@ export class GuiTask extends HTMLElement {
     console.error('An error occured: ', error);
   }
 
-  private _createTaskDetailDiv(name: string, description: string) {
+  private _createTaskDetailDiv({ name, description }: Property) {
     const propertyDiv = document.createElement('div');
     propertyDiv.classList.add('property');
 
@@ -192,13 +192,13 @@ export class GuiTask extends HTMLElement {
     return propertyDiv;
   }
 
-  private _updateTaskDetails(properties: { name: string, description: string }[]) {
+  private _updateTaskDetails(properties: Property[]) {
     while (this._taskDetailsDiv.firstChild) {
       this._taskDetailsDiv.removeChild(this._taskDetailsDiv.firstChild);
     }
 
-    properties.forEach(property => {
-      const propertyDiv = this._createTaskDetailDiv(property.name, property.description);
+    properties.forEach((property) => {
+      const propertyDiv = this._createTaskDetailDiv(property);
       this._taskDetailsDiv.appendChild(propertyDiv);
     });
   }

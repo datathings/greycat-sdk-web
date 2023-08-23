@@ -13,8 +13,7 @@ export class GuiTaskHistoryList extends HTMLElement {
   private _totalPages: number = 0;
 
   connectedCallback() {
-    const componentDiv = document.createElement('div');
-    componentDiv.classList.add('component');
+    const fragment = document.createDocumentFragment();
 
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
@@ -70,11 +69,11 @@ export class GuiTaskHistoryList extends HTMLElement {
     pageSelector.appendChild(jumpPageContainer);
     pageSelector.appendChild(tasksPerPageContainer);
 
-    componentDiv.appendChild(this._table);
-    componentDiv.appendChild(this._paginationControls);
-    componentDiv.appendChild(pageSelector);
-    
-    this.appendChild(componentDiv);
+    fragment.appendChild(this._table);
+    fragment.appendChild(this._paginationControls);
+    fragment.appendChild(pageSelector);
+
+    this.appendChild(fragment);
   }
 
   set greycat(greycat: GreyCat) {
@@ -99,7 +98,7 @@ export class GuiTaskHistoryList extends HTMLElement {
       } else {
         throw new Error('Couldn\'t parse the number of tasks per page');
       }
-    } catch(error) {
+    } catch (error) {
       this._handleError(error as Error);
     }
   }

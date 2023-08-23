@@ -16,11 +16,11 @@ import { type GuiTable } from './table';
 import { type GuiValue } from './value';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart';
-import { type GuiTask } from './task-manager/task';
-import { type GuiTaskInfo } from './task-manager/task-info';
-import { type GuiTaskCreate } from './task-manager/task-create';
-import { type GuiTaskHistoryList } from './task-manager/task-history-list';
-import { type GuiTaskRunningList } from './task-manager/task-running-list';
+import { type GuiTask } from './tasks/task';
+import { type GuiTaskInfo } from './tasks/task-info';
+import { type GuiTaskCreate } from './tasks/task-create';
+import { type GuiTaskHistoryList } from './tasks/task-history-list';
+import { type GuiTaskRunningList } from './tasks/task-running-list';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -41,11 +41,11 @@ export * from './table';
 export * from './value';
 // export * from './doughnut-chart';
 export * from './chart';
-export * from './task-manager/task';
-export * from './task-manager/task-info';
-export * from './task-manager/task-create';
-export * from './task-manager/task-history-list';
-export * from './task-manager/task-running-list';
+export * from './tasks/task';
+export * from './tasks/task-info';
+export * from './tasks/task-create';
+export * from './tasks/task-history-list';
+export * from './tasks/task-running-list';
 
 export type GuiElement =
   // | GuiBarChart
