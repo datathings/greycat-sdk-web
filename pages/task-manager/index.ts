@@ -21,9 +21,9 @@ app.appendChild(taskRunningListComponent);
 
 taskComponent.greycat = greycat;
 taskInfoComponent.greycat = greycat;
-taskCreateComponent.greyCat = greycat;
-taskHistoryListComponent.greyCat = greycat;
-taskRunningListComponent.greyCat = greycat;
+taskCreateComponent.greycat = greycat;
+taskHistoryListComponent.greycat = greycat;
+taskRunningListComponent.greycat = greycat;
 
 
 const task = await greycat.call('project::task_with_params', ['Beket', 24]) as runtime.Task;

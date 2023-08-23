@@ -1,7 +1,7 @@
 import { GreyCat } from '@greycat/sdk';
 
 export class GuiTaskCreate extends HTMLElement {
-  private _greyCat: GreyCat | null;  
+  private _greycat: GreyCat | null;  
   private _taskModuleAndFunctionInput: HTMLInputElement;
   private _paramsJsonInput: HTMLTextAreaElement;
   private _createTaskButton: HTMLButtonElement;
@@ -9,7 +9,7 @@ export class GuiTaskCreate extends HTMLElement {
 
   constructor() {
     super();
-    this._greyCat = null;
+    this._greycat = null;
     this._taskModuleAndFunctionInput = document.createElement('input');
     this._paramsJsonInput = document.createElement('textarea');
     this._createTaskButton = document.createElement('button');
@@ -18,27 +18,20 @@ export class GuiTaskCreate extends HTMLElement {
   connectedCallback() {
     const container = document.createElement('div');
     container.classList.add('task-create-container');
-    container.style.border = '1px solid #ccc';
-    container.style.padding = '10px';
 
     const topLine = document.createElement('div');
-    topLine.style.display = 'flex';
-    topLine.style.flexDirection = 'row';
-    topLine.style.justifyContent = 'space-between';
-    topLine.style.alignItems = 'center';
-    topLine.style.marginBottom = '10px';
+    topLine.classList.add('top-line');
 
     this._taskModuleAndFunctionInput.setAttribute('type', 'text');
     this._taskModuleAndFunctionInput.setAttribute('placeholder', 'Module and function name. Ex: project::get_sum');
-    this._taskModuleAndFunctionInput.style.flex = '1';
-    this._taskModuleAndFunctionInput.style.width = '60%';
+    this._taskModuleAndFunctionInput.classList.add('module-input');
 
     this._createTaskButton.textContent = 'Create Task';
     this._createTaskButton.addEventListener('click', this._handleCreateTaskButtonClick.bind(this));
+    this._createTaskButton.classList.add('create-button');
 
-    this._paramsJsonInput.setAttribute('placeholder', 'Enter JSON for of parameters. Ex: [42, \'Hello\', true]');
-    this._paramsJsonInput.style.height = '100px';
-    this._paramsJsonInput.style.width = '100%';
+    this._paramsJsonInput.setAttribute('placeholder', 'Enter JSON for parameters. Ex: [42, \'Hello\', true]');
+    this._paramsJsonInput.classList.add('params-input');
 
     topLine.appendChild(this._taskModuleAndFunctionInput);
     topLine.appendChild(this._createTaskButton);
@@ -49,16 +42,17 @@ export class GuiTaskCreate extends HTMLElement {
     this.appendChild(container);
   }
 
-  set greyCat(g: GreyCat) {
-    this._greyCat = g;
+  set greycat(g: GreyCat) {
+    this._greycat = g;
   }
 
   private _handleCreateTaskButtonClick() {
-    if (!this._greyCat)
+    if (!this._greycat) {
       return
+    }
     const moduleName = this._taskModuleAndFunctionInput.value;
     const params = this._paramsJsonInput.value;
-    const url = `${this._greyCat.api}/${moduleName}`;
+    const url = `${this._greycat.api}/${moduleName}`;
   
     const requestOptions: RequestInit = {
       method: 'POST',
@@ -67,8 +61,11 @@ export class GuiTaskCreate extends HTMLElement {
       },
     };
 
-    if (params.length)
+    if (params.length) {
       requestOptions.body = params;
+    } else {
+      requestOptions.body = '[]';
+    }
   
     this._performFetch(url, requestOptions);
   }
