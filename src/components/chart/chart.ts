@@ -638,7 +638,22 @@ export class GuiChart extends HTMLElement {
     // Add the x-axis.
     const xAxis = d3.axisBottom(xScale);
     if (this._config.xAxis.scale === 'time') {
-      xAxis.tickFormat((v) => dateFormat(v as Date));
+      if (this._config.xAxis.format === undefined) {
+        xAxis.tickFormat((v) => {
+          if (typeof v === 'number') {
+            return d3.isoFormat(new Date(v));
+          }
+          return d3.isoFormat(v as Date);
+        });
+      } else {
+        const format = this._config.xAxis.format;
+        xAxis.tickFormat((v) => {
+          if (typeof v === 'number') {
+            return d3.utcFormat(format)(new Date(v));
+          }
+          return d3.utcFormat(format)(v as Date);
+        });
+      }
     } else if (this._config.xAxis.format) {
       xAxis.tickFormat(d3.format(this._config.xAxis.format));
     }

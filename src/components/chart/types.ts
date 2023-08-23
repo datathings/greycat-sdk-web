@@ -30,18 +30,17 @@ export type Axis = {
   scale: ScaleType;
   /**
    * Formats the ticks on the axis
-   *
    * See https://d3js.org/d3-format#format
+   * 
+   * If the `scale` is `'time'` and `format` is `undefined`, the display is defaulting to ISO.
+   * See https://d3js.org/d3-time-format#utcFormat
    */
   format: string;
   /**
    * Formats the cursor hover text on the axis
    *
-   * Specifying `'iso'` when the axis is of type `'time'` will format as [ISO 8601](https://en.wikipedia.org/wiki/ISO_8601)
-   *
    * See https://d3js.org/d3-format#format for number values
    * See https://d3js.org/d3-time-format#utcFormat for time values in UTC
-   * See https://d3js.org/d3-time-format#timeFormat for time values in default locale
    */
   cursorFormat?: string;
 };
