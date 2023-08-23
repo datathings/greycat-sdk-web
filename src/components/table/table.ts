@@ -1,6 +1,7 @@
 import { core, utils, std_n } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
-import { GuiValue, GuiValueProps } from '../value';
+import '../value'; // makes sure we already have GuiValue defined
+import type { GuiValue, GuiValueProps } from '../value';
 import { GuiRenderEvent } from '../common';
 
 type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
@@ -660,28 +661,28 @@ class SortCol {
   }
 }
 
-if (!customElements.get('gui-table')) {
-  customElements.define('gui-table', GuiTable);
-}
-
-if (!customElements.get('gui-thead')) {
-  customElements.define('gui-thead', GuiTableHead);
-}
-
 if (!customElements.get('gui-thead-cell')) {
   customElements.define('gui-thead-cell', GuiTableHeadCell);
 }
 
-if (!customElements.get('gui-tbody')) {
-  customElements.define('gui-tbody', GuiTableBody);
+if (!customElements.get('gui-tbody-cell')) {
+  customElements.define('gui-tbody-cell', GuiTableBodyCell);
 }
 
 if (!customElements.get('gui-tbody-row')) {
   customElements.define('gui-tbody-row', GuiTableBodyRow);
 }
 
-if (!customElements.get('gui-tbody-cell')) {
-  customElements.define('gui-tbody-cell', GuiTableBodyCell);
+if (!customElements.get('gui-thead')) {
+  customElements.define('gui-thead', GuiTableHead);
+}
+
+if (!customElements.get('gui-tbody')) {
+  customElements.define('gui-tbody', GuiTableBody);
+}
+
+if (!customElements.get('gui-table')) {
+  customElements.define('gui-table', GuiTable);
 }
 
 declare global {

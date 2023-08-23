@@ -4,8 +4,19 @@
 //  - dist/bundle/greycat.ui.css
 //
 // It imports the ESM index and registers it on the global 'greycat' namespace under 'ui'
-import * as ui from './index';
 import * as sdk from '@greycat/sdk';
+
+import './base.css';
+// import './chart-utils/tooltip.css';
+import './components/donut/donut.css';
+import 'maplibre-gl/dist/maplibre-gl.css';
+import './components/map/map.css';
+// import './components/nodetime/nodetime.css';
+// import './components/scatter-plot/scatter-plot.css';
+import './components/table/table.css';
+import './components/chart/chart.css';
+
+import * as ui from './index';
 
 window.greycat = {
   ui,

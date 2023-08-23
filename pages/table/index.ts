@@ -1,16 +1,14 @@
 import { GreyCat, core } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../src';
 
-const app = document.getElementById('app') as HTMLDivElement;
+import '../../src/bundle';
 
 try {
   const greycat = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
-  const tableEl = document.createElement('gui-table');
+  const tableEl = document.querySelector('gui-table')!;
   tableEl.style.height = '500px';
-  app.appendChild(tableEl);
 
   const table = await greycat.call<core.Table>('project::table');
   console.log({ table });
@@ -21,6 +19,6 @@ try {
   });
 
 } catch (err) {
-  app.textContent = `Is GreyCat started?`;
+  document.documentElement.textContent = `Is GreyCat started?`;
 }
 
