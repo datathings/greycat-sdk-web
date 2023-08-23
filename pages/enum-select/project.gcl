@@ -1,0 +1,5 @@
+enum TrafficLight {
+  Green;
+  Yellow;
+  Red;
+}

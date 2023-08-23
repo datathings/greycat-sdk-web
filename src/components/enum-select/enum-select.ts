@@ -1,64 +1,95 @@
-export interface AnyField {
-  field: string;
-  value: unknown;
-}
+import { GCEnum, GreyCat } from '@greycat/sdk';
 
-export type OnChangeHandler = (field: AnyField) => void;
-export type OptionRenderer = (field: AnyField, el: HTMLOptionElement) => HTMLElement | void;
+export type OnChangeHandler = (value: GCEnum) => void;
+export type OptionRenderer = (value: GCEnum, el: HTMLOptionElement) => HTMLElement | void;
 
 export interface GuiEnumSelectProps {
-  fields: AnyField[];
-  selected: AnyField | undefined;
+  greycat: GreyCat | null;
+  fqn: string | null;
+  selected: GCEnum | null;
+  useValue: boolean;
   renderOption: OptionRenderer | null;
-  onChange: OnChangeHandler | null;
 }
 
 /**
  * Displays any GreyCat enumeration within a DOM `<select />` using the field name for the `<option />` text by default.
  */
 export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
-  private _fields: AnyField[] = [];
-  private _selected: AnyField | undefined;
-  private _onChange: OnChangeHandler | null = null;
+  private _greycat: GreyCat | null = null;
+  private _fqn: string | null = null;
+  private _selected: GCEnum | null = null;
+  private _useValue = false;
   private _renderOption: OptionRenderer | null = null;
   private _select: HTMLSelectElement | undefined;
-  private _onChangeHandler = () => {
+  private _defaultRender: OptionRenderer = (value, el) => {
+    el.textContent = this._useValue ? `${value.value?.toString()}` : value.key;
+  };
+  private _onChangeHandler = (ev: Event) => {
+    ev.stopPropagation();
+
     if (!this._select) {
       return;
     }
-    this._selected = this._fields[this._select.selectedIndex];
-    this._onChange?.(this._fields[this._select.selectedIndex]);
+
+    if (!this._greycat || !this._fqn) {
+      this._selected = null;
+      this.dispatchEvent(new GuiEnumSelectEvent(null));
+    } else {
+      const type = this._greycat?.abi.type_by_fqn.get(this._fqn);
+      if (!type || !type.enum_values) {
+        this._selected = null;
+        this.dispatchEvent(new GuiEnumSelectEvent(null));
+      } else {
+        this._selected = type.enum_values[this._select.selectedIndex] ?? null;
+        this.dispatchEvent(new GuiEnumSelectEvent(this._selected));
+      }
+    }
+
+
   };
 
-  /**
-   * The fields of the enumeration (eg. `core.TimeZone.$fields`, `core.ErrorCode.$fields`)
-   */
-  get fields(): AnyField[] {
-    return this._fields;
+  get greycat(): GreyCat | null {
+    return this._greycat;
   }
 
-  set fields(fields: AnyField[]) {
-    this._fields = fields;
+  set greycat(g: GreyCat | null) {
+    this._greycat = g;
+  }
+
+  /**
+   * An enum fully qualified name eg. `'core::TimeZone'`
+   */
+  get fqn(): string | null {
+    return this._fqn;
+  }
+
+  set fqn(fqn: string | null) {
+    this._fqn = fqn;
     this.render();
   }
 
   /**
    * Defines the currently selected option
    */
-  get selected(): AnyField | undefined {
+  get selected(): GCEnum | null {
     return this._selected;
   }
 
-  set selected(field: AnyField | undefined) {
+  set selected(field: GCEnum | null) {
     this._selected = field;
     this.render();
   }
 
+  get useValue(): boolean {
+    return this._useValue;
+  }
+
   /**
-   * An event handler called each time the underlying `<select />` changes
-   */
-  set onChange(handler: OnChangeHandler | null) {
-    this._onChange = handler;
+  * By default, the option text is using the enum field key. Setting this to `true`
+  * will use the field value.
+  */
+  set useValue(value: boolean) {
+    this._useValue = value;
     this.render();
   }
 
@@ -73,14 +104,16 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   setAttrs({
-    fields = this._fields,
+    greycat = this._greycat,
     selected = this._selected,
-    onChange = this._onChange,
+    fqn = this._fqn,
+    useValue = this._useValue,
     renderOption = this._renderOption,
   }: Partial<GuiEnumSelectProps>) {
-    this._fields = fields;
+    this._greycat = greycat;
+    this._fqn = fqn;
     this._selected = selected;
-    this._onChange = onChange;
+    this._useValue = useValue;
     this._renderOption = renderOption;
     this.render();
   }
@@ -97,30 +130,39 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   render() {
-    if (!this._select) {
+    if (!this._select || !this._greycat || !this._fqn) {
       return;
     }
     this._select.replaceChildren(); // TODO improve this by re-using previous options
 
     const options = document.createDocumentFragment();
 
-    const defaultRender: OptionRenderer = (f, el) => {
-      el.textContent = f.field;
-    };
-    const optRender: OptionRenderer = this._renderOption ?? defaultRender;
-    for (const field of this._fields) {
+    const optRender: OptionRenderer = this._renderOption ?? this._defaultRender;
+    const type = this._greycat.abi.type_by_fqn.get(this._fqn);
+    if (!type || !type.enum_values) {
+      return;
+    }
+    for (const value of type.enum_values) {
       const opt = document.createElement('option');
-      if (field === this._selected) {
+      if (value === this._selected) {
         opt.setAttribute('selected', '');
       }
-      opt.value = field.field;
-      const child = optRender(field, opt);
+      opt.value = value.key;
+      const child = optRender(value, opt);
       if (child) {
         opt.appendChild(child);
       }
       options.appendChild(opt);
     }
     this._select.appendChild(options);
+  }
+}
+
+export const SELECT_EVENT_TYPE = 'change';
+
+class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
+  constructor(value: GCEnum | null) {
+    super(SELECT_EVENT_TYPE, { detail: value, bubbles: true });
   }
 }
 
@@ -133,11 +175,8 @@ declare global {
     'gui-enum-select': GuiEnumSelect;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'gui-enum-select': any;
-    }
+  interface HTMLElementEventMap {
+    [SELECT_EVENT_TYPE]: GuiEnumSelectEvent;
   }
 }
 
