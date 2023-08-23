@@ -83,8 +83,4 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-map': GuiMap;
   }
-
-  // interface HTMLElementEventMap {
-
-  // }
 }
