@@ -188,7 +188,7 @@ export class GuiTaskHistoryList extends HTMLElement {
         this._currentPage = parsedPageNumber;
         this.render();
       } else {
-        console.error('Invalid page number.');
+        throw new Error("Invalid page number.");
       }
     } catch (error) {
       this._handleError(error as Error);

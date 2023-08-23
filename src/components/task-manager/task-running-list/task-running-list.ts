@@ -5,32 +5,22 @@ export class GuiTaskRunningList extends HTMLElement {
   private _greycat: GreyCat | null = null;
   private _tasks: Array<runtime.Task> = [];
   private _table: HTMLTableElement = document.createElement('table');
-  private _headers: Array<String> = [
-    'Task Id',
-    'User Id',
-    '\"module\".\"fn\"',
-    'Created',
-    'Status',
-  ];
+  private _headers: Array<string> = ['Task Id', 'User Id', '"module"."fn"', 'Created', 'Status'];
   private _timeZone: core.TimeZone | null = null;
-  
+
   connectedCallback() {
     const componentDiv = document.createElement('div');
     componentDiv.classList.add('component');
-    componentDiv.style.border = '1px solid #ccc';
-    componentDiv.style.padding = '10px';
-    componentDiv.style.overflow = 'auto';
-    
-
     const thead = document.createElement('thead');
     const headerRow = document.createElement('tr');
-
     this._headers.forEach((headerName) => {
-      headerRow.innerHTML += `<th>${headerName}</th>`;
+      const th = document.createElement('th');
+      th.textContent = headerName;
+      headerRow.appendChild(th);
     });
     thead.appendChild(headerRow);
     this._table.appendChild(thead);
-    this._table.style.marginBottom = '10px';
+    this._table.classList.add('table-style');
 
     componentDiv.appendChild(this._table);
     this.appendChild(componentDiv);
@@ -57,8 +47,12 @@ export class GuiTaskRunningList extends HTMLElement {
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
-    
-    this._tasks = await this._greycat?.call('runtime::Task::running') as runtime.Task[];
+
+    try {
+      this._tasks = await runtime.Task.running(this._greycat);
+    } catch (error) {
+      this._handleError(error as Error);
+    }
 
     const tbody = this._table.querySelector('tbody');
     if (tbody) {
@@ -69,57 +63,73 @@ export class GuiTaskRunningList extends HTMLElement {
 
     this._tasks.forEach((task) => {
       const row = document.createElement('tr');
-      const selectedUserAttirbutes = this._headers.map((headerName) => {
+      const selectedUserAttributes = this._headers.map((headerName) => {
         switch (headerName) {
           case 'Task Id':
-            return task.task_id;
+            return task.task_id.toString();
           case 'User Id':
-            return task.user_id;
-          case '\"module\".\"fn\"':
+            return task.user_id.toString();
+          case '"module"."fn"':
             return `${task.mod}::${task.fun}`;
           case 'Created':
             // timezone is set at the beginning of this function
             return timeToDate(task.creation!, this._timeZone!);
           case 'Status':
-            return TaskStatusEnum[task.status.value as number] ?? "";
+            return TaskStatusEnum[task.status.value as number] ?? '';
           default:
-            return;
+            return '';
         }
       });
-      selectedUserAttirbutes.forEach((taskDetail) => {
-        row.innerHTML += `<td>${taskDetail}</td>`;
+      selectedUserAttributes.forEach((taskDetail) => {
+        const cell = document.createElement('td');
+        cell.textContent = taskDetail;
+        row.appendChild(cell);
       });
-      row.innerHTML += `<td><button class="cancel-task-button">cancel</button></td>`;
-      const reRunButton = row.querySelector('.cancel-task-button')!;
-      reRunButton.addEventListener('click', () => {
+
+      const cancelButtonCell = document.createElement('td');
+      const cancelButton = document.createElement('button');
+      cancelButton.textContent = 'cancel';
+      cancelButton.classList.add('cancel-task-button');
+      cancelButton.addEventListener('click', () => {
         this._taskCancelTaskButtonHandler(task);
       });
+      cancelButtonCell.appendChild(cancelButton);
+      row.appendChild(cancelButtonCell);
+
       newTbody.appendChild(row);
     });
 
     this._table.appendChild(newTbody);
-    this._table.style.width = '100%';
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat && 
-      (taskStatus === runtime.TaskStatus.running(this._greycat)
-      || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
-        return true;
+    if (this._greycat &&
+      (taskStatus === runtime.TaskStatus.running(this._greycat) ||
+        taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
+      return true;
     }
     return false;
   }
 
   private async _taskCancelTaskButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
-    if (!this._greycat)
-      return;
-    if (!this._taskIsBeingExecuted(taskStatus)) {
-      console.error('Cannot cancel task. It is not being executed.');
+    if (!this._greycat) {
       return;
     }
-    await runtime.Task.cancel(this._greycat, task.task_id);
-    this.render();
+    try {
+      if (!this._taskIsBeingExecuted(taskStatus)) {
+        throw new Error('Cannot cancel task. It is not being executed.');
+      }
+      await runtime.Task.cancel(this._greycat, task.task_id);
+      this.render();
+    } catch (error) {
+      this._handleError(error as Error);
+    }
+  }
+
+  private _handleError(error: Error) {
+    // TODO Replace this with User friendly functionality for error notification
+    console.error('An error occured: ', error);
   }
 }
 

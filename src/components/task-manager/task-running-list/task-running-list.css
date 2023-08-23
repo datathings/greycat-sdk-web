@@ -1,0 +1,22 @@
+gui-task-running-list .component {
+  border: 1px solid #ccc;
+  padding: 10px;
+  overflow: auto;
+}
+
+gui-task-running-list .table-style {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+gui-task-running-list .cancel-task-button {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+gui-task-running-list .cancel-task-button:hover {
+  background-color: #d32f2f;
+}

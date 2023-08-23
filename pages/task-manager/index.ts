@@ -29,7 +29,7 @@ taskRunningListComponent.greycat = greycat;
 const task = await greycat.call<runtime.Task>('project::task_with_params', ['Beket', 24]);
 const info = await runtime.Task.info(greycat, task.user_id, task.task_id);
 
-//const task_long = await greycat.call('project::task_long_running') as runtime.Task;
+const task_long = await greycat.call('project::task_long_running') as runtime.Task;
 
 taskComponent.task = task;
 taskInfoComponent.taskInfo = info;
