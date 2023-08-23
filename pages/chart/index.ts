@@ -122,5 +122,5 @@ try {
   });
 
 } catch (err) {
-  document.documentElement.textContent = `Is GreyCat started?`;
+  document.body.textContent = `Is GreyCat started?`;
 }

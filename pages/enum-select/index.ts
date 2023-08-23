@@ -14,5 +14,5 @@ try {
     window.alert(`key=${ev.detail?.key}, value=${ev.detail?.value?.toString()}`);
   });
 } catch {
-  document.documentElement.textContent = `Is GreyCat started?`;
+  document.body.textContent = `Is GreyCat started?`;
 }

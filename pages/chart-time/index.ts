@@ -88,5 +88,5 @@ try {
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
   });
 } catch (err) {
-  document.documentElement.textContent = `Is GreyCat started?`;
+  document.body.textContent = `Is GreyCat started?`;
 }
