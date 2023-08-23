@@ -1,3 +1,5 @@
+import { core } from '@greycat/sdk';
+
 export type Color = string;
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
 export type ScaleType = 'linear' | 'log' | 'time';
@@ -23,8 +25,8 @@ export type TableLike = {
 
 export type Axis = {
   title: string;
-  min: number | Date;
-  max: number | Date;
+  min: number | Date | core.time | core.Date;
+  max: number | Date | core.time | core.Date;
   scale: ScaleType;
   /**
    * Formats the ticks on the axis

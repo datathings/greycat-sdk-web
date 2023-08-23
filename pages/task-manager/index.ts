@@ -1,7 +1,7 @@
 import { GreyCat, runtime } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../../src';
+import '../../src';
 
 const greycat = await GreyCat.init({ url: new URL('http://localhost:8080') });
 

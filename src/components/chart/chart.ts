@@ -5,6 +5,7 @@ import { getColors } from '../../utils';
 import * as draw from './ctx';
 import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
 import { Scale, dateFormat, vMap } from './internals';
+import { core } from '@greycat/sdk';
 
 type Cursor = {
   x: number;
@@ -32,8 +33,8 @@ export class GuiChart extends HTMLElement {
 
   private _tooltip = document.createElement('div');
 
-  private _userMin: number | Date | undefined;
-  private _userMax: number | Date | undefined;
+  private _userMin: number | Date | core.time | core.Date | undefined;
+  private _userMax: number | Date | core.time | core.Date | undefined;
 
   constructor() {
     super();
@@ -77,32 +78,7 @@ export class GuiChart extends HTMLElement {
       }, 250),
     );
 
-    let touchstart = -1;
-    let prevTap = -1;
-    this.addEventListener('touchstart', () => {
-      touchstart = Date.now();
-    });
-    this.addEventListener('touchend', () => {
-      const now = Date.now();
-      if (now - touchstart < 500) {
-        // tap
-        if (now - prevTap < 500) {
-          // dbl tap
-          this.dispatchEvent(new Event('dbltap', { bubbles: false }));
-        } else {
-          this.dispatchEvent(new Event('tap', { bubbles: false }));
-        }
-        prevTap = now;
-      }
-      touchstart = -1;
-    });
-
-    this.addEventListener('tap', () => {
-      console.log('tap');
-    });
-    this.addEventListener('dbltap', () => {
-      console.log('dbltap');
-    });
+    // TODO touchstart, touchend
 
     // mouse events
     this.addEventListener('mousedown', (event) => {
@@ -769,7 +745,7 @@ export class GuiChart extends HTMLElement {
     for (const serie of this._config.series) {
       if (serie.xCol !== undefined) {
         for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
-          const value = this._config.table.cols[serie.xCol][row];
+          const value = vMap(this._config.table.cols[serie.xCol][row]);
           if (xMin == null) {
             xMin = value;
           } else if (value <= xMin) {
@@ -806,7 +782,7 @@ export class GuiChart extends HTMLElement {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
             for (let row = 0; row < this._config.table.cols[serie.yCol].length; row++) {
-              const value = this._config.table.cols[serie.yCol][row];
+              const value = vMap(this._config.table.cols[serie.yCol][row]);
               if (min == null) {
                 min = value;
               } else if (value <= min) {
@@ -819,7 +795,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = this._config.table.cols[serie.yCol2][row];
+                const value = vMap(this._config.table.cols[serie.yCol2][row]);
                 if (min == null) {
                   min = value;
                 } else if (value <= min) {

@@ -1,5 +1,6 @@
 import { core } from '@greycat/sdk';
 import { TableLike } from './components';
+import { vMap } from './components/chart/internals';
 
 export type Disposable = () => void;
 
@@ -106,7 +107,7 @@ export function closest(
   let res = 0;
   let distance: number | null = null;
   for (let i = 0; i < table.cols[0].length; i++) {
-    const x = col === undefined ? i : table.cols[col][i];
+    const x = col === undefined ? i : vMap(table.cols[col][i]);
     if (x === v) {
       return { xValue: x, rowIdx: i };
     }
