@@ -32,23 +32,48 @@ export class GuiTaskHistoryList extends HTMLElement {
     const pageSelector = document.createElement('div');
     pageSelector.classList.add('page-selector');
 
-    const pageInput = document.createElement('input');
-    pageInput.type = 'number';
-    pageInput.min = '1';
-    pageInput.value = this._currentPage.toString();
+    const jumpPageContainer = document.createElement('div');
+    jumpPageContainer.classList.add('input-container');
+
+    const jumpPageInput = document.createElement('input');
+    jumpPageInput.type = 'number';
+    jumpPageInput.min = '1';
+    jumpPageInput.value = this._currentPage.toString();
+    jumpPageInput.classList.add('page-input');
 
     const jumpButton = document.createElement('button');
-    jumpButton.textContent = 'Jump';
+    jumpButton.textContent = 'Jump to page';
     jumpButton.classList.add('jump-button');
-    jumpButton.addEventListener('click', () => this._jumpToPage(pageInput.value));
+    jumpButton.addEventListener('click', () => this._jumpToPage(jumpPageInput.value));
 
-    pageSelector.appendChild(pageInput);
-    pageSelector.appendChild(jumpButton);
+    const tasksPerPageContainer = document.createElement('div');
+    tasksPerPageContainer.classList.add('tasks-per-page-container');
+
+    const tasksPerPageLabel = document.createElement('label');
+    tasksPerPageLabel.textContent = 'Tasks Per Page';
+    tasksPerPageLabel.classList.add('tasks-per-page-label');
+
+    const tasksPerPageInput = document.createElement('input');
+    tasksPerPageInput.type = 'number';
+    tasksPerPageInput.min = '1';
+    tasksPerPageInput.max = '1000';
+    tasksPerPageInput.value = this._tasksPerPage.toString();
+    tasksPerPageInput.addEventListener('input', (event) => this._handleTasksPerPageChange(event));
+    tasksPerPageInput.classList.add('tasks-per-page-input');
+
+    tasksPerPageContainer.appendChild(tasksPerPageInput);
+    tasksPerPageContainer.appendChild(tasksPerPageLabel);
+
+    jumpPageContainer.appendChild(jumpPageInput);
+    jumpPageContainer.appendChild(jumpButton);
+
+    pageSelector.appendChild(jumpPageContainer);
+    pageSelector.appendChild(tasksPerPageContainer);
 
     componentDiv.appendChild(this._table);
     componentDiv.appendChild(this._paginationControls);
     componentDiv.appendChild(pageSelector);
-
+    
     this.appendChild(componentDiv);
   }
 
@@ -62,6 +87,21 @@ export class GuiTaskHistoryList extends HTMLElement {
       return;
     }
     this._timeZone = t;
+  }
+
+  private _handleTasksPerPageChange(event: Event) {
+    try {
+      const tasksPerPageInput = event.target as HTMLInputElement;
+      const newTasksPerPage = parseInt(tasksPerPageInput.value);
+      if (!isNaN(newTasksPerPage) && newTasksPerPage >= 1) {
+        this._tasksPerPage = newTasksPerPage;
+        this.render();
+      } else {
+        throw new Error('Couldn\'t parse the number of tasks per page');
+      }
+    } catch(error) {
+      this._handleError(error as Error);
+    }
   }
 
   private async render() {

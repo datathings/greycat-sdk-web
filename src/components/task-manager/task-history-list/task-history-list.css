@@ -37,3 +37,16 @@ gui-task-history-list .pagination-controls {
   align-items: center;
   margin-bottom: 10px;
 }
+
+gui-task-history-list .tasks-per-page-container {
+  display: flex;
+  align-items: center;
+}
+
+gui-task-history-list .tasks-per-page-input {
+  margin-right: 5px;
+}
+
+gui-task-history-list .tasks-per-page-label {
+  margin-right: 5px;
+}
