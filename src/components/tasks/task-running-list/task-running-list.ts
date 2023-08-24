@@ -117,7 +117,7 @@ export class GuiTaskRunningList extends HTMLElement {
       if (!this._taskIsBeingExecuted(taskStatus)) {
         throw new Error('Cannot cancel task. It is not being executed.');
       }
-      await runtime.Task.cancel(this._greycat, task.task_id);
+      await runtime.Task.cancel(task.task_id, this._greycat);
       this.render();
     } catch (error) {
       this._handleError(error as Error);

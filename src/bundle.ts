@@ -24,14 +24,16 @@ import './components/tasks/task-running-list/task-running-list.css';
 
 import * as ui from './index';
 
+// we force cast to GreyCatGlobal even though 'default' is not set
+// because we rely on app's to actually define the instance
 window.greycat = {
   ui,
   sdk,
   utils: sdk.utils,
-};
+} as GreyCatGlobal;
 
 declare global {
-  interface GreyCat {
+  interface GreyCatGlobal {
     /**
      * `@greycat/ui` package
      */
@@ -44,9 +46,13 @@ declare global {
      * Convenience re-export from `@greycat/sdk/utils`
      */
     utils: typeof sdk.utils,
+    /**
+     * Default GreyCat instance
+     */
+    default: sdk.GreyCat;
   }
 
   interface Window {
-    greycat: GreyCat;
+    greycat: GreyCatGlobal;
   }
 }

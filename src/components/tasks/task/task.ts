@@ -120,7 +120,7 @@ export class GuiTask extends HTMLElement {
       return null;
     }
     try {
-      const updatedTaskInfo = await runtime.Task.info(this._greycat, this._task.user_id, this._task.task_id);
+      const updatedTaskInfo = await runtime.Task.info(this._task.user_id, this._task.task_id, this._greycat);
       if (updatedTaskInfo) {
         return updatedTaskInfo.status;
       }
@@ -167,7 +167,7 @@ export class GuiTask extends HTMLElement {
       if (!this._taskIsBeingExecuted(taskStatus)) {
         throw new Error(`Cannot re-run the task since it's not being executed`);
       }
-      await runtime.Task.cancel(this._greycat, this._task.task_id);
+      await runtime.Task.cancel(this._task.task_id, this._greycat);
     } catch (error) {
       this._handleError(error);
     }

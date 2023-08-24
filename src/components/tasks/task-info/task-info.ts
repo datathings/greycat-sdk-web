@@ -125,7 +125,7 @@ export class GuiTaskInfo extends HTMLElement {
       return null;
     }
     try {
-      const updatedTaskInfo = await runtime.Task.info(this._greycat, this._taskInfo.user_id, this._taskInfo.task_id);
+      const updatedTaskInfo = await runtime.Task.info(this._taskInfo.user_id, this._taskInfo.task_id, this._greycat);
       if (updatedTaskInfo) {
         return updatedTaskInfo.status;
       }
@@ -156,7 +156,7 @@ export class GuiTaskInfo extends HTMLElement {
       }
       this._params = await parseTaskParams(this._greycat, this._taskInfo) as Value[];
       const newTask = await this._greycat.call<runtime.Task>(`${this._taskInfo.mod}::${this._taskInfo.fun}`, this._params);
-      const newTaskInfo = await runtime.Task.info(this._greycat, newTask.user_id, newTask.task_id);
+      const newTaskInfo = await runtime.Task.info(newTask.user_id, newTask.task_id, this._greycat);
       if (newTaskInfo) {
         this._updateTaskInfo(newTaskInfo);
       }
@@ -174,9 +174,9 @@ export class GuiTaskInfo extends HTMLElement {
       if (!this._taskIsBeingExecuted(taskStatus)) {
         throw new Error('Cannot re-run the task since it\'s not being executed');
       }
-      const isCancelled = await runtime.Task.cancel(this._greycat, this._taskInfo.task_id);
+      const isCancelled = await runtime.Task.cancel(this._taskInfo.task_id, this._greycat);
       if (isCancelled) {
-        const cancelledTaskInfo = await runtime.Task.info(this._greycat, this._taskInfo.user_id, this._taskInfo.task_id);
+        const cancelledTaskInfo = await runtime.Task.info(this._taskInfo.user_id, this._taskInfo.task_id, this._greycat);
         if (cancelledTaskInfo) {
           this._updateTaskInfo(cancelledTaskInfo);
         }

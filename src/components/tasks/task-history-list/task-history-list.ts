@@ -116,7 +116,7 @@ export class GuiTaskHistoryList extends HTMLElement {
 
     try {
       if (startIndex >= 0)
-        this._tasks = await runtime.Task.history(this._greycat, startIndex, this._tasksPerPage);
+        this._tasks = await runtime.Task.history(startIndex, this._tasksPerPage, this._greycat);
       await this._updateTotalPagesNumber();
     } catch (error) {
       this._handleError(error as Error);
@@ -167,7 +167,7 @@ export class GuiTaskHistoryList extends HTMLElement {
       return;
     }
     try {
-      const lastTask = await runtime.Task.history(this._greycat, 0, 1);
+      const lastTask = await runtime.Task.history(0, 1, this._greycat);
       const lastTaskId = lastTask && lastTask[0] ? (lastTask[0] as runtime.Task).task_id : 0;
       this._totalPages = Math.ceil((lastTaskId as number) / this._tasksPerPage);
     } catch (error) {
