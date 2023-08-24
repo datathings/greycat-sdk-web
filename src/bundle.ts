@@ -25,7 +25,7 @@ import './components/tasks/task-running-list/task-running-list.css';
 import * as ui from './index';
 
 // we force cast to GreyCatGlobal even though 'default' is not set
-// because we rely on app's to actually define the instance
+// because we rely on apps to actually define the instance
 window.greycat = {
   ui,
   sdk,
