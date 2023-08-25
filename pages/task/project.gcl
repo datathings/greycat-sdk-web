@@ -17,3 +17,13 @@ task task_with_params(name: String, age: int) {
 task task_long_running() {
   Runtime::sleep(10_s);
 }
+
+@expose
+task mainTask() {
+  Task::spawn(project::subTask, [0]);
+  Task::spawn(project::subTask, [1]);
+}
+
+task subTask(id: int) {
+  return id;
+}

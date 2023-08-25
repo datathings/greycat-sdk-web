@@ -3,7 +3,7 @@ import { GreyCat, runtime } from '@greycat/sdk';
 // @greycat/ui
 import '../../src/bundle';
 
-const greycat = await GreyCat.init({ url: new URL('http://localhost:8080') });
+const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -29,7 +29,7 @@ const task = await greycat.call<runtime.Task>('project::task_with_params', ['Bek
 console.log({ task });
 taskComponent.task = task;
 
-const info = await runtime.Task.info(greycat, task.user_id, task.task_id);
+const info = await runtime.Task.info(task.user_id, task.task_id);
 if (info !== null) {
   taskInfoComponent.taskInfo = info;
 }

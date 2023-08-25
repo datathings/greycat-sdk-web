@@ -2,10 +2,13 @@ import { readdirSync, statSync } from 'fs';
 import { extname, relative, resolve } from 'path';
 import { defineConfig } from 'vite';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   base: '',
   appType: 'mpa',
   root: resolve(__dirname, 'pages'),
+  define: {
+    'process.env.NODE_ENV': JSON.stringify(mode),
+  },
   build: {
     outDir: resolve(__dirname, 'dist', 'pages'),
     emptyOutDir: true,
@@ -39,4 +42,4 @@ export default defineConfig({
       })(),
     },
   },
-});
+}));

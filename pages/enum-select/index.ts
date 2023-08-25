@@ -4,7 +4,7 @@ import { GreyCat } from '@greycat/sdk';
 import '../../src/bundle';
 
 try {
-  const greycat = await GreyCat.init({ url: new URL('http://localhost:8080') });
+  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
   const el = document.querySelector('gui-enum-select')!;
   el.greycat = greycat;

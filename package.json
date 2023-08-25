@@ -15,7 +15,7 @@
     "build": "pnpm build:esm && pnpm build:bundle && cp -R fonts dist/",
     "build:esm": "tsc",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
-    "build:app": "vite build",
+    "build:pages": "vite build",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview",
@@ -24,7 +24,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.36-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.41-dev.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },

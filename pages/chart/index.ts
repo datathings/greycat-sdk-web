@@ -6,7 +6,7 @@ import '../../src';
 import type { GuiChart } from '../../src';
 
 try {
-  const greycat = await GreyCat.init({ url: new URL('http://localhost:8080') });
+  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
   const nbRows = document.querySelector('#nb-rows') as HTMLInputElement;
   const randomizeBtn = document.querySelector('#randomize') as HTMLButtonElement;
