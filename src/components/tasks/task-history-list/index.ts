@@ -1,1 +1,1 @@
-export * from './task-history-list';
+export * from './task-history-list.js';

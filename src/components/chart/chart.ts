@@ -1,10 +1,10 @@
 import * as d3 from 'd3';
 
-import { closest, debounce, throttle } from '../../internals';
-import { getColors } from '../../utils';
-import * as draw from './ctx';
-import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types';
-import { Scale, dateFormat, vMap } from './internals';
+import { closest, debounce, throttle } from '../../internals.js';
+import { getColors } from '../../utils.js';
+import * as draw from './ctx.js';
+import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types.js';
+import { Scale, dateFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 
 type Cursor = {

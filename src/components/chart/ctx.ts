@@ -1,5 +1,5 @@
-import { Scale, vMap } from './internals';
-import { Color, Serie, SerieOptions, TableLike } from './types';
+import { Scale, vMap } from './internals.js';
+import { Color, Serie, SerieOptions, TableLike } from './types.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 

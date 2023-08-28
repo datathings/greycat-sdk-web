@@ -1,6 +1,6 @@
-import { Disposable } from '../internals';
-import { Context } from './context';
-import { SimpleTooltip } from './tooltip';
+import { Disposable } from '../internals.js';
+import { Context } from './context.js';
+import { SimpleTooltip } from './tooltip.js';
 
 export interface CanvasHandlers {
   /** Called when a `mouseenter` event is triggered on the `<canvas />` element */

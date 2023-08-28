@@ -1,6 +1,6 @@
 import { core } from '@greycat/sdk';
 import * as ml from 'maplibre-gl';
-import { GuiValueProps } from '../value';
+import { GuiValueProps } from '../value/index.js';
 
 // re-export 'ml' for @greycat/gui users
 export { default as ml } from 'maplibre-gl';

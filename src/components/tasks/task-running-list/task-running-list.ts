@@ -1,5 +1,5 @@
 import { GreyCat, runtime, core } from '@greycat/sdk';
-import { TaskStatusEnum, timeToDate } from '../utils';
+import { TaskStatusEnum, timeToDate } from '../utils.js';
 
 export class GuiTaskRunningList extends HTMLElement {
   private _greycat: GreyCat | null = null;

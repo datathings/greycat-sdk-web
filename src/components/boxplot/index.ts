@@ -1,1 +1,1 @@
-export * from './boxplot';
+export * from './boxplot.js';

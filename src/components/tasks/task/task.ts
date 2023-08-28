@@ -1,5 +1,5 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
-import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils';
+import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils.js';
 
 type Property = { name: string; description: string };
 

@@ -1,8 +1,8 @@
 import { core, utils, std_n } from '@greycat/sdk';
-import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
-import '../value'; // makes sure we already have GuiValue defined
-import type { GuiValue, GuiValueProps } from '../value';
-import { GuiRenderEvent } from '../common';
+import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
+import '../value/index.js'; // makes sure we already have GuiValue defined
+import type { GuiValue, GuiValueProps } from '../value/index.js';
+import { GuiRenderEvent } from '../common.js';
 
 type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
   Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;

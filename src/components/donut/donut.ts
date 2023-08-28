@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { getCSSVar, getColors } from '../../utils';
-import { debounce } from '../../internals';
+import { getCSSVar, getColors } from '../../utils.js';
+import { debounce } from '../../internals.js';
 
 export interface DonutEntry {
   key: string;

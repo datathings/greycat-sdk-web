@@ -1,6 +1,6 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
 import * as sdk from '@greycat/sdk';
-import { timeToDate, parseTaskParams } from '../utils';
+import { timeToDate, parseTaskParams } from '../utils.js';
 
 export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat | null;

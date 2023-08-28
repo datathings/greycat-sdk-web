@@ -1,4 +1,4 @@
-export * from './model';
-export * from './canvas';
+export * from './model.js';
+export * from './canvas.js';
 // export * from './scales';
-export * from './tooltip';
+export * from './tooltip.js';

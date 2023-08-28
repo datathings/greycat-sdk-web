@@ -29,7 +29,7 @@ const task = await greycat.call<runtime.Task>('project::task_with_params', ['Bek
 console.log({ task });
 taskComponent.task = task;
 
-const info = await runtime.Task.info(task.user_id, task.task_id);
+const info = await runtime.Task.info(task.user_id, 104);
 if (info !== null) {
   taskInfoComponent.taskInfo = info;
 }

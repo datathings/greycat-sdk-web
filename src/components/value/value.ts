@@ -1,6 +1,6 @@
 import { utils } from '@greycat/sdk';
-import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals';
-import { Disposable } from '../../internals';
+import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
+import { Disposable } from '../../internals.js';
 
 export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string) => void;
 

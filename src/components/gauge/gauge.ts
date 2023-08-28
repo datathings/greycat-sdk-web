@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
-import { Disposable } from '../../internals';
-import { getCSSVar } from '../../utils';
+import { Disposable } from '../../internals.js';
+import { getCSSVar } from '../../utils.js';
 
 /**
  * Displays a given value into a gauge

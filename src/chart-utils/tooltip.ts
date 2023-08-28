@@ -1,5 +1,5 @@
-import { GuiValue, GuiValueProps } from '../components';
-import { createElement } from '../internals';
+import { GuiValue, GuiValueProps } from '../components/value/index.js';
+import { createElement } from '../internals.js';
 
 export const tooltipClasses = {
   root: 'gui-tooltip',

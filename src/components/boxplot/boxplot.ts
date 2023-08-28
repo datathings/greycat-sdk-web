@@ -1,8 +1,7 @@
 import * as d3 from 'd3';
 import { util } from '@greycat/sdk';
-import { processCssVars } from '../../utils';
-import { BoxPlotCanvas, BoxPlotOptions, Canvas, SimpleTooltip } from '../../chart-utils';
-import { getCSSVars } from '../../utils';
+import { getCSSVars, processCssVars } from '../../utils.js';
+import { BoxPlotCanvas, BoxPlotOptions, Canvas, SimpleTooltip } from '../../chart-utils/index.js';
 
 const MARGINS = { top: 20, right: 5, bottom: 60, left: 70 };
 const DEFAULT_AXIS_LABEL = ['x-Axis', 'y-Axis', 'z-Axis'];

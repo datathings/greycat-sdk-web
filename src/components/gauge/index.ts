@@ -1,1 +1,1 @@
-export * from './gauge';
+export * from './gauge.js';

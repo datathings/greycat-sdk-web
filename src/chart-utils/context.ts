@@ -12,7 +12,7 @@ import {
   BoxPlotOptions,
   LineAreaOptions,
   Point,
-} from './model';
+} from './model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 

@@ -1,6 +1,6 @@
 import { core } from '@greycat/sdk';
-import { TableLike } from './components';
-import { vMap } from './components/chart/internals';
+import { TableLike } from './components/index.js';
+import { vMap } from './components/chart/internals.js';
 
 export type Disposable = () => void;
 
