@@ -2,6 +2,7 @@ import { GreyCat, runtime } from '@greycat/sdk';
 
 // @greycat/ui
 import '../../src/bundle';
+import '../../src/css/full.css';
 
 const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
