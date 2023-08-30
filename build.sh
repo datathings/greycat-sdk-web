@@ -15,8 +15,8 @@ mv greycat-ui*.tgz dist/ui/package.tgz
 # ui/greycat.ui.js
 mv dist/bundle/greycat.ui.js dist/ui/
 
-# ui/greycat.ui.css
-mv dist/bundle/greycat.ui.css dist/ui/
+# ui/*.css
+mv dist/bundle/*.css dist/ui/
 
 # ui/fonts/*
 mv dist/fonts dist/ui/
