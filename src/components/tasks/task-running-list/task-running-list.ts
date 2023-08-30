@@ -2,7 +2,7 @@ import { GreyCat, runtime, core } from '@greycat/sdk';
 import { TaskStatusEnum, timeToDate } from '../utils.js';
 
 export class GuiTaskRunningList extends HTMLElement {
-  private _greycat: GreyCat | null = null;
+  private _greycat: GreyCat = window.greycat.default;
   private _tasks: Array<runtime.Task> = [];
   private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<string> = ['Task Id', 'User Id', '"module"."fn"', 'Created', 'Status'];
@@ -21,6 +21,7 @@ export class GuiTaskRunningList extends HTMLElement {
     this._table.classList.add('table-style');
 
     this.appendChild(this._table);
+    this.render();
   }
 
   set greycat(greycat: GreyCat) {
@@ -29,18 +30,11 @@ export class GuiTaskRunningList extends HTMLElement {
   }
 
   set timeZone(t: core.TimeZone) {
-    if (!this._greycat) {
-      return;
-    }
     this._timeZone = t;
     this.render();
   }
 
   private async render() {
-    if (!this._greycat) {
-      return;
-    }
-
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
@@ -100,9 +94,8 @@ export class GuiTaskRunningList extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat &&
-      (taskStatus === runtime.TaskStatus.running(this._greycat) ||
-        taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
+    if (taskStatus === runtime.TaskStatus.running(this._greycat) ||
+        taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
       return true;
     }
     return false;
@@ -110,9 +103,6 @@ export class GuiTaskRunningList extends HTMLElement {
 
   private async _taskCancelTaskButtonHandler(task: runtime.Task) {
     const taskStatus = task.status;
-    if (!this._greycat) {
-      return;
-    }
     try {
       if (!this._taskIsBeingExecuted(taskStatus)) {
         throw new Error('Cannot cancel task. It is not being executed.');

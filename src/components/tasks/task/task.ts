@@ -4,26 +4,14 @@ import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils.js';
 type Property = { name: string; description: string };
 
 export class GuiTask extends HTMLElement {
-  private _greycat: GreyCat | null;
-  private _task: runtime.Task | null;
-  private _params: Value[];
-  private _taskNameDiv: HTMLDivElement;
-  private _taskReRunButton: HTMLButtonElement;
-  private _taskCancelButton: HTMLButtonElement;
-  private _taskDetailsDiv: HTMLDivElement;
-  private _timeZone: core.TimeZone | null;
-
-  constructor() {
-    super();
-    this._greycat = null;
-    this._task = null;
-    this._params = [];
-    this._taskNameDiv = document.createElement('div');
-    this._taskReRunButton = document.createElement('button');
-    this._taskCancelButton = document.createElement('button');
-    this._taskDetailsDiv = document.createElement('div');
-    this._timeZone = null;
-  }
+  private _greycat: GreyCat = window.greycat.default;
+  private _task: runtime.Task | null = null;
+  private _params: Value[] = [];
+  private _taskNameDiv: HTMLDivElement = document.createElement('div');
+  private _taskReRunButton: HTMLButtonElement = document.createElement('button');
+  private _taskCancelButton: HTMLButtonElement = document.createElement('button');
+  private _taskDetailsDiv: HTMLDivElement = document.createElement('div');
+  private _timeZone: core.TimeZone | null = null;
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
@@ -72,9 +60,6 @@ export class GuiTask extends HTMLElement {
   }
 
   set timeZone(t: core.TimeZone) {
-    if (!this._greycat) {
-      return;
-    }
     this._timeZone = t;
     if (this._task) {
       this._updateTask(this._task);
@@ -82,9 +67,6 @@ export class GuiTask extends HTMLElement {
   }
 
   private _updateTask(t: runtime.Task) {
-    if (!this._greycat) {
-      return;
-    }
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
@@ -116,7 +98,7 @@ export class GuiTask extends HTMLElement {
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
-    if (!this._task || !this._greycat) {
+    if (!this._task) {
       return null;
     }
     try {
@@ -132,9 +114,6 @@ export class GuiTask extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (!this._greycat) {
-      return false;
-    }
     return (taskStatus === runtime.TaskStatus.running(this._greycat)
       || taskStatus === runtime.TaskStatus.waiting(this._greycat));
   }
@@ -142,7 +121,7 @@ export class GuiTask extends HTMLElement {
   private async _taskReRunButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._task || !this._greycat || !taskStatus) {
+      if (!this._task || !taskStatus) {
         return;
       }
       if (this._taskIsBeingExecuted(taskStatus)) {
@@ -161,7 +140,7 @@ export class GuiTask extends HTMLElement {
   private async _taskCancelButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._task || !this._greycat || !taskStatus) {
+      if (!this._task || !taskStatus) {
         return;
       }
       if (!this._taskIsBeingExecuted(taskStatus)) {
