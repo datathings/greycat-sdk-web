@@ -1,7 +1,7 @@
 import { GreyCat } from '@greycat/sdk';
 
 export class GuiTaskCreate extends HTMLElement {
-  private _greycat: GreyCat | null = null;
+  private _greycat: GreyCat = window.greycat.default;
   private _taskModuleAndFunctionInput = document.createElement('input');
   private _paramsJsonInput = document.createElement('textarea');
   private _createTaskButton = document.createElement('button');
@@ -37,9 +37,6 @@ export class GuiTaskCreate extends HTMLElement {
   }
 
   private _handleCreateTaskButtonClick() {
-    if (!this._greycat) {
-      return
-    }
     const moduleName = this._taskModuleAndFunctionInput.value;
     const params = this._paramsJsonInput.value;
     const url = `${this._greycat.api}/${moduleName}`;

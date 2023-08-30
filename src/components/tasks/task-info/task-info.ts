@@ -2,26 +2,14 @@ import { GreyCat, runtime, Value, core } from '@greycat/sdk';
 import { timeToDate, parseTaskParams } from '../utils.js';
 
 export class GuiTaskInfo extends HTMLElement {
-  private _greycat: GreyCat | null;
-  private _taskInfo: runtime.TaskInfo | null;
-  private _params: Value[];
-  private _taskNameDiv: HTMLDivElement;
-  private _taskReRunButton: HTMLButtonElement;
-  private _taskCancelButton: HTMLButtonElement;
-  private _taskDetailsDiv: HTMLDivElement;
-  private _timeZone: core.TimeZone | null;
-
-  constructor() {
-    super();
-    this._greycat = null;
-    this._taskInfo = null;
-    this._params = [];
-    this._taskNameDiv = document.createElement('div');
-    this._taskReRunButton = document.createElement('button');
-    this._taskCancelButton = document.createElement('button');
-    this._taskDetailsDiv = document.createElement('div');
-    this._timeZone = null;
-  }
+  private _greycat: GreyCat = window.greycat.default;
+  private _taskInfo: runtime.TaskInfo | null = null;
+  private _params: Value[] = [];
+  private _taskNameDiv: HTMLDivElement = document.createElement('div');
+  private _taskReRunButton: HTMLButtonElement = document.createElement('button');
+  private _taskCancelButton: HTMLButtonElement = document.createElement('button');
+  private _taskDetailsDiv: HTMLDivElement = document.createElement('div');
+  private _timeZone: core.TimeZone | null = null;
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
@@ -71,9 +59,6 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   set timeZone(t: core.TimeZone) {
-    if (!this._greycat) {
-      return;
-    }
     this._timeZone = t;
     if (this._taskInfo) {
       this._updateTaskInfo(this._taskInfo);
@@ -81,9 +66,6 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private _updateTaskInfo(t: runtime.TaskInfo) {
-    if (!this._greycat) {
-      return;
-    }
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
@@ -102,8 +84,8 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
       { name: 'Start', description: t.start ? timeToDate(t.start, this._timeZone) : undefinedProperty },
       { name: 'Progress', description: t.progress ? t.progress.toString() : undefinedProperty },
-      { name: 'Remaining', description: t.duration ? `${t.duration}` : undefinedProperty },
-      { name: 'Duration', description: t.duration ? `${t.duration}` : undefinedProperty },
+      { name: 'Remaining', description: t.duration ? t.duration.toString() : undefinedProperty },
+      { name: 'Duration', description: t.duration ? t.duration.toString() : undefinedProperty },
       { name: 'Sub waiting', description: t.sub_waiting ? t.sub_waiting.toString() : "0" },
       { name: 'Sub tasks', description: t.sub_tasks_all ? t.sub_tasks_all.toString() : "0" },
       { name: 'Files', description: `${prefixURI}/` },
@@ -120,7 +102,7 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
-    if (!this._taskInfo || !this._greycat) {
+    if (!this._taskInfo) {
       return null;
     }
     try {
@@ -136,9 +118,8 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (this._greycat &&
-      (taskStatus === runtime.TaskStatus.running(this._greycat)
-        || taskStatus === runtime.TaskStatus.waiting(this._greycat))) {
+    if (taskStatus === runtime.TaskStatus.running(this._greycat)
+        || taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
       return true;
     }
     return false;
@@ -147,7 +128,7 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskReRunButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !this._greycat || !taskStatus) {
+      if (!this._taskInfo || !taskStatus) {
         return;
       }
       if (this._taskIsBeingExecuted(taskStatus)) {
@@ -167,7 +148,7 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskCancelButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !this._greycat || !taskStatus) {
+      if (!this._taskInfo || !taskStatus) {
         return;
       }
       if (!this._taskIsBeingExecuted(taskStatus)) {

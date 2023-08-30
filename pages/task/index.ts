@@ -13,12 +13,6 @@ const taskCreateComponent = document.createElement('gui-task-create')!;
 const taskHistoryListComponent = document.createElement('gui-task-history-list')!;
 const taskRunningListComponent = document.createElement('gui-task-running-list')!;
 
-taskComponent.greycat = greycat;
-taskInfoComponent.greycat = greycat;
-taskCreateComponent.greycat = greycat;
-taskHistoryListComponent.greycat = greycat;
-taskRunningListComponent.greycat = greycat;
-
 app.appendChild(taskComponent);
 app.appendChild(taskInfoComponent);
 app.appendChild(taskCreateComponent);
@@ -29,7 +23,7 @@ const task = await greycat.call<runtime.Task>('project::task_with_params', ['Bek
 console.log({ task });
 taskComponent.task = task;
 
-const info = await runtime.Task.info(task.user_id, 104);
+const info = await runtime.Task.info(task.user_id, task.task_id);
 if (info !== null) {
   taskInfoComponent.taskInfo = info;
 }
