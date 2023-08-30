@@ -1,0 +1,12 @@
+@expose
+fn table() {
+  var table = Table::new(3);
+  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  for (k, month in months) {
+    table.set(k, 1, "Jan");
+    table.set(k, 2, 8);
+  }
+
+  return table;
+}

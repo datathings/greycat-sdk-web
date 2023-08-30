@@ -1,5 +1,4 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
-import * as sdk from '@greycat/sdk';
 import { timeToDate, parseTaskParams } from '../utils.js';
 
 export class GuiTaskInfo extends HTMLElement {
@@ -103,8 +102,8 @@ export class GuiTaskInfo extends HTMLElement {
       { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
       { name: 'Start', description: t.start ? timeToDate(t.start, this._timeZone) : undefinedProperty },
       { name: 'Progress', description: t.progress ? t.progress.toString() : undefinedProperty },
-      { name: 'Remaining', description: t.duration ? sdk.utils.durationToStr(t.duration) : undefinedProperty },
-      { name: 'Duration', description: t.duration ? sdk.utils.durationToStr(t.duration) : undefinedProperty },
+      { name: 'Remaining', description: t.duration ? `${t.duration}` : undefinedProperty },
+      { name: 'Duration', description: t.duration ? `${t.duration}` : undefinedProperty },
       { name: 'Sub waiting', description: t.sub_waiting ? t.sub_waiting.toString() : "0" },
       { name: 'Sub tasks', description: t.sub_tasks_all ? t.sub_tasks_all.toString() : "0" },
       { name: 'Files', description: `${prefixURI}/` },

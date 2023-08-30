@@ -5,7 +5,7 @@ import { type GuiBoxPlot } from './boxplot/index.js';
 import { type GuiDonut } from './donut/index.js';
 import { type GuiEnumSelect } from './enum-select/index.js';
 import { type GuiGauge } from './gauge/index.js';
-// import { type GuiHeatmapChart } from './heatmap-chart';
+import { type GuiHeatmap } from './heatmap/index.js';
 // import { type GuiHistogramChart } from './histogram-chart';
 // import { type GuiLineChart } from './line-chart';
 import { type GuiMap } from './map/index.js';
@@ -30,7 +30,7 @@ export * from './common.js';
 export * from './donut/index.js';
 export * from './enum-select/index.js';
 export * from './gauge/index.js';
-// export * from './heatmap-chart';
+export * from './heatmap/index.js';
 // export * from './histogram-chart';
 // export * from './line-chart';
 export * from './map/index.js';
@@ -57,7 +57,7 @@ export type GuiElement =
   // | GuiDoughnutChart
   | GuiEnumSelect
   | GuiGauge
-  // | GuiHeatmapChart
+  | GuiHeatmap
   // | GuiHistogramChart
   | GuiMap
   // | GuiNodeTimeInfo

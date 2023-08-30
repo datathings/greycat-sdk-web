@@ -2,8 +2,7 @@ import './index.css';
 import { GreyCat, core } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../src';
-import type { GuiChart } from '../../src';
+import '../../src/bundle';
 
 try {
   const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
@@ -16,7 +15,7 @@ try {
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
   const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
 
-  const chart = document.querySelector('gui-chart') as GuiChart;
+  const chart = document.querySelector('gui-chart')!;
   let table = await greycat.call<core.Table>('project::table');
 
   console.log(table);

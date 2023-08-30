@@ -12,9 +12,13 @@
   "scripts": {
     "dev": "vite",
     "clean": "rm -rf dist docs",
-    "build": "pnpm build:esm && pnpm build:bundle && cp -R fonts dist/",
+    "build": "pnpm build:esm && pnpm build:bundle && pnpm build:css && cp -R fonts dist/",
     "build:esm": "tsc",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
+    "build:css": "pnpm build:css:base && pnpm build:css:classless && pnpm build:css:full",
+    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/base.css -o dist/bundle/greycat.ui.base.css",
+    "build:css:classless": "lightningcss --minify --bundle --targets '>=0.25%' src/css/classless.css -o dist/bundle/greycat.ui.classless.css",
+    "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/full.css -o dist/bundle/greycat.ui.css",
     "build:pages": "vite build",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
@@ -24,7 +28,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.45-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.54-dev.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
@@ -34,6 +38,7 @@
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.18.17",
     "eslint": "8.46.0",
+    "lightningcss-cli": "1.21.7",
     "prettier": "3.0.0",
     "typescript": "5.1.6",
     "vite": "4.4.8",

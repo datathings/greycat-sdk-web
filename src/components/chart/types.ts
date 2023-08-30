@@ -1,4 +1,5 @@
-import { core } from '@greycat/sdk';
+import type { core } from '@greycat/sdk';
+import type { TableLike } from '../common.js';
 
 export type Color = string;
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
@@ -15,12 +16,6 @@ export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any };
 export type Tooltip = {
   position: TooltipPosition;
   render: (data: SerieData[]) => HTMLElement;
-};
-
-export type TableLike = {
-  // table data are always unknown
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cols: any[][];
 };
 
 export type Axis = {
