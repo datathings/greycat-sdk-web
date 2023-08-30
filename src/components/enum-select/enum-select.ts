@@ -15,7 +15,7 @@ export interface GuiEnumSelectProps {
  * Displays any GreyCat enumeration within a DOM `<select />` using the field name for the `<option />` text by default.
  */
 export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
-  private _greycat: GreyCat | null = null;
+  private _greycat: GreyCat = window.greycat.default;
   private _fqn: string | null = null;
   private _selected: GCEnum | null = null;
   private _useValue = false;
@@ -31,11 +31,11 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
       return;
     }
 
-    if (!this._greycat || !this._fqn) {
+    if (!this._fqn) {
       this._selected = null;
       this.dispatchEvent(new GuiEnumSelectEvent(null));
     } else {
-      const type = this._greycat?.abi.type_by_fqn.get(this._fqn);
+      const type = this._greycat.abi.type_by_fqn.get(this._fqn);
       if (!type || !type.enum_values) {
         this._selected = null;
         this.dispatchEvent(new GuiEnumSelectEvent(null));
@@ -48,12 +48,12 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
 
   };
 
-  get greycat(): GreyCat | null {
+  get greycat(): GreyCat {
     return this._greycat;
   }
 
   set greycat(g: GreyCat | null) {
-    this._greycat = g;
+    this._greycat = g ?? this._greycat;
   }
 
   /**
@@ -110,7 +110,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
     useValue = this._useValue,
     renderOption = this._renderOption,
   }: Partial<GuiEnumSelectProps>) {
-    this._greycat = greycat;
+    this._greycat = greycat ?? this._greycat;
     this._fqn = fqn;
     this._selected = selected;
     this._useValue = useValue;
@@ -130,7 +130,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   render() {
-    if (!this._select || !this._greycat || !this._fqn) {
+    if (!this._select || !this._fqn) {
       return;
     }
     this._select.replaceChildren(); // TODO improve this by re-using previous options

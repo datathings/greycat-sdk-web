@@ -2,7 +2,7 @@ import { GreyCat, runtime, core } from '@greycat/sdk';
 import { TaskStatusEnum, timeToDate } from '../utils.js';
 
 export class GuiTaskHistoryList extends HTMLElement {
-  private _greycat: GreyCat | null = null;
+  private _greycat: GreyCat = window.greycat.default;
   private _tasks: Array<runtime.Task> = [];
   private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<string> = ['Task Id', 'User Id', '"module"."fn"', 'Created', 'Status'];
@@ -74,6 +74,7 @@ export class GuiTaskHistoryList extends HTMLElement {
     fragment.appendChild(pageSelector);
 
     this.appendChild(fragment);
+    this.render();
   }
 
   set greycat(greycat: GreyCat) {
@@ -82,9 +83,6 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 
   set timeZone(t: core.TimeZone) {
-    if (!this._greycat) {
-      return;
-    }
     this._timeZone = t;
   }
 
@@ -104,10 +102,6 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 
   private async render() {
-    if (!this._greycat) {
-      return;
-    }
-
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
@@ -163,9 +157,6 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 
   private async _updateTotalPagesNumber() {
-    if (!this._greycat) {
-      return;
-    }
     try {
       const lastTask = await runtime.Task.history(0, 1, this._greycat);
       const lastTaskId = lastTask && lastTask[0] ? (lastTask[0] as runtime.Task).task_id : 0;
