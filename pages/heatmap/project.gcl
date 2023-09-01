@@ -1,11 +1,21 @@
 @expose
 fn table() {
-  var table = Table::new(3);
-  var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var table = Table::new(12);
 
-  for (k, month in months) {
-    table.set(k, 1, "Jan");
-    table.set(k, 2, 8);
+  //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var paris   = [  4.9,   5.6,   8.8,  11.4,  15.1,  18.2,  20.4,  20.2,  16.9,  12.9,   8.1,   5.4];
+  var london  = [  5.2,   5.3,   7.6,   9.9,  13.3,  16.5,  18.7,  18.5,  15.7,  12.0,   8.0,   5.5];
+  var newyork = [  0.6,   2.1,   6.1,  11.9,  17.1,  22.1,  24.9,  24.3,  20.2,  14.1,   8.9,   3.3];
+  var beijing = [ -3.1,   0.3,   6.7,  14.8,  20.8,  24.9,  26.7,  25.5,  20.8,  13.7,   5.0,  -0.9];
+  var perth   = [ 24.5,  24.9,  23.1,  19.7,  16.5,  14.0,  13.0,  13.5,  14.8,  17.3,  20.3,  22.7];
+  var oslo    = [ -4.3,  -4.0,  -0.2,   4.5,  10.8,  15.2,  16.4,  15.2,  10.8,   6.3,   0.7,  -3.1];
+
+  var cities = [paris, london, newyork, beijing, perth, oslo];
+
+  for (row, city in cities) {
+    for (col, temp in city) {
+      table.set(row, col, temp);
+    }
   }
 
   return table;

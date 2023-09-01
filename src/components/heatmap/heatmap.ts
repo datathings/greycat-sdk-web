@@ -163,9 +163,11 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
 
   connectedCallback() {
     this.style.position = 'relative';
-    this.style.display = 'block';
-    this.style.width = '100%';
-    this.style.height = '100%';
+    const style = getComputedStyle(this);
+    if (style.display === 'inline') {
+      // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
+      this.style.display = 'block';
+    }
 
     this._colors = getHeatmapColors();
 

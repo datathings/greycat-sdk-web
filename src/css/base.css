@@ -8,3 +8,4 @@
 @import '../components/tasks/task-create/task-create.css';
 @import '../components/tasks/task-history-list/task-history-list.css';
 @import '../components/tasks/task-running-list/task-running-list.css';
+@import '../chart-utils/tooltip.css';

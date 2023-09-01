@@ -1,9 +1,8 @@
-import './index.css';
 import { GreyCat, core } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../src/bundle';
 import '../../src/css/full.css';
+import '../../src/bundle';
 
 try {
   const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
@@ -12,6 +11,8 @@ try {
   console.log({ table });
 
   const heatmap = document.querySelector('gui-heatmap')!;
+  heatmap.xLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  heatmap.yLabels = ["Paris", "London", "New-York", "Beijing", "Perth", "Oslo"];
   heatmap.table = table;
 
 } catch (err) {

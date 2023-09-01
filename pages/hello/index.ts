@@ -1,8 +1,8 @@
 import { GreyCat } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../src/bundle';
 import '../../src/css/full.css';
+import '../../src/bundle';
 
 const app = document.getElementById('app') as HTMLDivElement;
 
