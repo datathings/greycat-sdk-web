@@ -28,7 +28,6 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
@@ -45,6 +44,9 @@
     "vite-plugin-dts": "3.5.2",
     "vitepress": "1.0.0-beta.7",
     "vue": "3.3.4"
+  },
+  "peerDependencies": {
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz"
   },
   "publishConfig": {
     "@greycat:registry": "https://hub.datathings.com/api/v4/projects/289/packages/npm/"

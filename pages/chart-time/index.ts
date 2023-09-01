@@ -26,8 +26,6 @@ try {
     xAxis: {
       scale: 'time',
       format: '%b %d',
-      // min: table.cols[0][0] as core.time,
-      // max: table.cols[0][table.cols[0].length - 1] as core.time,
     },
     yAxes: {
       y: {
@@ -38,7 +36,7 @@ try {
     table,
     series: [
       {
-        title: 'My Title',
+        title: 'Value',
         type: 'line',
         yAxis: 'y',
         xCol: 0,
