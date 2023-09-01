@@ -46,7 +46,7 @@
     "vue": "3.3.4"
   },
   "peerDependencies": {
-    "@greycat/sdk": "^6.1.60-dev"
+    "@greycat/sdk": "6.1.60-dev"
   },
   "resolutions": {
     "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz"
