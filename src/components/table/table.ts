@@ -574,12 +574,15 @@ class GuiTableBodyRow extends HTMLElement {
 
   update(index: number, colWidths: number[], row: Value[], cellProps: CellProps): void {
     this.idx = index;
+    // this.setAttribute('data-col', `${col}`);
+    this.setAttribute('data-row', `${index}`);
     let colIdx: number;
     for (colIdx = 0; colIdx < row.length; colIdx++) {
       const cell = this._getOrCreateCell(colIdx);
       cell.rowIdx = index;
       cell.colIdx = colIdx;
       cell.data = row;
+      cell.setAttribute('data-col', `${colIdx}`);
       (cell.children[0] as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
       cell.style.width = `${colWidths[colIdx]}px`;
     }
@@ -589,13 +592,13 @@ class GuiTableBodyRow extends HTMLElement {
   }
 
   private _getOrCreateCell(index: number): GuiTableBodyCell {
-    let row = this.children[index] as GuiTableBodyCell | undefined;
-    if (!row) {
-      row = document.createElement('gui-tbody-cell');
-      row.appendChild(document.createElement('gui-value'));
-      this.appendChild(row);
+    let cell = this.children[index] as GuiTableBodyCell | undefined;
+    if (!cell) {
+      cell = document.createElement('gui-tbody-cell');
+      cell.appendChild(document.createElement('gui-value'));
+      this.appendChild(cell);
     }
-    return row;
+    return cell;
   }
 
   private _removeExceedingCells(fromIdx: number): void {
