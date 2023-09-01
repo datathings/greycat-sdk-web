@@ -237,7 +237,7 @@ export class GuiTable extends HTMLElement {
       this._thead.widths.length = 0;
     }
 
-    this._thead.update(this._table.meta, this._minColWidth, this._sortCol, this._headers);
+    this._thead.update(this._table.meta, this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= this._table.meta.length) {
@@ -313,9 +313,10 @@ class GuiTableHead extends HTMLElement {
     meta: std_n.core.NativeTableColumnMeta[],
     minColWidth: number,
     sortCol: SortCol,
+    availableWidth: number,
     headers?: string[],
   ): void {
-    const defaultColWidth = Math.max(minColWidth, this.offsetWidth / meta.length);
+    const defaultColWidth = Math.max(minColWidth, availableWidth / meta.length);
 
     for (let colIdx = 0; colIdx < meta.length; colIdx++) {
       const colWidth = (this.widths[colIdx] = this.widths[colIdx] ?? defaultColWidth);
@@ -466,17 +467,16 @@ class GuiTableHeadCell extends HTMLElement {
 class GuiTableBody extends HTMLElement {
   rowHeight = 0;
   maxVirtualRows = 0;
-
-  private _virtualScroller = document.createElement('div');
+  virtualScroller = document.createElement('div');
 
   connectedCallback() {
     this.computeRowHeight();
 
     // create the virtualScroller
-    this._virtualScroller.style.position = 'absolute';
-    this._virtualScroller.style.visibility = 'hidden';
-    this._virtualScroller.style.width = '1px';
-    this.appendChild(this._virtualScroller);
+    this.virtualScroller.style.position = 'absolute';
+    this.virtualScroller.style.visibility = 'hidden';
+    this.virtualScroller.style.width = '100%';
+    this.appendChild(this.virtualScroller);
   }
 
   computeRowHeight() {
@@ -510,7 +510,7 @@ class GuiTableBody extends HTMLElement {
     fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
 
     // remove virtual scroller while updating
-    this.removeChild(this._virtualScroller);
+    this.removeChild(this.virtualScroller);
 
     // We want to render as many rows as possible in the "view", but no more than needed
     // Therefore, we iterate from `0` to `maxVirtualRows` so that we stop when going over
@@ -534,9 +534,9 @@ class GuiTableBody extends HTMLElement {
     this._removeExceedingRows(rowIdx - 1);
 
     // update virtual scroller height to reflect the number of rows
-    this._virtualScroller.style.height = `${this.rowHeight * rows.length}px`;
+    this.virtualScroller.style.height = `${this.rowHeight * rows.length}px`;
     // and add it back to the DOM
-    this.appendChild(this._virtualScroller);
+    this.appendChild(this.virtualScroller);
   }
 
   resizeColumn(colIdx: number, width: number): void {

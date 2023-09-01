@@ -9,7 +9,6 @@ try {
   const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
   const tableEl = document.querySelector('gui-table')!;
-  tableEl.style.height = '500px';
 
   const table = await greycat.call<core.Table>('project::table');
   console.log({ table });

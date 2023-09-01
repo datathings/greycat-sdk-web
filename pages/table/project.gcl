@@ -1,9 +1,10 @@
 @expose
 fn table(): Table {
-  var nbRows = 5;
+  var nbRows = 100;
   var table = Table::new(5);
-  for (var colIdx = 0; colIdx < table.cols(); colIdx++) {
-    for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
+
+  for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
+    for (var colIdx = 0; colIdx < table.cols(); colIdx++) {
       table.set(rowIdx, colIdx, "${rowIdx}, ${colIdx}");
     }
   }
