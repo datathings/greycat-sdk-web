@@ -169,7 +169,8 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
       this.style.display = 'block';
     }
 
-    this._colors = getHeatmapColors();
+    this._colors = getHeatmapColors(this);
+    console.log({ colors: this._colors });
 
     if (this._colors.length === 0) {
       this._colors = DEFAULT_COLORS;
