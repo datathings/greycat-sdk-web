@@ -46,10 +46,10 @@
     "vue": "3.3.4"
   },
   "peerDependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz"
+    "@greycat/sdk": "^6.1.60-dev"
   },
-  "publishConfig": {
-    "@greycat:registry": "https://hub.datathings.com/api/v4/projects/289/packages/npm/"
+  "resolutions": {
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz"
   },
   "engines": {
     "node": ">=16.13.0"

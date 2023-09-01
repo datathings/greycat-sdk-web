@@ -4,6 +4,9 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  '@greycat/sdk': https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz
+
 dependencies:
   '@greycat/sdk':
     specifier: https://get.greycat.io/files/sdk/js/dev/6.1/6.1.60-dev.tgz
