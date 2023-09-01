@@ -2,6 +2,7 @@
 import { type GuiBoxPlot } from './boxplot/index.js';
 // import { type GuiBoxPlotChart } from './boxplot-chart';
 // import { type GuiDateInput } from './date-input';
+// import { type GuiDonut } from './donut-rework/index.js';
 import { type GuiDonut } from './donut/index.js';
 import { type GuiEnumSelect } from './enum-select/index.js';
 import { type GuiGauge } from './gauge/index.js';
@@ -27,7 +28,7 @@ import { type GuiTaskRunningList } from './tasks/task-running-list/index.js';
 export * from './boxplot/index.js';
 export * from './common.js';
 // export * from './date-input';
-export * from './donut/index.js';
+export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
 export * from './gauge/index.js';
 export * from './heatmap/index.js';
@@ -39,7 +40,7 @@ export * from './map/index.js';
 export * from './table/index.js';
 // export * from './timezone-select';
 export * from './value/index.js';
-// export * from './doughnut-chart';
+export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task/index.js';
 export * from './tasks/task-info/index.js';
@@ -54,7 +55,6 @@ export type GuiElement =
   | GuiChart
   // | GuiDateInput
   | GuiDonut
-  // | GuiDoughnutChart
   | GuiEnumSelect
   | GuiGauge
   | GuiHeatmap

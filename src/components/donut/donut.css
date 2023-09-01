@@ -1,12 +1,10 @@
-gui-doughnut-chart {
+gui-donut {
   position: relative;
 }
-
-gui-doughnut-chart .svg-plot {
+gui-donut .svg-plot {
   position: absolute;
 }
-
-gui-doughnut-chart .pie-info {
+gui-donut .pie-info {
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -15,16 +13,19 @@ gui-doughnut-chart .pie-info {
   color: inherit;
   border-radius: 50%;
 }
-
-gui-doughnut-chart .pie-info .no-data {
-  color: var(--gui-color-9, 'inherit');
+gui-donut .pie-info.no-data {
+  color: var(--gui-color-9, "inherit");
 }
-
-gui-doughnut-chart .pie-info .pie-info-percent {
-  color: grey;
+gui-donut .pie-info .pie-info-percent {
+  color: rgba(var(--text-0), 0.3);
 }
-
-gui-doughnut-chart .pie-container {
+gui-donut .pie-label {
+  fill: rgb(var(--text-0));
+}
+gui-donut .pie-label-line {
+  stroke: rgb(var(--text-0));
+}
+gui-donut .pie-container {
   width: 100%;
   height: 100%;
   display: flex;
