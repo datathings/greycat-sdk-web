@@ -29,7 +29,7 @@ try {
   const chart = document.querySelector('gui-chart')!;
 
   chart.config = {
-    cursor: true,
+    cursor: false,
     xAxis: {
       // min: -1,
       // max: 150,
@@ -52,6 +52,7 @@ try {
         yAxis: 'left',
         yCol: LINE_COL,
         lineTypeCol: LINE_TYPE_COL,
+        colorCol: 5,
       },
       {
         type: 'line+scatter',

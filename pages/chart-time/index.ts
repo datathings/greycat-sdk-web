@@ -15,6 +15,7 @@ try {
   const bottomRight = document.querySelector('#bottom-right') as HTMLButtonElement;
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
   const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
+  const currentValue = document.querySelector('#current-value') as HTMLDivElement;
 
   const chart = document.querySelector('gui-chart')!;
   let table = await greycat.call<core.Table>('project::table');
@@ -22,6 +23,12 @@ try {
   console.log(table);
 
   chart.config = {
+    tooltip: {
+      // Override default tooltip
+      render: (data) => {
+        currentValue.innerHTML = `${data[0].xValue}, ${data[0].yValue}`;
+      },
+    },
     cursor: true,
     xAxis: {
       scale: 'time',

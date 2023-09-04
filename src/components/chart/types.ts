@@ -15,7 +15,15 @@ export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any };
 
 export type Tooltip = {
   position: TooltipPosition;
-  render: (data: SerieData[]) => HTMLElement;
+  /**
+   * Called whenever the tooltip should update its content.
+   * 
+   * *If this is defined, the default tooltip will not display.*
+   *
+   * @param data 
+   * @returns 
+   */
+  render?: (data: SerieData[]) => void;
 };
 
 export type Axis = {
@@ -53,8 +61,8 @@ export type SerieOptions = {
   opacity: number;
   fillOpacity: number;
   /**
-   * - `'above'`: draws the area from `yCol` to the top
-   * - `'below'`: draws the area from `yCol` to the bottom
+   * - `'min'`: draws the area from `yCol` to the bottom
+   * - `'max'`: draws the area from `yCol` to the top
    * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
    */
   yCol2: SecondOrdinate;
@@ -80,10 +88,10 @@ export interface Serie extends Partial<SerieOptions> {
    * offset of the column in the table to use to read lineType values for each x
    */
   lineTypeCol?: number;
-  // /**
-  //  * offset of the column in the table to use to read the line color values for segment
-  //  */
-  // colorCol?: number;
+  /**
+   * offset of the column in the table to use to read the line color values for segment
+   */
+  colorCol?: number;
   /**
    * Optional title used to name the serie.
    */

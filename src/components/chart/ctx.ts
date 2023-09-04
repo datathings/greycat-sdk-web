@@ -40,8 +40,8 @@ export function line(
     return;
   }
 
-  const lineTypeCol = serie.lineTypeCol ?? -1;
-  // const colorCol = serie.colorCol ?? -1;
+  const typeCol = serie.lineTypeCol ?? -1;
+  const colorCol = serie.colorCol ?? -1;
 
   ctx.save();
 
@@ -59,8 +59,8 @@ export function line(
     const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
     const y = yScale(vMap(table.cols[serie.yCol][i]));
     const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
-    const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[lineTypeCol]?.[i] ?? 0];
-    // const currColor = rows[i][colorCol] ?? serie.color;
+    const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
+    const currColor = notDefined ? serie.color : table.cols[colorCol]?.[i] ?? serie.color;
 
     if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
@@ -84,20 +84,20 @@ export function line(
       ctx.lineTo(x, y);
     }
 
-    if (prevSegments !== lineDash /* || prevColor !== currColor */) {
+    if (prevSegments !== lineDash || ctx.strokeStyle !== currColor) {
       // close previous path
       ctx.stroke();
       ctx.closePath();
 
       // start new path type
+      ctx.strokeStyle = currColor;
       ctx.beginPath();
       ctx.moveTo(x, y);
       ctx.setLineDash(lineDash);
-      // ctx.strokeStyle = currColor;
     }
 
     prevSegments = lineDash;
-    // prevColor = currColor;
+    ctx.strokeStyle = currColor;
   }
 
   ctx.stroke();
@@ -139,6 +139,7 @@ export function bar(
       // meaning we no longer have to draw anything we are done
       break;
     }
+    ctx.fillStyle = serie.colorCol ? table.cols[serie.colorCol]?.[i] ?? serie.color : serie.color;
     ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
@@ -176,24 +177,17 @@ export function scatter(
       break;
     }
 
+    const color = serie.colorCol ? table.cols[serie.colorCol]?.[i] ?? serie.color : serie.color;
+
     switch (serie.markerShape) {
       case 'circle':
-        circle(ctx, x, y, serie.markerWidth, {
-          color: serie.color,
-          fill: serie.color,
-        });
+        circle(ctx, x, y, serie.markerWidth, { fill: color, color });
         break;
       case 'square':
-        rectangle(ctx, x, y, serie.markerWidth, serie.markerWidth, {
-          color: serie.color,
-          fill: serie.color,
-        });
+        rectangle(ctx, x, y, serie.markerWidth, serie.markerWidth, { fill: color, color });
         break;
       case 'triangle':
-        triangle(ctx, x, y, serie.markerWidth, serie.markerWidth, {
-          color: serie.color,
-          fill: serie.color,
-        });
+        triangle(ctx, x, y, serie.markerWidth, serie.markerWidth, { fill: color, color });
         break;
     }
   }

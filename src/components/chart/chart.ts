@@ -105,6 +105,7 @@ export class GuiChart extends HTMLElement {
         // too small selection, reset cursor
         this._resetCursor();
       }
+      // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
       this.updateUX();
     });
     this.addEventListener('mouseleave', this._resetCursor);
@@ -175,6 +176,23 @@ export class GuiChart extends HTMLElement {
     this.addEventListener('touchcancel', () => {
       this._resetCursor();
     });
+
+    // this.addEventListener('wheel', throttle((event: WheelEvent) => {
+    //   if (this._cursor.startX !== -1) {
+    //     // there is a selection happening, ignore wheel events
+    //     return;
+    //   }
+    //   const { left, right, x, width } = this._canvas.getBoundingClientRect();
+    //   const dy = event.deltaY * 10;
+    //   const minX = left;
+    //   const maxX = right;
+    //   console.log({ minX, maxX, x, width });
+    //   this._cursor.startX = Math.max(minX, minX - dy);
+    //   this._cursor.x = Math.min(maxX, maxX + dy);
+    //   this._cursor.selection = true;
+    //   console.log('wheel', [this._cursor.startX, this._cursor.x]);
+    //   this.updateUX();
+    // }, 16));
   }
 
   connectedCallback() {
@@ -443,8 +461,11 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      const data = this._config.series.map((s, i) => {
-        const serie: SerieData = {
+      const data = this._config.series.map<SerieData>((s, i) => {
+        const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
+        const { xValue, rowIdx } = closest(this._config.table, s.xCol, v);
+
+        return {
           color: this._colors[i],
           width: 1,
           markerWidth: 3,
@@ -453,14 +474,10 @@ export class GuiChart extends HTMLElement {
           opacity: 1,
           fillOpacity: 0.2,
           yCol2: 'min',
+          xValue,
+          yValue: this._config.table.cols[s.yCol][rowIdx],
           ...s,
         };
-
-        const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
-        serie.xValue = xValue;
-        serie.yValue = this._config.table.cols[serie.yCol][rowIdx];
-        return serie;
       });
       // call tooltip render if defined
       this._config.tooltip?.render?.(data);
@@ -495,13 +512,10 @@ export class GuiChart extends HTMLElement {
         // selection is done
         const selectionEvt = new GuiChartSelectionEvent(from, to);
 
-        // reset selection
-        this._resetCursor();
-
         // call update to apply zoom
         xScale.domain([from, to]);
         this._xAxisGroup
-          .transition()
+          .transition('selection')
           .duration(250)
           .call(d3.axisBottom(xScale))
           .end()
@@ -511,6 +525,12 @@ export class GuiChart extends HTMLElement {
             // XXX do we want to dispatch after the animation or not?
             this.dispatchEvent(selectionEvt);
             this.update();
+          }, () => {
+            // ignore errors
+          })
+          .then(() => {
+            // reset selection
+            this._resetCursor();
           });
       } else {
         // selection in progress

@@ -104,17 +104,17 @@ export function closest(
   v: number,
 ): { xValue: number; rowIdx: number } {
   let rowIdx = 0;
-  let res = 0;
+  let res = undefined;
   let distance: number | null = null;
   for (let i = 0; i < table.cols[0].length; i++) {
     const x = col === undefined ? i : vMap(table.cols[col][i]);
     if (x === v) {
-      return { xValue: x, rowIdx: i };
+      return { xValue: col === undefined ? i : table.cols[col][i], rowIdx: i };
     }
     const d2 = Math.abs(x - v);
     if (distance == null || distance > d2) {
       rowIdx = i;
-      res = x;
+      res = col === undefined ? i : table.cols[col][i];
       distance = d2;
     } else if (distance != null && x > v && distance < d2) {
       return { xValue: res, rowIdx };
