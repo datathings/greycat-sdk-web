@@ -172,12 +172,27 @@ export class GuiChart extends HTMLElement {
     this.addEventListener('wheel', (event) => {
       const { xRange, yRange, xScale: scale, yScales } = this._compute(); // FIXME optimize this, xRange & yRange only change on resize (should be cached)
       if (this._cursor.x < xRange[0] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
-        // left y axis zoom
+        // left y axes zoom
         for (const [name, scale] of Object.entries(yScales)) {
-          const [min, max] = scale.range();
-          const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
-          this._config.yAxes[name].min = scale.invert(min + d);
-          this._config.yAxes[name].max = scale.invert(max - d);
+          const axis = this._config.yAxes[name];
+          if (axis.position === undefined || axis.position === 'left') {
+            const [min, max] = scale.range();
+            const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
+            axis.min = scale.invert(min + d);
+            axis.max = scale.invert(max - d);
+          }
+        }
+        this.update();
+      } else if (this._cursor.x > xRange[1] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
+        // right y axes zoom
+        for (const [name, scale] of Object.entries(yScales)) {
+          const axis = this._config.yAxes[name];
+          if (axis.position === 'right') {
+            const [min, max] = scale.range();
+            const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
+            axis.min = scale.invert(min + d);
+            axis.max = scale.invert(max - d);
+          }
         }
         this.update();
       } else if (this._cursor.y > yRange[0] && this._cursor.x >= xRange[0] && this._cursor.x <= xRange[1]) {
