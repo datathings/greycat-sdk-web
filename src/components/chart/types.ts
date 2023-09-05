@@ -46,6 +46,10 @@ export type Axis = {
    * See https://d3js.org/d3-time-format#utcFormat for time values in UTC
    */
   cursorFormat?: string;
+  /**
+   * Zoom ratio
+   */
+  ratio?: number;
 };
 
 export type Ordinate = Axis & {

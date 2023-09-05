@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { closest, debounce } from '../../internals.js';
+import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import * as draw from './ctx.js';
 import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types.js';
@@ -44,7 +44,13 @@ export class GuiChart extends HTMLElement {
 
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
-  private _userYAxes: Record<string, { min: number | Date | core.time | core.Date | undefined; max: number | Date | core.time | core.Date | undefined }> = {};
+  private _userYAxes: Record<
+    string,
+    {
+      min: number | Date | core.time | core.Date | undefined;
+      max: number | Date | core.time | core.Date | undefined;
+    }
+  > = {};
 
   constructor() {
     super();
@@ -169,41 +175,53 @@ export class GuiChart extends HTMLElement {
       this._resetCursor();
     });
 
-    this.addEventListener('wheel', (event) => {
+    this.addEventListener('wheel', throttle((event: WheelEvent) => {
       const { xRange, yRange, xScale: scale, yScales } = this._compute(); // FIXME optimize this, xRange & yRange only change on resize (should be cached)
-      if (this._cursor.x < xRange[0] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
+      if (
+        this._cursor.x < xRange[0] &&
+        this._cursor.y <= yRange[0] &&
+        this._cursor.y >= yRange[1]
+      ) {
         // left y axes zoom
         for (const [name, scale] of Object.entries(yScales)) {
           const axis = this._config.yAxes[name];
           if (axis.position === undefined || axis.position === 'left') {
             const [min, max] = scale.range();
-            const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
+            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
             axis.min = scale.invert(min + d);
             axis.max = scale.invert(max - d);
           }
         }
         this.update();
-      } else if (this._cursor.x > xRange[1] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
+      } else if (
+        this._cursor.x > xRange[1] &&
+        this._cursor.y <= yRange[0] &&
+        this._cursor.y >= yRange[1]
+      ) {
         // right y axes zoom
         for (const [name, scale] of Object.entries(yScales)) {
           const axis = this._config.yAxes[name];
           if (axis.position === 'right') {
             const [min, max] = scale.range();
-            const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
+            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
             axis.min = scale.invert(min + d);
             axis.max = scale.invert(max - d);
           }
         }
         this.update();
-      } else if (this._cursor.y > yRange[0] && this._cursor.x >= xRange[0] && this._cursor.x <= xRange[1]) {
+      } else if (
+        this._cursor.y > yRange[0] &&
+        this._cursor.x >= xRange[0] &&
+        this._cursor.x <= xRange[1]
+      ) {
         // x axis zoom
         const [min, max] = scale.range();
-        const d = Math.abs(max - min) / 100 * ((event.deltaY > 0) ? 1 : -1);
+        const d = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
         this._config.xAxis.min = scale.invert(min - d);
         this._config.xAxis.max = scale.invert(max + d);
         this.update();
       }
-    });
+    }, 16));
   }
 
   connectedCallback() {
@@ -539,12 +557,7 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (
-      this._cursor.x !== -1 &&
-      this._cursor.y !== -1 &&
-      this._cursor.startX !== -1 &&
-      this._cursor.startY !== -1
-    ) {
+    if (this._cursor.x !== -1 && this._cursor.startX !== -1) {
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
@@ -564,34 +577,8 @@ export class GuiChart extends HTMLElement {
         startX = tmp;
       }
 
-      // let startY = this._cursor.y;
-      // if (startY < yRange[1]) {
-      //   startY = yRange[1];
-      // } else if (startY > yRange[0]) {
-      //   startY = yRange[0];
-      // }
-      // let endY = this._cursor.startY;
-      // if (endY < yRange[1]) {
-      //   endY = yRange[1];
-      // } else if (endY > yRange[0]) {
-      //   endY = yRange[0];
-      // }
-      // if (startY < endY) {
-      //   const tmp = endY;
-      //   endY = startY;
-      //   startY = tmp;
-      // }
-
       const from: number = Math.floor(+xScale.invert(startX));
       const to: number = Math.ceil(+xScale.invert(endX));
-
-      // for (const yAxisName in yScales) {
-      //   // const yAxis = this._config.yAxes[yAxisName];
-      //   const yScale = yScales[yAxisName];
-      //   const yStart = yScale.invert(startY);
-      //   const yEnd = yScale.invert(endY);
-      //   console.log(yStart, yEnd);
-      // }
 
       if (this._cursor.selection) {
         // selection is done
@@ -599,27 +586,13 @@ export class GuiChart extends HTMLElement {
 
         // call update to apply zoom
         xScale.domain([from, to]);
-        this._xAxisGroup
-          .transition('selection')
-          .duration(250)
-          .call(this._xAxis.scale(xScale))
-          .end()
-          .then(
-            () => {
-              this._config.xAxis.min = from;
-              this._config.xAxis.max = to;
-              // XXX do we want to dispatch after the animation or not?
-              this.dispatchEvent(selectionEvt);
-              this.update();
-            },
-            () => {
-              // ignore errors
-            },
-          )
-          .then(() => {
-            // reset selection
-            this._resetCursor();
-          });
+        this._config.xAxis.min = from;
+        this._config.xAxis.max = to;
+        // XXX do we want to dispatch after the animation or not?
+        // reset selection
+        this._resetCursor();
+        this.dispatchEvent(selectionEvt);
+        this.update();
       } else {
         // selection in progress
         const w = endX - startX;
