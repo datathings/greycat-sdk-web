@@ -53,11 +53,11 @@ export type Ordinate = Axis & {
 };
 
 export type SerieOptions = {
-  color: Color;
+  color: string;
   width: number;
   markerWidth: number;
   markerShape: MarkerShape;
-  markerColor: Color;
+  markerColor: string;
   opacity: number;
   fillOpacity: number;
   /**
@@ -77,7 +77,7 @@ export type SerieOptions = {
    * @returns the color used for canvas painting
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colorMapping: (v: any) => Color | null | undefined;
+  colorMapping?: (v: any) => Color | null | undefined;
 };
 
 export interface Serie extends Partial<SerieOptions> {
