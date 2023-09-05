@@ -22,11 +22,13 @@ fn table(): Table {
   table.set(3, 1, null);
   prevTime = prevTime + 24_hour;
 
+  var prevValue = rand.uniformf(45f, 85f);
   for (var i = 4; i < 100; i++) {
     table.set(i, 0, prevTime);
-    table.set(i, 1, rand.uniformf(0f, 150f));
+    table.set(i, 1, prevValue);
 
     prevTime = prevTime + 24_hour;
+    prevValue = prevValue + rand.uniformf(-5.0, 5.0);
   }
 
   return table;
