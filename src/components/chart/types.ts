@@ -11,7 +11,7 @@ export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'botto
 
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any };
+export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
 export type Tooltip = {
   position: TooltipPosition;

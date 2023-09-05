@@ -426,9 +426,18 @@ export class GuiChart extends HTMLElement {
         }
 
         // tooltip
+        let color = serie.color;
+        if (serie.colorCol) {
+          color = serie.colorMapping
+            ? serie.colorMapping(this._config.table.cols[serie.colorCol][rowIdx])
+            : this._config.table.cols[serie.colorCol][rowIdx];
+          if (!color) {
+            color = serie.color;
+          }
+        }
         if (!this._config.tooltip?.render) {
           const nameEl = document.createElement('div');
-          nameEl.style.color = serie.color;
+          nameEl.style.color = color;
           nameEl.textContent = `${serie.title ?? `Col ${serie.yCol}`}:`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
@@ -438,13 +447,13 @@ export class GuiChart extends HTMLElement {
           ) {
             valueEl.classList.add('right');
           }
-          valueEl.style.color = serie.color;
+          valueEl.style.color = color;
           valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue);
           this._tooltip.append(nameEl, valueEl);
 
           if (yValue2 !== undefined) {
             const nameEl = document.createElement('div');
-            nameEl.style.color = serie.color;
+            nameEl.style.color = color;
             nameEl.textContent = `${serie.title ?? `Col ${serie.yCol2}`}:`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
@@ -454,14 +463,14 @@ export class GuiChart extends HTMLElement {
             ) {
               valueEl.classList.add('right');
             }
-            valueEl.style.color = serie.color;
+            valueEl.style.color = color;
             valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue2);
             this._tooltip.append(nameEl, valueEl);
           }
         }
       }
 
-      const data = this._config.series.map<SerieData>((s, i) => {
+      const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
         const { xValue, rowIdx } = closest(this._config.table, s.xCol, v);
 
@@ -476,8 +485,9 @@ export class GuiChart extends HTMLElement {
           yCol2: 'min',
           xValue,
           yValue: this._config.table.cols[s.yCol][rowIdx],
+          rowIdx,
           ...s,
-        };
+        } satisfies SerieData;
       });
       // call tooltip render if defined
       this._config.tooltip?.render?.(data);

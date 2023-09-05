@@ -31,15 +31,13 @@ try {
 
   const customColorMap = {
     Low: 'red',
-    Medium: 'yellow',
+    Medium: 'blue',
     High: null,
   };
 
   chart.config = {
     cursor: false,
     xAxis: {
-      min: -1,
-      max: 150,
       cursorFormat: '.0f',
     },
     yAxes: {
@@ -58,6 +56,7 @@ try {
         title: 'Custom',
         yAxis: 'left',
         yCol: LINE_COL,
+        width: 4,
         lineTypeCol: LINE_TYPE_COL,
         colorCol: LINE_COLOR_COL,
         colorMapping: (v) => customColorMap[v.key],
