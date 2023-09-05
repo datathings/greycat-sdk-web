@@ -791,15 +791,17 @@ export class GuiChart extends HTMLElement {
       if (serie.xCol !== undefined) {
         for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
           const value = vMap(this._config.table.cols[serie.xCol][row]);
-          if (xMin == null) {
-            xMin = value;
-          } else if (value <= xMin) {
-            xMin = value;
-          }
-          if (xMax == null) {
-            xMax = value;
-          } else if (value >= xMax) {
-            xMax = value;
+          if (value !== null && value !== undefined && !isNaN(value)) {
+            if (xMin == null) {
+              xMin = value;
+            } else if (value <= xMin) {
+              xMin = value;
+            }
+            if (xMax == null) {
+              xMax = value;
+            } else if (value >= xMax) {
+              xMax = value;
+            }
           }
         }
       }
