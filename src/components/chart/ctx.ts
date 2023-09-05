@@ -10,7 +10,7 @@ type SerieWithOptions = Serie & SerieOptions;
 
 export type ShapeOptions = {
   color?: Color;
-  fill?: string;
+  fill?: Color;
   thickness?: number;
   opacity?: number;
   dashed?: boolean;
@@ -42,6 +42,7 @@ export function line(
 
   const typeCol = serie.lineTypeCol ?? -1;
   const colorCol = serie.colorCol ?? -1;
+  const colorMap = serie.colorMapping ?? ((v) => v);
 
   ctx.save();
 
@@ -60,7 +61,7 @@ export function line(
     const y = yScale(vMap(table.cols[serie.yCol][i]));
     const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
     const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
-    const currColor = notDefined ? serie.color : table.cols[colorCol]?.[i] ?? serie.color;
+    const currColor = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
 
     if (x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
@@ -120,6 +121,7 @@ export function bar(
   ctx.save();
   ctx.fillStyle = serie.color;
   ctx.globalAlpha = serie.opacity;
+  const colorMap = serie.colorMapping ?? ((v) => v);
 
   const [yMin, yMax] = yScale.range();
   const [xMin, xMax] = xScale.range();
@@ -139,7 +141,7 @@ export function bar(
       // meaning we no longer have to draw anything we are done
       break;
     }
-    ctx.fillStyle = serie.colorCol ? table.cols[serie.colorCol]?.[i] ?? serie.color : serie.color;
+    ctx.fillStyle = serie.colorCol ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color : serie.color;
     ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
@@ -159,6 +161,8 @@ export function scatter(
 
   ctx.save();
 
+  const colorMap = serie.colorMapping ?? ((v) => v);
+
   const [xMin, xMax] = xScale.range();
   const [yMin, yMax] = yScale.range();
 
@@ -177,7 +181,7 @@ export function scatter(
       break;
     }
 
-    const color = serie.colorCol ? table.cols[serie.colorCol]?.[i] ?? serie.color : serie.color;
+    const color = serie.colorCol ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color : serie.color;
 
     switch (serie.markerShape) {
       case 'circle':

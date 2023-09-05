@@ -1,7 +1,7 @@
 import type { core } from '@greycat/sdk';
 import type { TableLike } from '../common.js';
 
-export type Color = string;
+export type Color = string | CanvasGradient | CanvasPattern;
 export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
 export type ScaleType = 'linear' | 'log' | 'time';
 export type SecondOrdinate = 'min' | 'max' | number;
@@ -66,6 +66,18 @@ export type SerieOptions = {
    * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
    */
   yCol2: SecondOrdinate;
+  /**
+   * Maps the row value to a color definition.
+   * 
+   * *Returning `null` or `undefined` will make the painting use the default color of the serie*
+   *
+   * *Not defining a `colorMapping` will use the value as-is for coloring, meaning the serie's column can contain color codes directly*
+   *
+   * @param v the current row value
+   * @returns the color used for canvas painting
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  colorMapping: (v: any) => Color | null | undefined;
 };
 
 export interface Serie extends Partial<SerieOptions> {

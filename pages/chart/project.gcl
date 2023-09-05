@@ -1,6 +1,12 @@
 use util;
 use math;
 
+enum Confidence {
+  High;
+  Medium;
+  Low;
+}
+
 @expose
 fn random_table(nbRows: int) {
   if (nbRows < 5) {
@@ -25,17 +31,17 @@ fn random_table(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
-      table.set(rowIdx, LINE_COLOR_COL, "red");
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Low);
     } else if (rowIdx >= 80 && rowIdx <= 100) {
-      table.set(rowIdx, LINE_COLOR_COL, "orange");
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Medium);
     } else {
       // solid
       table.set(rowIdx, LINE_TYPE_COL, 0);
-      table.set(rowIdx, LINE_COLOR_COL, null);
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::High);
     }
 
     prev2 = prev2 + 5 - rand.uniformf(0_f, 1_f) * 10;
@@ -47,7 +53,7 @@ fn random_table(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 

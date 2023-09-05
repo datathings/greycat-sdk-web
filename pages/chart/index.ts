@@ -25,14 +25,21 @@ try {
   const AREA_COL = 2;
   const BAR_COL = 3;
   const LINE_TYPE_COL = 4;
+  const LINE_COLOR_COL = 5;
 
   const chart = document.querySelector('gui-chart')!;
+
+  const customColorMap = {
+    Low: 'red',
+    Medium: 'yellow',
+    High: null,
+  };
 
   chart.config = {
     cursor: false,
     xAxis: {
-      // min: -1,
-      // max: 150,
+      min: -1,
+      max: 150,
       cursorFormat: '.0f',
     },
     yAxes: {
@@ -52,7 +59,8 @@ try {
         yAxis: 'left',
         yCol: LINE_COL,
         lineTypeCol: LINE_TYPE_COL,
-        colorCol: 5,
+        colorCol: LINE_COLOR_COL,
+        colorMapping: (v) => customColorMap[v.key],
       },
       {
         type: 'line+scatter',
