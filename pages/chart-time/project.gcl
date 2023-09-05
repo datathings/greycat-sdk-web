@@ -8,7 +8,21 @@ fn table(): Table {
 
   var prevTime = time::now();
 
-  for (var i = 0; i < 100; i++) {
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  prevTime = prevTime + 24_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  prevTime = prevTime + 24_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  prevTime = prevTime + 24_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  prevTime = prevTime + 24_hour;
+
+  for (var i = 4; i < 100; i++) {
     table.set(i, 0, prevTime);
     table.set(i, 1, rand.uniformf(0f, 150f));
 

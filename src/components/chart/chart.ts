@@ -828,19 +828,7 @@ export class GuiChart extends HTMLElement {
           if (serie.yAxis === yAxisName) {
             for (let row = 0; row < this._config.table.cols[serie.yCol].length; row++) {
               const value = vMap(this._config.table.cols[serie.yCol][row]);
-              if (min == null) {
-                min = value;
-              } else if (value <= min) {
-                min = value;
-              }
-              if (max == null) {
-                max = value;
-              } else if (value >= max) {
-                max = value;
-              }
-              // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._config.table.cols[serie.yCol2][row]);
+              if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
                 } else if (value <= min) {
@@ -850,6 +838,22 @@ export class GuiChart extends HTMLElement {
                   max = value;
                 } else if (value >= max) {
                   max = value;
+                }
+              }
+              // make sure to account for 'yCol2' if used
+              if (typeof serie.yCol2 === 'number') {
+                const value = vMap(this._config.table.cols[serie.yCol2][row]);
+                if (value !== null && value !== undefined && !isNaN(value)) {
+                  if (min == null) {
+                    min = value;
+                  } else if (value <= min) {
+                    min = value;
+                  }
+                  if (max == null) {
+                    max = value;
+                  } else if (value >= max) {
+                    max = value;
+                  }
                 }
               }
             }
