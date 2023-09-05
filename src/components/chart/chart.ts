@@ -59,24 +59,7 @@ export class GuiChart extends HTMLElement {
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
 
-    this._obs = new ResizeObserver(
-      debounce(() => {
-        let { width, height } = this.getBoundingClientRect();
-        width = Math.round(width);
-        height = Math.round(height);
-
-        // resize main canvas
-        this._canvas.width = width;
-        this._canvas.height = height;
-        // resize ux canvas
-        this._uxCanvas.width = width;
-        this._uxCanvas.height = height;
-        // resize svg
-        this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
-
-        this.update();
-      }, 250),
-    );
+    this._obs = new ResizeObserver(debounce(() => this._resize(), 250));
 
     // TODO touchstart, touchend
 
@@ -198,8 +181,6 @@ export class GuiChart extends HTMLElement {
   connectedCallback() {
     this._colors = getColors(this);
 
-    this._obs.observe(this);
-
     const style = getComputedStyle(this);
     if (style.display === 'inline') {
       // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
@@ -216,6 +197,28 @@ export class GuiChart extends HTMLElement {
     this._xAxisGroup = this._svg.append('g');
 
     this.append(this._canvas, this._uxCanvas, this._tooltip);
+
+    // trigger a resize before the observer to prevent resize-flickering on mount
+    this._resize();
+
+    this._obs.observe(this);
+  }
+
+  private _resize() {
+    let { width, height } = this.getBoundingClientRect();
+    width = Math.round(width);
+    height = Math.round(height);
+
+    // resize main canvas
+    this._canvas.width = width;
+    this._canvas.height = height;
+    // resize ux canvas
+    this._uxCanvas.width = width;
+    this._uxCanvas.height = height;
+    // resize svg
+    this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
+
+    this.update();
   }
 
   disconnectedCallback() {

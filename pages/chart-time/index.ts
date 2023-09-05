@@ -36,8 +36,8 @@ try {
     },
     yAxes: {
       y: {
-        // min: 0,
-        // max: 150,
+        min: 0,
+        max: 150,
       },
     },
     table,
