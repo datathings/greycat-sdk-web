@@ -18,6 +18,13 @@ try {
   const currentValue = document.querySelector('#current-value') as HTMLDivElement;
 
   const chart = document.querySelector('gui-chart')!;
+  chart.addEventListener('selection', (e) => {
+    const from = core.time.fromMs(e.detail.from as number);
+    const to = core.time.fromMs(e.detail.to as number);
+    console.log(`selection from ${from} to ${to}`);
+  });
+
+
   let table = await greycat.call<core.Table>('project::table');
 
   console.log(table);

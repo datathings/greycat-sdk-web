@@ -217,8 +217,9 @@ export class GuiChart extends HTMLElement {
         // x axis zoom
         const [min, max] = scale.range();
         const d = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-        this._config.xAxis.min = scale.invert(min - d);
-        this._config.xAxis.max = scale.invert(max + d);
+        const from = this._config.xAxis.min = Math.floor(+scale.invert(min - d));
+        const to = this._config.xAxis.max = Math.ceil(+scale.invert(max + d));
+        this.dispatchEvent(new GuiChartSelectionEvent(from, to));
         this.update();
       }
     }, 16));
