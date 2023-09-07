@@ -798,7 +798,7 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName] = this._svg.append('g');
       }
 
-      const { format, position, scale } = this._config.yAxes[yAxisName];
+      const { format, position, scale, ticks } = this._config.yAxes[yAxisName];
 
       // safety: either `(x: number) => string` or `(x: Date) => string` or `null`
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -811,7 +811,9 @@ export class GuiChart extends HTMLElement {
         if (fmt) {
           yAxis.tickFormat(fmt);
         }
-
+        if (ticks) {
+          yAxis.tickValues(ticks);
+        }
         this._yAxisGroups[yAxisName]
           .attr('transform', `translate(${style.margin.left + leftAxesIdx * style.margin.left}, 0)`)
           .call(yAxis);
