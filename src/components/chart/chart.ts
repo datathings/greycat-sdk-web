@@ -252,8 +252,13 @@ export class GuiChart extends HTMLElement {
         this._compute();
         this.update();
       } else if (event.shiftKey) {
-        const dx = event.deltaY > 0 ? -1 : 1;
-        console.log('panning', dx);
+        const [min, max] = scale.range();
+        const dx = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+        const from = this._config.xAxis.min = Math.floor(+scale.invert(min + dx));
+        const to = this._config.xAxis.max = Math.ceil(+scale.invert(max + dx));
+        this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+        this._compute();
+        this.update();
       }
     }, 16));
   }
