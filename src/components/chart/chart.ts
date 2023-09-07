@@ -16,6 +16,32 @@ type Cursor = {
   lastTouchEnd: number;
 };
 
+type ComputedState = {
+  leftAxes: number;
+  rightAxes: number;
+  xRange: number[];
+  yRange: number[];
+  style: {
+    'text-0': string;
+    'accent-0': string;
+    cursor: {
+      color: string;
+      bgColor: string;
+      lineColor: string;
+    };
+    margin: {
+      top: number;
+      right: number;
+      rightEmpty: number;
+      bottom: number;
+      left: number;
+      leftEmpty: number;
+    };
+  };
+  xScale: Scale;
+  yScales: Record<string, Scale>;
+};
+
 export class GuiChart extends HTMLElement {
   private _obs: ResizeObserver;
   private _config: ChartConfig;
@@ -51,6 +77,7 @@ export class GuiChart extends HTMLElement {
       max: number | Date | core.time | core.Date | undefined;
     }
   > = {};
+  private _computed!: ComputedState;
 
   constructor() {
     super();
@@ -115,6 +142,7 @@ export class GuiChart extends HTMLElement {
         yAxis.min = this._userYAxes[name].min;
         yAxis.max = this._userYAxes[name].max;
       }
+      this._compute();
       this.update();
     });
 
@@ -159,7 +187,6 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    // throttle(..., 16) makes it ~60FPS
     this.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
@@ -170,13 +197,13 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-
     this.addEventListener('touchcancel', () => {
       this._resetCursor();
     });
 
     this.addEventListener('wheel', throttle((event: WheelEvent) => {
-      const { xRange, yRange, xScale: scale, yScales } = this._compute(); // FIXME optimize this, xRange & yRange only change on resize (should be cached)
+      // if this is too slow, maybe cache xRange, yRange
+      const { xRange, yRange, xScale: scale, yScales } = this._computed;
       if (
         this._cursor.x < xRange[0] &&
         this._cursor.y <= yRange[0] &&
@@ -192,6 +219,7 @@ export class GuiChart extends HTMLElement {
             axis.max = scale.invert(max - d);
           }
         }
+        this._compute();
         this.update();
       } else if (
         this._cursor.x > xRange[1] &&
@@ -208,6 +236,7 @@ export class GuiChart extends HTMLElement {
             axis.max = scale.invert(max - d);
           }
         }
+        this._compute();
         this.update();
       } else if (
         this._cursor.y > yRange[0] &&
@@ -220,7 +249,11 @@ export class GuiChart extends HTMLElement {
         const from = this._config.xAxis.min = Math.floor(+scale.invert(min - d));
         const to = this._config.xAxis.max = Math.ceil(+scale.invert(max + d));
         this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+        this._compute();
         this.update();
+      } else if (event.shiftKey) {
+        const dx = event.deltaY > 0 ? -1 : 1;
+        console.log('panning', dx);
       }
     }, 16));
   }
@@ -273,6 +306,8 @@ export class GuiChart extends HTMLElement {
     this._uxCanvas.height = height;
     // resize svg
     this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
+    // recompute state
+    this._compute();
 
     this.update();
   }
@@ -300,6 +335,7 @@ export class GuiChart extends HTMLElement {
     for (const [name, yAxis] of Object.entries(config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
+    this._compute();
     this.update();
   }
 
@@ -316,7 +352,7 @@ export class GuiChart extends HTMLElement {
     this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
-    const { xRange, yRange, rightAxes, style, xScale, yScales } = this._compute();
+    const { xRange, yRange, rightAxes, style, xScale, yScales } = this._computed;
 
     if (
       this._cursor.x !== -1 &&
@@ -678,7 +714,7 @@ export class GuiChart extends HTMLElement {
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
-    const { xScale, yScales, style } = this._compute();
+    const { xScale, yScales, style } = this._computed;
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie: Serie & SerieOptions = {
@@ -740,6 +776,9 @@ export class GuiChart extends HTMLElement {
     } else if (this._config.xAxis.format) {
       this._xAxis.tickFormat(d3.format(this._config.xAxis.format));
     }
+    if (this._config.xAxis.ticks) {
+      this._xAxis.tickValues(this._config.xAxis.ticks);
+    }
     this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(this._xAxis);
@@ -797,7 +836,7 @@ export class GuiChart extends HTMLElement {
     }
   }
 
-  private _compute() {
+  private _compute(): void {
     let leftAxes = 0;
     let rightAxes = 0;
     for (const yAxisName in this._config.yAxes) {
@@ -924,7 +963,7 @@ export class GuiChart extends HTMLElement {
 
     const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
 
-    return { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
+    this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
   }
 }
 

@@ -50,6 +50,12 @@ export type Axis = {
    * Zoom ratio
    */
   ratio?: number;
+  /**
+   * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
+   *
+   * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
+   */
+  ticks?: (number | Date)[];
 };
 
 export type Ordinate = Axis & {
