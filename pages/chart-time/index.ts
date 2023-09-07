@@ -9,10 +9,6 @@ try {
   const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
   const randomizeBtn = document.querySelector('#randomize') as HTMLButtonElement;
-  const topLeft = document.querySelector('#top-left') as HTMLButtonElement;
-  const topRight = document.querySelector('#top-right') as HTMLButtonElement;
-  const bottomLeft = document.querySelector('#bottom-left') as HTMLButtonElement;
-  const bottomRight = document.querySelector('#bottom-right') as HTMLButtonElement;
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
   const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
   const currentValue = document.querySelector('#current-value') as HTMLDivElement;
@@ -68,30 +64,6 @@ try {
   }
 
   randomizeBtn.addEventListener('click', randomize);
-  topLeft.addEventListener('click', () => {
-    if (chart.config.tooltip === undefined) {
-      chart.config.tooltip = {};
-    }
-    chart.config.tooltip.position = 'top-left';
-  });
-  topRight.addEventListener('click', () => {
-    if (chart.config.tooltip === undefined) {
-      chart.config.tooltip = {};
-    }
-    chart.config.tooltip.position = 'top-right';
-  });
-  bottomLeft.addEventListener('click', () => {
-    if (chart.config.tooltip === undefined) {
-      chart.config.tooltip = {};
-    }
-    chart.config.tooltip.position = 'bottom-left';
-  });
-  bottomRight.addEventListener('click', () => {
-    if (chart.config.tooltip === undefined) {
-      chart.config.tooltip = {};
-    }
-    chart.config.tooltip.position = 'bottom-right';
-  });
   toggleCursor.addEventListener('click', () => {
     chart.config.cursor = !chart.config.cursor;
   });
