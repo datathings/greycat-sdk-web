@@ -22,6 +22,8 @@ const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
   };
 };
 
+export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Value[]) => void;
+
 export class GuiTable extends HTMLElement {
   private _table: core.Table | undefined;
   private _rows: Array<Value[]> = [];
@@ -36,6 +38,7 @@ export class GuiTable extends HTMLElement {
   private _headers: string[] | undefined;
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
+  private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   /**
    * This is set to `true` when a column is manually resized.
    *
@@ -117,6 +120,14 @@ export class GuiTable extends HTMLElement {
   set headers(headers: string[] | undefined) {
     this._headers = headers;
     this._update();
+  }
+
+  set onrowupdate(cb: RowUpdateCallback) {
+    this._rowUpdateCallback = cb;
+  }
+
+  get onrowupdate(): RowUpdateCallback {
+    return this._rowUpdateCallback;
   }
 
   setAttrs({
@@ -283,7 +294,7 @@ export class GuiTable extends HTMLElement {
       rows = this._rows.filter((row) => filterRow(this._filterText, row));
     }
 
-    this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps);
+    this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps, this._rowUpdateCallback);
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
@@ -493,7 +504,7 @@ class GuiTableBody extends HTMLElement {
     firstRow.remove();
   }
 
-  update(fromRowIdx: number, colWidths: number[], rows: Value[][], cellProps: CellProps): void {
+  update(fromRowIdx: number, colWidths: number[], rows: Value[][], cellProps: CellProps, updateCallback: RowUpdateCallback): void {
     // Make it one more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
@@ -528,6 +539,7 @@ class GuiTableBody extends HTMLElement {
       row.update(realIdx, colWidths, rows[realIdx], cellProps);
       // at the right position
       row.style.top = `${realIdx * this.rowHeight}px`;
+      updateCallback(row, rows[realIdx]);
     }
 
     // remove exceeding rows

@@ -1,3 +1,5 @@
+import * as d3 from 'd3';
+window.d3 = d3;
 import { GreyCat, core } from '@greycat/sdk';
 
 // @greycat/ui
@@ -35,12 +37,13 @@ try {
     cursor: true,
     xAxis: {
       scale: 'time',
-      format: '%b %d',
+      format: '%a, %H:%M',
     },
     yAxes: {
-      y: {
-        min: 0,
-        max: 150,
+      y: {},
+      classes: {
+        position: 'right',
+        ticks: ['Low', 'Normal', 'High'],
       },
     },
     table,
@@ -52,6 +55,12 @@ try {
         xCol: 0,
         yCol: 1,
       },
+      {
+        type: 'bar',
+        yAxis: 'classes',
+        xCol: 0,
+        yCol: 2
+      }
     ],
   };
 

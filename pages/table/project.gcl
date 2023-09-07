@@ -1,11 +1,51 @@
+use util;
+
 @expose
 fn table(): Table {
-  var nbRows = 100;
-  var table = Table::new(5);
+  var rand = Random::new();
 
-  for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
-    for (var colIdx = 0; colIdx < table.cols(); colIdx++) {
-      table.set(rowIdx, colIdx, "${rowIdx}, ${colIdx}");
+  var table = Table::new(3);
+  var min = -10.0;
+  var max = 40.0;
+  var prevTime = time::now();
+  var prevTemp = rand.uniformf(min, max);
+
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+
+  for (var i = 4; i < 500; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, prevTemp);
+    if (prevTemp < 10) {
+      table.set(i, 2, "low");
+    } else if (prevTemp >= 10 && prevTemp <= 25) {
+      table.set(i, 2, "normal");
+    } else {
+      table.set(i, 2, "high");
+    }
+
+    prevTime = prevTime + 1_hour;
+    if (prevTemp >= max) {
+      prevTemp = prevTemp + rand.uniformf(-5.0, -0.1);
+    } else if (prevTemp <= min) {
+      prevTemp = prevTemp + rand.uniformf(0.1, 5.0);
+    } else {
+      prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
     }
   }
 

@@ -55,7 +55,8 @@ export type Axis = {
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
-  ticks?: (number | Date)[];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ticks?: any[];
 };
 
 export type Ordinate = Axis & {
