@@ -26,11 +26,10 @@ export type Tooltip = {
   render?: (data: SerieData[]) => void;
 };
 
-export type Axis = {
-  title: string;
-  min: number | Date | core.time | core.Date;
-  max: number | Date | core.time | core.Date;
-  scale: ScaleType;
+export type CommonAxis = {
+  title?: string;
+  min?: number | Date | core.time | core.Date;
+  max?: number | Date | core.time | core.Date;
   /**
    * Formats the ticks on the axis
    * See https://d3js.org/d3-format#format
@@ -38,7 +37,7 @@ export type Axis = {
    * If the `scale` is `'time'` and `format` is `undefined`, the display is defaulting to ISO.
    * See https://d3js.org/d3-time-format#utcFormat
    */
-  format: string;
+  format?: string;
   /**
    * Formats the cursor hover text on the axis
    *
@@ -59,9 +58,21 @@ export type Axis = {
   ticks?: any[];
 };
 
-export type Ordinate = Axis & {
-  position: AxisPosition;
-};
+export interface LinearAxis extends CommonAxis {
+  scale?: 'linear';
+}
+
+export interface LogAxis extends CommonAxis {
+  scale: 'log';
+}
+
+export interface TimeAxis extends CommonAxis {
+  scale: 'time';
+}
+
+export type Axis = LinearAxis | LogAxis | TimeAxis;
+
+export type Ordinate = Axis & { position: AxisPosition };
 
 export type SerieOptions = {
   color: string;
@@ -91,7 +102,7 @@ export type SerieOptions = {
   colorMapping?: (v: any) => Color | null | undefined;
 };
 
-export interface Serie extends Partial<SerieOptions> {
+export interface Serie<K extends string = string> extends Partial<SerieOptions> {
   type: SerieType;
   /**
    * optional offset of the x column in the given table
@@ -106,7 +117,7 @@ export interface Serie extends Partial<SerieOptions> {
   /**
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
-  yAxis: string;
+  yAxis: K;
   /**
    * offset of the column in the table to use to read lineType values for each x
    */
@@ -121,20 +132,22 @@ export interface Serie extends Partial<SerieOptions> {
   title?: string;
 }
 
-export interface ChartConfig {
+export interface ChartConfig<K = { [keys: string]: never }> {
   type?: SerieType;
   table: TableLike;
-  series: Array<Serie>;
+  series: Serie<Extract<keyof K, string>>[];
   /**
    * The x-axis definition
    */
-  xAxis: Partial<Axis>;
+  xAxis: Axis;
   /**
    * One or more axes that will be used for y-axes.
    *
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
-  yAxes: Record<string, Partial<Ordinate>>;
+  yAxes: {
+    [name in keyof K]: Partial<Ordinate>;
+  };
   cursor?: boolean;
   /**
    * Tooltip position, defaults to 'top-left'
