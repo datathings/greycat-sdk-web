@@ -109,14 +109,14 @@ export class GuiChart extends HTMLElement {
     // mouse events
     this.addEventListener('mousedown', (event) => {
       const { left, top } = this._canvas.getBoundingClientRect();
-      this._cursor.startX = Math.round(event.pageX - left);
-      this._cursor.startY = Math.round(event.pageY - top);
+      this._cursor.startX = Math.round(event.pageX - (left + window.scrollX));
+      this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
     this.addEventListener('mousemove', (event) => {
       const { left, top } = this._canvas.getBoundingClientRect();
-      this._cursor.x = Math.round(event.pageX - left);
-      this._cursor.y = Math.round(event.pageY - top);
+      this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
+      this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
     this.addEventListener('mouseup', () => {
@@ -152,7 +152,7 @@ export class GuiChart extends HTMLElement {
       event.preventDefault();
       if (event.touches.length > 0) {
         const { left } = this._canvas.getBoundingClientRect();
-        this._cursor.startX = Math.round(event.touches[0].pageX - left);
+        this._cursor.startX = Math.round(event.touches[0].pageX - (left + window.scrollX));
         // this._updateUX();
       }
     });
@@ -192,8 +192,8 @@ export class GuiChart extends HTMLElement {
       event.preventDefault();
       if (event.touches.length > 0) {
         const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.x = Math.round(event.touches[0].pageX - left);
-        this._cursor.y = Math.round(event.touches[0].pageY - top);
+        this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
+        this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
         // this._updateUX();
       }
     });
@@ -342,6 +342,13 @@ export class GuiChart extends HTMLElement {
     this._cursor.selection = false;
   }
 
+  /**
+   * A type-safe equivalent to `set config(config)`
+   */
+  setConfig<K>(config: ChartConfig<K>): void {
+    this.config = config;
+  }
+
   set config(config: ChartConfig) {
     this._config = config;
     // update local user X min/max with the configuration values
@@ -452,6 +459,9 @@ export class GuiChart extends HTMLElement {
         // y axes texts
         for (const yAxisName in yScales) {
           const yAxis = this._config.yAxes[yAxisName];
+          // if (yAxis.scale === 'ordinal') {
+          //   continue;
+          // }
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
             draw.text(
@@ -835,7 +845,9 @@ export class GuiChart extends HTMLElement {
         if (fmt) {
           yAxis.tickFormat(fmt);
         }
-
+        if (ticks) {
+          yAxis.tickValues(ticks);
+        }
         this._yAxisGroups[yAxisName]
           .attr(
             'transform',
@@ -977,7 +989,7 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      yScales[yAxisName] = createScale(type, [yAxis.min ?? min, yAxis.max ?? max], yRange);
+      yScales[yAxisName] = createScale(type, [yAxis.min ?? min ?? 0, yAxis.max ?? max ?? 1], yRange);
     }
 
     const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
@@ -986,9 +998,8 @@ export class GuiChart extends HTMLElement {
   }
 }
 
-// TODO validate the usage of 'any' here
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createScale(type: ScaleType = 'linear', domain: any[], range: any[]): Scale {
+function createScale(type: ScaleType = 'linear', domain: any[], range: number[]): Scale {
   domain = [vMap(domain[0]), vMap(domain[1])];
 
   switch (type) {
