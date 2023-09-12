@@ -368,12 +368,12 @@ details[open] {
   padding: 0.5em;
 }
 
-details[open] summary {
+details[open] > summary {
   border-bottom: 1px solid rgb(var(--accent-0));
   margin-bottom: 0.5em;
 }
 
-details summary:hover {
+details > summary:hover {
   cursor: pointer;
 }
 
