@@ -2,9 +2,9 @@ import * as d3 from 'd3';
 
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
-import * as draw from './ctx.js';
-import { Axis, ChartConfig, Color, ScaleType, Serie, SerieData, SerieOptions } from './types.js';
-import { Scale, dateFormat, vMap } from './internals.js';
+import { CanvasContext } from './ctx.js';
+import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
+import { dateFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 
 type Cursor = {
@@ -60,13 +60,13 @@ export class GuiChart extends HTMLElement {
   private _xAxis!: d3.Axis<Date | d3.NumberValue>;
   private _yAxisGroups: Record<string, d3.Selection<SVGGElement, unknown, null, undefined>> = {};
 
-  private _canvas: HTMLCanvasElement;
-  private _ctx: CanvasRenderingContext2D;
+  private readonly _canvas: HTMLCanvasElement;
+  private readonly _ctx: CanvasContext;
 
-  private _uxCanvas: HTMLCanvasElement;
-  private _uxCtx: CanvasRenderingContext2D;
+  private readonly _uxCanvas: HTMLCanvasElement;
+  private readonly _uxCtx: CanvasContext;
 
-  private _tooltip = document.createElement('div');
+  private readonly _tooltip = document.createElement('div');
 
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
@@ -82,21 +82,21 @@ export class GuiChart extends HTMLElement {
   constructor() {
     super();
 
-    this._config = { type: 'line', table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
+    this._config = { table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
     this._canvas.style.display = 'block';
     this._canvas.style.position = 'absolute';
     this._canvas.style.background = 'transparent';
-    this._ctx = this._canvas.getContext('2d') as CanvasRenderingContext2D;
+    this._ctx = new CanvasContext(this._canvas.getContext('2d') as CanvasRenderingContext2D);
 
     // ux canvas
     this._uxCanvas = document.createElement('canvas');
     this._uxCanvas.style.display = 'block';
     this._uxCanvas.style.position = 'absolute';
     this._uxCanvas.style.background = 'transparent';
-    this._uxCtx = this._uxCanvas.getContext('2d') as CanvasRenderingContext2D;
+    this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
     // tooltip
     this._tooltip.style.position = 'absolute';
@@ -142,7 +142,7 @@ export class GuiChart extends HTMLElement {
         yAxis.min = this._userYAxes[name].min;
         yAxis.max = this._userYAxes[name].max;
       }
-      this._compute();
+      this.compute();
       this.update();
     });
 
@@ -211,7 +211,7 @@ export class GuiChart extends HTMLElement {
         const from = this._config.xAxis.min = scale.invert(min + dx);
         const to = this._config.xAxis.max = scale.invert(max + dx);
         this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-        this._compute();
+        this.compute();
         this.update();
       } else if (event.altKey) {
         // y axes panning
@@ -222,7 +222,7 @@ export class GuiChart extends HTMLElement {
           axis.min = scale.invert(min + d);
           axis.max = scale.invert(max + d);
         }
-        this._compute();
+        this.compute();
         this.update();
       } else if (
         this._cursor.x < xRange[0] &&
@@ -239,7 +239,7 @@ export class GuiChart extends HTMLElement {
             axis.max = scale.invert(max - d);
           }
         }
-        this._compute();
+        this.compute();
         this.update();
       } else if (
         this._cursor.x > xRange[1] &&
@@ -256,7 +256,7 @@ export class GuiChart extends HTMLElement {
             axis.max = scale.invert(max - d);
           }
         }
-        this._compute();
+        this.compute();
         this.update();
       } else if (
         this._cursor.y > yRange[0] &&
@@ -269,7 +269,7 @@ export class GuiChart extends HTMLElement {
         const from = this._config.xAxis.min = scale.invert(min - d);
         const to = this._config.xAxis.max = scale.invert(max + d);
         this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-        this._compute();
+        this.compute();
         this.update();
       }
     }, 16));
@@ -324,7 +324,7 @@ export class GuiChart extends HTMLElement {
     // resize svg
     this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
     // recompute state
-    this._compute();
+    this.compute();
 
     this.update();
   }
@@ -359,11 +359,11 @@ export class GuiChart extends HTMLElement {
     for (const [name, yAxis] of Object.entries(config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
-    this._compute();
+    this.compute();
     this.update();
   }
 
-  get config() {
+  get config(): ChartConfig {
     return this._config;
   }
 
@@ -411,8 +411,7 @@ export class GuiChart extends HTMLElement {
       // if cursor: true, then display cursor info in realtime
       if (this._config.cursor) {
         // cursor horizontal dashed
-        draw.simpleLine(
-          this._uxCtx,
+        this._uxCtx.simpleLine(
           xRange[0],
           this._cursor.y,
           rightAxes === 0 ? this._cursor.x : xRange[1],
@@ -423,12 +422,12 @@ export class GuiChart extends HTMLElement {
           },
         );
         // cursor vertical dashed
-        draw.simpleLine(this._uxCtx, this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
+        this._uxCtx.simpleLine(this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
           color: style.cursor.lineColor,
           dashed: true,
         });
         // cursor cross
-        draw.cross(this._uxCtx, this._cursor.x, this._cursor.y, 12, {
+        this._uxCtx.cross(this._cursor.x, this._cursor.y, 12, {
           color: style.cursor.color,
           thickness: 2,
         });
@@ -448,7 +447,7 @@ export class GuiChart extends HTMLElement {
           }
         }
         // TODO clip on boundaries
-        draw.text(this._uxCtx, this._cursor.x, yRange[0] + 8, bottomText, {
+        this._uxCtx.text(this._cursor.x, yRange[0] + 8, bottomText, {
           color: style.cursor.color,
           backgroundColor: style.cursor.bgColor,
           align: 'center',
@@ -459,13 +458,9 @@ export class GuiChart extends HTMLElement {
         // y axes texts
         for (const yAxisName in yScales) {
           const yAxis = this._config.yAxes[yAxisName];
-          // if (yAxis.scale === 'ordinal') {
-          //   continue;
-          // }
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
-            draw.text(
-              this._uxCtx,
+            this._uxCtx.text(
               style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
               d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
@@ -478,8 +473,7 @@ export class GuiChart extends HTMLElement {
             );
           } else {
             rightAxesIdx++;
-            draw.text(
-              this._uxCtx,
+            this._uxCtx.text(
               this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
               d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
@@ -538,8 +532,7 @@ export class GuiChart extends HTMLElement {
             break;
           }
           case 'bar':
-            draw.rectangle(
-              this._uxCtx,
+            this._uxCtx.rectangle(
               x,
               y + (yRange[0] - y) / 2,
               serie.width + 1,
@@ -662,7 +655,7 @@ export class GuiChart extends HTMLElement {
         const w = endX - startX;
         // const h = startY - endY;
         const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
-        draw.rectangle(this._uxCtx, startX + w / 2, yRange[1] + h / 2, w, h, {
+        this._uxCtx.rectangle(startX + w / 2, yRange[1] + h / 2, w, h, {
           fill: style['accent-0'],
           opacity: 0.1,
         });
@@ -702,17 +695,17 @@ export class GuiChart extends HTMLElement {
   private _drawMarker(serie: Serie & SerieOptions, x: number, y2: number, w: number, color: Color) {
     switch (serie.markerShape ?? 'circle') {
       case 'circle':
-        draw.circle(this._uxCtx, x, y2, w, {
+        this._uxCtx.circle(x, y2, w, {
           fill: color,
         });
         break;
       case 'square':
-        draw.rectangle(this._uxCtx, x, y2, w, w, {
+        this._uxCtx.rectangle(x, y2, w, w, {
           fill: color,
         });
         break;
       case 'triangle':
-        draw.triangle(this._uxCtx, x, y2, w, w, {
+        this._uxCtx.triangle(x, y2, w, w, {
           fill: color,
         });
         break;
@@ -721,7 +714,7 @@ export class GuiChart extends HTMLElement {
 
   private _clearUX(): void {
     // clear ux canvas
-    this._uxCtx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+    this._uxCtx.ctx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
     // clear tooltip
     this._tooltip.replaceChildren();
     this._tooltip.style.visibility = 'hidden';
@@ -732,12 +725,11 @@ export class GuiChart extends HTMLElement {
   }
 
   /**
-   * This is all about drawing the series onto the main canvas. This can be a tiny bit heavy as opposed to `updateUX` as it is
-   * only called when the config changes.
+   * Draws the chart to the different canvas & svg elements.
    */
   update(): void {
     // clear the main canvas
-    this._ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    this._ctx.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
@@ -756,55 +748,68 @@ export class GuiChart extends HTMLElement {
         ...this._config.series[i],
       };
 
+      serie.drawBefore?.(this._ctx, xScale, yScales[serie.yAxis]);
+
       switch (serie.type) {
         case 'line':
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+scatter':
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.scatter(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+area':
           // draw area "under" (before) line
-          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
-          draw.line(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.area(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'area':
-          draw.area(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.area(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'bar':
-          draw.bar(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.bar(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'scatter':
-          draw.scatter(this._ctx, this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.scatter(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          break;
+        case 'custom':
+          serie.draw(this._ctx, xScale, yScales[serie.yAxis]);
           break;
       }
+
+      serie.drawAfter?.(this._ctx, xScale, yScales[serie.yAxis]);
     }
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
-    if (this._config.xAxis.scale === 'time') {
-      if (this._config.xAxis.format === undefined) {
-        this._xAxis.tickFormat((v) => {
-          if (typeof v === 'number') {
-            return d3.isoFormat(new Date(v));
-          }
-          return d3.isoFormat(v as Date);
-        });
-      } else {
-        const format = this._config.xAxis.format;
-        this._xAxis.tickFormat((v) => {
-          if (typeof v === 'number') {
-            return d3.utcFormat(format)(new Date(v));
-          }
-          return d3.utcFormat(format)(v as Date);
-        });
+    if (this._config.xAxis.hook) {
+      this._config.xAxis.hook(this._xAxis);
+    } else {
+      if (this._config.xAxis.scale === 'time') {
+        if (this._config.xAxis.format === undefined) {
+          this._xAxis.tickFormat((v) => {
+            if (typeof v === 'number') {
+              return d3.isoFormat(new Date(v));
+            }
+            return d3.isoFormat(v as Date);
+          });
+        } else {
+          const format = this._config.xAxis.format;
+          this._xAxis.tickFormat((v) => {
+            if (typeof v === 'number') {
+              return d3.utcFormat(format)(new Date(v));
+            }
+            return d3.utcFormat(format)(v as Date);
+          });
+        }
+      } else if (this._config.xAxis.format) {
+        this._xAxis.tickFormat(d3.format(this._config.xAxis.format));
       }
-    } else if (this._config.xAxis.format) {
-      this._xAxis.tickFormat(d3.format(this._config.xAxis.format));
-    }
-    if (this._config.xAxis.ticks) {
-      this._xAxis.tickValues(this._config.xAxis.ticks);
+      if (Array.isArray(this._config.xAxis.ticks)) {
+        this._xAxis.tickValues(this._config.xAxis.ticks.map(vMap));
+      } else if (typeof this._config.xAxis.ticks === 'function') {
+        this._xAxis.ticks(this._config.xAxis.ticks);
+      }
     }
     this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
@@ -820,42 +825,40 @@ export class GuiChart extends HTMLElement {
         this._yAxisGroups[yAxisName] = this._svg.append('g');
       }
 
-      const { format, position, scale, ticks } = this._config.yAxes[yAxisName];
+      const ord = this._config.yAxes[yAxisName];
 
-      // safety: either `(x: number) => string` or `(x: Date) => string` or `null`
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const fmt: ((domainValue: any, index: number) => string) | null =
-        scale === 'time' ? dateFormat : format ? d3.format(format) : null;
+      let yAxis: d3.Axis<any>;
+      let translateX: number = 0;
 
-      if (position === undefined || position === 'left') {
+      if (ord.position === undefined || ord.position === 'left') {
         leftAxesIdx++;
-        const yAxis = d3.axisLeft(yScales[yAxisName]);
-        if (fmt) {
-          yAxis.tickFormat(fmt);
-        }
-        if (ticks) {
-          yAxis.tickValues(ticks);
-        }
-        this._yAxisGroups[yAxisName]
-          .attr('transform', `translate(${style.margin.left + leftAxesIdx * style.margin.left}, 0)`)
-          .call(yAxis);
+        yAxis = d3.axisLeft(yScales[yAxisName]);
+        translateX = style.margin.left + leftAxesIdx * style.margin.left;
       } else {
         rightAxesIdx++;
-        const yAxis = d3.axisRight(yScales[yAxisName]);
-        if (fmt) {
-          yAxis.tickFormat(fmt);
-        }
-        if (ticks) {
-          yAxis.tickValues(ticks);
-        }
-        this._yAxisGroups[yAxisName]
-          .attr(
-            'transform',
-            `translate(${this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right)
-            }, 0)`,
-          )
-          .call(yAxis);
+        yAxis = d3.axisRight(yScales[yAxisName]);
+        translateX = this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right);
       }
+
+      if (ord.hook) {
+        ord.hook(yAxis);
+      } else {
+        if (ord.scale === 'time') {
+          yAxis.tickFormat(dateFormat);
+        } else if (ord.format) {
+          yAxis.tickFormat(d3.format(ord.format));
+        }
+        if (Array.isArray(ord.ticks)) {
+          yAxis.tickValues(ord.ticks.map(vMap));
+        } else if (typeof ord.ticks === 'function') {
+          yAxis.ticks(ord.ticks);
+        }
+      }
+
+      this._yAxisGroups[yAxisName]
+        .attr('transform', `translate(${translateX}, 0)`)
+        .call(yAxis);
     }
 
     // remove no longer used yAxisGroup
@@ -867,7 +870,13 @@ export class GuiChart extends HTMLElement {
     }
   }
 
-  private _compute(): void {
+  /**
+   * Computes axes min/max bounds, display ranges, styles and scales.
+   * 
+   * This method is potentially heavy has it iterates over the table content.
+   * Try to use it only when the table changes or when the component needs to resize.
+   */
+  compute(): void {
     let leftAxes = 0;
     let rightAxes = 0;
     for (const yAxisName in this._config.yAxes) {
@@ -910,35 +919,44 @@ export class GuiChart extends HTMLElement {
     let xMin: number | null = null;
     let xMax: number | null = null;
 
-    for (const serie of this._config.series) {
-      if (serie.xCol !== undefined) {
-        for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
-          const value = vMap(this._config.table.cols[serie.xCol][row]);
-          if (value !== null && value !== undefined && !isNaN(value)) {
-            if (xMin == null) {
-              xMin = value;
-            } else if (value <= xMin) {
-              xMin = value;
-            }
-            if (xMax == null) {
-              xMax = value;
-            } else if (value >= xMax) {
-              xMax = value;
+    if (this._config.xAxis.min !== undefined) {
+      xMin = vMap(this._config.xAxis.min);
+    }
+
+    if (this._config.xAxis.max !== undefined) {
+      xMax = vMap(this._config.xAxis.max);
+    }
+
+    if (xMin === null || xMax === null) {
+      // x axis domain is not fully defined, let's iterate over the table to find the boundaries
+      for (const serie of this._config.series) {
+        if (serie.xCol !== undefined) {
+          for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
+            const value = vMap(this._config.table.cols[serie.xCol][row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMin == null) {
+                xMin = value;
+              } else if (value <= xMin) {
+                xMin = value;
+              }
+              if (xMax == null) {
+                xMax = value;
+              } else if (value >= xMax) {
+                xMax = value;
+              }
             }
           }
         }
       }
     }
 
-    const xAxis: Omit<Axis, 'title' | 'format' | 'formatLocale'> = {
-      min: this._config.xAxis.min ?? xMin ?? 0,
-      max:
-        this._config.xAxis.max ??
-        xMax ??
-        Math.max(0, (this._config.table.cols[0]?.length ?? 0) - 1),
-      scale: 'linear',
-      cursorFormat: this._config.xAxis.cursorFormat,
-    };
+    if (xMin === null) {
+      xMin = 0;
+    }
+
+    if (xMax === null) {
+      xMax = Math.max(0, (this._config.table.cols[0]?.length ?? 0) - 1);
+    }
 
     // TODO handle the case where no yAxes have been defined at all
     const yScales: Record<string, Scale> = {};
@@ -949,7 +967,15 @@ export class GuiChart extends HTMLElement {
       let min: number | null = null;
       let max: number | null = null;
 
-      if (yAxis.min === undefined || yAxis.max === undefined) {
+      if (yAxis.min !== undefined) {
+        min = vMap(yAxis.min);
+      }
+
+      if (yAxis.max !== undefined) {
+        max = vMap(yAxis.max);
+      }
+
+      if (min === null || max === null) {
         // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
@@ -989,26 +1015,32 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      yScales[yAxisName] = createScale(type, [yAxis.min ?? min ?? 0, yAxis.max ?? max ?? 1], yRange);
+      switch (type) {
+        default:
+        case 'linear':
+          yScales[yAxisName] = d3.scaleLinear().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          break;
+        case 'log':
+          yScales[yAxisName] = d3.scaleLog().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          break;
+        case 'time':
+          yScales[yAxisName] = d3.scaleTime().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          break;
+      }
     }
 
-    const xScale = createScale(xAxis.scale, [xAxis.min, xAxis.max], xRange);
+    const xAxis = this._config.xAxis;
+    let xScale: Scale;
+    if (xAxis.scale === 'log') {
+      xScale = d3.scaleLog().domain([xMin, xMax]).rangeRound(xRange);
+    } else if (xAxis.scale === 'time') {
+      xScale = d3.scaleTime().domain([xMin, xMax]).rangeRound(xRange);
+    } else {
+      // default to linear scale
+      xScale = d3.scaleLinear().domain([xMin, xMax]).rangeRound(xRange);
+    }
 
     this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function createScale(type: ScaleType = 'linear', domain: any[], range: number[]): Scale {
-  domain = [vMap(domain[0]), vMap(domain[1])];
-
-  switch (type) {
-    case 'linear':
-      return d3.scaleLinear().domain(domain).rangeRound(range);
-    case 'log':
-      return d3.scaleLog().domain(domain).rangeRound(range);
-    case 'time':
-      return d3.scaleTime().domain(domain).rangeRound(range);
   }
 }
 

@@ -8,7 +8,7 @@ enum Confidence {
 }
 
 @expose
-fn random_table(nbRows: int) {
+fn table(nbRows: int) {
   if (nbRows < 5) {
     throw "min nbRows 5";
   }

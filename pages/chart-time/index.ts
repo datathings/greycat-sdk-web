@@ -22,12 +22,16 @@ try {
     console.log(`selection from ${from} to ${to}`);
   });
 
-
   let table = await greycat.call<core.Table>('project::table');
-
   console.log(table);
 
-  chart.config = {
+  const colors = {
+    low: 'cyan',
+    normal: null,
+    high: 'red',
+  };
+
+  chart.setConfig({
     tooltip: {
       // Override default tooltip
       render: (data) => {
@@ -40,35 +44,28 @@ try {
       format: '%a, %H:%M',
     },
     yAxes: {
-      y: {},
-      classes: {
-        position: 'right',
-        ticks: ['Low', 'Normal', 'High'],
-      },
+      temp: {},
     },
     table,
     series: [
       {
         title: 'Value',
         type: 'line',
-        yAxis: 'y',
+        yAxis: 'temp',
         xCol: 0,
         yCol: 1,
+        colorCol: 2,
+        colorMapping: (v) => colors[v],
       },
-      {
-        type: 'bar',
-        yAxis: 'classes',
-        xCol: 0,
-        yCol: 2
-      }
     ],
-  };
+  });
 
   // eslint-disable-next-line no-inner-declarations
   async function randomize() {
     table = await greycat.call<core.Table>('project::table');
     console.log({ table });
     chart.config.table = table;
+    chart.compute();
     chart.update();
   }
 

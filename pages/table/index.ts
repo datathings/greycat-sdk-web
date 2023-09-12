@@ -22,7 +22,7 @@ try {
         (el.children[1] as HTMLElement).style.color = 'cyan';
         break;
       case 'normal':
-        (el.children[1] as HTMLElement).style.color = '';
+        (el.children[1] as HTMLElement).style.color = 'lightgreen';
         break;
       case 'high':
         (el.children[1] as HTMLElement).style.color = 'orange';
@@ -30,8 +30,8 @@ try {
     }
   };
 
-  tableEl.addEventListener('table-row-click', (ev) => {
-    window.alert(`Row ${ev.detail.rowIdx}, Col ${ev.detail.colIdx}`);
+  tableEl.addEventListener('table-dblclick', (ev) => {
+    window.alert(`Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${ev.detail.row[ev.detail.colIdx].value}"`);
   });
 
   randomizeBtn.addEventListener('click', async () => {

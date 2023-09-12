@@ -1,9 +1,14 @@
 import type { core } from '@greycat/sdk';
 import type { TableLike } from '../common.js';
+import { CanvasContext } from './ctx.js';
 
+export type Scale =
+  | d3.ScaleLinear<number, number, never>
+  | d3.ScaleTime<number, number, never>
+  | d3.ScaleLogarithmic<number, number, never>;
 export type Color = string | CanvasGradient | CanvasPattern;
-export type SerieType = 'line' | 'bar' | 'scatter' | 'line+scatter' | 'area' | 'line+area';
-export type ScaleType = 'linear' | 'log' | 'time';
+export type SerieType = Serie['type'];
+export type ScaleType = Extract<Axis['scale'], string>;
 export type SecondOrdinate = 'min' | 'max' | number;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
@@ -17,11 +22,11 @@ export type Tooltip = {
   position: TooltipPosition;
   /**
    * Called whenever the tooltip should update its content.
-   * 
+   *
    * *If this is defined, the default tooltip will not display.*
    *
-   * @param data 
-   * @returns 
+   * @param data
+   * @returns
    */
   render?: (data: SerieData[]) => void;
 };
@@ -33,7 +38,7 @@ export type CommonAxis = {
   /**
    * Formats the ticks on the axis
    * See https://d3js.org/d3-format#format
-   * 
+   *
    * If the `scale` is `'time'` and `format` is `undefined`, the display is defaulting to ISO.
    * See https://d3js.org/d3-time-format#utcFormat
    */
@@ -50,29 +55,47 @@ export type CommonAxis = {
    */
   ratio?: number;
   /**
+   * This is called right before rendering the axis onto the chart.
+   *
+   * **When defined, no other axis properties will be applied `format`, `ticks`, etc.**
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  hook?: (axis: d3.Axis<any>) => void;
+};
+
+export interface LinearAxis extends CommonAxis {
+  scale?: 'linear';
+  /**
    * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ticks?: any[];
-};
-
-export interface LinearAxis extends CommonAxis {
-  scale?: 'linear';
 }
 
 export interface LogAxis extends CommonAxis {
   scale: 'log';
+  /**
+   * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
+   *
+   * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ticks?: any[];
 }
 
 export interface TimeAxis extends CommonAxis {
   scale: 'time';
+  /**
+   * Time axis can also leverage `d3.TimeInterval` by specifying for instance `d3.utcHour.every(24)`
+   */
+  ticks?: d3.TimeInterval | (core.time | core.Date | Date | number)[] | null;
 }
 
 export type Axis = LinearAxis | LogAxis | TimeAxis;
 
-export type Ordinate = Axis & { position: AxisPosition };
+export type Ordinate = Axis & { position?: AxisPosition };
 
 export type SerieOptions = {
   color: string;
@@ -89,21 +112,20 @@ export type SerieOptions = {
    */
   yCol2: SecondOrdinate;
   /**
-   * Maps the row value to a color definition.
-   * 
+   * Maps the col values (from `colorCol`) to a color definition.
+   *
    * *Returning `null` or `undefined` will make the painting use the default color of the serie*
    *
    * *Not defining a `colorMapping` will use the value as-is for coloring, meaning the serie's column can contain color codes directly*
    *
-   * @param v the current row value
+   * @param v the current cell value
    * @returns the color used for canvas painting
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
 };
 
-export interface Serie<K extends string = string> extends Partial<SerieOptions> {
-  type: SerieType;
+export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
    * optional offset of the x column in the given table
    *
@@ -130,10 +152,55 @@ export interface Serie<K extends string = string> extends Partial<SerieOptions> 
    * Optional title used to name the serie.
    */
   title?: string;
+  /**
+   * A hook to customize canvas drawing. This is called before the serie has been drawn.
+   */
+  drawBefore?: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
+  /**
+   * A hook to customize canvas drawing. This is called after the serie has been drawn.
+   */
+  drawAfter?: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
 }
 
+export interface CustomSerie<K> extends CommonSerie<K> {
+  type: 'custom';
+  draw: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
+}
+
+export interface LineSerie<K> extends CommonSerie<K> {
+  type: 'line';
+}
+
+export interface BarSerie<K> extends CommonSerie<K> {
+  type: 'bar';
+}
+
+export interface ScatterSerie<K> extends CommonSerie<K> {
+  type: 'scatter';
+}
+
+export interface LineScatterSerie<K> extends CommonSerie<K> {
+  type: 'line+scatter';
+}
+
+export interface AreaSerie<K> extends CommonSerie<K> {
+  type: 'area';
+}
+
+export interface LineAreaSerie<K> extends CommonSerie<K> {
+  type: 'line+area';
+}
+
+export type Serie<K extends string = string> =
+  | LineSerie<K>
+  | BarSerie<K>
+  | ScatterSerie<K>
+  | LineScatterSerie<K>
+  | AreaSerie<K>
+  | LineAreaSerie<K>
+  | CustomSerie<K>;
+
 export interface ChartConfig<K = { [keys: string]: never }> {
-  type?: SerieType;
   table: TableLike;
   series: Serie<Extract<keyof K, string>>[];
   /**
@@ -146,7 +213,7 @@ export interface ChartConfig<K = { [keys: string]: never }> {
    * This is a key-value object for the series to be able to refer to them by the 'key' name in `yAxis`
    */
   yAxes: {
-    [name in keyof K]: Partial<Ordinate>;
+    [name in keyof K]: Ordinate;
   };
   cursor?: boolean;
   /**

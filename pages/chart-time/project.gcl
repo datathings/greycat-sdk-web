@@ -17,15 +17,15 @@ fn table(): Table {
   prevTime = prevTime + 1_hour;
   table.set(1, 0, prevTime);
   table.set(1, 1, null);
-  table.set(0, 2, null);
+  table.set(1, 2, null);
   prevTime = prevTime + 1_hour;
   table.set(2, 0, prevTime);
   table.set(2, 1, null);
-  table.set(0, 2, null);
+  table.set(2, 2, null);
   prevTime = prevTime + 1_hour;
   table.set(3, 0, prevTime);
   table.set(3, 1, null);
-  table.set(0, 2, null);
+  table.set(3, 2, null);
   prevTime = prevTime + 1_hour;
 
   for (var i = 4; i < 500; i++) {
@@ -48,6 +48,20 @@ fn table(): Table {
       prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
     }
   }
+
+  // put some null at the end also for tests
+  var row = table.rows();
+  table.set(row, 0, prevTime);
+  table.set(row, 1, null);
+  table.set(row, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 1, 0, prevTime);
+  table.set(row + 1, 1, null);
+  table.set(row + 1, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 2, 0, prevTime);
+  table.set(row + 2, 1, null);
+  table.set(row + 2, 2, null);
 
   return table;
 }

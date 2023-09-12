@@ -1,5 +1,5 @@
-import { Scale, vMap } from './internals.js';
-import type { Color, Serie, SerieOptions } from './types.js';
+import { vMap } from './internals.js';
+import type { Scale, Color, Serie, SerieOptions } from './types.js';
 import type { TableLike } from '../common.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
@@ -28,6 +28,50 @@ const SEGMENTS: Record<number, number[]> = {
   0: [], // solid
   1: [5, 5], // dashed
 };
+
+export class CanvasContext {
+  constructor(public ctx: Ctx) { }
+
+  line(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+    line(this.ctx, table, serie, xScale, yScale);
+  }
+
+  bar(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+    bar(this.ctx, table, serie, xScale, yScale);
+  }
+
+  scatter(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+    scatter(this.ctx, table, serie, xScale, yScale);
+  }
+
+  area(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+    area(this.ctx, table, serie, xScale, yScale);
+  }
+
+  circle(x: number, y: number, radius: number, opts: ShapeOptions): void {
+    circle(this.ctx, x, y, radius, opts);
+  }
+
+  cross(x: number, y: number, width: number, opts: ShapeOptions): void {
+    cross(this.ctx, x, y, width, opts);
+  }
+
+  simpleLine(startX: number, startY: number, endX: number, endY: number, opts: ShapeOptions): void {
+    simpleLine(this.ctx, startX, startY, endX, endY, opts);
+  }
+
+  text(x: number, y: number, txt: string, opts: TextOptions): void {
+    text(this.ctx, x, y, txt, opts);
+  }
+
+  rectangle(x: number, y: number, w: number, h: number, opts: ShapeOptions): void {
+    rectangle(this.ctx, x, y, w, h, opts);
+  }
+
+  triangle(x: number, y: number, w: number, h: number, opts: ShapeOptions): void {
+    triangle(this.ctx, x, y, w, h, opts);
+  }
+}
 
 export function line(
   ctx: Ctx,
@@ -59,7 +103,8 @@ export function line(
   for (let i = 0; i < table.cols[0].length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
     const y = yScale(vMap(table.cols[serie.yCol][i]));
-    const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+    const notDefined =
+      table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
     const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
     const currColor = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
 
@@ -141,7 +186,9 @@ export function bar(
       // meaning we no longer have to draw anything we are done
       break;
     }
-    ctx.fillStyle = serie.colorCol ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color : serie.color;
+    ctx.fillStyle = serie.colorCol
+      ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color
+      : serie.color;
     ctx.fillRect(x, y, serie.width, yMin - y);
   }
 
@@ -181,7 +228,9 @@ export function scatter(
       break;
     }
 
-    const color = serie.colorCol ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color : serie.color;
+    const color = serie.colorCol
+      ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color
+      : serie.color;
 
     switch (serie.markerShape) {
       case 'circle':
@@ -211,6 +260,9 @@ export function area(
   }
 
   let firstX = xScale(serie.xCol === undefined ? 0 : vMap(table.cols[serie.xCol][0]));
+  let lastX = xScale(
+    serie.xCol === undefined ? table.cols[0]?.length ?? 0 : vMap(table.cols[serie.xCol][0]),
+  );
   let firstY = yScale(vMap(table.cols[serie.yCol][0]));
 
   ctx.save();
@@ -227,7 +279,7 @@ export function area(
   for (let i = 0; i < table.cols[0].length; i++) {
     const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
     const y = yScale(vMap(table.cols[serie.yCol][i]));
-    if (x < xMin || y > yMin || y < yMax) {
+    if (y === undefined || x < xMin || y > yMin || y < yMax) {
       // prevent drawing out of range
       // prevColor = currColor;
       continue;
@@ -249,20 +301,20 @@ export function area(
         break;
       }
       ctx.lineTo(x, y);
+      lastX = x;
     }
   }
 
   if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
     // below => fill to yMin, above => fill to yMax
     const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
-    // fill
-    const lastX = xMax;
-    // bottom right
-    ctx.lineTo(lastX, yBound);
-    // bottom left
-    ctx.lineTo(firstX, yBound);
-    // start of area
-    ctx.lineTo(firstX, firstY);
+    // we can close the area going to bottom-right, then bottom-left and finally
+    // back to the firstX,firstY
+    ctx.lineTo(lastX, yBound); // bottom right
+    ctx.lineTo(firstX, yBound); // bottom left
+    ctx.lineTo(firstX, firstY); // start of line
+    // and finally, fill the area
+    ctx.fill();
   } else {
     // fill in regard to another serie
     for (let i = table.cols[0].length - 1; i >= 0; i--) {
@@ -274,11 +326,9 @@ export function area(
       }
       ctx.lineTo(x, y);
     }
-    // start of area
-    ctx.lineTo(firstX, firstY);
+    ctx.lineTo(firstX, firstY); // start of line
+    ctx.fill();
   }
-
-  ctx.fill();
 
   ctx.restore();
 }

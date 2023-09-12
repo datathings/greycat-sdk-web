@@ -17,7 +17,7 @@ try {
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
   const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
 
-  let table = await greycat.call<core.Table>('project::random_table', [150]);
+  let table = await greycat.call<core.Table>('project::table', [150]);
   console.log({ table });
 
   const LINE_COL = 0;
@@ -89,9 +89,10 @@ try {
 
   // eslint-disable-next-line no-inner-declarations
   async function randomize() {
-    table = await greycat.call<core.Table>('project::random_table', [+nbRows.value]);
+    table = await greycat.call<core.Table>('project::table', [+nbRows.value]);
     console.log({ table });
     chart.config.table = table;
+    chart.compute();
     chart.update();
   }
 

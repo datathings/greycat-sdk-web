@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.1/6.1.79-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.1/6.1.79-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/6.1/6.1.80-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/6.1/6.1.80-dev.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -3003,10 +3003,10 @@ packages:
       commander: 9.5.0
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/6.1/6.1.79-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.1/6.1.79-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/6.1/6.1.80-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.1/6.1.80-dev.tgz}
     name: '@greycat/sdk'
-    version: 6.1.79-dev
+    version: 6.1.80-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6

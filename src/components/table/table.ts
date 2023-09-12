@@ -1,7 +1,7 @@
 import { core, utils, std_n } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
-import type { GuiValue, GuiValueProps } from '../value/index.js';
+import { GuiValue, GuiValueProps } from '../value/index.js';
 import { GuiRenderEvent } from '../common.js';
 
 type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
@@ -212,9 +212,31 @@ export class GuiTable extends HTMLElement {
     });
 
     this._tbody.addEventListener('click', (e) => {
+      let rowEl: GuiTableBodyCell | undefined;
       if (e.target instanceof GuiTableBodyCell) {
-        this.dispatchEvent(new TableRowClickEvent(e.target.rowIdx, e.target.colIdx, e.target.data));
+        // trigger table-row-click when the cell is clicked
+        rowEl = e.target;
+      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+        // also trigger table-row-click when the cell value is clicked
+        rowEl = e.target.parentElement;
+      } else {
+        return;
       }
+      this.dispatchEvent(new TableClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
+    });
+
+    this._tbody.addEventListener('dblclick', (e) => {
+      let rowEl: GuiTableBodyCell | undefined;
+      if (e.target instanceof GuiTableBodyCell) {
+        // trigger table-row-click when the cell is clicked
+        rowEl = e.target;
+      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+        // also trigger table-row-click when the cell value is clicked
+        rowEl = e.target.parentElement;
+      } else {
+        return;
+      }
+      this.dispatchEvent(new TableDblClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
     });
 
     document.body.addEventListener('mouseup', cancelColResize);
@@ -396,7 +418,7 @@ class TableSortEvent extends CustomEvent<number> {
   }
 }
 
-export type TableRowClickDetail = {
+export type TableClickEventDetail = {
   /**
    * The current row index. This is not necessarily the "original" row index.
    * If the table is filtered or sorted, it is the "current" row index.
@@ -414,9 +436,15 @@ export type TableRowClickDetail = {
   row: Value[];
 };
 
-class TableRowClickEvent extends CustomEvent<TableRowClickDetail> {
+class TableClickEvent extends CustomEvent<TableClickEventDetail> {
   constructor(rowIdx: number, colIdx: number, row: Value[]) {
-    super('table-row-click', { detail: { rowIdx, colIdx, row }, bubbles: true });
+    super('table-click', { detail: { rowIdx, colIdx, row }, bubbles: true });
+  }
+}
+
+class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
+  constructor(rowIdx: number, colIdx: number, row: Value[]) {
+    super('table-dblclick', { detail: { rowIdx, colIdx, row }, bubbles: true });
   }
 }
 
@@ -721,6 +749,7 @@ declare global {
   interface HTMLElementEventMap {
     'table-sort': TableSortEvent;
     'table-resize-col': TableResizeColEvent;
-    'table-row-click': TableRowClickEvent;
+    'table-click': TableClickEvent;
+    'table-dblclick': TableDblClickEvent;
   }
 }
