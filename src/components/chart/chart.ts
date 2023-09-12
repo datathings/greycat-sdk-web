@@ -748,7 +748,7 @@ export class GuiChart extends HTMLElement {
         ...this._config.series[i],
       };
 
-      serie.drawBefore?.(this._ctx, xScale, yScales[serie.yAxis]);
+      serie.drawBefore?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
 
       switch (serie.type) {
         case 'line':
@@ -773,11 +773,11 @@ export class GuiChart extends HTMLElement {
           this._ctx.scatter(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'custom':
-          serie.draw(this._ctx, xScale, yScales[serie.yAxis]);
+          serie.draw(this._ctx, serie, xScale, yScales[serie.yAxis]);
           break;
       }
 
-      serie.drawAfter?.(this._ctx, xScale, yScales[serie.yAxis]);
+      serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
     }
 
     // Add the x-axis.

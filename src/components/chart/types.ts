@@ -13,6 +13,7 @@ export type SecondOrdinate = 'min' | 'max' | number;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
+export type SerieWithOptions = Serie & SerieOptions;
 
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -155,16 +156,16 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
    * A hook to customize canvas drawing. This is called before the serie has been drawn.
    */
-  drawBefore?: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
+  drawBefore?: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
   /**
    * A hook to customize canvas drawing. This is called after the serie has been drawn.
    */
-  drawAfter?: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
+  drawAfter?: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
 export interface CustomSerie<K> extends CommonSerie<K> {
   type: 'custom';
-  draw: (ctx: CanvasContext, xScale: Scale, yScale: Scale) => void;
+  draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
 export interface LineSerie<K> extends CommonSerie<K> {

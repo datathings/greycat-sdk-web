@@ -1,12 +1,10 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, Serie, SerieOptions } from './types.js';
+import type { Scale, Color, SerieWithOptions } from './types.js';
 import type { TableLike } from '../common.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
 type Ctx = CanvasRenderingContext2D;
-
-type SerieWithOptions = Serie & SerieOptions;
 
 export type ShapeOptions = {
   color?: Color;
