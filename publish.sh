@@ -22,4 +22,4 @@ curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.base.css "https://get
 curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.classless.css "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}.classless.css"
 curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.css "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}.css"
 curl -s -X PUT -H "Authorization: $token" -T ui/greycat.ui.js "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
-curl -s -X PUT -H "Authorization: $token" -d "${VERSION}" -H "Content-Type: text/plain" "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/latest"
+curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" -H "Content-Type: text/plain" "https://get.greycat.io/files/ui/${CI_COMMIT_REF_NAME}/latest"
