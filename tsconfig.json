@@ -27,6 +27,6 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "include": ["src", "custom-intl.d.ts"],
+  "include": ["src", "custom-intl.d.ts", "src/input-elements.ts"],
   "exclude": ["src/_boilerplate", "src/bundle.ts"]
 }

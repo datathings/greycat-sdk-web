@@ -5,6 +5,7 @@
 //
 // It imports the ESM index and registers it on the global 'greycat' namespace under 'ui'
 import * as sdk from '@greycat/sdk';
+
 import * as ui from './index';
 
 globalThis.greycat = globalThis.greycat ?? {};

@@ -109,8 +109,9 @@ export class GuiTaskHistoryList extends HTMLElement {
     const startIndex = (this._currentPage - 1) * this._tasksPerPage;
 
     try {
-      if (startIndex >= 0)
+      if (startIndex >= 0) {
         this._tasks = await runtime.Task.history(startIndex, this._tasksPerPage, this._greycat);
+      }
       await this._updateTotalPagesNumber();
     } catch (error) {
       this._handleError(error as Error);
