@@ -14,6 +14,8 @@ import { type GuiMap } from './map/index.js';
 // import { type GuiScatterPlotChart } from './scatter-plot';
 import { type GuiTable } from './table/index.js';
 // import { type GuiTimezoneSelect } from './timezone-select';
+import { type GuiUserRoles } from './users/user-roles/index.js';
+import { type GuiMultiSelectCheckbox } from './multi-select-checkbox/index.js';
 import { type GuiValue } from './value/index.js';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart/index.js';
@@ -39,6 +41,8 @@ export * from './map/index.js';
 // export * from './scatter-plot';
 export * from './table/index.js';
 // export * from './timezone-select';
+export * from './users/user-roles/user-roles.js';
+export * from './multi-select-checkbox/multi-select-checkbox.js';
 export * from './value/index.js';
 export * from './donut/index.js';
 export * from './chart/index.js';
@@ -64,6 +68,8 @@ export type GuiElement =
   // | GuiScatterPlotChart
   | GuiTable
   // | GuiTimezoneSelect
+  | GuiUserRoles
+  | GuiMultiSelectCheckbox
   | GuiValue
   | GuiTask
   | GuiTaskInfo

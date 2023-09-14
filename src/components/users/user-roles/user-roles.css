@@ -1,0 +1,13 @@
+gui-user-roles tbody tr td code {
+  margin-right: 5px;
+}
+
+gui-user-roles tbody tr td code:last-child {
+  margin-right: 0;
+}
+
+gui-user-roles .button-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}

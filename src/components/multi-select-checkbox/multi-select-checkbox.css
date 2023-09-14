@@ -1,0 +1,9 @@
+gui-multi-select-checkbox {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+
+gui-multi-select-checkbox .checkbox-item {
+  display: flex;
+  align-items: center;
+}

@@ -1,11 +1,12 @@
 *,
 ::after,
-::before {
+::before,
+::backdrop {
   box-sizing: border-box;
 }
 
 /* defaults */
-:root {
+:root, ::backdrop {
   font-family: 'Raleway', 'Arial', sans-serif;
 
   --text-0: 255, 255, 255;
@@ -46,7 +47,7 @@
 }
 
 /* light theme override */
-:root[data-theme='light'] {
+:root[data-theme='light'], :root[data-theme='light'] ::backdrop {
   --text-0: 0, 0, 0;
   --text-1: 20, 20, 20;
   --text-2: 40, 40, 40;

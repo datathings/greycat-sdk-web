@@ -1,0 +1,23 @@
+html,
+body {
+  margin: 0;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#actions {
+  background-color: rgb(var(--base-1));
+  border-bottom: 1px solid rgb(var(--neutral-1));
+  padding: 10px;
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.align-right {
+  align-self: self-end;
+  place-self: center;
+  margin: 0 0 0 auto;
+}
