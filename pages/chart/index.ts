@@ -36,7 +36,7 @@ try {
   };
 
   chart.config = {
-    cursor: false,
+    cursor: true,
     xAxis: {
       cursorFormat: '.0f',
     },
