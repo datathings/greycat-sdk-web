@@ -9,8 +9,8 @@ task task_without_params() {
 }
 
 @expose
-task task_with_params(dur: duration, age: int): duration {
-  return dur;
+task task_with_params(name: String, age: int) {
+  return name;
 }
 
 @expose

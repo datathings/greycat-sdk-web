@@ -4,9 +4,7 @@ import { GreyCat, runtime } from '@greycat/sdk';
 import '../../src/css/full.css';
 import '../../src/bundle';
 
-const greycat = (window.greycat.default = await GreyCat.init({
-  url: new URL('http://localhost:8080'),
-}));
+const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
 const app = document.getElementById('app') as HTMLDivElement;
 
@@ -22,13 +20,8 @@ app.appendChild(taskCreateComponent);
 app.appendChild(taskHistoryListComponent);
 app.appendChild(taskRunningListComponent);
 
-const externalTaskNameInputHTMLElement = document.createElement('input');
-externalTaskNameInputHTMLElement.type = 'text';
-externalTaskNameInputHTMLElement.id = 'externalTaskNameInput';
-
-app.appendChild(externalTaskNameInputHTMLElement);
-
 const task = await greycat.call<runtime.Task>('project::task_with_params', ['Beket', 24]);
+console.log({ task });
 taskComponent.task = task;
 
 const info = await runtime.Task.info(task.user_id, task.task_id);

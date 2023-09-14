@@ -43,7 +43,6 @@ export * from './value/index.js';
 export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task/index.js';
-export * from './dynamic-input/index.js';
 export * from './tasks/task-info/index.js';
 export * from './tasks/task-create/index.js';
 export * from './tasks/task-history-list/index.js';

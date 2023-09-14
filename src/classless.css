@@ -1,12 +1,9 @@
 /* --- classless --- */
 html,
-body,
-::backdrop,
-dialog {
+body {
   color: rgb(var(--text-0));
   background-color: rgb(var(--base-0));
 }
-
 
 h1 {
   font-size: 2rem;
@@ -391,25 +388,4 @@ progress::-webkit-progress-value {
 
 progress::-moz-progress-bar {
   background: rgb(var(--accent-0));
-}
-
-dialog:not([open]) {
-  display: none;
-}
-
-dialog {
-  display: flex;
-  flex-direction: column;
-  background-color: rgb(var(--base-2));
-  border: 1px solid transparent;
-  border-radius: var(--border-radius);
-  min-width: 400px;
-  box-shadow:
-    rgba(var(--text-0), 0.05) 0px 0.0625rem 0.1875rem,
-    rgba(var(--text-0), 0.05) 0px 1.25rem 1.75rem -0.4375rem,
-    rgba(var(--text-0), 0.04) 0px 0.0625rem 1.0625rem -0.4375rem;
-}
-
-dialog::backdrop {
-  background-color: rgb(0, 0, 0, 0.5);
 }
