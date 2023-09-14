@@ -1,0 +1,25 @@
+gui-user-table tbody tr td code:last-child {
+  margin-right: 0;
+}
+
+gui-user-table select {
+  width: 100;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+gui-user-table .button-wrapper {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+gui-user-table .checkbox-label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+gui-user-table .checkbox-label input[type="checkbox"] {
+  margin-left: 5px;
+}
