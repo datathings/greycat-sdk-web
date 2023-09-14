@@ -9,9 +9,6 @@ hero:
     - theme: brand
       text: Get Started
       link: /get-started
-    # - theme: alt
-    #   text: Examples
-    #   link: /examples
 
 features:
   - title: Web Component
