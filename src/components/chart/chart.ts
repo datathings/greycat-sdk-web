@@ -108,6 +108,9 @@ export class GuiChart extends HTMLElement {
 
     // mouse events
     this.addEventListener('mousedown', (event) => {
+      if (event.button !== 0) {
+        return;
+      }
       const { left, top } = this._canvas.getBoundingClientRect();
       this._cursor.startX = Math.round(event.pageX - (left + window.scrollX));
       this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
@@ -119,7 +122,10 @@ export class GuiChart extends HTMLElement {
       this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this.addEventListener('mouseup', () => {
+    this.addEventListener('mouseup', (event) => {
+      if (event.button !== 0) {
+        return;
+      }
       if (
         Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
       ) {
@@ -201,78 +207,83 @@ export class GuiChart extends HTMLElement {
       this._resetCursor();
     });
 
-    this.addEventListener('wheel', throttle((event: WheelEvent) => {
-      // if this is too slow, maybe cache xRange, yRange
-      const { xRange, yRange, xScale: scale, yScales } = this._computed;
-      if (event.shiftKey) {
-        // x axis panning
-        const [min, max] = scale.range();
-        const dx = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-        const from = this._config.xAxis.min = scale.invert(min + dx);
-        const to = this._config.xAxis.max = scale.invert(max + dx);
-        this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-        this.compute();
-        this.update();
-      } else if (event.altKey) {
-        // y axes panning
-        for (const [name, scale] of Object.entries(yScales)) {
-          const axis = this._config.yAxes[name];
+    this.addEventListener(
+      'wheel',
+      throttle((event: WheelEvent) => {
+        // if this is too slow, maybe cache xRange, yRange
+        const { xRange, yRange, xScale: scale, yScales } = this._computed;
+        if (event.shiftKey) {
+          // x axis panning
           const [min, max] = scale.range();
-          const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-          axis.min = scale.invert(min + d);
-          axis.max = scale.invert(max + d);
-        }
-        this.compute();
-        this.update();
-      } else if (
-        this._cursor.x < xRange[0] &&
-        this._cursor.y <= yRange[0] &&
-        this._cursor.y >= yRange[1]
-      ) {
-        // left y axes zoom
-        for (const [name, scale] of Object.entries(yScales)) {
-          const axis = this._config.yAxes[name];
-          if (axis.position === undefined || axis.position === 'left') {
+          const dx =
+            (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+          const from = (this._config.xAxis.min = scale.invert(min + dx));
+          const to = (this._config.xAxis.max = scale.invert(max + dx));
+          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+          this.compute();
+          this.update();
+        } else if (event.altKey) {
+          // y axes panning
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
             const [min, max] = scale.range();
-            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
             axis.min = scale.invert(min + d);
-            axis.max = scale.invert(max - d);
+            axis.max = scale.invert(max + d);
           }
-        }
-        this.compute();
-        this.update();
-      } else if (
-        this._cursor.x > xRange[1] &&
-        this._cursor.y <= yRange[0] &&
-        this._cursor.y >= yRange[1]
-      ) {
-        // right y axes zoom
-        for (const [name, scale] of Object.entries(yScales)) {
-          const axis = this._config.yAxes[name];
-          if (axis.position === 'right') {
-            const [min, max] = scale.range();
-            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-            axis.min = scale.invert(min + d);
-            axis.max = scale.invert(max - d);
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.x < xRange[0] &&
+          this._cursor.y <= yRange[0] &&
+          this._cursor.y >= yRange[1]
+        ) {
+          // left y axes zoom
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
+            if (axis.position === undefined || axis.position === 'left') {
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max - d);
+            }
           }
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.x > xRange[1] &&
+          this._cursor.y <= yRange[0] &&
+          this._cursor.y >= yRange[1]
+        ) {
+          // right y axes zoom
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
+            if (axis.position === 'right') {
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max - d);
+            }
+          }
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.y > yRange[0] &&
+          this._cursor.x >= xRange[0] &&
+          this._cursor.x <= xRange[1]
+        ) {
+          // x axis zoom
+          const [min, max] = scale.range();
+          const d =
+            (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+          const from = (this._config.xAxis.min = scale.invert(min - d));
+          const to = (this._config.xAxis.max = scale.invert(max + d));
+          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+          this.compute();
+          this.update();
         }
-        this.compute();
-        this.update();
-      } else if (
-        this._cursor.y > yRange[0] &&
-        this._cursor.x >= xRange[0] &&
-        this._cursor.x <= xRange[1]
-      ) {
-        // x axis zoom
-        const [min, max] = scale.range();
-        const d = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-        const from = this._config.xAxis.min = scale.invert(min - d);
-        const to = this._config.xAxis.max = scale.invert(max + d);
-        this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-        this.compute();
-        this.update();
-      }
-    }, 16));
+      }, 16),
+    );
   }
 
   connectedCallback() {
@@ -532,15 +543,9 @@ export class GuiChart extends HTMLElement {
             break;
           }
           case 'bar':
-            this._uxCtx.rectangle(
-              x,
-              y + (yRange[0] - y) / 2,
-              serie.width + 1,
-              yRange[0] - y,
-              {
-                color: style['accent-0'],
-              },
-            );
+            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width + 1, yRange[0] - y, {
+              color: style['accent-0'],
+            });
             break;
         }
 
@@ -614,7 +619,12 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (this._cursor.x !== -1 && this._cursor.startX !== -1) {
+    if (
+      this._cursor.x !== -1 &&
+      this._cursor.startX !== -1 &&
+      this._cursor.y !== -1 &&
+      this._cursor.startY !== -1
+    ) {
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
@@ -634,6 +644,24 @@ export class GuiChart extends HTMLElement {
         startX = tmp;
       }
 
+      let startY = this._cursor.startY;
+      if (startY > yRange[0]) {
+        startY = yRange[0];
+      } else if (startY < yRange[1]) {
+        startY = yRange[1];
+      }
+      let endY = this._cursor.y;
+      if (endY > yRange[0]) {
+        endY = yRange[0];
+      } else if (endY < yRange[1]) {
+        endY = yRange[1];
+      }
+      if (startY > endY) {
+        const tmp = endY;
+        endY = startY;
+        startY = tmp;
+      }
+
       const from: number = Math.floor(+xScale.invert(startX));
       const to: number = Math.ceil(+xScale.invert(endX));
 
@@ -645,17 +673,27 @@ export class GuiChart extends HTMLElement {
         xScale.domain([from, to]);
         this._config.xAxis.min = from;
         this._config.xAxis.max = to;
+
+        for (const yAxisName in yScales) {
+          const yScale = yScales[yAxisName];
+          const from: number = Math.floor(+yScale.invert(endY));
+          const to: number = Math.ceil(+yScale.invert(startY));
+          yScale.domain([from, to]);
+          this._config.yAxes[yAxisName].min = from;
+          this._config.yAxes[yAxisName].max = to;
+        }
+
         // XXX do we want to dispatch after the animation or not?
         // reset selection
         this._resetCursor();
         this.dispatchEvent(selectionEvt);
+        this.compute();
         this.update();
       } else {
         // selection in progress
         const w = endX - startX;
-        // const h = startY - endY;
-        const h = this._uxCanvas.height - style.margin.top - style.margin.bottom;
-        this._uxCtx.rectangle(startX + w / 2, yRange[1] + h / 2, w, h, {
+        const h = endY - startY;
+        this._uxCtx.rectangle(startX + w / 2, startY + h / 2, w, h, {
           fill: style['accent-0'],
           opacity: 0.1,
         });
@@ -856,9 +894,7 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      this._yAxisGroups[yAxisName]
-        .attr('transform', `translate(${translateX}, 0)`)
-        .call(yAxis);
+      this._yAxisGroups[yAxisName].attr('transform', `translate(${translateX}, 0)`).call(yAxis);
     }
 
     // remove no longer used yAxisGroup
@@ -872,7 +908,7 @@ export class GuiChart extends HTMLElement {
 
   /**
    * Computes axes min/max bounds, display ranges, styles and scales.
-   * 
+   *
    * This method is potentially heavy has it iterates over the table content.
    * Try to use it only when the table changes or when the component needs to resize.
    */
@@ -1018,13 +1054,22 @@ export class GuiChart extends HTMLElement {
       switch (type) {
         default:
         case 'linear':
-          yScales[yAxisName] = d3.scaleLinear().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          yScales[yAxisName] = d3
+            .scaleLinear()
+            .domain([min ?? 0, max ?? 1])
+            .rangeRound(yRange);
           break;
         case 'log':
-          yScales[yAxisName] = d3.scaleLog().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          yScales[yAxisName] = d3
+            .scaleLog()
+            .domain([min ?? 0, max ?? 1])
+            .rangeRound(yRange);
           break;
         case 'time':
-          yScales[yAxisName] = d3.scaleTime().domain([min ?? 0, max ?? 1]).rangeRound(yRange);
+          yScales[yAxisName] = d3
+            .scaleTime()
+            .domain([min ?? 0, max ?? 1])
+            .rangeRound(yRange);
           break;
       }
     }

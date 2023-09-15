@@ -1,0 +1,14 @@
+use runtime;
+
+@expose
+fn getSecurityEntities(): Array<SecurityEntity> {
+  return SecurityEntity::all();
+}
+
+@expose
+@permission("foo")
+fn foo() {}
+
+@expose
+@permission("bar")
+fn bar() {}
