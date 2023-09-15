@@ -16,6 +16,9 @@ dependencies:
     version: 2.4.0
 
 devDependencies:
+  '@greycat/lang':
+    specifier: https://get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz
+    version: '@get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz'
   '@types/d3':
     specifier: 7.4.0
     version: 7.4.0
@@ -49,9 +52,6 @@ devDependencies:
   vitepress:
     specifier: 1.0.0-rc.13
     version: 1.0.0-rc.13(@algolia/client-search@4.19.1)(@types/node@20.4.5)(search-insights@2.8.2)
-  vue:
-    specifier: 3.3.4
-    version: 3.3.4
 
 packages:
 
@@ -2922,6 +2922,14 @@ packages:
       - universal-cookie
     dev: true
 
+  /vscode-languageserver-textdocument@1.0.8:
+    resolution: {integrity: sha512-1bonkGqQs5/fxGT5UchTgjGVnfysL0O8v1AYMBjqTbWQTFn721zaPGDYFkOKtfDgFiSgXM3KwaG3FMGfW4Ed9Q==}
+    dev: true
+
+  /vscode-languageserver-types@3.17.3:
+    resolution: {integrity: sha512-SYU4z1dL0PyIMd4Vj8YOqFvHu7Hz/enbWtpfnVbJHU4Nd1YNYx8u0ennumc6h48GQNeOLxmwySmnADouT/AuZA==}
+    dev: true
+
   /vscode-oniguruma@1.7.0:
     resolution: {integrity: sha512-L9WMGRfrjOhgHSdOYgCt/yRMsXzLDJSL7BPrOZt73gU0iWO4mpqzqQzOz5srxqTvMBaR0XZTSrVWo4j55Rc6cA==}
     dev: true
@@ -3020,6 +3028,16 @@ packages:
       validator: 13.11.0
     optionalDependencies:
       commander: 9.5.0
+    dev: true
+
+  '@get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz}
+    name: '@greycat/lang'
+    version: 0.0.0
+    engines: {node: '>=16.17.0'}
+    dependencies:
+      vscode-languageserver-textdocument: 1.0.8
+      vscode-languageserver-types: 3.17.3
     dev: true
 
   '@get.greycat.io/files/sdk/js/dev/6.1/6.1.85-dev.tgz':
