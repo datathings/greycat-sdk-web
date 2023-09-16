@@ -10,7 +10,7 @@ const LIBRARIES_DIR = resolve('libs');
 export default defineConfig({
   title: 'GreyCat',
   description: 'Official GreyCat Documentation',
-  base: '',
+  base: './',
   outDir: resolve('dist', 'docs'),
   rewrites: {
     'src/components/:sub/:name/(.*)': 'components/:sub/:name/index.md',
