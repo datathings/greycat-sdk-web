@@ -12,7 +12,7 @@
   "scripts": {
     "dev": "vite -c pages.config.ts",
     "clean": "rm -rf dist",
-    "build": "pnpm build:esm && pnpm build:bundle && pnpm build:css && cp -R fonts dist/",
+    "build": "pnpm build:esm && pnpm build:bundle && pnpm build:css && cp -R fonts dist/ && pnpm docs:build",
     "build:esm": "tsc",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
     "build:css": "pnpm build:css:base && pnpm build:css:classless && pnpm build:css:full",
@@ -34,6 +34,7 @@
   },
   "devDependencies": {
     "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz",
+    "@custom-elements-manifest/analyzer": "0.8.4",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",

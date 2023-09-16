@@ -7,8 +7,8 @@ hero:
   tagline: Official GreyCat Documentation
   actions:
     - theme: brand
-      text: Get Started
-      link: /get-started
+      text: Getting Started
+      link: /getting-started
 
 features:
   - title: JavaScript & TypeScript bindings
