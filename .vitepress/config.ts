@@ -17,6 +17,7 @@ export default defineConfig({
     'src/components/:name/(.*)': 'components/:name/index.md',
     'src/components/(.*)': 'components/index.md',
   },
+  srcExclude: ['README.md'],
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
     // logo: './logo.svg',

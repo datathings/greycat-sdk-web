@@ -25,4 +25,7 @@ mv dist/bundle/*.css dist/ui/
 # ui/fonts/*
 mv dist/fonts dist/ui/
 
-rm -rf dist/esm dist/bundle dist/fonts dist/custom-elements.json
+# ui/docs
+mv dist/docs dist/ui/
+
+rm -rf dist/esm dist/bundle dist/fonts dist/docs dist/custom-elements.json
