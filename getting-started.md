@@ -1,4 +1,6 @@
-# Get Started
+# Getting Started
+
+## Install
 
 Add the dependency to your project:
 ```sh
@@ -8,39 +10,11 @@ pnpm install https://get.greycat.io/files/ui/6.1/6.1.140-dev.tgz
 > Update with the latest [version](https://get.greycat.io/files/ui/dev/latest)
 
 ## ESM / Bundler
-In your entrypoint `src/main.ts`:
-```ts
-// in src/main.ts
-import { GreyCat } from '@greycat/sdk';
+A minimal Vite example:
 
-globalThis.greycat.default = await GreyCat.init({ ... });
+::: code-group
 
-// this will make sure '@greycat/ui' is imported AFTER @greycat/sdk
-// so that all the component can rely on globalThis.greycat.default
-import('./index');
-```
-
-Then import `@greycat/ui` in `src/index.ts`:
-```ts
-// in src/index.ts
-import '@greycat/ui';
-// for the default styling
-import '@greycat/ui/dist/bundle/greycat.ui.css';
-
-const greycat = globalThis.greycat.default;
-
-const el = document.querySelector('gui-value')!;
-el.value = await greycat.call('project::hello', ['world!']);
-```
-
-::: warning
-Failing to initialize `globalThis.greycat.default` prior to importing `@greycat/ui` will lead to unexpected issues
-in regards to how some of the WebComponent leverage the default GreyCat instance.
-:::
-
-Your `index.html`:
-
-```html
+```html [index.html]
 <!DOCTYPE html>
 <html lang="en">
 
@@ -58,18 +32,61 @@ Your `index.html`:
 </html>
 ```
 
-In `project.gcl`:
+```ts [src/main.ts]
+import { GreyCat } from '@greycat/sdk';
 
-```gcl
+globalThis.greycat.default = await GreyCat.init({
+  url: new URL('http://localhost:8080'),
+});
+
+// this will make sure '@greycat/ui' is imported AFTER @greycat/sdk
+// so that all the component can rely on globalThis.greycat.default
+import('./index');
+```
+
+```ts [src/index.ts]
+import '@greycat/ui';
+// for the default styling
+import '@greycat/ui/dist/bundle/greycat.ui.css';
+
+const greycat = globalThis.greycat.default;
+
+const el = document.querySelector('gui-value')!;
+el.value = await greycat.call('project::hello', ['world!']);
+```
+
+```gcl [project.gcl]
 @expose
 fn hello(name: String): String {
   return "Hello, ${name}";
 }
 ```
 
+:::
+
+::: warning
+Failing to initialize `globalThis.greycat.default` prior to importing `@greycat/ui` will lead to unexpected issues
+in regards to how some of the WebComponent leverage the default GreyCat instance.
+:::
+
+
+::: code-group
+
+```sh [Terminal 1]
+greycat serve --user=1
+```
+
+```sh [Terminal 2]
+pnpm vite
+```
+
+:::
+
 ## Vanilla
 
-```html
+::: code-group
+
+```html [index.html]
 <!DOCTYPE html>
 <html lang="en">
 
@@ -95,3 +112,10 @@ fn hello(name: String): String {
 
 </html>
 ```
+```gcl [project.gcl]
+@expose
+fn hello(name: String): String {
+  return "Hello, ${name}";
+}
+
+:::

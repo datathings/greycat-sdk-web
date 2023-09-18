@@ -1,0 +1,7 @@
+# [algebra](/libs/algebra/)::[compute](/libs/algebra/compute/)::ComputeOperationClip
+
+## Attributes
+
+### max:&nbsp;[float](/libs/std/core/type.float.md)
+
+### min:&nbsp;[float](/libs/std/core/type.float.md)
