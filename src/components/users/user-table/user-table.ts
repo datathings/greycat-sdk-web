@@ -1,10 +1,9 @@
-import * as sdk from '@greycat/sdk';
-import { runtime } from '@greycat/sdk';
+import { GreyCat, runtime } from '@greycat/sdk';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 
 export class GuiUserTable extends HTMLElement {
-  private _greycat: sdk.GreyCat = window.greycat.default;
+  private _greycat: GreyCat = window.greycat.default;
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('dialog');
   private _nameInput = document.createElement('input');
@@ -61,7 +60,7 @@ export class GuiUserTable extends HTMLElement {
     this.render();
   }
 
-  set greycat(greycat: sdk.GreyCat) {
+  set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this._fetchAllUsers();
     this._fetchAllRoles();
@@ -89,10 +88,14 @@ export class GuiUserTable extends HTMLElement {
 
   private async _fetchAllUsers() {
     try {
-      this._users = (await runtime.User.all(this._greycat))
-        .sort((a, b) => a.name.localeCompare(b.name))
+      const entities = (await runtime.User.all(this._greycat)).sort((a, b) =>
+        a.name.localeCompare(b.name),
+      );
+      this._users = [];
+      for (let i = 0; i < entities.length; i++) {
         // Safe to type cast. runtime.User.all() only returns users
-        .map((user) => user as runtime.User);
+        this._users.push(entities[i] as runtime.User);
+      }
     } catch (err) {
       this._handleError(err);
     }
@@ -106,15 +109,21 @@ export class GuiUserTable extends HTMLElement {
       } else {
         fetchedRoles = await runtime.UserRole.all(this._greycat);
       }
-      const roleNames = fetchedRoles.map((role) => role.name).sort((a, b) => a.localeCompare(b));
+
+      const roleNames: string[] = [];
       const fragment = document.createDocumentFragment();
 
-      roleNames.forEach((roleName) => {
+      for (let i = 0; i < fetchedRoles.length; i++) {
+        roleNames.push(fetchedRoles[i].name);
+      }
+      roleNames.sort((a, b) => a.localeCompare(b));
+
+      for (let i = 0; i < roleNames.length; i++) {
         const option = document.createElement('option');
-        option.value = roleName;
-        option.textContent = roleName;
+        option.value = roleNames[i];
+        option.textContent = roleNames[i];
         fragment.appendChild(option);
-      });
+      }
 
       this._roleSelect.innerHTML = '';
       this._roleSelect.appendChild(fragment);
@@ -130,7 +139,11 @@ export class GuiUserTable extends HTMLElement {
       } else {
         this._groups = await runtime.UserGroup.all(this._greycat);
       }
-      this._groupsSelect.options = this._groups.map((group) => group.name);
+      const groupNames: string[] = [];
+      for (const group of this._groups) {
+        groupNames.push(group.name);
+      }
+      this._groupsSelect.options = groupNames;
     } catch (err) {
       this._handleError(err);
     }
@@ -147,10 +160,17 @@ export class GuiUserTable extends HTMLElement {
       this._roleSelect.value = user.role ?? this._currentUserRole;
       const groupNames: string[] = [];
       if (user.groups) {
-        for (let p = 0; p < user.groups.length; p++) {
-          const groupId = user.groups[p].group_id;
-          const userGroup = this._groups.find((group) => group.id === groupId);
-          const userGroupName = userGroup?.name ?? '';
+        for (const groupPolicy of user.groups) {
+          const groupId = groupPolicy.group_id;
+          let userGroupName = '';
+
+          for (const group of this._groups) {
+            if (group.id === groupId) {
+              userGroupName = group.name;
+              break;
+            }
+          }
+
           groupNames.push(userGroupName);
         }
       }
@@ -276,9 +296,15 @@ export class GuiUserTable extends HTMLElement {
       // groups cell
       const cGroups = document.createElement('td');
       if (user.groups) {
-        for (let p = 0; p < user.groups.length; p++) {
-          const groupId = user.groups[p].group_id;
-          const userGroup = this._groups.find((group) => group.id === groupId);
+        for (const groupPolicy of user.groups) {
+          const groupId = groupPolicy.group_id;
+          let userGroup: runtime.UserGroup | undefined = undefined;
+          for (const group of this._groups) {
+            if (group.id === groupId) {
+              userGroup = group;
+              break;
+            }
+          }
           const userGroupName = userGroup?.name ?? '';
           cGroups.appendChild(this._createBadge(userGroupName));
         }
@@ -297,22 +323,30 @@ export class GuiUserTable extends HTMLElement {
 
   private async _addOrUpdateUser() {
     // Find group ids by selected group names
-    const selectedGroupsIds: Array<number | bigint> = this._groupsSelect.selected
-      .map((groupName) => this._groups.find((group) => group.name === groupName))
-      .filter((group) => group !== undefined)
-      .map((group) => group!.id)
-      .filter((id) => id !== null);
+    const groupNames: Array<string> = this._groupsSelect.selected;
+    const selectedGroupsIds: Array<number | bigint> = [];
+
+    for (let i = 0; i < groupNames.length; i++) {
+      const groupName = groupNames[i];
+      for (let j = 0; j < this._groups.length; j++) {
+        const group = this._groups[j];
+        if (group && groupName === group.name && group.id !== null) {
+          selectedGroupsIds.push(group.id);
+        }
+      }
+    }
 
     // Create UserGroupPolicies with read type, associated with each group id
-    const selectedGroupPolicies: Array<runtime.UserGroupPolicy> = selectedGroupsIds.map(
-      (groupId) => {
-        return runtime.UserGroupPolicy.create(
-          groupId,
+    const selectedGroupPolicies: Array<runtime.UserGroupPolicy> = [];
+    for (const id of selectedGroupsIds) {
+      selectedGroupPolicies.push(
+        runtime.UserGroupPolicy.create(
+          id,
           runtime.UserGroupPolicyType.read(this._greycat),
           this._greycat,
-        );
-      },
-    );
+        ),
+      );
+    }
 
     const userIndex = this._users.findIndex((user) => user.name === this._nameInput.value);
     let updatedUser: runtime.User;
