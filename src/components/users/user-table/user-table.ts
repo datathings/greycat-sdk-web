@@ -88,14 +88,15 @@ export class GuiUserTable extends HTMLElement {
 
   private async _fetchAllUsers() {
     try {
-      const entities = (await runtime.User.all(this._greycat)).sort((a, b) =>
-        a.name.localeCompare(b.name),
-      );
+      const entities = await runtime.SecurityEntity.all(this._greycat);
       this._users = [];
       for (let i = 0; i < entities.length; i++) {
-        // Safe to type cast. runtime.User.all() only returns users
-        this._users.push(entities[i] as runtime.User);
+        const entity = entities[i];
+        if (entity instanceof runtime.User) {
+          this._users.push(entity);
+        }
       }
+      this._users.sort((a, b) => a.name.localeCompare(b.name));
     } catch (err) {
       this._handleError(err);
     }
@@ -103,11 +104,17 @@ export class GuiUserTable extends HTMLElement {
 
   private async _fetchAllRoles(roles?: runtime.UserRole[]) {
     try {
-      let fetchedRoles: runtime.UserRole[];
+      let fetchedRoles: runtime.UserRole[] = [];
       if (roles) {
         fetchedRoles = roles;
       } else {
-        fetchedRoles = await runtime.UserRole.all(this._greycat);
+        const entities = await runtime.SecurityEntity.all(this._greycat);
+        for (let i = 0; i < entities.length; i++) {
+          const entity = entities[i];
+          if (entity instanceof runtime.UserRole) {
+            fetchedRoles.push(entity);
+          }
+        }
       }
 
       const roleNames: string[] = [];
@@ -137,7 +144,14 @@ export class GuiUserTable extends HTMLElement {
       if (groups) {
         this._groups = groups;
       } else {
-        this._groups = await runtime.UserGroup.all(this._greycat);
+        this._groups = [];
+        const entities = await runtime.SecurityEntity.all(this._greycat);
+        for (let i = 0; i < entities.length; i++) {
+          const entity = entities[i];
+          if (entity instanceof runtime.UserGroup) {
+            this._groups.push(entity);
+          }
+        }
       }
       const groupNames: string[] = [];
       for (const group of this._groups) {
