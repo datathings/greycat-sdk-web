@@ -3,19 +3,17 @@
 layout: home
 
 hero:
-  name: "@greycat/ui"
-  tagline: Documentation
+  name: GreyCat
+  tagline: Official GreyCat Documentation
   actions:
     - theme: brand
-      text: Get Started
-      link: /get-started
+      text: Getting Started
+      link: /getting-started
 
 features:
-  - title: Web Component
-    details: "@greycat/ui is written from the ground up using Web Components."
-  - title: ESM
-    details: "@greycat/ui is available as an ESM module for ease of use with the latest browser and/or bundlers."
-  - title: Minified bundle
-    details: "@greycat/ui also comes pre-bundled as 2 files: greycat.ui.js & greycat.ui.css"
----
-
+  - title: JavaScript & TypeScript bindings
+    details: "GreyCat provides two SDKs targetting `Node.js` and the `Web`"
+  - title: TODO 1
+    details: TODO 1
+  - title: TODO 2
+    details: TODO 2
