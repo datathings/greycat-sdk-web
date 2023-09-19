@@ -19,7 +19,6 @@
     "dist/greycat.sdk.min.js"
   ],
   "scripts": {
-    "dev": "vite -c pages.config.ts",
     "clean": "rm -rf dist",
     "build": "pnpm build:types && pnpm build:esm && pnpm build:esm-min && pnpm build:css",
     "build:esm": "esbuild src/index.ts --bundle --format=esm --keep-names --outfile=dist/greycat.sdk.js --allow-overwrite",
@@ -30,9 +29,9 @@
     "build:css:classless": "lightningcss --minify --bundle --targets '>=0.25%' src/css/classless.css -o dist/css/greycat.classless.css",
     "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/full.css -o dist/css/greycat.css",
     "build:pages": "vite build",
-    "docs:dev": "vitepress dev",
-    "docs:build": "vitepress build",
-    "docs:preview": "vitepress preview",
+    "build:docs": "vitepress build",
+    "dev": "vite -c pages.config.ts",
+    "dev:docs": "vitepress dev",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
