@@ -345,23 +345,12 @@ interface CursorInfo {
 }
 
 declare global {
-  interface Window {
-    GuiBoxPlot: typeof GuiBoxPlot;
-  }
 
   interface HTMLElementTagNameMap {
     'gui-boxplot': GuiBoxPlot;
   }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'gui-boxplot': any;
-    }
-  }
 }
 
-if (!window.customElements.get('gui-boxplot')) {
-  window.GuiBoxPlot = GuiBoxPlot;
-  window.customElements.define('gui-boxplot', GuiBoxPlot);
+if (!globalThis.customElements.get('gui-boxplot')) {
+  globalThis.customElements.define('gui-boxplot', GuiBoxPlot);
 }

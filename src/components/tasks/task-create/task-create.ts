@@ -67,15 +67,12 @@ export class GuiTaskCreate extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task-create')) {
-  customElements.define('gui-task-create', GuiTaskCreate);
-}
-
 declare global {
-  interface Window {
-    GuiTaskCreate: typeof GuiTaskCreate;
-  }
   interface HTMLElementTagNameMap {
     'gui-task-create': GuiTaskCreate;
   }
+}
+
+if (!globalThis.customElements.get('gui-task-create')) {
+  globalThis.customElements.define('gui-task-create', GuiTaskCreate);
 }

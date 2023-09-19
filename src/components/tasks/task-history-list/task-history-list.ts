@@ -239,15 +239,12 @@ export class GuiTaskHistoryList extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task-history-list')) {
-  customElements.define('gui-task-history-list', GuiTaskHistoryList);
-}
-
 declare global {
-  interface Window {
-    GuiTaskHistoryList: typeof GuiTaskHistoryList;
-  }
   interface HTMLElementTagNameMap {
     'gui-task-history-list': GuiTaskHistoryList;
   }
+}
+
+if (!globalThis.customElements.get('gui-task-history-list')) {
+  globalThis.customElements.define('gui-task-history-list', GuiTaskHistoryList);
 }

@@ -182,15 +182,13 @@ export class GuiTask extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task')) {
-  customElements.define('gui-task', GuiTask);
-}
-
 declare global {
-  interface Window {
-    GuiTask: typeof GuiTask;
-  }
   interface HTMLElementTagNameMap {
     'gui-task': GuiTask;
   }
+}
+
+
+if (!globalThis.customElements.get('gui-task')) {
+  globalThis.customElements.define('gui-task', GuiTask);
 }

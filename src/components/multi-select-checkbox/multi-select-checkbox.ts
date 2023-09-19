@@ -64,15 +64,13 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-multi-select-checkbox')) {
-  customElements.define('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
-}
-
 declare global {
-  interface Window {
-    GuiMultiSelectCheckbox: typeof GuiMultiSelectCheckbox;
-  }
   interface HTMLElementTagNameMap {
     'gui-multi-select-checkbox': GuiMultiSelectCheckbox;
   }
+}
+
+
+if (!globalThis.customElements.get('gui-multi-select-checkbox')) {
+  globalThis.customElements.define('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
 }

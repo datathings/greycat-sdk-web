@@ -194,15 +194,12 @@ export class GuiUserRoles extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-user-roles')) {
-  customElements.define('gui-user-roles', GuiUserRoles);
-}
-
 declare global {
-  interface Window {
-    GuiUserRoles: typeof GuiUserRoles;
-  }
   interface HTMLElementTagNameMap {
     'gui-user-roles': GuiUserRoles;
   }
+}
+
+if (!globalThis.customElements.get('gui-user-roles')) {
+  globalThis.customElements.define('gui-user-roles', GuiUserRoles);
 }

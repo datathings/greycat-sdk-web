@@ -500,23 +500,11 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
 }
 
 declare global {
-  interface Window {
-    GuiDonut: typeof GuiDonut;
-  }
-
   interface HTMLElementTagNameMap {
     'gui-donut': GuiDonut;
   }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'gui-donut': any;
-    }
-  }
 }
 
-if (!window.customElements.get('gui-donut')) {
-  window.GuiDonut = GuiDonut;
-  window.customElements.define('gui-donut', GuiDonut);
+if (!globalThis.customElements.get('gui-donut')) {
+  globalThis.customElements.define('gui-donut', GuiDonut);
 }

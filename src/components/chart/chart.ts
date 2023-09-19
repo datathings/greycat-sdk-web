@@ -1111,9 +1111,6 @@ export class GuiChartCursorEvent extends CustomEvent<SerieData[]> {
 }
 
 declare global {
-  interface Window {
-    GuiChart: typeof GuiChart;
-  }
 
   interface HTMLElementTagNameMap {
     'gui-chart': GuiChart;
@@ -1125,7 +1122,6 @@ declare global {
   }
 }
 
-if (!window.customElements.get('gui-chart')) {
-  window.GuiChart = GuiChart;
-  window.customElements.define('gui-chart', GuiChart);
+if (!globalThis.customElements.get('gui-chart')) {
+  globalThis.customElements.define('gui-chart', GuiChart);
 }
