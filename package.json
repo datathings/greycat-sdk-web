@@ -28,9 +28,9 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.85-dev.tgz",
     "d3": "7.8.5",
-    "maplibre-gl": "2.4.0"
+    "maplibre-gl": "2.4.0",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.1/6.1.85-dev.tgz"
   },
   "devDependencies": {
     "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz",
