@@ -1,9 +1,13 @@
-// importing @greycat/gui will import all the components
-// this is necessary as WebComponent need to be registered
-// in order to be used
-import './components/index.js';
+import * as greycat from './exports.js';
 
-// ESM exports
-export * from './components/index.js';
-export * from './utils.js';
-export * from './globals.js';
+globalThis.greycat = globalThis.greycat ?? {};
+Object.assign(globalThis.greycat, greycat);
+
+declare global {
+  type GreyCatExt = typeof greycat;
+  interface GreyCatGlobal extends GreyCatExt {}
+
+  interface Window {
+    greycat: GreyCatGlobal;
+  }
+}

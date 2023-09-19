@@ -3,7 +3,7 @@ import * as ml from 'maplibre-gl';
 import { GuiValueProps } from '../value/index.js';
 
 // re-export 'ml' for @greycat/gui users
-export { default as ml } from 'maplibre-gl';
+export { default as maplibre } from 'maplibre-gl';
 
 export type GuiMapMarker = ml.MarkerOptions & {
   location: core.geo;
@@ -72,15 +72,12 @@ export class GuiMap extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-map')) {
-  customElements.define('gui-map', GuiMap);
-}
-
 declare global {
-  interface Window {
-    GuiMap: typeof GuiMap;
-  }
   interface HTMLElementTagNameMap {
     'gui-map': GuiMap;
   }
+}
+
+if (!globalThis.customElements.get('gui-map')) {
+  globalThis.customElements.define('gui-map', GuiMap);
 }

@@ -95,7 +95,7 @@ export class GuiTaskRunningList extends HTMLElement {
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
     if (taskStatus === runtime.TaskStatus.running(this._greycat) ||
-        taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
+      taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
       return true;
     }
     return false;
@@ -120,15 +120,12 @@ export class GuiTaskRunningList extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task-running-list')) {
-  customElements.define('gui-task-running-list', GuiTaskRunningList);
-}
-
 declare global {
-  interface Window {
-    GuiTaskRunningList: typeof GuiTaskRunningList;
-  }
   interface HTMLElementTagNameMap {
     'gui-task-running-list': GuiTaskRunningList;
   }
+}
+
+if (!globalThis.customElements.get('gui-task-running-list')) {
+  globalThis.customElements.define('gui-task-running-list', GuiTaskRunningList);
 }

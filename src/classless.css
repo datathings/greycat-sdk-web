@@ -69,6 +69,10 @@ code {
   display: inline-block;
 }
 
+p > code {
+  display: inline;
+}
+
 pre {
   margin: 0;
 }

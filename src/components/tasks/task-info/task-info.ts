@@ -196,15 +196,13 @@ export class GuiTaskInfo extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-task-info')) {
-  customElements.define('gui-task-info', GuiTaskInfo);
-}
-
 declare global {
-  interface Window {
-    GuiTaskInfo: typeof GuiTaskInfo;
-  }
   interface HTMLElementTagNameMap {
     'gui-task-info': GuiTaskInfo;
   }
+}
+
+
+if (!globalThis.customElements.get('gui-task-info')) {
+  globalThis.customElements.define('gui-task-info', GuiTaskInfo);
 }

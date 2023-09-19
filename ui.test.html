@@ -5,20 +5,29 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="./dist/fonts/Raleway-Regular.ttf" rel="stylesheet">
-  <link rel="stylesheet" href="./dist/bundle/greycat.ui.css">
+  <link rel="stylesheet" href="./dist/css/greycat.classless.css">
   <style>
+    @font-face {
+      font-family: "Raleway";
+      src: url("./public/Raleway-Medium.ttf");
+    }
+
+    body>main {
+      margin: auto;
+    }
+
+    @media (min-width: 768px) {
+      body>main {
+        width: 750px;
+      }
+    }
+
     #theme-toggle {
       position: sticky;
       width: fit-content;
       top: 5px;
       float: right;
       font-size: 13px;
-    }
-
-    body>main {
-      width: 750px;
-      margin: auto;
     }
 
     .demo-header {
@@ -41,7 +50,7 @@
     });
   </script>
 
-  <title>@greycat/gui color test</title>
+  <title>GreyCat UI Test</title>
 </head>
 
 <body>
@@ -227,7 +236,25 @@
       </tbody>
       <tfoot>
         <tr>
-          <td colspan="3">The footer</td>
+          <td colspan="3">
+            <span>Footer</span>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code><code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+          </td>
         </tr>
       </tfoot>
     </table>
@@ -365,9 +392,25 @@
       <div>
         <h3 class="demo-header" id="rangedemo-label">range/output</h3>
         <form oninput="result.value=parseInt(rangedemo.value)">
-          <input type="range" id="rangedemo" name="rangedemo" min="0" max="100" value="42" aria-labelledby="rangedemo-label" />
+          <input type="range" id="rangedemo" name="rangedemo" min="0" max="100" value="42"
+            aria-labelledby="rangedemo-label" />
           <output name="result" for="b">42</output>
         </form>
+      </div>
+
+      <!-- dialog -->
+      <div>
+        <h3 class="demo-header">dialog</h3>
+        <dialog id="dialog">
+          <div>
+            <p>Lorem ipsum dolor sit amet.</p>
+            <p>Press 'Esc' or click 'Close' to close the dialog.</p>
+          </div>
+          <form method="dialog">
+            <button>Close</button>
+          </form>
+        </dialog>
+        <button id="open-dialog">Open dialog</button>
       </div>
     </div>
 
@@ -379,6 +422,12 @@
       </small>
     </footer>
   </main>
+
+  <script>
+    const openDialogBtn = document.getElementById('open-dialog');
+    const dialog = document.getElementById('dialog');
+    openDialogBtn.addEventListener('click', () => dialog.showModal());
+  </script>
 </body>
 
 </html>

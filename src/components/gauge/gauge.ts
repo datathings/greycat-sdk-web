@@ -127,16 +127,11 @@ function computePath(width: number, thickness: number, progress: number) {
 }
 
 declare global {
-  interface Window {
-    GuiGauge: typeof GuiGauge;
-  }
-
   interface HTMLElementTagNameMap {
     'gui-gauge': GuiGauge;
   }
 }
 
-if (!window.customElements.get('gui-gauge')) {
-  window.GuiGauge = GuiGauge;
-  window.customElements.define('gui-gauge', GuiGauge);
+if (!globalThis.customElements.get('gui-gauge')) {
+  globalThis.customElements.define('gui-gauge', GuiGauge);
 }

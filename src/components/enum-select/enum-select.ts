@@ -167,10 +167,6 @@ class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
 }
 
 declare global {
-  interface Window {
-    GuiEnumSelect: typeof GuiEnumSelect;
-  }
-
   interface HTMLElementTagNameMap {
     'gui-enum-select': GuiEnumSelect;
   }
@@ -180,7 +176,6 @@ declare global {
   }
 }
 
-if (!window.customElements.get('gui-enum-select')) {
-  window.GuiEnumSelect = GuiEnumSelect;
-  window.customElements.define('gui-enum-select', GuiEnumSelect);
+if (!globalThis.customElements.get('gui-enum-select')) {
+  globalThis.customElements.define('gui-enum-select', GuiEnumSelect);
 }
