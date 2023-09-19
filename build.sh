@@ -13,7 +13,7 @@ pnpm pack
 
 mkdir -p dist/sdk/web
 
-mv greycat-ui*.tgz dist/sdk/web/package.tgz
-mv dist/greycat.sdk.js dist/greycat.sdk.js dist/css/* dist/sdk/web/
+mv greycat-*.tgz dist/sdk/web/package.tgz
+mv dist/greycat.js dist/greycat.min.js dist/css/* dist/sdk/web/
 
 rm -rf dist/css dist/docs dist/types

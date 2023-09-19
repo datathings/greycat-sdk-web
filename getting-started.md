@@ -1,10 +1,13 @@
+---
+potato: import.meta.env.POTATO
+---
 # Getting Started
 
 ## Install
 
 Add the dependency to your project:
 ```sh
-pnpm install https://get.greycat.io/files/ui/6.1/6.1.140-dev.tgz
+pnpm install https://get.greycat.io/files/sdk/web/6.1/6.1.140-dev.tgz
 ```
 
 > Update with the latest [version](https://get.greycat.io/files/ui/dev/latest)
