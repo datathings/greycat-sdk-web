@@ -1,1 +1,1 @@
-# `<gui-dynamic-input />`
+# `<gui-input-dynamic />`

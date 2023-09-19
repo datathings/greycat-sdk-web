@@ -1,28 +1,20 @@
-import BaseInput from '../base-input.js';
+export class GuiInputText extends HTMLElement {
+  private _value: string = '';
 
-export class GuiInputText {
-  private input: string = '';
-
-  constructor(initValue: string) {
-    super(initValue);
-    this.inputElement.value = initValue;
-  }
-
-  protected createInputElement(): HTMLInputElement {
-    const input = document.createElement('input');
-    input.type = 'text';
-
-    input.addEventListener('input', (event) => {
+  connectedCallback() {
+    const _inputElement: HTMLInputElement = document.createElement('input');
+    _inputElement.type = 'text';
+    _inputElement.addEventListener('input', (event) => {
+      event.stopPropagation();
       const e = event.target as HTMLInputElement;
-      this.input = e.value;
-      this.updateValue();
-      this.notifyChangeListeners();
+      this._value = e.value;
+      this.dispatchEvent(new CustomEvent('input', { detail: e.value }));
     });
-    return input;
+    this.append(_inputElement);
   }
 
-  protected updateValue() {
-    this.value = this.input;
+  get value() {
+    return this._value;
   }
 }
 
