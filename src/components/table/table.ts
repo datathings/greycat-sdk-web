@@ -704,39 +704,7 @@ class SortCol {
   }
 }
 
-if (!customElements.get('gui-thead-cell')) {
-  customElements.define('gui-thead-cell', GuiTableHeadCell);
-}
-
-if (!customElements.get('gui-tbody-cell')) {
-  customElements.define('gui-tbody-cell', GuiTableBodyCell);
-}
-
-if (!customElements.get('gui-tbody-row')) {
-  customElements.define('gui-tbody-row', GuiTableBodyRow);
-}
-
-if (!customElements.get('gui-thead')) {
-  customElements.define('gui-thead', GuiTableHead);
-}
-
-if (!customElements.get('gui-tbody')) {
-  customElements.define('gui-tbody', GuiTableBody);
-}
-
-if (!customElements.get('gui-table')) {
-  customElements.define('gui-table', GuiTable);
-}
-
 declare global {
-  interface Window {
-    GuiTable: typeof GuiTable;
-    GuiTableHead: typeof GuiTableHead;
-    GuiTableHeader: typeof GuiTableHeadCell;
-    GuiTableBody: typeof GuiTableBody;
-    GuiTableRow: typeof GuiTableBodyRow;
-    GuiTableBodyCell: typeof GuiTableBodyCell;
-  }
   interface HTMLElementTagNameMap {
     'gui-table': GuiTable;
     'gui-thead': GuiTableHead;
@@ -752,4 +720,28 @@ declare global {
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
   }
+}
+
+if (!globalThis.customElements.get('gui-thead-cell')) {
+  globalThis.customElements.define('gui-thead-cell', GuiTableHeadCell);
+}
+
+if (!globalThis.customElements.get('gui-tbody-cell')) {
+  globalThis.customElements.define('gui-tbody-cell', GuiTableBodyCell);
+}
+
+if (!globalThis.customElements.get('gui-tbody-row')) {
+  globalThis.customElements.define('gui-tbody-row', GuiTableBodyRow);
+}
+
+if (!globalThis.customElements.get('gui-thead')) {
+  globalThis.customElements.define('gui-thead', GuiTableHead);
+}
+
+if (!globalThis.customElements.get('gui-tbody')) {
+  globalThis.customElements.define('gui-tbody', GuiTableBody);
+}
+
+if (!globalThis.customElements.get('gui-table')) {
+  globalThis.customElements.define('gui-table', GuiTable);
 }

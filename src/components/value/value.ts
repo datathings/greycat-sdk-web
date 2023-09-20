@@ -207,23 +207,11 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 }
 
 declare global {
-  interface Window {
-    GuiValue: typeof GuiValue;
-  }
-
   interface HTMLElementTagNameMap {
     'gui-value': GuiValue;
   }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      'gui-value': any;
-    }
-  }
 }
 
-if (!window.customElements.get('gui-value')) {
-  window.GuiValue = GuiValue;
-  window.customElements.define('gui-value', GuiValue);
+if (!globalThis.customElements.get('gui-value')) {
+  globalThis.customElements.define('gui-value', GuiValue);
 }

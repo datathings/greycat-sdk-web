@@ -1,16 +1,19 @@
+---
+potato: import.meta.env.POTATO
+---
 # Getting Started
 
 ## Install
 
 Add the dependency to your project:
 ```sh
-pnpm install https://get.greycat.io/files/ui/6.1/6.1.140-dev.tgz
+pnpm install https://get.greycat.io/files/sdk/web/6.2/6.2.0-dev.tgz
 ```
 
-> Update with the latest [version](https://get.greycat.io/files/ui/dev/latest)
+> Update with the latest [version](https://get.greycat.io/files/sdk/web/dev/latest)
 
-## ESM / Bundler
-A minimal Vite example:
+## Vite.js
+A minimal example:
 
 ::: code-group
 
@@ -25,34 +28,32 @@ A minimal Vite example:
 </head>
 
 <body>
-  <gui-value></gui-value>
-  <script type="module" src="./src/main.ts"></script>
+  <div id="app"></div>
+  <script type="module" src="./src/index.ts"></script>
 </body>
 
 </html>
 ```
 
-```ts [src/main.ts]
-import { GreyCat } from '@greycat/sdk';
-
-globalThis.greycat.default = await GreyCat.init({
-  url: new URL('http://localhost:8080'),
-});
-
-// this will make sure '@greycat/ui' is imported AFTER @greycat/sdk
-// so that all the component can rely on globalThis.greycat.default
-import('./index');
-```
-
 ```ts [src/index.ts]
-import '@greycat/ui';
+import { GreyCat } from '@greycat/web';
 // for the default styling
-import '@greycat/ui/dist/bundle/greycat.ui.css';
+import '@greycat/web/dist/css/greycat.css';
 
-const greycat = globalThis.greycat.default;
+const app = document.getElementById('app')!;
 
-const el = document.querySelector('gui-value')!;
-el.value = await greycat.call('project::hello', ['world!']);
+try {
+  globalThis.greycat.default = await GreyCat.init({
+    url: new URL('http://localhost:8080'),
+  });
+
+  const el = document.querySelector('gui-value')!;
+  app.appendChild(el);
+
+  el.value = await greycat.call('project::hello', ['world!']);
+} catch (err) {
+  app.textContent = 'Something went wrong';
+}
 ```
 
 ```gcl [project.gcl]
@@ -62,13 +63,24 @@ fn hello(name: String): String {
 }
 ```
 
+
+```json [package.json]
+{
+  "name": "greycat-example",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build"
+  },
+  "devDependencies": {
+    "vite": "4.4.9",
+    "@greycat/web": "https://get.greycat.io/files/sdk/web/6.2/6.2.0-dev.tgz",
+    "typescript": "5.2.2"
+  }
+}
+```
 :::
 
-::: warning
-Failing to initialize `globalThis.greycat.default` prior to importing `@greycat/ui` will lead to unexpected issues
-in regards to how some of the WebComponent leverage the default GreyCat instance.
-:::
-
+Start this with:
 
 ::: code-group
 
@@ -77,7 +89,7 @@ greycat serve --user=1
 ```
 
 ```sh [Terminal 2]
-pnpm vite
+pnpm dev
 ```
 
 :::
@@ -93,20 +105,27 @@ pnpm vite
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://get.greycat.io/files/ui/dev/6.1/6.1.140-dev.css">
-  <script src="https://get.greycat.io/files/ui/dev/6.1/6.1.136-dev.js"></script>
+  <link rel="stylesheet" href="https://get.greycat.io/files/sdk/web/dev/6.2/6.2.0-dev.css">
+  <script src="https://get.greycat.io/files/sdk/web/dev/6.2/6.2.0-dev.js"></script>
   <title>Hello GreyCat</title>
 </head>
 
 <body>
-  <gui-value></gui-value>
+  <div id="app"></div>
 
   <script type="module">
-    const { GreyCat } = globalThis.greycat.sdk;
-    const greycat = await GreyCat.init();
+    const app = document.getElementById('app');
 
-    const el = document.querySelector('gui-value');
-    el.value = await greycat.call('project::hello', ['world!']);
+    try {
+      greycat.default = await greycat.GreyCat.init();
+
+      const el = document.querySelector('gui-value');
+      app.appendChild(el);
+
+      el.value = await greycat.default.call('project::hello', ['world!']);
+    } catch (err) {
+      app.textContent = 'Something went wrong';
+    }
   </script>
 </body>
 
@@ -117,5 +136,5 @@ pnpm vite
 fn hello(name: String): String {
   return "Hello, ${name}";
 }
-
+```
 :::

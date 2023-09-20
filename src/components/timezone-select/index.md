@@ -1,3 +1,0 @@
-# `<gui-timezone-select />`
-
-TODO

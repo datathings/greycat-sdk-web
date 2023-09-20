@@ -561,16 +561,11 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
 }
 
 declare global {
-  interface Window {
-    GuiHeatmap: typeof GuiHeatmap;
-  }
-
   interface HTMLElementTagNameMap {
     'gui-heatmap': GuiHeatmap;
   }
 }
 
-if (!window.customElements.get('gui-heatmap')) {
-  window.GuiHeatmap = GuiHeatmap;
-  window.customElements.define('gui-heatmap', GuiHeatmap);
+if (!globalThis.customElements.get('gui-heatmap')) {
+  globalThis.customElements.define('gui-heatmap', GuiHeatmap);
 }
