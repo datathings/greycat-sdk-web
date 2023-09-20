@@ -17,6 +17,10 @@ file="dist.zip"
 zip -r $file sdk
 
 ROOT_URL="http://get.greycat.io/files/sdk/web"
+echo "--------------------------"
+echo "VALIDATING URL:"
+echo "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
+echo "--------------------------"
 curl -s -X PUT -H "Authorization: $token" -T $file                               "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
 curl -s -X PUT -H "Authorization: $token" -T $file                               "${ROOT_URL}/${BRANCH}/latest.zip"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/package.tgz                 "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.tgz"
