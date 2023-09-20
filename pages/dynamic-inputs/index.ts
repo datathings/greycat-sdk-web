@@ -5,7 +5,6 @@ import { GuiInputDuration } from '../../src/components/inputs/input-duration/inp
 
 // @greycat/ui
 import '../../src/css/full.css';
-import '../../src/bundle';
 
 // TODO: Deprecate these if-statements when the whole feature is launched
 if (!customElements.get('gui-input-dynamic')) {
