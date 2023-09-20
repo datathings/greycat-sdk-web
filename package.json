@@ -16,7 +16,7 @@
     "build:esm": "tsc",
     "build:bundle": "esbuild --bundle src/bundle.ts --platform=browser --outfile=dist/bundle/greycat.ui.js --minify",
     "build:css": "pnpm build:css:base && pnpm build:css:classless && pnpm build:css:full",
-    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/base.css -o dist/bundle/greycat.ui.base.css",
+    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/components.css -o dist/bundle/greycat.ui.base.css",
     "build:css:classless": "lightningcss --minify --bundle --targets '>=0.25%' src/css/classless.css -o dist/bundle/greycat.ui.classless.css",
     "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/full.css -o dist/bundle/greycat.ui.css",
     "build:pages": "vite build",
@@ -42,7 +42,7 @@
     "eslint": "8.46.0",
     "lightningcss-cli": "1.21.7",
     "prettier": "3.0.0",
-    "typescript": "5.1.6",
+    "typescript": "5.2.2",
     "vite": "4.4.8",
     "vite-plugin-dts": "3.5.2",
     "vitepress": "1.0.0-rc.13"

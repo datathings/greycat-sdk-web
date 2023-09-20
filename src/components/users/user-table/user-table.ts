@@ -4,6 +4,7 @@ import '../../multi-select-checkbox/index.js';
 
 export class GuiUserTable extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
+  private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('dialog');
   private _nameInput = document.createElement('input');
@@ -23,7 +24,6 @@ export class GuiUserTable extends HTMLElement {
     createBtn.classList.add('create-user-button');
     createBtn.addEventListener('click', () => this._showDialog());
 
-    const table = document.createElement('table');
     const thead = document.createElement('thead');
     const headers = document.createElement('tr');
 
@@ -51,8 +51,8 @@ export class GuiUserTable extends HTMLElement {
     headers.append(hName, hFullName, hEmail, hRole, hActivated, hGroups, hCreate);
     thead.appendChild(headers);
 
-    table.append(thead, this._tbody);
-    this.appendChild(table);
+    this._table.append(thead, this._tbody);
+    this.appendChild(this._table);
 
     this._initDialog();
     this.appendChild(this._dialog);
@@ -79,6 +79,22 @@ export class GuiUserTable extends HTMLElement {
 
   set groups(groups: Array<runtime.UserGroup>) {
     this._fetchAllGroups(groups);
+  }
+
+  set caption(caption: string | null | undefined) {
+    if (caption) {
+      if (this._table.children[0] instanceof HTMLTableCaptionElement) {
+        this._table.children[0].textContent = caption;
+      } else {
+        const captionEl = document.createElement('caption');
+        captionEl.textContent = caption;
+        this._table.prepend(captionEl);
+      }
+    } else {
+      if (this._table.children[0] instanceof HTMLTableCaptionElement) {
+        this._table.children[0].remove();
+      }
+    }
   }
 
   private _handleError(error: unknown) {
@@ -204,7 +220,7 @@ export class GuiUserTable extends HTMLElement {
     this._dialog.showModal();
   }
 
-  private _initDialog() {
+  private async _initDialog(): Promise<void> {
     this._nameInput.type = 'text';
     this._nameInput.placeholder = 'Name';
     this._nameInput.required = true;
@@ -223,18 +239,19 @@ export class GuiUserTable extends HTMLElement {
 
     this._groupsSelect.classList.add('groups-select');
 
+    const activatedInput = document.createElement('label');
+    activatedInput.htmlFor = 'activated';
     this._activatedCheckbox.type = 'checkbox';
-
-    const activatedCheckboxWrapper = document.createElement('label');
-    activatedCheckboxWrapper.textContent = 'Activated';
-    activatedCheckboxWrapper.classList.add('checkbox-label');
-    activatedCheckboxWrapper.appendChild(this._activatedCheckbox);
+    this._activatedCheckbox.name = 'activated';
+    activatedInput.appendChild(this._activatedCheckbox);
+    activatedInput.appendChild(document.createTextNode('Activated'));
 
     const submitButton = document.createElement('button');
     submitButton.classList.add('submit-button');
     submitButton.textContent = 'Submit';
 
     const closeButton = document.createElement('button');
+    closeButton.addEventListener('click', () => this._dialog.close());
     closeButton.textContent = 'Close';
     closeButton.classList.add('inverted');
 
@@ -251,23 +268,12 @@ export class GuiUserTable extends HTMLElement {
     this._dialog.appendChild(this._emailInput);
     this._dialog.appendChild(this._createLabel('Password'));
     this._dialog.appendChild(this._passwordInput);
+    this._dialog.appendChild(activatedInput);
     this._dialog.appendChild(this._createLabel('Role'));
     this._dialog.appendChild(this._roleSelect);
-    this._dialog.appendChild(activatedCheckboxWrapper);
     this._dialog.appendChild(this._createLabel('Groups'));
     this._dialog.appendChild(this._groupsSelect);
     this._dialog.appendChild(buttonWrapper);
-
-    runtime.User.me(this._greycat)
-      .then((user) => {
-        if (user.role) {
-          // Setting current user role
-          this._currentUserRole = user.role;
-        }
-      })
-      .catch((e) => {
-        this._handleError(e);
-      });
 
     submitButton.addEventListener('click', async () => {
       const name = this._nameInput.value.trim();
@@ -279,6 +285,15 @@ export class GuiUserTable extends HTMLElement {
       await this._addOrUpdateUser();
       this._dialog.close();
     });
+
+    try {
+      const user = await runtime.User.me(this._greycat);
+      if (user.role) {
+        this._currentUserRole = user.role;
+      }
+    } catch (err) {
+      this._handleError(err);
+    }
   }
 
   private render() {

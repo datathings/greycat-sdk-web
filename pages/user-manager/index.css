@@ -21,3 +21,9 @@ body {
   place-self: center;
   margin: 0 0 0 auto;
 }
+
+#app {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}

@@ -6,6 +6,7 @@ import '../../multi-select-checkbox/index.js';
 export class GuiUserRoles extends HTMLElement {
   private _greycat: sdk.GreyCat = window.greycat.default;
   private _roles: runtime.UserRole[] = [];
+  private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('dialog');
   private _permissionsSelect = document.createElement('gui-multi-select-checkbox');
@@ -17,7 +18,6 @@ export class GuiUserRoles extends HTMLElement {
     createBtn.classList.add('create-role-button');
     createBtn.addEventListener('click', () => this._showDialog());
 
-    const table = document.createElement('table');
     const thead = document.createElement('thead');
     const headers = document.createElement('tr');
 
@@ -33,8 +33,8 @@ export class GuiUserRoles extends HTMLElement {
     headers.append(hName, hPerm, hCreate);
     thead.appendChild(headers);
 
-    table.append(thead, this._tbody);
-    this.appendChild(table);
+    this._table.append(thead, this._tbody);
+    this.appendChild(this._table);
 
     this._initDialog();
     this.appendChild(this._dialog);
@@ -56,6 +56,22 @@ export class GuiUserRoles extends HTMLElement {
 
   set permissions(permissions: string[]) {
     this._permissionsSelect.options = permissions;
+  }
+
+  set caption(caption: string | null | undefined) {
+    if (caption) {
+      if (this._table.children[0] instanceof HTMLTableCaptionElement) {
+        this._table.children[0].textContent = caption;
+      } else {
+        const captionEl = document.createElement('caption');
+        captionEl.textContent = caption;
+        this._table.prepend(captionEl);
+      }
+    } else {
+      if (this._table.children[0] instanceof HTMLTableCaptionElement) {
+        this._table.children[0].remove();
+      }
+    }
   }
 
   private _handleError(error: unknown) {

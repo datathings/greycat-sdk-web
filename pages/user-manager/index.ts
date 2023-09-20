@@ -5,6 +5,8 @@ import '../../src/css/full.css';
 import './index.css';
 import '../../src/bundle';
 
+const app = document.getElementById('app')!;
+
 try {
   const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
 
@@ -15,9 +17,10 @@ try {
   const permissions = await runtime.SecurityPolicy.permissions();
 
   const userRoles = document.createElement('gui-user-roles')!;
+  userRoles.caption = 'Roles';
   userRoles.roles = roles;
   userRoles.permissions = permissions;
-  document.body.appendChild(userRoles);
+  app.appendChild(userRoles);
 
   const groups = [
     runtime.UserGroup.create(0, 'first group', true),
@@ -25,10 +28,11 @@ try {
   ];
 
   const userTable = document.createElement('gui-user-table');
+  userTable.caption = 'Users';
   userTable.users = users;
   userTable.roles = roles;
   userTable.groups = groups;
-  document.body.appendChild(userTable);
+  app.appendChild(userTable);
 
   toggleTheme.addEventListener('click', () => {
     const theme = document.documentElement.getAttribute('data-theme') ?? 'black';
@@ -36,5 +40,5 @@ try {
   });
 } catch (err) {
   console.error(err);
-  document.body.textContent = `Is GreyCat started?`;
+  app.textContent = `Is GreyCat started?`;
 }
