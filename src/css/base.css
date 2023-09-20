@@ -1,13 +1,76 @@
-@import '../base.css';
-@import '../chart-utils/tooltip.css';
-@import '../components/donut/donut.css';
-@import '../components/map/map.css';
-@import '../components/table/table.css';
-@import '../components/chart/chart.css';
-@import '../components/tasks/task/task.css';
-@import '../components/tasks/task-info/task-info.css';
-@import '../components/tasks/task-create/task-create.css';
-@import '../components/tasks/task-history-list/task-history-list.css';
-@import '../components/tasks/task-running-list/task-running-list.css';
-@import '../components/users/user-roles/user-roles.css';
-@import '../components/multi-select-checkbox/multi-select-checkbox.css';
+*,
+::after,
+::before,
+::backdrop {
+  box-sizing: border-box;
+}
+
+/* defaults */
+:root, ::backdrop {
+  font-family: 'Raleway', 'Arial', sans-serif;
+
+  --text-0: 255, 255, 255;
+  --text-1: 215, 215, 215;
+  --text-2: 156, 160, 164;
+  --text-inverse: 0, 0, 0;
+
+  --base-0: 20, 20, 20;
+  --base-1: 40, 40, 40;
+  --base-2: 61, 61, 61;
+
+  --accent-0: 192, 248, 95;
+  --accent-1: 198, 249, 111;
+  --accent-2: 205, 249, 127;
+
+  --neutral-0: 119, 119, 122;
+  --neutral-1: 116, 124, 133;
+  --neutral-2: 132, 138, 147;
+
+  --color-0: #c0f85f;
+  --color-1: #cb9cf8;
+  --color-2: #779ef7;
+  --color-3: #37c43e;
+  --color-4: #5737c4;
+  --color-5: #8c1fab;
+  --color-6: #4fc0e8;
+  --color-7: #f7458e;
+  --color-8: #fe7e6d;
+  --color-9: #ffe35b;
+  --color-10: #fc7db7;
+  --color-11: #2237c4;
+  --color-12: #3b254c;
+
+  --color-error: #f74318;
+
+  --border-radius: 0.3rem;
+  --shadow: 0px 1px 1px 0px rgb(var(--base-1));
+  --spacing: 1rem;
+}
+
+/* light theme override */
+:root[data-theme='light'], :root[data-theme='light'] ::backdrop {
+  --text-0: 0, 0, 0;
+  --text-1: 20, 20, 20;
+  --text-2: 40, 40, 40;
+  --text-inverse: 255, 255, 255;
+
+  --base-0: 255, 255, 255;
+  --base-1: 240, 240, 240;
+  --base-2: 224, 226, 228;
+
+  --accent-0: 55, 196, 62;
+  --accent-1: 178, 246, 58;
+  --accent-2: 192, 248, 95;
+
+  --neutral-0: 119, 119, 122;
+  --neutral-1: 116, 124, 133;
+  --neutral-2: 132, 138, 147;
+
+  --color-0: #a2e163;
+  --color-5: #d55ef7;
+  --color-7: #d74186;
+  --color-8: #fe7d3e;
+  --color-9: #ffc645;
+  --color-10: #ea70bf;
+}
+

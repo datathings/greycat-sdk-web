@@ -7,3 +7,7 @@ gui-multi-select-checkbox .checkbox-item {
   display: flex;
   align-items: center;
 }
+
+gui-multi-select-checkbox label:has(> input[type='checkbox']) {
+  margin-bottom: 0.2rem;
+}

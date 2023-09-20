@@ -25,7 +25,7 @@
     "build:esm-min": "esbuild src/index.ts --bundle --format=esm --keep-names --outfile=dist/greycat.min.js --minify --allow-overwrite",
     "build:types": "tsc",
     "build:css": "pnpm build:css:base && pnpm build:css:classless && pnpm build:css:full",
-    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/base.css -o dist/css/greycat.base.css",
+    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/components.css -o dist/css/greycat.base.css",
     "build:css:classless": "lightningcss --minify --bundle --targets '>=0.25%' src/css/classless.css -o dist/css/greycat.classless.css",
     "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/full.css -o dist/css/greycat.css",
     "build:pages": "vite build",
