@@ -1,3 +1,5 @@
+export * from './exports.js';
+
 import * as greycat from './exports.js';
 
 globalThis.greycat = globalThis.greycat ?? {};
