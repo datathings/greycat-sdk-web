@@ -154,6 +154,13 @@ textarea {
   margin: 0;
 }
 
+input,
+select,
+optgroup,
+textarea {
+  width: 100%;
+}
+
 button,
 select,
 input[type='submit'],

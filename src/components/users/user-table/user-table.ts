@@ -260,20 +260,22 @@ export class GuiUserTable extends HTMLElement {
     buttonWrapper.appendChild(submitButton);
     buttonWrapper.appendChild(closeButton);
 
-    this._dialog.appendChild(this._createLabel('Name'));
-    this._dialog.appendChild(this._nameInput);
-    this._dialog.appendChild(this._createLabel('Full name'));
-    this._dialog.appendChild(this._fullNameInput);
-    this._dialog.appendChild(this._createLabel('Email'));
-    this._dialog.appendChild(this._emailInput);
-    this._dialog.appendChild(this._createLabel('Password'));
-    this._dialog.appendChild(this._passwordInput);
-    this._dialog.appendChild(activatedInput);
-    this._dialog.appendChild(this._createLabel('Role'));
-    this._dialog.appendChild(this._roleSelect);
-    this._dialog.appendChild(this._createLabel('Groups'));
-    this._dialog.appendChild(this._groupsSelect);
-    this._dialog.appendChild(buttonWrapper);
+    const container = document.createElement('article');
+    container.appendChild(this._createLabel('Name'));
+    container.appendChild(this._nameInput);
+    container.appendChild(this._createLabel('Full name'));
+    container.appendChild(this._fullNameInput);
+    container.appendChild(this._createLabel('Email'));
+    container.appendChild(this._emailInput);
+    container.appendChild(this._createLabel('Password'));
+    container.appendChild(this._passwordInput);
+    container.appendChild(activatedInput);
+    container.appendChild(this._createLabel('Role'));
+    container.appendChild(this._roleSelect);
+    container.appendChild(this._createLabel('Groups'));
+    container.appendChild(this._groupsSelect);
+    container.appendChild(buttonWrapper);
+    this._dialog.appendChild(container);
 
     submitButton.addEventListener('click', async () => {
       const name = this._nameInput.value.trim();

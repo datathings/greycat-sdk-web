@@ -158,11 +158,13 @@ export class GuiUserRoles extends HTMLElement {
     buttonWrapper.appendChild(submitBtn);
     buttonWrapper.appendChild(closeBtn);
 
-    this._dialog.appendChild(this._createLabel('Name'));
-    this._dialog.appendChild(this._nameInput);
-    this._dialog.appendChild(this._createLabel('Permissions'));
-    this._dialog.appendChild(this._permissionsSelect);
-    this._dialog.appendChild(buttonWrapper);
+    const container = document.createElement('article');
+    container.appendChild(this._createLabel('Name'));
+    container.appendChild(this._nameInput);
+    container.appendChild(this._createLabel('Permissions'));
+    container.appendChild(this._permissionsSelect);
+    container.appendChild(buttonWrapper);
+    this._dialog.appendChild(container);
 
     submitBtn.addEventListener('click', async () => {
       const name = this._nameInput.value.trim();

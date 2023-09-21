@@ -3,7 +3,7 @@ import { GreyCat, runtime } from '@greycat/sdk';
 // @greycat/ui
 import '../../src/css/full.css';
 import './index.css';
-import '../../src/bundle';
+import '../../src';
 
 const app = document.getElementById('app')!;
 
