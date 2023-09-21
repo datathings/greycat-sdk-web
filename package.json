@@ -8,7 +8,10 @@
     ".": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/greycat.js"
-    }
+    },
+    "./css/greycat.css": "./dist/css/greycat.css",
+    "./css/greycat.base.css": "./dist/css/greycat.base.css",
+    "./css/greycat.classless.css": "./dist/css/greycat.classless.css"
   },
   "license": "Apache-2.0",
   "files": [
