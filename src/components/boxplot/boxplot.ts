@@ -349,6 +349,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-boxplot': GuiBoxPlot;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-boxplot': Partial<Omit<GuiBoxPlot, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-boxplot')) {

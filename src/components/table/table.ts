@@ -720,6 +720,35 @@ declare global {
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-table': Partial<Omit<GuiTable, 'children'>>;
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-thead': Partial<Omit<GuiTableHead, 'children'>>;
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-thead-cell': Partial<Omit<GuiTableHeadCell, 'children'>>;
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-tbody': Partial<Omit<GuiTableBody, 'children'>>;
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-tbody-row': Partial<Omit<GuiTableBodyRow, 'children'>>;
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-tbody-cell': Partial<Omit<GuiTableBodyCell, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-thead-cell')) {

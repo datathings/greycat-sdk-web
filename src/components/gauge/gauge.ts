@@ -130,6 +130,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-gauge': GuiGauge;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-gauge': Partial<Omit<GuiGauge, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-gauge')) {

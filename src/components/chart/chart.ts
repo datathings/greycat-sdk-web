@@ -1120,6 +1120,15 @@ declare global {
     [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
     [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-chart': Partial<Omit<GuiChart, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-chart')) {

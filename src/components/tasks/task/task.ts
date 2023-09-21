@@ -186,6 +186,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-task': GuiTask;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-task': Partial<Omit<GuiTask, 'children'>>;
+    }
+  }
 }
 
 

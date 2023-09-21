@@ -119,7 +119,7 @@ export class GuiTaskInfo extends HTMLElement {
 
   private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
     if (taskStatus === runtime.TaskStatus.running(this._greycat)
-        || taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
+      || taskStatus === runtime.TaskStatus.waiting(this._greycat)) {
       return true;
     }
     return false;
@@ -199,6 +199,15 @@ export class GuiTaskInfo extends HTMLElement {
 declare global {
   interface HTMLElementTagNameMap {
     'gui-task-info': GuiTaskInfo;
+  }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-task-info': Partial<Omit<GuiTaskInfo, 'children'>>;
+    }
   }
 }
 

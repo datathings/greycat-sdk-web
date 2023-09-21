@@ -71,6 +71,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-task-create': GuiTaskCreate;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-task-create': Partial<Omit<GuiTaskCreate, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-task-create')) {

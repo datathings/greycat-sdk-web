@@ -68,6 +68,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-multi-select-checkbox': GuiMultiSelectCheckbox;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-multi-select-checkbox': Partial<Omit<GuiMultiSelectCheckbox, 'children'>>;
+    }
+  }
 }
 
 

@@ -214,6 +214,16 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-user-roles': GuiUserRoles;
   }
+
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+      * Please, don't use this in a React context. Use `WCWrapper`.
+      */
+      'gui-user-roles': Partial<Omit<GuiUserRoles, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-user-roles')) {

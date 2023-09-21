@@ -564,6 +564,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-heatmap': GuiHeatmap;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-heatmap': Partial<Omit<GuiHeatmap, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-heatmap')) {

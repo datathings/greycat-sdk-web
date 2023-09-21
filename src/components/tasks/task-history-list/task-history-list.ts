@@ -243,6 +243,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-task-history-list': GuiTaskHistoryList;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-task-history-list': Partial<Omit<GuiTaskHistoryList, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-task-history-list')) {

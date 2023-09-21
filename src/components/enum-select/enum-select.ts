@@ -174,6 +174,15 @@ declare global {
   interface HTMLElementEventMap {
     [SELECT_EVENT_TYPE]: GuiEnumSelectEvent;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-enum-select': Partial<Omit<GuiEnumSelect, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-enum-select')) {

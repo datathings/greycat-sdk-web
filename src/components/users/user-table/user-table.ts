@@ -451,4 +451,13 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-user-table': GuiUserTable;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-user-table': Partial<Omit<GuiUserTable, 'children'>>;
+    }
+  }
 }

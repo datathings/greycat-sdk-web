@@ -210,6 +210,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-value': GuiValue;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-value': Partial<Omit<GuiValue, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-value')) {

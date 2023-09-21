@@ -124,6 +124,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-task-running-list': GuiTaskRunningList;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-task-running-list': Partial<Omit<GuiTaskRunningList, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-task-running-list')) {

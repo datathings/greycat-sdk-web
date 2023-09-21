@@ -76,6 +76,15 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-map': GuiMap;
   }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-map': Partial<Omit<GuiMap, 'children'>>;
+    }
+  }
 }
 
 if (!globalThis.customElements.get('gui-map')) {
