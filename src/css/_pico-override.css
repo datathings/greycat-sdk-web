@@ -1,0 +1,122 @@
+/* Dark colors (default) */
+:root,
+:root:not([data-theme]),
+:root:not([data-theme=light]) {
+  color-scheme: dark;
+
+  --primary: rgb(var(--accent-0));
+  --primary-hover: rgb(148, 224, 17);
+  --primary-focus: rgba(205, 249, 127, 0.2);
+  --primary-inverse: rgb(var(--text-inverse));
+
+  --bg-0: #101010;
+  --bg-1: #181818;
+  --bg-2: #252525;
+}
+
+/* Light colors */
+:root[data-theme=light] {
+  color-scheme: light;
+
+  --primary: #37c43e;
+  --primary-hover: #4fd24a;
+  --primary-focus: rgba(205, 249, 127, 0.2);
+  --primary-inverse: rgb(var(--text-inverse));
+
+  --bg-0: #fff;
+  --bg-1: #c5c5c5;
+  --bg-2: #a2a2a2;
+}
+
+:root {
+  --font-family: 'Raleway', 'Arial', sans-serif;
+  --font-size-sm: 15px;
+  --font-size-md: 15px;
+  --font-size-lg: 15px;
+  --font-size-xl: 15px;
+  --font-weight: 500;
+
+  --background-color: var(--bg-2);
+
+  --spacing: 0.5rem;
+
+  --form-element-active-border-color: var(--primary);
+  --form-element-focus-color: var(--primary-focus);
+  --form-element-spacing-vertical: 0.1rem;
+  --form-element-spacing-horizontal: 0.2rem;
+  --form-element-background-color: var(--bg-1);
+  --form-element-disabled-background-color: var(--bg-0);
+
+  --switch-color: var(--primary-inverse);
+  --switch-checked-background-color: var(--primary);
+
+  --nav-link-spacing-vertical: 0.2rem;
+  --nav-link-spacing-horizontal: 0.4rem;
+  --nav-element-spacing-vertical: 0.2rem;
+  --nav-element-spacing-horizontal: 0.4rem;
+
+  --card-background-color: var(--bg-0);
+
+  --code-color: var(--primary);
+  --code-background-color: var(--bg-1);
+
+  --table-border-color: var(--bg-0);
+
+  --block-spacing-vertical: var(--spacing);
+}
+
+/* Small devices */
+@media (min-width: 576px) {
+  :root {
+    --font-size: var(--font-size-sm);
+  }
+
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: calc(var(--spacing) * 2);
+  }
+}
+
+/* Medium devices */
+@media (min-width: 768px) {
+  :root {
+    --font-size: var(--font-size-md);
+  }
+
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: calc(var(--spacing) * 1.5);
+  }
+}
+
+/* Large devices */
+@media (min-width: 992px) {
+  :root {
+    --font-size: var(--font-size-lg);
+  }
+
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: var(--spacing);
+  }
+}
+
+/* Extra large devices */
+@media (min-width: 1200px) {
+  :root {
+    --font-size: var(--font-size-xl);
+  }
+
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: var(--spacing);
+  }
+}

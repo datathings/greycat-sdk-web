@@ -1,16 +1,16 @@
-import { GreyCat, core } from '@greycat/sdk';
+import { core } from '@greycat/sdk';
 
-// @greycat/ui
+import '../common';
+import { mount } from '../common';
 
-import '../../src/css/full.css';
-import '../../src/bundle';
+mount(async (app, greycat) => {
+  const donut = document.createElement('gui-donut');
+  donut.style.width = `1024px`;
+  donut.style.height = `768px`;
+  donut.style.margin = 'auto';
+  app.appendChild(donut);
 
-try {
-  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
-
-  const donut = document.querySelector('gui-donut')!;
-
-  const table = await greycat.call<core.Table>('project::table');
+  const table = await greycat.call<core.Table>('project::donut');
   console.log({ table });
   donut.setAttrs({
     table,
@@ -20,8 +20,5 @@ try {
     withLabelInfo: true,
     withLabels: true,
   });
-} catch (err) {
-  console.error(err);
-  document.body.textContent = `Is GreyCat started?`;
-}
+});
 

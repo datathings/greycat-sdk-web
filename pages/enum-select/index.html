@@ -1,14 +1,29 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gui-enum-select</title>
+  <title>Enum (select) • @greycat/web</title>
 </head>
 
 <body>
-  <gui-enum-select></gui-enum-select>
+  <header class="container-fluid">
+    <nav>
+      <nav aria-label="breadcrumb">
+        <ul>
+          <li><a href="..">@greycat/web</a></li>
+          <li>Enum (select)</li>
+        </ul>
+      </nav>
+      <ul>
+        <li>
+          <a href="#" id="toggle-theme">Light / Dark</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main id="app" class="container-fluid"></main>
   <script type="module" src="./index.ts"></script>
 </body>
 

@@ -4,21 +4,33 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>gui-chart</title>
+  <title>Chart • @greycat/web</title>
 </head>
 
 <body>
-  <div id="actions">
-    <input name="nb-rows" id="nb-rows" type="number" min="1" max="10000" value="150"></input>
-    <button class="inverted" id="randomize">Randomize</button>
-    <button id="top-left">Top-left</button>
-    <button id="top-right">Top-right</button>
-    <button id="bottom-left">Bottom-left</button>
-    <button id="bottom-right">Bottom-right</button>
-    <button class="inverted" id="toggle-cursor">Toggle cursor</button>
-    <button class="inverted align-right" id="toggle-theme">Light/Dark</button>
-  </div>
-  <gui-chart></gui-chart>
+  <header class="container-fluid">
+    <nav>
+      <nav aria-label="breadcrumb">
+        <ul>
+          <li><a href="..">@greycat/web</a></li>
+          <li>Chart</li>
+        </ul>
+      </nav>
+      <ul>
+        <li><input name="nb-rows" id="nb-rows" type="number" min="1" max="10000" value="150"></input></li>
+        <li><a href="#" id="randomize">Randomize</a></li>
+        <li><a href="#" id="top-left">Top-left</a></li>
+        <li><a href="#" id="top-right">Top-right</a></li>
+        <li><a href="#" id="bottom-left">Bottom-left</a></li>
+        <li><a href="#" id="bottom-right">Bottom-right</a></li>
+        <li><a href="#" id="toggle-cursor">Toggle cursor</a></li>
+        <li>
+          <a href="#" id="toggle-theme">Light / Dark</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main id="app" class="container-fluid"></main>
   <script type="module" src="./index.ts"></script>
 </body>
 

@@ -4,11 +4,26 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hello world</title>
+  <title>Hello • @greycat/web</title>
 </head>
 
 <body>
-  <div id="app"></div>
+  <header class="container-fluid">
+    <nav>
+      <nav aria-label="breadcrumb">
+        <ul>
+          <li><a href="..">@greycat/web</a></li>
+          <li>Hello</li>
+        </ul>
+      </nav>
+      <ul>
+        <li>
+          <a href="#" id="toggle-theme">Light / Dark</a>
+        </li>
+      </ul>
+    </nav>
+  </header>
+  <main id="app" class="container-fluid"></main>
   <script type="module" src="./index.ts"></script>
 </body>
 

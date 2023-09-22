@@ -1,0 +1,22 @@
+@font-face {
+  font-family: 'Raleway';
+  src: url('../public/Raleway-Medium.ttf');
+}
+
+html, body {
+  width: 100%;
+  height: 100vh;
+}
+
+body {
+  display: grid;
+  grid-template-rows: auto 1fr;
+}
+
+body > header {
+  background-color: var(--bg-0);
+}
+
+nav[aria-label=breadcrumb] ul li:not(:last-child) ::after {
+  content: "•"
+}

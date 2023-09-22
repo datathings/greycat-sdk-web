@@ -1,0 +1,293 @@
+use util;
+use runtime;
+use math;
+
+// pages/chart start
+enum Confidence {
+  High;
+  Medium;
+  Low;
+}
+
+@expose
+fn chart(nbRows: int) {
+  if (nbRows < 5) {
+    throw "min nbRows 5";
+  }
+
+  var LINE_COL = 0;
+  var SCATTER_COL = 1;
+  var AREA_COL = 2;
+  var BAR_COL = 3;
+  var LINE_TYPE_COL = 4;
+  var LINE_COLOR_COL = 5;
+
+  var prev1 = 100_f;
+  var prev2 = 80_f;
+
+  var table = Table::new(6);
+  var rand = Random::new();
+
+  for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
+    prev1 = prev1 + 5 - rand.uniformf(0_f, 1_f) * 10;
+    prev1 = maxf(0_f, prev1);
+
+    table.set(rowIdx, LINE_COL, prev1);
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    if (rowIdx >= 20 && rowIdx <= 45) {
+      // dashed
+      table.set(rowIdx, LINE_TYPE_COL, 1);
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Low);
+    } else if (rowIdx >= 80 && rowIdx <= 100) {
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Medium);
+    } else {
+      // solid
+      table.set(rowIdx, LINE_TYPE_COL, 0);
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::High);
+    }
+
+    prev2 = prev2 + 5 - rand.uniformf(0_f, 1_f) * 10;
+    prev2 = maxf(0_f, prev2);
+
+    table.set(rowIdx, SCATTER_COL, prev2);
+
+    if (rowIdx >= 0 && rowIdx < 5) {
+      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+    }
+
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+    }
+
+    if (rowIdx == 10) {
+      table.set(rowIdx, LINE_COL, null);
+    }
+
+    if (rowIdx == 75) {
+      table.set(rowIdx, LINE_COL, null);
+    }
+  }
+
+  return table;
+}
+// pages/chart end
+
+// pages/chart-time start
+@expose
+fn chart_time(): Table {
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  var min = -10.0;
+  var max = 40.0;
+  var prevTime = time::now();
+  var prevTemp = rand.uniformf(min, max);
+
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  table.set(1, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  table.set(2, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  table.set(3, 2, null);
+  prevTime = prevTime + 1_hour;
+
+  for (var i = 4; i < 500; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, prevTemp);
+    if (prevTemp < 10) {
+      table.set(i, 2, "low");
+    } else if (prevTemp >= 10 && prevTemp <= 25) {
+      table.set(i, 2, "normal");
+    } else {
+      table.set(i, 2, "high");
+    }
+
+    prevTime = prevTime + 1_hour;
+    if (prevTemp >= max) {
+      prevTemp = prevTemp + rand.uniformf(-5.0, -0.1);
+    } else if (prevTemp <= min) {
+      prevTemp = prevTemp + rand.uniformf(0.1, 5.0);
+    } else {
+      prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
+    }
+  }
+
+  // put some null at the end also for tests
+  var row = table.rows();
+  table.set(row, 0, prevTime);
+  table.set(row, 1, null);
+  table.set(row, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 1, 0, prevTime);
+  table.set(row + 1, 1, null);
+  table.set(row + 1, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 2, 0, prevTime);
+  table.set(row + 2, 1, null);
+  table.set(row + 2, 2, null);
+
+  return table;
+}
+// pages/chart-time end
+
+// pages/donut start
+@expose
+fn donut(): Table {
+  var nbRows = 5;
+  var table = Table::new(2);
+
+  var continents = ["Africa", "Antartica", "Asia", "Europe", "North America", "South America", "Oceania"];
+  var countries = [54, 0, 49, 44, 23, 12, 14];
+
+  for (row, continent in continents) {
+    table.set(row, 0, continent);
+    table.set(row, 1, countries[row]);
+  }
+
+  return table;
+}
+// pages/donut end
+
+// pages/enum-select start
+enum TrafficLight {
+  Green;
+  Yellow;
+  Red;
+}
+// pages/enum-select end
+
+// pages/heatmap start
+@expose
+fn heatmap() {
+  var table = Table::new(12);
+
+  //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var paris   = [  4.9,   5.6,   8.8,  11.4,  15.1,  18.2,  20.4,  20.2,  16.9,  12.9,   8.1,   5.4];
+  var london  = [  5.2,   5.3,   7.6,   9.9,  13.3,  16.5,  18.7,  18.5,  15.7,  12.0,   8.0,   5.5];
+  var newyork = [  0.6,   2.1,   6.1,  11.9,  17.1,  22.1,  24.9,  24.3,  20.2,  14.1,   8.9,   3.3];
+  var beijing = [ -3.1,   0.3,   6.7,  14.8,  20.8,  24.9,  26.7,  25.5,  20.8,  13.7,   5.0,  -0.9];
+  var perth   = [ 24.5,  24.9,  23.1,  19.7,  16.5,  14.0,  13.0,  13.5,  14.8,  17.3,  20.3,  22.7];
+  var oslo    = [ -4.3,  -4.0,  -0.2,   4.5,  10.8,  15.2,  16.4,  15.2,  10.8,   6.3,   0.7,  -3.1];
+
+  var cities = [paris, london, newyork, beijing, perth, oslo];
+
+  for (row, city in cities) {
+    for (col, temp in city) {
+      table.set(row, col, temp);
+    }
+  }
+
+  return table;
+}
+// pages/heatmap end
+
+// pages/hello start
+@expose
+fn hello(name: String): String {
+  return "Hello, ${name}";
+}
+// pages/hello end
+
+// pages/table start
+@expose
+fn table(): Table {
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  var min = -10.0;
+  var max = 40.0;
+  var prevTime = time::now();
+  var prevTemp = rand.uniformf(min, max);
+
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+
+  for (var i = 4; i < 500; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, prevTemp);
+    if (prevTemp < 10) {
+      table.set(i, 2, "low");
+    } else if (prevTemp >= 10 && prevTemp <= 25) {
+      table.set(i, 2, "normal");
+    } else {
+      table.set(i, 2, "high");
+    }
+
+    prevTime = prevTime + 1_hour;
+    if (prevTemp >= max) {
+      prevTemp = prevTemp + rand.uniformf(-5.0, -0.1);
+    } else if (prevTemp <= min) {
+      prevTemp = prevTemp + rand.uniformf(0.1, 5.0);
+    } else {
+      prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
+    }
+  }
+
+  return table;
+}
+// pages/table end
+
+// pages/tasks start
+@expose
+task task_without_params() {
+  for (var i = 0; i < 1_000_000_000; i++) {
+    println("test");
+  }
+  return 42;
+}
+
+@expose
+task task_with_params(name: String, age: int) {
+  return name;
+}
+
+@expose
+task task_long_running() {
+  Runtime::sleep(10_s);
+}
+
+@expose
+task mainTask() {
+  Task::spawn(project::subTask, [0]);
+  Task::spawn(project::subTask, [1]);
+}
+
+task subTask(id: int) {
+  return id;
+}
+// pages/tasks end
+
+// pages/users start
+@expose
+@permission("foo")
+fn foo() {}
+
+@expose
+@permission("bar")
+fn bar() {}
+// pages/users end

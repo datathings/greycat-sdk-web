@@ -14,32 +14,34 @@ export default defineConfig(({ mode }) => ({
     emptyOutDir: true,
     target: 'esnext',
     rollupOptions: {
-      input: (() => {
-        const PAGES_DIR = resolve(__dirname, 'pages');
-        const input = {};
-
-        function readdir(path: string) {
-          readdirSync(path).forEach((entry) => handleEntry(resolve(__dirname, path, entry)));
-        }
-
-        function handleEntry(path: string) {
-          if (path.endsWith('.html')) {
-            const relativePath = relative(PAGES_DIR, path);
-            const entryName = relativePath.slice(0, -extname(relativePath).length);
-            input[entryName] = path;
-          } else if (isDir(path)) {
-            readdir(path);
-          }
-        }
-
-        function isDir(path: string) {
-          return statSync(path).isDirectory();
-        }
-
-        readdir(PAGES_DIR);
-
-        return input;
-      })(),
+      input: computeInputs(),
     },
   },
 }));
+
+function computeInputs() {
+  const PAGES_DIR = resolve(__dirname, 'pages');
+  const input = {};
+
+  function readdir(path: string) {
+    readdirSync(path).forEach((entry) => handleEntry(resolve(__dirname, path, entry)));
+  }
+
+  function handleEntry(path: string) {
+    if (path.endsWith('.html')) {
+      const relativePath = relative(PAGES_DIR, path);
+      const entryName = relativePath.slice(0, -extname(relativePath).length);
+      input[entryName] = path;
+    } else if (isDir(path) && !path.endsWith('gcdata')) {
+      readdir(path);
+    }
+  }
+
+  function isDir(path: string) {
+    return statSync(path).isDirectory();
+  }
+
+  readdir(PAGES_DIR);
+
+  return input;
+}

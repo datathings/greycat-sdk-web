@@ -1,10 +1,6 @@
 import { GreyCat, core } from '@greycat/sdk';
 
-// @greycat/ui
-
-import '../../src/css/full.css';
-import './index.css';
-import '../../src/bundle';
+import '../common';
 
 try {
   const randomizeBtn = document.getElementById('randomize')!;

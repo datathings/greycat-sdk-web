@@ -1,5 +1,3 @@
-@import './base.css';
-
 @import '../chart-utils/tooltip.css';
 @import '../components/donut/donut.css';
 @import '../components/map/map.css';

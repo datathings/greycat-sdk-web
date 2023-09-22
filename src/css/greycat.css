@@ -1,0 +1,7 @@
+/**
+ * GreyCat Styles
+ *
+ * Based on `greycat.slim.css` with the added Web Component styles.
+ */
+@import './greycat.slim.css';
+@import './_components.css';

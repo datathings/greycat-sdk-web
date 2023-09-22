@@ -1,9 +1,18 @@
+gui-user-roles > table > thead > tr > th:last-child {
+  width: 85px;
+}
+
 gui-user-roles tbody tr td code {
   margin-right: 5px;
 }
 
 gui-user-roles tbody tr td code:last-child {
   margin-right: 0;
+}
+
+gui-user-roles thead tr th button,
+gui-user-roles tbody tr td button {
+  margin-bottom: 0;
 }
 
 gui-user-roles .button-wrapper {

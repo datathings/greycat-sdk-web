@@ -52,7 +52,9 @@ export class GuiUserTable extends HTMLElement {
     thead.appendChild(headers);
 
     this._table.append(thead, this._tbody);
-    this.appendChild(this._table);
+    const container = document.createElement('figure');
+    container.appendChild(this._table);
+    this.appendChild(container);
 
     this._initDialog();
     this.appendChild(this._dialog);

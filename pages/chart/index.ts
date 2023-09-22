@@ -1,23 +1,20 @@
 import { GreyCat, core } from '@greycat/sdk';
 
 // @greycat/ui
-import '../../src/css/full.css';
-import './index.css';
-import '../../src/bundle';
+import '../common'
 
 try {
   const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
 
   const nbRows = document.querySelector('#nb-rows') as HTMLInputElement;
-  const randomizeBtn = document.querySelector('#randomize') as HTMLButtonElement;
-  const topLeft = document.querySelector('#top-left') as HTMLButtonElement;
-  const topRight = document.querySelector('#top-right') as HTMLButtonElement;
-  const bottomLeft = document.querySelector('#bottom-left') as HTMLButtonElement;
-  const bottomRight = document.querySelector('#bottom-right') as HTMLButtonElement;
-  const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
-  const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
+  const randomizeBtn = document.querySelector('#randomize') as HTMLAnchorElement;
+  const topLeft = document.querySelector('#top-left') as HTMLAnchorElement;
+  const topRight = document.querySelector('#top-right') as HTMLAnchorElement;
+  const bottomLeft = document.querySelector('#bottom-left') as HTMLAnchorElement;
+  const bottomRight = document.querySelector('#bottom-right') as HTMLAnchorElement;
+  const toggleCursor = document.querySelector('#toggle-cursor') as HTMLAnchorElement;
 
-  let table = await greycat.call<core.Table>('project::table', [150]);
+  let table = await greycat.call<core.Table>('project::chart', [150]);
   console.log({ table });
 
   const LINE_COL = 0;
@@ -27,7 +24,9 @@ try {
   const LINE_TYPE_COL = 4;
   const LINE_COLOR_COL = 5;
 
-  const chart = document.querySelector('gui-chart')!;
+  const chart = document.createElement('gui-chart')!;
+  chart.style.height = '100%';
+  document.querySelector('main')!.appendChild(chart);
 
   const customColorMap = {
     Low: 'red',
@@ -89,7 +88,7 @@ try {
 
   // eslint-disable-next-line no-inner-declarations
   async function randomize() {
-    table = await greycat.call<core.Table>('project::table', [+nbRows.value]);
+    table = await greycat.call<core.Table>('project::chart', [+nbRows.value]);
     console.log({ table });
     chart.config.table = table;
     chart.compute();
@@ -125,11 +124,7 @@ try {
   toggleCursor.addEventListener('click', () => {
     chart.config.cursor = !chart.config.cursor;
   });
-  toggleTheme.addEventListener('click', () => {
-    const theme = document.documentElement.getAttribute('data-theme') ?? 'black';
-    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
-  });
-
 } catch (err) {
+  console.error(err);
   document.body.textContent = `Is GreyCat started?`;
 }

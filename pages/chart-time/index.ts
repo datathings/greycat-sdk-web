@@ -1,28 +1,23 @@
-import * as d3 from 'd3';
-window.d3 = d3;
-import { GreyCat, core } from '@greycat/sdk';
+import { core } from '@greycat/sdk';
 
-// @greycat/ui
-import '../../src/css/full.css';
-import './index.css';
-import '../../src/bundle';
+import { mount } from '../common';
 
-try {
-  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
-
+mount(async (app, greycat) => {
   const randomizeBtn = document.querySelector('#randomize') as HTMLButtonElement;
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
-  const toggleTheme = document.querySelector('#toggle-theme') as HTMLButtonElement;
   const currentValue = document.querySelector('#current-value') as HTMLDivElement;
 
-  const chart = document.querySelector('gui-chart')!;
+  const chart = document.createElement('gui-chart');
+  chart.style.height = '100%';
+  app.appendChild(chart);
+
   chart.addEventListener('selection', (e) => {
     const from = core.time.fromMs(e.detail.from as number);
     const to = core.time.fromMs(e.detail.to as number);
     console.log(`selection from ${from} to ${to}`);
   });
 
-  let table = await greycat.call<core.Table>('project::table');
+  let table = await greycat.call<core.Table>('project::chart_time');
   console.log(table);
 
   const colors = {
@@ -73,10 +68,4 @@ try {
   toggleCursor.addEventListener('click', () => {
     chart.config.cursor = !chart.config.cursor;
   });
-  toggleTheme.addEventListener('click', () => {
-    const theme = document.documentElement.getAttribute('data-theme') ?? 'black';
-    document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
-  });
-} catch (err) {
-  document.body.textContent = `Is GreyCat started?`;
-}
+});

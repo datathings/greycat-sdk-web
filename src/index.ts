@@ -1,6 +1,8 @@
+import './reset.js';
+import * as greycat from './exports.js';
 export * from './exports.js';
 
-import * as greycat from './exports.js';
+
 
 globalThis.greycat = globalThis.greycat ?? {};
 Object.assign(globalThis.greycat, greycat);
