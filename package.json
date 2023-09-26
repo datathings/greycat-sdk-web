@@ -30,7 +30,8 @@
     "dist/greycat.js",
     "dist/greycat.min.js",
     "dist/jsx-dev-runtime.js",
-    "dist/jsx-runtime.js"
+    "dist/jsx-runtime.js",
+    "public/Raleway-Medium.ttf"
   ],
   "scripts": {
     "clean": "rm -rf dist",
