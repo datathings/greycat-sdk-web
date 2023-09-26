@@ -23,6 +23,7 @@
   },
   "license": "Apache-2.0",
   "files": [
+    "jsx.d.ts",
     "dist/css",
     "dist/docs",
     "dist/types",
