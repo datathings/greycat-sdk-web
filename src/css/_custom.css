@@ -1,0 +1,6 @@
+/* This file contains brand new additions to PicoCSS specific to GreyCat CSS */
+
+div[role='list'] {
+  display: grid;
+  grid-template-rows: auto;
+}

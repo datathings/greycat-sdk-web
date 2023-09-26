@@ -1,7 +1,9 @@
+/* This file is an override of PicoCSS colors/spacings to fit GreyCat's brand guildelines */
+
 /* Dark colors (default) */
 :root,
 :root:not([data-theme]),
-:root:not([data-theme=light]) {
+:root:not([data-theme='light']) {
   color-scheme: dark;
 
   --primary: rgb(var(--accent-0));
@@ -9,19 +11,29 @@
   --primary-focus: rgba(205, 249, 127, 0.2);
   --primary-inverse: rgb(var(--text-inverse));
 
+  --secondary: #5684f1;
+  --secondary-hover: #3b6ee4;
+  --secondary-focus: rgba(205, 249, 127, 0.2);
+  --secondary-inverse: #fff;
+
   --bg-0: #101010;
   --bg-1: #181818;
   --bg-2: #252525;
 }
 
 /* Light colors */
-:root[data-theme=light] {
+:root[data-theme='light'] {
   color-scheme: light;
 
   --primary: #37c43e;
   --primary-hover: #4fd24a;
-  --primary-focus: rgba(205, 249, 127, 0.2);
+  --primary-focus: rgba(205, 249, 127, 0.6);
   --primary-inverse: rgb(var(--text-inverse));
+
+  --secondary: #5684f1;
+  --secondary-hover: #3b6ee4;
+  --secondary-focus: rgba(205, 249, 127, 0.2);
+  --secondary-inverse: #fff;
 
   --bg-0: #fff;
   --bg-1: #c5c5c5;
@@ -56,13 +68,54 @@
   --nav-element-spacing-horizontal: 0.4rem;
 
   --card-background-color: var(--bg-0);
+  --card-sectionning-background-color: var(--bg-1);
 
   --code-color: var(--primary);
   --code-background-color: var(--bg-1);
 
-  --table-border-color: var(--bg-0);
+  --table-border-color: rgb(var(--text-2));
 
   --block-spacing-vertical: var(--spacing);
+
+  --accordion-border-color: rgba(var(--text-2), 0.2);
+  --accordion-open-summary-color: var(--primary);
+
+  --dropdown-background-color: var(--bg-1);
+  --dropdown-hover-background-color: var(--bg-0);
+}
+
+input:not([type='submit'], [type='button'], [type='reset'])[disabled],
+select[disabled],
+textarea[disabled],
+:where(fieldset[disabled])
+  :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
+  pointer-events: initial;
+}
+
+[type='checkbox']:checked,
+[type='checkbox']:checked:focus,
+[type='checkbox']:checked:active {
+  --background-color: var(--bg-1);
+}
+
+code,
+kbd {
+  padding: 0.25rem 0.35rem;
+}
+
+pre {
+  color: var(--text-0);
+}
+
+thead th,
+thead td,
+tfoot th,
+tfoot td {
+  --border-width: 2px;
+}
+
+details summary[role='button']::after {
+  background-image: var(--icon-chevron-button-inverse);
 }
 
 /* Small devices */
@@ -90,6 +143,10 @@
   body > footer,
   section {
     --block-spacing-vertical: calc(var(--spacing) * 1.5);
+  }
+
+  dialog article {
+    min-width: 450px;
   }
 }
 

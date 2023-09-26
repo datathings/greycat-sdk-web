@@ -1,6 +1,6 @@
-/*
-    Custom component for options with checkboxes in 2 columns.
-*/
+/**
+ * Custom component for options with checkboxes in 2 columns.
+ */
 export class GuiMultiSelectCheckbox extends HTMLElement {
   private _checkboxes: HTMLLabelElement[] = [];
 
@@ -26,6 +26,16 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
   set options(options: string[]) {
     // reset checkboxes
     this._checkboxes.length = 0;
+
+    if (options.length === 0) {
+      // no available options
+      this.replaceChildren(
+        <small>
+          <i>No option</i>
+        </small>,
+      );
+      return;
+    }
 
     // sort options
     options.sort((a, b) => a.localeCompare(b));
@@ -78,7 +88,6 @@ declare global {
     }
   }
 }
-
 
 if (!globalThis.customElements.get('gui-multi-select-checkbox')) {
   globalThis.customElements.define('gui-multi-select-checkbox', GuiMultiSelectCheckbox);

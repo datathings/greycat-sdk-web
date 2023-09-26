@@ -7,13 +7,8 @@ export class GuiUserTable extends HTMLElement {
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('dialog');
-  private _nameInput = document.createElement('input');
-  private _fullNameInput = document.createElement('input');
-  private _emailInput = document.createElement('input');
-  private _passwordInput = document.createElement('input');
   private _roleSelect = document.createElement('select');
   private _groupsSelect = document.createElement('gui-multi-select-checkbox');
-  private _activatedCheckbox = document.createElement('input');
   private _currentUserRole = '';
   private _users: Array<runtime.User> = [];
   private _groups: Array<runtime.UserGroup> = [];
@@ -248,47 +243,83 @@ export class GuiUserTable extends HTMLElement {
     activatedInput.appendChild(this._activatedCheckbox);
     activatedInput.appendChild(document.createTextNode('Activated'));
 
-    const submitButton = document.createElement('button');
-    submitButton.classList.add('submit-button');
-    submitButton.textContent = 'Submit';
+    const reset = () => {
+      nameInput.removeAttribute('aria-invalid');
+    }
 
-    const closeButton = document.createElement('button');
-    closeButton.addEventListener('click', () => this._dialog.close());
-    closeButton.textContent = 'Close';
-    closeButton.classList.add('inverted');
+    const nameInput = (
+      <input type="text" name="name" placeholder="eg. jdoe" oninput={reset} />
+    ) as HTMLInputElement;
 
-    const buttonWrapper = document.createElement('div');
-    buttonWrapper.classList.add('button-wrapper');
-    buttonWrapper.appendChild(submitButton);
-    buttonWrapper.appendChild(closeButton);
-
-    const container = document.createElement('article');
-    container.appendChild(this._createLabel('Name'));
-    container.appendChild(this._nameInput);
-    container.appendChild(this._createLabel('Full name'));
-    container.appendChild(this._fullNameInput);
-    container.appendChild(this._createLabel('Email'));
-    container.appendChild(this._emailInput);
-    container.appendChild(this._createLabel('Password'));
-    container.appendChild(this._passwordInput);
-    container.appendChild(activatedInput);
-    container.appendChild(this._createLabel('Role'));
-    container.appendChild(this._roleSelect);
-    container.appendChild(this._createLabel('Groups'));
-    container.appendChild(this._groupsSelect);
-    container.appendChild(buttonWrapper);
-    this._dialog.appendChild(container);
-
-    submitButton.addEventListener('click', async () => {
-      const name = this._nameInput.value.trim();
+    const handleSubmit = () => {
+      const name = nameInput.value.trim();
+      console.log('submit', { name });
       if (name.length === 0) {
+        nameInput.setAttribute('aria-invalid', 'true');
         // TODO: show that it is required
         return;
       }
 
-      await this._addOrUpdateUser();
+      this._addOrUpdateUser();
       this._dialog.close();
-    });
+    };
+
+    const article = (
+      <article>
+        <form>
+          <label htmlFor="name">
+            Username*
+            {nameInput}
+          </label>
+
+          <label htmlFor="password">
+            Password*
+            <input type="password" name="password" autocomplete="current-password" />
+          </label>
+
+          <label htmlFor="fullname">
+            Full Name
+            <input type="text" name="fullname" placeholder="eg. John Doe" />
+          </label>
+
+          <label htmlFor="email">
+            E-mail
+            <input type="email" name="email" placeholder="eg. jdoe@example.com" />
+          </label>
+
+          <label htmlFor="activated">
+            <input type="checkbox" name="activated" id="activated" />
+            Activated
+          </label>
+
+          <label htmlFor="role">
+            Role
+            {this._roleSelect}
+          </label>
+
+          <label htmlFor="group">Group</label>
+          {this._groupsSelect}
+
+          <small>(*) Mandatory fields</small>
+
+          <div className="grid">
+            <button type="button" onclick={handleSubmit}>
+              Submit
+            </button>
+            <button
+              type="button"
+              onclick={() => {
+                reset();
+                this._dialog.close();
+              }}
+            >
+              Close
+            </button>
+          </div>
+        </form>
+      </article>
+    );
+    this._dialog.appendChild(article);
 
     try {
       const user = await runtime.User.me(this._greycat);
@@ -433,13 +464,6 @@ export class GuiUserTable extends HTMLElement {
   private _createBadge(text: string): HTMLElement {
     const el = document.createElement('code');
     el.textContent = text;
-    return el;
-  }
-
-  private _createLabel(label: string): HTMLLabelElement {
-    const el = document.createElement('label');
-    el.htmlFor = label;
-    el.textContent = label;
     return el;
   }
 }

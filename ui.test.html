@@ -1,11 +1,11 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="./dist/css/greycat.classless.css">
+  <link rel="stylesheet" href="./src/css/greycat.slim.css">
   <style>
     @font-face {
       font-family: "Raleway";
@@ -32,7 +32,7 @@
 
     .demo-header {
       font-size: 1.5rem;
-      border-bottom: 1px solid rgb(var(--base-1));
+      border-bottom: 1px solid rgb(var(--text-2));
       margin: 1.2rem 0;
     }
   </style>
@@ -60,6 +60,29 @@
     <a href id="theme-dark">Dark</a>
   </div>
   <main>
+    <!-- nav -->
+    <h3 class="demo-header">nav</h3>
+    <nav>
+      <ul>
+        <li><strong>Brand</strong></li>
+      </ul>
+      <ul>
+        <li><a href="#">Link</a></li>
+        <li><a href="#">Link</a></li>
+        <li>
+          <details role="list" dir="rtl">
+            <summary aria-haspopup="listbox" role="button">Dropdown</summary>
+            <ul role="listbox">
+              <li><a>Action</a></li>
+              <li><a>Another action</a></li>
+              <li><a>Something else here</a></li>
+            </ul>
+          </details>
+        </li>
+      </ul>
+    </nav>
+
+    <!-- address -->
     <h3 class="demo-header">address</h3>
     <address>
       <a href="mailto:contact *--replace-with-at--* datathings.com">contact@datathings.com</a>
@@ -259,13 +282,77 @@
       </tfoot>
     </table>
 
+    <!-- table role="grid" -->
+    <h3 class="demo-header">table role="grid"</h3>
+    <table role="grid">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Home Runs</th>
+          <th>AVG</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Mike Trout</td>
+          <td>45</td>
+          <td>.291</td>
+        </tr>
+        <tr>
+          <td>Christian Yelich</td>
+          <td>44</td>
+          <td>.329</td>
+        </tr>
+        <tr>
+          <td>Mookie Betts</td>
+          <td>29</td>
+          <td>.295</td>
+        </tr>
+        <tr>
+          <td>Cody Bellinger</td>
+          <td>47</td>
+          <td>.305</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td colspan="3">
+            <span>Footer</span>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code><code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+            <code>One</code>
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+
     <!-- form elements -->
 
     <!-- buttons -->
     <h3 class="demo-header">button</h3>
-    <button type="button">Save</button>
-    <button type="button" disabled>Disabled</button>
-    <button type="button" class="inverted">Inverted</button>
+    <button>Save</button>
+    <button disabled>Disabled</button>
+    <button class="secondary">Secondary</button>
+    <button class="contrast" aria-busy="true">Contrast</button>
+
+    <!-- links -->
+    <h3 class="demo-header">links</h3>
+    <a href="">Save</a>
+    <a href="" role="button" class="secondary">Secondary btn</a>
+    <a href="" role="button" class="contrast outline">Contrast outline</a>
 
     <!-- datalist -->
     <h3 class="demo-header">datalist</h3>
@@ -343,10 +430,60 @@
 
     <!-- interactive elements -->
     <!-- summary/details -->
-    <h3 class="demo-header">summary/details</h3>
+    <h3 class="demo-header">details</h3>
     <details>
-      <summary>Details</summary>
-      Something small enough to escape casual notice.
+      <summary>Lorem</summary>
+      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Pellentesque urna diam, tincidunt nec porta sed,
+        auctor id velit.</p>
+    </details>
+    <details open>
+      <summary>Ipsum</summary>
+      <p>Etiam venenatis nisl ut orci consequat, vitae tempus quam commodo. Nulla non mauris ipsum. Aliquam eu posuere
+        orci. Nulla convallis lectus rutrum quam hendrerit, in facilisis elit sollicitudin.</p>
+    </details>
+    <details>
+      <summary>Dolor</summary>
+      <p>Mauris pulvinar pulvinar mi, dictum tristique elit auctor quis. Maecenas ac ipsum ultrices, porta turpis sit
+        amet, congue turpis.</p>
+    </details>
+
+    <!-- article -->
+    <h3 class="demo-header">article</h3>
+    <article>
+      This is the content of an &lt;article&gt; element.
+    </article>
+    <article>
+      <header>Article header</header>
+      This is the content of an &lt;article&gt; element.
+      <footer>Article footer</footer>
+    </article>
+
+    <!-- div role="list" -->
+    <h3 class="demo-header">div role="list"</h3>
+    <div role="list">
+      <span>This</span>
+      <span>is</span>
+      <span>stacking</span>
+      <span>vertically</span>
+    </div>
+
+    <!-- details role="list" -->
+    <h3 class="demo-header">details role="list"</h3>
+    <details role="list">
+      <summary aria-haspopup="listbox">Dropdown</summary>
+      <ul role="listbox">
+        <li><a>Action</a></li>
+        <li><a>Another action</a></li>
+        <li><a>Something else here</a></li>
+      </ul>
+    </details>
+    <details role="list">
+      <summary aria-haspopup="listbox" role="button">Dropdown button</summary>
+      <ul role="listbox">
+        <li><a>Action</a></li>
+        <li><a>Another action</a></li>
+        <li><a>Something else here</a></li>
+      </ul>
     </details>
 
     <div class="misc-components">
@@ -402,13 +539,15 @@
       <div>
         <h3 class="demo-header">dialog</h3>
         <dialog id="dialog">
-          <div>
-            <p>Lorem ipsum dolor sit amet.</p>
-            <p>Press 'Esc' or click 'Close' to close the dialog.</p>
-          </div>
-          <form method="dialog">
-            <button>Close</button>
-          </form>
+          <article>
+            <div>
+              <p>Lorem ipsum dolor sit amet.</p>
+              <p>Press 'Esc' or click 'Close' to close the dialog.</p>
+            </div>
+            <form method="dialog">
+              <button>Close</button>
+            </form>
+          </article>
         </dialog>
         <button id="open-dialog">Open dialog</button>
       </div>

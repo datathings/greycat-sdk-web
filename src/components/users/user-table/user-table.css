@@ -11,14 +11,20 @@ gui-user-table tbody tr td button {
   margin-bottom: 0;
 }
 
+gui-user-table table > caption {
+  text-align: left;
+  font-weight: bolder;
+  border-bottom: 1px solid var(--bg-2);
+}
+
 gui-user-table select {
   display: flex;
   align-items: center;
   margin-bottom: 1rem;
 }
 
-gui-user-table .button-wrapper {
+/* gui-user-table .button-wrapper {
   display: flex;
   justify-content: space-between;
   margin-top: 20px;
-}
+} */
