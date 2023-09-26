@@ -19,7 +19,8 @@
     },
     "./css/greycat.css": "./dist/css/greycat.css",
     "./css/greycat.base.css": "./dist/css/greycat.base.css",
-    "./css/greycat.classless.css": "./dist/css/greycat.classless.css"
+    "./css/greycat.classless.css": "./dist/css/greycat.classless.css",
+    "./fonts/Raleway-Medium.ttf": "./public/Raleway-Medium.ttf"
   },
   "license": "Apache-2.0",
   "files": [
