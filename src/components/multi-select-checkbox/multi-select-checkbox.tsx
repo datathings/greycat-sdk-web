@@ -38,7 +38,7 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
     }
 
     // sort options
-    options.sort((a, b) => a.localeCompare(b));
+    options.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
     for (let i = 0; i < options.length; i++) {
       const option = options[i];

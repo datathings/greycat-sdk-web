@@ -82,6 +82,8 @@
 
   --dropdown-background-color: var(--bg-1);
   --dropdown-hover-background-color: var(--bg-0);
+
+  --modal-overlay-background-color: rgba(var(--base-2), 0.35);
 }
 
 input:not([type='submit'], [type='button'], [type='reset'])[disabled],
@@ -116,6 +118,11 @@ tfoot td {
 
 details summary[role='button']::after {
   background-image: var(--icon-chevron-button-inverse);
+}
+
+dialog article header {
+  font-weight: bolder;
+  font-size: 1rem;
 }
 
 /* Small devices */

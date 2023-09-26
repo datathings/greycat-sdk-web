@@ -298,7 +298,7 @@ export class GuiTable extends HTMLElement {
 
         let compare = 0;
         if (aType === 'string' && bType === 'string') {
-          compare = a.localeCompare(b);
+          compare = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
         } else {
           compare = a >= b ? 1 : -1;
         }

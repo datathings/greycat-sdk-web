@@ -9,47 +9,58 @@ export class GuiUserTable extends HTMLElement {
   private _dialog = document.createElement('dialog');
   private _roleSelect = document.createElement('select');
   private _groupsSelect = document.createElement('gui-multi-select-checkbox');
-  private _currentUserRole = '';
   private _users: Array<runtime.User> = [];
   private _groups: Array<runtime.UserGroup> = [];
+  private _roles: Array<runtime.UserRole> = [];
+  private _currentState: 'create' | runtime.User = 'create';
+  private _dialogHeader = (<header>Create</header>);
+  private _dialogSubmitBtn = (
+    <button type="button" onclick={() => this._handleSubmit()}>
+      Create
+    </button>
+  );
+
+  private _reset = (ev: Event) => {
+    if (ev.target instanceof HTMLInputElement) {
+      ev.target.removeAttribute('aria-invalid');
+    }
+  };
+
+  // prettier-ignore
+  private nameInput = (<input type="text" name="name" placeholder="eg. jdoe" oninput={this._reset} required />) as HTMLInputElement;
+  // prettier-ignore
+  private passwordInput = (<input type="password" name="password" oninput={this._reset} autocomplete="current-password" />) as HTMLInputElement;
+  // prettier-ignore
+  private fullnameInput = (<input type="text" name="fullname" placeholder="eg. John Doe" />) as HTMLInputElement;
+  // prettier-ignore
+  private emailInput = (<input type="email" name="email" placeholder="eg. jdoe@example.com" />) as HTMLInputElement;
+  // prettier-ignore
+  private activatedInput = (<input type="checkbox" name="activated" id="activated" />) as HTMLInputElement;
 
   connectedCallback() {
     const createBtn = document.createElement('button');
     createBtn.textContent = 'Create';
     createBtn.classList.add('create-user-button');
-    createBtn.addEventListener('click', () => this._showDialog());
+    createBtn.addEventListener('click', () => this._createUser());
 
-    const thead = document.createElement('thead');
-    const headers = document.createElement('tr');
+    this._table.appendChild(
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Full Name</th>
+          <th>Email</th>
+          <th>Role</th>
+          <th>Activated</th>
+          <th>Groups</th>
+          <th>
+            <button onclick={() => this._createUser()}>Create</button>
+          </th>
+        </tr>
+      </thead>,
+    );
+    this._table.appendChild(this._tbody);
 
-    const hName = document.createElement('th');
-    hName.textContent = 'Name';
-
-    const hFullName = document.createElement('th');
-    hFullName.textContent = 'Full name';
-
-    const hEmail = document.createElement('th');
-    hEmail.textContent = 'Email';
-
-    const hRole = document.createElement('th');
-    hRole.textContent = 'Role';
-
-    const hActivated = document.createElement('th');
-    hActivated.textContent = 'Activated';
-
-    const hGroups = document.createElement('th');
-    hGroups.textContent = 'Groups';
-
-    const hCreate = document.createElement('th');
-    hCreate.appendChild(createBtn);
-
-    headers.append(hName, hFullName, hEmail, hRole, hActivated, hGroups, hCreate);
-    thead.appendChild(headers);
-
-    this._table.append(thead, this._tbody);
-    const container = document.createElement('figure');
-    container.appendChild(this._table);
-    this.appendChild(container);
+    this.appendChild(<figure>{this._table}</figure>);
 
     this._initDialog();
     this.appendChild(this._dialog);
@@ -59,10 +70,7 @@ export class GuiUserTable extends HTMLElement {
 
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
-    this._fetchAllUsers();
-    this._fetchAllRoles();
-    this._fetchAllGroups();
-    this.render();
+    Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);
   }
 
   set users(users: Array<runtime.User>) {
@@ -71,11 +79,21 @@ export class GuiUserTable extends HTMLElement {
   }
 
   set roles(roles: Array<runtime.UserRole>) {
-    this._fetchAllRoles(roles);
+    this._roles = roles.sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+    );
+    this._roleSelect.replaceChildren(
+      ...this._roles.map((role) => <option value={role.name}>{role.name}</option>),
+    );
+    this.render();
   }
 
   set groups(groups: Array<runtime.UserGroup>) {
-    this._fetchAllGroups(groups);
+    this._groups = groups.sort((a, b) =>
+      a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
+    );
+    this._groupsSelect.options = this._groups.map((group) => group.name);
+    this.render();
   }
 
   set caption(caption: string | null | undefined) {
@@ -99,372 +117,240 @@ export class GuiUserTable extends HTMLElement {
     console.error(error);
   }
 
-  private async _fetchAllUsers() {
+  async updateUsersAndGroups() {
     try {
       const entities = await runtime.SecurityEntity.all(this._greycat);
-      this._users = [];
+      const users: runtime.User[] = [];
+      const groups: runtime.UserGroup[] = [];
+
       for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
         if (entity instanceof runtime.User) {
-          this._users.push(entity);
+          users.push(entity);
+        } else if (entity instanceof runtime.UserGroup) {
+          groups.push(entity);
         }
       }
-      this._users.sort((a, b) => a.name.localeCompare(b.name));
+      this.users = users;
+      this.groups = groups;
     } catch (err) {
       this._handleError(err);
     }
   }
 
-  private async _fetchAllRoles(roles?: runtime.UserRole[]) {
+  async updateRoles() {
     try {
-      let fetchedRoles: runtime.UserRole[] = [];
-      if (roles) {
-        fetchedRoles = roles;
-      } else {
-        const entities = await runtime.SecurityEntity.all(this._greycat);
-        for (let i = 0; i < entities.length; i++) {
-          const entity = entities[i];
-          if (entity instanceof runtime.UserRole) {
-            fetchedRoles.push(entity);
-          }
-        }
-      }
-
-      const roleNames: string[] = [];
-      const fragment = document.createDocumentFragment();
-
-      for (let i = 0; i < fetchedRoles.length; i++) {
-        roleNames.push(fetchedRoles[i].name);
-      }
-      roleNames.sort((a, b) => a.localeCompare(b));
-
-      for (let i = 0; i < roleNames.length; i++) {
-        const option = document.createElement('option');
-        option.value = roleNames[i];
-        option.textContent = roleNames[i];
-        fragment.appendChild(option);
-      }
-
-      this._roleSelect.innerHTML = '';
-      this._roleSelect.appendChild(fragment);
+      this.roles = await runtime.UserRole.all();
     } catch (err) {
       this._handleError(err);
     }
   }
 
-  private async _fetchAllGroups(groups?: runtime.UserGroup[]) {
-    try {
-      if (groups) {
-        this._groups = groups;
-      } else {
-        this._groups = [];
-        const entities = await runtime.SecurityEntity.all(this._greycat);
-        for (let i = 0; i < entities.length; i++) {
-          const entity = entities[i];
-          if (entity instanceof runtime.UserGroup) {
-            this._groups.push(entity);
-          }
-        }
-      }
-      const groupNames: string[] = [];
-      for (const group of this._groups) {
-        groupNames.push(group.name);
-      }
-      this._groupsSelect.options = groupNames;
-    } catch (err) {
-      this._handleError(err);
-    }
+  private async _initDialog(): Promise<void> {
+    this._dialog.appendChild(
+      <article>
+        {this._dialogHeader}
+
+        <label htmlFor="name">
+          Username*
+          {this.nameInput}
+        </label>
+
+        <label htmlFor="password">
+          Password*
+          {this.passwordInput}
+        </label>
+
+        <label htmlFor="fullname">
+          Full Name
+          {this.fullnameInput}
+        </label>
+
+        <label htmlFor="email">
+          E-mail
+          {this.emailInput}
+        </label>
+
+        <label htmlFor="activated">
+          {this.activatedInput}
+          Activated
+        </label>
+
+        <label htmlFor="role">
+          Role
+          {this._roleSelect}
+        </label>
+
+        <label htmlFor="group">Group</label>
+        {this._groupsSelect}
+
+        <hr />
+        <small>(*) Mandatory fields</small>
+
+        <footer>
+          <div className="grid">
+            <button className="outline" onclick={() => this._dialog.close()}>
+              Close
+            </button>
+            {this._dialogSubmitBtn}
+          </div>
+        </footer>
+      </article>,
+    );
   }
 
-  private _showDialog(user?: runtime.User) {
-    if (user) {
-      this._nameInput.value = user.name;
-      // Existing User's name is not editable
-      this._nameInput.disabled = true;
-      this._fullNameInput.value = user.full_name ?? '';
-      this._emailInput.value = user.email ?? '';
-      this._passwordInput.value = '';
-      this._roleSelect.value = user.role ?? this._currentUserRole;
-      const groupNames: string[] = [];
-      if (user.groups) {
-        for (const groupPolicy of user.groups) {
-          const groupId = groupPolicy.group_id;
-          let userGroupName = '';
+  private _editUser(user: runtime.User): void {
+    this._currentState = user;
 
-          for (const group of this._groups) {
-            if (group.id === groupId) {
-              userGroupName = group.name;
-              break;
-            }
-          }
-
-          groupNames.push(userGroupName);
-        }
-      }
-      this._groupsSelect.selected = groupNames;
-      this._activatedCheckbox.checked = user.activated ?? false;
-    } else {
-      this._nameInput.value = '';
-      this._nameInput.disabled = false;
-      this._fullNameInput.value = '';
-      this._emailInput.value = '';
-      this._passwordInput.value = '';
-      this._roleSelect.value = this._currentUserRole;
-      this._groupsSelect.selected = [];
-      this._activatedCheckbox.checked = false;
+    this.nameInput.value = user.name;
+    this.nameInput.removeAttribute('aria-invalid');
+    this.passwordInput.removeAttribute('aria-invalid');
+    this.activatedInput.checked = user.activated;
+    this.fullnameInput.value = user.full_name ?? '';
+    this.emailInput.value = user.email ?? '';
+    if (user.role) {
+      const userRole = user.role;
+      this._roleSelect.selectedIndex = this._roles.findIndex((role) => role.name === userRole);
     }
+    if (user.groups) {
+      this._groupsSelect.selected = user.groups.map((g) => {
+        const group = this._groups.find((group) => group.id === g.group_id)!;
+        return group.name;
+      });
+    }
+
+    this._dialogHeader.textContent = 'Edit a user';
+    this._dialogSubmitBtn.textContent = 'Update';
 
     this._dialog.showModal();
   }
 
-  private async _initDialog(): Promise<void> {
-    this._nameInput.type = 'text';
-    this._nameInput.placeholder = 'Name';
-    this._nameInput.required = true;
+  private _createUser(): void {
+    this._currentState = 'create';
 
-    this._fullNameInput.type = 'text';
-    this._fullNameInput.placeholder = 'Full name';
+    this.nameInput.value = '';
+    this.passwordInput.value = '';
+    this.fullnameInput.value = '';
+    this.activatedInput.checked = false;
 
-    this._emailInput.type = 'text';
-    this._emailInput.placeholder = 'Email';
+    this.nameInput.removeAttribute('aria-invalid');
+    this.passwordInput.removeAttribute('aria-invalid');
 
-    this._passwordInput.type = 'password';
-    this._passwordInput.placeholder = 'Password';
-    this._passwordInput.classList.add('password-input');
+    this._dialogHeader.textContent = 'Create a new user';
+    this._dialogSubmitBtn.textContent = 'Create';
 
-    this._roleSelect.classList.add('select-element');
+    this._dialog.showModal();
+  }
 
-    this._groupsSelect.classList.add('groups-select');
-
-    const activatedInput = document.createElement('label');
-    activatedInput.htmlFor = 'activated';
-    this._activatedCheckbox.type = 'checkbox';
-    this._activatedCheckbox.name = 'activated';
-    activatedInput.appendChild(this._activatedCheckbox);
-    activatedInput.appendChild(document.createTextNode('Activated'));
-
-    const reset = () => {
-      nameInput.removeAttribute('aria-invalid');
+  private async _handleSubmit() {
+    const name = this.nameInput.value.trim();
+    if (name.length === 0) {
+      this.nameInput.setAttribute('aria-invalid', 'true');
+      return;
     }
 
-    const nameInput = (
-      <input type="text" name="name" placeholder="eg. jdoe" oninput={reset} />
-    ) as HTMLInputElement;
+    let full_name: string | null = this.fullnameInput.value.trim();
+    if (full_name.length === 0) {
+      full_name = null;
+    }
+    let email: string | null = this.emailInput.value.trim();
+    if (email.length === 0) {
+      email = null;
+    }
 
-    const handleSubmit = () => {
-      const name = nameInput.value.trim();
-      console.log('submit', { name });
-      if (name.length === 0) {
-        nameInput.setAttribute('aria-invalid', 'true');
-        // TODO: show that it is required
+    const groups = this._groupsSelect.selected.map((groupName) => {
+      const group = this._groups.find((g) => g.name === groupName)!;
+      return runtime.UserGroupPolicy.create(
+        group.id,
+        runtime.UserGroupPolicyType.read(this._greycat),
+      );
+    });
+
+    const newOrUpdatedUser = runtime.User.create(
+      0,
+      name,
+      this.activatedInput.checked,
+      full_name,
+      email,
+      this._roles[this._roleSelect.selectedIndex]?.name ?? null,
+      null,
+      groups,
+      null,
+      false,
+      this._greycat,
+    );
+
+    if (this._currentState === 'create') {
+      // create user
+      const password = this.passwordInput.value;
+      if (password.length === 0) {
+        this.passwordInput.setAttribute('aria-invalid', 'true');
         return;
       }
 
-      this._addOrUpdateUser();
-      this._dialog.close();
-    };
-
-    const article = (
-      <article>
-        <form>
-          <label htmlFor="name">
-            Username*
-            {nameInput}
-          </label>
-
-          <label htmlFor="password">
-            Password*
-            <input type="password" name="password" autocomplete="current-password" />
-          </label>
-
-          <label htmlFor="fullname">
-            Full Name
-            <input type="text" name="fullname" placeholder="eg. John Doe" />
-          </label>
-
-          <label htmlFor="email">
-            E-mail
-            <input type="email" name="email" placeholder="eg. jdoe@example.com" />
-          </label>
-
-          <label htmlFor="activated">
-            <input type="checkbox" name="activated" id="activated" />
-            Activated
-          </label>
-
-          <label htmlFor="role">
-            Role
-            {this._roleSelect}
-          </label>
-
-          <label htmlFor="group">Group</label>
-          {this._groupsSelect}
-
-          <small>(*) Mandatory fields</small>
-
-          <div className="grid">
-            <button type="button" onclick={handleSubmit}>
-              Submit
-            </button>
-            <button
-              type="button"
-              onclick={() => {
-                reset();
-                this._dialog.close();
-              }}
-            >
-              Close
-            </button>
-          </div>
-        </form>
-      </article>
-    );
-    this._dialog.appendChild(article);
-
-    try {
-      const user = await runtime.User.me(this._greycat);
-      if (user.role) {
-        this._currentUserRole = user.role;
+      try {
+        await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
+        await runtime.User.setPassword(name, password);
+      } catch (err) {
+        this._handleError(err);
       }
-    } catch (err) {
-      this._handleError(err);
+    } else {
+      // edit user
+      try {
+        // we are editing a user, let's keep the previous id to notify greycat of the intention
+        newOrUpdatedUser.id = this._currentState.id;
+
+        await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
+        const password = this.passwordInput.value;
+        if (password.length !== 0) {
+          await runtime.User.setPassword(name, password);
+        }
+      } catch (err) {
+        this._handleError(err);
+      }
     }
+
+    this.updateUsersAndGroups();
+
+    this._dialog.close();
   }
 
-  private render() {
+  render() {
     const rows = document.createDocumentFragment();
 
     for (let i = 0; i < this._users.length; i++) {
       const user = this._users[i];
-      const row = document.createElement('tr');
-
-      // name cell
-      const cName = document.createElement('td');
-      cName.textContent = user.name;
-
-      // full name cell
-      const cFullName = document.createElement('td');
-      cFullName.textContent = user.full_name;
-
-      // email cell
-      const cEmail = document.createElement('td');
-      cEmail.textContent = user.email;
-
-      // role cell
-      const cRole = document.createElement('td');
-      cRole.textContent = user.role;
-
-      const cActivated = document.createElement('td');
-      cActivated.textContent = user.activated ? 'true' : 'false';
-
-      // groups cell
-      const cGroups = document.createElement('td');
+      const groups: string[] = [];
       if (user.groups) {
-        for (const groupPolicy of user.groups) {
-          const groupId = groupPolicy.group_id;
-          let userGroup: runtime.UserGroup | undefined = undefined;
-          for (const group of this._groups) {
-            if (group.id === groupId) {
-              userGroup = group;
-              break;
-            }
+        for (let i = 0; i < user.groups.length; i++) {
+          const policy = user.groups[i];
+          const group = this._groups.find((g) => g.id === policy.group_id);
+          if (group) {
+            groups.push(group.name);
           }
-          const userGroupName = userGroup?.name ?? '';
-          cGroups.appendChild(this._createBadge(userGroupName));
         }
       }
 
-      // edit cell
-      const cEdit = document.createElement('td');
-      cEdit.appendChild(this._createEditBtn(user));
-
-      row.append(cName, cFullName, cEmail, cRole, cActivated, cGroups, cEdit);
-      rows.appendChild(row);
+      rows.appendChild(
+        <tr>
+          <td>{user.name}</td>
+          <td>{user.full_name}</td>
+          <td>{user.email}</td>
+          <td>{user.role}</td>
+          <td>{user.activated ? 'true' : 'false'}</td>
+          <td>
+            {groups.map((groupName) => (
+              <code>{groupName}</code>
+            ))}
+          </td>
+          <td>
+            <button onclick={() => this._editUser(user)}>✎</button>
+          </td>
+        </tr>,
+      );
     }
 
     this._tbody.replaceChildren(rows);
-  }
-
-  private async _addOrUpdateUser() {
-    // Find group ids by selected group names
-    const groupNames: Array<string> = this._groupsSelect.selected;
-    const selectedGroupsIds: Array<number | bigint> = [];
-
-    for (let i = 0; i < groupNames.length; i++) {
-      const groupName = groupNames[i];
-      for (let j = 0; j < this._groups.length; j++) {
-        const group = this._groups[j];
-        if (group && groupName === group.name && group.id !== null) {
-          selectedGroupsIds.push(group.id);
-        }
-      }
-    }
-
-    // Create UserGroupPolicies with read type, associated with each group id
-    const selectedGroupPolicies: Array<runtime.UserGroupPolicy> = [];
-    for (const id of selectedGroupsIds) {
-      selectedGroupPolicies.push(
-        runtime.UserGroupPolicy.create(
-          id,
-          runtime.UserGroupPolicyType.read(this._greycat),
-          this._greycat,
-        ),
-      );
-    }
-
-    const userIndex = this._users.findIndex((user) => user.name === this._nameInput.value);
-    let updatedUser: runtime.User;
-
-    // If user already exists, we update the necessary fields.
-    if (userIndex !== -1) {
-      this._users[userIndex].full_name = this._fullNameInput.value;
-      this._users[userIndex].activated = this._activatedCheckbox.checked;
-      this._users[userIndex].email = this._emailInput.value;
-      this._users[userIndex].role = this._roleSelect.value;
-      this._users[userIndex].groups = selectedGroupPolicies;
-      updatedUser = this._users[userIndex];
-    } else {
-      const newUser = runtime.User.create(
-        this._users.length + 1,
-        this._nameInput.value,
-        this._activatedCheckbox.checked,
-        this._fullNameInput.value,
-        this._emailInput.value,
-        this._roleSelect.value,
-        null,
-        selectedGroupPolicies,
-        null,
-        false,
-        this._greycat,
-      );
-      this._users.push(newUser);
-      updatedUser = newUser;
-    }
-
-    try {
-      await runtime.User.setPassword(updatedUser.name, this._passwordInput.value, this._greycat);
-      await runtime.User.set(updatedUser, this._greycat);
-      await this._fetchAllUsers();
-      this.render();
-    } catch (error) {
-      this._handleError(error);
-    }
-  }
-
-  private _createEditBtn(user: runtime.User): HTMLButtonElement {
-    const editButton = document.createElement('button');
-
-    editButton.className = 'edit-button';
-    editButton.textContent = '✎';
-    editButton.addEventListener('click', () => this._showDialog(user));
-
-    return editButton;
-  }
-
-  private _createBadge(text: string): HTMLElement {
-    const el = document.createElement('code');
-    el.textContent = text;
-    return el;
   }
 }
 

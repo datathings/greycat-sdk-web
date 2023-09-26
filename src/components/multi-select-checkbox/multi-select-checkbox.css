@@ -1,6 +1,7 @@
 gui-multi-select-checkbox {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
+  display: block;
+  column-count: 2;
+  column-gap: var(--spacing);
 }
 
 gui-multi-select-checkbox .checkbox-item {

@@ -4,6 +4,7 @@ gui-user-roles > table > thead > tr > th:last-child {
 
 gui-user-roles tbody tr td code {
   margin-right: 5px;
+  text-wrap: nowrap;
 }
 
 gui-user-roles tbody tr td code:last-child {
@@ -15,8 +16,8 @@ gui-user-roles tbody tr td button {
   margin-bottom: 0;
 }
 
-gui-user-roles .button-wrapper {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
+gui-user-roles table > caption {
+  text-align: left;
+  font-weight: bolder;
+  border-bottom: 1px solid var(--bg-2);
 }

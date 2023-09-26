@@ -9,6 +9,11 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
+  resolve: {
+    alias: {
+      '@greycat/web': resolve(__dirname, 'src'),
+    }
+  },
   build: {
     outDir: resolve(__dirname, 'dist', 'pages'),
     emptyOutDir: true,
