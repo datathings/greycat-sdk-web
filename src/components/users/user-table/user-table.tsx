@@ -1,4 +1,4 @@
-import { GreyCat, runtime } from '@greycat/sdk';
+import { GreyCat, runtime, sha256hex } from '@greycat/sdk';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 
@@ -13,7 +13,7 @@ export class GuiUserTable extends HTMLElement {
   private _groups: Array<runtime.UserGroup> = [];
   private _roles: Array<runtime.UserRole> = [];
   private _currentState: 'create' | runtime.User = 'create';
-  private _dialogHeader = (<header>Create</header>);
+  private _dialogHeader = document.createElement('header');
   private _dialogSubmitBtn = (
     <button type="button" onclick={() => this._handleSubmit()}>
       Create
@@ -290,7 +290,7 @@ export class GuiUserTable extends HTMLElement {
 
       try {
         await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
-        await runtime.User.setPassword(name, password);
+        await runtime.User.setPassword(name, sha256hex(password));
       } catch (err) {
         this._handleError(err);
       }
@@ -303,7 +303,7 @@ export class GuiUserTable extends HTMLElement {
         await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
         const password = this.passwordInput.value;
         if (password.length !== 0) {
-          await runtime.User.setPassword(name, password);
+          await runtime.User.setPassword(name, sha256hex(password));
         }
       } catch (err) {
         this._handleError(err);

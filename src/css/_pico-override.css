@@ -73,7 +73,7 @@
   --code-color: var(--primary);
   --code-background-color: var(--bg-1);
 
-  --table-border-color: rgb(var(--text-2));
+  --table-border-color: rgba(var(--text-2), 0.2);
 
   --block-spacing-vertical: var(--spacing);
 
