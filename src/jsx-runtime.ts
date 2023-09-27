@@ -42,6 +42,10 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
         appendChild(element, value);
         break;
 
+      case 'style':
+        Object.assign(element.style, value);
+        break;
+
       default:
         if (key.startsWith('on')) {
           element.addEventListener(key.substring(2), value);
