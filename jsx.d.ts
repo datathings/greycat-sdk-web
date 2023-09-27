@@ -1,5 +1,5 @@
 declare namespace GreyCat {
-  type Element<T> = Partial<Omit<T, 'children' | 'style'>> & { style?: Partial<CSSStyleDeclaration> };
+  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & { className?: string | string[], style?: Partial<CSSStyleDeclaration> };
 }
 
 declare namespace JSX {
@@ -10,7 +10,7 @@ declare namespace JSX {
     [prop: string]: unknown;
   }
 
-  interface Element extends Node {}
+  interface Element extends Node { }
 
   interface IntrinsicElements {
     // HTML
