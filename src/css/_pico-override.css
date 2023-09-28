@@ -35,9 +35,9 @@
   --secondary-focus: rgba(205, 249, 127, 0.2);
   --secondary-inverse: #fff;
 
-  --bg-0: #fff;
-  --bg-1: #c5c5c5;
-  --bg-2: #a2a2a2;
+  --bg-0: #e5e5e5;
+  --bg-1: #bbb;
+  --bg-2: #fff;
 }
 
 :root {
@@ -105,7 +105,8 @@ kbd {
   padding: 0.25rem 0.35rem;
 }
 
-pre {
+pre,
+pre > code {
   color: var(--text-0);
 }
 
