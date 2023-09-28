@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "outDir": "dist/esm",
+    "outDir": "dist",
     "rootDir": "src",
     "target": "ES2022",
     "module": "NodeNext",
@@ -25,11 +25,7 @@
 
     "allowSyntheticDefaultImports": true,
     "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-
-    "jsx": "react-jsx",
-    "jsxImportSource": "@greycat/web"
+    "allowUnusedLabels": false
   },
-  "include": ["src", "jsx.d.ts"],
-  "exclude": ["src/_boilerplate", "./src/jsx-runtime.ts", "src/jsx-dev-runtime.ts"]
+  "files": ["./src/jsx-dev-runtime.ts", "./src/jsx-runtime.ts", "./jsx.d.ts"]
 }
