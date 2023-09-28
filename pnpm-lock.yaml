@@ -9,7 +9,7 @@ dependencies:
     specifier: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.2-dev.tgz
     version: '@get.greycat.io/files/sdk/js/dev/6.3/6.3.2-dev.tgz'
   '@picocss/pico':
-    specifier: ^1.5.10
+    specifier: 1.5.10
     version: 1.5.10
   d3:
     specifier: 7.8.5
