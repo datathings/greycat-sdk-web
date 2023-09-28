@@ -24,14 +24,16 @@
   },
   "license": "Apache-2.0",
   "files": [
-    "jsx.d.ts",
     "dist/css",
     "dist/docs",
     "dist/esm",
     "dist/greycat.js",
     "dist/greycat.min.js",
+    "jsx.d.ts",
     "dist/jsx-dev-runtime.js",
+    "dist/jsx-dev-runtime.d.ts",
     "dist/jsx-runtime.js",
+    "dist/jsx-runtime.d.ts",
     "public/Raleway-Medium.ttf"
   ],
   "scripts": {
