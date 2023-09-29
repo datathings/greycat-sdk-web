@@ -1,0 +1,13 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "rootDir": "..",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@greycat/web"
+  },
+  "include": ["**/*.ts", "../src", "../jsx.d.ts"]
+}

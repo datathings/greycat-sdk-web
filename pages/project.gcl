@@ -301,3 +301,54 @@ fn foo() {}
 @permission("bar")
 fn bar() {}
 // pages/users end
+
+// pages/object start
+type ComplexObject {
+  string: String;
+  int: int;
+  float: float;
+  bool: bool;
+  char: char;
+  geo: geo;
+  null: any?;
+  array: Array;
+  nodeTime: nodeTime;
+  nodeIndex: nodeIndex;
+  nodeList: nodeList;
+  nodeGeo: nodeGeo;
+  nested: any;
+}
+
+@expose
+@write
+fn complex_object() {
+  return ComplexObject {
+    string: "Hello, world!",
+    int: 42,
+    float: 3.14,
+    bool: false,
+    char: 'd',
+    geo: geo::new(1.4, -0.85),
+    null: null,
+    array: [42, 3.14, "hello world"],
+    nodeTime: nodeTime::new(),
+    nodeIndex: nodeIndex::new(),
+    nodeList: nodeList::new(),
+    nodeGeo: nodeGeo::new(),
+    nested: {
+      string: "Hello, world!",
+      int: 42,
+      float: 3.14,
+      bool: false,
+      char: 'd',
+      geo: geo::new(1.4, -0.85),
+      null: null,
+      array: [42, 3.14, "hello world"],
+      nodeTime: nodeTime::new(),
+      nodeIndex: nodeIndex::new(),
+      nodeList: nodeList::new(),
+      nodeGeo: nodeGeo::new(),
+    },
+  };
+}
+// pages/object end

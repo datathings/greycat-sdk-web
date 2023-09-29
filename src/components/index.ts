@@ -24,6 +24,7 @@ import { type GuiTaskInfo } from './tasks/task-info/index.js';
 import { type GuiTaskCreate } from './tasks/task-create/index.js';
 import { type GuiTaskHistoryList } from './tasks/task-history-list/index.js';
 import { type GuiTaskRunningList } from './tasks/task-running-list/index.js';
+import { type GuiObject } from './object/object.js';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -51,6 +52,7 @@ export * from './tasks/task-info/index.js';
 export * from './tasks/task-create/index.js';
 export * from './tasks/task-history-list/index.js';
 export * from './tasks/task-running-list/index.js';
+export * from './object/object.js';
 
 export type GuiElement =
   // | GuiBarChart
@@ -75,4 +77,5 @@ export type GuiElement =
   | GuiTaskInfo
   | GuiTaskCreate
   | GuiTaskHistoryList
-  | GuiTaskRunningList;
+  | GuiTaskRunningList
+  | GuiObject;

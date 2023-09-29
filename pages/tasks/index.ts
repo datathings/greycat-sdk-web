@@ -1,12 +1,9 @@
-import { GreyCat, runtime } from '@greycat/sdk';
+import { runtime } from '@greycat/sdk';
 
 import '../common';
+import { mount } from '../common';
 
-const app = document.getElementById('app') as HTMLDivElement;
-
-try {
-  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
-
+mount(async (app, greycat) => {
   const taskInfo = document.createElement('gui-task-info')!;
   const taskHistory = document.createElement('gui-task-history-list')!;
   const runningTasks = document.createElement('gui-task-running-list')!;
@@ -25,7 +22,4 @@ try {
   }
 
   await greycat.call<runtime.Task>('project::task_long_running');
-} catch (err) {
-  console.error(err);
-  app.textContent = `Is GreyCat started?`;
-}
+});
