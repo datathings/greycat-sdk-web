@@ -1,5 +1,5 @@
 import { GreyCat, runtime, core } from '@greycat/sdk';
-import { TaskStatusEnum, timeToDate } from '../utils.js';
+import { TaskListClickEvent, TaskStatusEnum, timeToDate } from '../utils.js';
 
 export class GuiTaskRunningList extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
@@ -90,6 +90,16 @@ export class GuiTaskRunningList extends HTMLElement {
       newTbody.appendChild(row);
     });
 
+    newTbody.addEventListener('click', (event) => {
+      if (!(event.target instanceof HTMLElement && event.target.parentElement instanceof HTMLTableRowElement)) {
+        return;
+      }
+      const targetRow = event.target.parentElement;
+      const rowIndex = targetRow.rowIndex - 1;
+      const task = this._tasks[rowIndex];
+      this.dispatchEvent(new TaskListClickEvent(task));
+    });
+
     this._table.appendChild(newTbody);
   }
 
@@ -123,6 +133,10 @@ export class GuiTaskRunningList extends HTMLElement {
 declare global {
   interface HTMLElementTagNameMap {
     'gui-task-running-list': GuiTaskRunningList;
+  }
+
+  interface HTMLElementEventMap {
+    'list-click': TaskListClickEvent;
   }
 
   namespace JSX {

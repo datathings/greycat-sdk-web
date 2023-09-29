@@ -3,6 +3,10 @@ gui-task-running-list .table-style {
   margin-bottom: 10px;
 }
 
+gui-task-running-list .table-style tbody tr:hover {
+  background-color: rgba(var(--base-1), 0.8);
+}
+
 gui-task-running-list .cancel-task-button {
   background-color: #f44336;
   color: white;

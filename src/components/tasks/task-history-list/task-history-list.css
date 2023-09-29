@@ -4,8 +4,12 @@ gui-task-history-list .table-style {
   border-collapse: collapse;
 }
 
+gui-task-history-list .table-style tbody tr:hover {
+  background-color: rgba(var(--base-1), 0.8);
+}
+
 gui-task-history-list .table-style th, .table-style td {
-  border: 1px #ccc;
+  border: 1px;
   padding: 5px 10px;
   text-align: left;
 }
