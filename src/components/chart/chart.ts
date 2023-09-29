@@ -127,7 +127,7 @@ export class GuiChart extends HTMLElement {
         return;
       }
       if (
-        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
       ) {
         this._cursor.selection = true;
       } else {
@@ -183,7 +183,7 @@ export class GuiChart extends HTMLElement {
       } else {
         // touch end classic
         if (
-          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
         ) {
           this._cursor.selection = true;
         } else {
@@ -625,6 +625,7 @@ export class GuiChart extends HTMLElement {
       this._cursor.y !== -1 &&
       this._cursor.startY !== -1
     ) {
+      const orientation = this._config.selection?.orientation ?? 'both';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
@@ -662,6 +663,16 @@ export class GuiChart extends HTMLElement {
         startY = tmp;
       }
 
+      if (orientation === 'horizontal') {
+        startY = yRange[1];
+        endY = yRange[0];
+      }
+
+      if (orientation === 'vertical') {
+        startX = xRange[0];
+        endX = xRange[1];
+      }
+
       const from: number = Math.floor(+xScale.invert(startX));
       const to: number = Math.ceil(+xScale.invert(endX));
 
@@ -669,18 +680,22 @@ export class GuiChart extends HTMLElement {
         // selection is done
         const selectionEvt = new GuiChartSelectionEvent(from, to);
 
-        // call update to apply zoom
-        xScale.domain([from, to]);
-        this._config.xAxis.min = from;
-        this._config.xAxis.max = to;
+        if (orientation === 'both' || orientation === 'horizontal') {
+          // call update to apply zoom
+          xScale.domain([from, to]);
+          this._config.xAxis.min = from;
+          this._config.xAxis.max = to;
+        }
 
-        for (const yAxisName in yScales) {
-          const yScale = yScales[yAxisName];
-          const from: number = Math.floor(+yScale.invert(endY));
-          const to: number = Math.ceil(+yScale.invert(startY));
-          yScale.domain([from, to]);
-          this._config.yAxes[yAxisName].min = from;
-          this._config.yAxes[yAxisName].max = to;
+        if (orientation === 'both' || orientation === 'vertical') {
+          for (const yAxisName in yScales) {
+            const yScale = yScales[yAxisName];
+            const from: number = Math.floor(+yScale.invert(endY));
+            const to: number = Math.ceil(+yScale.invert(startY));
+            yScale.domain([from, to]);
+            this._config.yAxes[yAxisName].min = from;
+            this._config.yAxes[yAxisName].max = to;
+          }
         }
 
         // XXX do we want to dispatch after the animation or not?

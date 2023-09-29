@@ -36,6 +36,9 @@ try {
 
   chart.config = {
     cursor: true,
+    selection: {
+      orientation: 'both',
+    },
     xAxis: {
       cursorFormat: '.0f',
     },

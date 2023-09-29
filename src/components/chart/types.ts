@@ -19,6 +19,21 @@ export type SerieWithOptions = Serie & SerieOptions;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
+export type SelectionOptions = {
+  /**
+   * If a selection is smallr than this value in pixels it will be ignored.
+   *
+   * Defaults: `10`
+   */
+  threshold: number;
+  /**
+   * - `'vertical'` means only selectable according to y axes
+   * - `'horizontal'` means only selectable according to x axis
+   * - `'both'` means selectable on y & x axes
+   */
+  orientation: 'vertical' | 'horizontal' | 'both';
+};
+
 export type Tooltip = {
   position: TooltipPosition;
   /**
@@ -221,12 +236,7 @@ export interface ChartConfig<K = { [keys: string]: never }> {
    * Tooltip position, defaults to 'top-left'
    */
   tooltip?: Partial<Tooltip>;
-  /**
-   * If a selection is smalled than this value in pixels it will be ignored.
-   *
-   * Defaults: `4`
-   */
-  selectionThreshold?: number;
+  selection?: Partial<SelectionOptions>;
   /**
    * Delta in milliseconds between two `touchend` event.
    *
