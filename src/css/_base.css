@@ -1,0 +1,74 @@
+:root {
+  --font-family: 'Raleway', 'Arial', sans-serif;
+  --font-size-sm: 15px;
+  --font-size-md: 15px;
+  --font-size-lg: 15px;
+  --font-size-xl: 15px;
+  --font-weight: 500;
+
+  --background-color: var(--bg-2);
+
+  --spacing: 0.5rem;
+
+  --form-element-active-border-color: var(--primary);
+  --form-element-focus-color: var(--primary-focus);
+  --form-element-spacing-vertical: 0.1rem;
+  --form-element-spacing-horizontal: 0.2rem;
+  --form-element-background-color: var(--bg-1);
+  --form-element-disabled-background-color: var(--bg-0);
+
+  --switch-color: var(--primary-inverse);
+  --switch-checked-background-color: var(--primary);
+
+  --nav-link-spacing-vertical: 0.2rem;
+  --nav-link-spacing-horizontal: 0.4rem;
+  --nav-element-spacing-vertical: 0.2rem;
+  --nav-element-spacing-horizontal: 0.4rem;
+
+  --card-background-color: var(--bg-0);
+  --card-sectionning-background-color: var(--bg-1);
+
+  --code-color: var(--primary);
+  --code-background-color: var(--bg-1);
+
+  --table-border-color: rgba(var(--text-2), 0.2);
+
+  --block-spacing-vertical: var(--spacing);
+  --block-spacing-horizontal: var(--spacing);
+
+  --accordion-border-color: rgba(var(--text-2), 0.2);
+  --accordion-open-summary-color: var(--primary);
+
+  --dropdown-background-color: var(--bg-1);
+  --dropdown-hover-background-color: var(--bg-0);
+
+  --modal-overlay-background-color: rgba(var(--base-2), 0.35);
+}
+
+:where(table) {
+  width: 100%;
+  border-collapse: collapse;
+  border-spacing: 0;
+  text-indent: 0;
+}
+
+th,
+td {
+  padding: calc(var(--spacing) / 2) var(--spacing);
+  border-bottom: var(--border-width) solid var(--table-border-color);
+  color: var(--color);
+  font-weight: var(--font-weight);
+  font-size: var(--font-size);
+  text-align: left;
+  text-align: start;
+}
+
+tfoot th,
+tfoot td {
+  border-top: var(--border-width) solid var(--table-border-color);
+  border-bottom: 0;
+}
+
+table[role=grid] tbody tr:nth-child(odd) {
+  background-color: var(--table-row-stripped-background-color);
+}

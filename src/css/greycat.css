@@ -3,5 +3,13 @@
  *
  * Based on `greycat.slim.css` with the added Web Component styles.
  */
-@import './greycat.slim.css';
+@import '../../node_modules/@picocss/pico/css/pico.css';
+
+@import './_dark.css';
+@import './_light.css';
+
+@import './_pico-override.css';
+
+@import './_custom.css';
+
 @import './_components.css';

@@ -19,7 +19,6 @@
     },
     "./css/greycat.css": "./dist/css/greycat.css",
     "./css/greycat.base.css": "./dist/css/greycat.base.css",
-    "./css/greycat.classless.css": "./dist/css/greycat.classless.css",
     "./fonts/Raleway-Medium.ttf": "./public/Raleway-Medium.ttf"
   },
   "license": "Apache-2.0",
@@ -43,8 +42,8 @@
     "build:bundle": "esbuild src/index.ts --bundle --format=esm --keep-names --outfile=dist/greycat.js --allow-overwrite",
     "build:bundle-min": "esbuild src/index.ts --bundle --format=esm --keep-names --outfile=dist/greycat.min.js --minify --allow-overwrite",
     "build:jsx": "tsc -p tsconfig.jsx.json",
-    "build:css": "pnpm build:css:slim && pnpm build:css:full",
-    "build:css:slim": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.slim.css -o dist/css/greycat.slim.css",
+    "build:css": "pnpm build:css:base && pnpm build:css:full",
+    "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.base.css -o dist/css/greycat.base.css",
     "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/css/greycat.css",
     "build:pages": "vite build -c pages.config.ts",
     "build:docs": "vitepress build",
