@@ -11,11 +11,11 @@ try {
   const taskHistory = document.createElement('gui-task-history-list')!;
   const runningTasks = document.createElement('gui-task-running-list')!;
 
-  taskHistory.addEventListener('list-click', (ev) => {
+  taskHistory.addEventListener('history-tasks-list-click', (ev) => {
     window.alert(`Task_id: ${ev.detail.task_id}\nModule ${ev.detail.mod}::${ev.detail.fun}`);
   });
 
-  runningTasks.addEventListener('list-click', (ev) => {
+  runningTasks.addEventListener('running-tasks-list-click', (ev) => {
     window.alert(`Task_id: ${ev.detail.task_id}\nModule ${ev.detail.mod}::${ev.detail.fun}`);
   });
 

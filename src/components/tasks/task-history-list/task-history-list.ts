@@ -1,5 +1,11 @@
 import { GreyCat, runtime, core } from '@greycat/sdk';
-import { TaskListClickEvent, TaskStatusEnum, timeToDate } from '../utils.js';
+import { TaskStatusEnum, timeToDate } from '../utils.js';
+
+export class HistoryTaskListClickEvent extends CustomEvent<runtime.Task> {
+  constructor(task: runtime.Task) {
+    super('history-tasks-list-click', { detail: task });
+  }
+}
 
 export class GuiTaskHistoryList extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
@@ -159,7 +165,7 @@ export class GuiTaskHistoryList extends HTMLElement {
       const targetRow = event.target.parentElement;
       const rowIndex = targetRow.rowIndex - 1;
       const task = this._tasks[rowIndex];
-      this.dispatchEvent(new TaskListClickEvent(task));
+      this.dispatchEvent(new HistoryTaskListClickEvent(task));
     });
 
     this._table.appendChild(newTbody);
@@ -255,7 +261,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'list-click': TaskListClickEvent;
+    'history-tasks-list-click': HistoryTaskListClickEvent;
   }
 
   namespace JSX {

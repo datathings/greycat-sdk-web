@@ -1,9 +1,15 @@
 import { GreyCat, runtime, core } from '@greycat/sdk';
-import { TaskListClickEvent, TaskStatusEnum, timeToDate } from '../utils.js';
+import { TaskStatusEnum, timeToDate } from '../utils.js';
+
+class RunningTaskListClickEvent extends CustomEvent<runtime.TaskInfo> {
+  constructor(task: runtime.TaskInfo) {
+    super('running-tasks-list-click', { detail: task });
+  }
+}
 
 export class GuiTaskRunningList extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
-  private _tasks: Array<runtime.Task> = [];
+  private _tasks: Array<runtime.TaskInfo> = [];
   private _table: HTMLTableElement = document.createElement('table');
   private _headers: Array<string> = ['Task Id', 'User Id', '"module"."fn"', 'Created', 'Status'];
   private _timeZone: core.TimeZone | null = null;
@@ -97,7 +103,7 @@ export class GuiTaskRunningList extends HTMLElement {
       const targetRow = event.target.parentElement;
       const rowIndex = targetRow.rowIndex - 1;
       const task = this._tasks[rowIndex];
-      this.dispatchEvent(new TaskListClickEvent(task));
+      this.dispatchEvent(new RunningTaskListClickEvent(task));
     });
 
     this._table.appendChild(newTbody);
@@ -111,7 +117,7 @@ export class GuiTaskRunningList extends HTMLElement {
     return false;
   }
 
-  private async _taskCancelTaskButtonHandler(task: runtime.Task) {
+  private async _taskCancelTaskButtonHandler(task: runtime.TaskInfo) {
     const taskStatus = task.status;
     try {
       if (!this._taskIsBeingExecuted(taskStatus)) {
@@ -136,7 +142,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    'list-click': TaskListClickEvent;
+    'running-tasks-list-click': RunningTaskListClickEvent;
   }
 
   namespace JSX {

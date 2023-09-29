@@ -1,12 +1,6 @@
 import * as sdk from '@greycat/sdk';
 import { GreyCat, Value, AbiReader, runtime, core } from '@greycat/sdk';
 
-export class TaskListClickEvent extends CustomEvent<runtime.Task> {
-  constructor(task: runtime.Task) {
-    super('list-click', { detail: task });
-  }
-}
-
 export enum TaskStatusEnum {
   empty,
   waiting,
