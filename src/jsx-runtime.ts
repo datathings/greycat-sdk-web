@@ -50,7 +50,8 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
         if (key.startsWith('on')) {
           element.addEventListener(key.substring(2), value);
         } else if (key in element) {
-          element[key] = value;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (element as any)[key] = value;
         } else {
           element.setAttribute(key, value);
         }
