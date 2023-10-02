@@ -93,6 +93,16 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
     this.render();
   }
 
+  set disabled(disabled: boolean) {
+    if (this._select) {
+      this._select.disabled = disabled;
+    }
+  }
+
+  get disabled() {
+    return this._select?.disabled ?? false;
+  }
+
   /**
    * Allows to override the default `<option />` element.
    * If the handler returns an HTMLElement it will be added as children.
@@ -160,7 +170,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
 
 export const SELECT_EVENT_TYPE = 'change';
 
-class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
+export class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
   constructor(value: GCEnum | null) {
     super(SELECT_EVENT_TYPE, { detail: value, bubbles: true });
   }
