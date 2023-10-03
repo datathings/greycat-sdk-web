@@ -98,6 +98,14 @@ export class GuiChart extends HTMLElement {
     this._uxCanvas.style.background = 'transparent';
     this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
+    // svg
+    this._svg = d3
+      .create('svg')
+      .style('background', 'transparent')
+      .style('position', 'absolute') as d3.Selection<SVGSVGElement, unknown, null, undefined>;
+
+    this._xAxisGroup = this._svg.append('g');
+
     // tooltip
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
@@ -296,15 +304,7 @@ export class GuiChart extends HTMLElement {
     }
     this.style.position = 'relative';
 
-    this._svg = d3
-      .select(this)
-      .append('svg')
-      .style('background', 'transparent')
-      .style('position', 'absolute');
-
-    this._xAxisGroup = this._svg.append('g');
-
-    this.append(this._canvas, this._uxCanvas, this._tooltip);
+    this.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
 
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
