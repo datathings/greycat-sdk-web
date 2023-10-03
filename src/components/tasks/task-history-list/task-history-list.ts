@@ -83,6 +83,10 @@ export class GuiTaskHistoryList extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this.render();

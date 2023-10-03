@@ -20,16 +20,12 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   private _selected: GCEnum | null = null;
   private _useValue = false;
   private _renderOption: OptionRenderer | null = null;
-  private _select: HTMLSelectElement | undefined;
+  private _select: HTMLSelectElement;
   private _defaultRender: OptionRenderer = (value, el) => {
     el.textContent = this._useValue ? `${value.value?.toString()}` : value.key;
   };
   private _onChangeHandler = (ev: Event) => {
     ev.stopPropagation();
-
-    if (!this._select) {
-      return;
-    }
 
     if (!this._fqn) {
       this._selected = null;
@@ -47,6 +43,12 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
 
 
   };
+
+  constructor() {
+    super();
+
+    this._select = document.createElement('select');
+  }
 
   get greycat(): GreyCat {
     return this._greycat;
@@ -94,13 +96,11 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   set disabled(disabled: boolean) {
-    if (this._select) {
-      this._select.disabled = disabled;
-    }
+    this._select.disabled = disabled;
   }
 
   get disabled() {
-    return this._select?.disabled ?? false;
+    return this._select.disabled ?? false;
   }
 
   /**
@@ -129,18 +129,18 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   connectedCallback() {
-    this._select = document.createElement('select');
-    this._select.addEventListener('change', this._onChangeHandler);
     this.appendChild(this._select);
+    this._select.addEventListener('change', this._onChangeHandler);
     this.render();
   }
 
   disconnectedCallback() {
-    this._select?.removeEventListener('change', this._onChangeHandler);
+    this._select.removeEventListener('change', this._onChangeHandler);
+    this.replaceChildren(); // cleanup
   }
 
   render() {
-    if (!this._select || !this._fqn) {
+    if (!this._fqn) {
       return;
     }
     this._select.replaceChildren(); // TODO improve this by re-using previous options

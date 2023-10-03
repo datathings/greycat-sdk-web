@@ -248,6 +248,7 @@ export class GuiBoxPlot extends HTMLElement {
       this._resizeObserver?.unobserve(node);
     }
     this._canvas?.dispose();
+    this.replaceChildren(); // cleanup
   }
 
   private _handleResize(event: ResizeObserverEntry[]) {

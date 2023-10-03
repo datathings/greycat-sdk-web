@@ -4,15 +4,28 @@
 export class GuiMultiSelectCheckbox extends HTMLElement {
   private _checkboxes: HTMLLabelElement[] = [];
 
+  constructor() {
+    super();
+
+    this.onItemClick = this.onItemClick.bind(this);
+  }
+
   connectedCallback() {
-    this.addEventListener('click', (event) => {
-      const label = this._checkboxes.find((el) => event.target === el);
-      if (label) {
-        // safety: the first element appended to `label` is the `input` element (see l.38)
-        const cb = label.children[0] as HTMLInputElement;
-        cb.checked = !cb.checked;
-      }
-    });
+    this.addEventListener('click', this.onItemClick);
+  }
+
+  disconnectedCallback() {
+    this.removeEventListener('click', this.onItemClick);
+    this.replaceChildren(); // cleanup
+  }
+
+  onItemClick(event: MouseEvent) {
+    const label = this._checkboxes.find((el) => event.target === el);
+    if (label) {
+      // safety: the first element appended to `label` is the `input` element (see l.38)
+      const cb = label.children[0] as HTMLInputElement;
+      cb.checked = !cb.checked;
+    }
   }
 
   set selected(values: Array<string>) {

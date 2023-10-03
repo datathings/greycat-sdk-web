@@ -31,8 +31,6 @@ export class GuiTaskInfo extends HTMLElement {
   constructor() {
     super();
 
-    // this._taskDetailsDiv.classList.add('task-details');
-
     this._lastUpdate.textContent = new Date().toISOString();
     this._taskCancelBtn.classList.add('outline');
     this._taskCancelBtn.addEventListener('click', () => this._taskCancelButtonHandler());
@@ -66,6 +64,10 @@ export class GuiTaskInfo extends HTMLElement {
     );
 
     this.appendChild(content);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
   }
 
   set greycat(g: GreyCat) {

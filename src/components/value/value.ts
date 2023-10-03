@@ -160,6 +160,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   deconnectedCallback() {
     this._disposeClickHandler?.();
+    this.replaceChildren();
   }
 
   render() {

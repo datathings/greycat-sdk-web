@@ -193,6 +193,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
   disconnectedCallback() {
     this._disposeResizer?.();
     this._canvas?.dispose();
+    this.replaceChildren(); // cleanup
   }
 
   private _initialize() {

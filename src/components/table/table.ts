@@ -2,7 +2,7 @@ import { core, utils, std_n } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { GuiRenderEvent } from '../common.js';
+import { Disposer, GuiRenderEvent } from '../common.js';
 
 type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
   Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
@@ -46,7 +46,7 @@ export class GuiTable extends HTMLElement {
    * automatically on updates or not.
    */
   private _manualColResize = false;
-  private _disposeResizer: () => void = () => void 0;
+  private _disposer = new Disposer();
 
   get table() {
     return this._table;
@@ -156,8 +156,8 @@ export class GuiTable extends HTMLElement {
     fragment.appendChild(this._tbody);
     this.appendChild(fragment);
 
-    this._thead.addEventListener('table-sort', (e) => {
-      this._sortCol.sortBy(e.detail);
+    this._disposer.addEventListener(this._thead, 'table-sort', (ev) => {
+      this._sortCol.sortBy(ev.detail);
       this._update();
     });
 
@@ -182,7 +182,7 @@ export class GuiTable extends HTMLElement {
       requestAnimationFrame(colResizeLoop);
     };
 
-    this._thead.addEventListener('table-resize-col', (e) => {
+    this._disposer.addEventListener(this._thead, 'table-resize-col', (e) => {
       resize = true;
       index = e.detail.index;
       px = cx = e.detail.x;
@@ -196,11 +196,11 @@ export class GuiTable extends HTMLElement {
         this._update();
       }
     };
-    this.addEventListener('mousemove', (e) => {
+    this._disposer.addEventListener(this, 'mousemove', (e) => {
       cx = e.clientX;
     });
 
-    this.addEventListener('scroll', () => {
+    this._disposer.addEventListener(this, 'scroll', () => {
       const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
@@ -211,7 +211,7 @@ export class GuiTable extends HTMLElement {
       }
     });
 
-    this._tbody.addEventListener('click', (e) => {
+    this._disposer.addEventListener(this._tbody, 'click', (e) => {
       let rowEl: GuiTableBodyCell | undefined;
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
@@ -225,7 +225,7 @@ export class GuiTable extends HTMLElement {
       this.dispatchEvent(new TableClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
     });
 
-    this._tbody.addEventListener('dblclick', (e) => {
+    this._disposer.addEventListener(this._tbody, 'dblclick', (e) => {
       let rowEl: GuiTableBodyCell | undefined;
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
@@ -239,8 +239,8 @@ export class GuiTable extends HTMLElement {
       this.dispatchEvent(new TableDblClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
     });
 
-    document.body.addEventListener('mouseup', cancelColResize);
-    document.body.addEventListener('mouseleave', cancelColResize);
+    this._disposer.addEventListener(document.body, 'mouseup', cancelColResize);
+    this._disposer.addEventListener(document.body, 'mouseleave', cancelColResize);
 
     const oResize = new ResizeObserver(() => {
       // reset manual column resize for best-effort display on resize
@@ -251,14 +251,15 @@ export class GuiTable extends HTMLElement {
       this._update();
     });
     oResize.observe(this);
-    this._disposeResizer = () => oResize.disconnect();
+    this._disposer.disposables.push(() => oResize.disconnect());
 
     this._initialized = true;
     this._update();
   }
 
   disconnectedCallback() {
-    this._disposeResizer();
+    this._disposer.dispose();
+    this.replaceChildren(); // cleanup
   }
 
   private _update() {
@@ -458,6 +459,7 @@ class GuiTableHeadCell extends HTMLElement {
   private _sorter = document.createElement('div');
   private _resizer = document.createElement('div');
   private _sortGraphemes = { asc: '↓', desc: '↑', default: '⇅' } as const;
+  private _disposer = new Disposer();
 
   get colWidth(): number {
     return this._width;
@@ -480,7 +482,7 @@ class GuiTableHeadCell extends HTMLElement {
 
     this._resizer.classList.add('gui-thead-resizer');
 
-    this._resizer.addEventListener('mousedown', (e) => {
+    this._disposer.addEventListener(this._resizer, 'mousedown', (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.dispatchEvent(new TableResizeColEvent(this._index, e.clientX));
@@ -489,11 +491,16 @@ class GuiTableHeadCell extends HTMLElement {
     fragment.appendChild(this._resizer);
 
     this.appendChild(fragment);
-    this.addEventListener('click', (e) => {
+    this._disposer.addEventListener(this, 'click', (e) => {
       if (e.target !== this._resizer) {
         this.dispatchEvent(new TableSortEvent(this._index));
       }
     });
+  }
+
+  disconnectedCallback() {
+    this._disposer.dispose();
+    this.replaceChildren(); // cleanup
   }
 
   update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
@@ -516,6 +523,10 @@ class GuiTableBody extends HTMLElement {
     this.virtualScroller.style.visibility = 'hidden';
     this.virtualScroller.style.width = '100%';
     this.appendChild(this.virtualScroller);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
   }
 
   computeRowHeight() {

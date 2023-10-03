@@ -1,5 +1,6 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
 import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils.js';
+import { Disposer } from '../../common.js';
 
 type Property = { name: string; description: string };
 
@@ -12,6 +13,7 @@ export class GuiTask extends HTMLElement {
   private _taskCancelButton: HTMLButtonElement = document.createElement('button');
   private _taskDetailsDiv: HTMLDivElement = document.createElement('div');
   private _timeZone: core.TimeZone | null = null;
+  private _disposer = new Disposer();
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
@@ -28,12 +30,12 @@ export class GuiTask extends HTMLElement {
     this._taskReRunButton.classList.add('button');
     this._taskReRunButton.setAttribute('id', 're-run-button');
     this._taskReRunButton.textContent = 'Re-run';
-    this._taskReRunButton.addEventListener('click', this._taskReRunButtonHandler.bind(this));
+    this._disposer.addEventListener(this._taskReRunButton, 'click', this._taskReRunButtonHandler.bind(this));
 
     this._taskCancelButton.classList.add('button');
     this._taskCancelButton.setAttribute('id', 'cancel-button');
     this._taskCancelButton.textContent = 'Cancel';
-    this._taskCancelButton.addEventListener('click', this._taskCancelButtonHandler.bind(this));
+    this._disposer.addEventListener(this._taskCancelButton, 'click', this._taskCancelButtonHandler.bind(this));
 
     buttonsDiv.appendChild(this._taskReRunButton);
     buttonsDiv.appendChild(this._taskCancelButton);
@@ -48,6 +50,11 @@ export class GuiTask extends HTMLElement {
     fragment.appendChild(this._taskDetailsDiv);
 
     this.appendChild(fragment);
+  }
+
+  disconnectedCallback() {
+    this._disposer.dispose();
+    this.replaceChildren(); // cleanup
   }
 
   set greycat(g: GreyCat) {

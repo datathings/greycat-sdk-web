@@ -6,6 +6,7 @@ import { CanvasContext } from './ctx.js';
 import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
 import { dateFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
+import { Disposer, DisposerId } from '../common.js';
 
 type Cursor = {
   x: number;
@@ -43,7 +44,7 @@ type ComputedState = {
 };
 
 export class GuiChart extends HTMLElement {
-  private _obs: ResizeObserver;
+  private _disposer: Disposer;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -82,6 +83,7 @@ export class GuiChart extends HTMLElement {
   constructor() {
     super();
 
+    this._disposer = new Disposer();
     this._config = { table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
@@ -110,12 +112,10 @@ export class GuiChart extends HTMLElement {
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
 
-    this._obs = new ResizeObserver(debounce(() => this._resize(), 250));
-
     // TODO touchstart, touchend
 
     // mouse events
-    this.addEventListener('mousedown', (event) => {
+    this._disposer.addEventListener(this, 'mousedown', (event) => {
       if (event.button !== 0) {
         return;
       }
@@ -124,13 +124,13 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this.addEventListener('mousemove', (event) => {
+    this._disposer.addEventListener(this, 'mousemove', (event) => {
       const { left, top } = this._canvas.getBoundingClientRect();
       this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
       this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this.addEventListener('mouseup', (event) => {
+    this._disposer.addEventListener(this, 'mouseup', (event) => {
       if (event.button !== 0) {
         return;
       }
@@ -145,8 +145,8 @@ export class GuiChart extends HTMLElement {
       // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
       // this._updateUX();
     });
-    this.addEventListener('mouseleave', () => this._resetCursor());
-    this.addEventListener('dblclick', () => {
+    this._disposer.addEventListener(this, 'mouseleave', () => this._resetCursor());
+    this._disposer.addEventListener(this, 'dblclick', () => {
       this._resetCursor();
       // reset X configuration
       this._config.xAxis.min = this._userXAxisMin;
@@ -161,7 +161,7 @@ export class GuiChart extends HTMLElement {
     });
 
     // touch events
-    this.addEventListener('touchstart', (event) => {
+    this._disposer.addEventListener(this, 'touchstart', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       if (event.touches.length > 0) {
@@ -170,7 +170,7 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this.addEventListener('touchend', (event) => {
+    this._disposer.addEventListener(this, 'touchend', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       let delta = Infinity;
@@ -201,7 +201,7 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this.addEventListener('touchmove', (event) => {
+    this._disposer.addEventListener(this, 'touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       if (event.touches.length > 0) {
@@ -211,12 +211,11 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this.addEventListener('touchcancel', () => {
+    this._disposer.addEventListener(this, 'touchcancel', () => {
       this._resetCursor();
     });
 
-    this.addEventListener(
-      'wheel',
+    this._disposer.addEventListener(this, 'wheel',
       throttle((event: WheelEvent) => {
         // if this is too slow, maybe cache xRange, yRange
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
@@ -309,13 +308,16 @@ export class GuiChart extends HTMLElement {
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    this._obs.observe(this);
+    const obs = new ResizeObserver(debounce(() => this._resize(), 250));
+    this._disposer.disposables.push(() => obs.disconnect());
+    obs.observe(this);
 
-    const raf = () => {
+    let id: DisposerId = { id: 0 };
+    const animationCallback = () => {
       this._updateUX();
-      return window.requestAnimationFrame(raf);
+      id.id = window.requestAnimationFrame(animationCallback);
     };
-    window.requestAnimationFrame(raf);
+    id = this._disposer.requestAnimationFrame(animationCallback);
   }
 
   /**
@@ -341,7 +343,8 @@ export class GuiChart extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._obs.disconnect();
+    this.replaceChildren(); // cleanup
+    this._disposer.dispose();
   }
 
   private _resetCursor() {

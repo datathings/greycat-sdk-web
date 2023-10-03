@@ -32,6 +32,7 @@ export class GuiGauge extends HTMLElement {
     for (const d of this._disposables) {
       d();
     }
+    this.replaceChildren(); // cleanup
   }
 
   private _initialize() {
