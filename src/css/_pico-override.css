@@ -100,7 +100,29 @@ textarea[disabled],
   --background-color: var(--bg-1);
 }
 
-input[type='search'] {
+input:not(:is([type='checkbox'], [type='radio'], [type='range'], [type='file']))[type='search']:not(
+    :is(
+        :lang(ae),
+        :lang(ar),
+        :lang(arc),
+        :lang(bcc),
+        :lang(bqi),
+        :lang(ckb),
+        :lang(dv),
+        :lang(fa),
+        :lang(glk),
+        :lang(he),
+        :lang(ku),
+        :lang(mzn),
+        :lang(nqo),
+        :lang(pnb),
+        :lang(ps),
+        :lang(sd),
+        :lang(ug),
+        :lang(ur),
+        :lang(yi)
+      )
+  ) {
   padding-left: calc(var(--form-element-spacing-horizontal) + 2.2rem);
 }
 

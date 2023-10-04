@@ -17,8 +17,7 @@
       "types": "./dist/jsx-dev-runtime.d.ts",
       "import": "./dist/jsx-dev-runtime.js"
     },
-    "./css/greycat.css": "./dist/css/greycat.css",
-    "./css/greycat.base.css": "./dist/css/greycat.base.css",
+    "./css/*.css": "./dist/css/*.css",
     "./fonts/Raleway-Medium.ttf": "./public/Raleway-Medium.ttf"
   },
   "license": "Apache-2.0",
