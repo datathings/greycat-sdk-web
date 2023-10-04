@@ -40,8 +40,6 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
         this.dispatchEvent(new GuiEnumSelectEvent(this._selected));
       }
     }
-
-
   };
 
   get greycat(): GreyCat {
@@ -81,9 +79,9 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   /**
-  * By default, the option text is using the enum field key. Setting this to `true`
-  * will use the field value.
-  */
+   * By default, the option text is using the enum field key. Setting this to `true`
+   * will use the field value.
+   */
   set useValue(value: boolean) {
     this._useValue = value;
     this.render();
@@ -192,7 +190,16 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-enum-select': Partial<Omit<GuiEnumSelect, 'children'>>;
+      'gui-enum-select': Partial<
+        Omit<GuiEnumSelect, 'children' | 'onchange'> & {
+          onchange: (
+            this: GlobalEventHandlers,
+            ev: GuiEnumSelectEvent,
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }

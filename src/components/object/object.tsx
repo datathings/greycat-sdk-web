@@ -18,12 +18,11 @@ export class GuiObject extends HTMLElement {
       case 'object': {
         if (value === null) {
           this.style.gridTemplateColumns = 'auto';
-          this.appendChild(document.createTextNode('null'));
+          this.replaceChildren(document.createTextNode('null'));
           return;
         }
 
         const fragment = document.createDocumentFragment();
-
         if (Array.isArray(value)) {
           for (let i = 0; i < value.length; i++) {
             fragment.appendChild(
