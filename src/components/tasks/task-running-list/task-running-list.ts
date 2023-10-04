@@ -30,6 +30,10 @@ export class GuiTaskRunningList extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
+  }
+
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this.render();

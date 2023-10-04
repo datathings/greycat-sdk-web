@@ -68,6 +68,10 @@ export class GuiUserTable extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
+  }
+
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);

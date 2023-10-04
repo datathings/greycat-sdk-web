@@ -6,7 +6,7 @@ import { CanvasContext } from './ctx.js';
 import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
 import { dateFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
-import { Disposer, DisposerId } from '../common.js';
+import { Disposer } from '../common.js';
 
 type Cursor = {
   x: number;
@@ -312,12 +312,13 @@ export class GuiChart extends HTMLElement {
     this._disposer.disposables.push(() => obs.disconnect());
     obs.observe(this);
 
-    let id: DisposerId = { id: 0 };
+    const animRef = { id: -1 };
     const animationCallback = () => {
       this._updateUX();
-      id.id = window.requestAnimationFrame(animationCallback);
+      animRef.id = window.requestAnimationFrame(animationCallback);
     };
-    id = this._disposer.requestAnimationFrame(animationCallback);
+    animRef.id = window.requestAnimationFrame(animationCallback);
+    this._disposer.disposables.push(() => window.cancelAnimationFrame(animRef.id));
   }
 
   /**

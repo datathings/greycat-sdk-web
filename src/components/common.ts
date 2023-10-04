@@ -17,7 +17,6 @@ export type TableLike = {
 };
 
 export type IDisposable = () => void;
-export type DisposerId = { id: number };
 
 export class Disposer {
   readonly disposables: IDisposable[] = [];
@@ -31,13 +30,6 @@ export class Disposer {
   ): void {
     this.disposables.push(() => el.removeEventListener(type, listener));
     el.addEventListener(type, listener, options);
-  }
-
-  requestAnimationFrame(handler: FrameRequestCallback): DisposerId {
-    const id = window.requestAnimationFrame(handler);
-    const rafId: DisposerId = { id };
-    this.disposables.push(() => cancelAnimationFrame(rafId.id));
-    return rafId;
   }
 
   dispose(): void {

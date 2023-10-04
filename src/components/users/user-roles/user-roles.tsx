@@ -37,6 +37,10 @@ export class GuiUserRoles extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
+  }
+
   set greycat(greycat: sdk.GreyCat) {
     this._greycat = greycat;
     this.updateRoles();
@@ -167,6 +171,7 @@ export class GuiUserRoles extends HTMLElement {
       role = runtime.UserRole.create(name, this._permissionsSelect.selected);
     } else {
       role = this._currentState;
+      role.permissions = this._permissionsSelect.selected;
     }
 
     try {
