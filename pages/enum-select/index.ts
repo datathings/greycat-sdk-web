@@ -1,12 +1,15 @@
 import { mount } from '../common';
 
 mount((app, greycat) => {
-  const el = document.createElement('gui-enum-select');
-  el.greycat = greycat;
-  el.fqn = 'core::TimeZone';
-  app.appendChild(el);
+  const label = document.createElement('label');
+  label.htmlFor = 'my-select';
+  label.textContent = 'core::TimeZone';
 
-  el.addEventListener('change', (ev) => {
+  const select = document.createElement('gui-enum-select');
+  select.selectId = 'my-select';
+  select.greycat = greycat;
+  select.fqn = 'core::TimeZone';
+  select.addEventListener('change', (ev) => {
     window.alert(`key=${ev.detail?.key}, value=${ev.detail?.value?.toString()}`);
   });
 
@@ -17,12 +20,15 @@ mount((app, greycat) => {
     if (mount) {
       mount = false;
       moveElementBtn.textContent = 'Mount element';
-      el.remove();
+      select.remove();
     } else {
       mount = true;
       moveElementBtn.textContent = 'Unmount element';
-      app.prepend(el);
+      label.after(select);
     }
   }
+
+  app.appendChild(label);
+  app.appendChild(select);
   app.appendChild(moveElementBtn);
 });

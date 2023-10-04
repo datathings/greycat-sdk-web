@@ -20,7 +20,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   private _selected: GCEnum | null = null;
   private _useValue = false;
   private _renderOption: OptionRenderer | null = null;
-  private _select: HTMLSelectElement;
+  private _select = document.createElement('select');
   private _defaultRender: OptionRenderer = (value, el) => {
     el.textContent = this._useValue ? `${value.value?.toString()}` : value.key;
   };
@@ -43,12 +43,6 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
 
 
   };
-
-  constructor() {
-    super();
-
-    this._select = document.createElement('select');
-  }
 
   get greycat(): GreyCat {
     return this._greycat;
@@ -111,6 +105,14 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   set renderOption(handler: OptionRenderer | null) {
     this._renderOption = handler;
     this.render();
+  }
+
+  set selectId(id: string) {
+    this._select.id = id;
+  }
+
+  get selectId() {
+    return this._select.id;
   }
 
   setAttrs({
