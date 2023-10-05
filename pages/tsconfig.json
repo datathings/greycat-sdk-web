@@ -9,5 +9,5 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@greycat/web"
   },
-  "include": ["**/*.ts", "../src", "../jsx.d.ts"]
+  "include": ["**/*.ts", "**/*.tsx", "../src", "../jsx.d.ts"]
 }

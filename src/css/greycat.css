@@ -1,13 +1,11 @@
 /**
  * GreyCat Styles
  *
- * Based on `greycat.slim.css` with the added Web Component styles.
+ * Based on `greycat.base.css` with the added Web Component styles.
  */
 @import '../../node_modules/@picocss/pico/css/pico.css';
 
-@import './_dark.css';
-@import './_light.css';
-
+@import './_base.css';
 @import './_pico-override.css';
 
 @import './_custom.css';

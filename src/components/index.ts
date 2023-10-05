@@ -22,8 +22,8 @@ import { type GuiChart } from './chart/index.js';
 import { type GuiTask } from './tasks/task/index.js';
 import { type GuiTaskInfo } from './tasks/task-info/index.js';
 import { type GuiTaskCreate } from './tasks/task-create/index.js';
-import { type GuiTaskHistoryList } from './tasks/task-history-list/index.js';
-import { type GuiTaskRunningList } from './tasks/task-running-list/index.js';
+import { type GuiTaskList } from './tasks/task-list/task-list.js';
+import { type GuiTaskSelect } from './tasks/task-select/task-select.js';
 import { type GuiObject } from './object/object.js';
 
 // export * from './bar-chart';
@@ -49,9 +49,9 @@ export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task/index.js';
 export * from './tasks/task-info/index.js';
+export * from './tasks/task-list/index.js';
+export * from './tasks/task-select/index.js';
 export * from './tasks/task-create/index.js';
-export * from './tasks/task-history-list/index.js';
-export * from './tasks/task-running-list/index.js';
 export * from './object/object.js';
 
 export type GuiElement =
@@ -75,7 +75,7 @@ export type GuiElement =
   | GuiValue
   | GuiTask
   | GuiTaskInfo
+  | GuiTaskSelect
   | GuiTaskCreate
-  | GuiTaskHistoryList
-  | GuiTaskRunningList
+  | GuiTaskList
   | GuiObject;

@@ -109,17 +109,20 @@ export class GuiUserRoles extends HTMLElement {
     this._dialog.appendChild(
       <article>
         {this._dialogHeader}
-        <label htmlFor="name">
-          Name*
-          {this._nameInput}
-        </label>
-        <label htmlFor="permissions">
-          Permissions
-          {this._permissionsSelect}
-        </label>
 
-        <hr />
-        <small>(*) Mandatory fields</small>
+        <div className="container">
+          <label htmlFor="name">
+            Name*
+            {this._nameInput}
+          </label>
+          <label htmlFor="permissions">
+            Permissions
+            {this._permissionsSelect}
+          </label>
+
+          <hr />
+          <small>(*) Mandatory fields</small>
+        </div>
 
         <footer>
           <div className="grid">

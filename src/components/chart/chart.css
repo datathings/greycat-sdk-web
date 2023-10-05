@@ -16,7 +16,6 @@ gui-chart {
 
 gui-chart .gui-chart-tooltip {
   font-size: 10px;
-  font-family: monospace;
 
   display: grid;
   grid-template-columns: 1fr auto;

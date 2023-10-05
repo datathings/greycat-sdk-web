@@ -12,11 +12,12 @@ export interface TaskInfoLike extends runtime.Task {
 
 export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
-  private _taskInfo: TaskInfoLike | null = null;
+  private _task: TaskInfoLike | null = null;
   private _params: Value[] = [];
-  private _taskNameDiv: HTMLDivElement = document.createElement('div');
-  private _taskCancelBtn: HTMLButtonElement = document.createElement('button');
-  private _taskDetailsDiv: HTMLDivElement = document.createElement('tbody');
+  private _taskNameDiv = document.createElement('div');
+  private _taskRerunBtn = document.createElement('button');
+  private _taskCancelBtn = document.createElement('button');
+  private _taskDetailsDiv = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
   private _timeZone: core.TimeZone | null = null;
   timeFmtOptions: Intl.DateTimeFormatOptions = {
@@ -32,6 +33,11 @@ export class GuiTaskInfo extends HTMLElement {
     super();
 
     this._lastUpdate.textContent = new Date().toISOString();
+
+    this._taskRerunBtn = document.createElement('button');
+    this._taskRerunBtn.textContent = 'Re-run';
+    this._taskRerunBtn.addEventListener('click', () => this._taskReRunButtonHandler());
+
     this._taskCancelBtn.classList.add('outline');
     this._taskCancelBtn.addEventListener('click', () => this._taskCancelButtonHandler());
     this._taskCancelBtn.textContent = 'Cancel';
@@ -43,7 +49,7 @@ export class GuiTaskInfo extends HTMLElement {
         <header>
           {this._taskNameDiv}
           <div className="grid">
-            <button onclick={() => this._taskReRunButtonHandler()}>Re-run</button>
+            {this._taskRerunBtn}
             {this._taskCancelBtn}
           </div>
         </header>
@@ -74,26 +80,30 @@ export class GuiTaskInfo extends HTMLElement {
     this._greycat = g;
   }
 
-  set taskInfo(t: TaskInfoLike | null) {
-    this._taskInfo = t;
-    if (this._taskInfo) {
-      this._updateTaskInfo(this._taskInfo);
+  set task(t: TaskInfoLike | null) {
+    this._task = t;
+    if (this._task) {
+      this._updateTaskInfo(this._task);
     }
+  }
+
+  get task() {
+    return this._task;
   }
 
   set timeZone(t: core.TimeZone) {
     this._timeZone = t;
-    if (this._taskInfo) {
-      this._updateTaskInfo(this._taskInfo);
+    if (this._task) {
+      this._updateTaskInfo(this._task);
     }
   }
 
   async updateInfo(): Promise<void> {
-    if (!this._taskInfo) {
+    if (!this._task) {
       return;
     }
     try {
-      this.taskInfo = await runtime.Task.info(this._taskInfo.user_id, this._taskInfo.task_id);
+      this.task = await runtime.Task.info(this._task.user_id, this._task.task_id);
       this._lastUpdate.textContent = new Date().toISOString();
     } catch (err) {
       this._handleError(err);
@@ -104,12 +114,21 @@ export class GuiTaskInfo extends HTMLElement {
     if (!this._timeZone) {
       this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
     }
-    this._taskInfo = t;
+    this._task = t;
     if (t.type) {
       this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
     } else {
       this._taskNameDiv.textContent = `${t.mod}::${t.fun}`;
     }
+
+    if (this._taskIsBeingExecuted(t.status)) {
+      this._taskRerunBtn.disabled = true;
+      this._taskCancelBtn.disabled = false;
+    } else {
+      this._taskRerunBtn.disabled = false;
+      this._taskCancelBtn.disabled = true;
+    }
+
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}/`;
 
     this._taskDetailsDiv.replaceChildren(
@@ -143,7 +162,7 @@ export class GuiTaskInfo extends HTMLElement {
       </tr>,
       <tr>
         <td>Duration</td>
-        <td>{t.duration ?? '<none>'}</td>
+        <td title={t.duration?.s.toString() ?? undefined}>{t.duration ?? '<none>'}</td>
       </tr>,
       <tr>
         <td>Sub waiting</td>
@@ -162,8 +181,8 @@ export class GuiTaskInfo extends HTMLElement {
     );
 
     if (
-      this._taskInfo.status === runtime.TaskStatus.running(this._greycat) ||
-      this._taskInfo.status === runtime.TaskStatus.waiting(this._greycat)
+      this._task.status === runtime.TaskStatus.running(this._greycat) ||
+      this._task.status === runtime.TaskStatus.waiting(this._greycat)
     ) {
       this._taskCancelBtn.disabled = false;
     } else {
@@ -172,13 +191,13 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
-    if (!this._taskInfo) {
+    if (!this._task) {
       return null;
     }
     try {
       const updatedTaskInfo = await runtime.Task.info(
-        this._taskInfo.user_id,
-        this._taskInfo.task_id,
+        this._task.user_id,
+        this._task.task_id,
         this._greycat,
       );
       if (updatedTaskInfo) {
@@ -204,15 +223,12 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskReRunButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !taskStatus) {
+      if (!this._task || !taskStatus || this._taskIsBeingExecuted(taskStatus)) {
         return;
       }
-      if (this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error("Cannot re-run the task since it's being already executed");
-      }
-      this._params = (await parseTaskParams(this._greycat, this._taskInfo)) as Value[];
+      this._params = (await parseTaskParams(this._greycat, this._task)) as Value[];
       const newTask = await this._greycat.call<runtime.Task>(
-        `${this._taskInfo.mod}::${this._taskInfo.fun}`,
+        `${this._task.mod}::${this._task.fun}`,
         this._params,
       );
       const newTaskInfo = await runtime.Task.info(newTask.user_id, newTask.task_id, this._greycat);
@@ -227,17 +243,14 @@ export class GuiTaskInfo extends HTMLElement {
   private async _taskCancelButtonHandler() {
     try {
       const taskStatus = await this._getTaskStatus();
-      if (!this._taskInfo || !taskStatus) {
+      if (!this._task || !taskStatus || !this._taskIsBeingExecuted(taskStatus)) {
         return;
       }
-      if (!this._taskIsBeingExecuted(taskStatus)) {
-        throw new Error("Cannot re-run the task since it's not being executed");
-      }
-      const isCancelled = await runtime.Task.cancel(this._taskInfo.task_id, this._greycat);
+      const isCancelled = await runtime.Task.cancel(this._task.task_id, this._greycat);
       if (isCancelled) {
         const cancelledTaskInfo = await runtime.Task.info(
-          this._taskInfo.user_id,
-          this._taskInfo.task_id,
+          this._task.user_id,
+          this._task.task_id,
           this._greycat,
         );
         if (cancelledTaskInfo) {

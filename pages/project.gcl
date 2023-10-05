@@ -265,7 +265,7 @@ fn table(): Table {
 // pages/tasks start
 @expose
 task task_without_params() {
-  for (var i = 0; i < 1_000_000_000; i++) {
+  for (var i = 0; i < 100; i++) {
     println("test");
   }
   return 42;
@@ -278,7 +278,7 @@ task task_with_params(name: String, age: int) {
 
 @expose
 task task_long_running() {
-  Runtime::sleep(10_s);
+  Runtime::sleep(1_min);
 }
 
 @expose

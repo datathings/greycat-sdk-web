@@ -31,10 +31,13 @@ gui-task-info header .grid button {
 
 gui-task-info table {
   margin-bottom: 0;
+}
+
+/* :where(article) gui-task-info table {
   margin-left: calc(var(--block-spacing-horizontal) * -1);
   margin-right: calc(var(--block-spacing-horizontal) * -1);
   width: calc(100% + (var(--block-spacing-horizontal) * 2));
-}
+} */
 
 gui-task-info table > tbody tr td:nth-child(1) {
   font-weight: bold;
@@ -42,7 +45,6 @@ gui-task-info table > tbody tr td:nth-child(1) {
 
 gui-task-info table > tbody tr td:nth-child(2) {
   text-align: right;
-  font-family: monospace;
 }
 
 gui-task-info footer {
@@ -53,7 +55,6 @@ gui-task-info footer {
 
 gui-task-info footer small {
   color: var(--muted-color);
-  font-family: monospace;
 }
 
 gui-task-info footer small::before {

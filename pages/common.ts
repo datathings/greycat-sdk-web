@@ -3,8 +3,8 @@ import '../src/css/greycat.css';
 import './common.css';
 
 const app = document.getElementById('app') as HTMLDivElement;
-const toggle = document.getElementById('toggle-theme')!;
 
+const toggle = document.getElementById('toggle-theme')!;
 toggle.addEventListener('click', () => {
   const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
   document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');

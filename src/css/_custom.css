@@ -2,5 +2,10 @@
 
 div[role='list'] {
   display: grid;
-  grid-template-rows: auto;
+  grid-template-rows: repeat(auto-fill, minmax(0%, 1fr));
+  row-gap: var(--spacing);
+}
+
+.text-muted {
+  color: var(--muted-color);
 }
