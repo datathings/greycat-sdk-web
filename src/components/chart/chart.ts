@@ -115,7 +115,7 @@ export class GuiChart extends HTMLElement {
     // TODO touchstart, touchend
 
     // mouse events
-    this._disposer.addEventListener(this, 'mousedown', (event) => {
+    this.addEventListener('mousedown', (event) => {
       if (event.button !== 0) {
         return;
       }
@@ -124,13 +124,13 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this._disposer.addEventListener(this, 'mousemove', (event) => {
+    this.addEventListener('mousemove', (event) => {
       const { left, top } = this._canvas.getBoundingClientRect();
       this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
       this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this._disposer.addEventListener(this, 'mouseup', (event) => {
+    this.addEventListener('mouseup', (event) => {
       if (event.button !== 0) {
         return;
       }
@@ -145,8 +145,8 @@ export class GuiChart extends HTMLElement {
       // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
       // this._updateUX();
     });
-    this._disposer.addEventListener(this, 'mouseleave', () => this._resetCursor());
-    this._disposer.addEventListener(this, 'dblclick', () => {
+    this.addEventListener('mouseleave', () => this._resetCursor());
+    this.addEventListener('dblclick', () => {
       this._resetCursor();
       // reset X configuration
       this._config.xAxis.min = this._userXAxisMin;
@@ -161,7 +161,7 @@ export class GuiChart extends HTMLElement {
     });
 
     // touch events
-    this._disposer.addEventListener(this, 'touchstart', (event) => {
+    this.addEventListener('touchstart', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       if (event.touches.length > 0) {
@@ -170,7 +170,7 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this._disposer.addEventListener(this, 'touchend', (event) => {
+    this.addEventListener('touchend', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       let delta = Infinity;
@@ -201,7 +201,7 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this._disposer.addEventListener(this, 'touchmove', (event) => {
+    this.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       if (event.touches.length > 0) {
@@ -211,11 +211,11 @@ export class GuiChart extends HTMLElement {
         // this._updateUX();
       }
     });
-    this._disposer.addEventListener(this, 'touchcancel', () => {
+    this.addEventListener('touchcancel', () => {
       this._resetCursor();
     });
 
-    this._disposer.addEventListener(this, 'wheel',
+    this.addEventListener('wheel',
       throttle((event: WheelEvent) => {
         // if this is too slow, maybe cache xRange, yRange
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
