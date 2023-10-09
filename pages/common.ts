@@ -1,4 +1,4 @@
-import { GreyCat } from '../src';
+import { GreyCat, init } from '../src';
 import '../src/css/greycat.css';
 import './common.css';
 
@@ -12,7 +12,7 @@ toggle.addEventListener('click', () => {
 
 export async function mount(handler: (app: HTMLDivElement, greycat: GreyCat) => Promise<void> | void): Promise<void> {
   try {
-    greycat.default = await GreyCat.init();
+    greycat.default = await init();
     const result = handler(app, greycat.default);
     if (result instanceof Promise) {
       await result;

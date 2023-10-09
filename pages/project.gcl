@@ -352,3 +352,6 @@ fn complex_object() {
   };
 }
 // pages/object end
+
+
+type FooBar {}
