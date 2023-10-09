@@ -37,6 +37,10 @@ export class GuiUserRoles extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
+  }
+
   set greycat(greycat: sdk.GreyCat) {
     this._greycat = greycat;
     this.updateRoles();
@@ -105,17 +109,20 @@ export class GuiUserRoles extends HTMLElement {
     this._dialog.appendChild(
       <article>
         {this._dialogHeader}
-        <label htmlFor="name">
-          Name*
-          {this._nameInput}
-        </label>
-        <label htmlFor="permissions">
-          Permissions
-          {this._permissionsSelect}
-        </label>
 
-        <hr />
-        <small>(*) Mandatory fields</small>
+        <div className="container">
+          <label htmlFor="name">
+            Name*
+            {this._nameInput}
+          </label>
+          <label htmlFor="permissions">
+            Permissions
+            {this._permissionsSelect}
+          </label>
+
+          <hr />
+          <small>(*) Mandatory fields</small>
+        </div>
 
         <footer>
           <div className="grid">
@@ -167,6 +174,7 @@ export class GuiUserRoles extends HTMLElement {
       role = runtime.UserRole.create(name, this._permissionsSelect.selected);
     } else {
       role = this._currentState;
+      role.permissions = this._permissionsSelect.selected;
     }
 
     try {

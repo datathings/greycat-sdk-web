@@ -3,4 +3,9 @@
 div[role='list'] {
   display: grid;
   grid-template-rows: auto;
+  row-gap: var(--spacing);
+}
+
+.text-muted {
+  color: var(--muted-color);
 }

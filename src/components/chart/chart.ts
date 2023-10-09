@@ -6,6 +6,7 @@ import { CanvasContext } from './ctx.js';
 import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
 import { dateFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
+import { Disposer } from '../common.js';
 
 type Cursor = {
   x: number;
@@ -43,7 +44,7 @@ type ComputedState = {
 };
 
 export class GuiChart extends HTMLElement {
-  private _obs: ResizeObserver;
+  private _disposer: Disposer;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -82,6 +83,7 @@ export class GuiChart extends HTMLElement {
   constructor() {
     super();
 
+    this._disposer = new Disposer();
     this._config = { table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
@@ -98,11 +100,17 @@ export class GuiChart extends HTMLElement {
     this._uxCanvas.style.background = 'transparent';
     this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
+    // svg
+    this._svg = d3
+      .create('svg')
+      .style('background', 'transparent')
+      .style('position', 'absolute') as d3.Selection<SVGSVGElement, unknown, null, undefined>;
+
+    this._xAxisGroup = this._svg.append('g');
+
     // tooltip
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
-
-    this._obs = new ResizeObserver(debounce(() => this._resize(), 250));
 
     // TODO touchstart, touchend
 
@@ -127,7 +135,7 @@ export class GuiChart extends HTMLElement {
         return;
       }
       if (
-        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
       ) {
         this._cursor.selection = true;
       } else {
@@ -183,7 +191,7 @@ export class GuiChart extends HTMLElement {
       } else {
         // touch end classic
         if (
-          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selectionThreshold ?? 10)
+          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
         ) {
           this._cursor.selection = true;
         } else {
@@ -207,8 +215,7 @@ export class GuiChart extends HTMLElement {
       this._resetCursor();
     });
 
-    this.addEventListener(
-      'wheel',
+    this.addEventListener('wheel',
       throttle((event: WheelEvent) => {
         // if this is too slow, maybe cache xRange, yRange
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
@@ -296,26 +303,22 @@ export class GuiChart extends HTMLElement {
     }
     this.style.position = 'relative';
 
-    this._svg = d3
-      .select(this)
-      .append('svg')
-      .style('background', 'transparent')
-      .style('position', 'absolute');
-
-    this._xAxisGroup = this._svg.append('g');
-
-    this.append(this._canvas, this._uxCanvas, this._tooltip);
+    this.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
 
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    this._obs.observe(this);
+    const obs = new ResizeObserver(debounce(() => this._resize(), 250));
+    this._disposer.disposables.push(() => obs.disconnect());
+    obs.observe(this);
 
-    const raf = () => {
+    const animRef = { id: -1 };
+    const animationCallback = () => {
       this._updateUX();
-      return window.requestAnimationFrame(raf);
+      animRef.id = window.requestAnimationFrame(animationCallback);
     };
-    window.requestAnimationFrame(raf);
+    animRef.id = window.requestAnimationFrame(animationCallback);
+    this._disposer.disposables.push(() => window.cancelAnimationFrame(animRef.id));
   }
 
   /**
@@ -341,7 +344,8 @@ export class GuiChart extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._obs.disconnect();
+    this.replaceChildren(); // cleanup
+    this._disposer.dispose();
   }
 
   private _resetCursor() {
@@ -625,6 +629,7 @@ export class GuiChart extends HTMLElement {
       this._cursor.y !== -1 &&
       this._cursor.startY !== -1
     ) {
+      const orientation = this._config.selection?.orientation ?? 'both';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
@@ -662,6 +667,16 @@ export class GuiChart extends HTMLElement {
         startY = tmp;
       }
 
+      if (orientation === 'horizontal') {
+        startY = yRange[1];
+        endY = yRange[0];
+      }
+
+      if (orientation === 'vertical') {
+        startX = xRange[0];
+        endX = xRange[1];
+      }
+
       const from: number = Math.floor(+xScale.invert(startX));
       const to: number = Math.ceil(+xScale.invert(endX));
 
@@ -669,18 +684,22 @@ export class GuiChart extends HTMLElement {
         // selection is done
         const selectionEvt = new GuiChartSelectionEvent(from, to);
 
-        // call update to apply zoom
-        xScale.domain([from, to]);
-        this._config.xAxis.min = from;
-        this._config.xAxis.max = to;
+        if (orientation === 'both' || orientation === 'horizontal') {
+          // call update to apply zoom
+          xScale.domain([from, to]);
+          this._config.xAxis.min = from;
+          this._config.xAxis.max = to;
+        }
 
-        for (const yAxisName in yScales) {
-          const yScale = yScales[yAxisName];
-          const from: number = Math.floor(+yScale.invert(endY));
-          const to: number = Math.ceil(+yScale.invert(startY));
-          yScale.domain([from, to]);
-          this._config.yAxes[yAxisName].min = from;
-          this._config.yAxes[yAxisName].max = to;
+        if (orientation === 'both' || orientation === 'vertical') {
+          for (const yAxisName in yScales) {
+            const yScale = yScales[yAxisName];
+            const from: number = Math.floor(+yScale.invert(endY));
+            const to: number = Math.ceil(+yScale.invert(startY));
+            yScale.domain([from, to]);
+            this._config.yAxes[yAxisName].min = from;
+            this._config.yAxes[yAxisName].max = to;
+          }
         }
 
         // XXX do we want to dispatch after the animation or not?

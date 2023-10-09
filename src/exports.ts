@@ -7,4 +7,5 @@
 export * from './components/index.js';
 export * from './utils.js';
 export * from './globals.js';
+export * from './greycat.js';
 export * from '@greycat/sdk';

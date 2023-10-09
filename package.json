@@ -17,9 +17,8 @@
       "types": "./dist/jsx-dev-runtime.d.ts",
       "import": "./dist/jsx-dev-runtime.js"
     },
-    "./css/greycat.css": "./dist/css/greycat.css",
-    "./css/greycat.base.css": "./dist/css/greycat.base.css",
-    "./fonts/Raleway-Medium.ttf": "./public/Raleway-Medium.ttf"
+    "./css/*.css": "./dist/css/*.css",
+    "./fonts/OpenSans-Regular.ttf": "./public/OpenSans-Regular.ttf"
   },
   "license": "Apache-2.0",
   "files": [
@@ -33,7 +32,7 @@
     "dist/jsx-dev-runtime.d.ts",
     "dist/jsx-runtime.js",
     "dist/jsx-runtime.d.ts",
-    "public/Raleway-Medium.ttf"
+    "public/OpenSans-Regular.ttf"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -53,19 +52,20 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.3-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.14-dev.tgz",
     "@picocss/pico": "1.5.10",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.1/6.1.27-dev.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.3/6.3.1-dev.tgz",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.18.17",
     "eslint": "8.46.0",
+    "http-proxy": "^1.18.1",
     "lightningcss-cli": "1.22.0",
     "prettier": "3.0.0",
     "typescript": "5.2.2",

@@ -49,11 +49,13 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       default:
         if (key.startsWith('on')) {
           element.addEventListener(key.substring(2), value);
-        } else if (key.includes('-')) {
-          element.setAttribute(key, value);
-        } else {
+        } else if (key in element) {
+          // safety: we just validated that 'key' was a property in 'element'
+          // therefore we can, at least, set it
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (element as any)[key] = value;
+        } else {
+          element.setAttribute(key, value);
         }
     }
   }

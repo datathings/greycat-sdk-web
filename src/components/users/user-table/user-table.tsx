@@ -68,6 +68,10 @@ export class GuiUserTable extends HTMLElement {
     this.render();
   }
 
+  disconnectedCallback() {
+    this.replaceChildren(); // cleanup
+  }
+
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);
@@ -151,41 +155,43 @@ export class GuiUserTable extends HTMLElement {
       <article>
         {this._dialogHeader}
 
-        <label htmlFor="name">
-          Username*
-          {this.nameInput}
-        </label>
+        <div className="container">
+          <label htmlFor="name">
+            Username*
+            {this.nameInput}
+          </label>
 
-        <label htmlFor="password">
-          Password*
-          {this.passwordInput}
-        </label>
+          <label htmlFor="password">
+            Password*
+            {this.passwordInput}
+          </label>
 
-        <label htmlFor="fullname">
-          Full Name
-          {this.fullnameInput}
-        </label>
+          <label htmlFor="fullname">
+            Full Name
+            {this.fullnameInput}
+          </label>
 
-        <label htmlFor="email">
-          E-mail
-          {this.emailInput}
-        </label>
+          <label htmlFor="email">
+            E-mail
+            {this.emailInput}
+          </label>
 
-        <label htmlFor="activated">
-          {this.activatedInput}
-          Activated
-        </label>
+          <label htmlFor="activated">
+            {this.activatedInput}
+            Activated
+          </label>
 
-        <label htmlFor="role">
-          Role
-          {this._roleSelect}
-        </label>
+          <label htmlFor="role">
+            Role
+            {this._roleSelect}
+          </label>
 
-        <label htmlFor="group">Group</label>
-        {this._groupsSelect}
+          <label htmlFor="group">Group</label>
+          {this._groupsSelect}
 
-        <hr />
-        <small>(*) Mandatory fields</small>
+          <hr />
+          <small>(*) Mandatory fields</small>
+        </div>
 
         <footer>
           <div className="grid">

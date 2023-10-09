@@ -32,6 +32,7 @@ export class GuiMap extends HTMLElement {
 
   disconnectedCallback() {
     this.map.remove();
+    this.replaceChildren(); // cleanup
   }
 
   set markers(markers: GuiMapMarker[] | undefined) {

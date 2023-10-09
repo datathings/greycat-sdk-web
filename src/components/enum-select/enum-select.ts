@@ -20,16 +20,12 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   private _selected: GCEnum | null = null;
   private _useValue = false;
   private _renderOption: OptionRenderer | null = null;
-  private _select: HTMLSelectElement | undefined;
+  private _select = document.createElement('select');
   private _defaultRender: OptionRenderer = (value, el) => {
     el.textContent = this._useValue ? `${value.value?.toString()}` : value.key;
   };
   private _onChangeHandler = (ev: Event) => {
     ev.stopPropagation();
-
-    if (!this._select) {
-      return;
-    }
 
     if (!this._fqn) {
       this._selected = null;
@@ -44,8 +40,6 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
         this.dispatchEvent(new GuiEnumSelectEvent(this._selected));
       }
     }
-
-
   };
 
   get greycat(): GreyCat {
@@ -85,12 +79,20 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   /**
-  * By default, the option text is using the enum field key. Setting this to `true`
-  * will use the field value.
-  */
+   * By default, the option text is using the enum field key. Setting this to `true`
+   * will use the field value.
+   */
   set useValue(value: boolean) {
     this._useValue = value;
     this.render();
+  }
+
+  set disabled(disabled: boolean) {
+    this._select.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._select.disabled ?? false;
   }
 
   /**
@@ -101,6 +103,14 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   set renderOption(handler: OptionRenderer | null) {
     this._renderOption = handler;
     this.render();
+  }
+
+  set selectId(id: string) {
+    this._select.id = id;
+  }
+
+  get selectId() {
+    return this._select.id;
   }
 
   setAttrs({
@@ -119,18 +129,18 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   connectedCallback() {
-    this._select = document.createElement('select');
-    this._select.addEventListener('change', this._onChangeHandler);
     this.appendChild(this._select);
+    this._select.addEventListener('change', this._onChangeHandler);
     this.render();
   }
 
   disconnectedCallback() {
-    this._select?.removeEventListener('change', this._onChangeHandler);
+    this._select.removeEventListener('change', this._onChangeHandler);
+    this.replaceChildren(); // cleanup
   }
 
   render() {
-    if (!this._select || !this._fqn) {
+    if (!this._fqn) {
       return;
     }
     this._select.replaceChildren(); // TODO improve this by re-using previous options
@@ -160,7 +170,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
 
 export const SELECT_EVENT_TYPE = 'change';
 
-class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
+export class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
   constructor(value: GCEnum | null) {
     super(SELECT_EVENT_TYPE, { detail: value, bubbles: true });
   }
@@ -180,7 +190,16 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-enum-select': Partial<Omit<GuiEnumSelect, 'children'>>;
+      'gui-enum-select': Partial<
+        Omit<GuiEnumSelect, 'children' | 'onchange'> & {
+          onchange: (
+            this: GlobalEventHandlers,
+            ev: GuiEnumSelectEvent,
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }

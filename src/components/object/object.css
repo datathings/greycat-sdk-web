@@ -1,0 +1,28 @@
+gui-object {
+  --gui-object-font-size: var(--font-size);
+  --gui-object-font-family: var(--font-family);
+
+  display: grid;
+  grid-template-columns: auto 1fr;
+  column-gap: calc(var(--spacing) * 2);
+}
+
+gui-object .gui-object-value {
+  /* font-size: var(--gui-object-font-size); */
+  /* font-family: var(--gui-object-font-family); */
+  align-self: center;
+}
+
+gui-object .gui-object-value > details {
+  margin: 0;
+  border: none;
+  padding: 0;
+}
+
+gui-object .gui-object-value > details > summary {
+  color: var(--muted-color);
+}
+
+gui-object .gui-object-value > details[open] > summary {
+  margin-bottom: 0;
+}

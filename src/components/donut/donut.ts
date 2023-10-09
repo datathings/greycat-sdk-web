@@ -246,6 +246,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     if (node) {
       this._resizeObserver?.unobserve(node);
     }
+    this.replaceChildren(); // cleanup
   }
 
   private _handleResize(event: ResizeObserverEntry[]) {

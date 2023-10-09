@@ -43,7 +43,6 @@ gui-table gui-thead gui-thead-cell .gui-thead-title {
   padding-left: 4px;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-sorter {
-  font-family: monospace;
   font-size: 1.5rem;
   line-height: 1.5rem;
   padding: 0 4px 4px 0;
@@ -59,7 +58,6 @@ gui-table gui-tbody {
   display: flex;
   flex-direction: column;
   flex: 1;
-  font-family: Arial, sans-serif;
 }
 gui-table gui-tbody gui-tbody-row {
   display: flex;

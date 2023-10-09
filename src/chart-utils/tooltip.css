@@ -1,5 +1,5 @@
 .gui-tooltip {
-  font-size: 12px;
+  font-size: var(--gui-tooltip-font-size);
   background-color: rgb(var(--base-0));
   border: 1px solid rgb(var(--base-1));
   border-radius: var(--gui-border-radius);
