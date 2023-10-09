@@ -1,6 +1,8 @@
 // import { type GuiBarChart } from './bar-chart';
 import { type GuiBoxPlot } from './boxplot/index.js';
 // import { type GuiBoxPlotChart } from './boxplot-chart';
+import { type GuiCsvAnalysis } from './csv/csv-analysis/index.js';
+import { type GuiCsvColumnStatisticsSmall } from './csv/csv-column-statistics-small/index.js';
 // import { type GuiDateInput } from './date-input';
 // import { type GuiDonut } from './donut-rework/index.js';
 import { type GuiDonut } from './donut/index.js';
@@ -29,6 +31,8 @@ import { type GuiTaskRunningList } from './tasks/task-running-list/index.js';
 // export * from './boxplot-chart';
 export * from './boxplot/index.js';
 export * from './common.js';
+export * from './csv/csv-analysis/index.js';
+export * from './csv/csv-column-statistics-small/index.js';
 // export * from './date-input';
 export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
@@ -56,6 +60,8 @@ export type GuiElement =
   // | GuiBarChart
   | GuiBoxPlot
   // | GuiBoxPlotChart
+  | GuiCsvAnalysis
+  | GuiCsvColumnStatisticsSmall
   | GuiChart
   // | GuiDateInput
   | GuiDonut

@@ -1,0 +1,26 @@
+gui-csv-column-statistics-small .line {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 5px;
+}
+
+gui-csv-column-statistics-small .info-container {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+}
+
+gui-csv-column-statistics-small .label {
+  text-align: left;
+}
+
+gui-csv-column-statistics-small .percentage {
+  text-align: right;
+  margin-left: 10px;
+}
+
+gui-csv-column-statistics-small .progress-bar {
+  width: 100%;
+  margin-top: 10px;
+}

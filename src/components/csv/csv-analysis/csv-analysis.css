@@ -1,0 +1,29 @@
+gui-csv-analysis tbody tr td code:last-child {
+  margin-right: 0;
+}
+
+gui-csv-analysis thead tr th button,
+gui-csv-analysis tbody tr td button {
+  margin-bottom: 0;
+}
+
+gui-csv-analysis tbody tr td code {
+  margin-right: 5px;
+  text-wrap: nowrap;
+}
+
+gui-csv-analysis tbody tr td code:last-child {
+  margin-right: 0;
+}
+
+gui-csv-analysis table > caption {
+  text-align: left;
+  font-weight: bolder;
+  border-bottom: 1px solid var(--bg-2);
+}
+
+gui-csv-analysis select {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}

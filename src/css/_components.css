@@ -1,4 +1,6 @@
 @import '../chart-utils/tooltip.css';
+@import '../components/csv/csv-analysis/csv-analysis.css';
+@import '../components/csv/csv-column-statistics-small/csv-column-statistics-small.css';
 @import '../components/donut/donut.css';
 @import '../components/map/map.css';
 @import '../components/table/table.css';

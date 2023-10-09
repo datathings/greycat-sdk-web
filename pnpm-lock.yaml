@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.3-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.3/6.3.3-dev.tgz'
+    specifier: /home/beket/source/js
+    version: link:../js
   '@picocss/pico':
     specifier: 1.5.10
     version: 1.5.10
@@ -2832,10 +2832,3 @@ packages:
       vscode-languageserver-textdocument: 1.0.8
       vscode-languageserver-types: 3.17.3
     dev: true
-
-  '@get.greycat.io/files/sdk/js/dev/6.3/6.3.3-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.3-dev.tgz}
-    name: '@greycat/sdk'
-    version: 6.3.3-dev
-    engines: {node: '>=18'}
-    dev: false
