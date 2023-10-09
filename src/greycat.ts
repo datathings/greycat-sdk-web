@@ -1,11 +1,4 @@
-import {
-  Abi,
-  GreyCat,
-  downloadAbi,
-  downloadAbiHeaders,
-  DownloadAbiOption,
-  Library,
-} from '@greycat/sdk';
+import { Abi, GreyCat, downloadAbi, downloadAbiHeaders, WithoutAbiOptions } from '@greycat/sdk';
 
 let DEFAULT_URL: URL;
 try {
@@ -14,13 +7,30 @@ try {
   DEFAULT_URL = new URL('http://127.0.0.1:8080');
 }
 
-export type GreyCatInitOptions = DownloadAbiOption & { libraries?: Library[] };
 type AbiData = {
   headers: [number, number, number];
   data: ArrayBuffer;
 };
 
-export async function init(opts: GreyCatInitOptions = { url: DEFAULT_URL }): Promise<GreyCat> {
+export async function init(
+  {
+    url = DEFAULT_URL,
+    auth,
+    capacity,
+    libraries,
+    signal,
+    unauthorizedHandler,
+  }: WithoutAbiOptions = { url: DEFAULT_URL },
+): Promise<GreyCat> {
+  const opts = {
+    url,
+    auth,
+    capacity,
+    libraries,
+    signal,
+    unauthorizedHandler,
+  };
+
   let abi: Abi;
   const db = new Db('greycat.default', 'abi', 1);
   await db.open();
@@ -42,7 +52,7 @@ export async function init(opts: GreyCatInitOptions = { url: DEFAULT_URL }): Pro
   return GreyCat.initWithAbi({ ...opts, abi });
 }
 
-async function update(db: Db, opts: GreyCatInitOptions) {
+async function update(db: Db, opts: WithoutAbiOptions) {
   const [abiBuf] = await downloadAbi(opts);
   const abi = new Abi(abiBuf, opts.libraries ?? []);
   await db.writeAbi({
@@ -55,7 +65,11 @@ async function update(db: Db, opts: GreyCatInitOptions) {
 class Db {
   private _db: IDBDatabase | undefined;
 
-  constructor(readonly dbName = 'greycat.default', readonly storeName = 'abi', readonly version = 1) { }
+  constructor(
+    readonly dbName = 'greycat.default',
+    readonly storeName = 'abi',
+    readonly version = 1,
+  ) {}
 
   open(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -87,7 +101,8 @@ class Db {
       const store = transaction.objectStore(this.storeName);
       const req = store.get('data');
       req.onsuccess = () => resolve(req.result);
-      req.onerror = () => reject(`Failed to read ${this.dbName}:${this.version} at '${this.storeName}.data'`);
+      req.onerror = () =>
+        reject(`Failed to read ${this.dbName}:${this.version} at '${this.storeName}.data'`);
     });
   }
 
@@ -102,7 +117,8 @@ class Db {
       const store = transaction.objectStore(this.storeName);
       const req = store.put(data, 'data');
       req.onsuccess = () => resolve();
-      req.onerror = () => reject(`Failed to write ${this.dbName}:${this.version} at '${this.storeName}.data'`);
+      req.onerror = () =>
+        reject(`Failed to write ${this.dbName}:${this.version} at '${this.storeName}.data'`);
     });
   }
 }
