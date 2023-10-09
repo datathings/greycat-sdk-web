@@ -52,7 +52,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.8-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.9-dev.tgz",
     "@picocss/pico": "1.5.10",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
@@ -65,6 +65,7 @@
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.18.17",
     "eslint": "8.46.0",
+    "http-proxy": "^1.18.1",
     "lightningcss-cli": "1.22.0",
     "prettier": "3.0.0",
     "typescript": "5.2.2",

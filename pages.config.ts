@@ -1,10 +1,12 @@
 import { readdirSync, statSync } from 'fs';
 import { extname, relative, resolve } from 'path';
-import { defineConfig } from 'vite';
+import { PluginOption, defineConfig } from 'vite';
+import httpProxy from 'http-proxy';
 
 export default defineConfig(({ mode }) => ({
   base: '',
   appType: 'mpa',
+  plugins: [proxy()],
   root: resolve(__dirname, 'pages'),
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
@@ -49,4 +51,27 @@ function computeInputs() {
   readdir(PAGES_DIR);
 
   return input;
+}
+
+
+function proxy(): PluginOption {
+  const proxy = httpProxy.createProxyServer({ target: 'http://127.0.0.1:8080' });
+
+  return {
+    name: 'greycat-proxy',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        if (req.originalUrl && req.headers.upgrade !== 'websocket') {
+          const isFileApi = req.originalUrl.match(/^\/files\//) && (req.method === 'GET' || req.method === 'PUT' || req.method === 'DELETE');
+          const isRpc = (!isFileApi && (req.method === 'POST')) || (req.method === 'HEAD' && req.originalUrl === '/runtime::Runtime::abi');
+          if (isFileApi || isRpc) {
+            // proxy to GreyCat
+            proxy.web(req, res);
+            return;
+          }
+        }
+        next();
+      });
+    },
+  };
 }

@@ -12,7 +12,7 @@ toggle.addEventListener('click', () => {
 
 export async function mount(handler: (app: HTMLDivElement, greycat: GreyCat) => Promise<void> | void): Promise<void> {
   try {
-    greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
+    greycat.default = await GreyCat.init();
     const result = handler(app, greycat.default);
     if (result instanceof Promise) {
       await result;
