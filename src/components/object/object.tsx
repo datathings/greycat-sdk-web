@@ -4,19 +4,27 @@ import { GuiValueProps } from '../index.js';
 export type GuiObjectProps = Partial<GuiValueProps>;
 
 export class GuiObject extends HTMLElement {
+  private _value: unknown;
   private _props: Omit<GuiObjectProps, 'value'> | undefined;
 
-  setAttrs({ value, ...props }: GuiValueProps): void {
+  setAttrs({ value, ...props }: Partial<GuiValueProps>): void {
     this._props = props;
-    this.value = value;
+    this._value = value;
+    this.update();
   }
 
-  set props(props: GuiValueProps) {
+  set props(props: GuiObjectProps) {
     this._props = props;
+    this.update();
   }
 
   set value(value: unknown) {
-    const type = typeof value;
+    this._value = value;
+    this.update();
+  }
+
+  update() {
+    const type = typeof this._value;
     switch (type) {
       case 'bigint':
       case 'boolean':
@@ -24,38 +32,38 @@ export class GuiObject extends HTMLElement {
       case 'string':
       case 'undefined':
       case 'function':
-        this.replaceChildren(<gui-value value={value} {...this._props} />);
+        this.replaceChildren(<gui-value value={this._value} {...this._props} />);
         break;
       case 'symbol':
-        this.replaceChildren(<gui-value value={`${value}`} {...this._props} />);
+        this.replaceChildren(<gui-value value={`${this._value}`} {...this._props} />);
         break;
       case 'object': {
-        if (value === null) {
+        if (this._value === null) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren(document.createTextNode('null'));
           return;
         }
 
-        if (value === undefined) {
+        if (this._value === undefined) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren();
           return;
         }
 
         const fragment = document.createDocumentFragment();
-        if (Array.isArray(value)) {
-          for (let i = 0; i < value.length; i++) {
+        if (Array.isArray(this._value)) {
+          for (let i = 0; i < this._value.length; i++) {
             fragment.appendChild(
               <>
                 <div>{i}</div>
                 <div>
-                  <gui-object value={value[i]} {...this._props} />
+                  <gui-object value={this._value[i]} {...this._props} />
                 </div>
               </>,
             );
           }
-        } else if (value instanceof Map) {
-          for (const [key, val] of value) {
+        } else if (this._value instanceof Map) {
+          for (const [key, val] of this._value) {
             fragment.appendChild(
               <>
                 <div>{key}</div>
@@ -65,17 +73,17 @@ export class GuiObject extends HTMLElement {
               </>,
             );
           }
-        } else if (isStd(value)) {
+        } else if (isStd(this._value)) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(<gui-value value={value} {...this._props} />);
+          this.replaceChildren(<gui-value value={this._value} {...this._props} />);
           return;
-        } else if (value instanceof GCObject && !value.$type.is_native) {
-          if (value.$attrs === undefined) {
+        } else if (this._value instanceof GCObject && !this._value.$type.is_native) {
+          if (this._value.$attrs === undefined) {
             this.replaceChildren(<em>empty object</em>);
           } else {
-            for (let i = 0; i < value.$type.attrs.length; i++) {
-              const attr = value.$type.attrs[i];
-              const attrVal = value.$attrs[i];
+            for (let i = 0; i < this._value.$type.attrs.length; i++) {
+              const attr = this._value.$type.attrs[i];
+              const attrVal = this._value.$attrs[i];
               if (attrVal === null) {
                 fragment.appendChild(
                   <>
@@ -102,12 +110,12 @@ export class GuiObject extends HTMLElement {
               );
             }
           }
-        } else if (value instanceof core.Table) {
+        } else if (this._value instanceof core.Table) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(<gui-table table={value} />);
+          this.replaceChildren(<gui-table table={this._value} />);
           return;
         } else {
-          for (const [key, val] of Object.entries(value)) {
+          for (const [key, val] of Object.entries(this._value)) {
             fragment.appendChild(
               <>
                 <div>{key}</div>
