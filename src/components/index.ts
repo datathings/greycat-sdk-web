@@ -20,10 +20,12 @@ import { type GuiValue } from './value/index.js';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart/index.js';
 import { type GuiTask } from './tasks/task/index.js';
+import { type GuiTaskArgs } from './tasks/task-args/index.js';
 import { type GuiTaskInfo } from './tasks/task-info/index.js';
 import { type GuiTaskCreate } from './tasks/task-create/index.js';
 import { type GuiTaskList } from './tasks/task-list/task-list.js';
 import { type GuiTaskSelect } from './tasks/task-select/task-select.js';
+import { type GuiPeriodicTasks } from './periodic-tasks/index.js';
 import { type GuiObject } from './object/object.js';
 
 // export * from './bar-chart';
@@ -48,10 +50,12 @@ export * from './value/index.js';
 export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task/index.js';
+export * from './tasks/task-args/index.js';
 export * from './tasks/task-info/index.js';
 export * from './tasks/task-list/index.js';
 export * from './tasks/task-select/index.js';
 export * from './tasks/task-create/index.js';
+export * from './periodic-tasks/index.js';
 export * from './object/object.js';
 
 export type GuiElement =
@@ -74,8 +78,10 @@ export type GuiElement =
   | GuiMultiSelectCheckbox
   | GuiValue
   | GuiTask
+  | GuiTaskArgs
   | GuiTaskInfo
   | GuiTaskSelect
   | GuiTaskCreate
   | GuiTaskList
+  | GuiPeriodicTasks
   | GuiObject;
