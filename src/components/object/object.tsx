@@ -1,6 +1,20 @@
 import { GCObject, core } from '@greycat/sdk';
+import { GuiValueProps } from '../index.js';
+
+export type GuiObjectProps = Partial<GuiValueProps>;
 
 export class GuiObject extends HTMLElement {
+  private _props: Omit<GuiObjectProps, 'value'> | undefined;
+
+  setAttrs({ value, ...props }: GuiValueProps): void {
+    this._props = props;
+    this.value = value;
+  }
+
+  set props(props: GuiValueProps) {
+    this._props = props;
+  }
+
   set value(value: unknown) {
     const type = typeof value;
     switch (type) {
@@ -10,15 +24,21 @@ export class GuiObject extends HTMLElement {
       case 'string':
       case 'undefined':
       case 'function':
-        this.replaceChildren(<gui-value value={value} />);
+        this.replaceChildren(<gui-value value={value} {...this._props} />);
         break;
       case 'symbol':
-        this.replaceChildren(<gui-value value={`${value}`} />);
+        this.replaceChildren(<gui-value value={`${value}`} {...this._props} />);
         break;
       case 'object': {
         if (value === null) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren(document.createTextNode('null'));
+          return;
+        }
+
+        if (value === undefined) {
+          this.style.gridTemplateColumns = 'auto';
+          this.replaceChildren();
           return;
         }
 
@@ -29,7 +49,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{i}</div>
                 <div>
-                  <gui-object value={value[i]} />
+                  <gui-object value={value[i]} {...this._props} />
                 </div>
               </>,
             );
@@ -40,14 +60,14 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div>
-                  <gui-object value={val} />
+                  <gui-object value={val} {...this._props} />
                 </div>
               </>,
             );
           }
         } else if (isStd(value)) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(<gui-value value={value} />);
+          this.replaceChildren(<gui-value value={value} {...this._props} />);
           return;
         } else if (value instanceof GCObject && !value.$type.is_native) {
           if (value.$attrs === undefined) {
@@ -72,10 +92,10 @@ export class GuiObject extends HTMLElement {
                     {typeof attrVal === 'object' && !isStd(attrVal) ? (
                       <details>
                         <summary>&lt;show&gt;</summary>
-                        <gui-object value={attrVal} />
+                        <gui-object value={attrVal} {...this._props} />
                       </details>
                     ) : (
-                      <gui-object value={attrVal} />
+                      <gui-object value={attrVal} {...this._props} />
                     )}
                   </div>
                 </>,
@@ -87,7 +107,7 @@ export class GuiObject extends HTMLElement {
           this.replaceChildren(<gui-table table={value} />);
           return;
         } else {
-          for (const [key, val] of Object.entries({ ...value })) {
+          for (const [key, val] of Object.entries(value)) {
             fragment.appendChild(
               <>
                 <div>{key}</div>
@@ -95,10 +115,10 @@ export class GuiObject extends HTMLElement {
                   {typeof val === 'object' && !isStd(val) && val !== null ? (
                     <details>
                       <summary>&lt;show&gt;</summary>
-                      <gui-object value={val} />
+                      <gui-object value={val} {...this._props} />
                     </details>
                   ) : (
-                    <gui-object value={val} />
+                    <gui-object value={val} {...this._props} />
                   )}
                 </div>
               </>,

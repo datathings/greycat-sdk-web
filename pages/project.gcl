@@ -317,6 +317,7 @@ type ComplexObject {
   nodeList: nodeList;
   nodeGeo: nodeGeo;
   nested: any;
+  nodeNested: node<ComplexObject>?;
 }
 
 @expose
@@ -349,6 +350,21 @@ fn complex_object() {
       nodeList: nodeList::new(),
       nodeGeo: nodeGeo::new(),
     },
+    nodeNested: node<ComplexObject>::new(ComplexObject {
+      string: "Nested Hello, world!",
+      int: 1337,
+      float: 3.1415,
+      bool: true,
+      char: 'g',
+      geo: geo::max,
+      null: null,
+      array: [1337, 3.1415, "GreyCat"],
+      nodeTime: nodeTime::new(),
+      nodeIndex: nodeIndex::new(),
+      nodeList: nodeList::new(),
+      nodeGeo: nodeGeo::new(),
+      nested: [],
+    }),
   };
 }
 // pages/object end

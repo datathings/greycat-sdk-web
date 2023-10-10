@@ -8,7 +8,7 @@ const NOOP = () => void 0;
 export interface GuiValueProps {
   value: unknown;
   text?: string;
-  linkify: boolean;
+  linkify: boolean | ((value: unknown) => boolean);
   tiny: boolean;
   name: string | undefined;
   dateFmt: Intl.DateTimeFormat | undefined;
@@ -25,7 +25,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   private _numFmt: Intl.NumberFormat | undefined;
   private _value: unknown;
   private _name: string | undefined;
-  private _linkify = false;
+  private _linkify: boolean | ((value: unknown) => boolean) = false;
   private _raw = false;
   private _tiny = false;
   private _text: string | undefined;
@@ -55,11 +55,11 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
-  get linkify(): boolean {
+  get linkify(): boolean | ((value: unknown) => boolean) {
     return this._linkify;
   }
 
-  set linkify(enable: boolean) {
+  set linkify(enable: boolean | ((value: unknown) => boolean)) {
     this._linkify = enable;
     this.render();
   }
@@ -183,7 +183,13 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
     // make sure previous handlers are removed
     this._disposeClickHandler?.();
-    if (this._linkify) {
+    let linkify = false;
+    if (typeof this._linkify === 'boolean') {
+      linkify = this._linkify;
+    } else {
+      linkify = this._linkify(this._value);
+    }
+    if (linkify) {
       this.textContent = null;
       const link = document.createElement('a');
       const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content);

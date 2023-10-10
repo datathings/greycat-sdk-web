@@ -13,12 +13,17 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       appendChild(fragment, props.children);
     }
     return fragment;
-  } else if (typeof tagName === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (tagName as any)(props);
   }
 
   const element = document.createElement(tagName);
+  if ('setAttrs' in element && typeof element.setAttrs === 'function') {
+    // this is an internal optimisation for component that do define a one-off
+    // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
+    // those component can batch update in one method call.
+    element.setAttrs(props);
+    return element;
+  }
+
   const keys = Object.keys(props);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
