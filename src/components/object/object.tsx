@@ -1,4 +1,4 @@
-import { GCObject, core } from '@greycat/sdk';
+import { GCEnum, GCObject, core } from '@greycat/sdk';
 import { GuiValueProps } from '../index.js';
 
 export type GuiObjectProps = Partial<GuiValueProps>;
@@ -50,6 +50,18 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
+        if (this._value instanceof GCEnum) {
+          this.style.gridTemplateColumns = 'auto';
+          let text: string;
+          if (this._value.$type.name.startsWith('core::')) {
+            text = `${this._value.$type.name.slice(6)}::${this._value.key}`;
+          } else {
+            text = `${this._value.$type.name}::${this._value.key}`;
+          }
+          this.replaceChildren(document.createTextNode(text));
+          return;
+        }
+
         const fragment = document.createDocumentFragment();
         if (Array.isArray(this._value)) {
           for (let i = 0; i < this._value.length; i++) {
@@ -97,7 +109,7 @@ export class GuiObject extends HTMLElement {
                 <>
                   <div>{attr.name}</div>
                   <div className="gui-object-value">
-                    {typeof attrVal === 'object' && !isStd(attrVal) ? (
+                    {this._shouldNest(attrVal) ? (
                       <details>
                         <summary>&lt;show&gt;</summary>
                         <gui-object value={attrVal} {...this._props} />
@@ -116,19 +128,22 @@ export class GuiObject extends HTMLElement {
           return;
         } else {
           for (const [key, val] of Object.entries(this._value)) {
+            let valEl: JSX.Element;
+            if (typeof val === 'object' && val !== null && !(val instanceof GCEnum)) {
+              valEl = (
+                <details>
+                  <summary>&lt;show&gt;</summary>
+                  <gui-object value={val} {...this._props} />
+                </details>
+              );
+            } else {
+              valEl = <gui-object value={val} {...this._props} />;
+            }
+
             fragment.appendChild(
               <>
                 <div>{key}</div>
-                <div className="gui-object-value">
-                  {typeof val === 'object' && !isStd(val) && val !== null ? (
-                    <details>
-                      <summary>&lt;show&gt;</summary>
-                      <gui-object value={val} {...this._props} />
-                    </details>
-                  ) : (
-                    <gui-object value={val} {...this._props} />
-                  )}
-                </div>
+                <div className="gui-object-value">{valEl}</div>
               </>,
             );
           }
@@ -138,6 +153,10 @@ export class GuiObject extends HTMLElement {
         break;
       }
     }
+  }
+
+  private _shouldNest(val: unknown): boolean {
+    return typeof val === 'object' && !isStd(val) && !(val instanceof GCEnum);
   }
 }
 

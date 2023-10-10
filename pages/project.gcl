@@ -5,10 +5,10 @@ use math;
 fn main() {
   for (var i = 0; i < 15; i++) {
     SecurityEntity::set(UserGroup {
-      id: 0,
-      name: "group-${i}",
-      activated: true,
-    });
+        id: 0,
+        name: "group-${i}",
+        activated: true,
+      });
   }
 }
 
@@ -43,7 +43,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -65,7 +65,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -311,6 +311,7 @@ type ComplexObject {
   char: char;
   geo: geo;
   null: any?;
+  enum: TimeZone;
   array: Array;
   nodeTime: nodeTime;
   nodeIndex: nodeIndex;
@@ -331,6 +332,7 @@ fn complex_object() {
     char: 'd',
     geo: geo::new(1.4, -0.85),
     null: null,
+    enum: TimeZone::Europe_Paris,
     array: [42, 3.14, "hello world"],
     nodeTime: nodeTime::new(),
     nodeIndex: nodeIndex::new(),
@@ -349,22 +351,24 @@ fn complex_object() {
       nodeIndex: nodeIndex::new(),
       nodeList: nodeList::new(),
       nodeGeo: nodeGeo::new(),
+      enum: TimeZone::Europe_Luxembourg,
     },
     nodeNested: node<ComplexObject>::new(ComplexObject {
-      string: "Nested Hello, world!",
-      int: 1337,
-      float: 3.1415,
-      bool: true,
-      char: 'g',
-      geo: geo::max,
-      null: null,
-      array: [1337, 3.1415, "GreyCat"],
-      nodeTime: nodeTime::new(),
-      nodeIndex: nodeIndex::new(),
-      nodeList: nodeList::new(),
-      nodeGeo: nodeGeo::new(),
-      nested: [],
-    }),
+        string: "Nested Hello, world!",
+        int: 1337,
+        float: 3.1415,
+        bool: true,
+        char: 'g',
+        geo: geo::max,
+        null: null,
+        enum: TimeZone::Asia_Tokyo,
+        array: [1337, 3.1415, "GreyCat"],
+        nodeTime: nodeTime::new(),
+        nodeIndex: nodeIndex::new(),
+        nodeList: nodeList::new(),
+        nodeGeo: nodeGeo::new(),
+        nested: [],
+      }),
   };
 }
 // pages/object end
