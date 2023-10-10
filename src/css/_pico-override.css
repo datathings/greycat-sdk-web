@@ -13,6 +13,40 @@ article {
   }
 }
 
+sub,
+sup {
+  font-size: 11px;
+}
+
+small {
+  --font-size: 12px;
+}
+
+
+h1 {
+  --font-size: 28px;
+}
+
+h2 {
+  --font-size: 25px;
+}
+
+h3 {
+  --font-size: 21px;
+}
+
+h4 {
+  --font-size: 18px;
+}
+
+h5 {
+  --font-size: 15px;
+}
+
+:not(thead, tfoot) > * > td {
+  --font-size: 12px;
+}
+
 input:not([type='submit'], [type='button'], [type='reset'])[disabled],
 select[disabled],
 textarea[disabled],
