@@ -1,14 +1,13 @@
 import { GreyCat, AbiParam, core } from '@greycat/sdk';
-import { DurationInput, TextInput, IntInput, FloatInput, TimeInput } from './argument-inputs.js';
+import { DurationInput, TextInput, IntInput, FloatInput } from './argument-inputs.js';
 
-type ConvertedValues = number | string | core.duration;
+type ConvertedValues = number | string | core.duration | core.time;
 
 export class GuiTaskArgs extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
   private _inputContainer: HTMLDivElement = document.createElement('div');
   private _outputText: HTMLDivElement = document.createElement('div');
   private _convertedValues: Map<string, ConvertedValues> = new Map();
-  private _timeZone: core.TimeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
 
   constructor() {
     super();
@@ -27,10 +26,6 @@ export class GuiTaskArgs extends HTMLElement {
 
   set greycat(g: GreyCat) {
     this._greycat = g;
-  }
-
-  set timeZone(t: core.TimeZone) {
-    this._timeZone = t;
   }
 
   set taskName(name: string) {
@@ -68,7 +63,7 @@ export class GuiTaskArgs extends HTMLElement {
     const defaultInput = document.createElement('input');
     defaultInput.type = 'text';
 
-    let i: DurationInput | TextInput | IntInput | FloatInput | TimeInput;
+    let i: DurationInput | TextInput | IntInput | FloatInput;
 
     try {
       switch (param.type.name) {
@@ -109,12 +104,7 @@ export class GuiTaskArgs extends HTMLElement {
           paramElement.appendChild(i.inputElement);
           return paramElement;
         case 'core::time':
-          i = new TimeInput(this._timeZone);
-          i.addEventListener('change', (value) => {
-            this._convertedValues.set(param.name, value);
-          });
-          paramElement.appendChild(i.inputElement);
-          return paramElement;
+          return defaultInput;
         case 'core::geo':
           return defaultInput;
         case 'core::null':

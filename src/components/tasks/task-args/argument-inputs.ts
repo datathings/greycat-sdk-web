@@ -195,22 +195,3 @@ export class DurationInput extends BaseInput<core.duration, HTMLElement> {
     return containerDiv;
   }
 }
-
-export class TimeInput extends BaseInput<core.time, HTMLInputElement> {
-  private inputDate: Date;
-  private timeZone: core.TimeZone;
-
-  constructor(t: core.TimeZone) {
-    super(core.time.create(0));
-    this.timeZone = t;
-    this.updateValue();
-  }
-
-  protected updateValue() {}
-
-  protected createInputElement(): HTMLInputElement {
-    const input = document.createElement('input');
-    input.type = 'datetime-local';
-    return input;
-  }
-}

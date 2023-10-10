@@ -1,11 +1,6 @@
-import { GreyCat } from '@greycat/sdk';
 import { mount } from '../common';
 
-mount(async (app) => {
-  const greycat = (window.greycat.default = await GreyCat.init({
-    url: new URL('http://localhost:8080'),
-  }));
-
+mount(async (app, greycat) => {
   const periodicTasksComponent = document.createElement('gui-periodic-tasks');
   periodicTasksComponent.greycat = greycat;
   
