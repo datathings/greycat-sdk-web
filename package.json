@@ -53,11 +53,11 @@
   },
   "dependencies": {
     "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.18-dev.tgz",
-    "@picocss/pico": "1.5.10",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
   "devDependencies": {
+    "@picocss/pico": "1.5.10",
     "@custom-elements-manifest/analyzer": "0.8.4",
     "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.3/6.3.1-dev.tgz",
     "@types/d3": "7.4.0",
