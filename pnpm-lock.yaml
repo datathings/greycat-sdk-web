@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.18-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.3/6.3.18-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.20-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/6.3/6.3.20-dev.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -2865,9 +2865,9 @@ packages:
       vscode-languageserver-types: 3.17.3
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/6.3/6.3.18-dev.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.18-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/6.3/6.3.20-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.3/6.3.20-dev.tgz}
     name: '@greycat/sdk'
-    version: 6.3.18-dev
+    version: 6.3.20-dev
     engines: {node: '>=18'}
     dev: false
