@@ -1,49 +1,5 @@
-gui-periodic-tasks .create-role-button {
-  margin-bottom: 10px;
-}
-
-gui-periodic-tasks table {
-  width: 100%;
-}
-
-gui-periodic-tasks .submit-button {
-  padding: 8px 16px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-}
-
-gui-periodic-tasks dialog {
-  width: 600px;
-  border: none;
-  background-color: rgb(var(--base-2));
-  border-radius: 8px;
-}
-
-gui-periodic-tasks form input, form select, form textarea, form {
-  display: block;
-  color: rgb(var(--text-1));
-  margin-bottom: 10px;
-}
-
-gui-periodic-tasks .args-input {
-  width: 100%;
-}
-
-gui-periodic-tasks .periodic-task-name {
-  width: 100%;
-}
-
 gui-periodic-tasks .flex-container {
   display: flex;
-  gap: 10px;
-  margin-bottom: 10px;
-}
-
-gui-periodic-tasks .start-time-input {
-  width: 100%;
-}
-
-gui-periodic-tasks .duration-input {
-  width: 100px;
+  gap: var(--spacing);
+  margin-bottom: var(--spacing);
 }

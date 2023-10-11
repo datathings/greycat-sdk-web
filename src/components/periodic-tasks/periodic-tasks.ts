@@ -1,48 +1,37 @@
-import * as sdk from '@greycat/sdk';
 import { GreyCat, runtime, core } from '@greycat/sdk';
-import { GuiEnumSelect } from '../index.js';
 
 type PeriodicTaskProperties = {
   name: string;
   user_id: bigint | number;
   args: string | null;
-  start: sdk.std.core.time;
-  every: sdk.std.core.duration;
+  start: core.time;
+  every: core.duration;
 };
 
 type PeriodicTaskPropertyType = 'name' | 'user_id' | 'args' | 'start' | 'every';
 const PeriodicTaskPropertyNamesList = ['name', 'user_id', 'args', 'start', 'every'];
 
 export class GuiPeriodicTasks extends HTMLElement {
-  private _greycat: GreyCat = window.greycat.default;
+  private _greycat = window.greycat.default;
   private _periodicTasks: Array<runtime.PeriodicTask> = [];
-  private _createPeriodicTaskButton: HTMLButtonElement = document.createElement('button');
-  private _deleteSelectedButton: HTMLButtonElement = document.createElement('button');
-  private _selectAllCheckbox: HTMLInputElement = document.createElement('input');
-  private _table: HTMLTableElement = document.createElement('table');
-  private _headers: Array<string> = PeriodicTaskPropertyNamesList;
-  private _periodicTaskDialog: HTMLDialogElement = document.createElement('dialog');
-  private _periodicTaskForm: HTMLFormElement = document.createElement('form');
-  private _userIdInput: HTMLInputElement = document.createElement('input');
-  private _timeZone: core.TimeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
-  private _timeZoneSelect: GuiEnumSelect = document.createElement('gui-enum-select');
-  private _durationInput: HTMLInputElement = document.createElement('input');
-  private _durationUnitSelect: HTMLSelectElement = document.createElement('select');
-  private _startTimeInput: HTMLInputElement = document.createElement('input');
-  private _individualTimeZoneSelect: GuiEnumSelect = document.createElement('gui-enum-select');
-  private _periodicTaskNameInput: HTMLInputElement = document.createElement('input');
+  private _createPeriodicTaskButton = document.createElement('button');
+  private _deleteSelectedButton = document.createElement('button');
+  private _selectAllCheckbox = document.createElement('input');
+  private _table = document.createElement('table');
+  private _tbody = document.createElement('tbody');
+  private _headers = PeriodicTaskPropertyNamesList;
+  private _periodicTaskDialog = document.createElement('dialog');
+  private _periodicTaskForm = document.createElement('form');
+  private _userIdInput = document.createElement('input');
+  private _timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
+  private _timeZoneSelect = document.createElement('gui-enum-select');
+  private _durationInput = document.createElement('input');
+  private _durationUnitSelect = document.createElement('gui-enum-select');
+  private _startTimeInput = document.createElement('input');
+  private _submitButton = document.createElement('button');
+  private _individualTimeZoneSelect = document.createElement('gui-enum-select');
+  private _periodicTaskNameInput = document.createElement('input');
   private _taskArgsComponent = document.createElement('gui-task-args');
-  private stringToDurationUnit: { [name: string]: core.DurationUnit } = {
-    microseconds: core.DurationUnit.microseconds(this._greycat),
-    milliseconds: core.DurationUnit.milliseconds(this._greycat),
-    seconds: core.DurationUnit.seconds(this._greycat),
-    minutes: core.DurationUnit.minutes(this._greycat),
-    hours: core.DurationUnit.hours(this._greycat),
-    days: core.DurationUnit.days(this._greycat),
-    weeks: core.DurationUnit.weeks(this._greycat),
-    months: core.DurationUnit.months(this._greycat),
-    years: core.DurationUnit.years(this._greycat),
-  };
 
   connectedCallback() {
     this._createPeriodicTaskButton.textContent = 'Create Periodic Task';
@@ -69,17 +58,12 @@ export class GuiPeriodicTasks extends HTMLElement {
 
     thead.appendChild(headerRow);
     this._table.appendChild(thead);
+    this._table.appendChild(this._tbody);
     this._timeZoneSelect.greycat = this._greycat;
     this._timeZoneSelect.fqn = 'core::TimeZone';
     this._timeZoneSelect.selected = this._timeZone;
 
-    this._timeZoneSelect.addEventListener('change', (ev) => {
-      if (ev.detail) {
-        // Ensured type casting by setting fqn of timeZoneSelect
-        this._timeZone = ev.detail as core.TimeZone;
-        this.render();
-      }
-    });
+    this._timeZoneSelect.addEventListener('change', this._handleTimeZoneSelectChange);
 
     const topLineContainer = document.createElement('div');
     topLineContainer.classList.add('flex-container');
@@ -110,25 +94,9 @@ export class GuiPeriodicTasks extends HTMLElement {
     this._durationInput.name = 'duration';
     this._durationInput.placeholder = 'Duration';
 
-    this._durationUnitSelect.name = 'durationUnit';
-    const durationUnits = [
-      { value: 'microseconds', label: 'Microseconds' },
-      { value: 'milliseconds', label: 'Milliseconds' },
-      { value: 'seconds', label: 'Seconds' },
-      { value: 'minutes', label: 'Minutes' },
-      { value: 'hours', label: 'Hours' },
-      { value: 'days', label: 'Days' },
-      { value: 'weeks', label: 'Weeks' },
-      { value: 'months', label: 'Months' },
-      { value: 'years', label: 'Years' },
-    ];
-
-    durationUnits.forEach((unit) => {
-      const option = document.createElement('option');
-      option.value = unit.value;
-      option.textContent = unit.label;
-      this._durationUnitSelect.appendChild(option);
-    });
+    this._durationUnitSelect.greycat = this._greycat;
+    this._durationUnitSelect.fqn = core.DurationUnit._type;
+    this._durationUnitSelect.selected = core.DurationUnit.seconds();
 
     this._individualTimeZoneSelect.greycat = this._greycat;
     this._individualTimeZoneSelect.fqn = 'core::TimeZone';
@@ -145,9 +113,8 @@ export class GuiPeriodicTasks extends HTMLElement {
     this._periodicTaskNameInput.classList.add('periodic-task-name');
     this._periodicTaskNameInput.placeholder = 'eg. <module>(.<type>)?.<fn>';
 
-    const submitButton = document.createElement('button');
-    submitButton.classList.add('submit-button');
-    submitButton.textContent = 'Submit';
+    this._submitButton.classList.add('submit-button');
+    this._submitButton.textContent = 'Submit';
 
     this._periodicTaskForm.appendChild(this._labelHTMLElement('Current User', this._userIdInput));
     this._periodicTaskForm.appendChild(
@@ -159,24 +126,15 @@ export class GuiPeriodicTasks extends HTMLElement {
       this._labelHTMLElement('Module and function', this._periodicTaskNameInput),
     );
     this._periodicTaskForm.appendChild(this._taskArgsComponent);
-    this._periodicTaskForm.appendChild(submitButton);
+    this._periodicTaskForm.appendChild(this._submitButton);
 
     this._periodicTaskDialog.appendChild(this._periodicTaskForm);
     this.appendChild(this._periodicTaskDialog);
 
-    this._periodicTaskNameInput.addEventListener('input', () => {
-      // Whenever external task name input is updated,
-      // we update the gui-task-args-input taskName value.
-      // So that, gui-task-args-input component becomes dynamic.
-      this._taskArgsComponent.taskName = this._periodicTaskNameInput.value;
-    });
+    this._periodicTaskNameInput.addEventListener('input', this._handlePeriodicTaskNameInputChange);
 
-    this._createPeriodicTaskButton.addEventListener('click', () => {
-      this._showPeriodicTaskPopup();
-    });
-    this._deleteSelectedButton.addEventListener('click', () => {
-      this._deleteSelectedTasks();
-    });
+    this._createPeriodicTaskButton.addEventListener('click', this._handleCreatePeriodicTaskButtonClick);
+    this._deleteSelectedButton.addEventListener('click', this._handleDeleteSelectedButtonClick);
 
     try {
       runtime.PeriodicTask.all(this._greycat)
@@ -194,23 +152,8 @@ export class GuiPeriodicTasks extends HTMLElement {
         .catch((error) => {
           throw error;
         });
-      this._selectAllCheckbox.addEventListener('change', () => {
-        const checkboxes = this.querySelectorAll<HTMLInputElement>('input[name="selectedTasks"]');
-
-        checkboxes.forEach((checkbox) => {
-          checkbox.checked = this._selectAllCheckbox.checked;
-        });
-
-        this.updateDeleteButtonState();
-      });
-      submitButton.addEventListener('click', (event: Event) => {
-        if (!this._isDetailCustomEvent(event)) {
-          throw new Error(
-            `Unexpected event has been sent to 'click on submit button' custom event`,
-          );
-        }
-        this._handleSubmit(event);
-      });
+      this._selectAllCheckbox.addEventListener('change', this._handleSelectAllCheckboxChange);
+      this._submitButton.addEventListener('click', this._handleSubmitButtonClick);
     } catch (error) {
       this._handleError(error);
     }
@@ -218,7 +161,55 @@ export class GuiPeriodicTasks extends HTMLElement {
     this.render();
   }
 
-  set greycat(greycat: sdk.GreyCat) {
+  private _handleTimeZoneSelectChange = (ev: CustomEvent) => {
+    if (ev.detail) {
+      this._timeZone = ev.detail as core.TimeZone;
+      this.render();
+    }
+  }
+
+  private _handlePeriodicTaskNameInputChange = () => {
+    // Whenever external task name input is updated,
+    // we update the gui-task-args-input taskName value.
+    // So that, gui-task-args-input component becomes dynamic.
+    this._taskArgsComponent.taskName = this._periodicTaskNameInput.value;
+  }
+
+  private _handleCreatePeriodicTaskButtonClick = () => {
+    this._showPeriodicTaskPopup();
+  }
+
+  private _handleDeleteSelectedButtonClick = () => {
+    this._deleteSelectedTasks();
+  }
+
+  private _handleSelectAllCheckboxChange = () => {
+    const checkboxes = this.querySelectorAll<HTMLInputElement>('input[name="selectedTasks"]');
+    checkboxes.forEach((checkbox) => {
+      checkbox.checked = this._selectAllCheckbox.checked;
+    });
+    this.updateDeleteButtonState();
+  }
+
+  private _handleSubmitButtonClick = (event: Event) => {
+    if (!this._isDetailCustomEvent(event)) {
+      console.warn(`Unexpected event has been sent to 'click on submit button' custom event`);
+      return;
+    }
+    this._handleSubmit(event);
+  }
+
+  disconnectedCallback() {
+    this._timeZoneSelect.removeEventListener('change', this._handleTimeZoneSelectChange);
+    this._periodicTaskNameInput.removeEventListener('input', this._handlePeriodicTaskNameInputChange);
+    this._createPeriodicTaskButton.removeEventListener('click', this._handleCreatePeriodicTaskButtonClick);
+    this._deleteSelectedButton.removeEventListener('click', this._handleDeleteSelectedButtonClick);
+    this._selectAllCheckbox.removeEventListener('change', this._handleSelectAllCheckboxChange);
+    this._submitButton.removeEventListener('click', this._handleSubmitButtonClick);
+    this.replaceChildren();
+  }
+
+  set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this.render();
   }
@@ -241,7 +232,7 @@ export class GuiPeriodicTasks extends HTMLElement {
     return 'detail' in event;
   }
 
-  private _timeToDate(time: sdk.core.time, timeZone: core.TimeZone): string {
+  private _timeToDate(time: core.time, timeZone: core.TimeZone): string {
     const options: Intl.DateTimeFormatOptions = {
       year: 'numeric',
       month: '2-digit',
@@ -291,36 +282,11 @@ export class GuiPeriodicTasks extends HTMLElement {
     return formattedConvertedDateTime;
   }
 
-  private _createDuration(value: number, unit: core.DurationUnit): core.duration {
-    switch (unit.key) {
-      default:
-      case 'microseconds':
-        return core.duration.create(value);
-      case 'milliseconds':
-        return core.duration.from_ms(value);
-      case 'seconds':
-        return core.duration.from_secs(value);
-      case 'minutes':
-        return core.duration.from_mins(value);
-      case 'hours':
-        return core.duration.from_hours(value);
-      case 'days':
-        return core.duration.from_days(value);
-      case 'weeks':
-        return core.duration.from_weeks(value);
-      case 'months':
-        return core.duration.from_months(value);
-      case 'years':
-        return core.duration.from_years(value);
-    }
-  }
-
   private async _handleSubmit(submitEvent: CustomEvent) {
     submitEvent.preventDefault();
     try {
       const durationNumber = parseInt(this._durationInput.value ?? '0');
-      const durationUnitName = this._durationUnitSelect.value ?? 'minutes';
-      const durationUnit = this.stringToDurationUnit[durationUnitName];
+      const durationUnit = this._durationUnitSelect.selected ? this._durationUnitSelect.selected as core.DurationUnit : core.DurationUnit.seconds();
       const individualTimeZone = this._individualTimeZoneSelect.selected as core.TimeZone;
       const updatedDateWithTimeZone = this._convertToTimezone(
         this._startTimeInput,
@@ -334,7 +300,7 @@ export class GuiPeriodicTasks extends HTMLElement {
         // TODO: This should be passed as Array<any>, but not string. When runtime.PeriociTask.set() is fixed.
         args: args.toString(),
         start: core.time.fromDate(updatedDateWithTimeZone),
-        every: this._createDuration(durationNumber, durationUnit),
+        every: core.duration.from_unit(durationNumber, durationUnit),
       };
 
       await this._addPeriodicTask(formData);
@@ -353,7 +319,6 @@ export class GuiPeriodicTasks extends HTMLElement {
     this._periodicTaskNameInput.value = '';
     this._startTimeInput.value = this._formatDate(new Date());
     this._durationInput.value = '0';
-    this._durationUnitSelect.value = 'minutes';
     this._individualTimeZoneSelect.selected = this._timeZone;
 
     this._periodicTaskDialog.showModal();
@@ -378,7 +343,8 @@ export class GuiPeriodicTasks extends HTMLElement {
           periodicTaskFormData.every,
           this._greycat,
         );
-        await runtime.PeriodicTask.set([...this._periodicTasks, newPeriodicTask], this._greycat);
+        this._periodicTasks.push(newPeriodicTask);
+        await runtime.PeriodicTask.set(this._periodicTasks, this._greycat);
         this._periodicTasks = await runtime.PeriodicTask.all(this._greycat);
         this.render();
       }
@@ -429,12 +395,7 @@ export class GuiPeriodicTasks extends HTMLElement {
   }
 
   private async render() {
-    const tbody = this._table.querySelector('tbody');
-    if (tbody) {
-      tbody.remove();
-    }
-
-    const newTbody = document.createElement('tbody');
+    const rows = document.createDocumentFragment();
 
     this._periodicTasks.forEach((periodicTask) => {
       const row = document.createElement('tr');
@@ -471,11 +432,10 @@ export class GuiPeriodicTasks extends HTMLElement {
         this.updateDeleteButtonState();
       });
       row.appendChild(document.createElement('td')).appendChild(checkbox);
-
-      newTbody.appendChild(row);
+      rows.appendChild(row);
     });
 
-    this._table.appendChild(newTbody);
+    this._tbody.replaceChildren(rows);
   }
 }
 
