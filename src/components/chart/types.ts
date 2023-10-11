@@ -30,6 +30,8 @@ export type SelectionOptions = {
    * - `'vertical'` means only selectable according to y axes
    * - `'horizontal'` means only selectable according to x axis
    * - `'both'` means selectable on y & x axes
+   * 
+   * Defaults to 'horizontal'
    */
   orientation: 'vertical' | 'horizontal' | 'both';
 };

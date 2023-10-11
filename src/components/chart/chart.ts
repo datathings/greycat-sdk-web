@@ -629,7 +629,7 @@ export class GuiChart extends HTMLElement {
       this._cursor.y !== -1 &&
       this._cursor.startY !== -1
     ) {
-      const orientation = this._config.selection?.orientation ?? 'both';
+      const orientation = this._config.selection?.orientation ?? 'horizontal';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
       if (startX < xRange[0]) {
