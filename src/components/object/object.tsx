@@ -69,7 +69,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{i}</div>
                 <div>
-                  <gui-object value={this._value[i]} {...this._props} />
+                  <gui-object value={this._value[i]} {...{ ...this._props, data: i }} />
                 </div>
               </>,
             );
@@ -80,7 +80,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div>
-                  <gui-object value={val} {...this._props} />
+                  <gui-object value={val} {...{ ...this._props, data: key }} />
                 </div>
               </>,
             );
@@ -112,10 +112,10 @@ export class GuiObject extends HTMLElement {
                     {this._shouldNest(attrVal) ? (
                       <details>
                         <summary>&lt;show&gt;</summary>
-                        <gui-object value={attrVal} {...this._props} />
+                        <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
                       </details>
                     ) : (
-                      <gui-object value={attrVal} {...this._props} />
+                      <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
                     )}
                   </div>
                 </>,
@@ -133,11 +133,11 @@ export class GuiObject extends HTMLElement {
               valEl = (
                 <details>
                   <summary>&lt;show&gt;</summary>
-                  <gui-object value={val} {...this._props} />
+                  <gui-object value={val} {...{ ...this._props, data: key }} />
                 </details>
               );
             } else {
-              valEl = <gui-object value={val} {...this._props} />;
+              valEl = <gui-object value={val} {...{ ...this._props, data: key }} />;
             }
 
             fragment.appendChild(

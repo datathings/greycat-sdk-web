@@ -7,16 +7,21 @@ mount(async (app) => {
 
   const sharedProps: Omit<GuiObjectProps, 'value'> = {
     linkify: isNode,
-    onClick: (_, value) => {
-      console.log(value);
-      window.alert(`clicked: ${value}`);
+    onClick: (...args) => {
+      console.log(args);
     },
   };
 
   app.appendChild(
     <div className="grid">
-      <gui-object value={anonymousObj} {...sharedProps} />
-      <gui-object value={table} {...sharedProps} />
+      <article>
+        <header>Look at the console after clicking a link</header>
+        <gui-object value={anonymousObj} {...sharedProps} />
+      </article>
+      <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+        <header>Tables are displayed using &lt;gui-table /&gt;</header>
+        <gui-object value={table} {...sharedProps} />
+      </article>
     </div>,
   );
 });

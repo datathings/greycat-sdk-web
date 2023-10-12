@@ -2,7 +2,7 @@ import { utils } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
 import { Disposable } from '../../internals.js';
 
-export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string) => void;
+export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
 
 const NOOP = () => void 0;
 export interface GuiValueProps {
@@ -14,6 +14,7 @@ export interface GuiValueProps {
   dateFmt: Intl.DateTimeFormat | undefined;
   numFmt: Intl.NumberFormat | undefined;
   raw: boolean;
+  data?: unknown;
   onClick: ClickHandler<unknown>;
 }
 
@@ -29,6 +30,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   private _raw = false;
   private _tiny = false;
   private _text: string | undefined;
+  private _data: unknown;
   private _onClick: ClickHandler = NOOP;
   private _disposeClickHandler: Disposable | undefined;
 
@@ -121,6 +123,15 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
+  get data() {
+    return this._data;
+  }
+
+  set data(data: unknown) {
+    this._data = data;
+    this.render();
+  }
+
   setAttrs({
     value,
     name = this._name,
@@ -131,6 +142,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     dateFmt = this._dateFmt,
     numFmt = this._numFmt,
     text = this._text,
+    data = this._data,
   }: Partial<GuiValueProps>) {
     if (
       this._value === value &&
@@ -141,7 +153,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._onClick === onClick &&
       this._dateFmt === dateFmt &&
       this._numFmt === numFmt &&
-      this._text === text
+      this._text === text &&
+      this._data === data
     ) {
       // prevent unecessary re-renders
       return;
@@ -155,6 +168,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._dateFmt = dateFmt;
     this._numFmt = numFmt;
     this._text = text;
+    this._data = data;
     this.render();
   }
 
@@ -192,7 +206,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     if (linkify) {
       this.textContent = null;
       const link = document.createElement('a');
-      const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content);
+      const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content, this._data);
       link.addEventListener('auxclick', onclick);
       link.addEventListener('click', onclick);
       this._disposeClickHandler = () => {
