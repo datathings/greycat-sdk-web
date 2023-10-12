@@ -16,16 +16,16 @@ mount(async (app) => {
   const roles = await runtime.UserRole.all();
   const permissions = await runtime.SecurityPolicy.permissions();
 
-  const userTable = document.createElement('gui-user-table');
-  userTable.caption = 'Users';
-  userTable.users = users;
-  userTable.groups = groups;
-  userTable.roles = roles;
-  app.appendChild(userTable);
-
-  const userRoles = document.createElement('gui-user-roles')!;
-  userRoles.caption = 'Roles';
-  userRoles.roles = roles;
-  userRoles.permissions = permissions;
-  app.appendChild(userRoles);
+  app.appendChild(
+    <div role="list">
+      <article>
+        <header>Users</header>
+        <gui-user-table users={users} groups={groups} roles={roles} />
+      </article>
+      <article>
+        <header>Users</header>
+        <gui-user-roles roles={roles} permissions={permissions} />
+      </article>
+    </div>,
+  );
 });

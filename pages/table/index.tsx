@@ -6,7 +6,6 @@ mount(async (app, greycat) => {
 
   const tableEl = document.createElement('gui-table');
   const table = await greycat.call<core.Table>('project::table');
-  console.log({ table });
   tableEl.table = table;
   tableEl.onrowupdate = (el, row) => {
     const klass = row[2].value as string;
@@ -24,13 +23,21 @@ mount(async (app, greycat) => {
   };
 
   tableEl.addEventListener('table-dblclick', (ev) => {
-    window.alert(`Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${ev.detail.row[ev.detail.colIdx].value}"`);
+    window.alert(
+      `Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${
+        ev.detail.row[ev.detail.colIdx].value
+      }"`,
+    );
   });
 
   randomizeBtn.addEventListener('click', async () => {
     tableEl.table = await greycat.call<core.Table>('project::table');
   });
 
-  app.appendChild(tableEl);
+  app.appendChild(
+    <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+      <header>project::table</header>
+      {tableEl}
+    </article>,
+  );
 });
-

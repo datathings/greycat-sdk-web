@@ -16,7 +16,9 @@ mount(async (app) => {
     <div className="grid">
       <article>
         <header>Look at the console after clicking a link</header>
-        <gui-object value={anonymousObj} {...sharedProps} />
+        <div className="container-fluid">
+          <gui-object value={anonymousObj} {...sharedProps} />
+        </div>
       </article>
       <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
         <header>Tables are displayed using &lt;gui-table /&gt;</header>

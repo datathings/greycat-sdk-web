@@ -20,19 +20,15 @@ export type IDisposable = () => void;
 
 export class Disposer {
   readonly disposables: IDisposable[] = [];
+  private _ctrl = new AbortController();
 
-  addEventListener<E extends HTMLElement, K extends keyof HTMLElementEventMap>(
-    el: E,
-    type: K,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    listener: (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
-    options?: boolean | AddEventListenerOptions,
-  ): void {
-    this.disposables.push(() => el.removeEventListener(type, listener));
-    el.addEventListener(type, listener, options);
+  get signal(): AbortSignal {
+    return this._ctrl.signal;
   }
 
   dispose(): void {
+    this._ctrl.abort();
+    this._ctrl = new AbortController();
     for (let i = 0; i < this.disposables.length; i++) {
       this.disposables[i]();
     }

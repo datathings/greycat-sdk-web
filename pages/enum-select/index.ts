@@ -28,7 +28,10 @@ mount((app, greycat) => {
     }
   }
 
-  app.appendChild(label);
-  app.appendChild(select);
-  app.appendChild(moveElementBtn);
+  const container = document.createElement('div');
+  container.appendChild(label);
+  container.appendChild(select);
+  container.appendChild(moveElementBtn);
+
+  app.appendChild(container);
 });

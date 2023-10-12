@@ -38,7 +38,7 @@ mount(async (app, greycat) => {
   ) as HTMLDialogElement;
 
   app.appendChild(
-    <div role="list">
+    <div role="list" style={{ gridTemplateRows: 'auto 1fr auto' }}>
       <article>
         <header>Create task</header>
         <div className="container-fluid">

@@ -1,12 +1,16 @@
 import { GreyCat } from '@greycat/sdk';
-import { Disposer } from '../../common.js';
 
 export class GuiTaskCreate extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
   private _taskModuleAndFunctionInput = document.createElement('input');
   private _paramsJsonInput = document.createElement('textarea');
   private _createTaskButton = document.createElement('button');
-  private _disposer = new Disposer();
+
+  constructor() {
+    super();
+
+    this._createTaskButton.addEventListener('click', this._handleCreateTaskButtonClick.bind(this));
+  }
 
   connectedCallback() {
     const fragment = document.createDocumentFragment();
@@ -19,7 +23,6 @@ export class GuiTaskCreate extends HTMLElement {
     this._taskModuleAndFunctionInput.classList.add('module-input');
 
     this._createTaskButton.textContent = 'Create Task';
-    this._disposer.addEventListener(this._createTaskButton, 'click', this._handleCreateTaskButtonClick.bind(this));
     this._createTaskButton.classList.add('create-button');
 
     this._paramsJsonInput.setAttribute('placeholder', 'Enter JSON for parameters. Ex: [42, \'Hello\', true]');
@@ -35,7 +38,6 @@ export class GuiTaskCreate extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this._disposer.dispose();
     this.replaceChildren(); // cleanup
   }
 

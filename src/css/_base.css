@@ -183,6 +183,11 @@
   tab-size: 4;
 }
 
+/* https://www.abeautifulsite.net/posts/flash-of-undefined-custom-elements/ */
+:not(:defined) {
+  visibility: hidden;
+}
+
 html,
 body {
   margin: 0;
