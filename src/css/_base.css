@@ -5,7 +5,7 @@
   --font-size-md: 14px;
   --font-size-lg: 14px;
   --font-size-xl: 14px;
-  --font-weight: 500;
+  --font-weight: normal;
 
   --spacing: 0.5rem;
 
@@ -119,8 +119,8 @@
   --secondary-focus: rgba(205, 249, 127, 0.2);
   --secondary-inverse: #fff;
 
-  --bg-0: #e5e5e5;
-  --bg-1: #c9c9c9;
+  --bg-0: #efefef;
+  --bg-1: #fafafa;
   --bg-2: #fff;
 
   --color: #151515;
