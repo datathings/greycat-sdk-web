@@ -25,6 +25,7 @@ import { type GuiTaskCreate } from './tasks/task-create/index.js';
 import { type GuiTaskList } from './tasks/task-list/task-list.js';
 import { type GuiTaskSelect } from './tasks/task-select/task-select.js';
 import { type GuiObject } from './object/object.js';
+import { type GuiSearchableSelect } from './searchable-select/index.js';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -53,6 +54,7 @@ export * from './tasks/task-list/index.js';
 export * from './tasks/task-select/index.js';
 export * from './tasks/task-create/index.js';
 export * from './object/object.js';
+export * from './searchable-select/index.js';
 
 export type GuiElement =
   // | GuiBarChart
@@ -78,4 +80,5 @@ export type GuiElement =
   | GuiTaskSelect
   | GuiTaskCreate
   | GuiTaskList
-  | GuiObject;
+  | GuiObject
+  | GuiSearchableSelect;

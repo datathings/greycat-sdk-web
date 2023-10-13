@@ -44,6 +44,10 @@ export async function init(
     abi = await update(db, opts);
   } else {
     // check if we need to update
+    // TODO
+    // send If-None-Match <abi-etag>
+    // if 304, nothing to do load from cache
+    // if 200, store in cache and load
     const [[proto, magic, version]] = await downloadAbiHeaders(opts);
     if (proto === res.headers[0] && magic === res.headers[1] && version === res.headers[2]) {
       // everything matches

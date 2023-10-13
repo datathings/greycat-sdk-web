@@ -9,7 +9,7 @@ mount((app, greycat) => {
   select.selectId = 'my-select';
   select.greycat = greycat;
   select.fqn = 'core::TimeZone';
-  select.addEventListener('change', (ev) => {
+  select.addEventListener('enum-change', (ev) => {
     window.alert(`key=${ev.detail?.key}, value=${ev.detail?.value?.toString()}`);
   });
 

@@ -22,7 +22,6 @@ small {
   --font-size: 12px;
 }
 
-
 h1 {
   --font-size: 28px;
 }
@@ -116,4 +115,8 @@ dialog article header {
 dialog footer .grid button {
   /* Resets margin-bottom for the common case of dialog with buttons in footer */
   margin-bottom: 0;
+}
+
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'])[type='search'] {
+  border-radius: var(--border-radius);
 }
