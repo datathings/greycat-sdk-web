@@ -23,9 +23,11 @@ gui-searchable-select {
     background-color: var(--gui-searchable-select-list-bg);
     display: flex;
     flex-direction: column;
+    pointer-events: auto;
 
     & * {
       margin-bottom: 0;
+      pointer-events: auto;
 
       &:hover {
         background-color: var(--gui-searchable-select-list-item-hover);

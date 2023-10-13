@@ -35,6 +35,18 @@ export class GuiSearchableSelect extends HTMLElement {
       this._list.style.visibility = 'visible';
     });
 
+    this._input.addEventListener('blur', () => {
+      setTimeout(() => {
+        this._list.style.visibility = 'hidden';
+      }, 0);
+    });
+
+    this._input.addEventListener('focus', () => {
+      if (this._input.value.length > 0) {
+        this._list.style.visibility = 'visible';
+      }
+    });
+
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
         this._list.style.visibility = 'hidden';
@@ -121,9 +133,9 @@ export class GuiSearchableSelect extends HTMLElement {
       const opt = options[i];
       const itemEl = document.createElement('div');
       itemEl.textContent = opt.text;
-      itemEl.addEventListener('click', () => {
+      itemEl.addEventListener('mousedown', (ev) => {
+        ev.preventDefault();
         this._input.value = opt.text;
-        this._list.style.visibility = 'hidden';
         const selected = this._list.querySelector('div.selected');
         if (selected) {
           selected.classList.remove('selected');
@@ -131,6 +143,8 @@ export class GuiSearchableSelect extends HTMLElement {
         }
         itemEl.classList.add('selected');
         opt.selected = true;
+        this._list.style.visibility = 'hidden';
+        this._input.focus();
         this.dispatchEvent(new GuiSearchableSelectChangeEvent(opt.value));
       });
 
