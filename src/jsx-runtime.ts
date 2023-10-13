@@ -21,6 +21,15 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
     // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
     // those component can batch update in one method call.
     element.setAttrs(props);
+    // deal with event handlers separatly
+    const keys = Object.keys(props);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key.startsWith('on')) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        element.addEventListener(key.substring(2), props[key] as any);
+      }
+    }
     return element;
   }
 

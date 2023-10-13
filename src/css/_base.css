@@ -14,6 +14,8 @@
   --form-element-spacing-horizontal: 0.2rem;
   --form-element-background-color: var(--bg-1);
   --form-element-disabled-background-color: var(--bg-0);
+  --form-element-disabled-border-color: #415462;
+  --form-element-disabled-opacity: 0.3;
 
   --switch-color: var(--primary-inverse);
   --switch-checked-background-color: var(--primary);

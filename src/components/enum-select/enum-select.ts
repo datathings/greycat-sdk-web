@@ -92,7 +92,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   get disabled() {
-    return this._select.disabled ?? false;
+    return this._select.disabled;
   }
 
   /**
