@@ -7,6 +7,10 @@ try {
   DEFAULT_URL = new URL('http://127.0.0.1:8080');
 }
 
+const DB_NAME = 'greycat.default';
+const DB_VERSION = 1;
+const STORE_NAME = 'abi';
+
 type AbiData = {
   headers: [number, number, number];
   data: ArrayBuffer;
@@ -32,7 +36,7 @@ export async function init(
   };
 
   let abi: Abi;
-  const db = new Db('greycat.default', 'abi', 1);
+  const db = new Db(DB_NAME, STORE_NAME, DB_VERSION);
   await db.open();
   const res = await db.readAbi();
   if (res == null) {
@@ -62,6 +66,19 @@ async function update(db: Db, opts: WithoutAbiOptions) {
   return abi;
 }
 
+/**
+ * Deletes the internal ABI cache. You need to reload the page after calling this
+ * to actually reload the cache again.
+ */
+export async function deleteAbiCache(): Promise<void> {
+  try {
+    const db = new Db(DB_NAME, STORE_NAME, DB_VERSION);
+    await db.delete();
+  } catch {
+    // ignore
+  }
+}
+
 class Db {
   private _db: IDBDatabase | undefined;
 
@@ -69,7 +86,7 @@ class Db {
     readonly dbName = 'greycat.default',
     readonly storeName = 'abi',
     readonly version = 1,
-  ) {}
+  ) { }
 
   open(): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -90,14 +107,26 @@ class Db {
     this._db = undefined;
   }
 
-  readAbi(): Promise<AbiData | null> {
-    const db = this._db;
-    if (!db) {
-      return Promise.reject('You must open the database first');
-    }
-
+  delete(): Promise<void> {
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(this.storeName, 'readonly');
+      this.close();
+
+      const deleteReq = indexedDB.deleteDatabase(this.dbName);
+
+      deleteReq.onsuccess = () => resolve();
+      deleteReq.onerror = () => {
+        reject(`Failed to reset ${this.dbName}`);
+      };
+    });
+  }
+
+  readAbi(): Promise<AbiData | null> {
+    return new Promise((resolve, reject) => {
+      if (!this._db) {
+        return reject('You must open the database first');
+      }
+
+      const transaction = this._db.transaction(this.storeName, 'readonly');
       const store = transaction.objectStore(this.storeName);
       const req = store.get('data');
       req.onsuccess = () => resolve(req.result);
@@ -107,13 +136,12 @@ class Db {
   }
 
   writeAbi(data: AbiData): Promise<void> {
-    const db = this._db;
-    if (!db) {
-      return Promise.reject('You must open the database first');
-    }
-
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(this.storeName, 'readwrite');
+      if (!this._db) {
+        return reject('You must open the database first');
+      }
+
+      const transaction = this._db.transaction(this.storeName, 'readwrite');
       const store = transaction.objectStore(this.storeName);
       const req = store.put(data, 'data');
       req.onsuccess = () => resolve();
