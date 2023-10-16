@@ -50,7 +50,7 @@ mount(async (app, greycat) => {
         xCol: 0,
         yCol: 1,
         colorCol: 2,
-        colorMapping: (v) => colors[v],
+        colorMapping: (v: keyof typeof colors) => colors[v],
       },
     ],
   });
