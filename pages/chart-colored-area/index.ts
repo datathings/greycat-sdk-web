@@ -17,13 +17,13 @@ mount(async (app, greycat) => {
     console.log(`selection from ${from} to ${to}`);
   });
 
-  let table = await greycat.call<core.Table>('project::chart_time');
+  let table = await greycat.call<core.Table>('project::chart_colored_area');
   console.log(table);
 
   const colors = {
-    low: 'cyan',
-    normal: null,
-    high: 'red',
+    low: 'cyan', //'#3498db',
+    normal: 'orange',//'#2ecc71',
+    high: 'green',//'#e74c3c',
   };
 
   chart.setConfig({
@@ -33,10 +33,13 @@ mount(async (app, greycat) => {
         currentValue.innerHTML = `${data[0].xValue}, ${data[0].yValue}`;
       },
     },
+    selection: {
+      orientation: 'both',
+    },
     cursor: true,
     xAxis: {
       scale: 'time',
-      format: '%a, %H:%M',
+      format: '%a, %d/%m/%y',
     },
     yAxes: {
       temp: {},
@@ -45,7 +48,7 @@ mount(async (app, greycat) => {
     series: [
       {
         title: 'Value',
-        type: 'line',
+        type: 'line+area',
         yAxis: 'temp',
         xCol: 0,
         yCol: 1,
@@ -57,7 +60,7 @@ mount(async (app, greycat) => {
 
   // eslint-disable-next-line no-inner-declarations
   async function randomize() {
-    table = await greycat.call<core.Table>('project::chart_time');
+    table = await greycat.call<core.Table>('project::chart_colored_area');
     console.log({ table });
     chart.config.table = table;
     chart.compute();

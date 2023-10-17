@@ -52,25 +52,22 @@ export class CanvasContext {
     // let prevColor = serie.color;
     let first = true;
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
+      let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      let y = yScale(vMap(table.cols[serie.yCol][i]));
+      if (x < xMin) {
+        x = xMin;
+      } else if (x > xMax) {
+        x = xMax;
+      }
+      if (y > yMin) {
+        y = yMin;
+      } else if (y < yMax) {
+        y = yMax;
+      }
       const notDefined =
         table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
       const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
       const currColor = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
-
-      if (x < xMin || y > yMin || y < yMax) {
-        // prevent drawing out of range
-        prevSegments = lineDash;
-        // prevColor = currColor;
-        continue;
-      }
-
-      if (x > xMax) {
-        // here we can break, cause we are out of range on the right side
-        // meaning we no longer have to draw anything we are done
-        break;
-      }
 
       if (first) {
         this.ctx.setLineDash(lineDash);
@@ -95,6 +92,10 @@ export class CanvasContext {
 
       prevSegments = lineDash;
       this.ctx.strokeStyle = currColor;
+
+      if (x === xMax) {
+        break;
+      }
     }
 
     this.ctx.stroke();
@@ -191,55 +192,71 @@ export class CanvasContext {
     if (table.cols.length === 0) {
       return;
     }
-  
-    let firstX = xScale(serie.xCol === undefined ? 0 : vMap(table.cols[serie.xCol][0]));
-    let lastX = xScale(
-      serie.xCol === undefined ? table.cols[0]?.length ?? 0 : vMap(table.cols[serie.xCol][0]),
-    );
-    let firstY = yScale(vMap(table.cols[serie.yCol][0]));
-  
-    this.ctx.save();
-    this.ctx.globalAlpha = serie.fillOpacity;
-    this.ctx.fillStyle = serie.color;
-  
-    this.ctx.beginPath();
-  
+
     const [xMin, xMax] = xScale.range();
     const [yMin, yMax] = yScale.range();
-  
+
+    const colorCol = serie.colorCol ?? -1;
+    const colorMap = serie.colorMapping ?? ((v) => v);
+
+
+    const { x, y, color } = computePoint(0);
+    let firstX = x;
+    let firstY = y;
+    let { x: lastX } = computePoint((table.cols[0]?.length - 1) ?? 0);
+
+    this.ctx.save();
+    this.ctx.globalAlpha = serie.fillOpacity;
+    this.ctx.fillStyle = color;
+
+    this.ctx.beginPath();
+    this.ctx.moveTo(firstX, firstY);
+
     // line
-    let first = true;
-    for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (y === undefined || x < xMin || y > yMin || y < yMax) {
-        // prevent drawing out of range
-        // prevColor = currColor;
-        continue;
-      }
-  
-      if (x > xMax) {
-        // here we can break, cause we are out of range on the right side
-        // meaning we no longer have to draw anything we are done
-        break;
-      }
-      if (first) {
-        firstX = x;
-        firstY = y;
-        this.ctx.moveTo(x, firstY);
-        first = false;
-      } else {
-        if (x > xMax) {
-          // prevent drawing out of range or xScale
-          break;
+    for (let i = 1; i < table.cols[0].length; i++) {
+      const pt = computePoint(i);
+      this.ctx.lineTo(pt.x, pt.y);
+      lastX = pt.x;
+
+      if (this.ctx.fillStyle !== pt.color && !(pt.x === firstX && pt.y === firstY)) {
+        // we changed color, so we need to fill the current path, and start a new one
+        if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
+          // yCol2 === 'max': fill from line to top
+          // yCol2 === 'min': fill from line to bottom
+          const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
+          // we can close the area going to bottom-right, then bottom-left and finally
+          // back to the firstX,firstY
+          this.ctx.lineTo(pt.x, yBound); // bottom end
+          this.ctx.lineTo(firstX, yBound); // bottom start
+        } else {
+          // fill in regard to another serie
+          for (let i = table.cols[0].length - 1; i >= 0; i--) {
+            const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+            const y = yScale(vMap(table.cols[serie.yCol2][i]));
+            // if (x < xMin || x > xMax || y > yMin || y < yMax) {
+            //   // prevent drawing out of range
+            //   continue;
+            // }
+            this.ctx.lineTo(x, y);
+          }
         }
-        this.ctx.lineTo(x, y);
-        lastX = x;
+        // close the area line by going back to the first pt
+        this.ctx.lineTo(firstX, firstY);
+        // and finally, fill the area
+        this.ctx.fill();
+
+        // start a new path
+        this.ctx.beginPath();
+        firstX = pt.x;
+        firstY = pt.y;
+        this.ctx.moveTo(firstX, firstY);
+        this.ctx.fillStyle = pt.color;
       }
     }
-  
+
     if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
-      // below => fill to yMin, above => fill to yMax
+      // yCol2 === 'max': fill from line to top
+      // yCol2 === 'min': fill from line to bottom
       const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
       // we can close the area going to bottom-right, then bottom-left and finally
       // back to the firstX,firstY
@@ -262,25 +279,44 @@ export class CanvasContext {
       this.ctx.lineTo(firstX, firstY); // start of line
       this.ctx.fill();
     }
-  
+
     this.ctx.restore();
+
+    function computePoint(i: number) {
+      let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      let y = yScale(vMap(table.cols[serie.yCol][i]));
+      if (x < xMin) {
+        x = xMin;
+      } else if (x > xMax) {
+        x = xMax;
+      }
+      if (y > yMin) {
+        y = yMin;
+      } else if (y < yMax) {
+        y = yMax;
+      }
+
+      const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const color = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
+      return { color, y, x };
+    }
   }
 
   circle(x: number, y: number, radius: number, opts: ShapeOptions): void {
     this.ctx.save();
 
     this.ctx.strokeStyle = opts.color ?? 'inherit';
-  
+
     this.ctx.beginPath();
     this.ctx.arc(x, y, radius, 0, CIRCLE_END_ANGLE);
-  
+
     if (opts.fill) {
       this.ctx.fillStyle = opts.fill;
       this.ctx.fill();
     } else {
       this.ctx.stroke();
     }
-  
+
     this.ctx.restore();
   }
 
@@ -290,17 +326,17 @@ export class CanvasContext {
     this.ctx.strokeStyle = opts.color ?? 'inherit';
     this.ctx.lineWidth = opts.thickness ?? 1;
     const shift = width / 2;
-  
+
     this.ctx.beginPath();
     this.ctx.moveTo(x - shift, y);
     this.ctx.lineTo(x + shift, y);
     this.ctx.stroke();
-  
+
     this.ctx.beginPath();
     this.ctx.moveTo(x, y - shift);
     this.ctx.lineTo(x, y + shift);
     this.ctx.stroke();
-  
+
     this.ctx.restore();
   }
 
@@ -310,13 +346,13 @@ export class CanvasContext {
     this.ctx.setLineDash(opts.dashed ? [5, 5] : []);
     this.ctx.strokeStyle = opts.color ?? 'inherit';
     this.ctx.globalAlpha = opts.opacity ?? 1;
-  
+
     // horizontal
     this.ctx.beginPath();
     this.ctx.moveTo(startX, startY);
     this.ctx.lineTo(endX, endY);
     this.ctx.stroke();
-  
+
     this.ctx.restore();
   }
 
@@ -325,7 +361,7 @@ export class CanvasContext {
     if (opts.backgroundColor) {
       const xPadding = 4;
       const yPadding = 4;
-  
+
       if (opts.align === 'end') {
         this.rectangle(
           x - mx.width / 2,
@@ -352,22 +388,22 @@ export class CanvasContext {
         );
       }
     }
-  
+
     this.ctx.save();
-  
+
     this.ctx.fillStyle = opts.color;
     this.ctx.font = opts.font ?? `bold 10px sans-serif`;
     this.ctx.textBaseline = opts.baseline ?? 'bottom';
     this.ctx.textAlign = opts.align ?? 'start';
     this.ctx.fillText(text, x, y);
-  
+
     this.ctx.restore();
   }
 
   rectangle(x: number, y: number, w: number, h: number, opts: ShapeOptions): void {
     this.ctx.save();
     this.ctx.globalAlpha = opts.opacity ?? 1;
-  
+
     if (opts.fill) {
       this.ctx.fillStyle = opts.fill;
       this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
@@ -375,7 +411,7 @@ export class CanvasContext {
       this.ctx.strokeStyle = opts.color ?? 'inherit';
       this.ctx.strokeRect(x - w / 2, y - h / 2, w, h);
     }
-  
+
     this.ctx.restore();
   }
 
@@ -396,7 +432,7 @@ export class CanvasContext {
       this.ctx.strokeStyle = opts.color ?? 'inherit';
       this.ctx.stroke();
     }
-  
+
     this.ctx.restore();
   }
 }

@@ -112,8 +112,6 @@ export class GuiChart extends HTMLElement {
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
 
-    // TODO touchstart, touchend
-
     // mouse events
     this.addEventListener('mousedown', (event) => {
       if (event.button !== 0) {
@@ -124,28 +122,7 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
       // this._updateUX();
     });
-    this.addEventListener('mousemove', (event) => {
-      const { left, top } = this._canvas.getBoundingClientRect();
-      this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
-      this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
-      // this._updateUX();
-    });
-    this.addEventListener('mouseup', (event) => {
-      if (event.button !== 0) {
-        return;
-      }
-      if (
-        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
-      ) {
-        this._cursor.selection = true;
-      } else {
-        // too small selection, reset cursor
-        this._resetCursor();
-      }
-      // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
-      // this._updateUX();
-    });
-    this.addEventListener('mouseleave', () => this._resetCursor());
+    // this.addEventListener('mouseleave', () => this._resetCursor());
     this.addEventListener('dblclick', () => {
       this._resetCursor();
       // reset X configuration
@@ -307,6 +284,28 @@ export class GuiChart extends HTMLElement {
 
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
+
+    document.addEventListener('mouseup', (event) => {
+      if (event.button !== 0) {
+        return;
+      }
+      if (
+        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
+      ) {
+        this._cursor.selection = true;
+      } else {
+        // too small selection, reset cursor
+        this._resetCursor();
+      }
+      // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
+      // this._updateUX();
+    }, { signal: this._disposer.signal });
+    document.addEventListener('mousemove', (event) => {
+      const { left, top } = this._canvas.getBoundingClientRect();
+      this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
+      this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
+      // this._updateUX();
+    }, { signal: this._disposer.signal });
 
     const obs = new ResizeObserver(debounce(() => this._resize(), 250));
     this._disposer.disposables.push(() => obs.disconnect());
