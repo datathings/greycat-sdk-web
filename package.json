@@ -54,14 +54,14 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.21-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/testing/6.3/6.3.22-testing.tgz",
     "d3": "7.8.5",
     "maplibre-gl": "2.4.0"
   },
   "devDependencies": {
     "@picocss/pico": "1.5.10",
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.3/6.3.5-dev.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/testing/6.3/6.3.10-testing.tgz",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",
