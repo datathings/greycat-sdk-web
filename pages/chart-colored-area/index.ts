@@ -3,7 +3,6 @@ import { core } from '@greycat/sdk';
 import { mount } from '../common';
 
 mount(async (app, greycat) => {
-  const randomizeBtn = document.querySelector('#randomize') as HTMLButtonElement;
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLButtonElement;
   const currentValue = document.querySelector('#current-value') as HTMLDivElement;
 
@@ -17,7 +16,7 @@ mount(async (app, greycat) => {
     console.log(`selection from ${from} to ${to}`);
   });
 
-  let table = await greycat.call<core.Table>('project::chart_colored_area');
+  const table = await greycat.call<core.Table>('project::chart_colored_area');
   console.log(table);
 
   const colors = {
@@ -47,8 +46,28 @@ mount(async (app, greycat) => {
     table,
     series: [
       {
+        title: 'Warmth',
+        type: 'area',
+        yAxis: 'temp',
+        yCol2: 'min',
+        xCol: 0,
+        yCol: 1,
+        colorCol: 2,
+        colorMapping: (v: keyof typeof colors) => colors[v],
+      },
+      // {
+      //   title: 'Warmth',
+      //   type: 'area',
+      //   yAxis: 'temp',
+      //   yCol2: 'min',
+      //   xCol: 0,
+      //   yCol: 1,
+      //   colorCol: 2,
+      //   colorMapping: (v: keyof typeof colors) => colors[v],
+      // },
+      {
         title: 'Value',
-        type: 'line+area',
+        type: 'scatter',
         yAxis: 'temp',
         xCol: 0,
         yCol: 1,
@@ -58,16 +77,6 @@ mount(async (app, greycat) => {
     ],
   });
 
-  // eslint-disable-next-line no-inner-declarations
-  async function randomize() {
-    table = await greycat.call<core.Table>('project::chart_colored_area');
-    console.log({ table });
-    chart.config.table = table;
-    chart.compute();
-    chart.update();
-  }
-
-  randomizeBtn.addEventListener('click', randomize);
   toggleCursor.addEventListener('click', () => {
     chart.config.cursor = !chart.config.cursor;
   });
