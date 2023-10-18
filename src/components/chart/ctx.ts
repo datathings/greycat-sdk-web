@@ -52,17 +52,15 @@ export class CanvasContext {
     // let prevColor = serie.color;
     let first = true;
     for (let i = 0; i < table.cols[0].length; i++) {
-      let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      let y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin) {
-        x = xMin;
-      } else if (x > xMax) {
-        x = xMax;
-      }
-      if (y > yMin) {
-        y = yMin;
-      } else if (y < yMax) {
-        y = yMax;
+      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const y = yScale(vMap(table.cols[serie.yCol][i]));
+      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+        // close previous path
+        if (!first) {
+          this.ctx.stroke();
+        }
+        first = true;
+        continue;
       }
       const notDefined =
         table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
@@ -81,7 +79,6 @@ export class CanvasContext {
       if (prevSegments !== lineDash || this.ctx.strokeStyle !== currColor) {
         // close previous path
         this.ctx.stroke();
-        this.ctx.closePath();
 
         // start new path type
         this.ctx.strokeStyle = currColor;
@@ -99,7 +96,7 @@ export class CanvasContext {
     }
 
     this.ctx.stroke();
-    this.ctx.closePath();
+    // this.ctx.closePath();
 
     this.ctx.restore();
   }
@@ -120,17 +117,12 @@ export class CanvasContext {
 
     for (let i = 0; i < table.cols[0].length; i++) {
       const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || y > yMin || y < yMax) {
-        // prevent drawing out of range
-        // prevColor = currColor;
+      let y = yScale(vMap(table.cols[serie.yCol][i]));
+      if ((x + serie.width) < xMin || x > xMax || y > yMin) {
         continue;
       }
-
-      if (x > xMax) {
-        // here we can break, cause we are out of range on the right side
-        // meaning we no longer have to draw anything we are done
-        break;
+      if (y < yMax) {
+        y = yMax;
       }
       this.ctx.fillStyle = serie.colorCol
         ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color
@@ -156,16 +148,8 @@ export class CanvasContext {
     for (let i = 0; i < table.cols[0].length; i++) {
       const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
       const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || y > yMin || y < yMax) {
-        // prevent drawing out of range
-        // prevColor = currColor;
+      if (x < xMin || x > xMax || y > yMin || y < yMax) {
         continue;
-      }
-
-      if (x > xMax) {
-        // here we can break, cause we are out of range on the right side
-        // meaning we no longer have to draw anything we are done
-        break;
       }
 
       const color = serie.colorCol
@@ -200,10 +184,10 @@ export class CanvasContext {
     const colorMap = serie.colorMapping ?? ((v) => v);
 
 
-    const { x, y, color } = computePoint(0);
+    const { x, y, color } = computePoint(serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint((table.cols[0]?.length - 1) ?? 0);
+    let { x: lastX } = computePoint(serie.xCol, serie.yCol, (table.cols[0]?.length - 1) ?? 0);
 
     this.ctx.save();
     this.ctx.globalAlpha = serie.fillOpacity;
@@ -214,7 +198,7 @@ export class CanvasContext {
 
     // line
     for (let i = 1; i < table.cols[0].length; i++) {
-      const pt = computePoint(i);
+      const pt = computePoint(serie.xCol, serie.yCol, i);
       this.ctx.lineTo(pt.x, pt.y);
       lastX = pt.x;
 
@@ -231,13 +215,8 @@ export class CanvasContext {
         } else {
           // fill in regard to another serie
           for (let i = table.cols[0].length - 1; i >= 0; i--) {
-            const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-            const y = yScale(vMap(table.cols[serie.yCol2][i]));
-            // if (x < xMin || x > xMax || y > yMin || y < yMax) {
-            //   // prevent drawing out of range
-            //   continue;
-            // }
-            this.ctx.lineTo(x, y);
+            const pt = computePoint(serie.xCol, serie.yCol2, i);
+            this.ctx.lineTo(pt.x, pt.y);
           }
         }
         // close the area line by going back to the first pt
@@ -268,11 +247,17 @@ export class CanvasContext {
     } else {
       // fill in regard to another serie
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
-        const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-        const y = yScale(vMap(table.cols[serie.yCol2][i]));
-        if (x < xMin || x > xMax || y > yMin || y < yMax) {
-          // prevent drawing out of range
-          continue;
+        let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+        let y = yScale(vMap(table.cols[serie.yCol2][i]));
+        if (x < xMin) {
+          x = xMin;
+        } else if (x > xMax) {
+          x = xMax;
+        }
+        if (y > yMin) {
+          y = yMin;
+        } else if (y < yMax) {
+          y = yMax;
         }
         this.ctx.lineTo(x, y);
       }
@@ -282,9 +267,9 @@ export class CanvasContext {
 
     this.ctx.restore();
 
-    function computePoint(i: number) {
-      let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      let y = yScale(vMap(table.cols[serie.yCol][i]));
+    function computePoint(xCol: number | undefined, yCol: number, i: number) {
+      let x = xScale(xCol === undefined ? i : vMap(table.cols[xCol][i]));
+      let y = yScale(vMap(table.cols[yCol][i]));
       if (x < xMin) {
         x = xMin;
       } else if (x > xMax) {
@@ -296,7 +281,7 @@ export class CanvasContext {
         y = yMax;
       }
 
-      const notDefined = table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const notDefined = table.cols[yCol][i] === undefined || table.cols[yCol][i] === null;
       const color = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
       return { color, y, x };
     }
