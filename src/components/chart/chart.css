@@ -12,6 +12,7 @@ gui-chart {
   --cursor-bg-c: rgb(var(--base-1));
 
   user-select: none;
+  display: block;
 }
 
 gui-chart .gui-chart-tooltip {

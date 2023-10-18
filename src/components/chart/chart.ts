@@ -120,7 +120,7 @@ export class GuiChart extends HTMLElement {
       const { left, top } = this._canvas.getBoundingClientRect();
       this._cursor.startX = Math.round(event.pageX - (left + window.scrollX));
       this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
-      // this._updateUX();
+      this._cursor.selection = true;
     });
     // this.addEventListener('mouseleave', () => this._resetCursor());
     this.addEventListener('dblclick', () => {
@@ -192,7 +192,8 @@ export class GuiChart extends HTMLElement {
       this._resetCursor();
     });
 
-    this.addEventListener('wheel',
+    this.addEventListener(
+      'wheel',
       throttle((event: WheelEvent) => {
         // if this is too slow, maybe cache xRange, yRange
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
@@ -285,27 +286,41 @@ export class GuiChart extends HTMLElement {
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    document.addEventListener('mouseup', (event) => {
-      if (event.button !== 0) {
-        return;
-      }
-      if (
-        Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
-      ) {
-        this._cursor.selection = true;
-      } else {
-        // too small selection, reset cursor
-        this._resetCursor();
-      }
-      // console.log('mouseup', [this._cursor.startX, this._cursor.x]);
-      // this._updateUX();
-    }, { signal: this._disposer.signal });
-    document.addEventListener('mousemove', (event) => {
-      const { left, top } = this._canvas.getBoundingClientRect();
-      this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
-      this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
-      // this._updateUX();
-    }, { signal: this._disposer.signal });
+    document.addEventListener(
+      'mouseup',
+      (event) => {
+        if (event.button !== 0) {
+          return;
+        }
+
+        if (this._cursor.startX === -1 && this._cursor.startY === -1) {
+          this._resetCursor();
+          return;
+        }
+
+        const threshold = this._config.selection?.threshold ?? 10;
+        const dx = Math.abs(this._cursor.x - this._cursor.startX);
+        const dy = Math.abs(this._cursor.y - this._cursor.startY);
+
+        if (dx < threshold && dy < threshold) {
+          // too small selection, reset cursor
+          this._resetCursor();
+        } else {
+          this._selection();
+        }
+      },
+      { signal: this._disposer.signal },
+    );
+    document.addEventListener(
+      'mousemove',
+      (event) => {
+        const { left, top } = this._canvas.getBoundingClientRect();
+        this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
+        this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
+        // this._updateUX();
+      },
+      { signal: this._disposer.signal },
+    );
 
     const obs = new ResizeObserver(debounce(() => this._resize(), 250));
     this._disposer.disposables.push(() => obs.disconnect());
@@ -324,9 +339,7 @@ export class GuiChart extends HTMLElement {
    * Resizes the internal elements and re-renders (this is automatically called by a `ResizeObserver`)
    */
   private _resize() {
-    let { width, height } = this.getBoundingClientRect();
-    width = Math.round(width);
-    height = Math.round(height);
+    const { width, height } = this.getBoundingClientRect();
 
     // resize main canvas
     this._canvas.width = width;
@@ -392,16 +405,23 @@ export class GuiChart extends HTMLElement {
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
     const { xRange, yRange, rightAxes, style, xScale, yScales } = this._computed;
 
-    if (
+    const updateUX =
       this._cursor.x !== -1 &&
       this._cursor.y !== -1 &&
       this._cursor.x >= xRange[0] &&
       this._cursor.x <= xRange[1] &&
       this._cursor.y >= yRange[1] &&
-      this._cursor.y <= yRange[0]
-    ) {
+      this._cursor.y <= yRange[0];
+
+    const updateSelection =
+      this._cursor.x !== -1 &&
+      this._cursor.startX !== -1 &&
+      this._cursor.y !== -1 &&
+      this._cursor.startY !== -1;
+
+    if (updateUX) {
       // make tooltip visible and located properly
-      this._tooltip.style.visibility = 'visible';
+      this.appendChild(this._tooltip);
       switch (this._config.tooltip?.position ?? 'top-left') {
         case 'top-left':
           this._tooltip.style.left = `${xRange[0] + 10}px`;
@@ -597,6 +617,7 @@ export class GuiChart extends HTMLElement {
         }
       }
 
+      // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
         const { xValue, rowIdx } = closest(this._config.table, s.xCol, v);
@@ -622,12 +643,7 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (
-      this._cursor.x !== -1 &&
-      this._cursor.startX !== -1 &&
-      this._cursor.y !== -1 &&
-      this._cursor.startY !== -1
-    ) {
+    if (updateSelection) {
       const orientation = this._config.selection?.orientation ?? 'horizontal';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
@@ -680,34 +696,6 @@ export class GuiChart extends HTMLElement {
       const to: number = Math.ceil(+xScale.invert(endX));
 
       if (this._cursor.selection) {
-        // selection is done
-        const selectionEvt = new GuiChartSelectionEvent(from, to);
-
-        if (orientation === 'both' || orientation === 'horizontal') {
-          // call update to apply zoom
-          xScale.domain([from, to]);
-          this._config.xAxis.min = from;
-          this._config.xAxis.max = to;
-        }
-
-        if (orientation === 'both' || orientation === 'vertical') {
-          for (const yAxisName in yScales) {
-            const yScale = yScales[yAxisName];
-            const from: number = Math.floor(+yScale.invert(endY));
-            const to: number = Math.ceil(+yScale.invert(startY));
-            yScale.domain([from, to]);
-            this._config.yAxes[yAxisName].min = from;
-            this._config.yAxes[yAxisName].max = to;
-          }
-        }
-
-        // XXX do we want to dispatch after the animation or not?
-        // reset selection
-        this._resetCursor();
-        this.dispatchEvent(selectionEvt);
-        this.compute();
-        this.update();
-      } else {
         // selection in progress
         const w = endX - startX;
         const h = endY - startY;
@@ -748,6 +736,88 @@ export class GuiChart extends HTMLElement {
     }
   }
 
+  private _selection(): void {
+    const { xRange, yRange, xScale, yScales } = this._computed;
+    const orientation = this._config.selection?.orientation ?? 'horizontal';
+    // ensure start/end are bound to the ranges
+    let startX = this._cursor.startX;
+    if (startX < xRange[0]) {
+      startX = xRange[0];
+    } else if (startX > xRange[1]) {
+      startX = xRange[1];
+    }
+    let endX = this._cursor.x;
+    if (endX < xRange[0]) {
+      endX = xRange[0];
+    } else if (endX > xRange[1]) {
+      endX = xRange[1];
+    }
+    if (startX > endX) {
+      const tmp = endX;
+      endX = startX;
+      startX = tmp;
+    }
+
+    let startY = this._cursor.startY;
+    if (startY > yRange[0]) {
+      startY = yRange[0];
+    } else if (startY < yRange[1]) {
+      startY = yRange[1];
+    }
+    let endY = this._cursor.y;
+    if (endY > yRange[0]) {
+      endY = yRange[0];
+    } else if (endY < yRange[1]) {
+      endY = yRange[1];
+    }
+    if (startY > endY) {
+      const tmp = endY;
+      endY = startY;
+      startY = tmp;
+    }
+
+    if (orientation === 'horizontal') {
+      startY = yRange[1];
+      endY = yRange[0];
+    }
+
+    if (orientation === 'vertical') {
+      startX = xRange[0];
+      endX = xRange[1];
+    }
+
+    const from: number = Math.floor(+xScale.invert(startX));
+    const to: number = Math.ceil(+xScale.invert(endX));
+
+    // selection is done
+    const selectionEvt = new GuiChartSelectionEvent(from, to);
+
+    if (orientation === 'both' || orientation === 'horizontal') {
+      // call update to apply zoom
+      xScale.domain([from, to]);
+      this._config.xAxis.min = from;
+      this._config.xAxis.max = to;
+    }
+
+    if (orientation === 'both' || orientation === 'vertical') {
+      for (const yAxisName in yScales) {
+        const yScale = yScales[yAxisName];
+        const from: number = Math.floor(+yScale.invert(endY));
+        const to: number = Math.ceil(+yScale.invert(startY));
+        yScale.domain([from, to]);
+        this._config.yAxes[yAxisName].min = from;
+        this._config.yAxes[yAxisName].max = to;
+      }
+    }
+
+    // XXX do we want to dispatch after the animation or not?
+    // reset selection
+    this._resetCursor();
+    this.dispatchEvent(selectionEvt);
+    this.compute();
+    this.update();
+  }
+
   private _drawMarker(serie: Serie & SerieOptions, x: number, y2: number, w: number, color: Color) {
     switch (serie.markerShape ?? 'circle') {
       case 'circle':
@@ -773,11 +843,11 @@ export class GuiChart extends HTMLElement {
     this._uxCtx.ctx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
     // clear tooltip
     this._tooltip.replaceChildren();
-    this._tooltip.style.visibility = 'hidden';
     this._tooltip.style.top = '';
     this._tooltip.style.right = '';
     this._tooltip.style.bottom = '';
     this._tooltip.style.left = '';
+    this._tooltip.remove();
   }
 
   /**
@@ -1129,7 +1199,6 @@ export class GuiChartCursorEvent extends CustomEvent<SerieData[]> {
 }
 
 declare global {
-
   interface HTMLElementTagNameMap {
     'gui-chart': GuiChart;
   }

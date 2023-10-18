@@ -1,11 +1,7 @@
-import { GreyCat, core } from '@greycat/sdk';
+import { core } from '@greycat/sdk';
+import { mount } from '../common';
 
-// @greycat/ui
-import '../common'
-
-try {
-  const greycat = window.greycat.default = await GreyCat.init({ url: new URL('http://localhost:8080') });
-
+mount(async (app, greycat) => {
   const nbRows = document.querySelector('#nb-rows') as HTMLInputElement;
   const randomizeBtn = document.querySelector('#randomize') as HTMLAnchorElement;
   const topLeft = document.querySelector('#top-left') as HTMLAnchorElement;
@@ -14,8 +10,7 @@ try {
   const bottomRight = document.querySelector('#bottom-right') as HTMLAnchorElement;
   const toggleCursor = document.querySelector('#toggle-cursor') as HTMLAnchorElement;
 
-  let table = await greycat.call<core.Table>('project::chart', [150]);
-  console.log({ table });
+  const table = await greycat.call<core.Table>('project::chart', [150]);
 
   const LINE_COL = 0;
   const SCATTER_COL = 1;
@@ -24,9 +19,9 @@ try {
   const LINE_TYPE_COL = 4;
   const LINE_COLOR_COL = 5;
 
-  const chart = document.createElement('gui-chart')!;
+  const chart = document.createElement('gui-chart');
   chart.style.height = '100%';
-  document.querySelector('main')!.appendChild(chart);
+  app.appendChild(chart);
 
   const customColorMap = {
     Low: 'red',
@@ -61,7 +56,7 @@ try {
         width: 4,
         lineTypeCol: LINE_TYPE_COL,
         colorCol: LINE_COLOR_COL,
-        colorMapping: (v) => customColorMap[v.key],
+        colorMapping: (v) => customColorMap[v.key as keyof typeof customColorMap],
       },
       {
         type: 'line+scatter',
@@ -91,7 +86,7 @@ try {
 
   // eslint-disable-next-line no-inner-declarations
   async function randomize() {
-    table = await greycat.call<core.Table>('project::chart', [+nbRows.value]);
+    const table = await greycat.call<core.Table>('project::chart', [+nbRows.value]);
     console.log({ table });
     chart.config.table = table;
     chart.compute();
@@ -127,7 +122,4 @@ try {
   toggleCursor.addEventListener('click', () => {
     chart.config.cursor = !chart.config.cursor;
   });
-} catch (err) {
-  console.error(err);
-  document.body.textContent = `Is GreyCat started?`;
-}
+});
