@@ -2,8 +2,7 @@ import { core } from '@greycat/sdk';
 import * as ml from 'maplibre-gl';
 import { GuiValueProps } from '../value/index.js';
 
-// re-export 'ml' for @greycat/gui users
-export { default as maplibre } from 'maplibre-gl';
+export const maplibregl = ml;
 
 export type GuiMapMarker = ml.MarkerOptions & {
   location: core.geo;
