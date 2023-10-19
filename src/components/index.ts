@@ -9,7 +9,7 @@ import { type GuiGauge } from './gauge/index.js';
 import { type GuiHeatmap } from './heatmap/index.js';
 // import { type GuiHistogramChart } from './histogram-chart';
 // import { type GuiLineChart } from './line-chart';
-import { type GuiMap } from './map/index.js';
+// import { type GuiMap } from './map/index.js';
 // import { type GuiNodeTimeInfo } from './nodetime';
 // import { type GuiScatterPlotChart } from './scatter-plot';
 import { type GuiTable } from './table/index.js';
@@ -38,7 +38,7 @@ export * from './gauge/index.js';
 export * from './heatmap/index.js';
 // export * from './histogram-chart';
 // export * from './line-chart';
-export * from './map/index.js';
+// export * from './map/index.js';
 // export * from './nodetime';
 // export * from './scatter-plot';
 export * from './table/index.js';
@@ -67,7 +67,7 @@ export type GuiElement =
   | GuiGauge
   | GuiHeatmap
   // | GuiHistogramChart
-  | GuiMap
+  // | GuiMap
   // | GuiNodeTimeInfo
   // | GuiScatterPlotChart
   | GuiTable
