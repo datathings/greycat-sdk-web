@@ -50,6 +50,14 @@ export default defineConfig({
       { text: 'Introduction', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
       { text: 'JSX/TSX Runtime', link: '/jsx-runtime' },
+      { text: 'Using React.js', link: '/using-react' },
+      {
+        text: 'Customization',
+        items: [
+          { text: 'CSS', link: '/customization/css' },
+          { text: 'Theme', link: '/customization/theme' }
+        ],
+      },
       {
         text: 'Web Components',
         link: '/components/index.md',

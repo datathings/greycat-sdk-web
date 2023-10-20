@@ -2,7 +2,20 @@
 
 @font-face {
   font-family: 'Open Sans';
+  font-weight: normal;
   src: url('../public/OpenSans-Regular.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-weight: bold;
+  src: url('../public/OpenSans-Bold.ttf');
+}
+
+@font-face {
+  font-family: 'Open Sans';
+  font-style: italic;
+  src: url('../public/OpenSans-Italic.ttf');
 }
 
 html,

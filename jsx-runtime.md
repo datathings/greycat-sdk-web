@@ -135,3 +135,7 @@ Mainly, the fine-tuning occurs in `tsconfig.json` where we need to specify the l
 :::
 
 This way TypeScript will understand that JSX within `your/react/dir` is `React`-related, while the rest will be `@greycat/web`-related.
+
+::: info
+Read [Using React.js](using-react.md) for more information about using React.js with `@greycat/web`.
+:::
