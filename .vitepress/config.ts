@@ -10,7 +10,7 @@ const LIBRARIES_DIR = resolve('libs');
 export default defineConfig({
   title: 'GreyCat',
   description: 'Official GreyCat Documentation',
-  base: '',
+  base: '/greycat-sdk-web/',
   outDir: resolve('dist', 'docs'),
   rewrites: {
     'src/components/:sub/:name/(.*)': 'components/:sub/:name/index.md',
@@ -37,6 +37,7 @@ export default defineConfig({
         items: [
           { text: 'std', link: '/libs/std/' },
           { text: 'algebra', link: '/libs/algebra/' },
+          { text: 'patterns', link: '/libs/patterns/' },
         ],
       },
       {
@@ -61,7 +62,7 @@ export default defineConfig({
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://hub.datathings.com/greycat/sdk/web' },
+      { icon: 'github', link: 'https://github.com/datathings/greycat-sdk-web' },
       { icon: 'linkedin', link: 'https://www.linkedin.com/company/datathings/' },
     ],
   },
