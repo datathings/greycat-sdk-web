@@ -31,7 +31,6 @@ export default defineConfig({
     },
 
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
       {
         text: 'Libraries',
@@ -47,29 +46,28 @@ export default defineConfig({
     ],
 
     sidebar: [
+      { text: 'Introduction', link: '/' },
+      { text: 'Getting Started', link: '/getting-started' },
+      { text: 'JSX/TSX Runtime', link: '/jsx-runtime' },
       {
-        text: 'Introduction',
-        items: [{ text: 'Getting Started', link: '/getting-started' }],
+        text: 'Web Components',
+        link: '/components/index.md',
+        items: findComponents('src', COMPONENTS_DIR),
       },
       {
         text: 'Libraries',
         items: findLibraries(LIBRARIES_DIR),
       },
-      {
-        text: 'Web Components',
-        link: '/components/index.md',
-        collapsed: true,
-        items: findComponents('src', COMPONENTS_DIR),
-      },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://hub.datathings.com/greycat/ui' },
+      { icon: 'github', link: 'https://hub.datathings.com/greycat/sdk/web' },
       { icon: 'linkedin', link: 'https://www.linkedin.com/company/datathings/' },
     ],
   },
 
   markdown: {
+    html: true,
     config(md) {
       const h = md.options.highlight!;
       md.options.highlight = (str, lang, attrs) => {

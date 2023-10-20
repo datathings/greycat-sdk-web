@@ -1,5 +1,10 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::nodeList
 
+nodeList primitive type handle large series of values, eventually sparse.
+Generic type params can specialize the contains values (V).
+As any nodes, nodeList are stored to disk and compose the sets of Graph Nodes.
+nodeList can handle very large series even if key are sparse and spread over the full int spectrum.
+
 ## Methods
 ### fn add(value:&nbsp;[T](/libs/std/core/type.T.md)):&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
@@ -13,6 +18,10 @@ Returns the first index of the nodeList.
 ### fn get(index:&nbsp;[int](/libs/std/core/type.int.md)):&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
 Returns the value at `index` or `null`
+### fn info(nodes:&nbsp;[Array](/libs/std/core/type.Array.md)):&nbsp;[Array](/libs/std/core/type.Array.md)<Badge text="static" />
+
+Returns the NodeInfo of all the nodeList passed as input paramaters.
+The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeList in input array parameter.
 ### fn last():&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
 Returns the value associated with the last element of the nodeList.

@@ -1,6 +1,7 @@
 # [std](/libs/std/)::core
 ## Types
 ### [any](./type.any.md)
+wildcard type, typically to open field or variable definition to store any other types, including primitives.
 
 
 ### [Array](./type.Array.md)
@@ -15,6 +16,7 @@
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+boolean primitive type, possible values are true or false literals.
 
 
 ### [char](./type.char.md)
@@ -22,6 +24,7 @@
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+char primitive type, possible values are any ASCII char (utf-8 special char are not supported).
 
 
 ### [Date](./type.Date.md)
@@ -30,6 +33,9 @@
   <Badge type="warning" text="@json_attr(&quot;tz?&quot;, &quot;core.TimeZone&quot;)" title="Describes the property name and type when serialized to JSON" />
 </div>
 
+Type that handle a precise moment in calendar.
+It must not be confuse with time that are universal and unique.
+Date are useful when event has to be compare of prcess according to human activity.
 
 
 ### [duration](./type.duration.md)
@@ -39,6 +45,7 @@
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitive type that represent the difference between two time, especially useful to measure the difference between two event
 
 
 ### [Error](./type.Error.md)
@@ -49,6 +56,7 @@
   <Badge type="warning" text="@json_attr(&quot;stack?&quot;, &quot;string[]&quot;)" title="Describes the property name and type when serialized to JSON" />
 </div>
 
+Error type that encapsulate the instance passed to catch block or more generally throw to upper context in case of error.
 
 
 ### [float](./type.float.md)
@@ -69,6 +77,7 @@ If you want to deal with integers, use the [int](/libs/std/core/#int) type.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+function pointer primtive type, store to disk is feasible but should be use consciously together with program upgrade.
 
 
 ### [geo](./type.geo.md)
@@ -152,6 +161,10 @@ Maps can be used to store and fetch values using a key.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+node primitive type handle singleton value that must be stored to graph.
+Generic type param can specialize the contains values.
+As any nodes, node are stored to disk and compose the sets of Graph Nodes.
+Node are useful to create a reference from an heavy object to be store as a light primitive value.
 
 
 ### [nodeGeo](./type.nodeGeo.md)
@@ -161,6 +174,10 @@ Maps can be used to store and fetch values using a key.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+nodeGeo primitive type handle large series of geographical indexed values, eventually sparse.
+Generic type params can specialize the contains values (V).
+As any nodes, nodeGeo are stored to disk and compose the sets of Graph Nodes.
+nodeGeo can handle very large series even if key are sparse and spread over the full geo spectrum.
 
 
 ### [nodeIndex](./type.nodeIndex.md)
@@ -170,9 +187,19 @@ Maps can be used to store and fetch values using a key.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+nodeIndex primitive type handle large series of values, indexed by their key.
+Generic type params can specialize the contains values (V) and associated key (K).
+As any nodes, nodeIndex are stored to disk and compose the sets of Graph Nodes.
+nodeIndex offer a direct retrival in o(log(n)) by using the key.
+This type can be compared to a hashing containers stored to disk, yet scalable.
 
 
 ### [nodeIndexBucket](./type.nodeIndexBucket.md)
+nodeIndex internal usage only
+
+
+### [NodeInfo](./type.NodeInfo.md)
+Statistics data about any graph nodes, in particular size and values range, can be genercially paramaterize by `T`
 
 
 ### [nodeList](./type.nodeList.md)
@@ -182,6 +209,10 @@ Maps can be used to store and fetch values using a key.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+nodeList primitive type handle large series of values, eventually sparse.
+Generic type params can specialize the contains values (V).
+As any nodes, nodeList are stored to disk and compose the sets of Graph Nodes.
+nodeList can handle very large series even if key are sparse and spread over the full int spectrum.
 
 
 ### [nodeTime](./type.nodeTime.md)
@@ -192,6 +223,9 @@ Maps can be used to store and fetch values using a key.
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+nodeTime primitive type handle temporal series of values.
+Generic type param can specialize the contains values.
+As any nodes, nodeTime are stored to disk and compose the sets of Graph Nodes.
 
 
 ### [nodeTimeCursor](./type.nodeTimeCursor.md)
@@ -199,9 +233,8 @@ Maps can be used to store and fetch values using a key.
 <div class="pragmas">  <Badge type="warning" text="@unserializable" title="This type does not need to be handled in bindings" />
 </div>
 
-
-
-### [NodeTimeInfo](./type.NodeTimeInfo.md)
+Iterator to walk over value of nodeTime series. This utility type is very useful to create custom sampling methods.
+this type can be paramaterize by generic type `T` to specialize the return of current value.
 
 
 ### [nodeTimeSingleton](./type.nodeTimeSingleton.md)
@@ -223,9 +256,13 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
   <Badge type="warning" text="@json_attr(&quot;data&quot;, &quot;Array&lt;Array&lt;T&gt;&gt;&quot;)" title="Describes the property name and type when serialized to JSON" />
 </div>
 
+Table are specialize data structure to organize elements of any type in a two dimentional structure.
+Can be specialize be a generatic type T.
 
 
 ### [TableColumnMeta](./type.TableColumnMeta.md)
+Meta data associated to a Table column.
+These meta data can represent basic statistics for column that handle only numerical values
 
 
 ### [Tensor](./type.Tensor.md)
@@ -236,6 +273,8 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
   <Badge type="warning" text="@json_attr(&quot;data&quot;, &quot;any&quot;)" title="Describes the property name and type when serialized to JSON" />
 </div>
 
+Data structure specialize for numerical value.
+Can handle any dimensions number and created by a shape paramter based in a list of dimension and their associated size.
 
 
 ### [tf2d](./type.tf2d.md)
@@ -243,6 +282,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [tf3d](./type.tf3d.md)
@@ -250,6 +293,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [tf4d](./type.tf4d.md)
@@ -257,6 +304,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti10d](./type.ti10d.md)
@@ -264,6 +315,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti2d](./type.ti2d.md)
@@ -271,6 +326,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode two integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of two values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti3d](./type.ti3d.md)
@@ -278,6 +337,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode three integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti4d](./type.ti4d.md)
@@ -285,6 +348,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode four integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti5d](./type.ti5d.md)
@@ -292,6 +359,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [ti6d](./type.ti6d.md)
@@ -299,6 +370,10 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
 <div class="pragmas">  <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
+primitve type that encode five integers as a morton code.
+as a primitive value this is lighter than storing a tuple or array of values
+also the result is a comparable value that can be used in any list like data structure while respecting the ordering of all dimensions.
+it is important to notice that the maximal precision depends of the number of dimensions.
 
 
 ### [time](./type.time.md)
@@ -310,8 +385,7 @@ In that case, you need to [clone](/libs/std/core/type.String.html#fn-clone-strin
   <Badge type="warning" text="@primitive" title="This is a primitive type" />
 </div>
 
-Time manipulation is very common in GreyCat, which is why we have a primitive type for it.
-
+time represent a universal and precise moment in time. It has to be opposed to date that represent a moment in human calendar and that can be mapped eventually to several time.
 There are 2 ways to create a `time` value:
 - using the static `new` method conventionally
 - using the literal notation (eg. `0_time`)
@@ -326,10 +400,13 @@ fn main() {
 
 
 ### [Tuple](./type.Tuple.md)
+Simple association data structure to handle couple of values.
+Can be specialize by generic type T and U repectively for left and right hand values.
 
 
 ## Enums
 ### [DatePart](./enum.DatePart.md)
+Defines part of calendar dates
 
 
 ### [DurationUnit](./enum.DurationUnit.md)
@@ -348,12 +425,16 @@ The only way to create an [Error](/libs/std/core/type.Error.html) is by throwing
 
 
 ### [SamplingMode](./enum.SamplingMode.md)
+sampling mode used to parameterize the sample function on nodes.
+sampling mode define the shape of result of sampling methods.
 
 
 ### [TensorType](./enum.TensorType.md)
+Type that define numerical precision of Tensor data structure
 
 
 ### [TimeZone](./enum.TimeZone.md)
+Enum that list all available TimeZone in GreyCat.
 
 
 ## Functions
@@ -375,6 +456,7 @@ Print the value without line break to the default console (or file output for ta
 ### fn [println](./fn.println)(v:&nbsp;[any](/libs/std/core/type.any.md)):&nbsp;any?<Badge text="native" />
 Print the value and a line break to the default console (or file output for task)
 ### fn [sameType](./fn.sameType)(p:&nbsp;[any](/libs/std/core/type.any.md), p2:&nbsp;[any](/libs/std/core/type.any.md)):&nbsp;[bool](/libs/std/core/type.bool.md)<Badge text="native" />
+Return true if both param share the same type, false otherwise
 ### fn [setFrom](./fn.setFrom)(dst:&nbsp;[any](/libs/std/core/type.any.md), src:&nbsp;[any](/libs/std/core/type.any.md), clone:&nbsp;[bool](/libs/std/core/type.bool.md)):&nbsp;any?<Badge text="native" />
 Assign all fields of src object to dst object, optional paramater to clone or transfer ownership
 ### fn [trace](./fn.trace)(v:&nbsp;[any](/libs/std/core/type.any.md)):&nbsp;any?<Badge text="native" />

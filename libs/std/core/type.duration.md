@@ -1,5 +1,7 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::duration
 
+primitive type that represent the difference between two time, especially useful to measure the difference between two event
+
 ## Methods
 ### fn add(value:&nbsp;[int](/libs/std/core/type.int.md), unit:&nbsp;[DurationUnit](/libs/std/core/enum.DurationUnit.md)):&nbsp;[duration](/libs/std/core/type.duration.md)<Badge text="native" />
 

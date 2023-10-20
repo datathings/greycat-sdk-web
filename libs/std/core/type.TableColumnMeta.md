@@ -1,5 +1,8 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::TableColumnMeta
 
+Meta data associated to a Table column.
+These meta data can represent basic statistics for column that handle only numerical values
+
 ## Attributes
 
 ### avg:&nbsp;[any](/libs/std/core/type.any.md)

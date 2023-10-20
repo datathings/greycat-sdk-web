@@ -1,5 +1,8 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::Table
 
+Table are specialize data structure to organize elements of any type in a two dimentional structure.
+Can be specialize be a generatic type T.
+
 ## Methods
 ### fn cols():&nbsp;[int](/libs/std/core/type.int.md)<Badge text="native" />
 

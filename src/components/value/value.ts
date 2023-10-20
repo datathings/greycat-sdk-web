@@ -7,14 +7,21 @@ export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, 
 const NOOP = () => void 0;
 export interface GuiValueProps {
   value: unknown;
+  /** overrides the display with this `text` */
   text?: string;
+  /** whether or not to display the value as a link */
   linkify: boolean | ((value: unknown) => boolean);
+  /** best-effort to make it short */
   tiny: boolean;
+  /** overrides references name */
   name: string | undefined;
   dateFmt: Intl.DateTimeFormat | undefined;
   numFmt: Intl.NumberFormat | undefined;
+  /** @deprecated don't use this */
   raw: boolean;
+  /** optional user-defined data */
   data?: unknown;
+  /** callback used when `linkify` is `true` */
   onClick: ClickHandler<unknown>;
 }
 

@@ -2,6 +2,10 @@
 
 ## Attributes
 
+### _lastLayer:&nbsp;[String](/libs/std/core/type.String.md)
+
+### _lastOutput:&nbsp;[String](/libs/std/core/type.String.md)
+
 ### err_incompatible_loss:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### err_last_layer_wrong:&nbsp;[String](/libs/std/core/type.String.md)
@@ -16,31 +20,29 @@
 
 ### fixed_batch_size:&nbsp;[int](/libs/std/core/type.int.md)
 
-### input_avg:&nbsp;[String](/libs/std/core/type.String.md)
-
-### input_max:&nbsp;[String](/libs/std/core/type.String.md)
-
-### input_min:&nbsp;[String](/libs/std/core/type.String.md)
-
-### input_space:&nbsp;[String](/libs/std/core/type.String.md)
-
-### input_std:&nbsp;[String](/libs/std/core/type.String.md)
-
 ### inputs:&nbsp;[int](/libs/std/core/type.int.md)
 
 ### inputs_gradients:&nbsp;[bool](/libs/std/core/type.bool.md)
 
 ### inputs_sequences:&nbsp;[int](/libs/std/core/type.int.md)
 
-### lastLayer:&nbsp;[String](/libs/std/core/type.String.md)
-
-### lastOutput:&nbsp;[String](/libs/std/core/type.String.md)
-
 ### layer_classification_name:&nbsp;[String](/libs/std/core/type.String.md)
 
-### layer_loss_name:&nbsp;[String](/libs/std/core/type.String.md)
+### layer_confusion_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_loss_display_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_loss_learn_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_main_layers_name:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### layer_placeholders_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_postprocess_display_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_postprocess_learn_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### layer_preprocess_name:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### layers:&nbsp;[Array](/libs/std/core/type.Array.md)
 
@@ -48,41 +50,33 @@
 
 ### optimizer:&nbsp;[ComputeOptimizer](/libs/algebra/compute/type.ComputeOptimizer.md)
 
-### output_avg:&nbsp;[String](/libs/std/core/type.String.md)
-
-### output_max:&nbsp;[String](/libs/std/core/type.String.md)
-
-### output_min:&nbsp;[String](/libs/std/core/type.String.md)
-
-### output_std:&nbsp;[String](/libs/std/core/type.String.md)
-
 ### outputs:&nbsp;[int](/libs/std/core/type.int.md)
 
 ### outputs_sequences:&nbsp;[int](/libs/std/core/type.int.md)
 
-### placeholders:&nbsp;[ComputeLayerCustom](/libs/algebra/compute/type.ComputeLayerCustom.md)
-
-### post_process:&nbsp;[String](/libs/std/core/type.String.md)
-
 ### postProcessObject:&nbsp;[any](/libs/std/core/type.any.md)
 
-### postProcessType:&nbsp;[ComputeLayer](/libs/algebra/compute/type.ComputeLayer.md)
-
-### pre_process:&nbsp;[String](/libs/std/core/type.String.md)
+### postProcessType:&nbsp;[PostProcessType](/libs/algebra/nn/type.PostProcessType.md)
 
 ### preProcessObject:&nbsp;[any](/libs/std/core/type.any.md)
 
-### preProcessType:&nbsp;[ComputeLayer](/libs/algebra/compute/type.ComputeLayer.md)
+### preProcessType:&nbsp;[PreProcessType](/libs/algebra/nn/type.PreProcessType.md)
 
 ### randomizeSeed:&nbsp;[bool](/libs/std/core/type.bool.md)
 
 ### seed:&nbsp;[int](/libs/std/core/type.int.md)
+
+### seq_confusion:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### seq_decode:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### seq_encode:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### seq_learn:&nbsp;[String](/libs/std/core/type.String.md)
+
+### seq_loss_display:&nbsp;[String](/libs/std/core/type.String.md)
+
+### seq_post_process:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### seq_predict:&nbsp;[String](/libs/std/core/type.String.md)
 
@@ -92,11 +86,31 @@
 
 ### var_classifier_classes:&nbsp;[String](/libs/std/core/type.String.md)
 
+### var_classifier_confusion:&nbsp;[String](/libs/std/core/type.String.md)
+
 ### var_classifier_probabilities:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### var_enc_inputs_name:&nbsp;[String](/libs/std/core/type.String.md)
 
+### var_input_avg:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_input_max:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_input_min:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_input_space:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_input_std:&nbsp;[String](/libs/std/core/type.String.md)
+
 ### var_inputs_name:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_output_avg:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_output_max:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_output_min:&nbsp;[String](/libs/std/core/type.String.md)
+
+### var_output_std:&nbsp;[String](/libs/std/core/type.String.md)
 
 ### var_targets_name:&nbsp;[String](/libs/std/core/type.String.md)
 

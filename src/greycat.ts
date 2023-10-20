@@ -15,18 +15,18 @@ try {
 
 export async function init(options: WithoutAbiOptions = { url: DEFAULT_URL }): Promise<GreyCat> {
   if (options.cache === undefined) {
-    options.cache = new IndexedDbCache('greycat.default', 2);
+    options.cache = new IndexedDbCache('greycat.default');
   }
   return GreyCat.init(options);
 }
 
-class IndexedDbCache implements Cache {
+export class IndexedDbCache implements Cache {
   private static _STORE_NAME = 'cache';
   private _db: IDBDatabase | undefined;
 
   constructor(
     readonly dbName = 'greycat.default',
-    readonly version = 1,
+    readonly version = 2,
   ) { }
 
   db(): Promise<IDBDatabase> {

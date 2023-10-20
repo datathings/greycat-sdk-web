@@ -1,5 +1,7 @@
 # [std](/libs/std/)::[io](/libs/std/io/)::Email
 
+represent an email instance to be sent through SMTP utility
+
 ## Attributes
 
 ### bcc:&nbsp;[Array](/libs/std/core/type.Array.md)

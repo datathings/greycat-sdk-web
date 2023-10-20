@@ -1,5 +1,8 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::Tuple
 
+Simple association data structure to handle couple of values.
+Can be specialize by generic type T and U repectively for left and right hand values.
+
 ## Attributes
 
 ### x:&nbsp;[T](/libs/std/core/type.T.md)

@@ -1,5 +1,10 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::nodeGeo
 
+nodeGeo primitive type handle large series of geographical indexed values, eventually sparse.
+Generic type params can specialize the contains values (V).
+As any nodes, nodeGeo are stored to disk and compose the sets of Graph Nodes.
+nodeGeo can handle very large series even if key are sparse and spread over the full geo spectrum.
+
 ## Methods
 ### fn first():&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
@@ -10,6 +15,10 @@ Returns the geographic coordinates of the nodeGeo which is located the most Sout
 ### fn get(index:&nbsp;[geo](/libs/std/core/type.geo.md)):&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
 Returns the value of the element referrent to the coordinates `index` in the nodeGeo. If `index` does not exist, returns null.
+### fn info(nodes:&nbsp;[Array](/libs/std/core/type.Array.md)):&nbsp;[Array](/libs/std/core/type.Array.md)<Badge text="static" />
+
+Returns the NodeInfo of all the nodeGeo passed as input paramaters.
+The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeGeo in input array parameter.
 ### fn last():&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
 Returns the value associated with the nodeGeo which is located the most North-East.

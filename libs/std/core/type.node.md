@@ -1,5 +1,10 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::node
 
+node primitive type handle singleton value that must be stored to graph.
+Generic type param can specialize the contains values.
+As any nodes, node are stored to disk and compose the sets of Graph Nodes.
+Node are useful to create a reference from an heavy object to be store as a light primitive value.
+
 ## Methods
 ### fn new(value:&nbsp;[T](/libs/std/core/type.T.md)):&nbsp;[node](/libs/std/core/type.node.md)<Badge text="native" /><Badge text="static" />
 

@@ -22,6 +22,7 @@
 ### fn endEpoch(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;any?
 ### fn getDecoderInput(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getDecoding(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
+### fn getDisplayLoss(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getEncoderInput(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getEncoding(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getInput(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)

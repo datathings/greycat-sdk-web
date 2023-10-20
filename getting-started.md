@@ -1,6 +1,3 @@
----
-potato: import.meta.env.POTATO
----
 # Getting Started
 
 ## Install
@@ -9,14 +6,38 @@ Add the dependency to your project:
 ```sh
 pnpm install https://get.greycat.io/files/sdk/web/6.2/6.2.0-dev.tgz
 ```
-
 > Update with the latest [version](https://get.greycat.io/files/sdk/web/dev/latest)
+
+## Minimal setup
+::: code-group
+```ts [src/index.ts]
+import { GreyCat } from '@greycat/web';
+import '@greycat/web/css/greycat.css';
+
+globalThis.greycat.default = await GreyCat.init();
+```
+:::
+
+## Templates
+We provide two different Git repositories template to get started:
+ - [template/web](https://hub.datathings.com/greycat/template/web): HTML/CSS/TypeScript leveraging Vite.js
+ - [template/react](https://hub.datathings.com/greycat/template/react): contains `template/web` plus a `React` entry-point
+
+::: code-group
+```sh [Web]
+git clone git@hub.datathings.com:greycat/template/web.git template-web
+```
+
+```sh [React]
+git clone git@hub.datathings.com:greycat/template/react.git template-react
+```
+:::
+
 
 ## Vite.js
 A minimal example:
 
 ::: code-group
-
 ```html [index.html]
 <!DOCTYPE html>
 <html lang="en">
@@ -38,13 +59,13 @@ A minimal example:
 ```ts [src/index.ts]
 import { GreyCat } from '@greycat/web';
 // for the default styling
-import '@greycat/web/dist/css/greycat.css';
+import '@greycat/web/css/greycat.css';
 
 const app = document.getElementById('app')!;
 
 try {
   globalThis.greycat.default = await GreyCat.init({
-    url: new URL('http://localhost:8080'),
+    cache: new IndexedDbCache('greycat.default'),
   });
 
   const el = document.querySelector('gui-value')!;
@@ -73,7 +94,7 @@ fn hello(name: String): String {
   },
   "devDependencies": {
     "vite": "4.4.9",
-    "@greycat/web": "https://get.greycat.io/files/sdk/web/6.2/6.2.0-dev.tgz",
+    "@greycat/web": "https://get.greycat.io/files/sdk/web/6.4/6.4.10-dev.tgz",
     "typescript": "5.2.2"
   }
 }
@@ -83,7 +104,6 @@ fn hello(name: String): String {
 Start this with:
 
 ::: code-group
-
 ```sh [Terminal 1]
 greycat serve --user=1
 ```
@@ -91,7 +111,6 @@ greycat serve --user=1
 ```sh [Terminal 2]
 pnpm dev
 ```
-
 :::
 
 ## Vanilla
@@ -105,8 +124,8 @@ pnpm dev
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link rel="stylesheet" href="https://get.greycat.io/files/sdk/web/dev/6.2/6.2.0-dev.css">
-  <script src="https://get.greycat.io/files/sdk/web/dev/6.2/6.2.0-dev.js"></script>
+  <link rel="stylesheet" href="https://get.greycat.io/files/sdk/web/dev/6.4/6.4.10-dev.css">
+  <script src="https://get.greycat.io/files/sdk/web/dev/6.4/6.4.10-dev.js"></script>
   <title>Hello GreyCat</title>
 </head>
 

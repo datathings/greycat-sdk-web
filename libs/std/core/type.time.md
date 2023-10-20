@@ -1,7 +1,6 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::time
 
-Time manipulation is very common in GreyCat, which is why we have a primitive type for it.
-
+time represent a universal and precise moment in time. It has to be opposed to date that represent a moment in human calendar and that can be mapped eventually to several time.
 There are 2 ways to create a `time` value:
 - using the static `new` method conventionally
 - using the literal notation (eg. `0_time`)
@@ -17,8 +16,10 @@ fn main() {
 ## Attributes
 
 ### max:&nbsp;[time](/libs/std/core/type.time.md)
+the maximal time that be handle in GreyCat
 
 ### min:&nbsp;[time](/libs/std/core/type.time.md)
+the minimal time that be handle in GreyCat
 
 ## Methods
 ### fn current():&nbsp;[time](/libs/std/core/type.time.md)<Badge text="native" /><Badge text="static" />

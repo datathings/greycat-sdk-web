@@ -1,4 +1,5 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::TensorType
+Type that define numerical precision of Tensor data structure
 
 ## Fields
 

@@ -1,0 +1,1 @@
+# [patterns](/libs/patterns/)::[pattern_detectors](/libs/patterns/pattern_detectors/)::extrapolateWindow(timeWindow:&nbsp;[TimeWindow](/libs/std/util/type.TimeWindow.md), offset:&nbsp;[time](/libs/std/core/type.time.md)):&nbsp;any?

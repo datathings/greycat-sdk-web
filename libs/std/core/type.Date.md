@@ -1,5 +1,9 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::Date
 
+Type that handle a precise moment in calendar.
+It must not be confuse with time that are universal and unique.
+Date are useful when event has to be compare of prcess according to human activity.
+
 ## Methods
 ### fn add(value:&nbsp;[int](/libs/std/core/type.int.md), unit:&nbsp;[DatePart](/libs/std/core/enum.DatePart.md)):&nbsp;any?<Badge text="native" />
 

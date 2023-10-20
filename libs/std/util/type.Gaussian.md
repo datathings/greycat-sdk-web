@@ -13,7 +13,7 @@
 ### sum_sq:&nbsp;[float](/libs/std/core/type.float.md)
 
 ## Methods
-### fn add(value:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[bool](/libs/std/core/type.bool.md)<Badge text="native" />
+### fn add(value:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;any?<Badge text="native" />
 
 Adds a new value to the profile. Returns true if the value has successfully been added, false otherwise.
 ### fn avg():&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />

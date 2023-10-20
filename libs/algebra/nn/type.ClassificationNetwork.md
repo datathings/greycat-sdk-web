@@ -19,6 +19,7 @@
 ### fn createBindings(nn:&nbsp;[NeuralNetwork](/libs/algebra/nn/type.NeuralNetwork.md), learningMode:&nbsp;[bool](/libs/std/core/type.bool.md)):&nbsp;[ComputeModel](/libs/algebra/compute/type.ComputeModel.md)<Badge text="static" />
 ### fn endEpoch(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;any?
 ### fn getClassWeights(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
+### fn getConfusion(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getInput(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getPrediction(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getProbability(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
@@ -32,6 +33,7 @@
 ### fn new(inputs:&nbsp;[int](/libs/std/core/type.int.md), classes:&nbsp;[int](/libs/std/core/type.int.md), tensor_type:&nbsp;[TensorType](/libs/std/core/enum.TensorType.md), inputs_gradients:&nbsp;[bool](/libs/std/core/type.bool.md), fixed_batch_size:&nbsp;[int](/libs/std/core/type.int.md), seed:&nbsp;[int](/libs/std/core/type.int.md), calculate_probabilities:&nbsp;[bool](/libs/std/core/type.bool.md), from_logits:&nbsp;[bool](/libs/std/core/type.bool.md), has_class_weights:&nbsp;[bool](/libs/std/core/type.bool.md)):&nbsp;[ClassificationNetwork](/libs/algebra/nn/type.ClassificationNetwork.md)<Badge text="static" />
 ### fn optimize(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;any?
 ### fn predict(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md), input:&nbsp;[Tensor](/libs/std/core/type.Tensor.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
+### fn resetConfusion(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;any?
 ### fn setLoss(loss_type:&nbsp;[ComputeClassificationLoss](/libs/algebra/compute/type.ComputeClassificationLoss.md), reduction:&nbsp;[ComputeReduction](/libs/algebra/compute/type.ComputeReduction.md)):&nbsp;any?
 ### fn setOptimizer(optimizer:&nbsp;[ComputeOptimizer](/libs/algebra/compute/type.ComputeOptimizer.md)):&nbsp;any?<Badge text="abstract" />
 ### fn setPostProcess(postProcess:&nbsp;[PostProcessType](/libs/algebra/nn/enum.PostProcessType.md), object:&nbsp;[any](/libs/std/core/type.any.md)):&nbsp;any?

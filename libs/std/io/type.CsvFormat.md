@@ -3,6 +3,10 @@
 ## Attributes
 
 ### columns:&nbsp;[Array](/libs/std/core/type.Array.md)
+columns format, for specified columns:
+
+### columns_size:&nbsp;[int](/libs/std/core/type.int.md)
+expected columns in CSV file (none means all):
 
 ### decimal_separator:&nbsp;[char](/libs/std/core/type.char.md)
 

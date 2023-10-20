@@ -1,5 +1,8 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::Tensor
 
+Data structure specialize for numerical value.
+Can handle any dimensions number and created by a shape paramter based in a list of dimension and their associated size.
+
 ## Methods
 ### fn add(pos:&nbsp;[Array](/libs/std/core/type.Array.md), value:&nbsp;[any](/libs/std/core/type.any.md)):&nbsp;any?<Badge text="native" />
 
@@ -56,6 +59,7 @@ Returns the number of elements in the tensor.
 ### fn sum():&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 
 Returns the sum of all elements from the tensor. Only works with f64, f32, i64, i64 tensors.
+### fn toString():&nbsp;[String](/libs/std/core/type.String.md)<Badge text="native" />
 ### fn toTable():&nbsp;[Table](/libs/std/core/type.Table.md)<Badge text="native" />
 
 Convert a 1D or 2D tensor to a table

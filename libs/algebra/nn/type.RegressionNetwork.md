@@ -10,6 +10,7 @@
 ### fn checkConfiguration():&nbsp;[Array](/libs/std/core/type.Array.md)<Badge text="abstract" />
 ### fn createBindings(nn:&nbsp;[NeuralNetwork](/libs/algebra/nn/type.NeuralNetwork.md), learningMode:&nbsp;[bool](/libs/std/core/type.bool.md)):&nbsp;[ComputeModel](/libs/algebra/compute/type.ComputeModel.md)<Badge text="static" />
 ### fn endEpoch(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;any?
+### fn getDisplayLoss(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getInput(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getPrediction(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)
 ### fn getTarget(engine:&nbsp;[ComputeEngine](/libs/algebra/compute/type.ComputeEngine.md)):&nbsp;[Tensor](/libs/std/core/type.Tensor.md)

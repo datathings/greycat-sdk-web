@@ -1,5 +1,7 @@
 # [std](/libs/std/)::[io](/libs/std/io/)::Smtp
 
+Utilty to send mail through smtp protocol
+
 ## Attributes
 
 ### authenticate:&nbsp;[SmtpAuth](/libs/std/io/type.SmtpAuth.md)

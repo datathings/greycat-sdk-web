@@ -1,5 +1,7 @@
 # [std](/libs/std/)::[io](/libs/std/io/)::FileWalker
 
+Utility to iterate over files and directory of a file system
+
 ## Methods
 ### fn isEmpty():&nbsp;[bool](/libs/std/core/type.bool.md)<Badge text="native" />
 

@@ -123,6 +123,9 @@
 ### [ComputeLayerClassification](./type.ComputeLayerClassification.md)
 
 
+### [ComputeLayerConfusion](./type.ComputeLayerConfusion.md)
+
+
 ### [ComputeLayerCustom](./type.ComputeLayerCustom.md)
 
 

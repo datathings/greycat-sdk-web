@@ -1,4 +1,5 @@
 # [std](/libs/std/)::[io](/libs/std/io/)::SmtpAuth
+Smtp authentication method
 
 ## Fields
 

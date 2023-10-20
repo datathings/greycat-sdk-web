@@ -29,7 +29,9 @@
 ### fn [cosh](./fn.cosh)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [floor](./fn.floor)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [infinite](./fn.infinite)():&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
+get a float value representing a infinite float number
 ### fn [isNaN](./fn.isNaN)(v:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[bool](/libs/std/core/type.bool.md)<Badge text="native" />
+return true is v paramater is a NaN, false otherwise.
 ### fn [log](./fn.log)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [log10](./fn.log10)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [log2](./fn.log2)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
@@ -38,6 +40,7 @@
 ### fn [min](./fn.min)(x:&nbsp;[int](/libs/std/core/type.int.md), y:&nbsp;[int](/libs/std/core/type.int.md)):&nbsp;[int](/libs/std/core/type.int.md)<Badge text="native" />
 ### fn [minf](./fn.minf)(x:&nbsp;[float](/libs/std/core/type.float.md), y:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [nan](./fn.nan)():&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
+get a float value representing a NaN
 ### fn [pow](./fn.pow)(x:&nbsp;[float](/libs/std/core/type.float.md), y:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [round](./fn.round)(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />
 ### fn [roundp](./fn.roundp)(x:&nbsp;[float](/libs/std/core/type.float.md), p:&nbsp;[int](/libs/std/core/type.int.md)):&nbsp;[float](/libs/std/core/type.float.md)<Badge text="native" />

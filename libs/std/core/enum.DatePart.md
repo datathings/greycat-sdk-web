@@ -1,4 +1,5 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::DatePart
+Defines part of calendar dates
 
 ## Fields
 

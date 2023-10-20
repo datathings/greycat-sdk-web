@@ -1,4 +1,5 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::TimeZone
+Enum that list all available TimeZone in GreyCat.
 
 ## Fields
 

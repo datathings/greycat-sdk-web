@@ -1,5 +1,9 @@
 # [std](/libs/std/)::[core](/libs/std/core/)::nodeTime
 
+nodeTime primitive type handle temporal series of values.
+Generic type param can specialize the contains values.
+As any nodes, nodeTime are stored to disk and compose the sets of Graph Nodes.
+
 ## Methods
 ### fn first():&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
@@ -13,7 +17,8 @@ Return the content at the timestamp `exactTime` in the timeserie.
 If `exactTime` does not exist, returns `null`.
 ### fn info(nodes:&nbsp;[Array](/libs/std/core/type.Array.md)):&nbsp;[Array](/libs/std/core/type.Array.md)<Badge text="static" />
 
-Returns the size and range of the given timeseries
+Returns the NodeInfo of all the nodeTime passed as input paramaters.
+The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeTime in input array parameter.
 ### fn last():&nbsp;[T](/libs/std/core/type.T.md)<Badge text="native" />
 
 Return the content of the last/biggest timestamp in the timeserie.

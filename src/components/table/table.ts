@@ -4,15 +4,31 @@ import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { Disposer, GuiRenderEvent } from '../common.js';
 
-type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
-  Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+/**
+ * A function called to compute the cell properties
+ * that will be passed to the underlying `<gui-value />` component.
+ */
 export type CellProps = (
   row: Value[],
   value: unknown,
   rowIdx: number,
   colIdx: number,
 ) => ValueProps & { value: unknown };
-type Value = { value: unknown; originalIndex: number };
+
+type ValueProps =
+  Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'>
+  & Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+
+type Value = {
+  /** The actual value for the cell */
+  value: unknown;
+  /**
+   * The original index of the row in the column.
+   * 
+   * This is required because sorting/filtering changes indexing.
+   */
+  originalIndex: number;
+};
 
 const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
   return {
