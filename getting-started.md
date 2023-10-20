@@ -4,7 +4,7 @@
 
 Add the dependency to your project:
 ```sh
-pnpm install https://get.greycat.io/files/sdk/web/6.2/6.2.0-dev.tgz
+pnpm install https://get.greycat.io/files/sdk/web/6.4/6.4.10-dev.tgz
 ```
 > Update with the latest [version](https://get.greycat.io/files/sdk/web/dev/latest)
 
@@ -20,8 +20,8 @@ globalThis.greycat.default = await GreyCat.init();
 
 ## Templates
 We provide two different Git repositories template to get started:
- - [template/web](https://hub.datathings.com/greycat/template/web): HTML/CSS/TypeScript leveraging Vite.js
- - [template/react](https://hub.datathings.com/greycat/template/react): contains `template/web` plus a `React` entry-point
+ - [template/web](https://github.com/datathings/greycat-template-web): HTML/CSS/TypeScript leveraging Vite.js
+ - [template/react](https://github.com/datathings/greycat-template-react): contains `template/web` plus a `React` entry-point
 
 ::: code-group
 ```sh [Web]

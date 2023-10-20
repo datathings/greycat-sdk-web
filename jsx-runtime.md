@@ -99,7 +99,7 @@ When trying to use `@greycat/web` JSX runtime alongside **React.js** some TypeSc
 the two different global JSX namespaces do not conflict with each other.
 
 ::: info
-We provide an already configured [template that work with both](https://hub.datathings.com/greycat/template/react).
+We provide an already configured [template that work with both](https://github.com/datathings/greycat-template-react).
 :::
 
 Mainly, the fine-tuning occurs in `tsconfig.json` where we need to specify the list of types included in the current TypeScript compiler context.
