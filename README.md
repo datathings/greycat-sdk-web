@@ -1,21 +1,31 @@
-# @greycat/ui
+# @greycat/web
 
-## Build
+[Documentation](https://datathings.github.io/greycat-sdk-web/)
+
+## Install
+Add the dependency to your project:
 ```sh
-pnpm build
+pnpm install https://get.greycat.io/files/sdk/web/6.4/6.4.10-dev.tgz
 ```
-Produces:
-- `bundle/`:
-  - `greycat.ui.js`: minified bundle registering GreyCat UI WebComponents
-  - `greycat.ui.css`: an all-in-one CSS style that complies with GreyCat's Brand guidelines. Works class-less and improves on it for the WebComponents.
-- `esm/`
-  - ES2020 transpiled output with TypeScript declarations
-- `fonts/`
-  - Raleway TTF file (GreyCat's default font)
-- `custom-elements.json`: WebComponents manifest
+> Update with the latest [version](https://get.greycat.io/files/sdk/web/dev/latest)
+
+## Usage
+```ts [src/index.ts]
+import { GreyCat } from '@greycat/web';
+import '@greycat/web/css/greycat.css';
+
+globalThis.greycat.default = await GreyCat.init();
+```
 
 ## Dev
+Start the GreyCat demo server:
+```sh
+cd pages
+greycat serve
+```
+
+Start the Web dev server:
 ```sh
 pnpm dev
 ```
-Starts a ViteJs dev server that you can browse at `http://localhost:5173/examples/`
+Open your browser at `http://localhost:5173/`
