@@ -1,1 +1,0 @@
-# [patterns](/libs/patterns/)::[pattern_detectors](/libs/patterns/pattern_detectors/)::longest_pattern_duration(patterns:&nbsp;[Array](/libs/std/core/type.Array.md)):&nbsp;[duration](/libs/std/core/type.duration.md)

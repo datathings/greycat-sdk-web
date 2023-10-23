@@ -1,15 +1,14 @@
-import { lstatSync, readFileSync, readdirSync } from 'fs';
+import { lstatSync, readdirSync } from 'fs';
 import { join, relative, resolve } from 'path';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import greycat from '@greycat/lang';
 
 const COMPONENTS_DIR = resolve('src', 'components');
-const LIBRARIES_DIR = resolve('libs');
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'GreyCat',
-  description: 'Official GreyCat Documentation',
+  title: 'GreyCat Web',
+  description: '@greycat/web documentation',
   base: '/greycat-sdk-web/',
   outDir: resolve('dist', 'docs'),
   rewrites: {
@@ -33,14 +32,6 @@ export default defineConfig({
     nav: [
       { text: 'Getting Started', link: '/getting-started' },
       {
-        text: 'Libraries',
-        items: [
-          { text: 'std', link: '/libs/std/' },
-          { text: 'algebra', link: '/libs/algebra/' },
-          { text: 'patterns', link: '/libs/patterns/' },
-        ],
-      },
-      {
         text: 'Components',
         items: findComponents('src', COMPONENTS_DIR) as any,
       },
@@ -63,10 +54,6 @@ export default defineConfig({
         link: '/components/index.md',
         items: findComponents('src', COMPONENTS_DIR),
       },
-      {
-        text: 'Libraries',
-        items: findLibraries(LIBRARIES_DIR),
-      },
     ],
 
     socialLinks: [
@@ -88,21 +75,6 @@ export default defineConfig({
     }
   },
 });
-
-function findLibraries(dir: string): DefaultTheme.SidebarItem[] {
-  const items: DefaultTheme.SidebarItem[] = [];
-
-  for (const entry of readdirSync(dir)) {
-    const entrypath = join(dir, entry);
-    if (lstatSync(entrypath).isDirectory()) {
-      const sidebar = join(entrypath, 'sidebar.json');
-      const item = readFileSync(sidebar, 'utf-8');
-      items.push(JSON.parse(item));
-    }
-  }
-
-  return items;
-}
 
 /**
  * Tries to find pages in:

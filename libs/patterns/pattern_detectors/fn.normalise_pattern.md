@@ -1,1 +1,0 @@
-# [patterns](/libs/patterns/)::[pattern_detectors](/libs/patterns/pattern_detectors/)::normalise_pattern(pattern:&nbsp;[TimeWindow](/libs/std/util/type.TimeWindow.md), samplingPolicy:&nbsp;[SamplingPolicy](/libs/patterns/pattern_detectors/enum.SamplingPolicy.md)):&nbsp;[TimeWindow](/libs/std/util/type.TimeWindow.md)

@@ -1,1 +1,0 @@
-# [patterns](/libs/patterns/)::[pattern_detectors](/libs/patterns/pattern_detectors/)::extrapolateSeries(timeseries:&nbsp;[nodeTime](/libs/std/core/type.nodeTime.md), offset:&nbsp;[time](/libs/std/core/type.time.md)):&nbsp;any?

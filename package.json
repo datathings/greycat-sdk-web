@@ -49,10 +49,6 @@
     "build:pages": "vite build -c pages.config.ts",
     "build:docs": "vitepress build",
     "dev": "vite -c pages.config.ts",
-    "docs:gen": "pnpm docs:gen:std && pnpm docs:gen:algebra && pnpm docs:gen:patterns",
-    "docs:gen:std": "greycat-lang doc ~/.greycat/lib/std --lib=std -o libs/std",
-    "docs:gen:algebra": "greycat-lang doc ~/.greycat/lib/algebra --lib=algebra -o libs/algebra",
-    "docs:gen:patterns": "greycat-lang doc ~/.greycat/lib/patterns --lib=patterns -o libs/patterns",
     "dev:docs": "vitepress dev",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""

@@ -17,7 +17,7 @@ All the functions and components that needs to communicate directly with GreyCat
 This implies that the only "initialization" that is needed is the following:
 
 ```ts
-import { GreyCat } from '@greycat/web';
+import { GreyCat, IndexedDbCache } from '@greycat/web';
 
 globalThis.greycat.default = await GreyCat.init({
   // 'cache' is optional

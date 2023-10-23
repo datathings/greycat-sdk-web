@@ -1,1 +1,0 @@
-# [patterns](/libs/patterns/)::[chocolate](/libs/patterns/chocolate/)::slice(timeWindow:&nbsp;[TimeWindow](/libs/std/util/type.TimeWindow.md), from:&nbsp;[time](/libs/std/core/type.time.md), to:&nbsp;[time](/libs/std/core/type.time.md)):&nbsp;[Array](/libs/std/core/type.Array.md)

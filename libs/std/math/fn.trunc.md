@@ -1,1 +1,0 @@
-# [std](/libs/std/)::[math](/libs/std/math/)::trunc(x:&nbsp;[float](/libs/std/core/type.float.md)):&nbsp;[float](/libs/std/core/type.float.md)
