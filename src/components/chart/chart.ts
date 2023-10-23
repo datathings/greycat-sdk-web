@@ -506,7 +506,7 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -519,7 +519,7 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
-              d3.format(yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
