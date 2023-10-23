@@ -14,7 +14,6 @@ type Cursor = {
   startX: number;
   startY: number;
   selection: boolean;
-  lastTouchEnd: number;
 };
 
 type ComputedState = {
@@ -53,7 +52,6 @@ export class GuiChart extends HTMLElement {
     startX: -1,
     startY: -1,
     selection: false,
-    lastTouchEnd: -1,
   };
 
   private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
@@ -137,45 +135,55 @@ export class GuiChart extends HTMLElement {
       this.update();
     });
 
+    let lastTouch = Date.now();
     // touch events
     this.addEventListener('touchstart', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
+
+      const now = Date.now();
+      if ((now - lastTouch) < (this._config.dblTapThreshold ?? 500)) {
+        this._resetCursor();
+        // reset X configuration
+        this._config.xAxis.min = this._userXAxisMin;
+        this._config.xAxis.max = this._userXAxisMax;
+        // reset Y configuration
+        for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
+          yAxis.min = this._userYAxes[name].min;
+          yAxis.max = this._userYAxes[name].max;
+        }
+        this.compute();
+        this.update();
+        lastTouch = now;
+        return;
+      }
+      lastTouch = now;
+
       if (event.touches.length > 0) {
-        const { left } = this._canvas.getBoundingClientRect();
+        const { left, top } = this._canvas.getBoundingClientRect();
         this._cursor.startX = Math.round(event.touches[0].pageX - (left + window.scrollX));
-        // this._updateUX();
+        this._cursor.startY = Math.round(event.touches[0].pageY - (top + window.scrollY));
+        this._cursor.selection = true;
       }
     });
     this.addEventListener('touchend', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
-      let delta = Infinity;
-      if (this._cursor.lastTouchEnd === -1) {
-        this._cursor.lastTouchEnd = Date.now();
-      } else {
-        delta = Date.now() - this._cursor.lastTouchEnd;
-        this._cursor.lastTouchEnd = -1;
+      // touch end classic
+      if (this._cursor.startX === -1 && this._cursor.startY === -1) {
+        this._resetCursor();
+        return;
       }
 
-      if (delta <= (this._config.dblTapThreshold ?? 500)) {
-        // dbl tap
+      const threshold = this._config.selection?.threshold ?? 10;
+      const dx = Math.abs(this._cursor.x - this._cursor.startX);
+      const dy = Math.abs(this._cursor.y - this._cursor.startY);
+
+      if (dx < threshold && dy < threshold) {
+        // too small selection, reset cursor
         this._resetCursor();
-        // reset X configuration
-        this._config.xAxis.min = this._userXAxisMin;
-        this._config.xAxis.max = this._userXAxisMax;
-        this.update();
       } else {
-        // touch end classic
-        if (
-          Math.abs(this._cursor.x - this._cursor.startX) > (this._config.selection?.threshold ?? 10)
-        ) {
-          this._cursor.selection = true;
-        } else {
-          // too small selection, reset cursor
-          this._resetCursor();
-        }
-        // this._updateUX();
+        this._selection();
       }
     });
     this.addEventListener('touchmove', (event) => {
@@ -365,7 +373,6 @@ export class GuiChart extends HTMLElement {
     this._cursor.y = -1;
     this._cursor.startX = -1;
     this._cursor.startY = -1;
-    this._cursor.lastTouchEnd = -1;
     this._cursor.selection = false;
   }
 
