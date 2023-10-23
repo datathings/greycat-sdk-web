@@ -542,6 +542,7 @@ export class GuiChart extends HTMLElement {
           opacity: 1,
           fillOpacity: 0.2,
           yCol2: 'min',
+          hideInTooltip: false,
           ...this._config.series[i],
         };
 
@@ -591,7 +592,7 @@ export class GuiChart extends HTMLElement {
             color = serie.color;
           }
         }
-        if (!this._config.tooltip?.render) {
+        if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent = `${serie.title ?? `Col ${serie.yCol}`}:`;
@@ -643,6 +644,7 @@ export class GuiChart extends HTMLElement {
           xValue,
           yValue: this._config.table.cols[s.yCol][rowIdx],
           rowIdx,
+          hideInTooltip: false,
           ...s,
         } satisfies SerieData;
       });
@@ -880,6 +882,7 @@ export class GuiChart extends HTMLElement {
         opacity: 1,
         fillOpacity: 0.2,
         yCol2: 'min',
+        hideInTooltip: false,
         ...this._config.series[i],
       };
 

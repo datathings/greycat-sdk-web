@@ -132,6 +132,12 @@ export type SerieOptions = {
    */
   yCol2: SecondOrdinate;
   /**
+   * If `true` this serie value won't show in the tooltip.
+   * 
+   * *This only works when using the native tooltip*
+   */
+  hideInTooltip: boolean;
+  /**
    * Maps the col values (from `colorCol`) to a color definition.
    *
    * *Returning `null` or `undefined` will make the painting use the default color of the serie*

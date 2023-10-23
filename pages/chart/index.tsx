@@ -162,6 +162,7 @@ chart.config = {
       yAxis: 'left',
       yCol: AREA_COL,
       yCol2: LINE_COL,
+      hideInTooltip: true,
     },
   ],
 };
