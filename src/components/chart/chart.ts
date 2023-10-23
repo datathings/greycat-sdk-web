@@ -4,7 +4,7 @@ import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
 import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
-import { dateFormat, vMap } from './internals.js';
+import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
 
@@ -913,12 +913,10 @@ export class GuiChart extends HTMLElement {
     } else {
       if (this._config.xAxis.scale === 'time') {
         if (this._config.xAxis.format === undefined) {
-          this._xAxis.tickFormat((v) => {
-            if (typeof v === 'number') {
-              return d3.isoFormat(new Date(v));
-            }
-            return d3.isoFormat(v as Date);
-          });
+          const [from, to] = xScale.range();
+          const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+          const tickFormat = d3.utcFormat(relativeTimeFormat(span));
+          (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
         } else {
           const format = this._config.xAxis.format;
           this._xAxis.tickFormat((v) => {
@@ -970,10 +968,19 @@ export class GuiChart extends HTMLElement {
       if (ord.hook) {
         ord.hook(yAxis);
       } else {
-        if (ord.scale === 'time') {
-          yAxis.tickFormat(dateFormat);
-        } else if (ord.format) {
-          yAxis.tickFormat(d3.format(ord.format));
+        if (ord.format) {
+          if (ord.scale === 'time') {
+            yAxis.tickFormat(d3.utcFormat(ord.format));
+          } else {
+            yAxis.tickFormat(d3.format(ord.format));
+          }
+        } else {
+          if (ord.scale === 'time') {
+            const [from, to] = yScales[yAxisName].range();
+            const span = Math.abs(+yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from));
+            const tickFormat = d3.utcFormat(relativeTimeFormat(span));
+            (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
+          }
         }
         if (Array.isArray(ord.ticks)) {
           yAxis.tickValues(ord.ticks.map(vMap));

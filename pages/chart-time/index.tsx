@@ -59,7 +59,7 @@ chart.setConfig({
   cursor: true,
   xAxis: {
     scale: 'time',
-    format: '%a, %H:%M',
+    // format: '%a, %H:%M',
   },
   yAxes: {
     temp: {},
