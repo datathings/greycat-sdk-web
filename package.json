@@ -55,8 +55,7 @@
   },
   "dependencies": {
     "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.4/6.4.7-dev.tgz",
-    "d3": "7.8.5",
-    "maplibre-gl": "2.4.0"
+    "d3": "7.8.5"
   },
   "devDependencies": {
     "@picocss/pico": "1.5.10",
