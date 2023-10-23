@@ -69,7 +69,9 @@ export type CommonAxis = {
    */
   cursorFormat?: string;
   /**
-   * Zoom ratio
+   * Zoom ratio on wheel events on the axis.
+   * 
+   * Setting this to `0` disables the behavior completely.
    */
   ratio?: number;
   /**

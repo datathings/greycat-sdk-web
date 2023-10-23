@@ -117,6 +117,7 @@ chart.config = {
   },
   xAxis: {
     cursorFormat: '.0f',
+    ratio: 0,
   },
   yAxes: {
     left: {

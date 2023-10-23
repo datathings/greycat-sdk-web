@@ -234,7 +234,7 @@ export class GuiChart extends HTMLElement {
           // left y axes zoom
           for (const [name, scale] of Object.entries(yScales)) {
             const axis = this._config.yAxes[name];
-            if (axis.position === undefined || axis.position === 'left') {
+            if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
               const [min, max] = scale.range();
               const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
               axis.min = scale.invert(min + d);
@@ -251,7 +251,7 @@ export class GuiChart extends HTMLElement {
           // right y axes zoom
           for (const [name, scale] of Object.entries(yScales)) {
             const axis = this._config.yAxes[name];
-            if (axis.position === 'right') {
+            if (axis.position === 'right' && axis.ratio !== 0) {
               const [min, max] = scale.range();
               const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
               axis.min = scale.invert(min + d);
@@ -265,15 +265,17 @@ export class GuiChart extends HTMLElement {
           this._cursor.x >= xRange[0] &&
           this._cursor.x <= xRange[1]
         ) {
-          // x axis zoom
-          const [min, max] = scale.range();
-          const d =
-            (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-          const from = (this._config.xAxis.min = scale.invert(min - d));
-          const to = (this._config.xAxis.max = scale.invert(max + d));
-          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-          this.compute();
-          this.update();
+          if (this._config.xAxis.ratio !== 0) {
+            // x axis zoom
+            const [min, max] = scale.range();
+            const d =
+              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+            const from = (this._config.xAxis.min = scale.invert(min - d));
+            const to = (this._config.xAxis.max = scale.invert(max + d));
+            this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+            this.compute();
+            this.update();
+          }
         }
       }, 16),
     );
