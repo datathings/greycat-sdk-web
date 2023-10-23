@@ -14,7 +14,6 @@ console.log({ table });
 const heatmap = document.createElement('gui-heatmap');
 heatmap.style.width = '1024px';
 heatmap.style.height = '768px';
-heatmap.style.margin = 'auto';
 app.main.appendChild(heatmap);
 
 heatmap.xLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
