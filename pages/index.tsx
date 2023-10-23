@@ -21,6 +21,7 @@ app.main.replaceChildren(
           <li><a href="./object/">Object</a></li>
           <li><a href="./table/">Table</a></li>
           <li><a href="./tasks/">Tasks</a></li>
+          {/* <li><a href="./periodic-tasks/">Periodic Tasks</a></li> */}
           <li><a href="./users/">Users</a></li>
           <li><a href="./searchable-select/">Searchable Select</a></li>
         </ul>

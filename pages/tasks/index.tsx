@@ -2,7 +2,7 @@ import type { GuiTaskList, GuiTaskSelect } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
-app.title = 'Table';
+app.title = 'Tasks';
 await app.init();
 
 document.body.prepend(app);
