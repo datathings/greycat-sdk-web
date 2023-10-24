@@ -1,7 +1,7 @@
 # `<gui-histogram-chart />`
 
 ## General example of histogram usage in TS
-  ```
+  ```TS
   const histogramEl = document.createElement('gui-histogram-chart');
   const table = await greycat.call<core.Table>('project::histogram_table');
   histogramEl.columns = [2, 3];
