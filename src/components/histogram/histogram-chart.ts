@@ -444,32 +444,6 @@ interface CursorInfo {
   countCumul: number;
 }
 
-// declare global {
-//   interface Window {
-//     GuiHistogramChart: typeof GuiHistogramChart;
-//     /**
-//      * @deprecated use `GuiHistogramChart` instead
-//      */
-//     HistogramChart: typeof GuiHistogramChart;
-//   }
-
-//   interface HTMLElementTagNameMap {
-//     'gui-histogram-chart': GuiHistogramChart;
-//   }
-
-//   namespace JSX {
-//     interface IntrinsicElements {
-//       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-//       'gui-histogram-chart': any;
-//     }
-//   }
-// }
-
-// if (!window.customElements.get('gui-histogram-chart')) {
-//   window.GuiHistogramChart = GuiHistogramChart;
-//   window.customElements.define('gui-histogram-chart', GuiHistogramChart);
-// }
-
 declare global {
   interface HTMLElementTagNameMap {
     'gui-histogram-chart': GuiHistogramChart;
