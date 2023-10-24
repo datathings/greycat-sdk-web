@@ -2,7 +2,6 @@ import { mount } from '../common';
 import { core } from '@greycat/sdk';
 
 mount(async (app, greycat) => {
-  const histogramEl = document.createElement('gui-histogram-chart');
   /*
     Data Point Structure:
 
@@ -15,15 +14,12 @@ mount(async (app, greycat) => {
     Metadata (meta) of table:
       table.meta[i]
       meta should have properties like min and max for each relevant axis.
-
   */
 
+  const histogramEl = document.createElement('gui-histogram-chart');
   const table = await greycat.call<core.Table>('project::histogram_table');
   histogramEl.columns = [2, 3];
   histogramEl.table = table;
   
-  console.log(table);
-  console.log(table.meta);
-
   app.appendChild(histogramEl);
 });
