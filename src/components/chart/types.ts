@@ -199,6 +199,12 @@ export interface LineSerie<K> extends CommonSerie<K> {
 
 export interface BarSerie<K> extends CommonSerie<K> {
   type: 'bar';
+  /**
+   * Use this when you want to have bars that match a specific width.
+   * 
+   * For every entry in those columns the bar will span from `spanCol[0] to `spanCol[1]`.
+   */
+  spanCol?: [number, number];
 }
 
 export interface ScatterSerie<K> extends CommonSerie<K> {

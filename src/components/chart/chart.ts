@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
-import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
+import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions, BarSerie } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
@@ -575,11 +575,12 @@ export class GuiChart extends HTMLElement {
             }
             break;
           }
-          case 'bar':
+          case 'bar': {
             this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width + 1, yRange[0] - y, {
               color: style['accent-0'],
             });
             break;
+          }
         }
 
         // tooltip
