@@ -546,6 +546,9 @@ export class GuiChart extends HTMLElement {
           ...this._config.series[i],
         };
 
+        if (serie.type === 'bar' && serie.spanCol) {
+          // BarSerie with spanCol 
+        }
         const v = +xScale.invert(this._cursor.x);
         const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
         const yValue =

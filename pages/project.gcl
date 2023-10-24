@@ -1,6 +1,7 @@
 use util;
 use runtime;
 use math;
+use io;
 
 fn main() {
   for (var i = 0; i < 15; i++) {
@@ -43,7 +44,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -65,7 +66,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -250,26 +251,38 @@ fn hello(name: String): String {
 
 @expose
 fn histogram_table(): Table {
-  var rand = Random::new();
-  var table = Table::new(4);
-  var accumulated_percentage = 0.0;
-  var buffer = 100.0;
-  var n = 10;
-  
-  for (var i = 0; i < n; i++) {
-    table.set(i, 0, i * 10);
-    table.set(i, 1, (i + 1) * 10);
-    var percentage = rand.uniformf(0.0, buffer);
-    if (i == n - 1) {
-      percentage = buffer;
-    }
-    accumulated_percentage = accumulated_percentage + percentage;
-    buffer = buffer - percentage;
-    table.set(i, 2, percentage);
-    table.set(i, 3, accumulated_percentage);
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader::new("histogram/heightweight.csv", csvFormat);
+
+  var histogramHeight = HistogramFloat {};
+  var histogramWeight = HistogramFloat {};
+  while (csv.available() > 0) {
+    var res = csv.read();
+    var height_inch = res[1] as float;
+    var weight_pound = res[2] as float; 
+
+    var height_cm = height_inch * 2.54;
+    var weight_kg = weight_pound * 0.453592;
+
+    histogramHeight.add(height_cm);
+    histogramWeight.add(weight_kg);
   }
 
-  return table;
+  info("50% of population are under ${histogramHeight.percentile(50.0)} cm, and ${histogramWeight.percentile(50.0)} kg");
+  info("90% of population are under ${histogramHeight.percentile(90.0)} cm, and ${histogramWeight.percentile(90.0)} kg");
+  info("99% of population are under ${histogramHeight.percentile(99.0)} cm, and ${histogramWeight.percentile(99.0)} kg");
+
+  println("");
+  var res = histogramHeight.sample(histogramHeight.min()!!, histogramHeight.max()!!, 5);
+  for (var i = 0; i < res.rows(); i++) {
+    info("From: ${res.get(i, 0)} cm to: ${res.get(i, 1)} cm, we have ${res.get(i, 2)} observations, that represents ${res.get(i, 3)} % of the dataset");
+  }
+
+  info("${histogramHeight.percentage(170.0) * 100.0}% of the population are under 170 cm ");
+
+  return histogramHeight.all();
 }
 
 @expose
