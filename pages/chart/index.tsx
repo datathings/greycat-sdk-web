@@ -175,3 +175,11 @@ async function randomize() {
   chart.compute();
   chart.update();
 }
+
+chart.addEventListener('selection', (ev) => {
+  console.log('selection', ev.detail);
+});
+
+chart.addEventListener('reset-selection', () => {
+  console.log('reset-selection');
+});

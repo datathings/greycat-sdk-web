@@ -133,6 +133,7 @@ export class GuiChart extends HTMLElement {
       }
       this.compute();
       this.update();
+      this.dispatchEvent(new GuiChartResetSelectionEvent());
     });
 
     let lastTouch = Date.now();
@@ -142,7 +143,7 @@ export class GuiChart extends HTMLElement {
       event.preventDefault();
 
       const now = Date.now();
-      if ((now - lastTouch) < (this._config.dblTapThreshold ?? 500)) {
+      if (now - lastTouch < (this._config.dblTapThreshold ?? 500)) {
         this._resetCursor();
         // reset X configuration
         this._config.xAxis.min = this._userXAxisMin;
@@ -269,7 +270,8 @@ export class GuiChart extends HTMLElement {
             // x axis zoom
             const [min, max] = scale.range();
             const d =
-              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
+              (event.deltaY > 0 ? 1 : -1);
             const from = (this._config.xAxis.min = scale.invert(min - d));
             const to = (this._config.xAxis.max = scale.invert(max + d));
             this.dispatchEvent(new GuiChartSelectionEvent(from, to));
@@ -303,21 +305,39 @@ export class GuiChart extends HTMLElement {
           return;
         }
 
-        if (this._cursor.startX === -1 && this._cursor.startY === -1) {
-          this._resetCursor();
-          return;
-        }
-
         const threshold = this._config.selection?.threshold ?? 10;
         const dx = Math.abs(this._cursor.x - this._cursor.startX);
         const dy = Math.abs(this._cursor.y - this._cursor.startY);
 
-        if (dx < threshold && dy < threshold) {
-          // too small selection, reset cursor
-          this._resetCursor();
-        } else {
-          this._selection();
+        const orientation = this._config.selection?.orientation ?? 'horizontal';
+        switch (orientation) {
+          case 'both':
+            if (
+              this._cursor.startX === -1 ||
+              this._cursor.x === -1 ||
+              this._cursor.startY === -1 ||
+              this._cursor.y === -1 ||
+              (dx < threshold && dy < threshold)
+            ) {
+              this._resetCursor();
+              return;
+            }
+            break;
+          case 'horizontal':
+            if (this._cursor.startX === -1 || this._cursor.x === -1 || dx < threshold) {
+              this._resetCursor();
+              return;
+            }
+            break;
+          case 'vertical':
+            if (this._cursor.startY === -1 || this._cursor.y === -1 || dy < threshold) {
+              this._resetCursor();
+              return;
+            }
+            break;
         }
+
+        this._selection();
       },
       { signal: this._disposer.signal },
     );
@@ -506,7 +526,9 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
+                vMap(yScales[yAxisName].invert(this._cursor.y)),
+              ),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -519,7 +541,9 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
+                vMap(yScales[yAxisName].invert(this._cursor.y)),
+              ),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -989,7 +1013,9 @@ export class GuiChart extends HTMLElement {
         } else {
           if (ord.scale === 'time') {
             const [from, to] = yScales[yAxisName].range();
-            const span = Math.abs(+yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from));
+            const span = Math.abs(
+              +yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from),
+            );
             const tickFormat = d3.utcFormat(relativeTimeFormat(span));
             (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
           }
@@ -1198,6 +1224,7 @@ export class GuiChart extends HTMLElement {
 
 const SELECTION_EVENT_TYPE = 'selection';
 const CURSOR_EVENT_TYPE = 'cursor';
+const RESET_SELECTION_EVENT_TYPE = 'reset-selection';
 
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
@@ -1205,6 +1232,15 @@ const CURSOR_EVENT_TYPE = 'cursor';
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
   constructor(from: unknown, to: unknown) {
     super(SELECTION_EVENT_TYPE, { detail: { from, to }, bubbles: true });
+  }
+}
+
+/**
+ * Called when the selection is reset.
+ */
+export class GuiChartResetSelectionEvent extends CustomEvent<void> {
+  constructor() {
+    super(RESET_SELECTION_EVENT_TYPE, { bubbles: true });
   }
 }
 
@@ -1225,6 +1261,7 @@ declare global {
   interface HTMLElementEventMap {
     [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
     [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
+    [RESET_SELECTION_EVENT_TYPE]: GuiChartResetSelectionEvent;
   }
 
   namespace JSX {
