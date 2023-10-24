@@ -13,11 +13,9 @@ export type CellProps = (
   value: unknown,
   rowIdx: number,
   colIdx: number,
-) => ValueProps & { value: unknown };
+) => ValueProps;
 
-type ValueProps =
-  Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'>
-  & Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+type ValueProps = Partial<GuiValueProps> & { value: unknown };
 
 type Value = {
   /** The actual value for the cell */
@@ -30,12 +28,17 @@ type Value = {
   originalIndex: number;
 };
 
+// reusing the same object for every render to ease gc
+const cellProps: ValueProps = {
+  dateFmt: getGlobalDateTimeFormat(),
+  numFmt: getGlobalNumberFormat(),
+  value: null,
+};
 const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
-  return {
-    dateFmt: getGlobalDateTimeFormat(),
-    numFmt: getGlobalNumberFormat(),
-    value,
-  };
+  cellProps.value = value;
+  cellProps.dateFmt = getGlobalDateTimeFormat();
+  cellProps.numFmt = getGlobalNumberFormat();
+  return cellProps;
 };
 
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Value[]) => void;
