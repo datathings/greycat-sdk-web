@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
-import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions, BarSerie } from './types.js';
+import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
