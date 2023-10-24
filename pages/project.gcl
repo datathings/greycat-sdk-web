@@ -208,7 +208,30 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// pages/table start
+@expose
+fn histogram_table(): Table {
+  var rand = Random::new();
+  var table = Table::new(4);
+  var accumulated_percentage = 0.0;
+  var buffer = 1000.0;
+  var n = 10;
+  
+  for (var i = 0; i < n; i++) {
+    table.set(i, 0, i * 10);
+    table.set(i, 1, (i + 1) * 10);
+    var percentage = rand.uniformf(0.0, buffer);
+    if (i == n - 1) {
+      percentage = buffer;
+    }
+    accumulated_percentage = accumulated_percentage + percentage;
+    buffer = buffer - percentage;
+    table.set(i, 2, percentage);
+    table.set(i, 3, accumulated_percentage);
+  }
+
+  return table;
+}
+
 @expose
 fn table(): Table {
   var rand = Random::new();
