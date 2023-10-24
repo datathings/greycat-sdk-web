@@ -40,7 +40,6 @@ chartEl.setConfig({
     {
       type: 'bar',
       yAxis: 'bars',
-      width: 80,
       spanCol: [0, 1],
       color: 'orange',
       yCol: 2,
