@@ -105,21 +105,36 @@ export class GuiObject extends HTMLElement {
                 );
                 continue;
               }
-              fragment.appendChild(
-                <>
-                  <div>{attr.name}</div>
-                  <div className="gui-object-value">
-                    {this._shouldNest(attrVal) ? (
-                      <details>
-                        <summary>&lt;show&gt;</summary>
-                        <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
-                      </details>
-                    ) : (
+
+              // nested object
+              if (this._shouldNest(attrVal)) {
+                const content = document.createElement('details');
+                const summary = document.createElement('summary');
+                summary.textContent = '<show>';
+                content.appendChild(summary);
+                summary.onclick = () => {
+                  content.appendChild(
+                    <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />,
+                  );
+                  summary.onclick = null;
+                };
+
+                fragment.appendChild(
+                  <>
+                    <div>{attr.name}</div>
+                    <div className="gui-object-value">{content}</div>
+                  </>,
+                );
+              } else {
+                fragment.appendChild(
+                  <>
+                    <div>{attr.name}</div>
+                    <div className="gui-object-value">
                       <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
-                    )}
-                  </div>
-                </>,
-              );
+                    </div>
+                  </>,
+                );
+              }
             }
           }
         } else if (this._value instanceof core.Table) {

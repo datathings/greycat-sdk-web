@@ -43,7 +43,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -65,7 +65,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -150,6 +150,46 @@ fn chart_time(): Table {
 }
 // pages/chart-time end
 
+// pages/chart-colored-area start
+@expose
+fn chart_colored_area(): Table {
+  var firstTime = time::now();
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  // 0
+  table.set(0, 0, firstTime - 6_day);
+  table.set(0, 1, -10.5);
+  table.set(0, 2, "low");
+  // 1
+  table.set(1, 0, firstTime - 5_day);
+  table.set(1, 1, -8.5);
+  table.set(1, 2, "low");
+  // 2
+  table.set(2, 0, firstTime - 4_day);
+  table.set(2, 1, 3.1);
+  table.set(2, 2, "low");
+  // 3
+  table.set(3, 0, firstTime - 3_day);
+  table.set(3, 1, 33.7);
+  table.set(3, 2, "high");
+  // 4
+  table.set(4, 0, firstTime - 2_day);
+  table.set(4, 1, 22.0);
+  table.set(4, 2, "normal");
+  // 5
+  table.set(5, 0, firstTime - 1_day);
+  table.set(5, 1, 18.9);
+  table.set(5, 2, "normal");
+  // 6
+  table.set(6, 0, firstTime);
+  table.set(6, 1, 6.4);
+  table.set(6, 2, "low");
+
+  return table;
+}
+// pages/chart-colored-area end
+
 // pages/donut start
 @expose
 fn donut(): Table {
@@ -213,7 +253,7 @@ fn histogram_table(): Table {
   var rand = Random::new();
   var table = Table::new(4);
   var accumulated_percentage = 0.0;
-  var buffer = 1000.0;
+  var buffer = 100.0;
   var n = 10;
   
   for (var i = 0; i < n; i++) {

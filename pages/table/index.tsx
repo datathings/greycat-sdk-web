@@ -1,43 +1,54 @@
-import type { core } from '@greycat/sdk';
-import { mount } from '../common';
+import { type core } from '../../src';
+import '../layout';
 
-mount(async (app, greycat) => {
-  const randomizeBtn = document.getElementById('randomize')!;
+const app = document.createElement('app-layout');
+app.title = 'Table';
+await app.init();
 
-  const tableEl = document.createElement('gui-table');
-  const table = await greycat.call<core.Table>('project::table');
-  tableEl.table = table;
-  tableEl.onrowupdate = (el, row) => {
-    const klass = row[2].value as string;
-    switch (klass) {
-      case 'low':
-        (el.children[1] as HTMLElement).style.color = 'cyan';
-        break;
-      case 'normal':
-        (el.children[1] as HTMLElement).style.color = 'lightgreen';
-        break;
-      case 'high':
-        (el.children[1] as HTMLElement).style.color = 'orange';
-        break;
-    }
-  };
+document.body.prepend(app);
 
-  tableEl.addEventListener('table-dblclick', (ev) => {
-    window.alert(
-      `Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${
-        ev.detail.row[ev.detail.colIdx].value
-      }"`,
-    );
-  });
+app.actions.prepend(
+  <li>
+    <a
+      href="#"
+      onclick={async () => {
+        tableEl.table = await greycat.default.call<core.Table>('project::table');
+      }}
+    >
+      Randomize
+    </a>
+  </li>,
+);
 
-  randomizeBtn.addEventListener('click', async () => {
-    tableEl.table = await greycat.call<core.Table>('project::table');
-  });
+const tableEl = document.createElement('gui-table');
+const table = await greycat.default.call<core.Table>('project::table');
+tableEl.table = table;
+tableEl.onrowupdate = (el, row) => {
+  const klass = row[2].value as string;
+  switch (klass) {
+    case 'low':
+      (el.children[1] as HTMLElement).style.color = 'cyan';
+      break;
+    case 'normal':
+      (el.children[1] as HTMLElement).style.color = 'lightgreen';
+      break;
+    case 'high':
+      (el.children[1] as HTMLElement).style.color = 'orange';
+      break;
+  }
+};
 
-  app.appendChild(
-    <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-      <header>project::table</header>
-      {tableEl}
-    </article>,
+tableEl.addEventListener('table-dblclick', (ev) => {
+  window.alert(
+    `Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${
+      ev.detail.row[ev.detail.colIdx].value
+    }"`,
   );
 });
+
+app.main.appendChild(
+  <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+    <header>project::table</header>
+    {tableEl}
+  </article>,
+);

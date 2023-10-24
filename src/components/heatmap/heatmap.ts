@@ -54,8 +54,6 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
   private _tooltip?: SimpleTooltip;
   private _xTicks?: number;
   private _yTicks?: number;
-  private readonly _m = { top: 10, right: 10, bottom: 60, left: 120 };
-  private readonly _colorScaleM = { top: 10, right: 10, bottom: 60, left: 55 };
 
   private _disposeResizer: Disposable | undefined;
   private _cursor: { x: number; y: number } = { x: 0, y: 0 };
@@ -280,9 +278,11 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
 
       return requestAnimationFrame(onHover);
     };
+
+    const m = this._margins();
     const canvas = (this._canvas = new Canvas(
-      width - this._m.left - this._m.right - this._colorScaleWidth - this._colorScaleM.right,
-      height - this._m.top - this._m.bottom,
+      width - m.root.left - m.root.right - this._colorScaleWidth - m.colorscale.right,
+      height - m.root.top - m.root.bottom,
       this._tooltip,
       {
         enter: () => {
@@ -299,17 +299,17 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     ));
 
     this._colorScaleCanvas = new Canvas(
-      this._colorScaleWidth - this._colorScaleM.left - this._colorScaleM.right,
-      height - this._colorScaleM.top - this._colorScaleM.bottom,
+      this._colorScaleWidth - m.colorscale.left - m.colorscale.right,
+      height - m.colorscale.top - m.colorscale.bottom,
     );
-    const canvasLeft = this._m.left;
-    const colorScaleLeft = this._canvas.width + canvasLeft + this._colorScaleM.left;
+    const canvasLeft = m.root.left;
+    const colorScaleLeft = this._canvas.width + canvasLeft + m.colorscale.left;
 
-    this._canvas.root.style.top = `${this._m.top}px`;
+    this._canvas.root.style.top = `${m.root.top}px`;
     this._canvas.root.style.left = `${canvasLeft}px`;
     this._canvas.root.style.position = 'absolute';
 
-    this._colorScaleCanvas.root.style.top = `${this._colorScaleM.top}px`;
+    this._colorScaleCanvas.root.style.top = `${m.colorscale.top}px`;
     this._colorScaleCanvas.root.style.left = `${colorScaleLeft + 5}px`;
     this._colorScaleCanvas.root.style.position = 'absolute';
     this._colorScaleCanvas.showTooltip(false);
@@ -372,9 +372,11 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
 
     svg.selectChildren().remove();
 
+    const m = this._margins();
+
     const newWidth =
-      this._width - this._m.left - this._m.right - this._colorScaleWidth - this._colorScaleM.right;
-    const newHeight = this._height - this._m.top - this._m.bottom;
+      this._width - m.root.left - m.root.right - this._colorScaleWidth - m.colorscale.right;
+    const newHeight = this._height - m.root.top - m.root.bottom;
 
     this._xAxis
       .domain(
@@ -472,7 +474,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     //x axis ticks
     svg
       .append('g')
-      .attr('transform', `translate(${this._m.left}, ${this._height - this._m.bottom})`)
+      .attr('transform', `translate(${m.root.left}, ${this._height - m.root.bottom})`)
       .call(xAxis)
       .selectAll('text')
       .attr('dx', '-2.2em')
@@ -482,7 +484,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     //y axis ticks
     svg
       .append('g')
-      .attr('transform', `translate(${this._m.left}, ${this._m.top})`)
+      .attr('transform', `translate(${m.root.left}, ${m.root.top})`)
       .call(yAxis)
       .selectAll('text')
       .append('title');
@@ -502,7 +504,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
         .append('text')
         .attr('class', 'gui-y-axis-label')
         .attr('x', `${this._width / 2}`)
-        .attr('y', canvas.height + this._m.top + this._m.bottom)
+        .attr('y', canvas.height + m.root.top + m.root.bottom)
         .text(this._axisLabels[0]);
 
       svg
@@ -510,7 +512,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
         .append('text')
         .attr('class', 'gui-z-axis-label')
         .attr('x', `-${this._height / 2}`)
-        .attr('y', canvas.width + this._m.left + 15)
+        .attr('y', canvas.width + m.root.left + 15)
         .attr('transform', 'rotate(-90)')
         .text(this._axisLabels[2]);
     }
@@ -520,7 +522,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
       .append('g')
       .attr(
         'transform',
-        `translate(${canvas.width + this._m.left + this._colorScaleM.left}, ${this._colorScaleM.top
+        `translate(${canvas.width + m.root.left + m.colorscale.left}, ${m.colorscale.top
         })`,
       )
       .call(yColorScaleAxis)
@@ -558,6 +560,24 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
       const index = Math.floor(value / eachBand);
       return [domain[Math.max(0, Math.min(index, domain.length - 1))], index];
     };
+  }
+
+  private _margins() {
+    const style = getComputedStyle(this);
+    return {
+      root: {
+        top: parseInt(style.getPropertyValue('--m-top')),
+        right: parseInt(style.getPropertyValue('--m-right')),
+        bottom: parseInt(style.getPropertyValue('--m-bottom')),
+        left: parseInt(style.getPropertyValue('--m-left')),
+      },
+      colorscale: {
+        top: parseInt(style.getPropertyValue('--colorscale-m-top')),
+        right: parseInt(style.getPropertyValue('--colorscale-m-right')),
+        bottom: parseInt(style.getPropertyValue('--colorscale-m-bottom')),
+        left: parseInt(style.getPropertyValue('--colorscale-m-left')),
+      }
+    }
   }
 }
 

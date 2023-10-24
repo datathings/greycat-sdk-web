@@ -69,7 +69,9 @@ export type CommonAxis = {
    */
   cursorFormat?: string;
   /**
-   * Zoom ratio
+   * Zoom ratio on wheel events on the axis.
+   * 
+   * Setting this to `0` disables the behavior completely.
    */
   ratio?: number;
   /**
@@ -129,6 +131,12 @@ export type SerieOptions = {
    * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
    */
   yCol2: SecondOrdinate;
+  /**
+   * If `true` this serie value won't show in the tooltip.
+   * 
+   * *This only works when using the native tooltip*
+   */
+  hideInTooltip: boolean;
   /**
    * Maps the col values (from `colorCol`) to a color definition.
    *

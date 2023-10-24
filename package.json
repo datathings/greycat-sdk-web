@@ -54,14 +54,13 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.3/6.3.21-dev.tgz",
-    "d3": "7.8.5",
-    "maplibre-gl": "2.4.0"
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.4/6.4.9-dev.tgz",
+    "d3": "7.8.5"
   },
   "devDependencies": {
     "@picocss/pico": "1.5.10",
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.3/6.3.1-dev.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/dev/6.4/6.4.0-dev.tgz",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",
@@ -72,9 +71,10 @@
     "prettier": "3.0.0",
     "typescript": "5.2.2",
     "vite": "4.4.8",
-    "vitepress": "1.0.0-rc.13"
+    "vitepress": "1.0.0-rc.22"
   },
   "engines": {
     "node": ">=16.13.0"
-  }
+  },
+  "packageManager": "pnpm@8.8.0"
 }

@@ -1,5 +1,5 @@
 gui-chart {
-  /* margin variables */
+  /* margin variables, can only be pixels */
   --m-top: 10px;
   --m-right: 40px;
   --m-right-empty: 10px;
@@ -12,6 +12,7 @@ gui-chart {
   --cursor-bg-c: rgb(var(--base-1));
 
   user-select: none;
+  display: block;
 }
 
 gui-chart .gui-chart-tooltip {

@@ -55,3 +55,4 @@ Example of how you can create the table in GCL:
 -  Should be a list of 2 numbers:
   -    `columns[0]` - is the id of column for y values
   -    `columns[1]` - is the id of column for z values
+  
