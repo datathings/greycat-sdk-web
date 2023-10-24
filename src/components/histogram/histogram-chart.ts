@@ -179,7 +179,7 @@ export class GuiHistogramChart extends HTMLElement {
           const x2 = this._xAxis(Number(point[1]));
           zCumul += Number(point[this._columns[1]]);
           const z = this._zAxis(zCumul);
-          cumuls.push([(cumuls[idx][0] += Number(point[2])), (cumuls[idx][1] += Number(point[3]))]);
+          cumuls.push([(cumuls[row][0] += Number(point[this._columns[0]])), (cumuls[row][1] += Number(point[this._columns[1]]))]);
           return { x: (x + x2) / 2, y: z };
         }
       }
