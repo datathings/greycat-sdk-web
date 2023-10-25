@@ -252,7 +252,10 @@ export interface ChartConfig<K = { [keys: string]: never }> {
    * Tooltip position, defaults to 'top-left'
    */
   tooltip?: Partial<Tooltip>;
-  selection?: Partial<SelectionOptions>;
+  /**
+   * Options for selection. Set `false` to disable selection entirely.
+   */
+  selection?: Partial<SelectionOptions> | false;
   /**
    * Delta in milliseconds between two `touchend` event.
    *

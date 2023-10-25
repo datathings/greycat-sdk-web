@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
-import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
+import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions, SelectionOptions } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
@@ -133,6 +133,7 @@ export class GuiChart extends HTMLElement {
       }
       this.compute();
       this.update();
+      this.dispatchEvent(new GuiChartResetSelectionEvent());
     });
 
     let lastTouch = Date.now();
@@ -142,7 +143,7 @@ export class GuiChart extends HTMLElement {
       event.preventDefault();
 
       const now = Date.now();
-      if ((now - lastTouch) < (this._config.dblTapThreshold ?? 500)) {
+      if (now - lastTouch < (this._config.dblTapThreshold ?? 500)) {
         this._resetCursor();
         // reset X configuration
         this._config.xAxis.min = this._userXAxisMin;
@@ -169,6 +170,11 @@ export class GuiChart extends HTMLElement {
     this.addEventListener('touchend', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
+      if (this._config.selection === false) {
+        this._resetCursor();
+        return;
+      }
+
       // touch end classic
       if (this._cursor.startX === -1 && this._cursor.startY === -1) {
         this._resetCursor();
@@ -183,7 +189,7 @@ export class GuiChart extends HTMLElement {
         // too small selection, reset cursor
         this._resetCursor();
       } else {
-        this._selection();
+        this._selection(this._config.selection?.orientation);
       }
     });
     this.addEventListener('touchmove', (event) => {
@@ -202,82 +208,88 @@ export class GuiChart extends HTMLElement {
 
     this.addEventListener(
       'wheel',
-      throttle((event: WheelEvent) => {
-        // if this is too slow, maybe cache xRange, yRange
-        const { xRange, yRange, xScale: scale, yScales } = this._computed;
-        if (event.shiftKey) {
-          // x axis panning
-          const [min, max] = scale.range();
-          const dx =
-            (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-          const from = (this._config.xAxis.min = scale.invert(min + dx));
-          const to = (this._config.xAxis.max = scale.invert(max + dx));
-          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-          this.compute();
-          this.update();
-        } else if (event.altKey) {
-          // y axes panning
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        throttle((event: WheelEvent) => {
+          // if this is too slow, maybe cache xRange, yRange
+          const { xRange, yRange, xScale: scale, yScales } = this._computed;
+          if (event.shiftKey) {
+            // x axis panning
             const [min, max] = scale.range();
-            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-            axis.min = scale.invert(min + d);
-            axis.max = scale.invert(max + d);
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x < xRange[0] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // left y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max - d);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x > xRange[1] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // right y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if (axis.position === 'right' && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max - d);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.y > yRange[0] &&
-          this._cursor.x >= xRange[0] &&
-          this._cursor.x <= xRange[1]
-        ) {
-          if (this._config.xAxis.ratio !== 0) {
-            // x axis zoom
-            const [min, max] = scale.range();
-            const d =
-              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-            const from = (this._config.xAxis.min = scale.invert(min - d));
-            const to = (this._config.xAxis.max = scale.invert(max + d));
+            const dx =
+              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+            const from = (this._config.xAxis.min = scale.invert(min + dx));
+            const to = (this._config.xAxis.max = scale.invert(max + dx));
             this.dispatchEvent(new GuiChartSelectionEvent(from, to));
             this.compute();
             this.update();
+          } else if (event.altKey) {
+            // y axes panning
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max + d);
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x < xRange[0] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // left y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + d);
+                axis.max = scale.invert(max - d);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x > xRange[1] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // right y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if (axis.position === 'right' && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + d);
+                axis.max = scale.invert(max - d);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.y > yRange[0] &&
+            this._cursor.x >= xRange[0] &&
+            this._cursor.x <= xRange[1]
+          ) {
+            if (this._config.xAxis.ratio !== 0) {
+              // x axis zoom
+              const [min, max] = scale.range();
+              const d =
+                (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
+                (event.deltaY > 0 ? 1 : -1);
+              const from = (this._config.xAxis.min = scale.invert(min - d));
+              const to = (this._config.xAxis.max = scale.invert(max + d));
+              this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+              this.compute();
+              this.update();
+            }
           }
-        }
-      }, 16),
+        }, 16)(event);
+      },
     );
   }
 
@@ -299,12 +311,7 @@ export class GuiChart extends HTMLElement {
     document.addEventListener(
       'mouseup',
       (event) => {
-        if (event.button !== 0) {
-          return;
-        }
-
-        if (this._cursor.startX === -1 && this._cursor.startY === -1) {
-          this._resetCursor();
+        if (event.button !== 0 || this._config.selection === false) {
           return;
         }
 
@@ -312,12 +319,35 @@ export class GuiChart extends HTMLElement {
         const dx = Math.abs(this._cursor.x - this._cursor.startX);
         const dy = Math.abs(this._cursor.y - this._cursor.startY);
 
-        if (dx < threshold && dy < threshold) {
-          // too small selection, reset cursor
-          this._resetCursor();
-        } else {
-          this._selection();
+        const orientation = this._config.selection?.orientation ?? 'horizontal';
+        switch (orientation) {
+          case 'both':
+            if (
+              this._cursor.startX === -1 ||
+              this._cursor.x === -1 ||
+              this._cursor.startY === -1 ||
+              this._cursor.y === -1 ||
+              (dx < threshold && dy < threshold)
+            ) {
+              this._resetCursor();
+              return;
+            }
+            break;
+          case 'horizontal':
+            if (this._cursor.startX === -1 || this._cursor.x === -1 || dx < threshold) {
+              this._resetCursor();
+              return;
+            }
+            break;
+          case 'vertical':
+            if (this._cursor.startY === -1 || this._cursor.y === -1 || dy < threshold) {
+              this._resetCursor();
+              return;
+            }
+            break;
         }
+
+        this._selection(this._config.selection?.orientation);
       },
       { signal: this._disposer.signal },
     );
@@ -506,7 +536,9 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               style.margin.left + leftAxesIdx * style.margin.left - 8,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
+                vMap(yScales[yAxisName].invert(this._cursor.y)),
+              ),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -519,7 +551,9 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(vMap(yScales[yAxisName].invert(this._cursor.y))),
+              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
+                vMap(yScales[yAxisName].invert(this._cursor.y)),
+              ),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -658,7 +692,7 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (updateSelection) {
+    if (updateSelection && this._config.selection !== false) {
       const orientation = this._config.selection?.orientation ?? 'horizontal';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
@@ -751,9 +785,8 @@ export class GuiChart extends HTMLElement {
     }
   }
 
-  private _selection(): void {
+  private _selection(orientation: SelectionOptions['orientation'] | undefined = 'horizontal'): void {
     const { xRange, yRange, xScale, yScales } = this._computed;
-    const orientation = this._config.selection?.orientation ?? 'horizontal';
     // ensure start/end are bound to the ranges
     let startX = this._cursor.startX;
     if (startX < xRange[0]) {
@@ -993,7 +1026,9 @@ export class GuiChart extends HTMLElement {
         } else {
           if (ord.scale === 'time') {
             const [from, to] = yScales[yAxisName].range();
-            const span = Math.abs(+yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from));
+            const span = Math.abs(
+              +yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from),
+            );
             const tickFormat = d3.utcFormat(relativeTimeFormat(span));
             (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
           }
@@ -1202,6 +1237,7 @@ export class GuiChart extends HTMLElement {
 
 const SELECTION_EVENT_TYPE = 'selection';
 const CURSOR_EVENT_TYPE = 'cursor';
+const RESET_SELECTION_EVENT_TYPE = 'reset-selection';
 
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
@@ -1209,6 +1245,15 @@ const CURSOR_EVENT_TYPE = 'cursor';
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
   constructor(from: unknown, to: unknown) {
     super(SELECTION_EVENT_TYPE, { detail: { from, to }, bubbles: true });
+  }
+}
+
+/**
+ * Called when the selection is reset.
+ */
+export class GuiChartResetSelectionEvent extends CustomEvent<void> {
+  constructor() {
+    super(RESET_SELECTION_EVENT_TYPE, { bubbles: true });
   }
 }
 
@@ -1229,6 +1274,7 @@ declare global {
   interface HTMLElementEventMap {
     [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
     [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
+    [RESET_SELECTION_EVENT_TYPE]: GuiChartResetSelectionEvent;
   }
 
   namespace JSX {
