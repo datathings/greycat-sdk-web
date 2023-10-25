@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
-import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions } from './types.js';
+import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions, SelectionOptions } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
@@ -170,6 +170,11 @@ export class GuiChart extends HTMLElement {
     this.addEventListener('touchend', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
+      if (this._config.selection === false) {
+        this._resetCursor();
+        return;
+      }
+
       // touch end classic
       if (this._cursor.startX === -1 && this._cursor.startY === -1) {
         this._resetCursor();
@@ -184,7 +189,7 @@ export class GuiChart extends HTMLElement {
         // too small selection, reset cursor
         this._resetCursor();
       } else {
-        this._selection();
+        this._selection(this._config.selection?.orientation);
       }
     });
     this.addEventListener('touchmove', (event) => {
@@ -301,7 +306,7 @@ export class GuiChart extends HTMLElement {
     document.addEventListener(
       'mouseup',
       (event) => {
-        if (event.button !== 0) {
+        if (event.button !== 0 || this._config.selection === false) {
           return;
         }
 
@@ -337,7 +342,7 @@ export class GuiChart extends HTMLElement {
             break;
         }
 
-        this._selection();
+        this._selection(this._config.selection?.orientation);
       },
       { signal: this._disposer.signal },
     );
@@ -678,7 +683,7 @@ export class GuiChart extends HTMLElement {
       this.dispatchEvent(new GuiChartCursorEvent(data));
     }
 
-    if (updateSelection) {
+    if (updateSelection && this._config.selection !== false) {
       const orientation = this._config.selection?.orientation ?? 'horizontal';
       // ensure start/end are bound to the ranges
       let startX = this._cursor.startX;
@@ -771,9 +776,8 @@ export class GuiChart extends HTMLElement {
     }
   }
 
-  private _selection(): void {
+  private _selection(orientation: SelectionOptions['orientation'] | undefined = 'horizontal'): void {
     const { xRange, yRange, xScale, yScales } = this._computed;
-    const orientation = this._config.selection?.orientation ?? 'horizontal';
     // ensure start/end are bound to the ranges
     let startX = this._cursor.startX;
     if (startX < xRange[0]) {
