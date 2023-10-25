@@ -208,83 +208,88 @@ export class GuiChart extends HTMLElement {
 
     this.addEventListener(
       'wheel',
-      throttle((event: WheelEvent) => {
-        // if this is too slow, maybe cache xRange, yRange
-        const { xRange, yRange, xScale: scale, yScales } = this._computed;
-        if (event.shiftKey) {
-          // x axis panning
-          const [min, max] = scale.range();
-          const dx =
-            (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-          const from = (this._config.xAxis.min = scale.invert(min + dx));
-          const to = (this._config.xAxis.max = scale.invert(max + dx));
-          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-          this.compute();
-          this.update();
-        } else if (event.altKey) {
-          // y axes panning
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
+      (event) => {
+        event.preventDefault();
+        event.stopPropagation();
+
+        throttle((event: WheelEvent) => {
+          // if this is too slow, maybe cache xRange, yRange
+          const { xRange, yRange, xScale: scale, yScales } = this._computed;
+          if (event.shiftKey) {
+            // x axis panning
             const [min, max] = scale.range();
-            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-            axis.min = scale.invert(min + d);
-            axis.max = scale.invert(max + d);
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x < xRange[0] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // left y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max - d);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x > xRange[1] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // right y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if (axis.position === 'right' && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max - d);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.y > yRange[0] &&
-          this._cursor.x >= xRange[0] &&
-          this._cursor.x <= xRange[1]
-        ) {
-          if (this._config.xAxis.ratio !== 0) {
-            // x axis zoom
-            const [min, max] = scale.range();
-            const d =
-              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
-              (event.deltaY > 0 ? 1 : -1);
-            const from = (this._config.xAxis.min = scale.invert(min - d));
-            const to = (this._config.xAxis.max = scale.invert(max + d));
+            const dx =
+              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+            const from = (this._config.xAxis.min = scale.invert(min + dx));
+            const to = (this._config.xAxis.max = scale.invert(max + dx));
             this.dispatchEvent(new GuiChartSelectionEvent(from, to));
             this.compute();
             this.update();
+          } else if (event.altKey) {
+            // y axes panning
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max + d);
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x < xRange[0] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // left y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + d);
+                axis.max = scale.invert(max - d);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x > xRange[1] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // right y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if (axis.position === 'right' && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + d);
+                axis.max = scale.invert(max - d);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.y > yRange[0] &&
+            this._cursor.x >= xRange[0] &&
+            this._cursor.x <= xRange[1]
+          ) {
+            if (this._config.xAxis.ratio !== 0) {
+              // x axis zoom
+              const [min, max] = scale.range();
+              const d =
+                (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
+                (event.deltaY > 0 ? 1 : -1);
+              const from = (this._config.xAxis.min = scale.invert(min - d));
+              const to = (this._config.xAxis.max = scale.invert(max + d));
+              this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+              this.compute();
+              this.update();
+            }
           }
-        }
-      }, 16),
+        }, 16)(event);
+      },
     );
   }
 
