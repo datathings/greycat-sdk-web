@@ -362,7 +362,7 @@ export class GuiChart extends HTMLElement {
       { signal: this._disposer.signal },
     );
 
-    const obs = new ResizeObserver(debounce(() => this._resize(), 250));
+    const obs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._disposer.disposables.push(() => obs.disconnect());
     obs.observe(this);
 
