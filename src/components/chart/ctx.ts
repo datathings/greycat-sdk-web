@@ -1,6 +1,7 @@
 import { vMap } from './internals.js';
 import type { Scale, Color, SerieWithOptions } from './types.js';
 import type { TableLike } from '../common.js';
+import { BoxPlotCanvas, BoxPlotOptions} from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -417,6 +418,51 @@ export class CanvasContext {
       this.ctx.strokeStyle = opts.color ?? 'inherit';
       this.ctx.stroke();
     }
+
+    this.ctx.restore();
+  }
+
+  boxPlot(boxPlot: BoxPlotCanvas, opts: BoxPlotOptions) {
+    this.ctx.save();
+    this.ctx.beginPath();
+
+    //Whisker
+    this.ctx.strokeStyle = opts.whiskerColor;
+    this.ctx.moveTo(boxPlot.x, boxPlot.min);
+    this.ctx.lineTo(boxPlot.x, boxPlot.max);
+    //min
+    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.min);
+    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.min);
+    //max
+    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.max);
+    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.max);
+    this.ctx.stroke();
+    this.ctx.closePath();
+
+    //IQR
+    this.ctx.beginPath();
+    this.ctx.fillStyle = opts.iqrColor;
+    this.ctx.lineWidth = 2;
+    this.ctx.strokeStyle = opts.iqrColor;
+    this.ctx.globalAlpha = 0.2;
+    this.ctx.fillRect(boxPlot.x - opts.width / 2, boxPlot.q3, opts.width, boxPlot.q1 - boxPlot.q3);
+    this.ctx.globalAlpha = 1;
+    this.ctx.strokeRect(
+      boxPlot.x - opts.width / 2,
+      boxPlot.q3,
+      opts.width,
+      boxPlot.q1 - boxPlot.q3,
+    );
+    this.ctx.closePath();
+
+    //Median
+    this.ctx.beginPath();
+    this.ctx.strokeStyle = opts.medianColor;
+    this.ctx.lineWidth = 2;
+    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.median);
+    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.median);
+    this.ctx.stroke();
+    this.ctx.closePath();
 
     this.ctx.restore();
   }

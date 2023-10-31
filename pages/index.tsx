@@ -10,6 +10,7 @@ app.main.replaceChildren(
   <aside style={{ width: 'fit-content' }}>
       <nav>
         <ul>
+          <li><a href="./boxplot/">BoxPlot</a></li>
           <li><a href="./chart/">Chart</a></li>
           <li><a href="./chart-time/">Chart (time)</a></li>
           <li><a href="./chart-colored-area/">Chart (colored-area)</a></li>
