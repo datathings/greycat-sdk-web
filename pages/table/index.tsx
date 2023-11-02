@@ -22,6 +22,15 @@ app.actions.prepend(
 
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');
+
+const dateFmt = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', timeStyle: 'medium', dateStyle: 'medium' });
+
+tableEl.cellProps = (_, value) => {
+  return {
+    value,
+    dateFmt,
+  };
+};
 tableEl.table = table;
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;

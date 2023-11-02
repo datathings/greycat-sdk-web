@@ -191,7 +191,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-enum-select': Partial<
+      'gui-enum-select': GreyCat.Element<
         Omit<GuiEnumSelect, 'children'> & {
           [ONENUM_CHANGE]: (
             this: GlobalEventHandlers,
