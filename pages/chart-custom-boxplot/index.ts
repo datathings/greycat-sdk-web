@@ -4,7 +4,7 @@ import { ChartConfig } from '../../src';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../src/chart-utils';
 
 const app = document.createElement('app-layout');
-app.title = 'Chart (custom)';
+app.title = 'Chart (custom boxplot)';
 await app.init();
 
 document.body.prepend(app);
