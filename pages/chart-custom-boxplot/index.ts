@@ -1,7 +1,7 @@
 import '../layout';
-import data from './data.json';
 import { ChartConfig } from '../../src';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../src/chart-utils';
+import { util } from '@greycat/sdk';
 
 const app = document.createElement('app-layout');
 app.title = 'Chart (custom boxplot)';
@@ -9,10 +9,13 @@ await app.init();
 
 document.body.prepend(app);
 
+const boxplot = await greycat.default.call<util.BoxPlotFloat>('project::boxplot_float');
+
 const chart1 = document.createElement('gui-chart');
 chart1.style.height = '80vh';
 chart1.style.width = '75%';
 chart1.style.margin = 'auto';
+
 chart1.config = {
   table: { cols: [[]] },
   series: [
@@ -24,11 +27,11 @@ chart1.config = {
       draw(ctx, s, xScale, yScale) {
         const width = 200;
         const boxPlotCanvas: BoxPlotCanvas = {
-          max: yScale(data.boxplot.max),
-          median: yScale(data.boxplot.percentile50),
-          min: yScale(data.boxplot.min),
-          q1: yScale(data.boxplot.percentile25),
-          q3: yScale(data.boxplot.percentile75),
+          max: yScale(boxplot.max),
+          median: yScale(boxplot.percentile50),
+          min: yScale(boxplot.min),
+          q1: yScale(boxplot.percentile25),
+          q3: yScale(boxplot.percentile75),
           x: xScale(5),
         };
 
@@ -53,8 +56,8 @@ chart1.config = {
   },
   yAxes: {
     left: {
-      min: data.boxplot.min,
-      max: data.boxplot.max,
+      min: boxplot.min,
+      max: boxplot.max,
     },
   },
   cursor: false,
