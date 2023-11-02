@@ -594,6 +594,10 @@ export class GuiChart extends HTMLElement {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
         }
 
+        if (serie.type == 'bar' && serie.spanCol !== undefined) {
+          serie.width = xScale(vMap(this._config.table.cols[1][rowIdx] - this._config.table.cols[0][rowIdx])) - xScale(0);
+        }
+
         // marker
         switch (serie.type ?? 'line') {
           case 'line+scatter':
@@ -610,7 +614,7 @@ export class GuiChart extends HTMLElement {
             break;
           }
           case 'bar': {
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width + 1, yRange[0] - y, { // TODO
+            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width, yRange[0] - y, {
               color: style['accent-0'],
             });
             break;

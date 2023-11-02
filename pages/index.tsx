@@ -15,11 +15,11 @@ app.main.replaceChildren(
           <li><a href="./chart-colored-area/">Chart (colored-area)</a></li>
           <li><a href="./chart-scatter/">Chart (scatter)</a></li>
           <li><a href="./chart-custom/">Chart (custom)</a></li>
+          <li><a href="./chart-bar-histogram/">Chart (bar histogram)</a></li>
           <li><a href="./donut/">Donut</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>
           <li><a href="./heatmap/">Heatmap</a></li>
           <li><a href="./hello/">Hello</a></li>
-          <li><a href="./histogram/">Histogram chart</a></li>
           <li><a href="./object/">Object</a></li>
           <li><a href="./table/">Table</a></li>
           <li><a href="./tasks/">Tasks</a></li>
