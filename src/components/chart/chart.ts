@@ -830,8 +830,8 @@ export class GuiChart extends HTMLElement {
       endX = xRange[1];
     }
 
-    const from: number = Math.floor(+xScale.invert(startX));
-    const to: number = Math.ceil(+xScale.invert(endX));
+    const from: number = +xScale.invert(startX);
+    const to: number = +xScale.invert(endX);
 
     // selection is done
     const selectionEvt = new GuiChartSelectionEvent(from, to);
