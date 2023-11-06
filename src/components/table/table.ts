@@ -531,7 +531,7 @@ class GuiTableHeadCell extends HTMLElement {
 
   update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
     this._index = index;
-    this._title.textContent = title ?? meta.typeName ?? `Column ${index + 1}`;
+    this._title.textContent = title ?? meta.header ?? meta.typeName ?? `Column ${index + 1}`;
     this._sorter.textContent = this._sortGraphemes[sort];
   }
 }
