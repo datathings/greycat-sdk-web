@@ -391,6 +391,10 @@ export class GuiChart extends HTMLElement {
    */
   private _resize() {
     const { width, height } = this.getBoundingClientRect();
+    if (width === 0 || height === 0) {
+      // do not even try to render if 0-sized
+      return;
+    }
 
     // resize main canvas
     this._canvas.width = width;
@@ -591,8 +595,11 @@ export class GuiChart extends HTMLElement {
           ...this._config.series[i],
         };
 
+        if (serie.type === 'bar' && serie.spanCol) {
+          // BarSerie with spanCol 
+        }
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, serie, v);
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
@@ -603,6 +610,10 @@ export class GuiChart extends HTMLElement {
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
+        }
+
+        if (serie.type == 'bar' && serie.spanCol !== undefined) {
+          serie.width = xScale(vMap(this._config.table.cols[1][rowIdx] - this._config.table.cols[0][rowIdx])) - xScale(0);
         }
 
         // marker
@@ -620,11 +631,12 @@ export class GuiChart extends HTMLElement {
             }
             break;
           }
-          case 'bar':
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width + 1, yRange[0] - y, {
+          case 'bar': {
+            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width, yRange[0] - y, {
               color: style['accent-0'],
             });
             break;
+          }
         }
 
         // tooltip
@@ -675,7 +687,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, s, v);
 
         return {
           color: this._colors[i],
@@ -1080,6 +1092,7 @@ export class GuiChart extends HTMLElement {
     }
 
     const style = getComputedStyle(this);
+
     const props = {
       'text-0': `rgb(${style.getPropertyValue('--text-0')})`,
       'accent-0': `rgb(${style.getPropertyValue('--accent-0')})`,
@@ -1089,12 +1102,12 @@ export class GuiChart extends HTMLElement {
         lineColor: style.getPropertyValue('--cursor-line-c'),
       },
       margin: {
-        top: parseInt(style.getPropertyValue('--m-top')),
-        right: parseInt(style.getPropertyValue('--m-right')),
-        rightEmpty: parseInt(style.getPropertyValue('--m-right-empty')),
-        bottom: parseInt(style.getPropertyValue('--m-bottom')),
-        left: parseInt(style.getPropertyValue('--m-left')),
-        leftEmpty: parseInt(style.getPropertyValue('--m-left-empty')),
+        top: this._parseInt(style.getPropertyValue('--m-top')),
+        right: this._parseInt(style.getPropertyValue('--m-right')),
+        rightEmpty: this._parseInt(style.getPropertyValue('--m-right-empty')),
+        bottom: this._parseInt(style.getPropertyValue('--m-bottom')),
+        left: this._parseInt(style.getPropertyValue('--m-left')),
+        leftEmpty: this._parseInt(style.getPropertyValue('--m-left-empty')),
       },
     };
 
@@ -1241,6 +1254,19 @@ export class GuiChart extends HTMLElement {
     }
 
     this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
+  }
+
+  /**
+   * `parseInt` that returns `0` when `NaN` is encountered
+   */
+  private _parseInt(prop: string): number {
+    // note: we leverage js weirdness that parses '23px' as 23... for reasons
+    // which is convenient here, cause we use this for CSS prop parsing
+    const n = parseInt(prop);
+    if (isNaN(n)) {
+      return 0;
+    }
+    return isNaN(n) ? 0 : n;
   }
 }
 
