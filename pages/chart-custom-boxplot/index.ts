@@ -25,7 +25,6 @@ chart1.config = {
       yCol: 0,
       hideInTooltip: true,
       draw(ctx, s, xScale, yScale) {
-        const width = 200;
         const boxPlotCanvas: BoxPlotCanvas = {
           max: yScale(boxplot.max),
           median: yScale(boxplot.percentile50),
@@ -36,7 +35,7 @@ chart1.config = {
         };
 
         const boxPlotOptions: BoxPlotOptions = {
-          width: width,
+          width: 200,
           iqrColor: s.color,
           whiskerColor: s.color,
           medianColor: s.color,
