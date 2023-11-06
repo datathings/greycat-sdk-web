@@ -5,6 +5,7 @@ import { Disposable } from '../../internals.js';
 import { getCSSVars, getHeatmapColors } from '../../utils.js';
 
 const DEFAULT_COLORS = ['red', 'blue'];
+const DEFAULT_COLORSCALE_WIDTH = 90;
 
 enum ScaleType {
   linear,
@@ -21,6 +22,7 @@ export interface HeatmapProps {
   colorScaleRange?: [number, number];
   xTicks?: number;
   yTicks?: number;
+  colorScaleWidth?: number;
 }
 
 /**
@@ -43,7 +45,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     | d3.ScaleLinear<number, number>;
   //private _colorScaleContainer?: d3.Selection<HTMLDivElement, unknown, null, undefined>;
   private _colorScaleCanvas?: Canvas | undefined;
-  private _colorScaleWidth = 90;
+  private _colorScaleWidth = DEFAULT_COLORSCALE_WIDTH;
   private _colors: string[] = DEFAULT_COLORS;
   private _nullValueColor?: string;
   private _selectedColor = 'yellow';
@@ -124,15 +126,27 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
   get scaleType() {
     return this._scaleType;
   }
+
   set scaleType(type: ScaleType | undefined) {
     this._scaleType = type;
     this.render();
   }
+
   get colorScaleRange() {
     return this._colorScaleRange;
   }
+
   set colorScaleRange(range: [number, number] | undefined) {
     this._colorScaleRange = range;
+    this.render();
+  }
+
+  get colorScaleWidth() {
+    return this._colorScaleWidth;
+  }
+  
+  set colorScaleWidth(width: number) {
+    this._colorScaleWidth = width;
     this.render();
   }
 
@@ -144,6 +158,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     yLabels = this.yLabels,
     scaleType = this._scaleType,
     colorScaleRange = this._colorScaleRange,
+    colorScaleWidth = this._colorScaleWidth,
     xTicks = this._xTicks,
     yTicks = this._yTicks,
   }: Partial<HeatmapProps>) {
@@ -154,6 +169,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     this._yLabels = yLabels ? yLabels : [];
     this._scaleType = scaleType;
     this._colorScaleRange = colorScaleRange;
+    this._colorScaleWidth = colorScaleWidth;
     this._xTicks = xTicks;
     this._yTicks = yTicks;
     this.render();
@@ -168,7 +184,6 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     }
 
     this._colors = getHeatmapColors(this);
-    console.log({ colors: this._colors });
 
     if (this._colors.length === 0) {
       this._colors = DEFAULT_COLORS;
