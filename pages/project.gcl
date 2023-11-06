@@ -255,7 +255,7 @@ fn histogram_table(): Table {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
-  var csv = CsvReader::new("histogram/heightweight.csv", csvFormat);
+  var csv = CsvReader::new("chart-bar-histogram/heightweight.csv", csvFormat);
 
   var histogramHeight = HistogramFloat {};
   var histogramWeight = HistogramFloat {};
@@ -270,18 +270,6 @@ fn histogram_table(): Table {
     histogramHeight.add(height_cm);
     histogramWeight.add(weight_kg);
   }
-
-  info("50% of population are under ${histogramHeight.percentile(50.0)} cm, and ${histogramWeight.percentile(50.0)} kg");
-  info("90% of population are under ${histogramHeight.percentile(90.0)} cm, and ${histogramWeight.percentile(90.0)} kg");
-  info("99% of population are under ${histogramHeight.percentile(99.0)} cm, and ${histogramWeight.percentile(99.0)} kg");
-
-  println("");
-  var res = histogramHeight.sample(histogramHeight.min()!!, histogramHeight.max()!!, 5);
-  for (var i = 0; i < res.rows(); i++) {
-    info("From: ${res.get(i, 0)} cm to: ${res.get(i, 1)} cm, we have ${res.get(i, 2)} observations, that represents ${res.get(i, 3)} % of the dataset");
-  }
-
-  info("${histogramHeight.percentage(170.0) * 100.0}% of the population are under 170 cm ");
 
   return histogramHeight.all();
 }

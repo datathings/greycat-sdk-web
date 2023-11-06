@@ -2,7 +2,7 @@ import { core } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
-app.title = 'Histogram';
+app.title = 'Chart (bar histogram)';
 await app.init();
 
 document.body.prepend(app);

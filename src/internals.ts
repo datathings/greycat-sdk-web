@@ -1,6 +1,7 @@
 import { core } from '@greycat/sdk';
 import { TableLike } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
+import { Serie, SerieOptions } from '../src/components/chart/types.js';
 
 export type Disposable = () => void;
 
@@ -100,21 +101,26 @@ export function debounce<T extends (...args: any[]) => void>(
 
 export function closest(
   table: TableLike,
-  col: number | undefined,
+  serie: Serie & SerieOptions | Serie<string>,
   v: number,
 ): { xValue: number; rowIdx: number } {
   let rowIdx = 0;
-  let res = undefined;
+  let res = 0;
   let distance: number | null = null;
   for (let i = 0; i < table.cols[0].length; i++) {
-    const x = col === undefined ? i : vMap(table.cols[col][i]);
-    if (x === v) {
-      return { xValue: col === undefined ? i : table.cols[col][i], rowIdx: i };
+    let xVal = i;
+    if (serie.type == 'bar' && serie.spanCol !== undefined) {
+      const left = serie.spanCol[0];
+      const right = serie.spanCol[1];
+      xVal = table.cols[left][i] + (table.cols[right][i] - table.cols[left][i]) / 2;
+    } else if (serie.xCol !== undefined) {
+      xVal = table.cols[serie.xCol][i];
     }
+    const x = vMap(xVal);
     const d2 = Math.abs(x - v);
     if (distance == null || distance > d2) {
       rowIdx = i;
-      res = col === undefined ? i : table.cols[col][i];
+      res = xVal;
       distance = d2;
     } else if (distance != null && x > v && distance < d2) {
       return { xValue: res, rowIdx };
