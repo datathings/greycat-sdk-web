@@ -1,6 +1,4 @@
 # `<gui-heatmap />`
-> Virtualized table component for `gui-heatmap`
-
 ![Heatmap](assets/heatmap.png)
 
 ## Usage
@@ -24,7 +22,7 @@ heatmap.colorScaleWidth = 50;
 fn heatmap() {
   var table = Table::new(12);
 
-  //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  // ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   var paris = [4.9, 5.6, 8.8, 11.4, 15.1, 18.2, 20.4, 20.2, 16.9, 12.9, 8.1, 5.4];
   var london = [5.2, 5.3, 7.6, 9.9, 13.3, 16.5, 18.7, 18.5, 15.7, 12.0, 8.0, 5.5];
   var newyork = [0.6, 2.1, 6.1, 11.9, 17.1, 22.1, 24.9, 24.3, 20.2, 14.1, 8.9, 3.3];
