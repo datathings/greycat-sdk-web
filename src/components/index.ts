@@ -55,6 +55,7 @@ export * from './tasks/task-select/index.js';
 export * from './tasks/task-create/index.js';
 export * from './object/object.js';
 export * from './searchable-select/index.js';
+export * from './inputs/index.js';
 
 export type GuiElement =
   // | GuiBarChart

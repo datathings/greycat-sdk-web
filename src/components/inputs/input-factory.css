@@ -1,0 +1,46 @@
+.gui-input-nullable {
+  display: grid;
+  grid-template-columns: 1fr 65px;
+  column-gap: var(--spacing);
+
+  > label {
+    height: fit-content;
+  }
+}
+
+/* .gui-input-nullable-summary {
+  color: var(--color);
+  background-color: var(--bg-1);
+  padding: var(--spacing);
+  margin-bottom: 0;
+} */
+
+.gui-input-any {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  column-gap: var(--spacing);
+}
+
+.gui-input-labelled-fieldset {
+  margin-bottom: 0;
+}
+
+.gui-input-object
+.gui-input-array {
+  border: 1px solid var(--bg-1);
+  background-color: rgba(var(--base-1), 0.9);
+  margin-bottom: var(--spacing);
+}
+
+.gui-input-array {
+  .gui-input-array-element {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--spacing);
+    align-items: start;
+
+    & > * {
+      min-width: 0px;
+    }
+  }
+}
