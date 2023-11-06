@@ -830,8 +830,8 @@ export class GuiChart extends HTMLElement {
       endX = xRange[1];
     }
 
-    const from: number = Math.floor(+xScale.invert(startX));
-    const to: number = Math.ceil(+xScale.invert(endX));
+    const from: number = +xScale.invert(startX);
+    const to: number = +xScale.invert(endX);
 
     // selection is done
     const selectionEvt = new GuiChartSelectionEvent(from, to);
@@ -846,8 +846,8 @@ export class GuiChart extends HTMLElement {
     if (orientation === 'both' || orientation === 'vertical') {
       for (const yAxisName in yScales) {
         const yScale = yScales[yAxisName];
-        const from: number = Math.floor(+yScale.invert(endY));
-        const to: number = Math.ceil(+yScale.invert(startY));
+        const from: number = +yScale.invert(endY);
+        const to: number = +yScale.invert(startY);
         yScale.domain([from, to]);
         this._config.yAxes[yAxisName].min = from;
         this._config.yAxes[yAxisName].max = to;
