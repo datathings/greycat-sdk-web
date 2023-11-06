@@ -1,1 +1,1 @@
-// export * from './histogram-chart';
+export * from './histogram-chart.js';

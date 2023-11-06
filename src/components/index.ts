@@ -7,7 +7,7 @@ import { type GuiDonut } from './donut/index.js';
 import { type GuiEnumSelect } from './enum-select/index.js';
 import { type GuiGauge } from './gauge/index.js';
 import { type GuiHeatmap } from './heatmap/index.js';
-// import { type GuiHistogramChart } from './histogram-chart';
+import { type GuiHistogramChart } from './histogram/index.js';
 // import { type GuiLineChart } from './line-chart';
 // import { type GuiMap } from './map/index.js';
 // import { type GuiNodeTimeInfo } from './nodetime';
@@ -36,7 +36,7 @@ export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
 export * from './gauge/index.js';
 export * from './heatmap/index.js';
-// export * from './histogram-chart';
+export * from './histogram/index.js';
 // export * from './line-chart';
 // export * from './map/index.js';
 // export * from './nodetime';
@@ -66,7 +66,7 @@ export type GuiElement =
   | GuiEnumSelect
   | GuiGauge
   | GuiHeatmap
-  // | GuiHistogramChart
+  | GuiHistogramChart
   // | GuiMap
   // | GuiNodeTimeInfo
   // | GuiScatterPlotChart
