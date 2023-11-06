@@ -15,6 +15,7 @@ app.main.replaceChildren(
           <li><a href="./chart-colored-area/">Chart (colored-area)</a></li>
           <li><a href="./chart-scatter/">Chart (scatter)</a></li>
           <li><a href="./chart-custom/">Chart (custom)</a></li>
+          <li><a href="./chart-custom-boxplot/">Chart (custom boxplot)</a></li>
           <li><a href="./chart-bar-histogram/">Chart (bar histogram)</a></li>
           <li><a href="./donut/">Donut</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>

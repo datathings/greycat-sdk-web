@@ -21,6 +21,22 @@ enum Confidence {
 }
 
 @expose
+fn boxplot_float() {
+  var histogram = HistogramFloat {};
+
+  var random = Random::new();
+  random.setSeed(12345);
+  var testSize = 10;
+
+  for (var i = 0; i < testSize; i++) {
+    var v = random.uniformf(-100.0, 100.0);
+    histogram.add(v);
+  }
+  
+  return histogram.toBoxPlot();
+}
+
+@expose
 fn chart(nbRows: int) {
   if (nbRows < 5) {
     throw "min nbRows 5";
