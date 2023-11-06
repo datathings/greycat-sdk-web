@@ -32,7 +32,7 @@ fn boxplot_float() {
     var v = random.uniformf(-100.0, 100.0);
     histogram.add(v);
   }
-  
+
   return histogram.toBoxPlot();
 }
 
@@ -53,6 +53,7 @@ fn chart(nbRows: int) {
   var prev2 = 80_f;
 
   var table = Table::new(6);
+
   var rand = Random::new();
 
   for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
@@ -60,7 +61,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -82,7 +83,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -105,6 +106,10 @@ fn chart_time(): Table {
   var rand = Random::new();
 
   var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
   var min = -10.0;
   var max = 40.0;
   var prevTime = time::now();
@@ -296,6 +301,10 @@ fn table(): Table {
   var rand = Random::new();
 
   var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
   var min = -10.0;
   var max = 40.0;
   var prevTime = time::now();

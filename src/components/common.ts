@@ -14,6 +14,7 @@ export class GuiRenderEvent extends CustomEvent<number> {
 export type TableLike = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols: any[][];
+  meta?: { header?: string | null }[];
 };
 
 export type IDisposable = () => void;

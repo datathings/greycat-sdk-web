@@ -11,6 +11,7 @@ import {
   SerieData,
   SerieOptions,
   SelectionOptions,
+  BarSerie,
 } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
@@ -595,9 +596,6 @@ export class GuiChart extends HTMLElement {
           ...this._config.series[i],
         };
 
-        if (serie.type === 'bar' && serie.spanCol) {
-          // BarSerie with spanCol 
-        }
         const v = +xScale.invert(this._cursor.x);
         const { xValue, rowIdx } = closest(this._config.table, serie, v);
         const yValue =
@@ -610,10 +608,6 @@ export class GuiChart extends HTMLElement {
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
-        }
-
-        if (serie.type == 'bar' && serie.spanCol !== undefined) {
-          serie.width = xScale(vMap(this._config.table.cols[1][rowIdx] - this._config.table.cols[0][rowIdx])) - xScale(0);
         }
 
         // marker
@@ -632,7 +626,14 @@ export class GuiChart extends HTMLElement {
             break;
           }
           case 'bar': {
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width, yRange[0] - y, {
+            const s = serie as BarSerie<string>;
+            let w = serie.width;
+            if (s.spanCol) {
+              const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
+              const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
+              w = Math.abs(x1 - x0);
+            }
+            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, w, yRange[0] - y, {
               color: style['accent-0'],
             });
             break;
@@ -652,7 +653,7 @@ export class GuiChart extends HTMLElement {
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
-          nameEl.textContent = `${serie.title ?? `Col ${serie.yCol}`}:`;
+          nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -665,10 +666,10 @@ export class GuiChart extends HTMLElement {
           valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue);
           this._tooltip.append(nameEl, valueEl);
 
-          if (yValue2 !== undefined) {
+          if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
-            nameEl.textContent = `${serie.title ?? `Col ${serie.yCol2}`}:`;
+            nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (
@@ -760,8 +761,8 @@ export class GuiChart extends HTMLElement {
         endX = xRange[1];
       }
 
-      const from: number = Math.floor(+xScale.invert(startX));
-      const to: number = Math.ceil(+xScale.invert(endX));
+      const from: number = +xScale.invert(startX);
+      const to: number = +xScale.invert(endX);
 
       if (this._cursor.selection) {
         // selection in progress

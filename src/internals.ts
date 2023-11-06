@@ -1,7 +1,6 @@
 import { core } from '@greycat/sdk';
-import { TableLike } from './components/index.js';
+import { Serie, TableLike } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
-import { Serie, SerieOptions } from '../src/components/chart/types.js';
 
 export type Disposable = () => void;
 
@@ -101,32 +100,38 @@ export function debounce<T extends (...args: any[]) => void>(
 
 export function closest(
   table: TableLike,
-  serie: Serie & SerieOptions | Serie<string>,
+  serie: Serie<string>,
   v: number,
 ): { xValue: number; rowIdx: number } {
   let rowIdx = 0;
-  let res = 0;
+  let res = undefined;
   let distance: number | null = null;
   for (let i = 0; i < table.cols[0].length; i++) {
-    let xVal = i;
-    if (serie.type == 'bar' && serie.spanCol !== undefined) {
-      const left = serie.spanCol[0];
-      const right = serie.spanCol[1];
-      xVal = table.cols[left][i] + (table.cols[right][i] - table.cols[left][i]) / 2;
-    } else if (serie.xCol !== undefined) {
-      xVal = table.cols[serie.xCol][i];
+    let x: number;
+    if (serie.type === 'bar' && serie.spanCol) {
+      const x0 = vMap(table.cols[serie.spanCol[0]][i]);
+      const x1 = vMap(table.cols[serie.spanCol[1]][i]);
+      if (v >= x0 && v <= x1) {
+        return { xValue: x0 + ((x1 - x0) / 2), rowIdx: i };
+      }
+      x = x0;
+    } else {
+      x = serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]);
+      if (x === v) {
+        return { xValue: serie.xCol === undefined ? i : table.cols[serie.xCol][i], rowIdx: i };
+      }
     }
-    const x = vMap(xVal);
     const d2 = Math.abs(x - v);
     if (distance == null || distance > d2) {
       rowIdx = i;
-      res = xVal;
+      res = serie.xCol === undefined ? i : table.cols[serie.xCol][i];
       distance = d2;
     } else if (distance != null && x > v && distance < d2) {
       return { xValue: res, rowIdx };
     }
   }
   return { xValue: res, rowIdx };
+
 }
 
 export type TableClassColumnMeta = core.TableColumnMeta & { class?: string };

@@ -19,6 +19,9 @@ export class AppLayout extends HTMLElement {
   }
 
   connectedCallback() {
+    const title = this.getAttribute('title');
+    this.removeAttribute('title');
+
     this.appendChild(
       <>
         <header className="container-fluid">
@@ -30,7 +33,7 @@ export class AppLayout extends HTMLElement {
                     <strong>@greycat/web</strong>
                   </a>
                 </li>
-                <li>{this.getAttribute('title')}</li>
+                <li>{title}</li>
               </ul>
             </nav>
             {this.actions}
