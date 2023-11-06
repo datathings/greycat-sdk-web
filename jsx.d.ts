@@ -1,5 +1,9 @@
 declare namespace GreyCat {
-  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & { className?: string | string[], style?: Partial<CSSStyleDeclaration> };
+  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & {
+    className?: string | string[];
+    style?: Partial<CSSStyleDeclaration>;
+    // $ref?: (el: T) => void;
+  };
 }
 
 declare namespace JSX {
@@ -129,7 +133,7 @@ declare namespace JSX {
     track: GreyCat.Element<HTMLTrackElement>;
     u: GreyCat.Element<HTMLElement>;
     ul: GreyCat.Element<HTMLUListElement>;
-    'var': GreyCat.Element<HTMLElement>;
+    var: GreyCat.Element<HTMLElement>;
     video: GreyCat.Element<HTMLVideoElement>;
     wbr: GreyCat.Element<HTMLElement>;
     webview: GreyCat.Element<HTMLElement>;

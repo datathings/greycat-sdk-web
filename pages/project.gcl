@@ -1,6 +1,7 @@
 use util;
 use runtime;
 use math;
+use io;
 
 fn main() {
   for (var i = 0; i < 15; i++) {
@@ -59,7 +60,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -81,7 +82,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -264,7 +265,32 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// pages/table start
+// pages/histogram
+@expose
+fn histogram_table(): Table {
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader::new("chart-bar-histogram/heightweight.csv", csvFormat);
+
+  var histogramHeight = HistogramFloat {};
+  var histogramWeight = HistogramFloat {};
+  while (csv.available() > 0) {
+    var res = csv.read();
+    var height_inch = res[1] as float;
+    var weight_pound = res[2] as float; 
+
+    var height_cm = height_inch * 2.54;
+    var weight_kg = weight_pound * 0.453592;
+
+    histogramHeight.add(height_cm);
+    histogramWeight.add(weight_kg);
+  }
+
+  return histogramHeight.all();
+}
+// pages/histogram end
+
 @expose
 fn table(): Table {
   var rand = Random::new();

@@ -3,7 +3,15 @@ import * as d3 from 'd3';
 import { closest, debounce, throttle } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from './ctx.js';
-import { Scale, ChartConfig, Color, Serie, SerieData, SerieOptions, SelectionOptions } from './types.js';
+import {
+  Scale,
+  ChartConfig,
+  Color,
+  Serie,
+  SerieData,
+  SerieOptions,
+  SelectionOptions,
+} from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
@@ -206,91 +214,94 @@ export class GuiChart extends HTMLElement {
       this._resetCursor();
     });
 
-    this.addEventListener(
-      'wheel',
-      (event) => {
-        event.preventDefault();
-        event.stopPropagation();
+    this.addEventListener('wheel', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
 
-        throttle((event: WheelEvent) => {
-          // if this is too slow, maybe cache xRange, yRange
-          const { xRange, yRange, xScale: scale, yScales } = this._computed;
-          if (event.shiftKey) {
-            // x axis panning
+      throttle((event: WheelEvent) => {
+        // if this is too slow, maybe cache xRange, yRange
+        const { xRange, yRange, xScale: scale, yScales } = this._computed;
+        if (event.shiftKey) {
+          // x axis panning
+          if (this._config.xAxis.ratio === 0) {
+            return;
+          }
+          const [min, max] = scale.range();
+          const ratio = this._config.xAxis.ratio ?? 100;
+          const dx = (Math.abs(max - min) / ratio) * (event.deltaY > 0 ? 1 : -1);
+          const from = (this._config.xAxis.min = scale.invert(min + dx));
+          const to = (this._config.xAxis.max = scale.invert(max + dx));
+          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+          this.compute();
+          this.update();
+        } else if (event.altKey) {
+          // y axes panning
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
+            if (axis.ratio === 0) {
+              continue;
+            }
             const [min, max] = scale.range();
-            const dx =
-              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-            const from = (this._config.xAxis.min = scale.invert(min + dx));
-            const to = (this._config.xAxis.max = scale.invert(max + dx));
+            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+            axis.min = scale.invert(min + d);
+            axis.max = scale.invert(max + d);
+          }
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.x < xRange[0] &&
+          this._cursor.y <= yRange[0] &&
+          this._cursor.y >= yRange[1]
+        ) {
+          // left y axes zoom
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
+            if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
+              const [min, max] = scale.range();
+              const dx = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+              axis.min = scale.invert(min + dx);
+              axis.max = scale.invert(max - dx);
+            }
+          }
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.x > xRange[1] &&
+          this._cursor.y <= yRange[0] &&
+          this._cursor.y >= yRange[1]
+        ) {
+          // right y axes zoom
+          for (const [name, scale] of Object.entries(yScales)) {
+            const axis = this._config.yAxes[name];
+            if (axis.position === 'right' && axis.ratio !== 0) {
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max - d);
+            }
+          }
+          this.compute();
+          this.update();
+        } else if (
+          this._cursor.y > yRange[0] &&
+          this._cursor.x >= xRange[0] &&
+          this._cursor.x <= xRange[1]
+        ) {
+          if (this._config.xAxis.ratio !== 0) {
+            // x axis zoom
+            const [min, max] = scale.range();
+            const d =
+              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
+              (event.deltaY > 0 ? 1 : -1);
+            const from = (this._config.xAxis.min = scale.invert(min - d));
+            const to = (this._config.xAxis.max = scale.invert(max + d));
             this.dispatchEvent(new GuiChartSelectionEvent(from, to));
             this.compute();
             this.update();
-          } else if (event.altKey) {
-            // y axes panning
-            for (const [name, scale] of Object.entries(yScales)) {
-              const axis = this._config.yAxes[name];
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max + d);
-            }
-            this.compute();
-            this.update();
-          } else if (
-            this._cursor.x < xRange[0] &&
-            this._cursor.y <= yRange[0] &&
-            this._cursor.y >= yRange[1]
-          ) {
-            // left y axes zoom
-            for (const [name, scale] of Object.entries(yScales)) {
-              const axis = this._config.yAxes[name];
-              if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
-                const [min, max] = scale.range();
-                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-                axis.min = scale.invert(min + d);
-                axis.max = scale.invert(max - d);
-              }
-            }
-            this.compute();
-            this.update();
-          } else if (
-            this._cursor.x > xRange[1] &&
-            this._cursor.y <= yRange[0] &&
-            this._cursor.y >= yRange[1]
-          ) {
-            // right y axes zoom
-            for (const [name, scale] of Object.entries(yScales)) {
-              const axis = this._config.yAxes[name];
-              if (axis.position === 'right' && axis.ratio !== 0) {
-                const [min, max] = scale.range();
-                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-                axis.min = scale.invert(min + d);
-                axis.max = scale.invert(max - d);
-              }
-            }
-            this.compute();
-            this.update();
-          } else if (
-            this._cursor.y > yRange[0] &&
-            this._cursor.x >= xRange[0] &&
-            this._cursor.x <= xRange[1]
-          ) {
-            if (this._config.xAxis.ratio !== 0) {
-              // x axis zoom
-              const [min, max] = scale.range();
-              const d =
-                (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
-                (event.deltaY > 0 ? 1 : -1);
-              const from = (this._config.xAxis.min = scale.invert(min - d));
-              const to = (this._config.xAxis.max = scale.invert(max + d));
-              this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-              this.compute();
-              this.update();
-            }
           }
-        }, 16)(event);
-      },
-    );
+        }
+      }, 16)(event);
+    });
   }
 
   connectedCallback() {
@@ -380,6 +391,10 @@ export class GuiChart extends HTMLElement {
    */
   private _resize() {
     const { width, height } = this.getBoundingClientRect();
+    if (width === 0 || height === 0) {
+      // do not even try to render if 0-sized
+      return;
+    }
 
     // resize main canvas
     this._canvas.width = width;
@@ -580,8 +595,11 @@ export class GuiChart extends HTMLElement {
           ...this._config.series[i],
         };
 
+        if (serie.type === 'bar' && serie.spanCol) {
+          // BarSerie with spanCol 
+        }
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, serie, v);
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
@@ -592,6 +610,10 @@ export class GuiChart extends HTMLElement {
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
+        }
+
+        if (serie.type == 'bar' && serie.spanCol !== undefined) {
+          serie.width = xScale(vMap(this._config.table.cols[1][rowIdx] - this._config.table.cols[0][rowIdx])) - xScale(0);
         }
 
         // marker
@@ -609,11 +631,12 @@ export class GuiChart extends HTMLElement {
             }
             break;
           }
-          case 'bar':
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width + 1, yRange[0] - y, {
+          case 'bar': {
+            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, serie.width, yRange[0] - y, {
               color: style['accent-0'],
             });
             break;
+          }
         }
 
         // tooltip
@@ -664,7 +687,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s.xCol, v);
+        const { xValue, rowIdx } = closest(this._config.table, s, v);
 
         return {
           color: this._colors[i],
@@ -781,7 +804,9 @@ export class GuiChart extends HTMLElement {
     }
   }
 
-  private _selection(orientation: SelectionOptions['orientation'] | undefined = 'horizontal'): void {
+  private _selection(
+    orientation: SelectionOptions['orientation'] | undefined = 'horizontal',
+  ): void {
     const { xRange, yRange, xScale, yScales } = this._computed;
     // ensure start/end are bound to the ranges
     let startX = this._cursor.startX;
@@ -830,8 +855,8 @@ export class GuiChart extends HTMLElement {
       endX = xRange[1];
     }
 
-    const from: number = Math.floor(+xScale.invert(startX));
-    const to: number = Math.ceil(+xScale.invert(endX));
+    const from: number = +xScale.invert(startX);
+    const to: number = +xScale.invert(endX);
 
     // selection is done
     const selectionEvt = new GuiChartSelectionEvent(from, to);
@@ -846,8 +871,8 @@ export class GuiChart extends HTMLElement {
     if (orientation === 'both' || orientation === 'vertical') {
       for (const yAxisName in yScales) {
         const yScale = yScales[yAxisName];
-        const from: number = Math.floor(+yScale.invert(endY));
-        const to: number = Math.ceil(+yScale.invert(startY));
+        const from: number = +yScale.invert(endY);
+        const to: number = +yScale.invert(startY);
         yScale.domain([from, to]);
         this._config.yAxes[yAxisName].min = from;
         this._config.yAxes[yAxisName].max = to;
@@ -1067,6 +1092,7 @@ export class GuiChart extends HTMLElement {
     }
 
     const style = getComputedStyle(this);
+
     const props = {
       'text-0': `rgb(${style.getPropertyValue('--text-0')})`,
       'accent-0': `rgb(${style.getPropertyValue('--accent-0')})`,
@@ -1076,12 +1102,12 @@ export class GuiChart extends HTMLElement {
         lineColor: style.getPropertyValue('--cursor-line-c'),
       },
       margin: {
-        top: parseInt(style.getPropertyValue('--m-top')),
-        right: parseInt(style.getPropertyValue('--m-right')),
-        rightEmpty: parseInt(style.getPropertyValue('--m-right-empty')),
-        bottom: parseInt(style.getPropertyValue('--m-bottom')),
-        left: parseInt(style.getPropertyValue('--m-left')),
-        leftEmpty: parseInt(style.getPropertyValue('--m-left-empty')),
+        top: this._parseInt(style.getPropertyValue('--m-top')),
+        right: this._parseInt(style.getPropertyValue('--m-right')),
+        rightEmpty: this._parseInt(style.getPropertyValue('--m-right-empty')),
+        bottom: this._parseInt(style.getPropertyValue('--m-bottom')),
+        left: this._parseInt(style.getPropertyValue('--m-left')),
+        leftEmpty: this._parseInt(style.getPropertyValue('--m-left-empty')),
       },
     };
 
@@ -1228,6 +1254,19 @@ export class GuiChart extends HTMLElement {
     }
 
     this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
+  }
+
+  /**
+   * `parseInt` that returns `0` when `NaN` is encountered
+   */
+  private _parseInt(prop: string): number {
+    // note: we leverage js weirdness that parses '23px' as 23... for reasons
+    // which is convenient here, cause we use this for CSS prop parsing
+    const n = parseInt(prop);
+    if (isNaN(n)) {
+      return 0;
+    }
+    return isNaN(n) ? 0 : n;
   }
 }
 

@@ -1,5 +1,5 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, SerieWithOptions } from './types.js';
+import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions } from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions} from '../../../src/chart-utils/model.js';
 
@@ -102,7 +102,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  bar(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  bar(table: TableLike, serie: BarSerie<string> & SerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -117,10 +117,40 @@ export class CanvasContext {
     const shift = Math.round(serie.width / 2);
 
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
-      let y = yScale(vMap(table.cols[serie.yCol][i]));
-      if ((x + serie.width) < xMin || x > xMax || y > yMin) {
-        continue;
+      let x: number;
+      let y: number;
+      let w: number;
+      if (serie.spanCol) {
+        let x0 = xScale(vMap(table.cols[serie.spanCol[0]][i]));
+        let x1 = xScale(vMap(table.cols[serie.spanCol[1]][i]));
+        y = yScale(vMap(table.cols[serie.yCol][i]));
+        if (x0 < xMin) {
+          x0 = xMin;
+        }
+        if (x1 < xMin) {
+          x1 = xMin;
+        }
+        if (x0 > xMax) {
+          x0 = xMax;
+        }
+        if (x1 > xMax) {
+          x1 = xMax;
+        }
+        if (y < yMax) {
+          y = yMax;
+        }
+        if (y > yMin) {
+          y = yMin;
+        }
+        x = x0;
+        w = x1 - x0;
+      } else {
+        x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
+        y = yScale(vMap(table.cols[serie.yCol][i]));
+        w = serie.width;
+        if ((x + serie.width) < xMin || x > xMax || y > yMin) {
+          continue;
+        }
       }
       if (y < yMax) {
         y = yMax;
@@ -128,7 +158,7 @@ export class CanvasContext {
       this.ctx.fillStyle = serie.colorCol
         ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color
         : serie.color;
-      this.ctx.fillRect(x, y, serie.width, yMin - y);
+      this.ctx.fillRect(x, y, w, yMin - y);
     }
 
     this.ctx.restore();
