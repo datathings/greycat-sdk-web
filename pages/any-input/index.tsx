@@ -23,4 +23,9 @@ app.main.replaceChildren(
       <div className="container-fluid">{objViewer}</div>
     </article>
   </div>,
+  <gui-input-string
+    disabled={false}
+    invalid={false}
+    oninput={(v) => console.log('update', v)}
+  />
 );
