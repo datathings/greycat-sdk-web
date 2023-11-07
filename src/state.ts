@@ -45,7 +45,10 @@ class BinaryReader extends AbiReader {
   }
 }
 
-export async function loadState<T extends { [key: string]: unknown }>(defaultState: T, name = 'app-state'): Promise<T> {
+export async function loadStateFromDb<T extends { [key: string]: unknown }>(
+  defaultState: T,
+  name = 'app-state',
+): Promise<T> {
   const db = new IndexedDbWrapper(name, 1);
   const bytes = await db.readBytes(name);
   if (bytes) {
@@ -55,10 +58,47 @@ export async function loadState<T extends { [key: string]: unknown }>(defaultSta
   return defaultState;
 }
 
-export async function saveState(state: unknown, name = 'app-state') {
+export async function saveStateToDb(state: unknown, name = 'app-state') {
   const writer = new BinaryWriter();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   writer.serialize(state as any);
   const db = new IndexedDbWrapper(name, 1);
   db.writeBytes(name, writer.buffer);
 }
+
+export async function loadStateFromStorage<T extends { [key: string]: unknown }>(
+  defaultState: T,
+  name = 'app-state',
+  storage = localStorage,
+): Promise<T> {
+  const hex = storage.getItem(name);
+  if (hex) {
+    const bytes = hexToBytes(hex);
+    const reader = new BinaryReader(bytes.buffer);
+    return reader.deserialize() as unknown as T;
+  }
+  return defaultState;
+}
+
+export async function saveStateToStorage(state: unknown, name = 'app-state', storage = localStorage) {
+  const writer = new BinaryWriter();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  writer.serialize(state as any);
+  storage.setItem(name, bytesToHex(writer.buffer));
+}
+
+const hexToBytes = (hexString: string) => {
+  const length = hexString.length;
+  const byteCount = length / 2;
+  const uint8Array = new Uint8Array(byteCount);
+
+  for (let i = 0; i < length; i += 2) {
+    uint8Array[i / 2] = parseInt(hexString.slice(i, i + 2), 16);
+  }
+
+  return uint8Array;
+};
+
+const bytesToHex = (bytes: Uint8Array) => {
+  return Array.from(bytes, (byte) => byte.toString(16).padStart(2, '0')).join('');
+};

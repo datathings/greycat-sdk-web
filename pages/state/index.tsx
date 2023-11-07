@@ -1,4 +1,4 @@
-import { core, loadState, saveState } from '../../src';
+import { core, loadStateFromStorage, saveStateToStorage } from '../../src';
 import '../layout';
 import type { AppLayout } from '../layout';
 
@@ -16,7 +16,7 @@ class AppState {
 
   static async fromDb(): Promise<AppState> {
     // loads the raw state from IndexedDb or use the provided default
-    const state = await loadState(
+    const state = await loadStateFromStorage(
       {
         auth: {
           username: 'User',
@@ -88,7 +88,7 @@ console.log(state);
 
 // serializes the state to IndexedDb
 console.time('save state');
-await saveState(state);
+await saveStateToStorage(state);
 console.timeEnd('save state');
 
 app.main.appendChild(
