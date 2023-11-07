@@ -24,25 +24,25 @@ export class GuiInputString extends HTMLElement {
 
   attributeChangedCallback(name: string, _oldValue: unknown, newValue: string | InputHandler | null) {
     try {
-    if (name === 'disabled') {
-      if (newValue !== 'true' && newValue !== 'false') {
-        throw new Error(`Attribute 'disabled' can be only true or false`);
+      if (name === 'disabled') {
+        if (newValue !== 'true' && newValue !== 'false') {
+          throw new Error(`Attribute 'disabled' can be only true or false`);
+        }
+        const isDisabled = newValue === 'true';
+        this._stringInput.disabled = isDisabled;
+      } else if (name === 'invalid') {
+        if (newValue !== 'true' && newValue !== 'false') {
+          throw new Error(`Attribute 'invalid' can be only true or false`);
+        }
+        const isInvalid = newValue === 'true';
+        this._stringInput.invalid = isInvalid;
+      } else if (name === 'oninput') {
+        if (typeof newValue === 'function') {
+          this._oninput = newValue;
+        } else {
+          throw new Error(`Attribute 'oninput' can be only object of type function`);
+        }
       }
-      const isDisabled = newValue === 'true';
-      this._stringInput.disabled = isDisabled;
-    } else if (name === 'invalid') {
-      if (newValue !== 'true' && newValue !== 'false') {
-        throw new Error(`Attribute 'invalid' can be only true or false`);
-      }
-      const isInvalid = newValue === 'true';
-      this._stringInput.invalid = isInvalid;
-    } else if (name === 'oninput') {
-      if (typeof newValue === 'function') {
-        this._oninput = newValue;
-      } else {
-        throw new Error(`Attribute 'oninput' can be only object of type function`);
-      }
-    }
     } catch(err) {
       this._handleError(err);
     }
