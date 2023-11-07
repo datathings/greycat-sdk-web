@@ -59,6 +59,18 @@ export class StringInput implements IInput {
   get value() {
     return this.element.value;
   }
+
+  set value(v: string) {
+    this.element.value = v;
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(n: string) {
+    this.element.name = n;
+  }
 }
 
 export class CharInput implements IInput {
