@@ -1,4 +1,4 @@
-import { AbiType, GCObject, Value, core } from '@greycat/sdk';
+import { AbiFunction, AbiType, GCEnum, GCObject, Value, core } from '@greycat/sdk';
 import { GuiEnumSelect, GuiSearchableSelect, SearchableOption, displayType } from '../index.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -59,6 +59,10 @@ export class StringInput implements IInput {
   get value() {
     return this.element.value;
   }
+
+  set value(value: string) {
+    this.element.value = value;
+  }
 }
 
 export class CharInput implements IInput {
@@ -104,6 +108,10 @@ export class CharInput implements IInput {
 
   get value() {
     return this.element.value;
+  }
+
+  set value(value: string) {
+    this.element.value = value;
   }
 }
 
@@ -154,6 +162,10 @@ export class IntInput implements IInput {
   get value() {
     return this.element.valueAsNumber;
   }
+
+  set value(value: number) {
+    this.element.valueAsNumber = value;
+  }
 }
 
 export class FloatInput implements IInput {
@@ -202,6 +214,10 @@ export class FloatInput implements IInput {
 
   get value() {
     return this.element.valueAsNumber;
+  }
+
+  set value(value: number) {
+    this.element.valueAsNumber = value;
   }
 }
 
@@ -254,6 +270,10 @@ export class BoolInput implements IInput {
   get value() {
     return this._input.checked;
   }
+
+  set value(value: boolean) {
+    this._input.checked = value;
+  }
 }
 
 export class TimeInput implements IInput {
@@ -299,6 +319,10 @@ export class TimeInput implements IInput {
 
   get value() {
     return core.time.fromMs(Date.parse(this.element.value));
+  }
+
+  set value(value: core.time) {
+    this.element.valueAsNumber = value.epochMs;
   }
 }
 
@@ -354,6 +378,14 @@ export class FnInput implements IInput {
     }
     this.invalid = true;
     return null;
+  }
+
+  set value(value: core.function_ | null) {
+    if (value === null) {
+      this.element.value = '';
+    } else {
+      this.element.value = value.fqn;
+    }
   }
 }
 
@@ -433,6 +465,50 @@ export class DurationInput implements IInput {
       (this._unitSelect.selected as core.DurationUnit | null) ?? core.DurationUnit.minutes(),
     );
   }
+
+  set value(value: core.duration) {
+    let unit = this._unitSelect.selected as core.DurationUnit | null;
+    if (unit === null) {
+      unit = this._unitSelect.selected = core.DurationUnit.minutes();
+    }
+    switch (unit.key) {
+      case 'microseconds':
+        this._valueInput.valueAsNumber = Number(value.us);
+        break;
+      case 'milliseconds':
+        this._valueInput.valueAsNumber = Number(value.ms);
+        break;
+      case 'seconds':
+        this._valueInput.valueAsNumber = Number(value.s);
+        break;
+      case 'minutes':
+        this._valueInput.valueAsNumber = Number(value.min);
+        break;
+      case 'hours':
+        this._valueInput.valueAsNumber = Number(value.hour);
+        break;
+      case 'days':
+        this._valueInput.valueAsNumber = Number(value.day);
+        break;
+      case 'weeks':
+        this._valueInput.valueAsNumber = Number(value.week);
+        break;
+      case 'months':
+        this._valueInput.valueAsNumber = Number(value.month);
+        break;
+      case 'years':
+        this._valueInput.valueAsNumber = Number(value.year);
+        break;
+    }
+  }
+
+  get unit(): core.DurationUnit {
+    return this._unitSelect.selected as core.DurationUnit;
+  }
+
+  set unit(unit: core.DurationUnit) {
+    this._unitSelect.selected = unit;
+  }
 }
 
 export class NodeInput implements IInput {
@@ -484,6 +560,10 @@ export class NodeInput implements IInput {
       greycat.default.abi.types[greycat.default.abi.core_node_offset],
       BigInt(`0x${this.element.value}`),
     );
+  }
+
+  set value(value: core.node) {
+    this.element.value = value.ref;
   }
 }
 
@@ -537,6 +617,10 @@ export class NodeTimeInput implements IInput {
       BigInt(`0x${this.element.value}`),
     );
   }
+
+  set value(value: core.nodeTime) {
+    this.element.value = value.ref;
+  }
 }
 
 export class NodeGeoInput implements IInput {
@@ -588,6 +672,10 @@ export class NodeGeoInput implements IInput {
       greycat.default.abi.types[greycat.default.abi.core_node_geo_offset],
       BigInt(`0x${this.element.value}`),
     );
+  }
+
+  set value(value: core.nodeGeo) {
+    this.element.value = value.ref;
   }
 }
 
@@ -641,6 +729,10 @@ export class NodeListInput implements IInput {
       BigInt(`0x${this.element.value}`),
     );
   }
+
+  set value(value: core.nodeList) {
+    this.element.value = value.ref;
+  }
 }
 
 export class NodeIndexInput implements IInput {
@@ -693,6 +785,10 @@ export class NodeIndexInput implements IInput {
       BigInt(`0x${this.element.value}`),
     );
   }
+
+  set value(value: core.nodeIndex) {
+    this.element.value = value.ref;
+  }
 }
 
 export class UnknownInput implements IInput {
@@ -726,6 +822,10 @@ export class UnknownInput implements IInput {
 
   get value() {
     return null;
+  }
+
+  set value(_value: unknown) {
+    // TODO noop for now
   }
 }
 
@@ -794,6 +894,119 @@ export class ObjectInput implements IInput {
   get value() {
     return new GCObject(this.type, ...this._values);
   }
+
+  set value(value: GCObject) {
+    if (value.$type === this.type) {
+      for (let i = 0; i < this.type.attrs.length; i++) {
+        this._inputs[i].value = value.$attrs![i];
+        this._values[i] = value.$attrs![i];
+      }
+    }
+  }
+}
+
+export class FnCallInput implements IInput {
+  readonly element: HTMLElement;
+  private _values: Value[];
+  private _inputs: LabelledInput[];
+
+  constructor(
+    public name: string,
+    private _fn: AbiFunction,
+    public oninput: InputHandler,
+  ) {
+    this._values = new Array(_fn.params.length);
+
+    const inputList = document.createElement('div');
+    inputList.classList.add('container-fluid', 'py-1');
+    inputList.role = 'list';
+
+    this._inputs = new Array(_fn.params.length);
+    for (let i = 0; i < _fn.params.length; i++) {
+      const param = _fn.params[i];
+      const input = new LabelledInput(
+        `${name}-${param.name}`,
+        param.name,
+        param.type,
+        param.nullable,
+        (v) => {
+          // update closed arg value
+          this._values[i] = v;
+          oninput(this.value);
+        },
+      );
+
+      // append to input list
+      this._inputs[i] = input;
+      // append to DOM list
+      inputList.appendChild(input.element);
+    }
+
+    this.element = (<article className="gui-input-fn-call">{inputList}</article>) as HTMLElement;
+  }
+
+  get disabled() {
+    // they all have the same state
+    return this._inputs[0]?.disabled ?? false;
+  }
+
+  set disabled(disabled: boolean) {
+    for (let i = 0; i < this._inputs.length; i++) {
+      this._inputs[i].disabled = disabled;
+    }
+  }
+
+  get invalid() {
+    // they all have the same state
+    return this._inputs[0]?.invalid ?? false;
+  }
+
+  set invalid(invalid: boolean) {
+    for (let i = 0; i < this._inputs.length; i++) {
+      this._inputs[i].invalid = invalid;
+    }
+  }
+
+  get value() {
+    return this._values;
+  }
+
+  set value(value: Value[]) {
+    this._values = value;
+  }
+
+  get fn() {
+    return this._fn;
+  }
+
+  set fn(fn: AbiFunction) {
+    this._fn = fn;
+    this.element.replaceChildren();
+    this._values = new Array(fn.params.length);
+    this._inputs = new Array(fn.params.length);
+
+    for (let i = 0; i < fn.params.length; i++) {
+      const param = fn.params[i];
+      const input = new LabelledInput(
+        `${this.name}-${param.name}`,
+        param.name,
+        param.type,
+        param.nullable,
+        (v) => {
+          // update closed arg value
+          this._values[i] = v;
+          this.oninput(this.value);
+        },
+      );
+
+      // append to input list
+      this._inputs[i] = input;
+      // append to DOM list
+      this.element.appendChild(input.element);
+    }
+
+    this.oninput(this.value);
+  }
 }
 
 export class EnumInput implements IInput {
@@ -839,6 +1052,10 @@ export class EnumInput implements IInput {
   get value() {
     return this.element.selected;
   }
+
+  set value(value: GCEnum | null) {
+    this.element.selected = value;
+  }
 }
 
 export class ArrayInput implements IInput {
@@ -853,7 +1070,13 @@ export class ArrayInput implements IInput {
   ) {
     this.element = (
       <article className={['container-fluid', 'py-1', 'gui-input-array']}>
-        <a href="#" onclick={() => this._addInput()}>
+        <a
+          href="#"
+          onclick={() => {
+            this._addInput();
+            this.oninput(this.value);
+          }}
+        >
           Add a new element
         </a>
       </article>
@@ -883,7 +1106,7 @@ export class ArrayInput implements IInput {
     );
     this.element.appendChild(inputWrapper);
     this._inputs.push(input);
-    this.oninput(this.value);
+    return input;
   }
 
   get disabled() {
@@ -911,6 +1134,23 @@ export class ArrayInput implements IInput {
   get value() {
     return this._inputs.map((input) => input.value);
   }
+
+  set value(value: Array<unknown>) {
+    // reset input list
+    this._inputs.length = 0;
+    // remove all inputs from the DOM
+    let lastInput = this.element.lastChild;
+    while (this.element.children.length > 1 && lastInput) {
+      lastInput.remove();
+      lastInput = this.element.lastChild;
+    }
+    // create an input for each item in value
+    for (let i = 0; i < value.length; i++) {
+      const input = this._addInput();
+      input.value = value[i];
+    }
+    this.oninput(this.value);
+  }
 }
 
 export class AnyInput implements IInput {
@@ -918,7 +1158,10 @@ export class AnyInput implements IInput {
   private _valueInput: IInput;
   private _typeSelect: GuiSearchableSelect;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(
+    public name: string,
+    public oninput: InputHandler,
+  ) {
     this._valueInput = new StringInput(name, oninput);
     this._typeSelect = document.createElement('gui-searchable-select');
     this._typeSelect.placeholder = 'eg. String, int';
@@ -975,13 +1218,70 @@ export class AnyInput implements IInput {
   get value() {
     return this._valueInput.value;
   }
+
+  set value(value: unknown) {
+    switch (typeof value) {
+      case 'bigint':
+      case 'number':
+        this._typeSelect.selected = 'core::int';
+        this._valueInput = new IntInput(this.name, this.oninput);
+        this._valueInput.value = value;
+        break;
+      case 'boolean':
+        this._typeSelect.selected = 'core::bool';
+        this._valueInput = new BoolInput(this.name, this.oninput);
+        this._valueInput.value = value;
+        break;
+      case 'string':
+        this._typeSelect.selected = 'core::String';
+        this._valueInput = new StringInput(this.name, this.oninput);
+        this._valueInput.value = value;
+        break;
+      case 'undefined':
+        this._typeSelect.selected = 'core::String';
+        this._valueInput = new StringInput(this.name, this.oninput);
+        this._valueInput.value = '';
+        break;
+      case 'object': {
+        if (value === null) {
+          this._typeSelect.selected = 'core::String';
+          this._valueInput = new StringInput(this.name, this.oninput);
+          this._valueInput.value = '';
+        } else if (Array.isArray(value)) {
+          this._typeSelect.selected = 'core::Array';
+          this._valueInput = new ArrayInput(this.name, this.oninput);
+          this._valueInput.value = value;
+        } else if (value instanceof Map) {
+          this._typeSelect.selected = 'core::Map';
+          this._valueInput = new UnknownInput(this.name, this.oninput);
+          this._valueInput.value = value;
+        } else if (value instanceof GCObject) {
+          this._typeSelect.selected = value.$type.name;
+          this._valueInput = new TypedInput(this.name, value.$type, this.oninput);
+          this._valueInput.value = value;
+        } else {
+          this._typeSelect.selected = '';
+          this._valueInput = new UnknownInput(this.name, this.oninput);
+          this._valueInput.value = value;
+        }
+        break;
+      }
+    }
+    // update DOM with new input
+    this.element.children[0].remove();
+    this.element.prepend(this._valueInput.element);
+  }
 }
 
 export class NullableInput implements IInput {
   element: HTMLElement;
   private _input: IInput | null = null;
 
-  constructor(name: string, type: AbiType, oninput: InputHandler) {
+  constructor(
+    public name: string,
+    public type: AbiType,
+    public oninput: InputHandler,
+  ) {
     if (type.is_enum || type.is_native || type.name === 'core::any') {
       // only create input eagerly if the type is not an object
       this._input = new TypedInput(name, type, oninput);
@@ -1000,6 +1300,7 @@ export class NullableInput implements IInput {
             onchange={() => {
               if (this._input === null) {
                 this._input = new TypedInput(name, type, oninput);
+                // replace '<em>Null by default</em>' by 'this._input.element'
                 this.element.children[0].replaceWith(this._input.element);
                 this._input.disabled = true;
               }
@@ -1047,6 +1348,19 @@ export class NullableInput implements IInput {
   get value() {
     return this._input?.value || undefined;
   }
+
+  set value(value: unknown | undefined) {
+    const checkbox = this.element.querySelector('input[type=checkbox]') as HTMLInputElement;
+    checkbox.checked = value === null;
+    if (value !== null && value instanceof GCObject && value.$type === this.type) {
+      this._input = new TypedInput(this.name, this.type, this.oninput);
+      this._input.disabled = checkbox.checked;
+      this._input.value = value;
+    } else if (this._input) {
+      this._input.disabled = checkbox.checked;
+      this._input.value = value;
+    }
+  }
 }
 
 export class Input implements IInput {
@@ -1083,11 +1397,22 @@ export class Input implements IInput {
   get value() {
     return this._inner.value;
   }
+
+  set value(value: unknown) {
+    this._inner.value = value;
+  }
 }
 
+/**
+ * Works for any `AbiType` whether it is a `GCEnum`, `GCObject` or a primitive/native.
+ *
+ * - If you know you are dealing with `GCEnum` directly use `EnumInput`.
+ * - If you know you are dealing with `GCObject` directory use `ObjectInput`.
+ * - If you know you are dealing with a primitive/native, you can use `TypedInput.PRIMITIVE_CTOR['core::int']` (or the others)
+ */
 export class TypedInput implements IInput {
   private _inner: IInput;
-  private static PRIMITIVE_FACTORY: Record<string, InputConstructor> = {
+  static PRIMITIVE_CTOR: Record<string, InputConstructor> = {
     [core.String._type]: StringInput,
     ['core::char']: CharInput,
     ['core::int']: IntInput,
@@ -1103,13 +1428,13 @@ export class TypedInput implements IInput {
     ['core::any']: AnyInput,
     [core.function_._type]: FnInput,
     [core.Array._type]: ArrayInput,
+    // TODO add core::geo, and all the tuples
     unknown: UnknownInput,
   };
 
   constructor(name: string, type: AbiType, oninput: InputHandler) {
     if (type.is_native || type.name === 'core::any') {
-      const inputCtor =
-        TypedInput.PRIMITIVE_FACTORY[type.name] ?? TypedInput.PRIMITIVE_FACTORY.unknown;
+      const inputCtor = TypedInput.PRIMITIVE_CTOR[type.name] ?? TypedInput.PRIMITIVE_CTOR.unknown;
       this._inner = new inputCtor(name, oninput);
     } else if (type.is_enum) {
       this._inner = new EnumInput(name, type, oninput);
@@ -1141,10 +1466,14 @@ export class TypedInput implements IInput {
   get value() {
     return this._inner.value;
   }
+
+  set value(value: unknown) {
+    this._inner.value = value;
+  }
 }
 
 export class LabelledInput implements IInput {
-  element: HTMLElement;
+  readonly element: HTMLElement;
   private _input: Input;
 
   constructor(id: string, name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
@@ -1177,5 +1506,75 @@ export class LabelledInput implements IInput {
 
   get value(): unknown {
     return this._input.value;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+}
+
+export class InstanceInput implements IInput {
+  private _inner: IInput;
+
+  constructor(name: string, instance: unknown, oninput: InputHandler) {
+    switch (typeof instance) {
+      case 'bigint':
+      case 'number':
+        this._inner = new IntInput(name, oninput);
+        break;
+      case 'boolean':
+        this._inner = new BoolInput(name, oninput);
+        break;
+      case 'undefined':
+      case 'string':
+        this._inner = new StringInput(name, oninput);
+        break;
+      case 'object':
+        if (instance === null) {
+          this._inner = new AnyInput(name, oninput);
+        } else if (instance instanceof GCEnum) {
+          this._inner = new EnumInput(name, instance.$type, oninput);
+        } else if (instance instanceof GCObject) {
+          this._inner = new ObjectInput(name, instance.$type, oninput);
+        } else if (Array.isArray(instance)) {
+          this._inner = new ArrayInput(name, oninput);
+        } else {
+          // TODO do we want to handle maps?
+          this._inner = new UnknownInput(name, oninput);
+        }
+        break;
+      default:
+        this._inner = new UnknownInput(name, oninput);
+        break;
+    }
+
+    this._inner.value = instance;
+  }
+
+  get element() {
+    return this._inner.element;
+  }
+
+  get disabled() {
+    return this._inner.disabled;
+  }
+
+  set disabled(disabled: boolean) {
+    this._inner.disabled = disabled;
+  }
+
+  get invalid(): boolean {
+    return this._inner.invalid;
+  }
+  set invalid(invalid: boolean) {
+    this._inner.invalid = invalid;
+  }
+
+  get value(): unknown {
+    return this._inner.value;
+  }
+
+  set value(value: unknown) {
+    this._inner.value = value;
   }
 }

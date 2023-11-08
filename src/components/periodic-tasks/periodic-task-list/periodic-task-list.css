@@ -1,0 +1,16 @@
+gui-periodic-task-list {
+  > table {
+    margin-bottom: 0;
+
+    > thead > tr > th:last-child,
+    > tbody > tr > td:last-child {
+      text-align: right;
+    }
+
+    > tbody tr:nth-child(odd):hover,
+    > tbody tr:nth-child(even):hover {
+      cursor: pointer;
+      background-color: rgba(var(--base-1), 0.8);
+    }
+  }
+}

@@ -108,6 +108,13 @@ export class GuiSearchableSelect extends HTMLElement {
   connectedCallback() {
     this.appendChild(this._input);
     this.appendChild(this._list);
+
+    for (let i = 0; i < this._options.length; i++) {
+      const opt = this._options[i];
+      if (opt.selected) {
+        this._input.value = opt.text;
+      }
+    }
   }
 
   disconnectedCallback() {
@@ -118,13 +125,17 @@ export class GuiSearchableSelect extends HTMLElement {
     this._input.placeholder = placeholder;
   }
 
-  // set selected(selected: unknown) {
-  //   for (let i = 0; i < this._options.length; i++) {
-  //     if (this._options[i].value === selected) {
-
-  //     }
-  //   }
-  // }
+  set selected(selected: string) {
+    for (let i = 0; i < this._list.children.length; i++) {
+      const item = this._list.children.item(i) as HTMLElement;
+      if (item.textContent === selected) {
+        item.classList.add('selected');
+      } else {
+        item.classList.remove('selected');
+      }
+    }
+    this._input.value = selected;
+  }
 
   set options(options: SearchableOption[]) {
     this._options = options;

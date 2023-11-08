@@ -18,12 +18,17 @@ export class GuiObject extends HTMLElement {
     this.update();
   }
 
+  get value() {
+    return this._value;
+  }
+
   set value(value: unknown) {
     this._value = value;
     this.update();
   }
 
   update() {
+    this.style.gridTemplateColumns = '';
     const type = typeof this._value;
     switch (type) {
       case 'bigint':

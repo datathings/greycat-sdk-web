@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.11-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.5/6.5.11-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.12-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/6.5/6.5.12-dev.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -38,8 +38,11 @@ devDependencies:
     specifier: 8.46.0
     version: 8.46.0
   http-proxy:
-    specifier: ^1.18.1
+    specifier: 1.18.1
     version: 1.18.1
+  lightningcss:
+    specifier: 1.22.0
+    version: 1.22.0
   lightningcss-cli:
     specifier: 1.22.0
     version: 1.22.0
@@ -51,10 +54,10 @@ devDependencies:
     version: 5.2.2
   vite:
     specifier: 4.4.8
-    version: 4.4.8(@types/node@20.4.5)
+    version: 4.4.8(@types/node@20.4.5)(lightningcss@1.22.0)
   vitepress:
     specifier: 1.0.0-rc.22
-    version: 1.0.0-rc.22(@algolia/client-search@4.20.0)(@types/node@20.4.5)(search-insights@2.8.3)
+    version: 1.0.0-rc.22(@algolia/client-search@4.20.0)(@types/node@20.4.5)(lightningcss@1.22.0)(search-insights@2.8.3)
 
 packages:
 
@@ -2141,6 +2144,104 @@ packages:
       lightningcss-cli-win32-x64-msvc: 1.22.0
     dev: true
 
+  /lightningcss-darwin-arm64@1.22.0:
+    resolution: {integrity: sha512-aH2be3nNny+It5YEVm8tBSSdRlBVWQV8m2oJ7dESiYRzyY/E/bQUe2xlw5caaMuhlM9aoTMtOH25yzMhir0qPg==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-darwin-x64@1.22.0:
+    resolution: {integrity: sha512-9KHRFA0Y6mNxRHeoQMp0YaI0R0O2kOgUlYPRjuasU4d+pI8NRhVn9bt0yX9VPs5ibWX1RbDViSPtGJvYYrfVAQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [darwin]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-freebsd-x64@1.22.0:
+    resolution: {integrity: sha512-xaYL3xperGwD85rQioDb52ozF3NAJb+9wrge3jD9lxGffplu0Mn35rXMptB8Uc2N9Mw1i3Bvl7+z1evlqVl7ww==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [freebsd]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-linux-arm-gnueabihf@1.22.0:
+    resolution: {integrity: sha512-epQGvXIjOuxrZpMpMnRjK54ZqzhiHhCPLtHvw2fb6NeK2kK9YtF0wqmeTBiQ1AkbWfnnXGTstYaFNiadNK+StQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-linux-arm64-gnu@1.22.0:
+    resolution: {integrity: sha512-AArGtKSY4DGTA8xP8SDyNyKtpsUl1Rzq6FW4JomeyUQ4nBrR71uPChksTpj3gmWuGhZeRKLeCUI1DBid/zhChg==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-linux-arm64-musl@1.22.0:
+    resolution: {integrity: sha512-RRraNgP8hnBPhInTTUdlFm+z16C/ghbxBG51Sw00hd7HUyKmEUKRozyc5od+/N6pOrX/bIh5vIbtMXIxsos0lg==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [arm64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-linux-x64-gnu@1.22.0:
+    resolution: {integrity: sha512-grdrhYGRi2KrR+bsXJVI0myRADqyA7ekprGxiuK5QRNkv7kj3Yq1fERDNyzZvjisHwKUi29sYMClscbtl+/Zpw==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-linux-x64-musl@1.22.0:
+    resolution: {integrity: sha512-t5f90X+iQUtIyR56oXIHMBUyQFX/zwmPt72E6Dane3P8KNGlkijTg2I75XVQS860gNoEFzV7Mm5ArRRA7u5CAQ==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [linux]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss-win32-x64-msvc@1.22.0:
+    resolution: {integrity: sha512-64HTDtOOZE9PUCZJiZZQpyqXBbdby1lnztBccnqh+NtbKxjnGzP92R2ngcgeuqMPecMNqNWxgoWgTGpC+yN5Sw==}
+    engines: {node: '>= 12.0.0'}
+    cpu: [x64]
+    os: [win32]
+    requiresBuild: true
+    dev: true
+    optional: true
+
+  /lightningcss@1.22.0:
+    resolution: {integrity: sha512-+z0qvwRVzs4XGRXelnWRNwqsXUx8k3bSkbP8vD42kYKSk3z9OM2P3e/gagT7ei/gwh8DTS80LZOFZV6lm8Z8Fg==}
+    engines: {node: '>= 12.0.0'}
+    dependencies:
+      detect-libc: 1.0.3
+    optionalDependencies:
+      lightningcss-darwin-arm64: 1.22.0
+      lightningcss-darwin-x64: 1.22.0
+      lightningcss-freebsd-x64: 1.22.0
+      lightningcss-linux-arm-gnueabihf: 1.22.0
+      lightningcss-linux-arm64-gnu: 1.22.0
+      lightningcss-linux-arm64-musl: 1.22.0
+      lightningcss-linux-x64-gnu: 1.22.0
+      lightningcss-linux-x64-musl: 1.22.0
+      lightningcss-win32-x64-msvc: 1.22.0
+    dev: true
+
   /locate-path@6.0.0:
     resolution: {integrity: sha512-iPZK6eYjbxRu3uB4/WZ3EsEIMJFMqAoopl3R+zuq0UjcAm/MO6KCweDgPfP3elTztoKP3KtnVHxTn2NHBSDVUw==}
     engines: {node: '>=10'}
@@ -2506,7 +2607,7 @@ packages:
       punycode: 2.3.0
     dev: true
 
-  /vite@4.4.8(@types/node@20.4.5):
+  /vite@4.4.8(@types/node@20.4.5)(lightningcss@1.22.0):
     resolution: {integrity: sha512-LONawOUUjxQridNWGQlNizfKH89qPigK36XhMI7COMGztz8KNY0JHim7/xDd71CZwGT4HtSRgI7Hy+RlhG0Gvg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2536,13 +2637,14 @@ packages:
     dependencies:
       '@types/node': 20.4.5
       esbuild: 0.18.17
+      lightningcss: 1.22.0
       postcss: 8.4.30
       rollup: 3.29.3
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
 
-  /vite@4.5.0(@types/node@20.4.5):
+  /vite@4.5.0(@types/node@20.4.5)(lightningcss@1.22.0):
     resolution: {integrity: sha512-ulr8rNLA6rkyFAlVWw2q5YJ91v098AFQ2R0PRFwPzREXOUJQPtFUG0t+/ZikhaOCDqFoDhN6/v8Sq0o4araFAw==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2572,13 +2674,14 @@ packages:
     dependencies:
       '@types/node': 20.4.5
       esbuild: 0.18.17
+      lightningcss: 1.22.0
       postcss: 8.4.30
       rollup: 3.29.3
     optionalDependencies:
       fsevents: 2.3.3
     dev: true
 
-  /vitepress@1.0.0-rc.22(@algolia/client-search@4.20.0)(@types/node@20.4.5)(search-insights@2.8.3):
+  /vitepress@1.0.0-rc.22(@algolia/client-search@4.20.0)(@types/node@20.4.5)(lightningcss@1.22.0)(search-insights@2.8.3):
     resolution: {integrity: sha512-n7le5iikCFgWMuX7sKfzDGJGlrsYQ5trG3S97BghNz2alOTr4Xp+GrB6ShwogUTX9gNgeNmrACjokhW55LNeBA==}
     hasBin: true
     peerDependencies:
@@ -2600,7 +2703,7 @@ packages:
       mark.js: 8.11.1
       minisearch: 6.1.0
       shiki: 0.14.5
-      vite: 4.5.0(@types/node@20.4.5)
+      vite: 4.5.0(@types/node@20.4.5)(lightningcss@1.22.0)
       vue: 3.3.4
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -2701,10 +2804,10 @@ packages:
       vscode-languageserver-types: 3.17.3
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/6.5/6.5.11-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.11-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/6.5/6.5.12-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.12-dev.tgz}
     name: '@greycat/sdk'
-    version: 6.5.11-dev
+    version: 6.5.12-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6

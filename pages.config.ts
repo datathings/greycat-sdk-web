@@ -11,6 +11,15 @@ export default defineConfig(({ mode }) => ({
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
+  css: {
+    transformer: 'lightningcss',
+    lightningcss: {
+      cssModules: {
+        // This is to get better CSS class names when developping as it preprends the name of the file
+        pattern: mode === 'development' ? '[name]_[local]' : '[hash]_[local]',
+      },
+    },
+  },
   resolve: {
     alias: {
       '@greycat/web': resolve(__dirname, 'src'),
