@@ -586,7 +586,7 @@ class GuiTableBody extends HTMLElement {
     fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
 
     // remove virtual scroller while updating
-    this.removeChild(this.virtualScroller);
+    this.virtualScroller.remove();
 
     // We want to render as many rows as possible in the "view", but no more than needed
     // Therefore, we iterate from `0` to `maxVirtualRows` so that we stop when going over
