@@ -180,6 +180,18 @@ export class IntInput implements IInput {
   get value() {
     return this.element.valueAsNumber;
   }
+
+  set value(value: number) {
+    this.element.valueAsNumber = value;
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
 }
 
 export class FloatInput implements IInput {
@@ -228,6 +240,18 @@ export class FloatInput implements IInput {
 
   get value() {
     return this.element.valueAsNumber;
+  }
+
+  set value(value: number) {
+    this.element.valueAsNumber = value;
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
@@ -280,6 +304,18 @@ export class BoolInput implements IInput {
   get value() {
     return this._input.checked;
   }
+
+  set value(value: boolean) {
+    this._input.checked = value;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
 }
 
 export class TimeInput implements IInput {
@@ -325,6 +361,19 @@ export class TimeInput implements IInput {
 
   get value() {
     return core.time.fromMs(Date.parse(this.element.value));
+  }
+
+  set value(value: core.time) {
+    // To remove the last character
+    this.element.value = value.toDate().toISOString().slice(0, -1);
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
@@ -380,6 +429,22 @@ export class FnInput implements IInput {
     }
     this.invalid = true;
     return null;
+  }
+
+  set value(value: core.function_ | null) {
+    if (value === null) {
+      this.element.value = ""; 
+    } else {
+      this.element.value = value.toString();
+    }
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
@@ -459,6 +524,19 @@ export class DurationInput implements IInput {
       (this._unitSelect.selected as core.DurationUnit | null) ?? core.DurationUnit.minutes(),
     );
   }
+
+  set value(value: core.duration) {
+    this._valueInput.valueAsNumber = value.min;
+    this._unitSelect.selected = core.DurationUnit.minutes();
+  }
+
+  get name() {
+    return this._valueInput.name;
+  }
+
+  set name(name: string) {
+    this._valueInput.name = name;
+  }
 }
 
 export class NodeInput implements IInput {
@@ -510,6 +588,18 @@ export class NodeInput implements IInput {
       greycat.default.abi.types[greycat.default.abi.core_node_offset],
       BigInt(`0x${this.element.value}`),
     );
+  }
+
+  set value(value: core.node) {
+    this.element.value = value.toString().replace('node:', '');
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
@@ -563,6 +653,18 @@ export class NodeTimeInput implements IInput {
       BigInt(`0x${this.element.value}`),
     );
   }
+
+  set value(value: core.nodeTime) {
+    this.element.value = value.toString().replace('node:', '');
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
 }
 
 export class NodeGeoInput implements IInput {
@@ -614,6 +716,18 @@ export class NodeGeoInput implements IInput {
       greycat.default.abi.types[greycat.default.abi.core_node_geo_offset],
       BigInt(`0x${this.element.value}`),
     );
+  }
+
+  set value(value: core.nodeGeo) {
+    this.element.value = value.toString().replace('node:', '');
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 

@@ -1,5 +1,6 @@
 import { AnyInput } from '../../src';
 import '../layout';
+import { core } from '@greycat/sdk';
 
 const app = document.createElement('app-layout');
 app.title = 'Any input';
@@ -23,15 +24,21 @@ app.main.replaceChildren(
       <div className="container-fluid">{objViewer}</div>
     </article>
   </div>,
-  // Example
-  <gui-input-string
-    disabled={false}
-    invalid={false}
-    oninput={(v) => console.log('update string', v)}
-  />,
-  <gui-input-char
-    disabled={false}
-    invalid={false}
-    oninput={(v) => console.log('update char', v)}
-  />
 );
+
+const node = new core.node(
+  greycat.default.abi.types[greycat.default.abi.core_node_offset],
+  BigInt(`0xa2c4e6`)
+);
+
+const nodeInput = (
+    <gui-input-node
+      value={node}
+      name={"Rocky"}
+      disabled={false}
+      invalid={false}
+      oninput={(v) => console.log('updated node: ', v)}
+    />
+  );
+
+app.main.appendChild(nodeInput);
