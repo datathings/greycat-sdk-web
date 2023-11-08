@@ -1,10 +1,12 @@
-import { StringInput } from './input-factory.js';
+import { StringInput, CharInput, InputHandler, InputType } from './input-factory.js';
 
-export class GuiInputString extends HTMLElement {
-  private _input = new StringInput('default', (value) =>
-    this.dispatchEvent(new CustomEvent('input', { detail: value })),
-  );
+class GuiInputBase<T extends InputType> extends HTMLElement {
+  private _input: T;
 
+  constructor(inputClass: { new (name: string, oninput: InputHandler): T }) {
+    super();
+    this._input = new inputClass('default', (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })));
+  }
 
   connectedCallback() {
     this.replaceChildren(this._input.element);
@@ -47,18 +49,31 @@ export class GuiInputString extends HTMLElement {
   }
 }
 
+export class GuiInputString extends GuiInputBase<StringInput> {
+  constructor() {
+    super(StringInput);
+  }
+}
+
+export class GuiInputChar extends GuiInputBase<CharInput> {
+  constructor() {
+    super(CharInput);
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input-string': GuiInputString;
+    'gui-input-char': GuiInputChar;
   }
 
   namespace JSX {
     interface IntrinsicElements {
       'gui-input-string': GreyCat.Element<GuiInputString>;
+      'gui-input-char': GreyCat.Element<GuiInputChar>;
     }
   }
 }
 
-if (!customElements.get('gui-input-string')) {
-  customElements.define('gui-input-string', GuiInputString);
-}
+customElements.define('gui-input-string', GuiInputString);
+customElements.define('gui-input-char', GuiInputChar);

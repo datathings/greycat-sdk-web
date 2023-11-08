@@ -6,6 +6,8 @@ export type InputHandler = (value: any) => void;
 
 export type InputConstructor = new (name: string, oninput: InputHandler) => IInput;
 
+export type InputType = StringInput | CharInput;
+
 export interface IInput {
   value: unknown;
   element: Element;
@@ -60,16 +62,16 @@ export class StringInput implements IInput {
     return this.element.value;
   }
 
-  set value(v: string) {
-    this.element.value = v;
+  set value(value: string) {
+    this.element.value = value;
   }
 
   get name() {
     return this.element.name;
   }
 
-  set name(n: string) {
-    this.element.name = n;
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
@@ -116,6 +118,18 @@ export class CharInput implements IInput {
 
   get value() {
     return this.element.value;
+  }
+
+  set value(value: string) {
+    this.element.value = value;
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 }
 
