@@ -11,8 +11,11 @@ gui-chart {
   --cursor-line-c: rgb(var(--neutral-0));
   --cursor-bg-c: rgb(var(--base-1));
 
+  --gui-chart-height: 100%;
+
   user-select: none;
   display: block;
+  height: var(--gui-chart-height);
 }
 
 gui-chart .gui-chart-tooltip {

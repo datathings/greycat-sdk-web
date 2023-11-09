@@ -101,7 +101,6 @@ const LINE_TYPE_COL = 4;
 const LINE_COLOR_COL = 5;
 
 const chart = document.createElement('gui-chart');
-chart.style.height = '100%';
 app.main.replaceChildren(chart);
 
 const customColorMap = {
