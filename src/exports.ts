@@ -6,6 +6,7 @@
 // ESM exports
 export * from './components/index.js';
 export * from './utils.js';
+export * from './chart-utils/index.js';
 export * from './globals.js';
 export * from './greycat.js';
 // export * from './reactive.js';
