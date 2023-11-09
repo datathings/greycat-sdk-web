@@ -1,7 +1,7 @@
 import { vMap } from './internals.js';
 import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions } from './types.js';
 import type { TableLike } from '../common.js';
-import { BoxPlotCanvas, BoxPlotOptions} from '../../../src/chart-utils/model.js';
+import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -29,7 +29,7 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) { }
+  constructor(public ctx: Ctx) {}
 
   line(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
@@ -66,7 +66,9 @@ export class CanvasContext {
       const notDefined =
         table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
       const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
-      const currColor = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
+      const currColor = notDefined
+        ? serie.color
+        : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
 
       if (first) {
         this.ctx.setLineDash(lineDash);
@@ -102,7 +104,12 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  bar(table: TableLike, serie: BarSerie<string> & SerieOptions, xScale: Scale, yScale: Scale): void {
+  bar(
+    table: TableLike,
+    serie: BarSerie<string> & SerieOptions,
+    xScale: Scale,
+    yScale: Scale,
+  ): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -148,7 +155,7 @@ export class CanvasContext {
         x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
         y = yScale(vMap(table.cols[serie.yCol][i]));
         w = serie.width;
-        if ((x + serie.width) < xMin || x > xMax || y > yMin) {
+        if (x + serie.width < xMin || x > xMax || y > yMin) {
           continue;
         }
       }
@@ -214,11 +221,10 @@ export class CanvasContext {
     const colorCol = serie.colorCol ?? -1;
     const colorMap = serie.colorMapping ?? ((v) => v);
 
-
     const { x, y, color } = computePoint(serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint(serie.xCol, serie.yCol, (table.cols[0]?.length - 1) ?? 0);
+    let { x: lastX } = computePoint(serie.xCol, serie.yCol, table.cols[0]?.length - 1 ?? 0);
 
     this.ctx.save();
     this.ctx.globalAlpha = serie.fillOpacity;
@@ -456,44 +462,80 @@ export class CanvasContext {
     this.ctx.save();
     this.ctx.beginPath();
 
-    //Whisker
-    this.ctx.strokeStyle = opts.whiskerColor;
-    this.ctx.moveTo(boxPlot.x, boxPlot.min);
-    this.ctx.lineTo(boxPlot.x, boxPlot.max);
-    //min
-    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.min);
-    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.min);
-    //max
-    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.max);
-    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.max);
-    this.ctx.stroke();
-    this.ctx.closePath();
+    const halfWidth = opts.width / 2;
 
-    //IQR
-    this.ctx.beginPath();
-    this.ctx.fillStyle = opts.iqrColor;
-    this.ctx.lineWidth = 2;
-    this.ctx.strokeStyle = opts.iqrColor;
-    this.ctx.globalAlpha = 0.2;
-    this.ctx.fillRect(boxPlot.x - opts.width / 2, boxPlot.q3, opts.width, boxPlot.q1 - boxPlot.q3);
-    this.ctx.globalAlpha = 1;
-    this.ctx.strokeRect(
-      boxPlot.x - opts.width / 2,
-      boxPlot.q3,
-      opts.width,
-      boxPlot.q1 - boxPlot.q3,
-    );
-    this.ctx.closePath();
+    if (opts.orientation === 'vertical') {
+      this.ctx.strokeStyle = opts.whiskerColor;
+      //Upper Whisker
+      this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.max);
+      this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.max);
+      this.ctx.moveTo(boxPlot.crossValue, boxPlot.max);
+      this.ctx.lineTo(boxPlot.crossValue, boxPlot.q3);
+      //Lower Whisker
+      this.ctx.moveTo(boxPlot.crossValue, boxPlot.q1);
+      this.ctx.lineTo(boxPlot.crossValue, boxPlot.min);
+      this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.min);
+      this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.min);
+      this.ctx.stroke();
 
-    //Median
-    this.ctx.beginPath();
-    this.ctx.strokeStyle = opts.medianColor;
-    this.ctx.lineWidth = 2;
-    this.ctx.moveTo(boxPlot.x - opts.width / 2, boxPlot.median);
-    this.ctx.lineTo(boxPlot.x + opts.width / 2, boxPlot.median);
-    this.ctx.stroke();
-    this.ctx.closePath();
+      //IQR Box
+      this.ctx.fillStyle = opts.iqrColor;
+      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.globalAlpha = 0.2;
+      this.ctx.rect(
+        boxPlot.crossValue - halfWidth,
+        boxPlot.q3,
+        opts.width,
+        boxPlot.q1 - boxPlot.q3,
+      );
+      this.ctx.fill();
+      this.ctx.globalAlpha = 1;
+      this.ctx.stroke();
 
-    this.ctx.restore();
+      //Median
+      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.median);
+      this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.median);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      this.ctx.restore();
+    } else {
+      this.ctx.strokeStyle = opts.whiskerColor;
+      //Upper Whisker
+      this.ctx.moveTo(boxPlot.max, boxPlot.crossValue - halfWidth);
+      this.ctx.lineTo(boxPlot.max, boxPlot.crossValue + halfWidth);
+      this.ctx.moveTo(boxPlot.max, boxPlot.crossValue);
+      this.ctx.lineTo(boxPlot.q3, boxPlot.crossValue);
+      //Lower Whisker
+      this.ctx.moveTo(boxPlot.min, boxPlot.crossValue - halfWidth);
+      this.ctx.lineTo(boxPlot.min, boxPlot.crossValue + halfWidth);
+      this.ctx.moveTo(boxPlot.min, boxPlot.crossValue);
+      this.ctx.lineTo(boxPlot.q1, boxPlot.crossValue);
+      this.ctx.stroke();
+
+      //IQR Box
+      this.ctx.fillStyle = opts.iqrColor;
+      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.globalAlpha = 0.2;
+      this.ctx.rect(
+        boxPlot.q3,
+        boxPlot.crossValue - halfWidth,
+        boxPlot.q1 - boxPlot.q3,
+        opts.width,
+      );
+      this.ctx.fill();
+      this.ctx.globalAlpha = 1;
+      this.ctx.stroke();
+
+      //Median
+      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.moveTo(boxPlot.median, boxPlot.crossValue - halfWidth);
+      this.ctx.lineTo(boxPlot.median, boxPlot.crossValue + halfWidth);
+      this.ctx.stroke();
+      this.ctx.closePath();
+
+      this.ctx.restore();
+    }
   }
 }
