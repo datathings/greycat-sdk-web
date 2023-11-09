@@ -42,9 +42,7 @@ export class GuiSearchableSelect extends HTMLElement {
     });
 
     this._input.addEventListener('focus', () => {
-      if (this._input.value.length > 0) {
-        this._list.style.visibility = 'visible';
-      }
+      this._list.style.visibility = 'visible';
     });
 
     this._input.addEventListener('keydown', (ev) => {
