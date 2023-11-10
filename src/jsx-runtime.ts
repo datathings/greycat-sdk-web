@@ -88,7 +88,7 @@ function appendChild(parent: Node, child: any) {
     return;
   }
 
-  if (Array.isArray(child)) {
+  if (Array.isArray(child) || child instanceof NodeList) {
     for (let i = 0; i < child.length; i++) {
       appendChild(parent, child[i]);
     }

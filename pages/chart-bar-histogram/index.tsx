@@ -23,7 +23,7 @@ app.actions.prepend(
 
 const chartEl = document.createElement('gui-chart');
 const table = await greycat.default.call<core.Table>('project::histogram_table');
-console.log(table);
+
 chartEl.setConfig({
   table,
   xAxis: {

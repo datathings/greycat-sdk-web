@@ -10,23 +10,26 @@ app.main.replaceChildren(
   <aside style={{ width: 'fit-content' }}>
       <nav>
         <ul>
-          <li><a href="./chart/">Chart</a></li>
-          <li><a href="./chart-time/">Chart (time)</a></li>
-          <li><a href="./chart-colored-area/">Chart (colored-area)</a></li>
-          <li><a href="./chart-scatter/">Chart (scatter)</a></li>
-          <li><a href="./chart-custom/">Chart (custom)</a></li>
-          <li><a href="./chart-custom-boxplot/">Chart (custom boxplot)</a></li>
           <li><a href="./chart-bar-histogram/">Chart (bar histogram)</a></li>
+          <li><a href="./chart-colored-area/">Chart (colored-area)</a></li>
+          <li><a href="./chart-custom-boxplot/">Chart (custom boxplot)</a></li>
+          <li><a href="./chart-custom/">Chart (custom)</a></li>
+          <li><a href="./chart-scatter/">Chart (scatter)</a></li>
+          <li><a href="./chart-time/">Chart (time)</a></li>
+          <li><a href="./chart/">Chart</a></li>
           <li><a href="./donut/">Donut</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>
+          <li><a href="./fn-call/">Fn Call</a></li>
           <li><a href="./heatmap/">Heatmap</a></li>
           <li><a href="./hello/">Hello</a></li>
+          <li><a href="./inputs/">Inputs</a></li>
           <li><a href="./object/">Object</a></li>
-          <li><a href="./table/">Table</a></li>
-          <li><a href="./tasks/">Tasks</a></li>
-          <li><a href="./any-input/">Any input</a></li>
-          <li><a href="./users/">Users</a></li>
+          <li><a href="./periodic-tasks/">Periodic Tasks</a></li>
           <li><a href="./searchable-select/">Searchable Select</a></li>
+          <li><a href="./table/">Table</a></li>
+          <li><a href="./tabs/">Tabs</a></li>
+          <li><a href="./tasks/">Tasks</a></li>
+          <li><a href="./users/">Users</a></li>
         </ul>
       </nav>
     </aside>,

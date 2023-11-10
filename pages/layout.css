@@ -51,6 +51,7 @@ app-layout > main {
   grid-template-rows: auto;
   padding-top: var(--spacing);
   padding-bottom: var(--spacing);
+  overflow: auto;
 }
 
 nav[aria-label='breadcrumb'] ul li:not(:last-child) ::after {

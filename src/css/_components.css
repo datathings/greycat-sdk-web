@@ -13,3 +13,5 @@
 @import '../components/object/object.css';
 @import '../components/searchable-select/searchable-select.css';
 @import '../components/inputs/input-factory.css';
+@import '../components/periodic-tasks/periodic-task-list/periodic-task-list.css';
+@import '../components/tabs/tabs.css';

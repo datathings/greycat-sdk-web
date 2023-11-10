@@ -33,6 +33,7 @@ export interface BoxPlotOptions {
   medianColor: string;
   whiskerColor: string;
   iqrColor: string;
+  orientation: 'vertical' | 'horizontal';
 }
 
 export interface AreaOptions {
@@ -73,5 +74,5 @@ export interface BoxPlotCanvas {
   q3: number;
   min: number;
   max: number;
-  x: number;
+  crossValue: number;
 }
