@@ -1,6 +1,5 @@
 import { AnyInput } from '../../src';
 import '../layout';
-import { GCObject, core } from '@greycat/sdk';
 
 const app = document.createElement('app-layout');
 app.title = 'Inputs';
@@ -25,16 +24,3 @@ app.main.replaceChildren(
     </article>
   </div>,
 );
-
-
-console.log(greycat.default.abi.fn_by_fqn.get('project::boxplot_float')!);
-const nodeInput = (
-    <gui-input-fncall
-      fn={greycat.default.abi.fn_by_fqn.get('project::hello')!}
-      disabled={false}
-      invalid={false}
-      oninput={(v) => console.log('updated val: ', v)}
-    />
-  );
-
-app.main.appendChild(nodeInput);

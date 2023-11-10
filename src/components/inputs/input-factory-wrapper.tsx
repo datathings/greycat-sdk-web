@@ -1,5 +1,5 @@
 import * as factory from './input-factory.js';
-import { core, GCEnum, GCObject, Value, AbiFunction } from '@greycat/sdk';
+import { core, GCEnum, GCObject, Value, AbiFunction, AbiType } from '@greycat/sdk';
 
 export class GuiInputString extends HTMLElement {
   private _input = new factory.StringInput('default', (value) =>
@@ -721,7 +721,6 @@ export class GuiInputFnCall extends HTMLElement {
         fn,
         (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
       );
-      console.log(this._input.element);
       this.replaceChildren(this._input.element);
     }
   }
@@ -833,6 +832,10 @@ export class GuiInputArray extends HTMLElement {
     this.replaceChildren();
   }
 
+  set name(name: string) {
+    this._input.name = name;
+  }
+
   get name() {
     return this._input.name;
   }
@@ -873,6 +876,10 @@ export class GuiInputAny extends HTMLElement {
 
   disconnectedCallback() {
     this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
   }
 
   get name() {
@@ -916,6 +923,10 @@ export class GuiInputNullable extends HTMLElement {
 
   disconnectedCallback() {
     this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
   }
 
   get name() {
@@ -964,6 +975,10 @@ export class GuiInput extends HTMLElement {
     this.replaceChildren();
   }
 
+  set name(name: string) {
+    this._input.name = name;
+  }
+
   get name() {
     return this._input.name;
   }
@@ -1008,6 +1023,10 @@ export class GuiInputTyped extends HTMLElement {
     this.replaceChildren();
   }
 
+  set name(name: string) {
+    this._input.name = name;
+  }
+  
   get name() {
     return this._input.name;
   }
@@ -1058,12 +1077,32 @@ export class GuiInputLabelled extends HTMLElement {
     return this._input.name;
   }
 
+  set name(name: string) {
+    this._input.name = name;
+  }
+
   set value(value: unknown) {
     this._input.value = value;
   }
 
   get value() {
     return this._input.value;
+  }
+
+  get type() {
+    return this._input.type;
+  }
+
+  set type(type: AbiType) {
+    this._input.type = type;
+  }
+
+  get nullable() {
+    return this._input.nullable;
+  }
+
+  set nullable(nullable: boolean) {
+    this._input.nullable = nullable;
   }
 
   set disabled(disabled: boolean) {
@@ -1096,6 +1135,10 @@ export class GuiInputInstance extends HTMLElement {
 
   disconnectedCallback() {
     this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
   }
 
   get name() {

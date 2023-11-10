@@ -13,6 +13,7 @@ export interface IInput {
   element: Element;
   disabled: boolean;
   invalid: boolean;
+  name: string;
 }
 
 export class StringInput implements IInput {
@@ -450,6 +451,7 @@ export class FnInput implements IInput {
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
 }
@@ -580,6 +582,7 @@ export class DurationInput implements IInput {
   }
 
   set name(name: string) {
+    this._valueInput.id = name;
     this._valueInput.name = name;
   }
 }
@@ -644,6 +647,7 @@ export class NodeInput implements IInput {
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
 }
@@ -708,6 +712,7 @@ export class NodeTimeInput implements IInput {
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
 }
@@ -1047,12 +1052,14 @@ export class FnCallInput implements IInput {
   readonly element: HTMLElement;
   private _values: Value[];
   private _inputs: LabelledInput[];
+  //private _name: string;
 
   constructor(
-    public name: string,
+    private _name: string,
     private _fn: AbiFunction,
     public oninput: InputHandler,
   ) {
+    //this._name = name;
     this._values = new Array(_fn.params.length);
 
     const inputList = document.createElement('div');
@@ -1063,7 +1070,7 @@ export class FnCallInput implements IInput {
     for (let i = 0; i < _fn.params.length; i++) {
       const param = _fn.params[i];
       const input = new LabelledInput(
-        `${name}-${param.name}`,
+        `${_name}-${param.name}`,
         param.name,
         param.type,
         param.nullable,
@@ -1111,6 +1118,9 @@ export class FnCallInput implements IInput {
 
   set value(value: Value[]) {
     this._values = value;
+    for (let i = 0; i < this._inputs.length; i++) {
+      this._inputs[i].value = value[i];
+    }
   }
 
   get fn() {
@@ -1126,7 +1136,7 @@ export class FnCallInput implements IInput {
     for (let i = 0; i < fn.params.length; i++) {
       const param = fn.params[i];
       const input = new LabelledInput(
-        `${this.name}-${param.name}`,
+        `${this._name}-${param.name}`,
         param.name,
         param.type,
         param.nullable,
@@ -1144,6 +1154,17 @@ export class FnCallInput implements IInput {
     }
 
     this.oninput(this.value);
+  }
+
+  set name(name: string) {
+    this._name = name;
+    for (let i = 0; i < this._inputs.length; i++) {
+      this._inputs[i].name = `${this._name}-${this._fn.params[i].name}`;
+    }
+  }
+
+  get name() {
+    return this._name;
   }
 }
 
@@ -1209,11 +1230,13 @@ export class ArrayInput implements IInput {
   private _inputs: AnyInput[] = [];
   /** used to get unique IDs for inputs, not ideal, but totally fine here */
   private _id = 0;
+  private _name: string;
 
   constructor(
-    readonly name: string,
+    name: string,
     readonly oninput: InputHandler,
   ) {
+    this._name = name;
     this.element = (
       <article className={['container-fluid', 'py-1', 'gui-input-array']}>
         <a
@@ -1233,7 +1256,7 @@ export class ArrayInput implements IInput {
 
   private _addInput() {
     const index = this._inputs.length;
-    const input = new AnyInput(`${this.name}-${this._id++}`, () => this.oninput(this.value));
+    const input = new AnyInput(`${this._name}-${this._id++}`, () => this.oninput(this.value));
     const inputWrapper = (
       <div className="gui-input-array-element">
         {input.element}
@@ -1297,6 +1320,17 @@ export class ArrayInput implements IInput {
     }
     this.oninput(this.value);
   }
+
+  set name(name: string) {
+    this._name = name;
+    for (let i = 0; i < this._inputs.length; i++) {
+      this._inputs[i].name = `${name}-${i}`;
+    }
+  }
+
+  get name() {
+    return this._name;
+  }
 }
 
 export class AnyInput implements IInput {
@@ -1305,7 +1339,7 @@ export class AnyInput implements IInput {
   private _typeSelect: GuiSearchableSelect;
 
   constructor(
-    public name: string,
+    name: string,
     public oninput: InputHandler,
   ) {
     this._valueInput = new StringInput(name, oninput);
@@ -1417,6 +1451,14 @@ export class AnyInput implements IInput {
     this.element.children[0].remove();
     this.element.prepend(this._valueInput.element);
   }
+
+  get name() {
+    return this._valueInput.name;
+  }
+
+  set name(name: string) {
+    this._valueInput.name = name;
+  }
 }
 
 export class NullableInput implements IInput {
@@ -1424,7 +1466,7 @@ export class NullableInput implements IInput {
   private _input: IInput | null = null;
 
   constructor(
-    public name: string,
+    name: string,
     public type: AbiType,
     public oninput: InputHandler,
   ) {
@@ -1507,12 +1549,24 @@ export class NullableInput implements IInput {
       this._input.value = value;
     }
   }
+
+  get name() {
+    return this._input?.name ?? "";
+  }
+
+  set name(name: string) {
+    if (this._input) {
+      this._input.name = name;
+    }
+  }
 }
 
 export class Input implements IInput {
   private _inner: IInput;
+  private _name: string;
 
-  constructor(id: string, readonly _name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
+  constructor(id: string, name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
+    this._name = name;
     if (nullable) {
       this._inner = new NullableInput(id, type, oninput);
     } else {
@@ -1522,6 +1576,10 @@ export class Input implements IInput {
 
   get name() {
     return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
   }
 
   get element() {
@@ -1582,7 +1640,7 @@ export class TypedInput implements IInput {
     unknown: UnknownInput,
   };
 
-  constructor(readonly name: string, type: AbiType, oninput: InputHandler) {
+  constructor(name: string, type: AbiType, oninput: InputHandler) {
     if (type.is_native || type.name === 'core::any') {
       const inputCtor = TypedInput.PRIMITIVE_CTOR[type.name] ?? TypedInput.PRIMITIVE_CTOR.unknown;
       this._inner = new inputCtor(name, oninput);
@@ -1620,15 +1678,27 @@ export class TypedInput implements IInput {
   set value(value: unknown) {
     this._inner.value = value;
   }
+
+  get name() {
+    return this._inner.name;
+  }
+
+  set name(name: string) {
+    this._inner.name = name;
+  }
 }
 
 export class LabelledInput implements IInput {
   readonly element: HTMLElement;
   private _label: HTMLLabelElement;
   private _input: Input;
+  private _type: AbiType;
+  private _nullable: boolean;
 
   constructor(id: string, name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
     this._input = new Input(id, name, type, nullable, oninput);
+    this._type = type;
+    this._nullable = nullable;
 
     this._label = (
       <label htmlFor={name}>
@@ -1667,19 +1737,43 @@ export class LabelledInput implements IInput {
     this._input.value = value;
   }
 
+  get type() {
+    return this._type;
+  }
+
+  set type(type: AbiType) {
+    this._type = type;
+    this._updateLabel();
+  }
+
+  get nullable() {
+    return this._nullable;
+  }
+
+  set nullable(nullable: boolean) {
+    this._nullable = nullable;
+    this._updateLabel();
+  }
+
   get name() {
     return this._input.name;
   }
 
   set name(name: string) {
-    this._label.htmlFor = name;
+    this._input.name = name;
+    this._updateLabel();
+  }
+
+  private _updateLabel() {
+    this._label.htmlFor = this._input.name;
+    this._label.textContent = `${this._input.name}: ${displayType(this._type, this._nullable)}`;
   }
 }
 
 export class InstanceInput implements IInput {
   private _inner: IInput;
 
-  constructor(readonly name: string, instance: unknown, oninput: InputHandler) {
+  constructor(name: string, instance: unknown, oninput: InputHandler) {
     switch (typeof instance) {
       case 'bigint':
       case 'number':
@@ -1739,5 +1833,13 @@ export class InstanceInput implements IInput {
 
   set value(value: unknown) {
     this._inner.value = value;
+  }
+
+  get name() {
+    return this._inner.name;
+  }
+
+  set name(name: string) {
+    this._inner.name = name;
   }
 }
