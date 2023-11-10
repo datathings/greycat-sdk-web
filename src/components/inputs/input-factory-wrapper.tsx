@@ -1,8 +1,8 @@
-import { StringInput, CharInput, IntInput, FloatInput, BoolInput, DurationInput, FnInput, NodeGeoInput, NodeInput, NodeTimeInput, TimeInput } from './input-factory.js';
-import { core } from '@greycat/sdk';
+import * as factory from './input-factory.js';
+import { core, GCEnum, GCObject } from '@greycat/sdk';
 
 export class GuiInputString extends HTMLElement {
-  private _input = new StringInput('default', (value) =>
+  private _input = new factory.StringInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -48,7 +48,7 @@ export class GuiInputString extends HTMLElement {
 }
 
 export class GuiInputChar extends HTMLElement {
-  private _input = new CharInput('default', (value) =>
+  private _input = new factory.CharInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -94,7 +94,7 @@ export class GuiInputChar extends HTMLElement {
 }
 
 export class GuiInputInt extends HTMLElement {
-  private _input = new IntInput('default', (value) =>
+  private _input = new factory.IntInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -140,7 +140,7 @@ export class GuiInputInt extends HTMLElement {
 }
 
 export class GuiInputFloat extends HTMLElement {
-  private _input = new FloatInput('default', (value) =>
+  private _input = new factory.FloatInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -186,7 +186,7 @@ export class GuiInputFloat extends HTMLElement {
 }
 
 export class GuiInputBool extends HTMLElement {
-  private _input = new BoolInput('default', (value) =>
+  private _input = new factory.BoolInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -232,7 +232,7 @@ export class GuiInputBool extends HTMLElement {
 }
 
 export class GuiInputTime extends HTMLElement {
-  private _input = new TimeInput('default', (value) =>
+  private _input = new factory.TimeInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -278,7 +278,7 @@ export class GuiInputTime extends HTMLElement {
 }
 
 export class GuiInputFn extends HTMLElement {
-  private _input = new FnInput('default', (value) =>
+  private _input = new factory.FnInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -324,7 +324,7 @@ export class GuiInputFn extends HTMLElement {
 }
 
 export class GuiInputDuration extends HTMLElement {
-  private _input = new DurationInput('default', (value) =>
+  private _input = new factory.DurationInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -370,7 +370,7 @@ export class GuiInputDuration extends HTMLElement {
 }
 
 export class GuiInputNode extends HTMLElement {
-  private _input = new NodeInput('default', (value) =>
+  private _input = new factory.NodeInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -416,7 +416,7 @@ export class GuiInputNode extends HTMLElement {
 }
 
 export class GuiInputNodeTime extends HTMLElement {
-  private _input = new NodeTimeInput('default', (value) =>
+  private _input = new factory.NodeTimeInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -462,7 +462,7 @@ export class GuiInputNodeTime extends HTMLElement {
 }
 
 export class GuiInputNodeGeo extends HTMLElement {
-  private _input = new NodeGeoInput('default', (value) =>
+  private _input = new factory.NodeGeoInput('default', (value) =>
     this.dispatchEvent(new CustomEvent('input', { detail: value })),
   );
 
@@ -507,6 +507,591 @@ export class GuiInputNodeGeo extends HTMLElement {
   }
 }
 
+export class GuiInputNodeList extends HTMLElement {
+  private _input = new factory.NodeListInput('default', (value) =>
+    this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: core.nodeList) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputNodeIndex extends HTMLElement {
+  private _input = new factory.NodeIndexInput('default', (value) =>
+    this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: core.nodeIndex) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputUnknown extends HTMLElement {
+  private _input = new factory.UnknownInput('default', (value) =>
+    this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputObject extends HTMLElement {
+  private _input = new factory.ObjectInput('default',
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: GCObject) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+/*export class GuiInputFnCall extends HTMLElement {
+  private _input = new factory.FnCallInput('default', 
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: AbiFunction) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}*/
+
+export class GuiInputEnum extends HTMLElement {
+  private _input = new factory.EnumInput('default',
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  set name(name: string) {
+    this._input.name = name;
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: GCEnum | null) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputArray extends HTMLElement {
+  private _input = new factory.ArrayInput('default', (value) =>
+    this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: Array<unknown>) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputAny extends HTMLElement {
+  private _input = new factory.AnyInput('default', (value) =>
+    this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputNullable extends HTMLElement {
+  private _input = new factory.NullableInput('default',
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown | undefined) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInput extends HTMLElement {
+  private _input = new factory.Input(
+    '1', 
+    'default', 
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    false,
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputTyped extends HTMLElement {
+  private _input = new factory.TypedInput(
+    'default', 
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputLabelled extends HTMLElement {
+  private _input = new factory.LabelledInput(
+    '1',
+    'default', 
+    greycat.default.abi.types[greycat.default.abi.core_string_offset],
+    false,
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
+export class GuiInputInstance extends HTMLElement {
+  private _input = new factory.InstanceInput(
+    'default',
+    'default',
+    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+  );
+
+  connectedCallback() {
+    this.replaceChildren(this._input.element);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set value(value: unknown) {
+    this._input.value = value;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
+  get disabled() {
+    return this._input.disabled;
+  }
+
+  set invalid(invalid: boolean) {
+    this._input.invalid = invalid;
+  }
+
+  get invalid() {
+    return this._input.invalid;
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input-string': GuiInputString;
@@ -520,6 +1105,19 @@ declare global {
     'gui-input-node': GuiInputNode;
     'gui-input-nodetime': GuiInputNodeTime;
     'gui-input-nodegeo': GuiInputNodeGeo;
+    'gui-input-nodelist': GuiInputNodeList;
+    'gui-input-nodeindex': GuiInputNodeIndex;
+    'gui-input-unknown': GuiInputUnknown;
+    'gui-input-object': GuiInputObject;
+    // 'gui-input-fncall': GuiInputFnCall;
+    'gui-input-enum': GuiInputEnum;
+    'gui-input-array': GuiInputArray;
+    'gui-input-any': GuiInputAny;
+    'gui-input-nullable': GuiInputNullable;
+    'gui-input': GuiInput;
+    'gui-input-typed': GuiInputTyped;
+    'gui-input-labelled': GuiInputLabelled;
+    'gui-input-instance': GuiInputInstance;
   }
 
   namespace JSX {
@@ -535,6 +1133,19 @@ declare global {
       'gui-input-node': GreyCat.Element<GuiInputNode>;
       'gui-input-nodetime': GreyCat.Element<GuiInputNodeTime>;
       'gui-input-nodegeo': GreyCat.Element<GuiInputNodeGeo>;
+      'gui-input-nodelist': GreyCat.Element<GuiInputNodeList>;
+      'gui-input-nodeindex': GreyCat.Element<GuiInputNodeIndex>;
+      'gui-input-unknown': GreyCat.Element<GuiInputUnknown>;
+      'gui-input-object': GreyCat.Element<GuiInputObject>;
+      // 'gui-input-fncall': GreyCat.Element<GuiInputFnCall>;
+      'gui-input-enum': GreyCat.Element<GuiInputEnum>;
+      'gui-input-array': GreyCat.Element<GuiInputArray>;
+      'gui-input-any': GreyCat.Element<GuiInputAny>;
+      'gui-input-nullable': GreyCat.Element<GuiInputNullable>;
+      'gui-input': GreyCat.Element<GuiInput>;
+      'gui-input-typed': GreyCat.Element<GuiInputTyped>;
+      'gui-input-labelled': GreyCat.Element<GuiInputLabelled>;
+      'gui-input-instance': GreyCat.Element<GuiInputInstance>;
     }
   }
 }
@@ -550,3 +1161,16 @@ customElements.define('gui-input-duration', GuiInputDuration);
 customElements.define('gui-input-node', GuiInputNode);
 customElements.define('gui-input-nodetime', GuiInputNodeTime);
 customElements.define('gui-input-nodegeo', GuiInputNodeGeo);
+customElements.define('gui-input-nodelist', GuiInputNodeList);
+customElements.define('gui-input-nodeindex', GuiInputNodeIndex);
+customElements.define('gui-input-unknown', GuiInputUnknown);
+customElements.define('gui-input-object', GuiInputObject);
+// customElements.define('gui-input-fncall', GuiInputFnCall);
+customElements.define('gui-input-enum', GuiInputEnum);
+customElements.define('gui-input-array', GuiInputArray);
+customElements.define('gui-input-any', GuiInputAny);
+customElements.define('gui-input-nullable', GuiInputNullable);
+customElements.define('gui-input', GuiInput);
+customElements.define('gui-input-typed', GuiInputTyped);
+customElements.define('gui-input-labelled', GuiInputLabelled);
+customElements.define('gui-input-instance', GuiInputInstance);

@@ -65,17 +65,15 @@ export class StringInput implements IInput {
   set value(value: string) {
     this.element.value = value;
   }
-<<<<<<< HEAD
 
   get name() {
     return this.element.name;
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
-=======
->>>>>>> origin/dev
 }
 
 export class CharInput implements IInput {
@@ -126,17 +124,16 @@ export class CharInput implements IInput {
   set value(value: string) {
     this.element.value = value;
   }
-<<<<<<< HEAD
 
   get name() {
     return this.element.name;
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
-=======
->>>>>>> origin/dev
+
 }
 
 export class IntInput implements IInput {
@@ -190,17 +187,15 @@ export class IntInput implements IInput {
   set value(value: number) {
     this.element.valueAsNumber = value;
   }
-<<<<<<< HEAD
 
   get name() {
     return this.element.name;
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
-=======
->>>>>>> origin/dev
 }
 
 export class FloatInput implements IInput {
@@ -254,17 +249,15 @@ export class FloatInput implements IInput {
   set value(value: number) {
     this.element.valueAsNumber = value;
   }
-<<<<<<< HEAD
 
   get name() {
     return this.element.name;
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
   }
-=======
->>>>>>> origin/dev
 }
 
 export class BoolInput implements IInput {
@@ -320,17 +313,15 @@ export class BoolInput implements IInput {
   set value(value: boolean) {
     this._input.checked = value;
   }
-<<<<<<< HEAD
 
   get name() {
     return this._input.name;
   }
 
   set name(name: string) {
+    this._input.id = name;
     this._input.name = name;
   }
-=======
->>>>>>> origin/dev
 }
 
 export class TimeInput implements IInput {
@@ -379,9 +370,7 @@ export class TimeInput implements IInput {
   }
 
   set value(value: core.time) {
-<<<<<<< HEAD
-    // To remove the last character
-    this.element.value = value.toDate().toISOString().slice(0, -1);
+    this.element.valueAsNumber = value.epochMs;
   }
 
   get name() {
@@ -389,10 +378,8 @@ export class TimeInput implements IInput {
   }
 
   set name(name: string) {
+    this.element.id = name;
     this.element.name = name;
-=======
-    this.element.valueAsNumber = value.epochMs;
->>>>>>> origin/dev
   }
 }
 
@@ -452,10 +439,9 @@ export class FnInput implements IInput {
 
   set value(value: core.function_ | null) {
     if (value === null) {
-<<<<<<< HEAD
-      this.element.value = ""; 
+      this.element.value = '';
     } else {
-      this.element.value = value.toString();
+      this.element.value = value.fqn;
     }
   }
 
@@ -466,13 +452,6 @@ export class FnInput implements IInput {
   set name(name: string) {
     this.element.name = name;
   }
-=======
-      this.element.value = '';
-    } else {
-      this.element.value = value.fqn;
-    }
-  }
->>>>>>> origin/dev
 }
 
 export class DurationInput implements IInput {
@@ -553,18 +532,6 @@ export class DurationInput implements IInput {
   }
 
   set value(value: core.duration) {
-<<<<<<< HEAD
-    this._valueInput.valueAsNumber = value.min;
-    this._unitSelect.selected = core.DurationUnit.minutes();
-  }
-
-  get name() {
-    return this._valueInput.name;
-  }
-
-  set name(name: string) {
-    this._valueInput.name = name;
-=======
     let unit = this._unitSelect.selected as core.DurationUnit | null;
     if (unit === null) {
       unit = this._unitSelect.selected = core.DurationUnit.minutes();
@@ -606,7 +573,14 @@ export class DurationInput implements IInput {
 
   set unit(unit: core.DurationUnit) {
     this._unitSelect.selected = unit;
->>>>>>> origin/dev
+  }
+
+  get name() {
+    return this._valueInput.name;
+  }
+
+  set name(name: string) {
+    this._valueInput.name = name;
   }
 }
 
@@ -662,8 +636,7 @@ export class NodeInput implements IInput {
   }
 
   set value(value: core.node) {
-<<<<<<< HEAD
-    this.element.value = value.toString().replace('node:', '');
+    this.element.value = value.ref;
   }
 
   get name() {
@@ -672,9 +645,6 @@ export class NodeInput implements IInput {
 
   set name(name: string) {
     this.element.name = name;
-=======
-    this.element.value = value.ref;
->>>>>>> origin/dev
   }
 }
 
@@ -730,8 +700,7 @@ export class NodeTimeInput implements IInput {
   }
 
   set value(value: core.nodeTime) {
-<<<<<<< HEAD
-    this.element.value = value.toString().replace('node:', '');
+    this.element.value = value.ref;
   }
 
   get name() {
@@ -740,9 +709,6 @@ export class NodeTimeInput implements IInput {
 
   set name(name: string) {
     this.element.name = name;
-=======
-    this.element.value = value.ref;
->>>>>>> origin/dev
   }
 }
 
@@ -798,8 +764,7 @@ export class NodeGeoInput implements IInput {
   }
 
   set value(value: core.nodeGeo) {
-<<<<<<< HEAD
-    this.element.value = value.toString().replace('node:', '');
+    this.element.value = value.ref;
   }
 
   get name() {
@@ -808,9 +773,6 @@ export class NodeGeoInput implements IInput {
 
   set name(name: string) {
     this.element.name = name;
-=======
-    this.element.value = value.ref;
->>>>>>> origin/dev
   }
 }
 
@@ -868,6 +830,15 @@ export class NodeListInput implements IInput {
   set value(value: core.nodeList) {
     this.element.value = value.ref;
   }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.id = name;
+    this.element.name = name;
+  }
 }
 
 export class NodeIndexInput implements IInput {
@@ -924,6 +895,15 @@ export class NodeIndexInput implements IInput {
   set value(value: core.nodeIndex) {
     this.element.value = value.ref;
   }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.id = name;
+    this.element.name = name;
+  }
 }
 
 export class UnknownInput implements IInput {
@@ -962,12 +942,22 @@ export class UnknownInput implements IInput {
   set value(_value: unknown) {
     // TODO noop for now
   }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.id = name;
+    this.element.name = name;
+  }
 }
 
 export class ObjectInput implements IInput {
   readonly element: HTMLElement;
   private _values: Value[];
   private _inputs: LabelledInput[];
+  private _name: string;
 
   constructor(
     name: string,
@@ -975,6 +965,7 @@ export class ObjectInput implements IInput {
     oninput: InputHandler,
   ) {
     this._values = new Array(type.attrs.length);
+    this._name = name;
 
     const inputList = document.createElement('div');
     inputList.classList.add('container-fluid', 'py-1');
@@ -1036,6 +1027,18 @@ export class ObjectInput implements IInput {
         this._inputs[i].value = value.$attrs![i];
         this._values[i] = value.$attrs![i];
       }
+    }
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+    for (let i = 0; i < this.type.attrs.length; i++) {
+      const attr = this.type.attrs[i];
+      this._inputs[i].name = `${name}-${attr.name}`;
     }
   }
 }
@@ -1190,6 +1193,14 @@ export class EnumInput implements IInput {
 
   set value(value: GCEnum | null) {
     this.element.selected = value;
+  }
+
+  get name() {
+    return this.element.selectId;
+  }
+
+  set name(name: string) {
+    this.element.selectId = name;
   }
 }
 
@@ -1501,12 +1512,16 @@ export class NullableInput implements IInput {
 export class Input implements IInput {
   private _inner: IInput;
 
-  constructor(id: string, _name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
+  constructor(id: string, readonly _name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
     if (nullable) {
       this._inner = new NullableInput(id, type, oninput);
     } else {
       this._inner = new TypedInput(id, type, oninput);
     }
+  }
+
+  get name() {
+    return this._name;
   }
 
   get element() {
@@ -1567,7 +1582,7 @@ export class TypedInput implements IInput {
     unknown: UnknownInput,
   };
 
-  constructor(name: string, type: AbiType, oninput: InputHandler) {
+  constructor(readonly name: string, type: AbiType, oninput: InputHandler) {
     if (type.is_native || type.name === 'core::any') {
       const inputCtor = TypedInput.PRIMITIVE_CTOR[type.name] ?? TypedInput.PRIMITIVE_CTOR.unknown;
       this._inner = new inputCtor(name, oninput);
@@ -1609,16 +1624,21 @@ export class TypedInput implements IInput {
 
 export class LabelledInput implements IInput {
   readonly element: HTMLElement;
+  private _label: HTMLLabelElement;
   private _input: Input;
 
   constructor(id: string, name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
     this._input = new Input(id, name, type, nullable, oninput);
 
+    this._label = (
+      <label htmlFor={name}>
+        {name}: {displayType(type, nullable)}
+      </label>
+    ) as HTMLLabelElement;
+
     this.element = (
       <fieldset className="gui-input-labelled-fieldset">
-        <label htmlFor={name}>
-          {name}: {displayType(type, nullable)}
-        </label>
+        {this._label}
         {this._input.element}
       </fieldset>
     ) as HTMLElement;
@@ -1646,12 +1666,20 @@ export class LabelledInput implements IInput {
   set value(value: unknown) {
     this._input.value = value;
   }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set name(name: string) {
+    this._label.htmlFor = name;
+  }
 }
 
 export class InstanceInput implements IInput {
   private _inner: IInput;
 
-  constructor(name: string, instance: unknown, oninput: InputHandler) {
+  constructor(readonly name: string, instance: unknown, oninput: InputHandler) {
     switch (typeof instance) {
       case 'bigint':
       case 'number':

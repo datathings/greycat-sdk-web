@@ -1,6 +1,6 @@
 import { AnyInput } from '../../src';
 import '../layout';
-import { core } from '@greycat/sdk';
+import { GCObject, core } from '@greycat/sdk';
 
 const app = document.createElement('app-layout');
 app.title = 'Inputs';
@@ -26,18 +26,12 @@ app.main.replaceChildren(
   </div>,
 );
 
-const node = new core.node(
-  greycat.default.abi.types[greycat.default.abi.core_node_offset],
-  BigInt(`0xa2c4e6`)
-);
-
 const nodeInput = (
-    <gui-input-node
-      value={node}
-      name={"Rocky"}
+    <gui-input-instance
+      value={1}
       disabled={false}
       invalid={false}
-      oninput={(v) => console.log('updated node: ', v)}
+      oninput={(v) => console.log('updated val: ', v)}
     />
   );
 
