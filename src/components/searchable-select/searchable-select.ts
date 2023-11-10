@@ -123,6 +123,10 @@ export class GuiSearchableSelect extends HTMLElement {
     this._input.placeholder = placeholder;
   }
 
+  set disabled(disabled: boolean) {
+    this._input.disabled = disabled;
+  }
+
   set selected(selected: string) {
     for (let i = 0; i < this._list.children.length; i++) {
       const item = this._list.children.item(i) as HTMLElement;

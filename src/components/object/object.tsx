@@ -43,18 +43,21 @@ export class GuiObject extends HTMLElement {
         this.replaceChildren(<gui-value value={`${this._value}`} {...this._props} />);
         break;
       case 'object': {
+        // null
         if (this._value === null) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren(document.createTextNode('null'));
           return;
         }
 
+        // undefined
         if (this._value === undefined) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren();
           return;
         }
 
+        // Enum
         if (this._value instanceof GCEnum) {
           this.style.gridTemplateColumns = 'auto';
           let text: string;
@@ -67,19 +70,41 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
-        const fragment = document.createDocumentFragment();
+        // Array
         if (Array.isArray(this._value)) {
-          for (let i = 0; i < this._value.length; i++) {
+          const arr = this._value;
+          if (arr.length === 0) {
+            this.style.gridTemplateColumns = 'auto';
+            this.replaceChildren(<em>empty array</em>);
+            return;
+          }
+
+          if (arr.length > 15) {
+            this.style.gridTemplateColumns = 'auto';
+            this.replaceChildren(<em>Array({arr.length})</em>);
+            return;
+          }
+
+          const fragment = document.createDocumentFragment();
+          for (let i = 0; i < arr.length; i++) {
             fragment.appendChild(
               <>
-                <div>{i}</div>
                 <div>
-                  <gui-object value={this._value[i]} {...{ ...this._props, data: i }} />
+                  <em>{i}</em>
+                </div>
+                <div>
+                  <gui-object value={arr[i]} {...{ ...this._props, data: i }} />
                 </div>
               </>,
             );
           }
-        } else if (this._value instanceof Map) {
+          this.replaceChildren(fragment);
+          return;
+        }
+
+        // Map
+        if (this._value instanceof Map) {
+          const fragment = document.createDocumentFragment();
           for (const [key, val] of this._value) {
             fragment.appendChild(
               <>
@@ -90,85 +115,100 @@ export class GuiObject extends HTMLElement {
               </>,
             );
           }
-        } else if (isStd(this._value)) {
+          this.replaceChildren(fragment);
+          return;
+        }
+
+        // core.nodeXXX, core.geo, core.Duration, core.time, etc
+        if (isStd(this._value)) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren(<gui-value value={this._value} {...this._props} />);
           return;
-        } else if (this._value instanceof GCObject && !this._value.$type.is_native) {
-          if (this._value.$attrs === undefined) {
-            this.replaceChildren(<em>empty object</em>);
-          } else {
-            for (let i = 0; i < this._value.$type.attrs.length; i++) {
-              const attr = this._value.$type.attrs[i];
-              const attrVal = this._value.$attrs[i];
-              if (attrVal === null) {
-                fragment.appendChild(
-                  <>
-                    <div>{attr.name}</div>
-                    <div className="gui-object-value">null</div>
-                  </>,
-                );
-                continue;
-              }
+        }
 
-              // nested object
-              if (this._shouldNest(attrVal)) {
-                const content = document.createElement('details');
-                const summary = document.createElement('summary');
-                summary.textContent = '<show>';
-                content.appendChild(summary);
-                summary.onclick = () => {
-                  content.appendChild(
-                    <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />,
-                  );
-                  summary.onclick = null;
-                };
-
-                fragment.appendChild(
-                  <>
-                    <div>{attr.name}</div>
-                    <div className="gui-object-value">{content}</div>
-                  </>,
-                );
-              } else {
-                fragment.appendChild(
-                  <>
-                    <div>{attr.name}</div>
-                    <div className="gui-object-value">
-                      <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
-                    </div>
-                  </>,
-                );
-              }
-            }
-          }
-        } else if (this._value instanceof core.Table) {
+        // core.Table special handling
+        if (this._value instanceof core.Table) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren(<gui-table table={this._value} />);
           return;
-        } else {
-          for (const [key, val] of Object.entries(this._value)) {
-            let valEl: JSX.Element;
-            if (typeof val === 'object' && val !== null && !(val instanceof GCEnum)) {
-              valEl = (
-                <details>
-                  <summary>&lt;show&gt;</summary>
-                  <gui-object value={val} {...{ ...this._props, data: key }} />
-                </details>
-              );
-            } else {
-              valEl = <gui-object value={val} {...{ ...this._props, data: key }} />;
-            }
-
-            fragment.appendChild(
-              <>
-                <div>{key}</div>
-                <div className="gui-object-value">{valEl}</div>
-              </>,
-            );
-          }
         }
 
+        // any non-native GreyCat object
+        if (this._value instanceof GCObject && !this._value.$type.is_native) {
+          if (this._value.$attrs === undefined || this._value.$attrs.length === 0) {
+            this.replaceChildren(<em>empty object</em>);
+            return;
+          }
+
+          const fragment = document.createDocumentFragment();
+          for (let i = 0; i < this._value.$type.attrs.length; i++) {
+            const attr = this._value.$type.attrs[i];
+            const attrVal = this._value.$attrs[i];
+            if (attrVal === null) {
+              fragment.appendChild(
+                <>
+                  <div>{attr.name}</div>
+                  <div className="gui-object-value">null</div>
+                </>,
+              );
+              continue;
+            }
+
+            // nested object
+            if (this._shouldNest(attrVal)) {
+              const content = document.createElement('details');
+              const summary = document.createElement('summary');
+              summary.textContent = '<show>';
+              content.appendChild(summary);
+              summary.onclick = () => {
+                content.appendChild(
+                  <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />,
+                );
+                summary.onclick = null;
+              };
+
+              fragment.appendChild(
+                <>
+                  <div>{attr.name}</div>
+                  <div className="gui-object-value">{content}</div>
+                </>,
+              );
+            } else {
+              fragment.appendChild(
+                <>
+                  <div>{attr.name}</div>
+                  <div className="gui-object-value">
+                    <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
+                  </div>
+                </>,
+              );
+            }
+          }
+          this.replaceChildren(fragment);
+          return;
+        }
+
+        const fragment = document.createDocumentFragment();
+        for (const [key, val] of Object.entries(this._value)) {
+          let valEl: JSX.Element;
+          if (typeof val === 'object' && val !== null && !(val instanceof GCEnum)) {
+            valEl = (
+              <details>
+                <summary>&lt;show&gt;</summary>
+                <gui-object value={val} {...{ ...this._props, data: key }} />
+              </details>
+            );
+          } else {
+            valEl = <gui-object value={val} {...{ ...this._props, data: key }} />;
+          }
+
+          fragment.appendChild(
+            <>
+              <div>{key}</div>
+              <div className="gui-object-value">{valEl}</div>
+            </>,
+          );
+        }
         this.replaceChildren(fragment);
         break;
       }

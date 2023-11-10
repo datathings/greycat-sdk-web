@@ -892,7 +892,7 @@ export class ObjectInput implements IInput {
   }
 
   get value() {
-    return new GCObject(this.type, ...this._values);
+    return new this.type.factory(this.type, ...this._values);
   }
 
   set value(value: GCObject) {
@@ -1060,7 +1060,8 @@ export class EnumInput implements IInput {
 
 export class ArrayInput implements IInput {
   readonly element: HTMLElement;
-  private _inputs: AnyInput[] = [];
+  private _addElementAnchor: HTMLAnchorElement;
+  private _arrElements: Array<{ input: IInput; deleteAnchor: HTMLAnchorElement }> = [];
   /** used to get unique IDs for inputs, not ideal, but totally fine here */
   private _id = 0;
 
@@ -1068,76 +1069,98 @@ export class ArrayInput implements IInput {
     readonly name: string,
     readonly oninput: InputHandler,
   ) {
+    this._addElementAnchor = (
+      <a
+        href="#"
+        onclick={() => {
+          this._addInput();
+          this.oninput(this.value);
+        }}
+      >
+        Add a new element
+      </a>
+    ) as HTMLAnchorElement;
+
     this.element = (
       <article className={['container-fluid', 'py-1', 'gui-input-array']}>
-        <a
-          href="#"
-          onclick={() => {
-            this._addInput();
-            this.oninput(this.value);
-          }}
-        >
-          Add a new element
-        </a>
+        {this._addElementAnchor}
       </article>
     ) as HTMLElement;
 
-    // oninput(this.value);
+    oninput(this.value);
   }
 
   private _addInput() {
-    const index = this._inputs.length;
+    const index = this._arrElements.length;
     const input = new AnyInput(`${this.name}-${this._id++}`, () => this.oninput(this.value));
+
+    const deleteAnchor = (
+      <a
+        href="#"
+        title="Delete element"
+        onclick={() => {
+          this.element.removeChild(inputWrapper);
+          this._arrElements.splice(index, 1);
+          this.oninput(this.value);
+        }}
+      >
+        X
+      </a>
+    ) as HTMLAnchorElement;
+
     const inputWrapper = (
       <div className="gui-input-array-element">
         {input.element}
-        <a
-          href="#"
-          title="Delete element"
-          onclick={() => {
-            this.element.removeChild(inputWrapper);
-            this._inputs.splice(index, 1);
-            this.oninput(this.value);
-          }}
-        >
-          X
-        </a>
+        {deleteAnchor}
       </div>
     );
     this.element.appendChild(inputWrapper);
-    this._inputs.push(input);
+    this._arrElements.push({ input, deleteAnchor });
     return input;
   }
 
   get disabled() {
-    // if the first one is disabled, then they all are
-    return this._inputs[0]?.disabled ?? false;
+    return !this._addElementAnchor.isConnected;
   }
 
   set disabled(disabled: boolean) {
-    for (let i = 0; i < this._inputs.length; i++) {
-      this._inputs[i].disabled = disabled;
+    if (disabled) {
+      this._addElementAnchor.remove();
+    } else {
+      if (!this._addElementAnchor.isConnected) {
+        this.element.prepend(this._addElementAnchor);
+      }
+    }
+    for (let i = 0; i < this._arrElements.length; i++) {
+      this._arrElements[i].input.disabled = disabled;
+      if (disabled) {
+        this._arrElements[i].deleteAnchor.remove();
+      } else {
+        this._arrElements[i].input.element.parentElement!.appendChild(
+          this._arrElements[i].deleteAnchor,
+        );
+      }
     }
   }
 
   get invalid() {
     // if the first one is invalid, then they all are
-    return this._inputs[0]?.invalid ?? false;
+    return this._arrElements[0]?.input.invalid ?? false;
   }
 
   set invalid(invalid: boolean) {
-    for (let i = 0; i < this._inputs.length; i++) {
-      this._inputs[i].invalid = invalid;
+    for (let i = 0; i < this._arrElements.length; i++) {
+      this._arrElements[i].input.invalid = invalid;
     }
   }
 
   get value() {
-    return this._inputs.map((input) => input.value);
+    return this._arrElements.map((input) => input.input.value);
   }
 
   set value(value: Array<unknown>) {
     // reset input list
-    this._inputs.length = 0;
+    this._arrElements.length = 0;
     // remove all inputs from the DOM
     let lastInput = this.element.lastChild;
     while (this.element.children.length > 1 && lastInput) {
@@ -1189,6 +1212,7 @@ export class AnyInput implements IInput {
       newInput.disabled = this._valueInput.disabled;
       newInput.invalid = this._valueInput.invalid;
       this._valueInput = newInput;
+      this.oninput(this.value);
     });
 
     this.element = (
@@ -1205,6 +1229,7 @@ export class AnyInput implements IInput {
 
   set disabled(disabled: boolean) {
     this._valueInput.disabled = disabled;
+    this._typeSelect.disabled = disabled;
   }
 
   get invalid() {
@@ -1318,7 +1343,7 @@ export class NullableInput implements IInput {
       </div>
     ) as HTMLElement;
 
-    // default to 'null'
+    // defaults to 'null'
     oninput(null);
     if (this._input) {
       this._input.disabled = true;
@@ -1352,14 +1377,38 @@ export class NullableInput implements IInput {
   set value(value: unknown | undefined) {
     const checkbox = this.element.querySelector('input[type=checkbox]') as HTMLInputElement;
     checkbox.checked = value === null;
-    if (value !== null && value instanceof GCObject && value.$type === this.type) {
-      this._input = new TypedInput(this.name, this.type, this.oninput);
-      this._input.disabled = checkbox.checked;
-      this._input.value = value;
-    } else if (this._input) {
-      this._input.disabled = checkbox.checked;
-      this._input.value = value;
+    if (value === null) {
+      // when we are dealing with a `null` value
+      // we only disabled the input field, as it will only become useable once
+      // 'null' is unchecked
+      if (this._input) {
+        this._input.disabled = checkbox.checked;
+      }
+      return;
     }
+
+    if (this._input) {
+      this._input.element.remove();
+    }
+    this._input = new InstanceInput(this.name, value, this.oninput);
+    this._input.disabled = checkbox.checked;
+    this._input.value = value;
+    this.element.prepend(this._input.element);
+
+    // if (Array.isArray(value)) {
+    //   this._input = new ArrayInput(this.name, this.oninput);
+    //   this._input.disabled = checkbox.checked;
+    //   this._input.value = value;
+    //   return;
+    // }
+
+    // // TODO handle other cases
+
+    // if (value instanceof GCObject) {
+    //   this._input = new TypedInput(this.name, this.type, this.oninput);
+
+    //   this._input.value = value;
+    // }
   }
 }
 

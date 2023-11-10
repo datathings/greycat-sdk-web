@@ -31,6 +31,36 @@
  */
 .gui-input-array {
   overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+
+  & > :first-child {
+    padding-top: var(--spacing);
+  }
+
+  & > :last-child {
+    padding-bottom: var(--spacing);
+  }
+
+  .gui-input-array-element {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--spacing);
+    align-items: center;
+  
+    & > * {
+      min-width: 0px;
+    }
+
+    & input {
+      margin-bottom: 0;
+    }
+
+    & gui-searchable-select {
+      padding-bottom: 0;
+    }
+  }
 }
 
 .gui-input-fn-call .gui-input-array,
@@ -38,17 +68,4 @@
   border: 1px solid var(--bg-1);
   background-color: rgba(var(--base-1), 0.9);
   margin-bottom: var(--spacing);
-}
-
-.gui-input-array {
-  .gui-input-array-element {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    column-gap: var(--spacing);
-    align-items: start;
-
-    & > * {
-      min-width: 0px;
-    }
-  }
 }

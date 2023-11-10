@@ -1,6 +1,6 @@
 import { GreyCat, prettyError, runtime } from '@greycat/sdk';
 import '../../object/index.js'; // ensures gui-object is loaded
-import { InstanceInput } from '../../index.js';
+import { TypedInput } from '../../index.js';
 
 export class GuiPeriodicTaskList extends HTMLElement {
   private static NOOP = () => void 0;
@@ -112,9 +112,16 @@ export class GuiPeriodicTaskList extends HTMLElement {
     const task = this._tasks[index];
     if (task) {
       let tmpTask = task;
-      const input = new InstanceInput(`periodic-task-input-${index}`, task, (newTask) => {
-        tmpTask = newTask;
-      });
+      const input = new TypedInput(
+        `periodic-task-input-${index}`,
+        greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type)!,
+        (newTask) => {
+          console.log('updated task', { ...newTask });
+          tmpTask = newTask;
+        },
+      );
+      console.log('set task in dialog with', { ...task });
+      input.value = task;
       this._dialogUpdateTask = () => {
         if (tmpTask) {
           this._tasks[index] = tmpTask;
