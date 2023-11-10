@@ -1,5 +1,5 @@
 import * as factory from './input-factory.js';
-import { core, GCEnum, GCObject } from '@greycat/sdk';
+import { core, GCEnum, GCObject, Value, AbiFunction } from '@greycat/sdk';
 
 export class GuiInputString extends HTMLElement {
   private _input = new factory.StringInput('default', (value) =>
@@ -692,13 +692,13 @@ export class GuiInputObject extends HTMLElement {
   }
 }
 
-/*export class GuiInputFnCall extends HTMLElement {
-  private _input = new factory.FnCallInput('default', 
-    (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
-  );
+export class GuiInputFnCall extends HTMLElement {
+  private _input: factory.FnCallInput | undefined;
 
   connectedCallback() {
-    this.replaceChildren(this._input.element);
+    if (this._input !== undefined) {
+      this.replaceChildren(this._input.element);
+    }
   }
 
   disconnectedCallback() {
@@ -706,37 +706,72 @@ export class GuiInputObject extends HTMLElement {
   }
 
   set name(name: string) {
-    this._input.name = name;
+    if (this._input !== undefined) {
+      this._input.name = name;
+    }
   }
 
   get name() {
-    return this._input.name;
+    return this._input?.name ?? "";
   }
 
-  set value(value: AbiFunction) {
-    this._input.value = value;
+  set fn(fn: AbiFunction | undefined) {
+    if (fn) {
+      this._input = new factory.FnCallInput(fn.name,
+        fn,
+        (value) => this.dispatchEvent(new CustomEvent('input', { detail: value })),
+      );
+      console.log(this._input.element);
+      this.replaceChildren(this._input.element);
+    }
+  }
+
+  get fn() {
+    return this._input?.fn;
+  }
+
+  set value(value: Value[]) {
+    if (this._input !== undefined) {
+      this._input.value = value;
+    }
   }
 
   get value() {
-    return this._input.value;
+    if (this._input !== undefined) {
+      return this._input.value;
+    } else {
+      return [];
+    }
   }
 
   set disabled(disabled: boolean) {
-    this._input.disabled = disabled;
+    if (this._input !== undefined) {
+      this._input.disabled = disabled;
+    }
   }
 
   get disabled() {
-    return this._input.disabled;
+    if (this._input !== undefined) {
+      return this._input.disabled;
+    } else {
+      return false;
+    }
   }
 
   set invalid(invalid: boolean) {
-    this._input.invalid = invalid;
+    if (this._input !== undefined) {
+      this._input.invalid = invalid;
+    }
   }
 
   get invalid() {
-    return this._input.invalid;
+    if (this._input !== undefined) {
+      return this._input.invalid;
+    } else {
+      return false;
+    }
   }
-}*/
+}
 
 export class GuiInputEnum extends HTMLElement {
   private _input = new factory.EnumInput('default',
@@ -1109,7 +1144,7 @@ declare global {
     'gui-input-nodeindex': GuiInputNodeIndex;
     'gui-input-unknown': GuiInputUnknown;
     'gui-input-object': GuiInputObject;
-    // 'gui-input-fncall': GuiInputFnCall;
+    'gui-input-fncall': GuiInputFnCall;
     'gui-input-enum': GuiInputEnum;
     'gui-input-array': GuiInputArray;
     'gui-input-any': GuiInputAny;
@@ -1137,7 +1172,7 @@ declare global {
       'gui-input-nodeindex': GreyCat.Element<GuiInputNodeIndex>;
       'gui-input-unknown': GreyCat.Element<GuiInputUnknown>;
       'gui-input-object': GreyCat.Element<GuiInputObject>;
-      // 'gui-input-fncall': GreyCat.Element<GuiInputFnCall>;
+      'gui-input-fncall': GreyCat.Element<GuiInputFnCall>;
       'gui-input-enum': GreyCat.Element<GuiInputEnum>;
       'gui-input-array': GreyCat.Element<GuiInputArray>;
       'gui-input-any': GreyCat.Element<GuiInputAny>;
@@ -1165,7 +1200,7 @@ customElements.define('gui-input-nodelist', GuiInputNodeList);
 customElements.define('gui-input-nodeindex', GuiInputNodeIndex);
 customElements.define('gui-input-unknown', GuiInputUnknown);
 customElements.define('gui-input-object', GuiInputObject);
-// customElements.define('gui-input-fncall', GuiInputFnCall);
+customElements.define('gui-input-fncall', GuiInputFnCall);
 customElements.define('gui-input-enum', GuiInputEnum);
 customElements.define('gui-input-array', GuiInputArray);
 customElements.define('gui-input-any', GuiInputAny);

@@ -26,9 +26,11 @@ app.main.replaceChildren(
   </div>,
 );
 
+
+console.log(greycat.default.abi.fn_by_fqn.get('project::boxplot_float')!);
 const nodeInput = (
-    <gui-input-instance
-      value={1}
+    <gui-input-fncall
+      fn={greycat.default.abi.fn_by_fqn.get('project::hello')!}
       disabled={false}
       invalid={false}
       oninput={(v) => console.log('updated val: ', v)}
