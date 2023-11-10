@@ -116,11 +116,9 @@ export class GuiPeriodicTaskList extends HTMLElement {
         `periodic-task-input-${index}`,
         greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type)!,
         (newTask) => {
-          console.log('updated task', { ...newTask });
           tmpTask = newTask;
         },
       );
-      console.log('set task in dialog with', { ...task });
       input.value = task;
       this._dialogUpdateTask = () => {
         if (tmpTask) {
