@@ -54,12 +54,6 @@ textarea[disabled],
   pointer-events: initial;
 }
 
-[type='checkbox']:checked,
-[type='checkbox']:checked:focus,
-[type='checkbox']:checked:active {
-  --background-color: var(--bg-1);
-}
-
 input:not(:is([type='checkbox'], [type='radio'], [type='range'], [type='file']))[type='search']:not(
     :is(
         :lang(ae),
