@@ -54,6 +54,7 @@ textarea[disabled],
   pointer-events: initial;
 }
 
+:root[data-theme='dark']
 [type='checkbox']:checked,
 [type='checkbox']:checked:focus,
 [type='checkbox']:checked:active {
