@@ -1,6 +1,11 @@
 // https://vitepress.dev/guide/custom-theme
-import Theme from 'vitepress/theme';
+import type { Theme } from 'vitepress/client';
+import DefaultTheme from 'vitepress/theme';
 import './style.css';
 import './gcl-highlight.css';
 
-export default Theme;
+const theme: Theme = {
+  extends: DefaultTheme,
+};
+
+export default theme;
