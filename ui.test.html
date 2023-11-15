@@ -8,8 +8,8 @@
   <link rel="stylesheet" href="./src/css/greycat.css">
   <style>
     @font-face {
-      font-family: "Raleway";
-      src: url("./public/Raleway-Medium.ttf");
+      font-family: "Open Sans";
+      src: url("./public/OpenSans-Regular.ttf");
     }
 
     body>main {
@@ -402,6 +402,24 @@
         <input type="number" id="favnum" name="favnum" value="" />
       </div>
       <div class="form-example">
+        <label for="date">
+          Pick a date
+        </label>
+        <input type="date" id="date" name="date" value="" />
+      </div>
+      <div class="form-example">
+        <label for="datetime">
+          Pick a datetime
+        </label>
+        <input type="datetime" id="datetime" name="datetime" value="" />
+      </div>
+      <div class="form-example">
+        <label for="datetime-local">
+          Pick a datetime local
+        </label>
+        <input type="datetime-local" id="datetime-local" name="datetime-local" value="" />
+      </div>
+      <div class="form-example">
         <label for="surprise">
           <input type="checkbox" id="surprise" name="surprise" value="" />
           Add a surprise
@@ -454,6 +472,7 @@
         This is the content of an &lt;article&gt; element.
       </div>
     </article>
+    <hr />
     <article>
       <header>Article header</header>
       <div class="container">
@@ -544,13 +563,17 @@
         <h3 class="demo-header">dialog</h3>
         <dialog id="dialog">
           <article>
-            <div>
+            <header>Dialog title</header>
+            <div class="container-fluid">
               <p>Lorem ipsum dolor sit amet.</p>
               <p>Press 'Esc' or click 'Close' to close the dialog.</p>
             </div>
-            <form method="dialog">
-              <button>Close</button>
-            </form>
+            <footer>
+              <form class="grid" method="dialog">
+                <button>Confirm</button>
+                <button class="outline">Close</button>
+              </form>
+            </footer>
           </article>
         </dialog>
         <button id="open-dialog">Open dialog</button>

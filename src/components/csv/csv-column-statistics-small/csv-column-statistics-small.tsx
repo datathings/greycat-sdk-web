@@ -1,4 +1,4 @@
-import { GreyCat, io } from '@greycat/sdk';
+import { io } from '@greycat/sdk';
 import { ColumnType, getColumnType } from '../utils.js';
 
 interface StatisticsPair {
@@ -7,20 +7,11 @@ interface StatisticsPair {
 }
 
 export class GuiCsvColumnStatisticsSmall extends HTMLElement {
-  private _greycat: GreyCat = window.greycat.default;
   private _csvColumnStatistics: io.CsvColumnStatistics | null = null;
-
-  set greycat(greycat: GreyCat) {
-    this._greycat = greycat;
-  }
 
   set statistics(csvColumnStatistics: io.CsvColumnStatistics | null) {
     this._csvColumnStatistics = csvColumnStatistics;
     this.render();
-  }
-
-  private _handleError(error: unknown) {
-    console.error(error);
   }
 
   private _createLine(label: string, value: number) {

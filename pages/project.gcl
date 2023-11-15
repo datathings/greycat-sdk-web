@@ -1,14 +1,15 @@
 use util;
 use runtime;
 use math;
+use io;
 
 fn main() {
   for (var i = 0; i < 15; i++) {
     SecurityEntity::set(UserGroup {
-      id: 0,
-      name: "group-${i}",
-      activated: true,
-    });
+        id: 0,
+        name: "group-${i}",
+        activated: true,
+      });
   }
 }
 
@@ -17,6 +18,22 @@ enum Confidence {
   High;
   Medium;
   Low;
+}
+
+@expose
+fn boxplot_float() {
+  var histogram = HistogramFloat {};
+
+  var random = Random::new();
+  random.setSeed(12345);
+  var testSize = 10;
+
+  for (var i = 0; i < testSize; i++) {
+    var v = random.uniformf(-100.0, 100.0);
+    histogram.add(v);
+  }
+
+  return histogram.toBoxPlot();
 }
 
 @expose
@@ -36,6 +53,7 @@ fn chart(nbRows: int) {
   var prev2 = 80_f;
 
   var table = Table::new(6);
+
   var rand = Random::new();
 
   for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
@@ -88,6 +106,10 @@ fn chart_time(): Table {
   var rand = Random::new();
 
   var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
   var min = -10.0;
   var max = 40.0;
   var prevTime = time::now();
@@ -150,6 +172,46 @@ fn chart_time(): Table {
 }
 // pages/chart-time end
 
+// pages/chart-colored-area start
+@expose
+fn chart_colored_area(): Table {
+  var firstTime = time::now();
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  // 0
+  table.set(0, 0, firstTime - 6_day);
+  table.set(0, 1, -10.5);
+  table.set(0, 2, "low");
+  // 1
+  table.set(1, 0, firstTime - 5_day);
+  table.set(1, 1, -8.5);
+  table.set(1, 2, "low");
+  // 2
+  table.set(2, 0, firstTime - 4_day);
+  table.set(2, 1, 3.1);
+  table.set(2, 2, "low");
+  // 3
+  table.set(3, 0, firstTime - 3_day);
+  table.set(3, 1, 33.7);
+  table.set(3, 2, "high");
+  // 4
+  table.set(4, 0, firstTime - 2_day);
+  table.set(4, 1, 22.0);
+  table.set(4, 2, "normal");
+  // 5
+  table.set(5, 0, firstTime - 1_day);
+  table.set(5, 1, 18.9);
+  table.set(5, 2, "normal");
+  // 6
+  table.set(6, 0, firstTime);
+  table.set(6, 1, 6.4);
+  table.set(6, 2, "low");
+
+  return table;
+}
+// pages/chart-colored-area end
+
 // pages/donut start
 @expose
 fn donut(): Table {
@@ -208,12 +270,41 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// pages/table start
+// pages/histogram
+@expose
+fn histogram_table(): Table {
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader::new("chart-bar-histogram/heightweight.csv", csvFormat);
+
+  var histogramHeight = HistogramFloat {};
+  var histogramWeight = HistogramFloat {};
+  while (csv.available() > 0) {
+    var res = csv.read();
+    var height_inch = res[1] as float;
+    var weight_pound = res[2] as float; 
+
+    var height_cm = height_inch * 2.54;
+    var weight_kg = weight_pound * 0.453592;
+
+    histogramHeight.add(height_cm);
+    histogramWeight.add(weight_kg);
+  }
+
+  return histogramHeight.all();
+}
+// pages/histogram end
+
 @expose
 fn table(): Table {
   var rand = Random::new();
 
   var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
   var min = -10.0;
   var max = 40.0;
   var prevTime = time::now();
@@ -311,12 +402,14 @@ type ComplexObject {
   char: char;
   geo: geo;
   null: any?;
+  enum: TimeZone;
   array: Array;
   nodeTime: nodeTime;
   nodeIndex: nodeIndex;
   nodeList: nodeList;
   nodeGeo: nodeGeo;
   nested: any;
+  nodeNested: node<ComplexObject>?;
 }
 
 @expose
@@ -330,6 +423,7 @@ fn complex_object() {
     char: 'd',
     geo: geo::new(1.4, -0.85),
     null: null,
+    enum: TimeZone::Europe_Paris,
     array: [42, 3.14, "hello world"],
     nodeTime: nodeTime::new(),
     nodeIndex: nodeIndex::new(),
@@ -348,10 +442,38 @@ fn complex_object() {
       nodeIndex: nodeIndex::new(),
       nodeList: nodeList::new(),
       nodeGeo: nodeGeo::new(),
+      enum: TimeZone::Europe_Luxembourg,
     },
+    nodeNested: node<ComplexObject>::new(ComplexObject {
+        string: "Nested Hello, world!",
+        int: 1337,
+        float: 3.1415,
+        bool: true,
+        char: 'g',
+        geo: geo::max,
+        null: null,
+        enum: TimeZone::Asia_Tokyo,
+        array: [1337, 3.1415, "GreyCat"],
+        nodeTime: nodeTime::new(),
+        nodeIndex: nodeIndex::new(),
+        nodeList: nodeList::new(),
+        nodeGeo: nodeGeo::new(),
+        nested: [],
+      }),
   };
 }
 // pages/object end
 
 
 type FooBar {}
+
+@expose
+fn add(a: int, b: int): int {
+  println("add(${a}, ${b}) = ${a + b}");
+  return a + b;
+}
+
+@expose
+fn anything(v: any?) {
+  return v;
+}

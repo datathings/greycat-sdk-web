@@ -4,22 +4,41 @@ import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { Disposer, GuiRenderEvent } from '../common.js';
 
-type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
-  Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+/**
+ * A function called to compute the cell properties
+ * that will be passed to the underlying `<gui-value />` component.
+ */
 export type CellProps = (
   row: Value[],
   value: unknown,
   rowIdx: number,
   colIdx: number,
-) => ValueProps & { value: unknown };
-type Value = { value: unknown; originalIndex: number };
+) => ValueProps;
 
+type ValueProps = Partial<GuiValueProps> & { value: unknown };
+
+type Value = {
+  /** The actual value for the cell */
+  value: unknown;
+  /**
+   * The original index of the row in the column.
+   * 
+   * This is required because sorting/filtering changes indexing.
+   */
+  originalIndex: number;
+};
+
+// reusing the same object for every render to ease gc
+const cellProps: ValueProps = {
+  dateFmt: getGlobalDateTimeFormat(),
+  numFmt: getGlobalNumberFormat(),
+  value: null,
+};
 const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
-  return {
-    dateFmt: getGlobalDateTimeFormat(),
-    numFmt: getGlobalNumberFormat(),
-    value,
-  };
+  cellProps.value = value;
+  cellProps.dateFmt = getGlobalDateTimeFormat();
+  cellProps.numFmt = getGlobalNumberFormat();
+  return cellProps;
 };
 
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Value[]) => void;
@@ -47,6 +66,54 @@ export class GuiTable extends HTMLElement {
    */
   private _manualColResize = false;
   private _disposer = new Disposer();
+
+  constructor() {
+    super();
+
+    this._thead.addEventListener('table-sort', (ev) => {
+      this._sortCol.sortBy(ev.detail);
+      this._update();
+    });
+
+    this._tbody.addEventListener('click', (e) => {
+      let rowEl: GuiTableBodyCell | undefined;
+      if (e.target instanceof GuiTableBodyCell) {
+        // trigger table-row-click when the cell is clicked
+        rowEl = e.target;
+      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+        // also trigger table-row-click when the cell value is clicked
+        rowEl = e.target.parentElement;
+      } else {
+        return;
+      }
+      this.dispatchEvent(new TableClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
+    });
+
+    this._tbody.addEventListener('dblclick', (e) => {
+      let rowEl: GuiTableBodyCell | undefined;
+      if (e.target instanceof GuiTableBodyCell) {
+        // trigger table-row-click when the cell is clicked
+        rowEl = e.target;
+      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+        // also trigger table-row-click when the cell value is clicked
+        rowEl = e.target.parentElement;
+      } else {
+        return;
+      }
+      this.dispatchEvent(new TableDblClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
+    });
+
+    this.addEventListener('scroll', () => {
+      const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+      if (this._prevFromRowIdx == fromRowIdx) {
+        // in buffer, no need to re-render
+      } else {
+        // out of buffer, re-render
+        this._prevFromRowIdx = Math.max(0, fromRowIdx);
+        this._update();
+      }
+    });
+  }
 
   get table() {
     return this._table;
@@ -156,11 +223,6 @@ export class GuiTable extends HTMLElement {
     fragment.appendChild(this._tbody);
     this.appendChild(fragment);
 
-    this._disposer.addEventListener(this._thead, 'table-sort', (ev) => {
-      this._sortCol.sortBy(ev.detail);
-      this._update();
-    });
-
     let px = 0;
     let cx = 0;
     let resize = false;
@@ -182,13 +244,13 @@ export class GuiTable extends HTMLElement {
       requestAnimationFrame(colResizeLoop);
     };
 
-    this._disposer.addEventListener(this._thead, 'table-resize-col', (e) => {
+    this._thead.addEventListener('table-resize-col', (e) => {
       resize = true;
       index = e.detail.index;
       px = cx = e.detail.x;
       this._thead.classList.add('gui-table-resizing');
       requestAnimationFrame(colResizeLoop);
-    });
+    }, { signal: this._disposer.signal });
     const cancelColResize = () => {
       if (resize) {
         resize = false;
@@ -196,51 +258,12 @@ export class GuiTable extends HTMLElement {
         this._update();
       }
     };
-    this._disposer.addEventListener(this, 'mousemove', (e) => {
+    this.addEventListener('mousemove', (e) => {
       cx = e.clientX;
-    });
+    }, { signal: this._disposer.signal });
 
-    this._disposer.addEventListener(this, 'scroll', () => {
-      const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
-      if (this._prevFromRowIdx == fromRowIdx) {
-        // in buffer, no need to re-render
-      } else {
-        // out of buffer, re-render
-        this._prevFromRowIdx = Math.max(0, fromRowIdx);
-        this._update();
-      }
-    });
-
-    this._disposer.addEventListener(this._tbody, 'click', (e) => {
-      let rowEl: GuiTableBodyCell | undefined;
-      if (e.target instanceof GuiTableBodyCell) {
-        // trigger table-row-click when the cell is clicked
-        rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
-        // also trigger table-row-click when the cell value is clicked
-        rowEl = e.target.parentElement;
-      } else {
-        return;
-      }
-      this.dispatchEvent(new TableClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
-    });
-
-    this._disposer.addEventListener(this._tbody, 'dblclick', (e) => {
-      let rowEl: GuiTableBodyCell | undefined;
-      if (e.target instanceof GuiTableBodyCell) {
-        // trigger table-row-click when the cell is clicked
-        rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
-        // also trigger table-row-click when the cell value is clicked
-        rowEl = e.target.parentElement;
-      } else {
-        return;
-      }
-      this.dispatchEvent(new TableDblClickEvent(rowEl.rowIdx, rowEl.colIdx, rowEl.data));
-    });
-
-    this._disposer.addEventListener(document.body, 'mouseup', cancelColResize);
-    this._disposer.addEventListener(document.body, 'mouseleave', cancelColResize);
+    document.body.addEventListener('mouseup', cancelColResize, { signal: this._disposer.signal });
+    document.body.addEventListener('mouseleave', cancelColResize, { signal: this._disposer.signal });
 
     const oResize = new ResizeObserver(() => {
       // reset manual column resize for best-effort display on resize
@@ -459,7 +482,22 @@ class GuiTableHeadCell extends HTMLElement {
   private _sorter = document.createElement('div');
   private _resizer = document.createElement('div');
   private _sortGraphemes = { asc: '↓', desc: '↑', default: '⇅' } as const;
-  private _disposer = new Disposer();
+
+  constructor() {
+    super();
+
+    this.addEventListener('click', (e) => {
+      if (e.target !== this._resizer) {
+        this.dispatchEvent(new TableSortEvent(this._index));
+      }
+    });
+
+    this._resizer.addEventListener('mousedown', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      this.dispatchEvent(new TableResizeColEvent(this._index, e.clientX));
+    });
+  }
 
   get colWidth(): number {
     return this._width;
@@ -482,30 +520,18 @@ class GuiTableHeadCell extends HTMLElement {
 
     this._resizer.classList.add('gui-thead-resizer');
 
-    this._disposer.addEventListener(this._resizer, 'mousedown', (e) => {
-      e.preventDefault();
-      e.stopPropagation();
-      this.dispatchEvent(new TableResizeColEvent(this._index, e.clientX));
-    });
-
     fragment.appendChild(this._resizer);
 
     this.appendChild(fragment);
-    this._disposer.addEventListener(this, 'click', (e) => {
-      if (e.target !== this._resizer) {
-        this.dispatchEvent(new TableSortEvent(this._index));
-      }
-    });
   }
 
   disconnectedCallback() {
-    this._disposer.dispose();
     this.replaceChildren(); // cleanup
   }
 
   update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
     this._index = index;
-    this._title.textContent = title ?? meta.typeName ?? `Column ${index + 1}`;
+    this._title.textContent = title ?? meta.header ?? meta.typeName ?? `Column ${index + 1}`;
     this._sorter.textContent = this._sortGraphemes[sort];
   }
 }
@@ -560,7 +586,7 @@ class GuiTableBody extends HTMLElement {
     fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
 
     // remove virtual scroller while updating
-    this.removeChild(this.virtualScroller);
+    this.virtualScroller.remove();
 
     // We want to render as many rows as possible in the "view", but no more than needed
     // Therefore, we iterate from `0` to `maxVirtualRows` so that we stop when going over

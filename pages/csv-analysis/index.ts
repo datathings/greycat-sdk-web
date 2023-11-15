@@ -1,19 +1,16 @@
-import * as sdk from '@greycat/sdk';
+import { io } from '@greycat/sdk';
+import '../layout';
 
-import { mount } from '../common';
+const app = document.createElement('app-layout');
+app.title = 'Csv Analysis';
+await app.init();
 
-mount(async (app) => {
-  const csva = sdk.io.CsvAnalysis.createFrom({format: null, row_limit: null, enum_limit: null, date_check_limit: null, date_formats: null, statistics: null});
-  const greycat = window.greycat.default = await sdk.GreyCat.init({ url: new URL('http://localhost:8080') });
-  
-  const updated_csva = await sdk.io.CsvAnalysis.analyze('test.csv', csva, greycat);
-  console.log(updated_csva?.statistics);
+document.body.prepend(app);
 
-  const csvAnalysis = document.createElement('gui-csv-analysis')!;
+const csvAnalysisEl = document.createElement('gui-csv-analysis')!;
+app.main.appendChild(csvAnalysisEl);
 
-  csvAnalysis.analysis = updated_csva;
+const csva = await io.CsvAnalysis.explore_new('test.csv', null);
+csvAnalysisEl.analysis = csva;
 
-  console.log(csvAnalysis);
-
-  app.appendChild(csvAnalysis);
-});
+console.log(csvAnalysisEl);

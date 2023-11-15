@@ -1,8 +1,7 @@
-import { GreyCat, io } from '@greycat/sdk';
+import { io } from '@greycat/sdk';
 import { ColumnType, getColumnType } from '../utils.js'
 
 export class GuiCsvAnalysis extends HTMLElement {
-  private _greycat: GreyCat = window.greycat.default;
   private _csvAnalysis: io.CsvAnalysis | null = null;
   private _table = document.createElement('table');
   private _thead = document.createElement('thead');
@@ -13,17 +12,9 @@ export class GuiCsvAnalysis extends HTMLElement {
     this.render();
   }
 
-  set greycat(greycat: GreyCat) {
-    this._greycat = greycat;
-  }
-
   set analysis(csvAnalysis: io.CsvAnalysis | null) {
     this._csvAnalysis = csvAnalysis;
     this.render();
-  }
-
-  private _handleError(error: unknown) {
-    console.error(error);
   }
 
   render() {

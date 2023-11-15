@@ -2,18 +2,26 @@ import { utils } from '@greycat/sdk';
 import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
 import { Disposable } from '../../internals.js';
 
-export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string) => void;
+export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
 
 const NOOP = () => void 0;
 export interface GuiValueProps {
   value: unknown;
+  /** overrides the display with this `text` */
   text?: string;
-  linkify: boolean;
+  /** whether or not to display the value as a link */
+  linkify: boolean | ((value: unknown) => boolean);
+  /** best-effort to make it short */
   tiny: boolean;
+  /** overrides references name */
   name: string | undefined;
   dateFmt: Intl.DateTimeFormat | undefined;
   numFmt: Intl.NumberFormat | undefined;
+  /** @deprecated don't use this */
   raw: boolean;
+  /** optional user-defined data */
+  data?: unknown;
+  /** callback used when `linkify` is `true` */
   onClick: ClickHandler<unknown>;
 }
 
@@ -25,10 +33,11 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   private _numFmt: Intl.NumberFormat | undefined;
   private _value: unknown;
   private _name: string | undefined;
-  private _linkify = false;
+  private _linkify: boolean | ((value: unknown) => boolean) = false;
   private _raw = false;
   private _tiny = false;
   private _text: string | undefined;
+  private _data: unknown;
   private _onClick: ClickHandler = NOOP;
   private _disposeClickHandler: Disposable | undefined;
 
@@ -55,11 +64,11 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
-  get linkify(): boolean {
+  get linkify(): boolean | ((value: unknown) => boolean) {
     return this._linkify;
   }
 
-  set linkify(enable: boolean) {
+  set linkify(enable: boolean | ((value: unknown) => boolean)) {
     this._linkify = enable;
     this.render();
   }
@@ -121,6 +130,15 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
+  get data() {
+    return this._data;
+  }
+
+  set data(data: unknown) {
+    this._data = data;
+    this.render();
+  }
+
   setAttrs({
     value,
     name = this._name,
@@ -131,6 +149,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     dateFmt = this._dateFmt,
     numFmt = this._numFmt,
     text = this._text,
+    data = this._data,
   }: Partial<GuiValueProps>) {
     if (
       this._value === value &&
@@ -141,7 +160,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._onClick === onClick &&
       this._dateFmt === dateFmt &&
       this._numFmt === numFmt &&
-      this._text === text
+      this._text === text &&
+      this._data === data
     ) {
       // prevent unecessary re-renders
       return;
@@ -155,6 +175,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._dateFmt = dateFmt;
     this._numFmt = numFmt;
     this._text = text;
+    this._data = data;
     this.render();
   }
 
@@ -183,10 +204,16 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
     // make sure previous handlers are removed
     this._disposeClickHandler?.();
-    if (this._linkify) {
+    let linkify = false;
+    if (typeof this._linkify === 'boolean') {
+      linkify = this._linkify;
+    } else {
+      linkify = this._linkify(this._value);
+    }
+    if (linkify) {
       this.textContent = null;
       const link = document.createElement('a');
-      const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content);
+      const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content, this._data);
       link.addEventListener('auxclick', onclick);
       link.addEventListener('click', onclick);
       this._disposeClickHandler = () => {

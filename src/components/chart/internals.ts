@@ -55,3 +55,26 @@ export function dateFormat(date: Date) {
                 : formatYear
   )(date);
 }
+
+const SECONDS_IN_MS = 1000;
+const MINUTES_IN_MS = SECONDS_IN_MS * 60;
+const HOURS_IN_MS = MINUTES_IN_MS * 60;
+const DAYS_IN_MS = HOURS_IN_MS * 24;
+
+export function relativeTimeFormat(span: number): string {
+  if (span < MINUTES_IN_MS) {
+    return '%S.%L';
+  } else if (span < HOURS_IN_MS) {
+    return '%M:%S';
+  } else if (span < DAYS_IN_MS) {
+    return '%H:%M';
+  } else if (span < DAYS_IN_MS * 7) {
+    return '%a %H:%M';
+  } else if (span < DAYS_IN_MS * 30) {
+    return '%d %b';
+  } else if (span < DAYS_IN_MS * 365 * 2) {
+    return '%d %b %Y';
+  } else {
+    return '%b %Y';
+  }
+}

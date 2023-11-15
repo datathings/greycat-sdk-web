@@ -1,16 +1,15 @@
-import { lstatSync, readFileSync, readdirSync } from 'fs';
+import { lstatSync, readdirSync } from 'fs';
 import { join, relative, resolve } from 'path';
 import { DefaultTheme, defineConfig } from 'vitepress';
 import greycat from '@greycat/lang';
 
 const COMPONENTS_DIR = resolve('src', 'components');
-const LIBRARIES_DIR = resolve('libs');
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: 'GreyCat',
-  description: 'Official GreyCat Documentation',
-  base: '',
+  title: 'GreyCat Web',
+  description: '@greycat/web documentation',
+  base: '/greycat-sdk-web/',
   outDir: resolve('dist', 'docs'),
   rewrites: {
     'src/components/:sub/:name/(.*)': 'components/:sub/:name/index.md',
@@ -31,15 +30,7 @@ export default defineConfig({
     },
 
     nav: [
-      { text: 'Home', link: '/' },
       { text: 'Getting Started', link: '/getting-started' },
-      {
-        text: 'Libraries',
-        items: [
-          { text: 'std', link: '/libs/std/' },
-          { text: 'algebra', link: '/libs/algebra/' },
-        ],
-      },
       {
         text: 'Components',
         items: findComponents('src', COMPONENTS_DIR) as any,
@@ -47,29 +38,32 @@ export default defineConfig({
     ],
 
     sidebar: [
+      { text: 'Introduction', link: '/' },
+      { text: 'Getting Started', link: '/getting-started' },
+      { text: 'JSX/TSX Runtime', link: '/jsx-runtime' },
+      { text: 'Using React.js', link: '/using-react' },
       {
-        text: 'Introduction',
-        items: [{ text: 'Getting Started', link: '/getting-started' }],
-      },
-      {
-        text: 'Libraries',
-        items: findLibraries(LIBRARIES_DIR),
+        text: 'Customization',
+        items: [
+          { text: 'CSS', link: '/customization/css' },
+          { text: 'Theme', link: '/customization/theme' }
+        ],
       },
       {
         text: 'Web Components',
         link: '/components/index.md',
-        collapsed: true,
         items: findComponents('src', COMPONENTS_DIR),
       },
     ],
 
     socialLinks: [
-      { icon: 'github', link: 'https://hub.datathings.com/greycat/ui' },
+      { icon: 'github', link: 'https://github.com/datathings/greycat-sdk-web' },
       { icon: 'linkedin', link: 'https://www.linkedin.com/company/datathings/' },
     ],
   },
 
   markdown: {
+    html: true,
     config(md) {
       const h = md.options.highlight!;
       md.options.highlight = (str, lang, attrs) => {
@@ -81,21 +75,6 @@ export default defineConfig({
     }
   },
 });
-
-function findLibraries(dir: string): DefaultTheme.SidebarItem[] {
-  const items: DefaultTheme.SidebarItem[] = [];
-
-  for (const entry of readdirSync(dir)) {
-    const entrypath = join(dir, entry);
-    if (lstatSync(entrypath).isDirectory()) {
-      const sidebar = join(entrypath, 'sidebar.json');
-      const item = readFileSync(sidebar, 'utf-8');
-      items.push(JSON.parse(item));
-    }
-  }
-
-  return items;
-}
 
 /**
  * Tries to find pages in:

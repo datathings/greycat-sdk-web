@@ -13,18 +13,45 @@ article {
   }
 }
 
+sub,
+sup {
+  font-size: 11px;
+}
+
+small {
+  --font-size: 12px;
+}
+
+h1 {
+  --font-size: 28px;
+}
+
+h2 {
+  --font-size: 25px;
+}
+
+h3 {
+  --font-size: 21px;
+}
+
+h4 {
+  --font-size: 18px;
+}
+
+h5 {
+  --font-size: 15px;
+}
+
+:not(thead, tfoot) > * > td {
+  --font-size: 12px;
+}
+
 input:not([type='submit'], [type='button'], [type='reset'])[disabled],
 select[disabled],
 textarea[disabled],
 :where(fieldset[disabled])
   :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
   pointer-events: initial;
-}
-
-[type='checkbox']:checked,
-[type='checkbox']:checked:focus,
-[type='checkbox']:checked:active {
-  --background-color: var(--bg-1);
 }
 
 input:not(:is([type='checkbox'], [type='radio'], [type='range'], [type='file']))[type='search']:not(
@@ -82,4 +109,8 @@ dialog article header {
 dialog footer .grid button {
   /* Resets margin-bottom for the common case of dialog with buttons in footer */
   margin-bottom: 0;
+}
+
+input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'])[type='search'] {
+  border-radius: var(--border-radius);
 }

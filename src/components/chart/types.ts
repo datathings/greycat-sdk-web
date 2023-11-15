@@ -30,6 +30,8 @@ export type SelectionOptions = {
    * - `'vertical'` means only selectable according to y axes
    * - `'horizontal'` means only selectable according to x axis
    * - `'both'` means selectable on y & x axes
+   * 
+   * Defaults to 'horizontal'
    */
   orientation: 'vertical' | 'horizontal' | 'both';
 };
@@ -67,7 +69,9 @@ export type CommonAxis = {
    */
   cursorFormat?: string;
   /**
-   * Zoom ratio
+   * Zoom ratio on wheel events on the axis.
+   * 
+   * Setting this to `0` disables the behavior completely.
    */
   ratio?: number;
   /**
@@ -127,6 +131,12 @@ export type SerieOptions = {
    * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
    */
   yCol2: SecondOrdinate;
+  /**
+   * If `true` this serie value won't show in the tooltip.
+   * 
+   * *This only works when using the native tooltip*
+   */
+  hideInTooltip: boolean;
   /**
    * Maps the col values (from `colorCol`) to a color definition.
    *
@@ -189,6 +199,12 @@ export interface LineSerie<K> extends CommonSerie<K> {
 
 export interface BarSerie<K> extends CommonSerie<K> {
   type: 'bar';
+  /**
+   * Use this when you want to have bars that match a specific width.
+   * 
+   * For every entry in those columns the bar will span from `spanCol[0] to `spanCol[1]`.
+   */
+  spanCol?: [number, number];
 }
 
 export interface ScatterSerie<K> extends CommonSerie<K> {
@@ -236,7 +252,10 @@ export interface ChartConfig<K = { [keys: string]: never }> {
    * Tooltip position, defaults to 'top-left'
    */
   tooltip?: Partial<Tooltip>;
-  selection?: Partial<SelectionOptions>;
+  /**
+   * Options for selection. Set `false` to disable selection entirely.
+   */
+  selection?: Partial<SelectionOptions> | false;
   /**
    * Delta in milliseconds between two `touchend` event.
    *

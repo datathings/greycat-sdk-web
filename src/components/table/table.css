@@ -43,8 +43,8 @@ gui-table gui-thead gui-thead-cell .gui-thead-title {
   padding-left: 4px;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-sorter {
-  font-size: 1.5rem;
-  line-height: 1.5rem;
+  font-size: 21px;
+  line-height: 21px;
   padding: 0 4px 4px 0;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-resizer {

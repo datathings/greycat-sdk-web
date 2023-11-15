@@ -5,23 +5,26 @@
   --font-size-md: 14px;
   --font-size-lg: 14px;
   --font-size-xl: 14px;
-  --font-weight: 500;
+  --font-weight: normal;
 
-  --spacing: 0.5rem;
+  /* keep 'spacing' an even value */
+  --spacing: 6px;
 
   --form-element-active-border-color: var(--primary);
-  --form-element-spacing-vertical: 0.1rem;
-  --form-element-spacing-horizontal: 0.2rem;
+  --form-element-spacing-vertical: calc(var(--spacing) / 2);
+  --form-element-spacing-horizontal: var(--spacing);
   --form-element-background-color: var(--bg-1);
   --form-element-disabled-background-color: var(--bg-0);
+  --form-element-disabled-border-color: #415462;
+  --form-element-disabled-opacity: 0.3;
 
   --switch-color: var(--primary-inverse);
   --switch-checked-background-color: var(--primary);
 
-  --nav-link-spacing-vertical: 0.2rem;
-  --nav-link-spacing-horizontal: 0.4rem;
-  --nav-element-spacing-vertical: 0.2rem;
-  --nav-element-spacing-horizontal: 0.4rem;
+  --nav-link-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-link-spacing-horizontal: var(--spacing);
+  --nav-element-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-element-spacing-horizontal: var(--spacing);
 
   --card-background-color: var(--bg-0);
   --card-sectionning-background-color: var(--bg-1);
@@ -43,6 +46,8 @@
   --modal-overlay-background-color: rgba(var(--base-2), 0.35);
 
   --grid-spacing-vertical: var(--spacing);
+
+  --typography-spacing-vertical: 25px;
 }
 
 /* Dark colors (default) */
@@ -101,8 +106,10 @@
 
   --color-error: #f74318;
 
-  --border-radius: 0.3rem;
+  --border-radius: 4px;
   --shadow: 0px 1px 1px 0px rgb(var(--base-1));
+
+  --icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(0,0,0)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
 }
 
 /* Light colors */
@@ -119,8 +126,8 @@
   --secondary-focus: rgba(205, 249, 127, 0.2);
   --secondary-inverse: #fff;
 
-  --bg-0: #e5e5e5;
-  --bg-1: #c9c9c9;
+  --bg-0: #efefef;
+  --bg-1: #fafafa;
   --bg-2: #fff;
 
   --color: #151515;
@@ -181,6 +188,11 @@
   -moz-tab-size: 4;
   -o-tab-size: 4;
   tab-size: 4;
+}
+
+/* https://www.abeautifulsite.net/posts/flash-of-undefined-custom-elements/ */
+:not(:defined) {
+  visibility: hidden;
 }
 
 html,

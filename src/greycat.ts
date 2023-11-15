@@ -1,4 +1,10 @@
-import { Abi, GreyCat, downloadAbi, downloadAbiHeaders, WithoutAbiOptions } from '@greycat/sdk';
+import {
+  GreyCat,
+  WithoutAbiOptions,
+  Cache,
+  CacheData,
+  CacheKey,
+} from '@greycat/sdk';
 
 let DEFAULT_URL: URL;
 try {
@@ -7,118 +13,64 @@ try {
   DEFAULT_URL = new URL('http://127.0.0.1:8080');
 }
 
-type AbiData = {
-  headers: [number, number, number];
-  data: ArrayBuffer;
-};
-
-export async function init(
-  {
-    url = DEFAULT_URL,
-    auth,
-    capacity,
-    libraries,
-    signal,
-    unauthorizedHandler,
-  }: WithoutAbiOptions = { url: DEFAULT_URL },
-): Promise<GreyCat> {
-  const opts = {
-    url,
-    auth,
-    capacity,
-    libraries,
-    signal,
-    unauthorizedHandler,
-  };
-
-  let abi: Abi;
-  const db = new Db('greycat.default', 'abi', 1);
-  await db.open();
-  const res = await db.readAbi();
-  if (res == null) {
-    // we don't have any cached ABI
-    abi = await update(db, opts);
-  } else {
-    // check if we need to update
-    const [[proto, magic, version]] = await downloadAbiHeaders(opts);
-    if (proto === res.headers[0] && magic === res.headers[1] && version === res.headers[2]) {
-      // everything matches
-      abi = new Abi(res.data, opts.libraries ?? []);
-    } else {
-      // we have a discrepency, update cached abi
-      abi = await update(db, opts);
-    }
+export async function init(options: WithoutAbiOptions = { url: DEFAULT_URL }): Promise<GreyCat> {
+  if (options.cache === undefined) {
+    options.cache = new IndexedDbCache('greycat.default');
   }
-  return GreyCat.initWithAbi({ ...opts, abi });
+  return GreyCat.init(options);
 }
 
-async function update(db: Db, opts: WithoutAbiOptions) {
-  const [abiBuf] = await downloadAbi(opts);
-  const abi = new Abi(abiBuf, opts.libraries ?? []);
-  await db.writeAbi({
-    headers: [Abi.protocol_version, abi.magic, abi.version],
-    data: abiBuf,
-  });
-  return abi;
-}
-
-class Db {
+export class IndexedDbCache implements Cache {
+  private static _STORE_NAME = 'cache';
   private _db: IDBDatabase | undefined;
 
   constructor(
     readonly dbName = 'greycat.default',
-    readonly storeName = 'abi',
-    readonly version = 1,
-  ) {}
+    readonly version = 2,
+  ) { }
 
-  open(): Promise<void> {
-    return new Promise((resolve, reject) => {
+  db(): Promise<IDBDatabase> {
+    return new Promise<IDBDatabase>((resolve, reject) => {
+      if (this._db) {
+        resolve(this._db);
+        return;
+      }
+
       const req = window.indexedDB.open(this.dbName, this.version);
       req.onupgradeneeded = () => {
-        req.result.createObjectStore(this.storeName);
+        req.result.createObjectStore(IndexedDbCache._STORE_NAME);
       };
       req.onsuccess = () => {
         this._db = req.result;
-        resolve();
+        resolve(this._db);
       };
       req.onerror = () => reject(`Failed to open IndexedDB '${this.dbName}:${this.version}'`);
     });
   }
 
-  close(): void {
-    this._db?.close();
-    this._db = undefined;
-  }
-
-  readAbi(): Promise<AbiData | null> {
-    const db = this._db;
-    if (!db) {
-      return Promise.reject('You must open the database first');
-    }
-
+  async write(key: CacheKey, data: CacheData): Promise<void> {
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(this.storeName, 'readonly');
-      const store = transaction.objectStore(this.storeName);
-      const req = store.get('data');
-      req.onsuccess = () => resolve(req.result);
-      req.onerror = () =>
-        reject(`Failed to read ${this.dbName}:${this.version} at '${this.storeName}.data'`);
+      return this.db().then((db) => {
+        const transaction = db.transaction(IndexedDbCache._STORE_NAME, 'readwrite');
+        const store = transaction.objectStore(IndexedDbCache._STORE_NAME);
+        const req = store.put(data, key);
+        req.onsuccess = () => resolve();
+        req.onerror = () =>
+          reject(`Failed to write ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
+      }, reject);
     });
   }
 
-  writeAbi(data: AbiData): Promise<void> {
-    const db = this._db;
-    if (!db) {
-      return Promise.reject('You must open the database first');
-    }
-
+  read(key: CacheKey): Promise<CacheData | null> {
     return new Promise((resolve, reject) => {
-      const transaction = db.transaction(this.storeName, 'readwrite');
-      const store = transaction.objectStore(this.storeName);
-      const req = store.put(data, 'data');
-      req.onsuccess = () => resolve();
-      req.onerror = () =>
-        reject(`Failed to write ${this.dbName}:${this.version} at '${this.storeName}.data'`);
+      return this.db().then((db) => {
+        const transaction = db.transaction(IndexedDbCache._STORE_NAME, 'readonly');
+        const store = transaction.objectStore(IndexedDbCache._STORE_NAME);
+        const req = store.get(key);
+        req.onsuccess = () => resolve(req.result);
+        req.onerror = () =>
+          reject(`Failed to read ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
+      });
     });
   }
 }

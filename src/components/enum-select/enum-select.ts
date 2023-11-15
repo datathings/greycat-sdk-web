@@ -92,7 +92,7 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 
   get disabled() {
-    return this._select.disabled ?? false;
+    return this._select.disabled;
   }
 
   /**
@@ -168,11 +168,12 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 }
 
-export const SELECT_EVENT_TYPE = 'change';
+const ENUM_CHANGE = 'enum-change';
+const ONENUM_CHANGE = `on${ENUM_CHANGE}`;
 
 export class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
   constructor(value: GCEnum | null) {
-    super(SELECT_EVENT_TYPE, { detail: value, bubbles: true });
+    super(ENUM_CHANGE, { detail: value, bubbles: true });
   }
 }
 
@@ -182,7 +183,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    [SELECT_EVENT_TYPE]: GuiEnumSelectEvent;
+    [ENUM_CHANGE]: GuiEnumSelectEvent;
   }
 
   namespace JSX {
@@ -190,9 +191,9 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-enum-select': Partial<
-        Omit<GuiEnumSelect, 'children' | 'onchange'> & {
-          onchange: (
+      'gui-enum-select': GreyCat.Element<
+        Omit<GuiEnumSelect, 'children'> & {
+          [ONENUM_CHANGE]: (
             this: GlobalEventHandlers,
             ev: GuiEnumSelectEvent,
             options?: boolean | AddEventListenerOptions,

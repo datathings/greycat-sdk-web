@@ -13,12 +13,31 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       appendChild(fragment, props.children);
     }
     return fragment;
-  } else if (typeof tagName === 'function') {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    return (tagName as any)(props);
   }
 
   const element = document.createElement(tagName);
+  // if (typeof props['$ref'] === 'function') {
+  //   props['$ref'](element);
+  //   delete props['$ref'];
+  // }
+
+  if ('setAttrs' in element && typeof element.setAttrs === 'function') {
+    // this is an internal optimisation for component that do define a one-off
+    // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
+    // those component can batch update in one method call.
+    element.setAttrs(props);
+    // deal with event handlers separatly
+    const keys = Object.keys(props);
+    for (let i = 0; i < keys.length; i++) {
+      const key = keys[i];
+      if (key.startsWith('on')) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        element.addEventListener(key.substring(2), props[key] as any);
+      }
+    }
+    return element;
+  }
+
   const keys = Object.keys(props);
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
@@ -69,7 +88,7 @@ function appendChild(parent: Node, child: any) {
     return;
   }
 
-  if (Array.isArray(child)) {
+  if (Array.isArray(child) || child instanceof NodeList) {
     for (let i = 0; i < child.length; i++) {
       appendChild(parent, child[i]);
     }
