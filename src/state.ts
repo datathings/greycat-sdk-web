@@ -66,11 +66,11 @@ export async function saveStateToDb(state: unknown, name = 'app-state') {
   db.writeBytes(name, writer.buffer);
 }
 
-export async function loadStateFromStorage<T extends { [key: string]: unknown }>(
+export function loadStateFromStorage<T extends { [key: string]: unknown }>(
   defaultState: T,
   name = 'app-state',
   storage = localStorage,
-): Promise<T> {
+): T {
   const hex = storage.getItem(name);
   if (hex) {
     const bytes = hexToBytes(hex);
@@ -80,7 +80,7 @@ export async function loadStateFromStorage<T extends { [key: string]: unknown }>
   return defaultState;
 }
 
-export async function saveStateToStorage(state: unknown, name = 'app-state', storage = localStorage) {
+export function saveStateToStorage(state: unknown, name = 'app-state', storage = localStorage) {
   const writer = new BinaryWriter();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   writer.serialize(state as any);

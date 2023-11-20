@@ -1,4 +1,11 @@
-import { core, loadStateFromStorage, saveStateToStorage } from '../../src';
+import {
+  IntInput,
+  StringInput,
+  TimeInput,
+  core,
+  loadStateFromStorage,
+  saveStateToStorage,
+} from '../../src';
 import '../layout';
 import type { AppLayout } from '../layout';
 
@@ -8,94 +15,78 @@ await app.init();
 document.body.prepend(app);
 
 class AppState {
-  constructor(
+  private constructor(
+    public time: core.time | null,
+    public name: string,
+    public age: number,
     public auth: AuthState,
-    public functions: FunctionsState,
-    public graph: GraphState,
-  ) {}
+  ) {
+    return makeReactive(this, (s) => saveStateToStorage(s, 'app-state'));
+  }
 
-  static async fromDb(): Promise<AppState> {
-    // loads the raw state from IndexedDb or use the provided default
-    const state = await loadStateFromStorage(
+  static load() {
+    const s = loadStateFromStorage(
       {
-        auth: {
-          username: 'User',
-          count: 42,
-          time: core.time.fromMs(Date.now()),
-        },
-        functions: {
-          indexOfStuff: new Map<unknown, unknown>([
-            ['Something', 42],
-            ['Another', 'Thing'],
-            [1337, false],
-            [{ foo: 'bar' }, { baz: 42 }],
-          ]),
-          selectedFn: 'project::foo',
-          fn: {
-            paramA: 1337,
-            paramB: ['hello', 'world!'],
-          },
-        },
-        graph: {
-          selectedTab: 'moduleA::varC',
-        },
+        time: null,
+        name: 'default',
+        age: -1,
+        auth: AuthState.load(),
       },
+      'app-state',
     );
-
-    return new AppState(
-      new AuthState(state.auth.username, state.auth.count, state.auth.time),
-      new FunctionsState(
-        state.functions.indexOfStuff,
-        state.functions.selectedFn,
-        new FnState(state.functions.fn.paramA, state.functions.fn.paramB),
-      ),
-      new GraphState(state.graph.selectedTab),
-    );
+    return new AppState(s.time, s.name, s.age, s.auth);
   }
 }
 
 class AuthState {
-  constructor(
-    public name: string,
-    public count: number,
-    public time: core.time,
-  ) {}
+  private constructor(
+    public username: string | null,
+    public password: string | null,
+  ) {
+    return makeReactive(this, (s) => saveStateToStorage(s, 'auth-state'));
+  }
+
+  static load() {
+    const s = loadStateFromStorage({ username: null, password: null }, 'auth-state');
+    return new AuthState(s.username, s.password);
+  }
 }
 
-class FunctionsState {
-  constructor(
-    public indexOfStuff: Map<unknown, unknown>,
-    public selectedFn: string,
-    public fn: FnState,
-  ) {}
+function makeReactive<T extends object>(state: T, update: (state: T) => void): T {
+  return new Proxy(state, {
+    get(target, p) {
+      console.log('get', target, p);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (target as any)[p];
+    },
+    set(target, p, newValue) {
+      console.log('set', target, p, newValue);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (target as any)[p] = newValue;
+      update(target);
+      return true;
+    },
+  });
 }
 
-class FnState {
-  constructor(
-    public paramA: number,
-    public paramB: string[],
-  ) {}
-}
+const state = AppState.load();
+const timeInput = new TimeInput('time', (v) => (state.time = v));
+const nameInput = new StringInput('name', (v) => (state.name = v));
+const ageInput = new IntInput('age', (v) => (state.age = v));
+const usernameInput = new StringInput('auth.username', (v) => (state.auth.username = v));
+const passwordInput = new StringInput('auth.password', (v) => (state.auth.password = v));
 
-class GraphState {
-  constructor(public selectedModVar: string) {}
-}
-
-console.time('load state');
-const state = await AppState.fromDb();
-console.timeEnd('load state');
 console.log(state);
-
-// serializes the state to IndexedDb
-console.time('save state');
-await saveStateToStorage(state);
-console.timeEnd('save state');
 
 app.main.appendChild(
   <article>
-    <header>Open the console to see the loaded state</header>
+    <header>Current state:</header>
     <div className="container-fluid">
-      <gui-object value={state} />
+      {timeInput.element}
+      {nameInput.element}
+      {ageInput.element}
+      {usernameInput.element}
+      {passwordInput.element}
     </div>
   </article>,
 );
