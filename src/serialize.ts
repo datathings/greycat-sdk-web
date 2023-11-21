@@ -63,9 +63,9 @@ export function serializeToHex(value: unknown): string {
   return bytesToHex(writer.buffer);
 }
 
-export function deserializeFromHex(hex: string): unknown {
-  const reader = new BinaryReader(hexToBytes(hex));
-  return reader.deserialize();
+export function deserializeFromHex<T = unknown>(hex: string): T {
+  const reader = new BinaryReader(hexToBytes(hex).buffer);
+  return reader.deserialize() as T;
 }
 
 // export async function loadStateFromDb<T extends { [key: string]: unknown }>(
