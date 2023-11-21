@@ -21,8 +21,18 @@ gui-object .gui-object-value > details {
 
 gui-object .gui-object-value > details > summary {
   color: var(--muted-color);
+  line-height: normal;
+}
+
+gui-object .gui-object-value > details > summary::before {
+  content: "<show>";
 }
 
 gui-object .gui-object-value > details[open] > summary {
   margin-bottom: 0;
+}
+
+gui-object .gui-object-value > details[open] > summary::before {
+  margin-bottom: 0;
+  content: "<hide>";
 }
