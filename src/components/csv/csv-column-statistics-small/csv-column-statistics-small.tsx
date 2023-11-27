@@ -91,11 +91,12 @@ export class GuiCsvColumnStatisticsSmall extends HTMLElement {
         label: 'string',
         value: this._csvColumnStatistics.string_count as number
       });
-      lines.push({
-        label: 'null',
-        value: this._csvColumnStatistics.null_count as number
-      });
     }
+
+    lines.push({
+      label: 'null',
+      value: this._csvColumnStatistics.null_count as number
+    });
 
     lines.sort((a, b) => b.value - a.value);
 
@@ -119,7 +120,11 @@ export class GuiCsvColumnStatisticsSmall extends HTMLElement {
     if (lines.length >= 3) {
       const percentage = ((valueSum - lines[0].value - lines[1].value) / valueSum) * 100.0;
       if (percentage) {
-        linesEl.appendChild(this._createLine('Other', percentage));
+        if (lines.length == 3) {
+          linesEl.appendChild(this._createLine(lines[2].label, percentage));
+        } else {
+          linesEl.appendChild(this._createLine('Other', percentage));
+        }
       }
     }
 

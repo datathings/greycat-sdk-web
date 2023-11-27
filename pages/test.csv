@@ -1,4 +1,6 @@
 name, surname, date, number, action_dictionary
-Beket, Bayemirov, 25-01-1999 06:35:55, 1000000, create
-John, Wick, 25-01-1990 06:35, 200000, delete
-Bob, Marvin, 25-01-1990 03:33, 3000000, create
+Beket,, 25-01-1999 06:35:55, 1000000, create
+John,, 25-01-1990 06:35, 200000, delete
+,, 25-01-1990 03:33, 3000000, create
+John,, 25-01-1990 06:35, 200000, delete
+    ,      ,                 ,       ,      
