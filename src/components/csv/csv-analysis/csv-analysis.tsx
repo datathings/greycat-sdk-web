@@ -49,7 +49,7 @@ export class GuiCsvAnalysis extends HTMLElement {
     for (const stats of columns) {
       shortStats.appendChild(
         <td>
-          <gui-csv-column-statistics-small statistics={stats} />
+          <gui-csv-column-statistics statistics={stats} />
         </td>
       );
     }

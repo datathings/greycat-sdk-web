@@ -2,7 +2,7 @@
 import { type GuiBoxPlot } from './boxplot/index.js';
 // import { type GuiBoxPlotChart } from './boxplot-chart';
 import { type GuiCsvAnalysis } from './csv/csv-analysis/index.js';
-import { type GuiCsvColumnStatisticsSmall } from './csv/csv-column-statistics-small/index.js';
+import { type GuiCsvColumnStatistics } from './csv/csv-column-statistics/index.js';
 // import { type GuiDateInput } from './date-input';
 // import { type GuiDonut } from './donut-rework/index.js';
 import { type GuiDonut } from './donut/index.js';
@@ -35,7 +35,7 @@ import { GuiTabs } from './tabs/gui-tabs.js';
 export * from './boxplot/index.js';
 export * from './common.js';
 export * from './csv/csv-analysis/index.js';
-export * from './csv/csv-column-statistics-small/index.js';
+export * from './csv/csv-column-statistics/index.js';
 // export * from './date-input';
 export * from './donut-rework/index.js';
 export * from './enum-select/index.js';

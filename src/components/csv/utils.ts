@@ -48,9 +48,9 @@ export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
     return ColumnType.Undefined;
   }
 
-  // If we have multiple types, it's string
+  // If we have multiple types, it's "undfined" ("Any" in GreyCat world)
   if ((!stats.null_count && type_count > 1) || (stats.null_count && type_count > 2)) {
-    type = ColumnType.String;
+    type = ColumnType.Undefined;
     return type;
   }
   
