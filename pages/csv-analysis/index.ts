@@ -24,7 +24,7 @@ const csvFormat = io.CsvFormat.createFrom({
 const csva = io.CsvAnalysis.createFrom({
   format: csvFormat,
   row_limit: null,
-  enum_limit: 2,
+  enum_limit: 3,
   date_check_limit: null,
   date_formats: null,
   statistics: null,
@@ -32,7 +32,3 @@ const csva = io.CsvAnalysis.createFrom({
 
 const csvb = await io.CsvAnalysis.explore_new('test.csv', csva);
 csvAnalysisEl.analysis = csvb;
-
-console.log(csvb?.enum_limit);
-
-console.log(csvAnalysisEl);

@@ -8,15 +8,9 @@ interface StatisticsPair {
 
 export class GuiCsvColumnStatisticsSmall extends HTMLElement {
   private _csvColumnStatistics: io.CsvColumnStatistics | null = null;
-  private _csvAnalysis: io.CsvAnalysis | null = null;
 
   set statistics(csvColumnStatistics: io.CsvColumnStatistics | null) {
     this._csvColumnStatistics = csvColumnStatistics;
-    this.render();
-  }
-
-  set analysis(csvAnalysis: io.CsvAnalysis | null) {
-    this._csvAnalysis = csvAnalysis;
     this.render();
   }
 
@@ -52,11 +46,11 @@ export class GuiCsvColumnStatisticsSmall extends HTMLElement {
 
 
   render() {
-    if (!this._csvColumnStatistics || !this._csvAnalysis) {
+    if (!this._csvColumnStatistics) {
       return;
     }
 
-    const type = getColumnType(this._csvColumnStatistics, this._csvAnalysis);
+    const type = getColumnType(this._csvColumnStatistics);
     const lines: StatisticsPair[] = [];
     let valueSum: number = 0;
 
