@@ -45,7 +45,8 @@ export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
     return ColumnType.Undefined;
   }
 
-  if (type_count > 1) { // If we have multiple types, it's string
+  // If we have multiple types, it's string
+  if (type_count > 1) {
     type = ColumnType.String;
     return type;
   }
@@ -58,8 +59,8 @@ export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
   return type;
 }
 
-// This function will be deprecated, once GreyCat CsvColumnStatistics will provide info if enum_limit is exceeded.
 // This is a temporary solution.
+// This function should be deprecated, once GreyCat CsvColumnStatistics will provide info if enum_limit has been exceeded.
 function isEnum(stats: io.CsvColumnStatistics, count: number): boolean {
   let words_count = 0;
   for (const cnt of stats.word_list.values()) {
