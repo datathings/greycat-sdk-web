@@ -7,6 +7,7 @@ export type InputHandler = (value: any) => void;
 export type InputConstructor = new (name: string, oninput: InputHandler) => IInput;
 
 export interface IInput {
+  name: string;
   value: unknown;
   element: Element;
   disabled: boolean;
@@ -16,21 +17,32 @@ export interface IInput {
 export class StringInput implements IInput {
   element: HTMLInputElement;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(name: string, oninput: InputHandler, defaultValue?: string) {
     this.element = (
       <input
         type="text"
         id={name}
         name={name}
+        value={defaultValue}
         placeholder="eg. Hello, world"
         oninput={() => {
           this.element.removeAttribute('aria-invalid');
-          oninput(this.element.value);
+          oninput(this.value);
         }}
       />
     ) as HTMLInputElement;
 
-    oninput('');
+    if (!defaultValue) {
+      oninput('');
+    }
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -68,12 +80,13 @@ export class StringInput implements IInput {
 export class CharInput implements IInput {
   element: HTMLInputElement;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(name: string, oninput: InputHandler, defaultValue?: string) {
     this.element = (
       <input
         type="text"
         id={name}
         name={name}
+        value={defaultValue}
         placeholder="eg. c"
         oninput={() => {
           this.element.removeAttribute('aria-invalid');
@@ -81,6 +94,14 @@ export class CharInput implements IInput {
         }}
       />
     ) as HTMLInputElement;
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -118,13 +139,13 @@ export class CharInput implements IInput {
 export class IntInput implements IInput {
   element: HTMLInputElement;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(name: string, oninput: InputHandler, defaultValue?: number) {
     this.element = (
       <input
         type="number"
         id={name}
         name={name}
-        valueAsNumber={0}
+        valueAsNumber={defaultValue}
         placeholder="eg. 42"
         oninput={() => {
           this.invalid = false;
@@ -133,7 +154,17 @@ export class IntInput implements IInput {
       />
     ) as HTMLInputElement;
 
-    oninput(0);
+    if (defaultValue === undefined) {
+      oninput(this.value);
+    }
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -171,13 +202,13 @@ export class IntInput implements IInput {
 export class FloatInput implements IInput {
   element: HTMLInputElement;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(name: string, oninput: InputHandler, defaultValue?: number) {
     this.element = (
       <input
         type="number"
         id={name}
         name={name}
-        valueAsNumber={0.0}
+        valueAsNumber={defaultValue}
         placeholder="eg. 3.1415"
         oninput={() => {
           this.invalid = false;
@@ -186,7 +217,17 @@ export class FloatInput implements IInput {
       />
     ) as HTMLInputElement;
 
-    oninput(0.0);
+    if (defaultValue === undefined) {
+      oninput(0.0);
+    }
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -225,12 +266,12 @@ export class BoolInput implements IInput {
   element: HTMLDivElement;
   private _input: HTMLInputElement;
 
-  constructor(name: string, oninput: InputHandler) {
+  constructor(name: string, oninput: InputHandler, defaultValue?: boolean) {
     this._input = (
       <input
         type="checkbox"
         id={name}
-        checked={false}
+        checked={defaultValue}
         name={name}
         oninput={() => {
           this.invalid = false;
@@ -241,7 +282,17 @@ export class BoolInput implements IInput {
 
     this.element = (<div style={{ width: '100%' }}>{this._input}</div>) as HTMLDivElement;
 
-    oninput(false);
+    if (defaultValue === undefined) {
+      oninput(false);
+    }
+  }
+
+  get name() {
+    return this._input.name;
+  }
+
+  set name(name: string) {
+    this._input.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -294,6 +345,14 @@ export class TimeInput implements IInput {
     ) as HTMLInputElement;
   }
 
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
+
   set disabled(disabled: boolean) {
     this.element.disabled = disabled;
     if (disabled) {
@@ -344,6 +403,14 @@ export class FnInput implements IInput {
     ) as HTMLInputElement;
 
     oninput(0);
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -429,6 +496,14 @@ export class DurationInput implements IInput {
 
     // default value
     oninput(this.value);
+  }
+
+  get name() {
+    return this._valueInput.name;
+  }
+
+  set name(name: string) {
+    this._valueInput.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -532,6 +607,14 @@ export class NodeInput implements IInput {
     oninput('0');
   }
 
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
+
   set disabled(disabled: boolean) {
     this.element.disabled = disabled;
     if (disabled) {
@@ -586,6 +669,14 @@ export class NodeTimeInput implements IInput {
     ) as HTMLInputElement;
 
     oninput('0');
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -644,6 +735,14 @@ export class NodeGeoInput implements IInput {
     oninput('0');
   }
 
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
+
   set disabled(disabled: boolean) {
     this.element.disabled = disabled;
     if (disabled) {
@@ -698,6 +797,14 @@ export class NodeListInput implements IInput {
     ) as HTMLInputElement;
 
     oninput('0');
+  }
+
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
   }
 
   set disabled(disabled: boolean) {
@@ -756,6 +863,14 @@ export class NodeIndexInput implements IInput {
     oninput('0');
   }
 
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
+
   set disabled(disabled: boolean) {
     this.element.disabled = disabled;
     if (disabled) {
@@ -800,6 +915,14 @@ export class UnknownInput implements IInput {
     ) as HTMLInputElement;
   }
 
+  get name() {
+    return this.element.name;
+  }
+
+  set name(name: string) {
+    this.element.name = name;
+  }
+
   get disabled() {
     return this.element.disabled;
   }
@@ -835,7 +958,7 @@ export class ObjectInput implements IInput {
   private _inputs: LabelledInput[];
 
   constructor(
-    name: string,
+    private _name: string,
     readonly type: AbiType,
     oninput: InputHandler,
   ) {
@@ -848,25 +971,37 @@ export class ObjectInput implements IInput {
     this._inputs = new Array(type.attrs.length);
     for (let i = 0; i < type.attrs.length; i++) {
       const attr = type.attrs[i];
-      const input = new LabelledInput(
-        `${name}-${attr.name}`,
-        attr.name,
-        greycat.default.abi.types[attr.abi_type],
-        attr.nullable,
-        (v) => {
-          // update closed arg value
-          this._values[i] = v;
-          oninput(this.value);
-        },
+      const attrOnInput: InputHandler = (v) => {
+        // update closed arg value
+        this._values[i] = v;
+        oninput(this.value);
+      };
+      const attrTy = greycat.default.abi.types[attr.abi_type];
+      let input: IInput = new TypedInput(`${_name}-${attr.name}`, attrTy, attrOnInput);
+      if (attr.nullable) {
+        input = new NullableInput(input, attrOnInput);
+      }
+      const labelledInput = new LabelledInput(
+        document.createTextNode(`${attr.name}: ${displayType(attrTy, attr.nullable)}`),
+        input,
       );
 
       // append to input list
-      this._inputs[i] = input;
+      this._inputs[i] = labelledInput;
       // append to DOM list
       inputList.appendChild(input.element);
     }
 
     this.element = (<article className="gui-input-object">{inputList}</article>) as HTMLElement;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+    // TODO update the name for every attributes
   }
 
   get disabled() {
@@ -911,7 +1046,7 @@ export class FnCallInput implements IInput {
   private _inputs: LabelledInput[];
 
   constructor(
-    public name: string,
+    private _name: string,
     private _fn: AbiFunction,
     public oninput: InputHandler,
   ) {
@@ -924,25 +1059,37 @@ export class FnCallInput implements IInput {
     this._inputs = new Array(_fn.params.length);
     for (let i = 0; i < _fn.params.length; i++) {
       const param = _fn.params[i];
-      const input = new LabelledInput(
-        `${name}-${param.name}`,
-        param.name,
-        param.type,
-        param.nullable,
-        (v) => {
-          // update closed arg value
-          this._values[i] = v;
-          oninput(this.value);
-        },
+      const paramOnInput: InputHandler = (v) => {
+        // update closed arg value
+        this._values[i] = v;
+        oninput(this.value);
+      };
+      let input: IInput = new TypedInput(`${_name}-${param.name}`, param.type, paramOnInput);
+      if (param.nullable) {
+        input = new NullableInput(input, paramOnInput);
+      }
+
+      const label = document.createTextNode(
+        `${param.name}: ${displayType(param.type, param.nullable)}`,
       );
+      const labelledInput = new LabelledInput(label, input);
 
       // append to input list
-      this._inputs[i] = input;
+      this._inputs[i] = labelledInput;
       // append to DOM list
       inputList.appendChild(input.element);
     }
 
     this.element = (<article className="gui-input-fn-call">{inputList}</article>) as HTMLElement;
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
+    // TODO update the name for every arguments
   }
 
   get disabled() {
@@ -987,20 +1134,23 @@ export class FnCallInput implements IInput {
 
     for (let i = 0; i < fn.params.length; i++) {
       const param = fn.params[i];
-      const input = new LabelledInput(
-        `${this.name}-${param.name}`,
-        param.name,
-        param.type,
-        param.nullable,
-        (v) => {
-          // update closed arg value
-          this._values[i] = v;
-          this.oninput(this.value);
-        },
+      const paramOnInput: InputHandler = (v) => {
+        // update closed arg value
+        this._values[i] = v;
+        this.oninput(this.value);
+      };
+      let input: IInput = new TypedInput(`${this._name}-${param.name}`, param.type, paramOnInput);
+      if (param.nullable) {
+        input = new NullableInput(input, paramOnInput);
+      }
+
+      const label = document.createTextNode(
+        `${param.name}: ${displayType(param.type, param.nullable)}`,
       );
+      const labelledInput = new LabelledInput(label, input);
 
       // append to input list
-      this._inputs[i] = input;
+      this._inputs[i] = labelledInput;
       // append to DOM list
       this.element.appendChild(input.element);
     }
@@ -1027,6 +1177,14 @@ export class EnumInput implements IInput {
 
     // default value
     oninput(this.value);
+  }
+
+  get name() {
+    return (this.element.children[0] as HTMLSelectElement).name;
+  }
+
+  set name(name: string) {
+    (this.element.children[0] as HTMLSelectElement).name = name;
   }
 
   get disabled() {
@@ -1066,7 +1224,7 @@ export class ArrayInput implements IInput {
   private _id = 0;
 
   constructor(
-    readonly name: string,
+    private _name: string,
     readonly oninput: InputHandler,
   ) {
     this._addElementAnchor = (
@@ -1088,6 +1246,14 @@ export class ArrayInput implements IInput {
     ) as HTMLElement;
 
     oninput(this.value);
+  }
+
+  get name() {
+    return this._name;
+  }
+
+  set name(name: string) {
+    this._name = name;
   }
 
   private _addInput() {
@@ -1182,7 +1348,7 @@ export class AnyInput implements IInput {
   private _typeSelect: GuiSearchableSelect;
 
   constructor(
-    public name: string,
+    name: string,
     public oninput: InputHandler,
   ) {
     this._valueInput = new StringInput(name, oninput);
@@ -1221,6 +1387,14 @@ export class AnyInput implements IInput {
         {this._typeSelect}
       </div>
     ) as HTMLDivElement;
+  }
+
+  get name() {
+    return this._valueInput.name;
+  }
+
+  set name(name: string) {
+    this._valueInput.name = name;
   }
 
   get disabled() {
@@ -1300,22 +1474,15 @@ export class AnyInput implements IInput {
 
 export class NullableInput implements IInput {
   element: HTMLElement;
-  private _input: IInput | null = null;
 
   constructor(
-    public name: string,
-    public type: AbiType,
+    public input: IInput,
     public oninput: InputHandler,
   ) {
-    if (type.is_enum || type.is_native || type.name === 'core::any') {
-      // only create input eagerly if the type is not an object
-      this._input = new TypedInput(name, type, oninput);
-    }
-
-    const nullableName = `${name}-nullable`;
+    const nullableName = `${input.name}-nullable`;
     this.element = (
       <div className="gui-input-nullable">
-        {this._input ? this._input.element : <em>Null by default</em>}
+        {input.element}
         <label htmlFor={nullableName}>
           <input
             type="checkbox"
@@ -1323,17 +1490,11 @@ export class NullableInput implements IInput {
             name={nullableName}
             checked
             onchange={() => {
-              if (this._input === null) {
-                this._input = new TypedInput(name, type, oninput);
-                // replace '<em>Null by default</em>' by 'this._input.element'
-                this.element.children[0].replaceWith(this._input.element);
-                this._input.disabled = true;
-              }
-              if (this._input.disabled) {
-                this._input.disabled = false;
-                oninput(this._input.value);
+              if (input.disabled) {
+                input.disabled = false;
+                oninput(input.value);
               } else {
-                this._input.disabled = true;
+                input.disabled = true;
                 oninput(null);
               }
             }}
@@ -1343,84 +1504,65 @@ export class NullableInput implements IInput {
       </div>
     ) as HTMLElement;
 
-    // defaults to 'null'
-    oninput(null);
-    if (this._input) {
-      this._input.disabled = true;
-    }
+    const value = input.value;
+    input.disabled = value === null;
+    oninput(value);
+  }
+
+  get name() {
+    return this.input.name;
+  }
+
+  set name(name: string) {
+    this.input.name = name;
   }
 
   get disabled() {
-    return this._input?.disabled ?? true;
+    return this.input.disabled;
   }
 
   set disabled(disabled: boolean) {
-    if (this._input) {
-      this._input.disabled = disabled;
-    }
+    this.input.disabled = disabled;
   }
 
   get invalid() {
-    return this._input?.invalid ?? false;
+    return this.input.invalid;
   }
 
   set invalid(invalid: boolean) {
-    if (this._input) {
-      this._input.invalid = invalid;
-    }
+    this.input.invalid = invalid;
   }
 
   get value() {
-    return this._input?.value || undefined;
+    return this.input.value;
   }
 
   set value(value: unknown | undefined) {
     const checkbox = this.element.querySelector('input[type=checkbox]') as HTMLInputElement;
     checkbox.checked = value === null;
     if (value === null) {
-      // when we are dealing with a `null` value
-      // we only disabled the input field, as it will only become useable once
-      // 'null' is unchecked
-      if (this._input) {
-        this._input.disabled = checkbox.checked;
-      }
+      this.input.disabled = checkbox.checked;
       return;
     }
-
-    if (this._input) {
-      this._input.element.remove();
-    }
-    this._input = new InstanceInput(this.name, value, this.oninput);
-    this._input.disabled = checkbox.checked;
-    this._input.value = value;
-    this.element.prepend(this._input.element);
-
-    // if (Array.isArray(value)) {
-    //   this._input = new ArrayInput(this.name, this.oninput);
-    //   this._input.disabled = checkbox.checked;
-    //   this._input.value = value;
-    //   return;
-    // }
-
-    // // TODO handle other cases
-
-    // if (value instanceof GCObject) {
-    //   this._input = new TypedInput(this.name, this.type, this.oninput);
-
-    //   this._input.value = value;
-    // }
   }
 }
 
 export class Input implements IInput {
   private _inner: IInput;
 
-  constructor(id: string, _name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
+  constructor(name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
+    this._inner = new TypedInput(name, type, oninput);
     if (nullable) {
-      this._inner = new NullableInput(id, type, oninput);
-    } else {
-      this._inner = new TypedInput(id, type, oninput);
+      this._inner = new NullableInput(this._inner, oninput);
     }
+  }
+
+  get name() {
+    return this._inner.name;
+  }
+
+  set name(name: string) {
+    this._inner.name = name;
   }
 
   get element() {
@@ -1492,6 +1634,14 @@ export class TypedInput implements IInput {
     }
   }
 
+  get name() {
+    return this._inner.name;
+  }
+
+  set name(name: string) {
+    this._inner.name = name;
+  }
+
   get element() {
     return this._inner.element;
   }
@@ -1523,42 +1673,48 @@ export class TypedInput implements IInput {
 
 export class LabelledInput implements IInput {
   readonly element: HTMLElement;
-  private _input: Input;
 
-  constructor(id: string, name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
-    this._input = new Input(id, name, type, nullable, oninput);
-
+  constructor(
+    label: Node | string,
+    public input: IInput,
+  ) {
     this.element = (
       <fieldset className="gui-input-labelled-fieldset">
-        <label htmlFor={name}>
-          {name}: {displayType(type, nullable)}
-        </label>
-        {this._input.element}
+        <label htmlFor={input.name}>{label}</label>
+        {this.input.element}
       </fieldset>
     ) as HTMLElement;
   }
 
+  get name() {
+    return this.input.name;
+  }
+
+  set name(name: string) {
+    this.input.name = name;
+  }
+
   get disabled() {
-    return this._input.disabled;
+    return this.input.disabled;
   }
 
   set disabled(disabled: boolean) {
-    this._input.disabled = disabled;
+    this.input.disabled = disabled;
   }
 
   get invalid(): boolean {
-    return this._input.invalid;
+    return this.input.invalid;
   }
   set invalid(invalid: boolean) {
-    this._input.invalid = invalid;
+    this.input.invalid = invalid;
   }
 
   get value(): unknown {
-    return this._input.value;
+    return this.input.value;
   }
 
   set value(value: unknown) {
-    this._input.value = value;
+    this.input.value = value;
   }
 }
 
@@ -1587,6 +1743,9 @@ export class InstanceInput implements IInput {
           this._inner = new ObjectInput(name, instance.$type, oninput);
         } else if (Array.isArray(instance)) {
           this._inner = new ArrayInput(name, oninput);
+        } else if (instance instanceof Map) {
+          // TODO
+          this._inner = new UnknownInput(name, oninput);
         } else {
           // TODO do we want to handle maps?
           this._inner = new UnknownInput(name, oninput);
@@ -1602,6 +1761,14 @@ export class InstanceInput implements IInput {
 
   get element() {
     return this._inner.element;
+  }
+
+  get name() {
+    return this._inner.name;
+  }
+
+  set name(name: string) {
+    this._inner.name = name;
   }
 
   get disabled() {

@@ -158,7 +158,6 @@ export class GuiObject extends HTMLElement {
             if (this._shouldNest(attrVal)) {
               const content = document.createElement('details');
               const summary = document.createElement('summary');
-              summary.textContent = '<show>';
               content.appendChild(summary);
               summary.onclick = () => {
                 content.appendChild(
@@ -189,25 +188,31 @@ export class GuiObject extends HTMLElement {
         }
 
         const fragment = document.createDocumentFragment();
-        for (const [key, val] of Object.entries(this._value)) {
-          let valEl: JSX.Element;
-          if (typeof val === 'object' && val !== null && !(val instanceof GCEnum)) {
-            valEl = (
-              <details>
-                <summary>&lt;show&gt;</summary>
-                <gui-object value={val} {...{ ...this._props, data: key }} />
-              </details>
+        const entries = Object.entries(this._value);
+        for (let i = 0; i < entries.length; i++) {
+          const [key, val] = entries[i];
+          if (this._shouldNest(val)) {
+            fragment.appendChild(
+              <>
+                <div>{key}</div>
+                <div className="gui-object-value">
+                  <details>
+                    <summary />
+                    <gui-object value={val} {...{ ...this._props, data: key }} />
+                  </details>
+                </div>
+              </>,
             );
           } else {
-            valEl = <gui-object value={val} {...{ ...this._props, data: key }} />;
+            fragment.appendChild(
+              <>
+                <div>{key}</div>
+                <div className="gui-object-value">
+                  <gui-object value={val} {...{ ...this._props, data: key }} />
+                </div>
+              </>,
+            );
           }
-
-          fragment.appendChild(
-            <>
-              <div>{key}</div>
-              <div className="gui-object-value">{valEl}</div>
-            </>,
-          );
         }
         this.replaceChildren(fragment);
         break;

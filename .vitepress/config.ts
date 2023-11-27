@@ -43,10 +43,11 @@ export default defineConfig({
       { text: 'JSX/TSX Runtime', link: '/jsx-runtime' },
       { text: 'Using React.js', link: '/using-react' },
       {
-        text: 'Customization',
+        text: 'Miscellaneous',
         items: [
-          { text: 'CSS', link: '/customization/css' },
-          { text: 'Theme', link: '/customization/theme' }
+          { text: 'CSS', link: '/misc/css' },
+          { text: 'Theme', link: '/misc/theme' },
+          { text: 'Serialization', link: '/misc/serialization' },
         ],
       },
       {
