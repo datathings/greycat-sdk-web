@@ -8,9 +8,15 @@ interface StatisticsPair {
 
 export class GuiCsvColumnStatisticsSmall extends HTMLElement {
   private _csvColumnStatistics: io.CsvColumnStatistics | null = null;
+  private _csvAnalysis: io.CsvAnalysis | null = null;
 
   set statistics(csvColumnStatistics: io.CsvColumnStatistics | null) {
     this._csvColumnStatistics = csvColumnStatistics;
+    this.render();
+  }
+
+  set analysis(csvAnalysis: io.CsvAnalysis | null) {
+    this._csvAnalysis = csvAnalysis;
     this.render();
   }
 
@@ -46,11 +52,11 @@ export class GuiCsvColumnStatisticsSmall extends HTMLElement {
 
 
   render() {
-    if (!this._csvColumnStatistics) {
+    if (!this._csvColumnStatistics || !this._csvAnalysis) {
       return;
     }
 
-    const type = getColumnType(this._csvColumnStatistics);
+    const type = getColumnType(this._csvColumnStatistics, this._csvAnalysis);
     const lines: StatisticsPair[] = [];
     let valueSum: number = 0;
 
@@ -117,7 +123,7 @@ export class GuiCsvColumnStatisticsSmall extends HTMLElement {
       }
     }
     if (lines.length >= 3) {
-      const percentage = ((valueSum - lines[0].value - lines[2].value) / valueSum) * 100.0;
+      const percentage = ((valueSum - lines[0].value - lines[1].value) / valueSum) * 100.0;
       if (percentage) {
         linesEl.appendChild(this._createLine('Other', percentage));
       }

@@ -37,7 +37,7 @@ export class GuiCsvAnalysis extends HTMLElement {
     const types = document.createDocumentFragment();
     for (const stats of columns) {
       types.appendChild(
-        <td><code>{ColumnType[getColumnType(stats)]}</code></td>
+        <td><code>{ColumnType[getColumnType(stats, this._csvAnalysis)]}</code></td>
       );
     }
     bodyRows.appendChild(
@@ -49,7 +49,7 @@ export class GuiCsvAnalysis extends HTMLElement {
     for (const stats of columns) {
       shortStats.appendChild(
         <td>
-          <gui-csv-column-statistics-small statistics={stats} />
+          <gui-csv-column-statistics-small statistics={stats} analysis={this._csvAnalysis} />
         </td>
       );
     }

@@ -10,7 +10,7 @@ export enum ColumnType {
   Undefined
 }
 
-export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
+export function getColumnType(stats: io.CsvColumnStatistics, analysis?: io.CsvAnalysis): ColumnType {
   let type_count = 0;
   let type: ColumnType = ColumnType.Undefined;
   
@@ -44,7 +44,7 @@ export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
     return type;
   }
 
-  if (stats.word_list_overflow == false && stats.word_list.size) {
+  if (stats.word_list.size) {
     type = ColumnType.Enum;
     return type;
   }
