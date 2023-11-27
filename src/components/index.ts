@@ -68,7 +68,7 @@ export type GuiElement =
   | GuiBoxPlot
   // | GuiBoxPlotChart
   | GuiCsvAnalysis
-  | GuiCsvColumnStatisticsSmall
+  | GuiCsvColumnStatistics
   | GuiChart
   // | GuiDateInput
   | GuiDonut
