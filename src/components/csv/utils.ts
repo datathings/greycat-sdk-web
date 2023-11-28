@@ -42,7 +42,7 @@ export function getPercentage(stats: io.CsvColumnStatistics, type: ColumnType) {
       return 0;
   }
 
-  return Math.round((count / sum) * 100);
+  return Number(((count / sum) * 100).toFixed(3));
 }
 
 export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
