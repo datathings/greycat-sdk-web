@@ -11,50 +11,72 @@ export enum ColumnType {
   Undefined
 }
 
+export function getPercentage(stats: io.CsvColumnStatistics, type: ColumnType) {
+  const sum = (stats.int_count as number) + (stats.float_count as number) + (stats.bool_count as number) + (stats.date_count as number) + (stats.string_count as number) + (stats.null_count as number);
+
+  if (!sum) {
+    return 0;
+  }
+
+  let count = 0;
+  switch(type) {
+    case ColumnType.Null:
+      count = (stats.null_count as number);
+      break;
+    case ColumnType.Int:
+      count = (stats.int_count as number);
+      break;
+    case ColumnType.Float:
+      count = (stats.float_count as number);
+      break;
+    case ColumnType.Bool:
+      count = (stats.bool_count as number);
+      break;
+    case ColumnType.Date:
+      count = (stats.date_count as number);
+      break;
+    case ColumnType.String:
+      count = (stats.string_count as number);
+      break;
+    default:
+      return 0;
+  }
+
+  return Math.round((count / sum) * 100);
+}
+
 export function getColumnType(stats: io.CsvColumnStatistics): ColumnType {
-  let type_count = 0;
-  let type: ColumnType = ColumnType.Undefined;
+  const typesPresent: ColumnType[] = [];
 
-  if (stats.int_count) {
-    type_count++;
-    type = ColumnType.Int;
+  if (stats.int_count > 0) {
+    typesPresent.push(ColumnType.Int);
   }
-  if (stats.float_count) {
-    type_count++;
-    type = ColumnType.Float;
+  if (stats.float_count > 0) {
+    typesPresent.push(ColumnType.Float);
   }
-  if (stats.string_count) {
-    type_count++;
-    type = ColumnType.String;
+  if (stats.string_count > 0) {
+    typesPresent.push(ColumnType.String);
   }
-  if (stats.date_count) {
-    type_count++;
-    type = ColumnType.Date;
+  if (stats.date_count > 0) {
+    typesPresent.push(ColumnType.Date);
   }
-  if (stats.bool_count) {
-    type_count++;
-    type = ColumnType.Bool;
-  }
-  if (stats.null_count) {
-    type_count++;
+  if (stats.bool_count > 0) {
+    typesPresent.push(ColumnType.Bool);
   }
 
-  if (isValidEnum(stats) && ((type_count == 1) || (type_count == 2 && stats.null_count && stats.string_count))) {
-    type = ColumnType.Enum;
-    return type;
-  }
+  const isEnum = isValidEnum(stats) && typesPresent.length === 1;
 
-  if (type_count == 0) {
+  if (isEnum) {
+    return ColumnType.Enum;
+  }
+  if (typesPresent.length === 0) {
+    return ColumnType.Undefined;
+  }
+  if (typesPresent.length > 2 || (stats.null_count && typesPresent.length > 1)) {
     return ColumnType.Undefined;
   }
 
-  // If we have multiple types, it's "undfined" ("Any" in GreyCat world)
-  if ((!stats.null_count && type_count > 1) || (stats.null_count && type_count > 2)) {
-    type = ColumnType.Undefined;
-    return type;
-  }
-  
-  return type;
+  return typesPresent[0];
 }
 
 // This is a temporary solution.

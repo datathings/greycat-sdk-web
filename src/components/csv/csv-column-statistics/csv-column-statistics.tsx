@@ -4,6 +4,7 @@ import { ColumnType, getColumnType } from '../utils.js';
 type LineProps = {
   label: string,
   value: number,
+  valueSum?: number,
 }
 
 export class GuiCsvColumnStatistics extends HTMLElement {
@@ -14,19 +15,20 @@ export class GuiCsvColumnStatistics extends HTMLElement {
     this.render();
   }
 
-  private _createLine = ({label, value}: LineProps) => {
-    const percentage = Math.round(value);
-
+  private _createLine = ({label, value, valueSum}: LineProps) => {
+    if (!valueSum) {
+      return <></>;
+    }
     return (
       <div className="gui-csv-column-statistics__line">
         <div className="gui-csv-column-statistics__info-container">
           <div className="gui-csv-column-statistics__label">{label}</div>
-          <div className="gui-csv-column-statistics__percentage">{percentage}%</div>
+          <div className="gui-csv-column-statistics__percentage">{value}</div>
         </div>
         <progress 
           className="gui-csv-column-statistics__progress-bar" 
           max={100} 
-          value={percentage}>
+          value={Math.round((value / valueSum) * 100)}>
         </progress>
       </div>
     );
@@ -36,7 +38,7 @@ export class GuiCsvColumnStatistics extends HTMLElement {
     if (!this._csvColumnStatistics) {
       return;
     }
-  
+
     const type = getColumnType(this._csvColumnStatistics);
     const lines: LineProps[] = [];
     let valueSum = 0;
@@ -58,16 +60,14 @@ export class GuiCsvColumnStatistics extends HTMLElement {
       addLine('string', this._csvColumnStatistics.string_count);
     }
   
-    addLine('null', this._csvColumnStatistics.null_count);
-  
     lines.sort((a, b) => b.value - a.value);
-  
+
     const linesEl = document.createDocumentFragment();
     lines.forEach((line, index) => {
       if (index < 3) {
-        const percentage = (line.value / valueSum) * 100;
-        if (percentage) {
-          linesEl.appendChild(this._createLine({label: line.label, value: percentage}));
+        const count = line.value;
+        if (count) {
+          linesEl.appendChild(this._createLine({label: line.label, value: count, valueSum}));
         }
       }
     });
