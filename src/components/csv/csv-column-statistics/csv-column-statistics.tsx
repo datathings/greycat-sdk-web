@@ -26,7 +26,7 @@ export class GuiCsvColumnStatistics extends HTMLElement {
           <div className="gui-csv-column-statistics__percentage">{value}</div>
         </div>
         <progress 
-          className="gui-csv-column-statistics__progress-bar" 
+          className="gui-csv-column-statistics__progress-bar"
           max={100} 
           value={Math.round((value / valueSum) * 100)}>
         </progress>

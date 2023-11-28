@@ -34,14 +34,14 @@ export class GuiCsvAnalysis extends HTMLElement {
     const bodyRows = document.createDocumentFragment();
 
     // Append columns' deducted types
-    const types = document.createDocumentFragment();
+    const nullPercentages = document.createDocumentFragment();
     for (const stats of columns) {
-      types.appendChild(
+      nullPercentages.appendChild(
         <td><code>{getPercentage(stats, ColumnType.Null) + "% Null"}</code></td>
       );
     }
     bodyRows.appendChild(
-      <tr>{types}</tr>
+      <tr>{nullPercentages}</tr>
     );
 
     // Append columns' short stats components
