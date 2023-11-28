@@ -47,7 +47,6 @@ export class GuiCsvAnalysis extends HTMLElement {
     // Append columns' short stats components
     const shortStats = document.createDocumentFragment();
     for (const stats of columns) {
-      console.log(stats);
       shortStats.appendChild(
         <td>
           <gui-csv-column-statistics statistics={stats} />
