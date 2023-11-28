@@ -30,5 +30,5 @@ const csva = io.CsvAnalysis.createFrom({
   statistics: null,
 });
 
-const csvb = await io.CsvAnalysis.explore_new('./csv-analysis/data/data_small.csv', csva);
+const csvb = await io.CsvAnalysis.explore_new('./csv-analysis/data/data_smallest.csv', csva);
 csvAnalysisEl.analysis = csvb;
