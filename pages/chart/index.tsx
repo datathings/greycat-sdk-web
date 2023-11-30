@@ -130,8 +130,8 @@ chart.config = {
   table,
   series: [
     {
-      type: 'line',
       title: 'Custom',
+      type: 'step',
       yAxis: 'left',
       yCol: LINE_COL,
       width: 4,

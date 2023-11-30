@@ -197,6 +197,10 @@ export interface LineSerie<K> extends CommonSerie<K> {
   type: 'line';
 }
 
+export interface StepSerie<K> extends CommonSerie<K> {
+  type: 'step';
+}
+
 export interface BarSerie<K> extends CommonSerie<K> {
   type: 'bar';
   /**
@@ -230,7 +234,8 @@ export type Serie<K extends string = string> =
   | LineScatterSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
-  | CustomSerie<K>;
+  | CustomSerie<K>
+  | StepSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
   table: TableLike;
