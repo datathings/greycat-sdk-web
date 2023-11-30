@@ -1,3 +1,5 @@
+import { AbiType } from '@greycat/sdk';
+
 declare global {
   interface HTMLElementEventMap {
     render: GuiRenderEvent;
@@ -14,6 +16,7 @@ export class GuiRenderEvent extends CustomEvent<number> {
 export type TableLike = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols: any[][];
+  meta?: { header?: string | null }[];
 };
 
 export type IDisposable = () => void;
@@ -34,4 +37,15 @@ export class Disposer {
     }
     this.disposables.length = 0;
   }
+}
+
+const CORE_MOD_PREFIX = 'core::';
+const CORE_MOD_LEN = CORE_MOD_PREFIX.length;
+
+export function displayType(type: AbiType, nullable = false): string {
+  if (type.name.startsWith(CORE_MOD_PREFIX)) {
+    const ty = type.name.slice(CORE_MOD_LEN);
+    return nullable ? `${ty}?` : ty;
+  }
+  return nullable ? `${type.name}?` : type.name;
 }

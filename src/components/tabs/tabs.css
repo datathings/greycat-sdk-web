@@ -1,0 +1,46 @@
+gui-tabs {
+  --gui-panel-display: grid;
+  --gui-panel-hidden: none;
+
+  min-width: 0;
+  display: grid;
+  grid-template-rows: min-content auto;
+
+  .tabs {
+    display: flex;
+    gap: calc(var(--spacing) / 2);
+
+    gui-tab {
+      padding: 2px var(--spacing);
+      border: 1px solid var(--bg-0);
+      border-bottom: none;
+      border-top-left-radius: var(--border-radius);
+      border-top-right-radius: var(--border-radius);
+      background-color: var(--bg-2);
+      user-select: none;
+
+      &:first-child {
+        margin-left: 3px;
+      }
+
+      &:hover {
+        color: var(--primary-hover);
+        cursor: pointer;
+      }
+    }
+
+    .activeTab {
+      color: var(--primary);
+      background-color: var(--bg-1);
+
+      &:hover {
+        color: var(--primary);
+        cursor: default;
+      }
+    }
+  }
+
+  gui-panel {
+    background-color: var(--bg-1);
+  }
+}

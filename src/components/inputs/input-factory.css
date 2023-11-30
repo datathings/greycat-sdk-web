@@ -1,0 +1,71 @@
+.gui-input-nullable {
+  display: grid;
+  grid-template-columns: 1fr 65px;
+  column-gap: var(--spacing);
+
+  & > * {
+    min-width: 0px;
+  }
+
+  > label {
+    height: fit-content;
+  }
+}
+
+.gui-input-any {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  column-gap: var(--spacing);
+
+  & > * {
+    min-width: 0px;
+  }
+}
+
+.gui-input-labelled-fieldset {
+  margin-bottom: 0;
+}
+
+/* for potential overflow content (eg. gui-searcheable-list from AnyInput)
+ * to be visible without adding scrollbars to this element
+ */
+.gui-input-array {
+  overflow: visible;
+  display: flex;
+  flex-direction: column;
+  gap: calc(var(--spacing) * 0.5);
+
+  & > :first-child {
+    padding-top: var(--spacing);
+  }
+
+  & > :last-child {
+    padding-bottom: var(--spacing);
+  }
+
+  .gui-input-array-element {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    column-gap: var(--spacing);
+    align-items: center;
+  
+    & > * {
+      min-width: 0px;
+    }
+
+    & input {
+      margin-bottom: 0;
+    }
+
+    & gui-searchable-select {
+      padding-bottom: 0;
+    }
+  }
+}
+
+.gui-input-fn-call .gui-input-array,
+.gui-input-object .gui-input-array {
+  border: 1px solid var(--bg-1);
+  background-color: rgba(var(--base-1), 0.9);
+  margin-bottom: var(--spacing);
+}

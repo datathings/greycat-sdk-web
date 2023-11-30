@@ -311,6 +311,7 @@ export class GuiBoxPlot extends HTMLElement {
       iqrColor: this._iqrColor,
       whiskerColor: this._whiskerColor,
       medianColor: this._medianColor,
+      orientation: 'vertical',
     };
 
     // Only draw the xAxis if the type of the boxplot is core.time or core.date
@@ -323,7 +324,7 @@ export class GuiBoxPlot extends HTMLElement {
       min: this._yAxis(pt.min),
       q1: this._yAxis(pt.percentile25),
       q3: this._yAxis(pt.percentile75),
-      x: this._xAxis(width / 2),
+      crossValue: this._xAxis(width / 2),
     };
     canvas.ctx.boxPlot(boxPlotCanvas, boxPlotOptions);
   }
@@ -346,7 +347,6 @@ interface CursorInfo {
 }
 
 declare global {
-
   interface HTMLElementTagNameMap {
     'gui-boxplot': GuiBoxPlot;
   }

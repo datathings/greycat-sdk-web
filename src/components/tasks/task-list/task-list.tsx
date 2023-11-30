@@ -127,10 +127,8 @@ export class GuiTaskList extends HTMLElement {
   }
 
   render() {
-    let colSpan: number;
     switch (this._kind) {
       case 'running':
-        colSpan = 7;
         this._thead.replaceChildren(
           <tr>
             <th>Task ID</th>
@@ -143,8 +141,8 @@ export class GuiTaskList extends HTMLElement {
           </tr>,
         );
         break;
+      default:
       case 'history':
-        colSpan = 5;
         this._thead.replaceChildren(
           <tr>
             <th>Task ID</th>
@@ -178,6 +176,7 @@ export class GuiTaskList extends HTMLElement {
           ) as HTMLTableRowElement;
           break;
 
+        default:
         case 'history':
           row = (
             <tr>
@@ -197,6 +196,8 @@ export class GuiTaskList extends HTMLElement {
     this._tbody.replaceChildren(fragment);
 
     if (this._tasks.length === 0) {
+      // colSpan equals the number of header cells (<th />)
+      const colSpan = this._thead.children[0].children.length;
       this._tbody.replaceChildren(
         <tr>
           <td colSpan={colSpan}>
@@ -234,10 +235,12 @@ export class GuiTaskList extends HTMLElement {
         }
         break;
       }
-      case 'running':
+      case 'running': {
         this._tasks = await runtime.Task.running(this._greycat);
         this._nbTotal = -1; // no pagination for running list
         break;
+      }
+      
     }
 
     this.render();
@@ -312,7 +315,7 @@ declare global {
 
   namespace JSX {
     interface GuiTaskListEvents {
-      ['ontask-list-click']: (ev: GuiTaskListClickEvent) => void;
+      ['ontask-list-click']?: (ev: GuiTaskListClickEvent) => void;
     }
 
     interface IntrinsicElements {

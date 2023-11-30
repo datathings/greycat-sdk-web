@@ -54,27 +54,28 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/testing/6.3/6.3.22-testing.tgz",
-    "d3": "7.8.5",
-    "maplibre-gl": "2.4.0"
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/testing/6.6/6.6.0-testing.tgz",
+    "d3": "7.8.5"
   },
   "devDependencies": {
-    "@picocss/pico": "1.5.10",
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/testing/6.3/6.3.10-testing.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/testing/6.6/6.6.0-testing.tgz",
+    "@picocss/pico": "1.5.10",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.18.17",
     "eslint": "8.46.0",
-    "http-proxy": "^1.18.1",
+    "http-proxy": "1.18.1",
+    "lightningcss": "1.22.0",
     "lightningcss-cli": "1.22.0",
     "prettier": "3.0.0",
     "typescript": "5.2.2",
     "vite": "4.4.8",
-    "vitepress": "1.0.0-rc.13"
+    "vitepress": "1.0.0-rc.22"
   },
   "engines": {
     "node": ">=16.13.0"
-  }
+  },
+  "packageManager": "pnpm@8.8.0"
 }

@@ -16,6 +16,11 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   }
 
   const element = document.createElement(tagName);
+  // if (typeof props['$ref'] === 'function') {
+  //   props['$ref'](element);
+  //   delete props['$ref'];
+  // }
+
   if ('setAttrs' in element && typeof element.setAttrs === 'function') {
     // this is an internal optimisation for component that do define a one-off
     // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
@@ -83,7 +88,7 @@ function appendChild(parent: Node, child: any) {
     return;
   }
 
-  if (Array.isArray(child)) {
+  if (Array.isArray(child) || child instanceof NodeList) {
     for (let i = 0; i < child.length; i++) {
       appendChild(parent, child[i]);
     }

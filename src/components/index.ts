@@ -7,9 +7,8 @@ import { type GuiDonut } from './donut/index.js';
 import { type GuiEnumSelect } from './enum-select/index.js';
 import { type GuiGauge } from './gauge/index.js';
 import { type GuiHeatmap } from './heatmap/index.js';
-// import { type GuiHistogramChart } from './histogram-chart';
 // import { type GuiLineChart } from './line-chart';
-import { type GuiMap } from './map/index.js';
+// import { type GuiMap } from './map/index.js';
 // import { type GuiNodeTimeInfo } from './nodetime';
 // import { type GuiScatterPlotChart } from './scatter-plot';
 import { type GuiTable } from './table/index.js';
@@ -26,6 +25,8 @@ import { type GuiTaskList } from './tasks/task-list/task-list.js';
 import { type GuiTaskSelect } from './tasks/task-select/task-select.js';
 import { type GuiObject } from './object/object.js';
 import { type GuiSearchableSelect } from './searchable-select/index.js';
+import { GuiPeriodicTaskList } from './periodic-tasks/periodic-task-list/periodic-task-list.js';
+import { GuiTabs } from './tabs/gui-tabs.js';
 
 // export * from './bar-chart';
 // export * from './boxplot-chart';
@@ -36,9 +37,8 @@ export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
 export * from './gauge/index.js';
 export * from './heatmap/index.js';
-// export * from './histogram-chart';
 // export * from './line-chart';
-export * from './map/index.js';
+// export * from './map/index.js';
 // export * from './nodetime';
 // export * from './scatter-plot';
 export * from './table/index.js';
@@ -55,6 +55,9 @@ export * from './tasks/task-select/index.js';
 export * from './tasks/task-create/index.js';
 export * from './object/object.js';
 export * from './searchable-select/index.js';
+export * from './inputs/index.js';
+export * from './periodic-tasks/periodic-task-list/index.js';
+export * from './tabs/index.js';
 
 export type GuiElement =
   // | GuiBarChart
@@ -66,8 +69,7 @@ export type GuiElement =
   | GuiEnumSelect
   | GuiGauge
   | GuiHeatmap
-  // | GuiHistogramChart
-  | GuiMap
+  // | GuiMap
   // | GuiNodeTimeInfo
   // | GuiScatterPlotChart
   | GuiTable
@@ -81,4 +83,6 @@ export type GuiElement =
   | GuiTaskCreate
   | GuiTaskList
   | GuiObject
-  | GuiSearchableSelect;
+  | GuiSearchableSelect
+  | GuiPeriodicTaskList
+  | GuiTabs;

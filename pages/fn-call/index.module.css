@@ -1,0 +1,21 @@
+.customGrid {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  column-gap: var(--spacing);
+  position: relative;
+  overflow: auto;
+}
+
+.callFnHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  > a {
+    font-weight: normal;
+  }
+}
+
+.resultContainer {
+  
+}

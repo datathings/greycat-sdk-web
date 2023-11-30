@@ -4,22 +4,41 @@ import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { Disposer, GuiRenderEvent } from '../common.js';
 
-type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
-  Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+/**
+ * A function called to compute the cell properties
+ * that will be passed to the underlying `<gui-value />` component.
+ */
 export type CellProps = (
   row: Value[],
   value: unknown,
   rowIdx: number,
   colIdx: number,
-) => ValueProps & { value: unknown };
-type Value = { value: unknown; originalIndex: number };
+) => ValueProps;
 
+type ValueProps = Partial<GuiValueProps> & { value: unknown };
+
+type Value = {
+  /** The actual value for the cell */
+  value: unknown;
+  /**
+   * The original index of the row in the column.
+   * 
+   * This is required because sorting/filtering changes indexing.
+   */
+  originalIndex: number;
+};
+
+// reusing the same object for every render to ease gc
+const cellProps: ValueProps = {
+  dateFmt: getGlobalDateTimeFormat(),
+  numFmt: getGlobalNumberFormat(),
+  value: null,
+};
 const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
-  return {
-    dateFmt: getGlobalDateTimeFormat(),
-    numFmt: getGlobalNumberFormat(),
-    value,
-  };
+  cellProps.value = value;
+  cellProps.dateFmt = getGlobalDateTimeFormat();
+  cellProps.numFmt = getGlobalNumberFormat();
+  return cellProps;
 };
 
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Value[]) => void;
@@ -512,7 +531,7 @@ class GuiTableHeadCell extends HTMLElement {
 
   update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
     this._index = index;
-    this._title.textContent = title ?? meta.typeName ?? `Column ${index + 1}`;
+    this._title.textContent = title ?? meta.header ?? meta.typeName ?? `Column ${index + 1}`;
     this._sorter.textContent = this._sortGraphemes[sort];
   }
 }
@@ -567,7 +586,7 @@ class GuiTableBody extends HTMLElement {
     fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
 
     // remove virtual scroller while updating
-    this.removeChild(this.virtualScroller);
+    this.virtualScroller.remove();
 
     // We want to render as many rows as possible in the "view", but no more than needed
     // Therefore, we iterate from `0` to `maxVirtualRows` so that we stop when going over

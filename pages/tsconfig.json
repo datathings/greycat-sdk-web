@@ -7,7 +7,8 @@
     "rootDir": "..",
     "noEmit": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "@greycat/web"
+    "jsxImportSource": "@greycat/web",
+    "types": ["vite/client"],
   },
   "include": ["**/*.ts", "**/*.tsx", "../src", "../jsx.d.ts"]
 }
