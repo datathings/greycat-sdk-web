@@ -140,7 +140,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
       const row = (
         <tr onclick={() => this.showTask(i)}>
           <td>{task.user_id}</td>
-          <td>{task.function.fqn}</td>
+          <td>{task.function?.fqn}</td>
           <td>
             <gui-object value={task.arguments} />
           </td>

@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.15-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.5/6.5.15-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/6.7/6.7.0-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/6.7/6.7.0-dev.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -17,8 +17,8 @@ devDependencies:
     specifier: 0.8.4
     version: 0.8.4
   '@greycat/lang':
-    specifier: https://get.greycat.io/files/lang/dev/6.4/6.4.0-dev.tgz
-    version: '@get.greycat.io/files/lang/dev/6.4/6.4.0-dev.tgz'
+    specifier: https://get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz
+    version: '@get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz'
   '@picocss/pico':
     specifier: 1.5.10
     version: 1.5.10
@@ -2732,12 +2732,12 @@ packages:
       - universal-cookie
     dev: true
 
-  /vscode-languageserver-textdocument@1.0.8:
-    resolution: {integrity: sha512-1bonkGqQs5/fxGT5UchTgjGVnfysL0O8v1AYMBjqTbWQTFn721zaPGDYFkOKtfDgFiSgXM3KwaG3FMGfW4Ed9Q==}
+  /vscode-languageserver-textdocument@1.0.11:
+    resolution: {integrity: sha512-X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==}
     dev: true
 
-  /vscode-languageserver-types@3.17.3:
-    resolution: {integrity: sha512-SYU4z1dL0PyIMd4Vj8YOqFvHu7Hz/enbWtpfnVbJHU4Nd1YNYx8u0ennumc6h48GQNeOLxmwySmnADouT/AuZA==}
+  /vscode-languageserver-types@3.17.5:
+    resolution: {integrity: sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==}
     dev: true
 
   /vscode-oniguruma@1.7.0:
@@ -2794,20 +2794,20 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  '@get.greycat.io/files/lang/dev/6.4/6.4.0-dev.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/dev/6.4/6.4.0-dev.tgz}
+  '@get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz}
     name: '@greycat/lang'
     version: 0.0.0
     engines: {node: '>=16.17.0'}
     dependencies:
-      vscode-languageserver-textdocument: 1.0.8
-      vscode-languageserver-types: 3.17.3
+      vscode-languageserver-textdocument: 1.0.11
+      vscode-languageserver-types: 3.17.5
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/6.5/6.5.15-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.5/6.5.15-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/6.7/6.7.0-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.7/6.7.0-dev.tgz}
     name: '@greycat/sdk'
-    version: 6.5.15-dev
+    version: 6.7.0-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6
