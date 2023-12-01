@@ -989,7 +989,7 @@ export class ObjectInput implements IInput {
       // append to input list
       this._inputs[i] = labelledInput;
       // append to DOM list
-      inputList.appendChild(input.element);
+      inputList.appendChild(labelledInput.element);
     }
 
     this.element = (<article className="gui-input-object">{inputList}</article>) as HTMLElement;
@@ -1480,6 +1480,8 @@ export class NullableInput implements IInput {
     public oninput: InputHandler,
   ) {
     const nullableName = `${input.name}-nullable`;
+    const value = input.value;
+
     this.element = (
       <div className="gui-input-nullable">
         {input.element}
@@ -1488,7 +1490,7 @@ export class NullableInput implements IInput {
             type="checkbox"
             id={nullableName}
             name={nullableName}
-            checked
+            checked={value === null}
             onchange={() => {
               if (input.disabled) {
                 input.disabled = false;
@@ -1504,7 +1506,6 @@ export class NullableInput implements IInput {
       </div>
     ) as HTMLElement;
 
-    const value = input.value;
     input.disabled = value === null;
     oninput(value);
   }
