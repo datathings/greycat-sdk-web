@@ -1,78 +1,74 @@
 import { io } from '@greycat/sdk';
-import { ColumnType, getColumnType } from '../utils.js';
-
-type LineProps = {
-  label: string,
-  value: number,
-  valueSum?: number,
-}
 
 export class GuiCsvFormatColumn extends HTMLElement {
-  private _csvColumnStatistics: io.CsvColumn | null = null;
+  private _csvColumn: io.CsvColumnString | null = null;
 
-  set statistics(csvColumnStatistics: io.CsvColumnStatistics | null) {
-    this._csvColumnStatistics = csvColumnStatistics;
+  set column(csvColumn: io.CsvColumnString | null) {
+    this._csvColumn = csvColumn;
     this.render();
   }
 
-  private _createLine = ({label, value, valueSum}: LineProps) => {
-    if (!valueSum) {
-      return <></>;
+  private readOnlyProperties = new Set(['$attrs', '$type']);
+
+  private isKeyOfCsvColumnString(key: string): key is keyof io.CsvColumnString {
+    return key in io.CsvColumnString.prototype && !this.readOnlyProperties.has(key);
+  }
+
+  private handleChange(property: string, value: string) {
+    if (this._csvColumn && this.isKeyOfCsvColumnString(property)) {
+      this._csvColumn[property] = value;
     }
-    return (
-      <div className="gui-csv-format-column__line">
-        <div className="gui-csv-format-column__info-container">
-          <div className="gui-csv-format-column__label">{label}</div>
-          <div className="gui-csv-format-column__percentage">{value}</div>
+  }
+
+  private renderInput(field: { label: string; property: string; type: string }) {
+    const { label, property, type } = field;
+    const value = this._csvColumn ? this._csvColumn[property] : '';
+
+    if (type === 'checkbox') {
+      return (
+        <div>
+          <label>{label}</label>
+          <input type={type} checked={value} onChange={(e) => this.handleChange(property, e.target.checked)} />
         </div>
-        <progress 
-          className="gui-csv-format-column__progress-bar"
-          max={100} 
-          value={Math.round((value / valueSum) * 100)}>
-        </progress>
-      </div>
-    );
-  };
+      );
+    } else if (type === 'textarea') {
+      return (
+        <div>
+          <label>{label}</label>
+          <textarea value={value} onChange={(e) => this.handleChange(property, e.target.value)} />
+        </div>
+      );
+    } else {
+      return (
+        <div>
+          <label>{label}</label>
+          <input type={type} value={value} onChange={(e) => this.handleChange(property, e.target.value)} />
+        </div>
+      );
+    }
+  }
 
   render() {
-    if (!this._csvColumnStatistics) {
+    if (!this._csvColumn) {
       return;
     }
 
-    const type = getColumnType(this._csvColumnStatistics);
-    const lines: LineProps[] = [];
-    let valueSum = 0;
-  
-    const addLine = (label: string, value: number | bigint) => {
-      lines.push({ label, value: value as number});
-      valueSum += value as number;
-    };
-  
-    if (type === ColumnType.Enum) {
-      this._csvColumnStatistics.word_list.forEach((value, key) => addLine(key, value));
-    } else if (type === ColumnType.Date) {
-      this._csvColumnStatistics.date_format_count.forEach((value, key) => addLine(key, value));
-    } else {
-      addLine('int', this._csvColumnStatistics.int_count);
-      addLine('float', this._csvColumnStatistics.float_count);
-      addLine('bool', this._csvColumnStatistics.bool_count);
-      addLine('date', this._csvColumnStatistics.date_count);
-      addLine('string', this._csvColumnStatistics.string_count);
-    }
-  
-    lines.sort((a, b) => b.value - a.value);
+    const fields = [
+      { label: 'Name', property: 'name', type: 'text' },
+      { label: 'Mandatory', property: 'mandatory', type: 'checkbox' },
+      { label: 'Offset', property: 'offset', type: 'number' },
+      { label: 'Trim', property: 'trim', type: 'checkbox' },
+      { label: 'Try Number', property: 'try_number', type: 'checkbox' },
+      { label: 'Try JSON', property: 'try_json', type: 'checkbox' },
+      { label: 'Values', property: 'values', type: 'textarea' },
+      { label: 'Encoder', property: 'encoder', type: 'text' },
+    ];
 
-    const linesEl = document.createDocumentFragment();
-    lines.forEach((line, index) => {
-      if (index < 3) {
-        const count = line.value;
-        if (count) {
-          linesEl.appendChild(this._createLine({label: line.label, value: count, valueSum}));
-        }
-      }
-    });
-  
-    this.replaceChildren(linesEl);
+    return (
+      <div>
+        {fields.map(field => this.renderInput(field))}
+      </div>
+    );
   }
 }
 

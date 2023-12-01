@@ -1,5 +1,5 @@
 import { io } from '@greycat/sdk';
-import { ColumnType, getPercentage } from '../utils.js'
+// import { ColumnType, getPercentage } from '../utils.js'
 
 export class GuiCsvFormat extends HTMLElement {
   private _csvFormat: io.CsvFormat | null = null;
@@ -12,7 +12,7 @@ export class GuiCsvFormat extends HTMLElement {
     this.render();
   }
 
-  set analysis(csvFormat: io.CsvFormat | null) {
+  set format(csvFormat: io.CsvFormat | null) {
     this._csvFormat = csvFormat;
     this.render();
   }
@@ -33,35 +33,17 @@ export class GuiCsvFormat extends HTMLElement {
 
     const bodyRows = document.createDocumentFragment();
 
-    // Append columns' deducted types
-    const nullPercentages = document.createDocumentFragment();
-    for (const csvColumn of columns) {
-      const percentage = getPercentage(csvColumn, ColumnType.Null);
-      if (percentage !== 0) {
-        nullPercentages.appendChild(
-          <td><code>{getPercentage(csvColumn, ColumnType.Null) + "% Null"}</code></td>
-        );
-      } else {
-        nullPercentages.appendChild(
-          <td></td>
-        );
-      }
-    }
-    bodyRows.appendChild(
-      <tr>{nullPercentages}</tr>
-    );
-
     // Append columns' short stats components
-    const shortStats = document.createDocumentFragment();
-    for (const stats of columns) {
-      shortStats.appendChild(
+    const configurations = document.createDocumentFragment();
+    for (const csvColumn of columns) {
+      configurations.appendChild(
         <td>
-          <gui-csv-column-statistics statistics={stats} />
+          <gui-csv-format-column column={csvColumn} />
         </td>
       );
     }
     bodyRows.appendChild(
-      <tr>{shortStats}</tr>
+      <tr>{configurations}</tr>
     );
     
     this._thead.replaceChildren(headerRow);

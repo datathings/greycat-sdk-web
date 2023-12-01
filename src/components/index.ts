@@ -18,6 +18,8 @@ import { type GuiMultiSelectCheckbox } from './multi-select-checkbox/index.js';
 import { type GuiValue } from './value/index.js';
 // import { type GuiDoughnutChart } from './doughnut-chart';
 import { type GuiChart } from './chart/index.js';
+import { type GuiCsvFormat } from './csv/csv-format/index.js';
+import { type GuiCsvFormatColumn } from './csv/csv-format-column/index.js';
 import { type GuiTask } from './tasks/task/index.js';
 import { type GuiTaskInfo } from './tasks/task-info/index.js';
 import { type GuiTaskCreate } from './tasks/task-create/index.js';
@@ -32,6 +34,8 @@ import { GuiTabs } from './tabs/gui-tabs.js';
 // export * from './boxplot-chart';
 export * from './boxplot/index.js';
 export * from './common.js';
+export * from './csv/csv-format/index.js';
+export * from './csv/csv-format-column/index.js';
 // export * from './date-input';
 export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
@@ -64,6 +68,8 @@ export type GuiElement =
   | GuiBoxPlot
   // | GuiBoxPlotChart
   | GuiChart
+  | GuiCsvFormat
+  | GuiCsvFormatColumn
   // | GuiDateInput
   | GuiDonut
   | GuiEnumSelect
