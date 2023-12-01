@@ -4,19 +4,18 @@ gui-object {
 
   display: grid;
   grid-template-columns: auto 1fr;
+  align-content: start;
   column-gap: calc(var(--spacing) * 2);
-}
-
-gui-object .gui-object-value {
-  /* font-size: var(--gui-object-font-size); */
-  /* font-family: var(--gui-object-font-family); */
-  align-self: center;
 }
 
 gui-object .gui-object-value > details {
   margin: 0;
   border: none;
   padding: 0;
+}
+
+gui-object > code {
+  width: fit-content;
 }
 
 gui-object .gui-object-value > details > summary {

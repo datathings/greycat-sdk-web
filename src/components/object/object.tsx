@@ -46,7 +46,7 @@ export class GuiObject extends HTMLElement {
         // null
         if (this._value === null) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(document.createTextNode('null'));
+          this.replaceChildren(<code>null</code>);
           return;
         }
 
@@ -54,6 +54,12 @@ export class GuiObject extends HTMLElement {
         if (this._value === undefined) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren();
+          return;
+        }
+
+        if (this._value instanceof HTMLElement) {
+          this.style.gridTemplateColumns = 'auto';
+          this.replaceChildren(this._value);
           return;
         }
 
@@ -221,7 +227,14 @@ export class GuiObject extends HTMLElement {
   }
 
   private _shouldNest(val: unknown): boolean {
-    return typeof val === 'object' && !isStd(val) && !(val instanceof GCEnum);
+    return (
+      val !== undefined &&
+      val !== null &&
+      typeof val === 'object' &&
+      !isStd(val) &&
+      !(val instanceof GCEnum) &&
+      !(val instanceof Node)
+    );
   }
 }
 

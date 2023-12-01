@@ -33,6 +33,13 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       if (key.startsWith('on')) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         element.addEventListener(key.substring(2), props[key] as any);
+      } else if (key === 'className') {
+        const value = props[key];
+        if (Array.isArray(value)) {
+          element.classList.add(...value);
+        } else {
+          element.classList.add(value as string);
+        }
       }
     }
     return element;
