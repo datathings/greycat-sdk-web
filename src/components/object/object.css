@@ -4,6 +4,7 @@ gui-object {
 
   display: grid;
   grid-template-columns: auto 1fr;
+  align-content: start;
   column-gap: calc(var(--spacing) * 2);
 }
 
