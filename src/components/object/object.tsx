@@ -106,7 +106,7 @@ export class GuiObject extends HTMLElement {
                   <em>{i}</em>
                 </div>
                 <div>
-                  <gui-object value={arr[i]} {...this._props} />
+                  <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
                 </div>
               </>,
             );
@@ -123,7 +123,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div>
-                  <gui-object value={val} {...this._props} />
+                  <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                 </div>
               </>,
             );
@@ -173,7 +173,12 @@ export class GuiObject extends HTMLElement {
               const summary = document.createElement('summary');
               content.appendChild(summary);
               summary.onclick = () => {
-                content.appendChild(<gui-object value={attrVal} {...this._props} />);
+                content.appendChild(
+                  <gui-object
+                    value={attrVal}
+                    {...Object.assign({}, this._props, { data: attr.name })}
+                  />,
+                );
                 summary.onclick = null;
               };
 
@@ -188,7 +193,10 @@ export class GuiObject extends HTMLElement {
                 <>
                   <div>{attr.name}</div>
                   <div className="gui-object-value">
-                    <gui-object value={attrVal} {...this._props} />
+                    <gui-object
+                      value={attrVal}
+                      {...Object.assign({}, this._props, { data: attr.name })}
+                    />
                   </div>
                 </>,
               );
@@ -209,7 +217,7 @@ export class GuiObject extends HTMLElement {
                 <div className="gui-object-value">
                   <details>
                     <summary />
-                    <gui-object value={val} {...this._props} />
+                    <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                   </details>
                 </div>
               </>,
@@ -219,7 +227,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div className="gui-object-value">
-                  <gui-object value={val} {...this._props} />
+                  <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                 </div>
               </>,
             );
