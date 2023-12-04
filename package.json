@@ -54,7 +54,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.7/6.7.1-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/6.7/6.7.2-dev.tgz",
     "d3": "7.8.5"
   },
   "devDependencies": {
