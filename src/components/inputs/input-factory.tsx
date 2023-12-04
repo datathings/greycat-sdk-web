@@ -977,9 +977,15 @@ export class ObjectInput implements IInput {
         oninput(this.value);
       };
       const attrTy = greycat.default.abi.types[attr.abi_type];
-      let input: IInput = new TypedInput(`${_name}-${attr.name}`, attrTy, attrOnInput);
+      let input: IInput;
       if (attr.nullable) {
-        input = new NullableInput(input, attrOnInput);
+        input = new NullableInput(
+          `${_name}-${attr.name}`,
+          () => new TypedInput(`${_name}-${attr.name}`, attrTy, attrOnInput),
+          attrOnInput,
+        );
+      } else {
+        input = new TypedInput(`${_name}-${attr.name}`, attrTy, attrOnInput);
       }
       const labelledInput = new LabelledInput(
         document.createTextNode(`${attr.name}: ${displayType(attrTy, attr.nullable)}`),
@@ -1064,9 +1070,15 @@ export class FnCallInput implements IInput {
         this._values[i] = v;
         oninput(this.value);
       };
-      let input: IInput = new TypedInput(`${_name}-${param.name}`, param.type, paramOnInput);
+      let input: IInput;
       if (param.nullable) {
-        input = new NullableInput(input, paramOnInput);
+        input = new NullableInput(
+          `${_name}-${param.name}`,
+          () => new TypedInput(`${_name}-${param.name}`, param.type, paramOnInput),
+          paramOnInput,
+        );
+      } else {
+        input = new TypedInput(`${_name}-${param.name}`, param.type, paramOnInput);
       }
 
       const label = document.createTextNode(
@@ -1139,9 +1151,15 @@ export class FnCallInput implements IInput {
         this._values[i] = v;
         this.oninput(this.value);
       };
-      let input: IInput = new TypedInput(`${this._name}-${param.name}`, param.type, paramOnInput);
+      let input: IInput;
       if (param.nullable) {
-        input = new NullableInput(input, paramOnInput);
+        input = new NullableInput(
+          `${this._name}-${param.name}`,
+          () => new TypedInput(`${this._name}-${param.name}`, param.type, paramOnInput),
+          paramOnInput,
+        );
+      } else {
+        input = new TypedInput(`${this._name}-${param.name}`, param.type, paramOnInput);
       }
 
       const label = document.createTextNode(
@@ -1474,77 +1492,107 @@ export class AnyInput implements IInput {
 
 export class NullableInput implements IInput {
   element: HTMLElement;
+  input: IInput | undefined;
+  private _nullCheckbox: HTMLInputElement;
 
   constructor(
-    public input: IInput,
+    private _name: string,
+    private _createInput: () => IInput,
     public oninput: InputHandler,
   ) {
-    const nullableName = `${input.name}-nullable`;
-    const value = input.value;
+    const nullableName = `${_name}-nullable`;
+
+    this._nullCheckbox = (
+      <input
+        type="checkbox"
+        id={nullableName}
+        name={nullableName}
+        checked
+        onchange={() => {
+          if (this.input === undefined) {
+            this.input = _createInput();
+            this.element.replaceChild(this.input.element, this.element.children[0]);
+          }
+          if (!this._nullCheckbox.checked) {
+            this.input.disabled = false;
+            oninput(this.input.value);
+          } else {
+            this.input.disabled = true;
+            oninput(null);
+          }
+        }}
+      />
+    ) as HTMLInputElement;
 
     this.element = (
       <div className="gui-input-nullable">
-        {input.element}
+        <em>Null by default</em>
         <label htmlFor={nullableName}>
-          <input
-            type="checkbox"
-            id={nullableName}
-            name={nullableName}
-            checked={value === null}
-            onchange={() => {
-              if (input.disabled) {
-                input.disabled = false;
-                oninput(input.value);
-              } else {
-                input.disabled = true;
-                oninput(null);
-              }
-            }}
-          />
+          {this._nullCheckbox}
           Null?
         </label>
       </div>
     ) as HTMLElement;
 
-    input.disabled = value === null;
-    oninput(value);
+    oninput(null);
   }
 
   get name() {
-    return this.input.name;
+    return this._name;
   }
 
   set name(name: string) {
-    this.input.name = name;
+    this._name = name;
+    if (this.input) {
+      this.input.name = name;
+    }
   }
 
   get disabled() {
-    return this.input.disabled;
+    return this._nullCheckbox.disabled;
   }
 
   set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
+    this._nullCheckbox.disabled = disabled;
+    if (this.input) {
+      this.input.disabled = disabled;
+    }
   }
 
   get invalid() {
-    return this.input.invalid;
+    return this._nullCheckbox.hasAttribute('aria-invalid');
   }
 
   set invalid(invalid: boolean) {
-    this.input.invalid = invalid;
+    if (invalid) {
+      this._nullCheckbox.setAttribute('aria-invalid', 'true');
+    } else {
+      this._nullCheckbox.removeAttribute('aria-invalid');
+    }
+    if (this.input) {
+      this.input.invalid = invalid;
+    }
   }
 
   get value() {
-    return this.input.value;
+    if (this._nullCheckbox.checked) {
+      return null;
+    }
+    return this.input?.value ?? null;
   }
 
   set value(value: unknown | undefined) {
-    const checkbox = this.element.querySelector('input[type=checkbox]') as HTMLInputElement;
-    checkbox.checked = value === null;
     if (value === null) {
-      this.input.disabled = checkbox.checked;
+      this._nullCheckbox.checked = true;
+      this.disabled = true;
       return;
     }
+    this._nullCheckbox.checked = false;
+    if (!this.input) {
+      this.input = this._createInput();
+      this.element.replaceChild(this.input.element, this.element.children[0]);
+    }
+    this.input.value = value;
   }
 }
 
@@ -1552,9 +1600,10 @@ export class Input implements IInput {
   private _inner: IInput;
 
   constructor(name: string, type: AbiType, nullable: boolean, oninput: InputHandler) {
-    this._inner = new TypedInput(name, type, oninput);
     if (nullable) {
-      this._inner = new NullableInput(this._inner, oninput);
+      this._inner = new NullableInput(name, () => new TypedInput(name, type, oninput), oninput);
+    } else {
+      this._inner = new TypedInput(name, type, oninput);
     }
   }
 
