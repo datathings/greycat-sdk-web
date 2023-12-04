@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/stable/6.5/6.5.16-stable.tgz
-    version: '@get.greycat.io/files/sdk/js/stable/6.5/6.5.16-stable.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/stable/6.5/6.5.17-stable.tgz
+    version: '@get.greycat.io/files/sdk/js/stable/6.5/6.5.17-stable.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -2795,7 +2795,7 @@ packages:
     dev: true
 
   '@get.greycat.io/files/lang/stable/6.5/6.5.6-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/lang/stable/6.5/6.5.6-stable.tgz}
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/stable/6.5/6.5.6-stable.tgz}
     name: '@greycat/lang'
     version: 0.0.0
     engines: {node: '>=16.17.0'}
@@ -2804,10 +2804,10 @@ packages:
       vscode-languageserver-types: 3.17.5
     dev: true
 
-  '@get.greycat.io/files/sdk/js/stable/6.5/6.5.16-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.5/6.5.16-stable.tgz}
+  '@get.greycat.io/files/sdk/js/stable/6.5/6.5.17-stable.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.5/6.5.17-stable.tgz}
     name: '@greycat/sdk'
-    version: 6.5.16-stable
+    version: 6.5.17-stable
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6
