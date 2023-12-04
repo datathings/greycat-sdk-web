@@ -17,6 +17,7 @@ app.main.replaceChildren(
           <li><a href="./chart-scatter/">Chart (scatter)</a></li>
           <li><a href="./chart-time/">Chart (time)</a></li>
           <li><a href="./chart/">Chart</a></li>
+          <li><a href="./csv-analysis/">Csv analysis</a></li>
           <li><a href="./donut/">Donut</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>
           <li><a href="./fn-call/">Fn Call</a></li>

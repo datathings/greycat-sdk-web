@@ -8,16 +8,19 @@ import { Disposer, GuiRenderEvent } from '../common.js';
  * A function called to compute the cell properties
  * that will be passed to the underlying `<gui-value />` component.
  */
-export type CellProps = (
-  row: Value[],
+export type CellPropsFactory = (
+  row: Cell[],
   value: unknown,
   rowIdx: number,
   colIdx: number,
-) => ValueProps;
+) => CellProps;
 
-type ValueProps = Partial<GuiValueProps> & { value: unknown };
+export type CellProps = Partial<GuiValueProps> & { value: unknown };
 
-type Value = {
+/**
+ * An internal wrapper type for the table cells.
+ */
+export type Cell = {
   /** The actual value for the cell */
   value: unknown;
   /**
@@ -29,23 +32,23 @@ type Value = {
 };
 
 // reusing the same object for every render to ease gc
-const cellProps: ValueProps = {
+const cellProps: CellProps = {
   dateFmt: getGlobalDateTimeFormat(),
   numFmt: getGlobalNumberFormat(),
   value: null,
 };
-const DEFAULT_CELL_PROPS: CellProps = (_, value) => {
+const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
   cellProps.value = value;
   cellProps.dateFmt = getGlobalDateTimeFormat();
   cellProps.numFmt = getGlobalNumberFormat();
   return cellProps;
 };
 
-export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Value[]) => void;
+export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
 
 export class GuiTable extends HTMLElement {
   private _table: core.Table | undefined;
-  private _rows: Array<Value[]> = [];
+  private _rows: Array<Cell[]> = [];
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
   private _minColWidth = 150;
@@ -179,7 +182,7 @@ export class GuiTable extends HTMLElement {
     this._update();
   }
 
-  set cellProps(props: CellProps) {
+  set cellProps(props: CellPropsFactory) {
     this._cellProps = props;
     this._update();
   }
@@ -205,7 +208,7 @@ export class GuiTable extends HTMLElement {
   }: {
     table: core.Table | undefined;
     filter: string;
-    cellProps: CellProps;
+    cellProps: CellPropsFactory;
     headers: string[] | undefined;
   }) {
     if (this._table !== table && table !== undefined) {
@@ -346,7 +349,7 @@ export class GuiTable extends HTMLElement {
   }
 }
 
-function filterRow(text: string, row: Value[]): boolean {
+function filterRow(text: string, row: Cell[]): boolean {
   for (let colIdx = 0; colIdx < row.length; colIdx++) {
     if (
       utils.stringify({
@@ -457,17 +460,17 @@ export type TableClickEventDetail = {
   /**
    * The associated row values.
    */
-  row: Value[];
+  row: Cell[];
 };
 
 class TableClickEvent extends CustomEvent<TableClickEventDetail> {
-  constructor(rowIdx: number, colIdx: number, row: Value[]) {
+  constructor(rowIdx: number, colIdx: number, row: Cell[]) {
     super('table-click', { detail: { rowIdx, colIdx, row }, bubbles: true });
   }
 }
 
 class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
-  constructor(rowIdx: number, colIdx: number, row: Value[]) {
+  constructor(rowIdx: number, colIdx: number, row: Cell[]) {
     super('table-dblclick', { detail: { rowIdx, colIdx, row }, bubbles: true });
   }
 }
@@ -569,7 +572,7 @@ class GuiTableBody extends HTMLElement {
     firstRow.remove();
   }
 
-  update(fromRowIdx: number, colWidths: number[], rows: Value[][], cellProps: CellProps, updateCallback: RowUpdateCallback): void {
+  update(fromRowIdx: number, colWidths: number[], rows: Cell[][], cellProps: CellPropsFactory, updateCallback: RowUpdateCallback): void {
     // Make it one more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
@@ -649,7 +652,7 @@ class GuiTableBody extends HTMLElement {
 class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
-  update(index: number, colWidths: number[], row: Value[], cellProps: CellProps): void {
+  update(index: number, colWidths: number[], row: Cell[], cellProps: CellPropsFactory): void {
     this.idx = index;
     // this.setAttribute('data-col', `${col}`);
     this.setAttribute('data-row', `${index}`);
@@ -694,7 +697,7 @@ class GuiTableBodyRow extends HTMLElement {
 class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
-  data: Value[] = [];
+  data: Cell[] = [];
 }
 
 type SortOrd = 'asc' | 'desc' | 'default';

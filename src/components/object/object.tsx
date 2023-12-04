@@ -1,19 +1,26 @@
 import { GCEnum, GCObject, core } from '@greycat/sdk';
 import { GuiValueProps } from '../index.js';
 
-export type GuiObjectProps = Partial<GuiValueProps>;
+/**
+ * A subset of `GuiValueProps` used to type `GuiObject.props` field
+ */
+export type ObjectProps = Partial<Omit<GuiValueProps, 'value'>>;
+export type GuiObjectProps = { value: unknown } & ObjectProps;
 
 export class GuiObject extends HTMLElement {
   private _value: unknown;
-  private _props: Omit<GuiObjectProps, 'value'> | undefined;
+  private _props: ObjectProps = {};
 
-  setAttrs({ value, ...props }: Partial<GuiValueProps>): void {
-    this._props = props;
+  setAttrs({ value = this._value, ...props }: Partial<GuiObjectProps>): void {
+    for (const key in props) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (this._props as any)[key] = (props as any)[key];
+    }
     this._value = value;
     this.update();
   }
 
-  set props(props: GuiObjectProps) {
+  set props(props: ObjectProps) {
     this._props = props;
     this.update();
   }
@@ -46,7 +53,7 @@ export class GuiObject extends HTMLElement {
         // null
         if (this._value === null) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(document.createTextNode('null'));
+          this.replaceChildren(<code>null</code>);
           return;
         }
 
@@ -54,6 +61,12 @@ export class GuiObject extends HTMLElement {
         if (this._value === undefined) {
           this.style.gridTemplateColumns = 'auto';
           this.replaceChildren();
+          return;
+        }
+
+        if (this._value instanceof HTMLElement) {
+          this.style.gridTemplateColumns = 'auto';
+          this.replaceChildren(this._value);
           return;
         }
 
@@ -93,7 +106,7 @@ export class GuiObject extends HTMLElement {
                   <em>{i}</em>
                 </div>
                 <div>
-                  <gui-object value={arr[i]} {...{ ...this._props, data: i }} />
+                  <gui-object value={arr[i]} {...this._props} />
                 </div>
               </>,
             );
@@ -110,7 +123,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div>
-                  <gui-object value={val} {...{ ...this._props, data: key }} />
+                  <gui-object value={val} {...this._props} />
                 </div>
               </>,
             );
@@ -160,9 +173,7 @@ export class GuiObject extends HTMLElement {
               const summary = document.createElement('summary');
               content.appendChild(summary);
               summary.onclick = () => {
-                content.appendChild(
-                  <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />,
-                );
+                content.appendChild(<gui-object value={attrVal} {...this._props} />);
                 summary.onclick = null;
               };
 
@@ -177,7 +188,7 @@ export class GuiObject extends HTMLElement {
                 <>
                   <div>{attr.name}</div>
                   <div className="gui-object-value">
-                    <gui-object value={attrVal} {...{ ...this._props, data: attr.name }} />
+                    <gui-object value={attrVal} {...this._props} />
                   </div>
                 </>,
               );
@@ -198,7 +209,7 @@ export class GuiObject extends HTMLElement {
                 <div className="gui-object-value">
                   <details>
                     <summary />
-                    <gui-object value={val} {...{ ...this._props, data: key }} />
+                    <gui-object value={val} {...this._props} />
                   </details>
                 </div>
               </>,
@@ -208,7 +219,7 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div className="gui-object-value">
-                  <gui-object value={val} {...{ ...this._props, data: key }} />
+                  <gui-object value={val} {...this._props} />
                 </div>
               </>,
             );
@@ -221,7 +232,14 @@ export class GuiObject extends HTMLElement {
   }
 
   private _shouldNest(val: unknown): boolean {
-    return typeof val === 'object' && !isStd(val) && !(val instanceof GCEnum);
+    return (
+      val !== undefined &&
+      val !== null &&
+      typeof val === 'object' &&
+      !isStd(val) &&
+      !(val instanceof GCEnum) &&
+      !(val instanceof Node)
+    );
   }
 }
 

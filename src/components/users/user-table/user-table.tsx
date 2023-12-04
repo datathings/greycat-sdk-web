@@ -194,12 +194,10 @@ export class GuiUserTable extends HTMLElement {
         </div>
 
         <footer>
-          <div className="grid">
-            <button className="outline" onclick={() => this._dialog.close()}>
-              Close
-            </button>
-            {this._dialogSubmitBtn}
-          </div>
+          <button className="outline" onclick={() => this._dialog.close()}>
+            Close
+          </button>
+          {this._dialogSubmitBtn}
         </footer>
       </article>,
     );
