@@ -1,5 +1,15 @@
 import { io } from '@greycat/sdk';
-// import { ColumnType, getPercentage } from '../utils.js'
+
+const CsvColumnType = {
+  CsvColumnString: io.CsvColumnString._type,
+  CsvColumnInteger: io.CsvColumnInteger._type,
+  CsvColumnFloat: io.CsvColumnFloat._type,
+  CsvColumnBoolean: io.CsvColumnBoolean._type,
+  CsvColumnTime: io.CsvColumnTime._type,
+  CsvColumnDuration: io.CsvColumnDuration._type,
+  CsvColumnDate: io.CsvColumnDate._type,
+  CsvColumnIgnored: io.CsvColumnIgnored._type,
+};
 
 export class GuiCsvFormat extends HTMLElement {
   private _csvFormat: io.CsvFormat | null = null;
@@ -25,31 +35,123 @@ export class GuiCsvFormat extends HTMLElement {
 
     const headerRow = (
       <tr>
-        {columns.map((csvColumn) => (
-          <th>{csvColumn.name}</th>
-        ))}
+        {columns.map((column, index) => {
+          return (
+            <th>
+              <select 
+                onchange={(event) => this.handleColumnTypeChange(event, index)}>
+                {
+                  Object.values(CsvColumnType).map(type => (
+                    <option value={type} selected={type === column.$type.name}>{type}</option>
+                  ))
+                }
+              </select>
+            </th>
+          );
+        })}
       </tr>
     );
 
-    const bodyRows = document.createDocumentFragment();
-
-    // Append columns' short stats components
-    const configurations = document.createDocumentFragment();
-    for (const csvColumn of columns) {
-      configurations.appendChild(
-        <td>
-          <gui-csv-format-column column={csvColumn} />
-        </td>
-      );
-    }
-    bodyRows.appendChild(
-      <tr>{configurations}</tr>
-    );
+    const bodyRows = this._createBodyRows(columns);
     
     this._thead.replaceChildren(headerRow);
     this._tbody.replaceChildren(bodyRows);
 
     this._table.replaceChildren(this._thead, this._tbody);
+  }
+
+  _createBodyRows(columns: Array<io.CsvColumn>) {
+    const bodyRows = document.createDocumentFragment();
+    for (const csvColumn of columns) {
+      bodyRows.appendChild(
+        <td>
+          <gui-csv-format-column column={csvColumn} />
+        </td>
+      );
+    }
+    return (
+      <tr>{bodyRows}</tr>
+    );
+  }
+
+  handleColumnTypeChange(event: Event, columnIndex: number) {
+    const selectElement = event.target as HTMLSelectElement;
+    const selectedType = selectElement.value;
+    const columns = this._csvFormat?.columns ?? [];
+
+    if (selectedType === CsvColumnType.CsvColumnString) {
+      console.log("type casted to CsvColumnString");
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnString.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+        trim: null,
+        try_number: null,
+        try_json: null,
+        values: null,
+        encoder: null,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnInteger) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnInteger.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnFloat) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnFloat.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnBoolean) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnBoolean.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnTime) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnTime.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+        unit: null,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnDuration) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnDuration.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+        unit: null,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnDate) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnDate.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+        format: null,
+        tz: null,
+        as_time: null,
+      });
+    } else if (selectedType === CsvColumnType.CsvColumnIgnored) {
+      const column = columns[columnIndex];
+      columns[columnIndex] = io.CsvColumnIgnored.createFrom({
+        name: column.name,
+        mandatory: column.mandatory,
+        offset: column.offset,
+      });
+    }
+
+    console.log(columns);
+
+    const bodyRows = this._createBodyRows(columns);
+    this._tbody.replaceChildren(bodyRows);
   }
 }
 

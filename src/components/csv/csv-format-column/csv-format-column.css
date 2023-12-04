@@ -1,26 +1,11 @@
-gui-csv-format-column .gui-csv-format-column__line {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 5px;
+gui-csv-format-column table {
+  margin-bottom: 0;
 }
 
-gui-csv-format-column .gui-csv-format-column__info-container {
-  display: flex;
-  justify-content: space-between;
-  width: 100%;
+gui-csv-format-column table > tbody tr td:nth-child(1) {
+  font-weight: bold;
 }
 
-gui-csv-format-column .gui-csv-format-column__label {
-  text-align: left;
-}
-
-gui-csv-format-column .gui-csv-format-column__percentage {
+gui-csv-format-column table > tbody tr td:nth-child(2) {
   text-align: right;
-  margin-left: 10px;
-}
-
-gui-csv-format-column .gui-csv-format-column__progress-bar {
-  width: 100%;
-  margin-top: 10px;
 }

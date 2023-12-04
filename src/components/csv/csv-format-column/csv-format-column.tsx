@@ -1,74 +1,191 @@
 import { io } from '@greycat/sdk';
+import { GuiEnumSelect } from '../../index.js';
+
+type InputHandler = (value: any) => void;
+
+class CsvColumnInput {
+  readonly element: HTMLElement;
+  private _csvColumn: io.CsvColumn;
+
+  constructor(csvColumn: io.CsvColumn, oninput: InputHandler) {
+    this._csvColumn = csvColumn;
+    this.element = (
+      <article>
+        <table role="grid">
+          <tbody>
+            <tr>
+              <td>Name:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.name ?? ''}
+                  oninput={(event: Event) => {
+                    const newName = (event.target as HTMLInputElement).value;
+                    this._csvColumn.name = newName;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Offset:</td>
+              <td>{csvColumn.offset === null ? '' : csvColumn.offset.toString()}</td>
+            </tr>
+            <tr>
+              <td>Mandatory:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.mandatory}
+                  oninput={() => {
+                    this._csvColumn.mandatory = !this._csvColumn.mandatory;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    ) as HTMLElement;
+  }
+}
+
+class CsvColumnStringInput {
+  readonly element: HTMLElement;
+  private _csvColumn: io.CsvColumnString;
+
+  constructor(csvColumn: io.CsvColumnString, oninput: InputHandler) {
+    this._csvColumn = csvColumn;
+    this.element = (
+      <article>
+        <table role="grid">
+          <tbody>
+            <tr>
+              <td>Name:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.name ?? ''}
+                  oninput={(event: Event) => {
+                    const newName = (event.target as HTMLInputElement).value;
+                    this._csvColumn.name = newName;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Offset:</td>
+              <td>{csvColumn.offset === null ? '' : csvColumn.offset.toString()}</td>
+            </tr>
+            <tr>
+              <td>Mandatory:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.mandatory}
+                  oninput={() => {
+                    this._csvColumn.mandatory = !this._csvColumn.mandatory;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Trim:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.trim}
+                  oninput={() => {
+                    this._csvColumn.trim = !this._csvColumn.trim;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Try JSON:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.try_json}
+                  oninput={() => {
+                    this._csvColumn.try_json = !this._csvColumn.try_json;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Try number</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.try_number}
+                  oninput={() => {
+                    this._csvColumn.try_number = !this._csvColumn.try_number;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Values:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.values?.join(',') ?? ''}
+                  oninput={(event: Event) => {
+                    const newName = (event.target as HTMLInputElement).value;
+                    this._csvColumn.values = newName.split(',');
+                    oninput(this._csvColumn);
+                  }}/>
+              </td>
+            </tr>
+            <tr>
+              <td>Encoder:</td>
+              <td>
+                <gui-enum-select
+                  fqn="io::TextEncoder"
+                  selected={this._csvColumn.encoder}
+                  onenum-change={(event: Event) => {
+                    const encoder = (event.target as GuiEnumSelect).selected as io.TextEncoder;
+                    this._csvColumn.encoder = encoder;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    ) as HTMLElement;
+  }
+}
 
 export class GuiCsvFormatColumn extends HTMLElement {
-  private _csvColumn: io.CsvColumnString | null = null;
+  private _csvColumn: io.CsvColumn | null = null;
+  private _csvColumnInput: CsvColumnStringInput | CsvColumnInput | null = null;
 
-  set column(csvColumn: io.CsvColumnString | null) {
+  set column(csvColumn: io.CsvColumn) {
     this._csvColumn = csvColumn;
+    if (this._csvColumn instanceof io.CsvColumnString) {
+      this._csvColumnInput = new CsvColumnStringInput(csvColumn as io.CsvColumnString, (v: any) => { console.log(v); })
+    } else {
+      this._csvColumnInput = new CsvColumnInput(csvColumn, (v: any) => { console.log(v); });
+    }
+
     this.render();
   }
 
-  private readOnlyProperties = new Set(['$attrs', '$type']);
-
-  private isKeyOfCsvColumnString(key: string): key is keyof io.CsvColumnString {
-    return key in io.CsvColumnString.prototype && !this.readOnlyProperties.has(key);
-  }
-
-  private handleChange(property: string, value: string) {
-    if (this._csvColumn && this.isKeyOfCsvColumnString(property)) {
-      this._csvColumn[property] = value;
-    }
-  }
-
-  private renderInput(field: { label: string; property: string; type: string }) {
-    const { label, property, type } = field;
-    const value = this._csvColumn ? this._csvColumn[property] : '';
-
-    if (type === 'checkbox') {
-      return (
-        <div>
-          <label>{label}</label>
-          <input type={type} checked={value} onChange={(e) => this.handleChange(property, e.target.checked)} />
-        </div>
-      );
-    } else if (type === 'textarea') {
-      return (
-        <div>
-          <label>{label}</label>
-          <textarea value={value} onChange={(e) => this.handleChange(property, e.target.value)} />
-        </div>
-      );
-    } else {
-      return (
-        <div>
-          <label>{label}</label>
-          <input type={type} value={value} onChange={(e) => this.handleChange(property, e.target.value)} />
-        </div>
-      );
-    }
-  }
-
   render() {
-    if (!this._csvColumn) {
+    if (!this._csvColumn || !this._csvColumnInput) {
       return;
     }
 
-    const fields = [
-      { label: 'Name', property: 'name', type: 'text' },
-      { label: 'Mandatory', property: 'mandatory', type: 'checkbox' },
-      { label: 'Offset', property: 'offset', type: 'number' },
-      { label: 'Trim', property: 'trim', type: 'checkbox' },
-      { label: 'Try Number', property: 'try_number', type: 'checkbox' },
-      { label: 'Try JSON', property: 'try_json', type: 'checkbox' },
-      { label: 'Values', property: 'values', type: 'textarea' },
-      { label: 'Encoder', property: 'encoder', type: 'text' },
-    ];
-
-    return (
-      <div>
-        {fields.map(field => this.renderInput(field))}
-      </div>
-    );
+    this.replaceChildren(this._csvColumnInput.element);
   }
 }
 
