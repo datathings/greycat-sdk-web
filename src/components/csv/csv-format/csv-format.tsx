@@ -66,7 +66,7 @@ export class GuiCsvFormat extends HTMLElement {
     for (const csvColumn of columns) {
       bodyRows.appendChild(
         <td>
-          <gui-csv-format-column column={csvColumn} />
+          <gui-csv-format-column className='gui-csv-format__gui-csv-format-column' column={csvColumn} />
         </td>
       );
     }
