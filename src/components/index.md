@@ -1,4 +1,4 @@
-export * from './common.js';export * from './common.js';# WebComponents
+# WebComponents
 
 Every GreyCat Web Component is namespaced by `gui`, eg. `<gui-value></gui-value>`.
 
