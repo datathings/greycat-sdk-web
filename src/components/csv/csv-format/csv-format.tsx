@@ -13,6 +13,7 @@ const CsvColumnType = {
 
 export class GuiCsvFormat extends HTMLElement {
   private _csvFormat: io.CsvFormat | null = null;
+  private _columnTypeStates = new Map();
   private _table = document.createElement('table');
   private _thead = document.createElement('thead');
   private _tbody = document.createElement('tbody');
@@ -39,7 +40,7 @@ export class GuiCsvFormat extends HTMLElement {
           return (
             <th>
               <select 
-                onchange={(event) => this.handleColumnTypeChange(event, index)}>
+                onchange={(event) => this._handleColumnTypeChange(event, index)}>
                 {
                   Object.values(CsvColumnType).map(type => (
                     <option value={type} selected={type === column.$type.name}>{type}</option>
@@ -74,84 +75,88 @@ export class GuiCsvFormat extends HTMLElement {
     );
   }
 
-  handleColumnTypeChange(event: Event, columnIndex: number) {
+  _handleColumnTypeChange(event: Event, columnIndex: number) {
     const selectElement = event.target as HTMLSelectElement;
     const selectedType = selectElement.value;
     const columns = this._csvFormat?.columns ?? [];
 
+    const prevColumn = columns[columnIndex];
+    const commonProperties = {
+      name: prevColumn.name,
+      mandatory: prevColumn.mandatory,
+      offset: prevColumn.offset,
+    };
+
+    this._saveColumnState(prevColumn.$type.name, columnIndex, prevColumn);
+
     if (selectedType === CsvColumnType.CsvColumnString) {
-      console.log("type casted to CsvColumnString");
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnString.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-        trim: null,
-        try_number: null,
-        try_json: null,
-        values: null,
-        encoder: null,
-      });
-    } else if (selectedType === CsvColumnType.CsvColumnInteger) {
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnInteger.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-      });
-    } else if (selectedType === CsvColumnType.CsvColumnFloat) {
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnFloat.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-      });
-    } else if (selectedType === CsvColumnType.CsvColumnBoolean) {
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnBoolean.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-      });
+      if (prevColumn instanceof io.CsvColumnString) {
+        columns[columnIndex] = io.CsvColumnString.createFrom({
+          ...commonProperties,
+          trim: prevColumn.trim,
+          try_number: prevColumn.try_number,
+          try_json: prevColumn.try_json,
+          values: prevColumn.values,
+          encoder: prevColumn.encoder,
+        });
+      } else {
+        columns[columnIndex] = io.CsvColumnString.createFrom({
+          ...commonProperties,
+          trim: null,
+          try_number: null,
+          try_json: null,
+          values: null,
+          encoder: null,
+        });
+      }
     } else if (selectedType === CsvColumnType.CsvColumnTime) {
-      const column = columns[columnIndex];
       columns[columnIndex] = io.CsvColumnTime.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-        unit: null,
+        ...commonProperties,
+        unit: prevColumn instanceof io.CsvColumnTime ? prevColumn.unit : null,
       });
     } else if (selectedType === CsvColumnType.CsvColumnDuration) {
-      const column = columns[columnIndex];
       columns[columnIndex] = io.CsvColumnDuration.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-        unit: null,
+        ...commonProperties,
+        unit: prevColumn instanceof io.CsvColumnDuration ? prevColumn.unit : null,
       });
     } else if (selectedType === CsvColumnType.CsvColumnDate) {
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnDate.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-        format: null,
-        tz: null,
-        as_time: null,
-      });
-    } else if (selectedType === CsvColumnType.CsvColumnIgnored) {
-      const column = columns[columnIndex];
-      columns[columnIndex] = io.CsvColumnIgnored.createFrom({
-        name: column.name,
-        mandatory: column.mandatory,
-        offset: column.offset,
-      });
+      if (prevColumn instanceof io.CsvColumnDate) {
+        columns[columnIndex] = io.CsvColumnDate.createFrom({
+          ...commonProperties,
+          format: prevColumn.format,
+          tz: prevColumn.tz,
+          as_time: prevColumn.as_time,
+        });
+      } else {
+        columns[columnIndex] = io.CsvColumnDate.createFrom({
+          ...commonProperties,
+          format: null,
+          tz: null,
+          as_time: null,
+        });
+      }
+    } else {
+      columns[columnIndex] = io.CsvColumnIgnored.createFrom({...commonProperties});
     }
 
-    console.log(columns);
+    // Restore the previous state, if user had one.
+    this._restoreColumnState(selectedType, columnIndex, columns);
 
     const bodyRows = this._createBodyRows(columns);
     this._tbody.replaceChildren(bodyRows);
+  }
+
+  _saveColumnState(columnType: string, columnIndex: number, columnData: io.CsvColumn) {
+    if (!this._columnTypeStates.has(columnType)) {
+      this._columnTypeStates.set(columnType, new Map());
+    }
+    this._columnTypeStates.get(columnType).set(columnIndex, columnData);
+  }
+
+  _restoreColumnState(columnType: string, columnIndex: number, columns: io.CsvColumn[]) {
+    if (this._columnTypeStates.has(columnType) && this._columnTypeStates.get(columnType).has(columnIndex)) {
+      columns[columnIndex] = this._columnTypeStates.get(columnType).get(columnIndex);
+    }
   }
 }
 

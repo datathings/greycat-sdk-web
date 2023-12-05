@@ -1,7 +1,8 @@
-import { io } from '@greycat/sdk';
+import { core, io } from '@greycat/sdk';
 import { GuiEnumSelect } from '../../index.js';
 
 type InputHandler = (value: any) => void;
+type CsvColumnType = CsvColumnInput | CsvColumnStringInput | CsvColumnWithUnitInput | CsvColumnDateInput;
 
 class CsvColumnInput {
   readonly element: HTMLElement;
@@ -165,14 +166,168 @@ class CsvColumnStringInput {
   }
 }
 
+class CsvColumnWithUnitInput {
+  readonly element: HTMLElement;
+  private _csvColumn: io.CsvColumnTime | io.CsvColumnDuration;
+
+  constructor(csvColumn: io.CsvColumnTime | io.CsvColumnDuration, oninput: InputHandler) {
+    this._csvColumn = csvColumn;
+    this.element = (
+      <article>
+        <table role="grid">
+          <tbody>
+            <tr>
+              <td>Name:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.name ?? ''}
+                  oninput={(event: Event) => {
+                    const newName = (event.target as HTMLInputElement).value;
+                    this._csvColumn.name = newName;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Offset:</td>
+              <td>{csvColumn.offset === null ? '' : csvColumn.offset.toString()}</td>
+            </tr>
+            <tr>
+              <td>Mandatory:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.mandatory}
+                  oninput={() => {
+                    this._csvColumn.mandatory = !this._csvColumn.mandatory;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Unit:</td>
+              <td>
+                <gui-enum-select
+                  fqn="core::DurationUnit"
+                  selected={this._csvColumn.unit}
+                  onenum-change={(event: Event) => {
+                    this._csvColumn.unit = (event.target as GuiEnumSelect).selected as core.DurationUnit;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    ) as HTMLElement;
+  }
+}
+
+class CsvColumnDateInput {
+  readonly element: HTMLElement;
+  private _csvColumn: io.CsvColumnDate;
+
+  constructor(csvColumn: io.CsvColumnDate, oninput: InputHandler) {
+    this._csvColumn = csvColumn;
+    this.element = (
+      <article>
+        <table role="grid">
+          <tbody>
+            <tr>
+              <td>Name:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.name ?? ''}
+                  oninput={(event: Event) => {
+                    const newName = (event.target as HTMLInputElement).value;
+                    this._csvColumn.name = newName;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Offset:</td>
+              <td>{csvColumn.offset === null ? '' : csvColumn.offset.toString()}</td>
+            </tr>
+            <tr>
+              <td>Mandatory:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.mandatory}
+                  oninput={() => {
+                    this._csvColumn.mandatory = !this._csvColumn.mandatory;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Format:</td>
+              <td>
+                <input
+                  type="text"
+                  defaultValue={this._csvColumn.format ?? ''}
+                  oninput={(event: Event) => {
+                    this._csvColumn.name = (event.target as HTMLInputElement).value;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>Timezone:</td>
+              <td>
+                <gui-enum-select
+                  fqn="core::TimeZone"
+                  selected={this._csvColumn.tz}
+                  onenum-change={(event: Event) => {
+                    this._csvColumn.tz = (event.target as GuiEnumSelect).selected as core.TimeZone;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+            <tr>
+              <td>As time:</td>
+              <td>
+                <input
+                  type="checkbox"
+                  checked={!!this._csvColumn.mandatory}
+                  oninput={() => {
+                    this._csvColumn.as_time = !this._csvColumn.as_time;
+                    oninput(this._csvColumn);
+                  }}
+                />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </article>
+    ) as HTMLElement;
+  }
+}
+
 export class GuiCsvFormatColumn extends HTMLElement {
   private _csvColumn: io.CsvColumn | null = null;
-  private _csvColumnInput: CsvColumnStringInput | CsvColumnInput | null = null;
+  private _csvColumnInput: CsvColumnType | null = null;
 
   set column(csvColumn: io.CsvColumn) {
     this._csvColumn = csvColumn;
     if (this._csvColumn instanceof io.CsvColumnString) {
-      this._csvColumnInput = new CsvColumnStringInput(csvColumn as io.CsvColumnString, (v: any) => { console.log(v); })
+      this._csvColumnInput = new CsvColumnStringInput(csvColumn as io.CsvColumnString, (v: any) => { console.log(v); });
+    } else if (this._csvColumn instanceof io.CsvColumnTime) {
+      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnTime, (v: any) => { console.log(v); });
+    } else if (this._csvColumn instanceof io.CsvColumnDuration) {
+      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnDuration, (v: any) => { console.log(v); });
+    } else if (this._csvColumn instanceof io.CsvColumnDate) {
+      this._csvColumnInput = new CsvColumnDateInput(csvColumn as io.CsvColumnDate, (v: any) => { console.log(v); });
     } else {
       this._csvColumnInput = new CsvColumnInput(csvColumn, (v: any) => { console.log(v); });
     }

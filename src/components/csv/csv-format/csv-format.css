@@ -1,29 +1,4 @@
-gui-csv-format tbody tr td code:last-child {
-  margin-right: 0;
-}
-
-gui-csv-format thead tr th button,
-gui-csv-format tbody tr td button {
-  margin-bottom: 0;
-}
-
-gui-csv-format tbody tr td code {
-  margin-right: 5px;
-  text-wrap: nowrap;
-}
-
-gui-csv-format tbody tr td code:last-child {
-  margin-right: 0;
-}
-
-gui-csv-format table > caption {
-  text-align: left;
-  font-weight: bolder;
-  border-bottom: 1px solid var(--bg-2);
-}
-
-gui-csv-format select {
-  display: flex;
-  align-items: center;
-  margin-bottom: 1rem;
+gui-csv-format table td {
+  /* display: block; */
+  vertical-align: top;
 }

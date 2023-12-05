@@ -1,11 +1,3 @@
-gui-csv-format-column table {
-  margin-bottom: 0;
-}
-
 gui-csv-format-column table > tbody tr td:nth-child(1) {
   font-weight: bold;
-}
-
-gui-csv-format-column table > tbody tr td:nth-child(2) {
-  text-align: right;
 }
