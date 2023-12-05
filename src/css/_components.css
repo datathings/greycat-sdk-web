@@ -4,6 +4,7 @@
 @import '../components/heatmap/heatmap.css';
 @import '../components/table/table.css';
 @import '../components/chart/chart.css';
+@import '../components/csv/csv-format/csv-format.css';
 @import '../components/csv/csv-format-column/csv-format-column.css';
 @import '../components/tasks/task/task.css';
 @import '../components/tasks/task-info/task-info.css';

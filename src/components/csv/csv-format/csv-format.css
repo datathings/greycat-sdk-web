@@ -1,3 +1,14 @@
-gui-csv-format .gui-csv-format__gui-csv-format-column {
-  vertical-align: top;
+.gui-csv-format__grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+}
+
+.gui-csv-format__row {
+  display: flex;
+  gap: var(--spacing);
+}
+
+.gui-csv-format__row > div {
+  flex-grow: 1;
 }

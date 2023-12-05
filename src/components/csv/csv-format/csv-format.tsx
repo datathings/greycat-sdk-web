@@ -14,12 +14,8 @@ const CsvColumnType = {
 export class GuiCsvFormat extends HTMLElement {
   private _csvFormat: io.CsvFormat | null = null;
   private _columnTypeStates = new Map();
-  private _table = document.createElement('table');
-  private _thead = document.createElement('thead');
-  private _tbody = document.createElement('tbody');
 
   connectedCallback() {
-    this.appendChild(<figure>{this._table}</figure>);
     this.render();
   }
 
@@ -34,45 +30,30 @@ export class GuiCsvFormat extends HTMLElement {
     }
     const columns = this._csvFormat.columns;
 
-    const headerRow = (
-      <tr>
-        {columns.map((column, index) => {
-          return (
-            <th>
-              <select 
-                onchange={(event) => this._handleColumnTypeChange(event, index)}>
-                {
-                  Object.values(CsvColumnType).map(type => (
-                    <option value={type} selected={type === column.$type.name}>{type}</option>
-                  ))
-                }
+    const content = (
+      <div className='gui-csv-format__grid'>
+        <div className='gui-csv-format__row'>
+          {columns.map((column, index) => (
+            <div>
+              <select onchange={(event) => this._handleColumnTypeChange(event, index)}>
+                {Object.values(CsvColumnType).map(type => (
+                  <option value={type} selected={type === column.$type.name}>{type}</option>
+                ))}
               </select>
-            </th>
-          );
-        })}
-      </tr>
+            </div>
+          ))}
+        </div>
+        <div className='gui-csv-format__row'>
+            {columns.map(csvColumn => (
+              <div>
+                <gui-csv-format-column column={csvColumn} />
+              </div>
+            ))}
+        </div>
+      </div>
     );
-
-    const bodyRows = this._createBodyRows(columns);
-    
-    this._thead.replaceChildren(headerRow);
-    this._tbody.replaceChildren(bodyRows);
-
-    this._table.replaceChildren(this._thead, this._tbody);
-  }
-
-  _createBodyRows(columns: Array<io.CsvColumn>) {
-    const bodyRows = document.createDocumentFragment();
-    for (const csvColumn of columns) {
-      bodyRows.appendChild(
-        <td>
-          <gui-csv-format-column className='gui-csv-format__gui-csv-format-column' column={csvColumn} />
-        </td>
-      );
-    }
-    return (
-      <tr>{bodyRows}</tr>
-    );
+  
+    this.replaceChildren(content);
   }
 
   _handleColumnTypeChange(event: Event, columnIndex: number) {
@@ -141,9 +122,7 @@ export class GuiCsvFormat extends HTMLElement {
 
     // Restore the previous state, if user had one.
     this._restoreColumnState(selectedType, columnIndex, columns);
-
-    const bodyRows = this._createBodyRows(columns);
-    this._tbody.replaceChildren(bodyRows);
+    this.render();
   }
 
   _saveColumnState(columnType: string, columnIndex: number, columnData: io.CsvColumn) {

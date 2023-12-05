@@ -1,7 +1,7 @@
 import { core, io } from '@greycat/sdk';
 import { GuiEnumSelect } from '../../index.js';
 
-type InputHandler = (value: any) => void;
+type InputHandler = (value: unknown) => void;
 type CsvColumnType = CsvColumnInput | CsvColumnStringInput | CsvColumnWithUnitInput | CsvColumnDateInput;
 
 class CsvColumnInput {
@@ -321,15 +321,15 @@ export class GuiCsvFormatColumn extends HTMLElement {
   set column(csvColumn: io.CsvColumn) {
     this._csvColumn = csvColumn;
     if (this._csvColumn instanceof io.CsvColumnString) {
-      this._csvColumnInput = new CsvColumnStringInput(csvColumn as io.CsvColumnString, (v: any) => { console.log(v); });
+      this._csvColumnInput = new CsvColumnStringInput(csvColumn as io.CsvColumnString, (v: unknown) => { console.log(v); });
     } else if (this._csvColumn instanceof io.CsvColumnTime) {
-      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnTime, (v: any) => { console.log(v); });
+      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnTime, (v: unknown) => { console.log(v); });
     } else if (this._csvColumn instanceof io.CsvColumnDuration) {
-      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnDuration, (v: any) => { console.log(v); });
+      this._csvColumnInput = new CsvColumnWithUnitInput(csvColumn as io.CsvColumnDuration, (v: unknown) => { console.log(v); });
     } else if (this._csvColumn instanceof io.CsvColumnDate) {
-      this._csvColumnInput = new CsvColumnDateInput(csvColumn as io.CsvColumnDate, (v: any) => { console.log(v); });
+      this._csvColumnInput = new CsvColumnDateInput(csvColumn as io.CsvColumnDate, (v: unknown) => { console.log(v); });
     } else {
-      this._csvColumnInput = new CsvColumnInput(csvColumn, (v: any) => { console.log(v); });
+      this._csvColumnInput = new CsvColumnInput(csvColumn, (v: unknown) => { console.log(v); });
     }
 
     this.render();
