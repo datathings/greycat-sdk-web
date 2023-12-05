@@ -464,6 +464,9 @@ fn complex_object() {
 }
 // pages/object end
 
+type SemiRecursive {
+  sub: SemiRecursive?;
+}
 
 type FooBar {}
 

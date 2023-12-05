@@ -2,7 +2,7 @@ import '../layout';
 import { io } from '@greycat/sdk';
 
 const app = document.createElement('app-layout');
-app.title = 'CsvFormat';
+app.title = 'Csv Format';
 await app.init();
 
 document.body.prepend(app);

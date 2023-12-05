@@ -114,3 +114,45 @@ dialog footer .grid button {
 input:not([type='checkbox'], [type='radio'], [type='range'], [type='file'])[type='search'] {
   border-radius: var(--border-radius);
 }
+
+[type='file']::file-selector-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::file-selector-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-webkit-file-upload-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-webkit-file-upload-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-ms-browse {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-ms-browse:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+
+dialog {
+  > article {
+    > footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing);
+
+      button {
+        width: fit-content;
+      }
+    }
+  }
+}

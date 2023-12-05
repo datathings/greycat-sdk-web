@@ -1,4 +1,4 @@
-import { isNode, type GuiObjectProps } from '../../src';
+import { isNode, type ObjectProps } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -10,7 +10,7 @@ document.body.prepend(app);
 const anonymousObj = await greycat.default.call('project::complex_object');
 const table = await greycat.default.call('project::table');
 
-const sharedProps: Omit<GuiObjectProps, 'value'> = {
+const sharedProps: Omit<ObjectProps, 'value'> = {
   linkify: isNode,
   onClick: (...args) => {
     console.log(args);

@@ -4,13 +4,16 @@ gui-object {
 
   display: grid;
   grid-template-columns: auto 1fr;
+  align-content: start;
   column-gap: calc(var(--spacing) * 2);
 }
 
-gui-object .gui-object-value {
-  /* font-size: var(--gui-object-font-size); */
-  /* font-family: var(--gui-object-font-family); */
-  align-self: center;
+/*
+ * When not displaying a gui-table as direct child,
+ * we align=start to keep object key/value stacked top
+ */
+gui-object :where(:not(> gui-table)) {
+  align-content: start;
 }
 
 gui-object .gui-object-value > details {
@@ -19,13 +22,17 @@ gui-object .gui-object-value > details {
   padding: 0;
 }
 
+gui-object > code {
+  width: fit-content;
+}
+
 gui-object .gui-object-value > details > summary {
   color: var(--muted-color);
   line-height: normal;
 }
 
 gui-object .gui-object-value > details > summary::before {
-  content: "<show>";
+  content: '<show>';
 }
 
 gui-object .gui-object-value > details[open] > summary {
@@ -34,5 +41,5 @@ gui-object .gui-object-value > details[open] > summary {
 
 gui-object .gui-object-value > details[open] > summary::before {
   margin-bottom: 0;
-  content: "<hide>";
+  content: '<hide>';
 }
