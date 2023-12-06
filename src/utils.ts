@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import { core, debugLogger } from '@greycat/sdk';
 
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
@@ -190,4 +190,57 @@ export function emptyDataElement(cssClass: string) {
   incompleteTableEl.style.color = getCSSVar('--color-9') ?? 'inherit';
   incompleteTableEl.textContent = `Table is empty or is missing an index`;
   return incompleteTableEl;
+}
+
+/**
+ * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
+ * 
+ * @param {File} file the File to upload
+ * @param {string?} filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
+ * @param {((progress: number) => void)?} progress a callback called on progress
+ */
+export function putFileProgress(
+  file: File,
+  filepath = file.name,
+  progress: (progress: number) => void = () => void 0,
+) {
+  return new Promise<void>((resolve, reject) => {
+    const route = `files/${filepath}`;
+    const xhr = new XMLHttpRequest();
+    xhr.open('PUT', `${greycat.default.api}/${route}`, true);
+
+    // Track upload progress
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        progress((event.loaded / event.total) * 100);
+      }
+    });
+
+    // Handle success and failure
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else if (xhr.status === 403) {
+        // forbidden
+        // unauthorized
+        debugLogger(xhr.status, route);
+        reject(new Error('forbidden'));
+      } else if (xhr.status === 401) {
+        // unauthorized
+        debugLogger(xhr.status, route);
+        greycat.default.token = undefined;
+        greycat.default.unauthorizedHandler?.();
+        reject(new Error(`you must be logged-in to upload files`));
+      } else {
+        reject(new Error(`File upload failed with status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error during file upload'));
+    };
+
+    // Send the file
+    xhr.send(file);
+  });
 }
