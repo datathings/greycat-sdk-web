@@ -31,10 +31,9 @@ export class GuiCsvFormat extends HTMLElement {
     const columns = this._csvFormat.columns;
 
     const content = (
-      <div className='gui-csv-format__grid'>
-        <div className='gui-csv-format__row'>
+      <div className='gui-csv-format__grid-container' style={{ gridTemplateColumns: `repeat(${columns.length}, 1fr)` }}>
           {columns.map((column, index) => (
-            <div>
+            <div className='gui-csv-format__grid-container-item'>
               <select onchange={(event) => this._handleColumnTypeChange(event, index)}>
                 {Object.values(CsvColumnType).map(type => (
                   <option value={type} selected={type === column.$type.name}>{type}</option>
@@ -42,16 +41,15 @@ export class GuiCsvFormat extends HTMLElement {
               </select>
             </div>
           ))}
-        </div>
-        <div className='gui-csv-format__row'>
-            {columns.map(csvColumn => (
-              <div>
-                <gui-csv-format-column column={csvColumn} />
-              </div>
-            ))}
-        </div>
+          {columns.map(csvColumn => (
+            <div className='gui-csv-format__grid-container-item'>
+              <gui-csv-format-column column={csvColumn} />
+            </div>
+          ))}
       </div>
     );
+
+    console.log(content);
   
     this.replaceChildren(content);
   }

@@ -1,14 +1,10 @@
-.gui-csv-format__grid {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing);
+gui-csv-format .gui-csv-format__grid-container {
+  display: grid;
+  grid-auto-rows: minmax(1fr, auto);
+  grid-gap: var(--spacing);
 }
 
-.gui-csv-format__row {
-  display: flex;
-  gap: var(--spacing);
-}
-
-.gui-csv-format__row > div {
-  flex-grow: 1;
+gui-csv-format .gui-csv-format__grid-container-item {
+  padding: var(--spacing);
+  text-align: center;
 }
