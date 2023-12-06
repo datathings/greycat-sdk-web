@@ -195,24 +195,26 @@ export function emptyDataElement(cssClass: string) {
 /**
  * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
  * 
- * @param {File} file the File to upload
- * @param {string?} filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
- * @param {((progress: number) => void)?} progress a callback called on progress
+ * @param file the File to upload
+ * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
+ * @param progress a callback called on progress
+ * @param greycat
  */
 export function putFileProgress(
   file: File,
-  filepath = file.name,
-  progress: (progress: number) => void = () => void 0,
+  filepath: string | null = file.name,
+  progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
+  g = greycat.default,
 ) {
   return new Promise<void>((resolve, reject) => {
     const route = `files/${filepath}`;
     const xhr = new XMLHttpRequest();
-    xhr.open('PUT', `${greycat.default.api}/${route}`, true);
+    xhr.open('PUT', `${g.api}/${route}`, true);
 
     // Track upload progress
     xhr.upload.addEventListener('progress', (event) => {
       if (event.lengthComputable) {
-        progress((event.loaded / event.total) * 100);
+        progress(event);
       }
     });
 
@@ -228,8 +230,8 @@ export function putFileProgress(
       } else if (xhr.status === 401) {
         // unauthorized
         debugLogger(xhr.status, route);
-        greycat.default.token = undefined;
-        greycat.default.unauthorizedHandler?.();
+        g.token = undefined;
+        g.unauthorizedHandler?.();
         reject(new Error(`you must be logged-in to upload files`));
       } else {
         reject(new Error(`File upload failed with status ${xhr.status}`));
