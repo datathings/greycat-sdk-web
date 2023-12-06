@@ -48,8 +48,6 @@ export class GuiCsvFormat extends HTMLElement {
           ))}
       </div>
     );
-
-    console.log(content);
   
     this.replaceChildren(content);
   }
