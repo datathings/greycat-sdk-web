@@ -1,6 +1,7 @@
 export * from './boxplot/index.js';
 export * from './common.js';
 export * from './csv/csv-statistics/index.js';
+export * from './csv/csv-column-input/index.js';
 export * from './donut-rework/index.js';
 export * from './enum-select/index.js';
 export * from './gauge/index.js';
