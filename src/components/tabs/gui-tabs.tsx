@@ -14,7 +14,8 @@ export class GuiTabs extends HTMLElement {
         return;
       }
       this.tabs.set(tabName, tab);
-      tab.addEventListener('click', () => {
+
+      const selectTab = () => {
         this.tabs.forEach((tab) => tab.classList.remove('activeTab'));
         this.panels.forEach((panel) => panel.remove());
 
@@ -26,8 +27,20 @@ export class GuiTabs extends HTMLElement {
         const panel = this.panels.get(tabName);
         if (panel) {
           this.appendChild(panel);
+          this.dispatchEvent(new GuiTabChangeEvent({ detail: tab }));
+        }
+      };
+
+      tab.addEventListener('keypress', (ev) => {
+        if (
+          tab === document.activeElement &&
+          ev.key === 'Enter' &&
+          !tab.classList.contains('activeTab')
+        ) {
+          selectTab();
         }
       });
+      tab.addEventListener('click', selectTab);
     });
 
     this.querySelectorAll('gui-panel').forEach((panel) => {
@@ -55,8 +68,31 @@ export class GuiTabs extends HTMLElement {
   }
 }
 
-export class GuiTab extends HTMLElement {}
-export class GuiPanel extends HTMLElement {}
+export class GuiTab extends HTMLElement {
+  connectedCallback() {
+    if (!this.hasAttribute('tabindex')) {
+      this.tabIndex = 0;
+    }
+  }
+}
+
+export class GuiPanel extends HTMLElement {
+  /**
+   * Returns the associated tab name
+   */
+  get tab() {
+    return this.getAttribute('data-tab');
+  }
+}
+
+const GUI_TAB_CHANGE_EVENT = 'gui-tab-change';
+const ONGUI_TAB_CHANGE_EVENT = `on${GUI_TAB_CHANGE_EVENT}`;
+
+export class GuiTabChangeEvent extends CustomEvent<GuiTab> {
+  constructor(eventInitDict: CustomEventInit<GuiTab>) {
+    super(GUI_TAB_CHANGE_EVENT, eventInitDict);
+  }
+}
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -65,9 +101,15 @@ declare global {
     'gui-panel': GuiPanel;
   }
 
+  interface HTMLElementEventMap {
+    [GUI_TAB_CHANGE_EVENT]: GuiTabChangeEvent;
+  }
+
   namespace JSX {
     interface IntrinsicElements {
-      'gui-tabs': GreyCat.Element<GuiTabs>;
+      'gui-tabs': GreyCat.Element<
+        GuiTabs & { [ONGUI_TAB_CHANGE_EVENT]: (ev: GuiTabChangeEvent) => void }
+      >;
       'gui-tab': GreyCat.Element<GuiTab>;
       'gui-panel': GreyCat.Element<GuiPanel>;
     }

@@ -10,7 +10,11 @@ document.body.prepend(app);
 const table = await greycat.default.call<core.Table>('project::table');
 
 app.main.appendChild(
-  <gui-tabs>
+  <gui-tabs
+    ongui-tab-change={(ev) => {
+      console.log(`Selected tab "${ev.detail.textContent}"`);
+    }}
+  >
     <gui-tab className="activeTab">Tab A</gui-tab>
     <gui-panel data-tab="Tab A">Hello from Tab A</gui-panel>
 
