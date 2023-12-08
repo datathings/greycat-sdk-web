@@ -85,7 +85,7 @@ export class GuiChart extends HTMLElement {
       max: number | Date | core.time | core.Date | undefined;
     }
   > = {};
-  private _computed!: ComputedState;
+  private _computed: ComputedState | undefined;
 
   constructor() {
     super();
@@ -220,7 +220,9 @@ export class GuiChart extends HTMLElement {
       event.stopPropagation();
 
       throttle((event: WheelEvent) => {
-        // if this is too slow, maybe cache xRange, yRange
+        if (!this._computed) {
+          return;
+        }
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
         if (event.shiftKey) {
           // x axis panning
@@ -455,6 +457,9 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
+    if (!this._computed) {
+      return;
+    }
     this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
@@ -809,6 +814,9 @@ export class GuiChart extends HTMLElement {
   private _selection(
     orientation: SelectionOptions['orientation'] | undefined = 'horizontal',
   ): void {
+    if (!this._computed) {
+      return;
+    }
     const { xRange, yRange, xScale, yScales } = this._computed;
     // ensure start/end are bound to the ranges
     let startX = this._cursor.startX;
@@ -925,6 +933,9 @@ export class GuiChart extends HTMLElement {
    * Draws the chart to the different canvas & svg elements.
    */
   update(): void {
+    if (!this._computed) {
+      return;
+    }
     // clear the main canvas
     this._ctx.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     // clear the ux canvas too (to prevent phantom markers)

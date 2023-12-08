@@ -48,6 +48,9 @@
   --grid-spacing-vertical: var(--spacing);
 
   --typography-spacing-vertical: 25px;
+
+  --range-thumb-color: var(--primary);
+  --range-thumb-hover-color: var(--primary-hover);
 }
 
 /* Dark colors (default) */

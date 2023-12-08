@@ -30,9 +30,9 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
     const keys = Object.keys(props);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      if (key.startsWith('on')) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        element.addEventListener(key.substring(2), props[key] as any);
+      const value = props[key];
+      if (key.startsWith('on') && typeof value === 'function') {
+        element.addEventListener(key.substring(2), value as EventListener);
       } else if (key === 'className') {
         const value = props[key];
         if (Array.isArray(value)) {
