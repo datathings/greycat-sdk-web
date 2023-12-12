@@ -766,27 +766,27 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-table': Partial<Omit<GuiTable, 'children'>>;
+      'gui-table': GreyCat.Element<GuiTable>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-thead': Partial<Omit<GuiTableHead, 'children'>>;
+      'gui-thead': GreyCat.Element<GuiTableHead>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-thead-cell': Partial<Omit<GuiTableHeadCell, 'children'>>;
+      'gui-thead-cell': GreyCat.Element<GuiTableHeadCell>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-tbody': Partial<Omit<GuiTableBody, 'children'>>;
+      'gui-tbody': GreyCat.Element<GuiTableBody>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-tbody-row': Partial<Omit<GuiTableBodyRow, 'children'>>;
+      'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-tbody-cell': Partial<Omit<GuiTableBodyCell, 'children'>>;
+      'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
     }
   }
 }

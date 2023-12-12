@@ -219,8 +219,8 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-searchable-select': Partial<
-        Omit<GuiSearchableSelect, 'children'> & {
+      'gui-searchable-select': GreyCat.Element<
+        GuiSearchableSelect & {
           [ONSEARCHABLE_CHANGE]: (
             this: GlobalEventHandlers,
             ev: GuiSearchableSelectChangeEvent,

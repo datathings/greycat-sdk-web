@@ -356,7 +356,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-boxplot': Partial<Omit<GuiBoxPlot, 'children'>>;
+      'gui-boxplot': GreyCat.Element<GuiBoxPlot>;
     }
   }
 }

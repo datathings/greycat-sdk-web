@@ -12,33 +12,30 @@ class CsvColumnIntegerInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnInteger, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnInteger) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -63,33 +60,30 @@ class CsvColumnFloatInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnFloat, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnFloat) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -114,33 +108,30 @@ class CsvColumnBooleanInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnBoolean, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnBoolean) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -166,16 +157,14 @@ class CsvColumnTimeInput {
   private _offset: Text;
   private _unit: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnTime, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnTime) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
     this._unit = (
-      <select onchange={oninput}>
+      <select>
         <option value="" selected>
           Select a unit
         </option>
@@ -186,26 +175,25 @@ class CsvColumnTimeInput {
     ) as HTMLSelectElement;
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-          <tr>
-            <td>Unit</td>
-            <td>{this._unit}</td>
-          </tr>
-        </tbody>
-      </table>
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>Unit</label>
+          {this._unit}
+        </fieldset>
+      </div>
     ) as HTMLTableElement;
   }
 
@@ -236,16 +224,14 @@ class CsvColumnDurationInput {
   private _offset: Text;
   private _unit: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnDuration, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnDuration) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
     this._unit = (
-      <select onchange={oninput}>
+      <select>
         <option value="" selected>
           Select a unit
         </option>
@@ -256,27 +242,26 @@ class CsvColumnDurationInput {
     ) as HTMLSelectElement;
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-          <tr>
-            <td>Unit</td>
-            <td>{this._unit}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>Unit</label>
+          {this._unit}
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -308,19 +293,15 @@ class CsvColumnDateInput {
   private _tz: HTMLSelectElement;
   private _as_time: HTMLInputElement;
 
-  constructor(col: io.CsvColumnDate, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnDate) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
-    this._format = (
-      <input type="text" defaultValue={col.format ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+    this._format = (<input type="text" defaultValue={col.format ?? ''} />) as HTMLInputElement;
     this._tz = (
-      <select onchange={oninput}>
+      <select>
         <option value="" selected>
           Select a timezone
         </option>
@@ -329,50 +310,46 @@ class CsvColumnDateInput {
         ))}
       </select>
     ) as HTMLSelectElement;
-    this._as_time = (
-      <input type="checkbox" checked={col.as_time ?? false} oninput={oninput} />
-    ) as HTMLInputElement;
+    this._as_time = (<input type="checkbox" checked={col.as_time ?? false} />) as HTMLInputElement;
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-          <tr>
-            <td>Format</td>
-            <td>
-              {this._format}
-              <small>
-                <a
-                  href="https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html"
-                  target="_blank"
-                >
-                  Format specification
-                </a>
-              </small>
-            </td>
-          </tr>
-          <tr>
-            <td>TimeZone</td>
-            <td>{this._tz}</td>
-          </tr>
-          <tr>
-            <td>As Time?</td>
-            <td>{this._as_time}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._as_time}
+            As Time
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            <a
+              href="https://www.gnu.org/software/libc/manual/html_node/Formatting-Calendar-Time.html"
+              target="_blank"
+            >
+              Format
+            </a>
+          </label>
+          {this._format}
+        </fieldset>
+        <fieldset>
+          <label>TimeZone</label>
+          {this._tz}
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -403,33 +380,30 @@ class CsvColumnIgnoredInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnIgnored, oninput: () => void) {
-    this._name = (
-      <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
-    ) as HTMLInputElement;
+  constructor(col: io.CsvColumnIgnored) {
+    this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
-      <input type="checkbox" checked={col.mandatory ?? false} oninput={oninput} />
+      <input type="checkbox" checked={col.mandatory ?? false} />
     ) as HTMLInputElement;
     this._offset = document.createTextNode(`${col.offset}`);
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -459,7 +433,7 @@ class CsvColumnStringInput {
   private _values: HTMLInputElement;
   private _encoder: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnString, oninput: () => void) {
+  constructor(col: io.CsvColumnString, oninput?: () => void) {
     this._name = (
       <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
     ) as HTMLInputElement;
@@ -492,46 +466,49 @@ class CsvColumnStringInput {
     ) as HTMLSelectElement;
 
     this.element = (
-      <table role="grid">
-        <tbody>
-          <tr>
-            <td>Name</td>
-            <td>{this._name}</td>
-          </tr>
-          <tr>
-            <td>Offset</td>
-            <td>{this._offset}</td>
-          </tr>
-          <tr>
-            <td>Mandatory</td>
-            <td>{this._mandatory}</td>
-          </tr>
-          <tr>
-            <td>Trim?</td>
-            <td>{this._trim}</td>
-          </tr>
-          <tr>
-            <td>Try number?</td>
-            <td>{this._try_number}</td>
-          </tr>
-          <tr>
-            <td>Try JSON?</td>
-            <td>{this._try_json}</td>
-          </tr>
-          <tr>
-            <td>Values</td>
-            <td>
-              {this._values}
-              <small>Comma-separated list of strings</small>
-            </td>
-          </tr>
-          <tr>
-            <td>Text Encoder</td>
-            <td>{this._encoder}</td>
-          </tr>
-        </tbody>
-      </table>
-    ) as HTMLTableElement;
+      <div>
+        <fieldset>
+          <label>Offset {this._offset}</label>
+        </fieldset>
+        <fieldset>
+          <label>Name</label>
+          {this._name}
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._mandatory}
+            Mandatory
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._trim}
+            Trim
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._try_number}
+            Try number
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>
+            {this._try_json}
+            Try JSON
+          </label>
+        </fieldset>
+        <fieldset>
+          <label>Values</label>
+          {this._values}
+          <small>Comma-separated list of strings</small>
+        </fieldset>
+        <fieldset>
+          <label>Text Encoder</label>
+          {this._encoder}
+        </fieldset>
+      </div>
+    ) as HTMLElement;
   }
 
   get value() {
@@ -571,66 +548,50 @@ export class GuiCsvColumnInput extends HTMLElement {
 
   set value(col: io.CsvColumn) {
     if (col instanceof io.CsvColumnString) {
-      this._input = new CsvColumnStringInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnStringInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnBoolean) {
-      this._input = new CsvColumnBooleanInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnBooleanInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnInteger) {
-      this._input = new CsvColumnIntegerInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnIntegerInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnFloat) {
-      this._input = new CsvColumnFloatInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnFloatInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnDate) {
-      this._input = new CsvColumnDateInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnDateInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnDuration) {
-      this._input = new CsvColumnDurationInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnDurationInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnIgnored) {
-      this._input = new CsvColumnIgnoredInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnIgnoredInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
 
     if (col instanceof io.CsvColumnTime) {
-      this._input = new CsvColumnTimeInput(col, () => {
-        // this.dispatchEvent(new Event('input'));
-      });
-      this.replaceChildren(<article>{this._input.element}</article>);
+      this._input = new CsvColumnTimeInput(col);
+      this.replaceChildren(this._input.element);
       return;
     }
   }
@@ -653,7 +614,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-csv-column-input': Partial<Omit<GuiCsvColumnInput, 'children'>>;
+      'gui-csv-column-input': GreyCat.Element<GuiCsvColumnInput>;
     }
   }
 }

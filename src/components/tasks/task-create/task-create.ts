@@ -86,7 +86,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-task-create': Partial<Omit<GuiTaskCreate, 'children'>>;
+      'gui-task-create': GreyCat.Element<GuiTaskCreate>;
     }
   }
 }

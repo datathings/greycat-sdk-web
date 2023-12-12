@@ -143,7 +143,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-csv-statistics': Partial<Omit<GuiCsvStatistics, 'children'>>;
+      'gui-csv-statistics': GreyCat.Element<GuiCsvStatistics>;
     }
   }
 }

@@ -1333,7 +1333,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-chart': Partial<Omit<GuiChart, 'children'>>;
+      'gui-chart': GreyCat.Element<GuiChart>;
     }
   }
 }

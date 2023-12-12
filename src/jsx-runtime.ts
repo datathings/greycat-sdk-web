@@ -69,7 +69,11 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
         break;
 
       case 'style':
-        Object.assign(element.style, value);
+        if (typeof value === 'string') {
+          element.style.cssText = value;
+        } else {
+          Object.assign(element.style, value);
+        }
         break;
 
       default:

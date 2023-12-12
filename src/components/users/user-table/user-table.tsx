@@ -375,7 +375,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-user-table': Partial<Omit<GuiUserTable, 'children'>>;
+      'gui-user-table': GreyCat.Element<GuiUserTable>;
     }
   }
 }

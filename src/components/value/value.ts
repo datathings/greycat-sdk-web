@@ -244,7 +244,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-value': Partial<Omit<GuiValue, 'children'>>;
+      'gui-value': GreyCat.Element<GuiValue>;
     }
   }
 }

@@ -225,7 +225,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-user-roles': Partial<Omit<GuiUserRoles, 'children'>>;
+      'gui-user-roles': GreyCat.Element<GuiUserRoles>;
     }
   }
 }

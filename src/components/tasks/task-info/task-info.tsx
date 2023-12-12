@@ -278,7 +278,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-task-info': Partial<Omit<GuiTaskInfo, 'children'>>;
+      'gui-task-info': GreyCat.Element<GuiTaskInfo>;
     }
   }
 }

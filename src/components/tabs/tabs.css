@@ -6,6 +6,10 @@ gui-tabs {
   display: grid;
   grid-template-rows: min-content auto;
 
+  & > * {
+    min-width: 0px;
+  }
+
   .tabs {
     display: flex;
     gap: calc(var(--spacing) / 2);

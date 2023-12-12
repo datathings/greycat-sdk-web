@@ -606,7 +606,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-heatmap': Partial<Omit<GuiHeatmap, 'children'>>;
+      'gui-heatmap': GreyCat.Element<GuiHeatmap>;
     }
   }
 }

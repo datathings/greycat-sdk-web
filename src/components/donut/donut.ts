@@ -509,7 +509,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-donut': Partial<Omit<GuiDonut, 'children'>>;
+      'gui-donut': GreyCat.Element<GuiDonut>;
     }
   }
 }
