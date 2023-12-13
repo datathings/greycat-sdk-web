@@ -15,32 +15,16 @@ export class GuiTabs extends HTMLElement {
       }
       this.tabs.set(tabName, tab);
 
-      const selectTab = () => {
-        this.tabs.forEach((tab) => tab.classList.remove('activeTab'));
-        this.panels.forEach((panel) => panel.remove());
-
-        tab.classList.add('activeTab');
-        const tabName = tab.textContent;
-        if (!tabName) {
-          return;
-        }
-        const panel = this.panels.get(tabName);
-        if (panel) {
-          this.appendChild(panel);
-          this.dispatchEvent(new GuiTabChangeEvent({ detail: tab }));
-        }
-      };
-
       tab.addEventListener('keypress', (ev) => {
         if (
           tab === document.activeElement &&
           ev.key === 'Enter' &&
           !tab.classList.contains('activeTab')
         ) {
-          selectTab();
+          this._internalSelect(tab);
         }
       });
-      tab.addEventListener('click', selectTab);
+      tab.addEventListener('click', () => this._internalSelect(tab));
     });
 
     this.querySelectorAll('gui-panel').forEach((panel) => {
@@ -65,6 +49,32 @@ export class GuiTabs extends HTMLElement {
   disconnectedCallback() {
     this.panels.clear();
     this.replaceChildren();
+  }
+
+  selectTab(name: string): void {
+    const tabs = this.querySelectorAll('gui-tab');
+    for (let i = 0; i < tabs.length; i++) {
+      const tab = tabs[i];
+      if (tab.textContent === name) {
+        this._internalSelect(tab);
+      }
+    }
+  }
+
+  private _internalSelect(tab: GuiTab): void {
+    this.tabs.forEach((tab) => tab.classList.remove('activeTab'));
+    this.panels.forEach((panel) => panel.remove());
+
+    tab.classList.add('activeTab');
+    const tabName = tab.textContent;
+    if (!tabName) {
+      return;
+    }
+    const panel = this.panels.get(tabName);
+    if (panel) {
+      this.appendChild(panel);
+      this.dispatchEvent(new GuiTabChangeEvent({ detail: tab }));
+    }
   }
 }
 
