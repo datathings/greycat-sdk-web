@@ -4,7 +4,6 @@ gui-object {
 
   display: grid;
   grid-template-columns: auto 1fr;
-  align-content: start;
   column-gap: calc(var(--spacing) * 2);
 }
 
@@ -12,7 +11,7 @@ gui-object {
  * When not displaying a gui-table as direct child,
  * we align=start to keep object key/value stacked top
  */
-gui-object :where(:not(> gui-table)) {
+gui-object:not(:has(> gui-table)) {
   align-content: start;
 }
 
