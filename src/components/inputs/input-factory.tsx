@@ -1178,31 +1178,34 @@ export class FnCallInput implements IInput {
 }
 
 export class EnumInput implements IInput {
-  element: GuiEnumSelect;
+  element: HTMLSelectElement;
 
-  constructor(name: string, type: AbiType, oninput: InputHandler) {
+  constructor(
+    name: string,
+    private _type: AbiType,
+    oninput: InputHandler,
+  ) {
     this.element = (
-      <gui-enum-select
-        selectId={name}
-        fqn={type.name}
-        selected={type.enum_values?.[0]}
-        onenum-change={() => {
-          this.invalid = false;
-          oninput(this.value);
-        }}
-      />
-    ) as GuiEnumSelect;
+      <select
+        name={name}
+        onchange={() => oninput(this._type.enum_values![this.element.selectedIndex])}
+      >
+        {this._type.enum_values!.map((e) => (
+          <option>{e.key}</option>
+        ))}
+      </select>
+    ) as HTMLSelectElement;
 
     // default value
     oninput(this.value);
   }
 
   get name() {
-    return (this.element.children[0] as HTMLSelectElement).name;
+    return this.element.name;
   }
 
   set name(name: string) {
-    (this.element.children[0] as HTMLSelectElement).name = name;
+    this.element.name = name;
   }
 
   get disabled() {
@@ -1226,11 +1229,22 @@ export class EnumInput implements IInput {
   }
 
   get value() {
-    return this.element.selected;
+    return this._type.enum_values![this.element.selectedIndex];
   }
 
   set value(value: GCEnum | null) {
-    this.element.selected = value;
+    if (value === null || value.$type.enum_values === null) {
+      // noop
+    } else {
+      this._type = value.$type;
+      
+      const options = document.createDocumentFragment();
+      for (let i = 0; i < value.$type.enum_values.length; i++) {
+        const en = value.$type.enum_values[i];
+        options.appendChild(<option>{en.key}</option>);
+      }
+      this.element.replaceChildren(options);
+    }
   }
 }
 
