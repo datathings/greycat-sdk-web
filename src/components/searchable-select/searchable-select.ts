@@ -127,16 +127,29 @@ export class GuiSearchableSelect extends HTMLElement {
     this._input.disabled = disabled;
   }
 
-  set selected(selected: string) {
+  /**
+   * Changes the currently selected item using the `value` for comparison.
+   *
+   * *The equality check on the value is made using `===`.*
+   *
+   * *If `undefined`, it empties the input.*
+   */
+  set selected(selected: string | undefined) {
+    if (selected === undefined) {
+      this._input.value = '';
+      return;
+    }
+
     for (let i = 0; i < this._list.children.length; i++) {
       const item = this._list.children.item(i) as HTMLElement;
-      if (item.textContent === selected) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((item as any).__value === selected) {
         item.classList.add('selected');
+        this._input.value = item.textContent as string;
       } else {
         item.classList.remove('selected');
       }
     }
-    this._input.value = selected;
   }
 
   set options(options: SearchableOption[]) {
@@ -145,6 +158,8 @@ export class GuiSearchableSelect extends HTMLElement {
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
       const itemEl = document.createElement('div');
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (itemEl as any).__value = opt.value;
       itemEl.textContent = opt.text;
       itemEl.addEventListener('mousedown', (ev) => {
         ev.preventDefault();
