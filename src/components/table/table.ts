@@ -628,8 +628,6 @@ class GuiTableHeadCell extends HTMLElement {
     this.updateDropdownDisplay();
     document.removeEventListener('keydown', this.handleKeyDown);
     document.removeEventListener('click', this.handleOutsideClick);
-    this._input.value = '';
-    this.dispatchEvent(new TableFilterColumnEvent(-1, ''));
   }
 
   updateDropdownDisplay() {
