@@ -38,6 +38,8 @@ tableEl.onrowupdate = (el, row) => {
       break;
   }
 };
+// tableEl.filter = "low";
+// tableEl.filterColumn = 2;
 
 tableEl.addEventListener('table-dblclick', (ev) => {
   window.alert(

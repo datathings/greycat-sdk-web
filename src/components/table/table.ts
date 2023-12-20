@@ -24,7 +24,7 @@ export type Cell = {
   value: unknown;
   /**
    * The original index of the row in the column.
-   * 
+   *
    * This is required because sorting/filtering changes indexing.
    */
   originalIndex: number;
@@ -52,6 +52,7 @@ export class GuiTable extends HTMLElement {
   private _cellProps = DEFAULT_CELL_PROPS;
   private _prevFromRowIdx = 0;
   private _filterText = '';
+  private _filterColumn = -1;
   private _headers: string[] | undefined;
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
@@ -73,12 +74,22 @@ export class GuiTable extends HTMLElement {
       this.update();
     });
 
+    this._thead.addEventListener('table-filter-column', (ev) => {
+      this._filterColumn = ev.detail.index;
+      this._filterText = ev.detail.text;
+
+      this._update();
+    });
+
     this._tbody.addEventListener('click', (e) => {
       let rowEl: GuiTableBodyCell | undefined;
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
         rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+      } else if (
+        e.target instanceof GuiValue &&
+        e.target.parentElement instanceof GuiTableBodyCell
+      ) {
         // also trigger table-row-click when the cell value is clicked
         rowEl = e.target.parentElement;
       } else {
@@ -92,7 +103,10 @@ export class GuiTable extends HTMLElement {
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
         rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+      } else if (
+        e.target instanceof GuiValue &&
+        e.target.parentElement instanceof GuiTableBodyCell
+      ) {
         // also trigger table-row-click when the cell value is clicked
         rowEl = e.target.parentElement;
       } else {
@@ -177,6 +191,11 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  set filterColumn(id: number) {
+    this._filterColumn = id;
+    this._update();
+  }
+
   set cellProps(props: CellPropsFactory) {
     this._cellProps = props;
     this.update();
@@ -242,13 +261,17 @@ export class GuiTable extends HTMLElement {
       requestAnimationFrame(colResizeLoop);
     };
 
-    this._thead.addEventListener('table-resize-col', (e) => {
-      resize = true;
-      index = e.detail.index;
-      px = cx = e.detail.x;
-      this._thead.classList.add('gui-table-resizing');
-      requestAnimationFrame(colResizeLoop);
-    }, { signal: this._disposer.signal });
+    this._thead.addEventListener(
+      'table-resize-col',
+      (e) => {
+        resize = true;
+        index = e.detail.index;
+        px = cx = e.detail.x;
+        this._thead.classList.add('gui-table-resizing');
+        requestAnimationFrame(colResizeLoop);
+      },
+      { signal: this._disposer.signal },
+    );
     const cancelColResize = () => {
       if (resize) {
         resize = false;
@@ -256,12 +279,24 @@ export class GuiTable extends HTMLElement {
         this.update();
       }
     };
+<<<<<<< Updated upstream
     document.body.addEventListener('mousemove', (e) => {
       cx = e.clientX;
     }, { signal: this._disposer.signal });
+=======
+    this.addEventListener(
+      'mousemove',
+      (e) => {
+        cx = e.clientX;
+      },
+      { signal: this._disposer.signal },
+    );
+>>>>>>> Stashed changes
 
     document.body.addEventListener('mouseup', cancelColResize, { signal: this._disposer.signal });
-    document.body.addEventListener('mouseleave', cancelColResize, { signal: this._disposer.signal });
+    document.body.addEventListener('mouseleave', cancelColResize, {
+      signal: this._disposer.signal,
+    });
 
     const oResize = new ResizeObserver(() => {
       // reset manual column resize for best-effort display on resize
@@ -292,7 +327,17 @@ export class GuiTable extends HTMLElement {
       this._thead.widths.length = 0;
     }
 
+<<<<<<< Updated upstream
     this._thead.update(this._table.meta ?? [], this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
+=======
+    this._thead.update(
+      this._table.meta,
+      this._minColWidth,
+      this._sortCol,
+      this._tbody.virtualScroller.scrollWidth,
+      this._headers,
+    );
+>>>>>>> Stashed changes
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= (this._table.meta?.length ?? 0)) {
@@ -335,15 +380,26 @@ export class GuiTable extends HTMLElement {
     let rows = this._rows;
     if (this._filterText.length > 0) {
       // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
+<<<<<<< Updated upstream
       rows = this._rows.filter((row) => this._filterRow(this._filterText, row));
       this.dispatchEvent(new TableFilterEvent(rows));
+=======
+      rows = this._rows.filter((row) => filterRow(this._filterText, this._filterColumn, row));
+>>>>>>> Stashed changes
     }
 
-    this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps, this._rowUpdateCallback);
+    this._tbody.update(
+      this._prevFromRowIdx,
+      this._thead.widths,
+      rows,
+      this._cellProps,
+      this._rowUpdateCallback,
+    );
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
+<<<<<<< Updated upstream
   private _filterRow(text: string, row: Cell[]): boolean {
     for (let colIdx = 0; colIdx < row.length; colIdx++) {
       if (
@@ -355,6 +411,37 @@ export class GuiTable extends HTMLElement {
       }
     }
     return false;
+=======
+function filterRow(text: string, column: number, row: Cell[]): boolean {
+  if (column !== -1) {
+    if (
+      utils
+        .stringify({
+          value: row[column].value,
+          dateFmt: getGlobalDateTimeFormat(),
+          numFmt: getGlobalNumberFormat(),
+        })
+        .toLowerCase()
+        .includes(text)
+    ) {
+      return true;
+    }
+  } else {
+    for (let colIdx = 0; colIdx < row.length; colIdx++) {
+      if (
+        utils
+          .stringify({
+            value: row[colIdx].value,
+            dateFmt: getGlobalDateTimeFormat(),
+            numFmt: getGlobalNumberFormat(),
+          })
+          .toLowerCase()
+          .includes(text)
+      ) {
+        return true;
+      }
+    }
+>>>>>>> Stashed changes
   }
 }
 
@@ -428,6 +515,8 @@ class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
   }
 }
 
+
+
 /**
  * `detail` contains the target column index
  */
@@ -437,9 +526,19 @@ class TableSortEvent extends CustomEvent<number> {
   }
 }
 
+<<<<<<< Updated upstream
 class TableFilterEvent extends CustomEvent<Cell[][]> {
   constructor(rows: Cell[][]) {
     super('table-filter', { detail: rows, bubbles: true });
+=======
+
+/**
+ * `detail` contains the target input of dropdown from magnifier button
+ */
+class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+  constructor(index: number, text: string) {
+    super('table-filter-column', { detail: { index, text }, bubbles: true });
+>>>>>>> Stashed changes
   }
 }
 
@@ -483,21 +582,41 @@ class GuiTableHeadCell extends HTMLElement {
   private _sorter = document.createElement('div');
   private _resizer = document.createElement('div');
   private _sortGraphemes = { asc: '↓', desc: '↑', default: '⇅' } as const;
+  private _magnifier = document.createElement('div');
+  private _dropdown = document.createElement('div');
+  private _input = document.createElement('input');
+  private _isDropdownOpen = false;
 
   constructor() {
     super();
 
     this.addEventListener('click', (e) => {
-      if (e.target !== this._resizer) {
+      if (e.target === this._magnifier) {
+        this._isDropdownOpen = !this._isDropdownOpen;
+        this._dropdown.style.display = this._isDropdownOpen ? 'block' : 'none';
+        this._magnifier.textContent = this._isDropdownOpen ? '❌' : '🔍';
+      } else if (e.target !== this._resizer && e.target !== this._input) {
         this.dispatchEvent(new TableSortEvent(this._index));
       }
     });
+
+    this._magnifier.classList.add('gui-thead-magnifier');
+    this._magnifier.textContent = '🔍';
 
     this._resizer.addEventListener('mousedown', (e) => {
       e.preventDefault();
       e.stopPropagation();
       this.dispatchEvent(new TableResizeColEvent(this._index, e.clientX));
     });
+
+    this._dropdown.classList.add('gui-thead-dropdown');
+    this._input.type = 'text';
+    this._input.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      this.dispatchEvent(new TableFilterColumnEvent(this._index, target.value));
+    });
+    this._dropdown.appendChild(this._input);
+    this._dropdown.style.display = 'none';
   }
 
   get colWidth(): number {
@@ -519,9 +638,12 @@ class GuiTableHeadCell extends HTMLElement {
     this._sorter.textContent = '⇅'; // asc: ↓   desc: ↑
     fragment.appendChild(this._sorter);
 
+    fragment.appendChild(this._magnifier);
+
     this._resizer.classList.add('gui-thead-resizer');
 
     fragment.appendChild(this._resizer);
+    fragment.appendChild(this._dropdown);
 
     this.appendChild(fragment);
   }
@@ -590,7 +712,13 @@ class GuiTableBody extends HTMLElement {
     firstRow.remove();
   }
 
-  update(fromRowIdx: number, colWidths: number[], rows: Cell[][], cellProps: CellPropsFactory, updateCallback: RowUpdateCallback): void {
+  update(
+    fromRowIdx: number,
+    colWidths: number[],
+    rows: Cell[][],
+    cellProps: CellPropsFactory,
+    updateCallback: RowUpdateCallback,
+  ): void {
     // Make it one more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
@@ -731,7 +859,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) { }
+  ) {}
 
   reset() {
     this._index = -1;
@@ -774,7 +902,11 @@ declare global {
 
   interface HTMLElementEventMap {
     'table-sort': TableSortEvent;
+<<<<<<< Updated upstream
     'table-filter': TableFilterEvent;
+=======
+    'table-filter-column': TableFilterColumnEvent;
+>>>>>>> Stashed changes
     'table-resize-col': TableResizeColEvent;
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
