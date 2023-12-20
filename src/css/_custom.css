@@ -6,6 +6,10 @@ div[role='list'] {
   row-gap: var(--spacing);
 }
 
+div[role='list'] > * {
+  min-width: 0px;
+}
+
 .text-muted {
   color: var(--muted-color);
 }

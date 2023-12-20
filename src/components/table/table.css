@@ -21,6 +21,10 @@ gui-table gui-thead.gui-table-resizing > * {
   cursor: ew-resize !important;
   background-color: rgb(var(--base-0)) !important;
 }
+gui-table gui-thead .gui-thead-type {
+  padding-left: var(--spacing);
+  color: var(--muted-color);
+}
 gui-table gui-thead gui-thead-cell {
   display: flex;
   align-items: center;

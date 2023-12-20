@@ -12,9 +12,11 @@
   }
 }
 
+
+
 .gui-input-any {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 1fr auto;
   column-gap: var(--spacing);
 
   & > * {

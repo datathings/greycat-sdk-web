@@ -19,12 +19,7 @@ const sharedProps: Omit<ObjectProps, 'value'> = {
 
 app.main.appendChild(
   <div className="grid">
-    <article>
-      <header>Look at the console after clicking a link</header>
-      <div className="container-fluid">
-        <gui-object value={anonymousObj} {...sharedProps} />
-      </div>
-    </article>
+    <gui-object value={anonymousObj} {...sharedProps} />
     <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
       <header>Tables are displayed using &lt;gui-table /&gt;</header>
       <gui-object value={table} {...sharedProps} />

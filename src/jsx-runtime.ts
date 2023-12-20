@@ -99,7 +99,7 @@ function appendChild(parent: Node, child: any) {
     return;
   }
 
-  if (Array.isArray(child) || child instanceof NodeList) {
+  if (Array.isArray(child) || child instanceof NodeList || child instanceof HTMLCollection) {
     for (let i = 0; i < child.length; i++) {
       appendChild(parent, child[i]);
     }

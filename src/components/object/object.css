@@ -1,10 +1,16 @@
 gui-object {
   --gui-object-font-size: var(--font-size);
   --gui-object-font-family: var(--font-family);
+}
 
+.gui-object {
   display: grid;
   grid-template-columns: auto 1fr;
   column-gap: calc(var(--spacing) * 2);
+}
+
+gui-object > article > .gui-object {
+  padding: var(--spacing);
 }
 
 /*
@@ -30,15 +36,10 @@ gui-object .gui-object-value > details > summary {
   line-height: normal;
 }
 
-gui-object .gui-object-value > details > summary::before {
-  content: '<show>';
-}
-
 gui-object .gui-object-value > details[open] > summary {
   margin-bottom: 0;
 }
 
 gui-object .gui-object-value > details[open] > summary::before {
   margin-bottom: 0;
-  content: '<hide>';
 }

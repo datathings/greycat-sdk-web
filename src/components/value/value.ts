@@ -1,5 +1,5 @@
 import { utils } from '@greycat/sdk';
-import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
+import { getGlobalNumberFormat } from '../../globals.js';
 import { Disposable } from '../../internals.js';
 
 export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
@@ -15,10 +15,8 @@ export interface GuiValueProps {
   tiny: boolean;
   /** overrides references name */
   name: string | undefined;
-  dateFmt: Intl.DateTimeFormat | undefined;
-  numFmt: Intl.NumberFormat | undefined;
-  /** @deprecated don't use this */
-  raw: boolean;
+  dateFmt?: Intl.DateTimeFormat;
+  numFmt?: Intl.NumberFormat;
   /** optional user-defined data */
   data?: unknown;
   /** callback used when `linkify` is `true` */
@@ -34,7 +32,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   private _value: unknown;
   private _name: string | undefined;
   private _linkify: boolean | ((value: unknown) => boolean) = false;
-  private _raw = false;
   private _tiny = false;
   private _text: string | undefined;
   private _data: unknown;
@@ -52,15 +49,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     }
 
     this._value = value;
-    this.render();
-  }
-
-  get raw(): boolean {
-    return this._raw;
-  }
-
-  set raw(b: boolean) {
-    this._raw = b;
     this.render();
   }
 
@@ -144,7 +132,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     name = this._name,
     linkify = this._linkify,
     tiny = this._tiny,
-    raw = this._raw,
     onClick = this._onClick,
     dateFmt = this._dateFmt,
     numFmt = this._numFmt,
@@ -156,7 +143,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._name === name &&
       this._tiny === tiny &&
       this._linkify === linkify &&
-      this._raw === raw &&
       this._onClick === onClick &&
       this._dateFmt === dateFmt &&
       this._numFmt === numFmt &&
@@ -169,7 +155,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._value = value;
     this._name = name;
     this._linkify = linkify;
-    this._raw = raw;
     this._tiny = tiny;
     this._onClick = onClick;
     this._dateFmt = dateFmt;
@@ -185,7 +170,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   }
 
   render() {
-    const dateFmt = this._dateFmt ?? getGlobalDateTimeFormat();
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
 
     // reset content
@@ -193,9 +177,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       value: this._value,
       name: this._name,
       tiny: this._tiny,
-      raw: this._raw,
       text: this._text,
-      dateFmt,
+      dateFmt: this._dateFmt,
       numFmt,
     });
 
@@ -227,7 +210,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     el.textContent = content;
     el.title = utils.stringify({
       value: this._value,
-      dateFmt,
+      dateFmt: this._dateFmt,
       numFmt,
       pretty: true,
     });

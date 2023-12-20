@@ -12,11 +12,17 @@ export class GuiRenderEvent extends CustomEvent<number> {
   }
 }
 
+// duck-type core.NativeTableColumn
+export type TableLikeMeta = {
+  header?: string | null;
+  typeName?: string | null;
+};
+
 // duck-type core.Table
 export type TableLike = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols: any[][];
-  meta?: { header?: string | null }[];
+  meta?: TableLikeMeta[];
 };
 
 export type IDisposable = () => void;

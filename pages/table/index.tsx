@@ -1,4 +1,4 @@
-import { type core } from '../../src';
+import { core } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -23,14 +23,6 @@ app.actions.prepend(
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');
 
-const dateFmt = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', timeStyle: 'medium', dateStyle: 'medium' });
-
-tableEl.cellProps = (_, value) => {
-  return {
-    value,
-    dateFmt,
-  };
-};
 tableEl.table = table;
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
@@ -57,7 +49,36 @@ tableEl.addEventListener('table-dblclick', (ev) => {
 
 app.main.appendChild(
   <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-    <header>project::table</header>
+    <header style={{ display: 'flex', justifyContent: 'space-between' }}>
+      project::table
+      <div>
+        <gui-searchable-select
+          placeholder="Search a timezone"
+          selected="UTC"
+          options={core.TimeZone.$fields().map((en) => ({
+            text: en.value as string,
+            value: en.value as string,
+          }))}
+          onsearchable-select-change={(ev) => {
+            tableEl.cellProps = (_, value) => ({
+              value,
+              dateFmt: new Intl.DateTimeFormat('fr-FR', {
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: ev.detail as string,
+                timeZoneName: 'longOffset',
+              }),
+            });
+            tableEl.update();
+          }}
+          style={{ fontWeight: 'normal' }}
+        />
+      </div>
+    </header>
     {tableEl}
   </article>,
 );

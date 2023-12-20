@@ -25,8 +25,14 @@ gui-csv-statistics {
       > gui-tabs {
         height: 400px;
 
-        > gui-panel[data-tab='Statistics'] {
-          padding: var(--spacing);
+        > gui-panel[data-tab='Word List'] {
+          display: flex;
+          flex-direction: column;
+
+          > input {
+            margin-bottom: 0;
+            border-radius: 0 !important;
+          }
         }
       }
     }

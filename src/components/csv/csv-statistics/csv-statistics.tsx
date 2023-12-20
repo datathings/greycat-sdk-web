@@ -1,4 +1,5 @@
 import { io } from '@greycat/sdk';
+import type { GuiTable } from '../../index.js';
 
 export class GuiCsvStatistics extends HTMLElement {
   private _stats: io.CsvStatistics | null | undefined;
@@ -35,9 +36,7 @@ export class GuiCsvStatistics extends HTMLElement {
               <th></th>
               {this._stats.columns.map((c) => (
                 <th>
-                  <a href="#" onclick={() => this.showWordList(c)}>
-                    {c.name}
-                  </a>
+                  <b>{c.name}</b>
                 </th>
               ))}
             </tr>
@@ -50,6 +49,92 @@ export class GuiCsvStatistics extends HTMLElement {
               ))}
             </tr>
             <tr>
+              <td>Nb rows</td>
+              {this._stats.columns.map((c) => (
+                <td>{this._countValues(c)}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Possible type</td>
+              {this._stats.columns.map((c) => {
+                if (this._possibleInt(c)) {
+                  if (c.null_count !== 0) {
+                    return (
+                      <td>
+                        <code>int?</code>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td>
+                      <code>int</code>
+                    </td>
+                  );
+                }
+
+                if (this._possibleFloat(c)) {
+                  if (c.null_count !== 0) {
+                    return (
+                      <td>
+                        <code>float?</code>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td>
+                      <code>float</code>
+                    </td>
+                  );
+                }
+
+                if (this._possibleBool(c)) {
+                  if (c.null_count !== 0) {
+                    return (
+                      <td>
+                        <code>bool?</code>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td>
+                      <code>bool</code>
+                    </td>
+                  );
+                }
+
+                if (this._possibleDate(c)) {
+                  if (c.null_count !== 0) {
+                    return (
+                      <td>
+                        <code>Date?</code>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td>
+                      <code>Date</code>
+                    </td>
+                  );
+                }
+
+                if (this._possibleString(c)) {
+                  if (c.null_count !== 0) {
+                    return (
+                      <td>
+                        <code>String?</code>
+                      </td>
+                    );
+                  }
+                  return (
+                    <td>
+                      <code>String</code>
+                    </td>
+                  );
+                }
+                return <td></td>;
+              })}
+            </tr>
+            <tr>
               <td>Null count</td>
               {this._stats.columns.map((c) => {
                 if (c.null_count === 0) {
@@ -57,13 +142,43 @@ export class GuiCsvStatistics extends HTMLElement {
                 }
 
                 const total = this._countValues(c);
-                const percentage = ((Number(c.null_count) / total) * 100).toFixed(2);
+                const percentage = ((Number(c.null_count) / total) * 100).toFixed(6);
                 return (
                   <td>
-                    {percentage}% ({c.null_count})
+                    {c.null_count} ({percentage}%)
                   </td>
                 );
               })}
+            </tr>
+            <tr>
+              <td>Int count</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.int_count == 0 ? undefined : c.int_count}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Float count</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.float_count == 0 ? undefined : c.float_count}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>String count</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.string_count == 0 ? undefined : c.string_count}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Bool count</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.bool_count == 0 ? undefined : c.bool_count}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Date count</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.date_count == 0 ? undefined : c.date_count}</td>
+              ))}
             </tr>
             <tr>
               <td>Example</td>
@@ -72,16 +187,52 @@ export class GuiCsvStatistics extends HTMLElement {
               ))}
             </tr>
             <tr>
-              <td>Numerical range</td>
+              <td>Minimum</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.profile.min?.toFixed(6)}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Maximum</td>
+              {this._stats.columns.map((c) => (
+                <td>{c.profile.max?.toFixed(6)}</td>
+              ))}
+            </tr>
+            <tr>
+              <td>Average</td>
               {this._stats.columns.map((c) =>
-                Number(c.float_count) + Number(c.int_count) > 0 ? (
-                  <td>
-                    [{c.profile.min?.toFixed(2)}; {c.profile.max?.toFixed(2)}]
-                  </td>
+                c.profile.sum && c.profile.count ? (
+                  <td>{(c.profile.sum / Number(c.profile.count)).toFixed(6)}</td>
                 ) : (
-                  <td></td>
+                  <td />
                 ),
               )}
+            </tr>
+            <tr>
+              <td>Standard Deviation</td>
+              {this._stats.columns.map((c) => {
+                if (c.profile.count && c.profile.sum && c.profile.sum_sq) {
+                  let std = 0.0;
+                  const s = (c.profile.sum * c.profile.sum) / Number(c.profile.count);
+                  if (Number(c.profile.count) > 1 && c.profile.sum_sq > s) {
+                    std = Math.sqrt((c.profile.sum_sq - s) / (Number(c.profile.count) - 1));
+                  }
+                  return <td>{std.toFixed(6)}</td>;
+                }
+                return <td />;
+              })}
+            </tr>
+            <tr>
+              <td>Word list</td>
+              {this._stats.columns.map((c) => {
+                return (
+                  <td>
+                    <a href="#" onclick={() => this.showWordList(c)}>
+                      Show
+                    </a>
+                  </td>
+                );
+              })}
             </tr>
           </tbody>
         </table>
@@ -90,16 +241,34 @@ export class GuiCsvStatistics extends HTMLElement {
   }
 
   showWordList(column: io.CsvColumnStatistics): void {
+    const words: string[] = [];
+    const counts: (number | bigint)[] = [];
+    for (const [word, count] of column.word_list) {
+      words.push(word);
+      counts.push(count);
+    }
+
+    const table = (
+      <gui-table
+        table={{ cols: [words, counts], meta: [{ header: 'Word' }, { header: 'Count' }] }}
+      />
+    ) as GuiTable;
+
     this._dialog.replaceChildren(
       <article>
         <header>{column.name}</header>
         <gui-tabs>
-          <gui-tab className="activeTab">Statistics</gui-tab>
-          <gui-panel data-tab="Statistics">
-            <gui-object value={column} />
-          </gui-panel>
-
+          <gui-tab className="activeTab">Word List</gui-tab>
           <gui-tab>Word List (Donut)</gui-tab>
+
+          <gui-panel data-tab="Word List">
+            <input
+              type="search"
+              placeholder="Filter"
+              oninput={(ev) => (table.filter = (ev.target as HTMLInputElement).value)}
+            />
+            {table}
+          </gui-panel>
           <gui-panel data-tab="Word List (Donut)">
             <gui-donut table={column.word_list} withInfo withLabelInfo withLabels />
           </gui-panel>
@@ -122,6 +291,51 @@ export class GuiCsvStatistics extends HTMLElement {
       Number(col.int_count) +
       Number(col.null_count) +
       Number(col.string_count)
+    );
+  }
+
+  private _possibleInt(col: io.CsvColumnStatistics): boolean {
+    return (
+      col.int_count > col.bool_count &&
+      col.int_count > col.date_count &&
+      col.int_count > col.float_count &&
+      col.int_count > col.string_count
+    );
+  }
+
+  private _possibleFloat(col: io.CsvColumnStatistics): boolean {
+    return (
+      col.float_count > col.bool_count &&
+      col.float_count > col.date_count &&
+      col.float_count > col.int_count &&
+      col.float_count > col.string_count
+    );
+  }
+
+  private _possibleString(col: io.CsvColumnStatistics): boolean {
+    return (
+      col.string_count > col.bool_count &&
+      col.string_count > col.date_count &&
+      col.string_count > col.int_count &&
+      col.string_count > col.float_count
+    );
+  }
+
+  private _possibleBool(col: io.CsvColumnStatistics): boolean {
+    return (
+      col.bool_count > col.string_count &&
+      col.bool_count > col.date_count &&
+      col.bool_count > col.int_count &&
+      col.bool_count > col.float_count
+    );
+  }
+
+  private _possibleDate(col: io.CsvColumnStatistics): boolean {
+    return (
+      col.date_count > col.string_count &&
+      col.date_count > col.bool_count &&
+      col.date_count > col.int_count &&
+      col.date_count > col.float_count
     );
   }
 }

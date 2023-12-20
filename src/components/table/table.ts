@@ -1,8 +1,7 @@
-import { core, utils, std_n } from '@greycat/sdk';
-import { getGlobalDateTimeFormat, getGlobalNumberFormat } from '../../globals.js';
+import { utils } from '@greycat/sdk';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { Disposer, GuiRenderEvent } from '../common.js';
+import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta } from '../common.js';
 
 /**
  * A function called to compute the cell properties
@@ -33,21 +32,17 @@ export type Cell = {
 
 // reusing the same object for every render to ease gc
 const cellProps: CellProps = {
-  dateFmt: getGlobalDateTimeFormat(),
-  numFmt: getGlobalNumberFormat(),
   value: null,
 };
 const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
   cellProps.value = value;
-  cellProps.dateFmt = getGlobalDateTimeFormat();
-  cellProps.numFmt = getGlobalNumberFormat();
   return cellProps;
 };
 
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
 
 export class GuiTable extends HTMLElement {
-  private _table: core.Table | undefined;
+  private _table: TableLike | undefined;
   private _rows: Array<Cell[]> = [];
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
@@ -75,7 +70,7 @@ export class GuiTable extends HTMLElement {
 
     this._thead.addEventListener('table-sort', (ev) => {
       this._sortCol.sortBy(ev.detail);
-      this._update();
+      this.update();
     });
 
     this._tbody.addEventListener('click', (e) => {
@@ -113,7 +108,7 @@ export class GuiTable extends HTMLElement {
       } else {
         // out of buffer, re-render
         this._prevFromRowIdx = Math.max(0, fromRowIdx);
-        this._update();
+        this.update();
       }
     });
   }
@@ -122,17 +117,17 @@ export class GuiTable extends HTMLElement {
     return this._table;
   }
 
-  set table(table: core.Table | undefined) {
+  set table(table: TableLike | undefined) {
     if (table === undefined) {
       this._table = undefined;
-      this._update();
+      this.update();
       return;
     }
     this._computeTable(table);
-    this._update();
+    this.update();
   }
 
-  private _computeTable(table: core.Table) {
+  private _computeTable(table: TableLike) {
     this._table = table;
     this._rows.length = table.cols[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
@@ -160,7 +155,7 @@ export class GuiTable extends HTMLElement {
   resetColumnsWidth(): void {
     this._thead.widths.length = 0;
     this._manualColResize = false;
-    this._update();
+    this.update();
   }
 
   setColumnsWidths(widths: number[]) {
@@ -170,7 +165,7 @@ export class GuiTable extends HTMLElement {
       }
     }
     this._manualColResize = true;
-    this._update();
+    this.update();
   }
 
   get filter(): string {
@@ -179,17 +174,17 @@ export class GuiTable extends HTMLElement {
 
   set filter(text: string) {
     this._filterText = text.toLowerCase();
-    this._update();
+    this.update();
   }
 
   set cellProps(props: CellPropsFactory) {
     this._cellProps = props;
-    this._update();
+    this.update();
   }
 
   set headers(headers: string[] | undefined) {
     this._headers = headers;
-    this._update();
+    this.update();
   }
 
   set onrowupdate(cb: RowUpdateCallback) {
@@ -206,7 +201,7 @@ export class GuiTable extends HTMLElement {
     cellProps = this._cellProps,
     headers = this._headers,
   }: {
-    table: core.Table | undefined;
+    table: TableLike | undefined;
     filter: string;
     cellProps: CellPropsFactory;
     headers: string[] | undefined;
@@ -217,7 +212,7 @@ export class GuiTable extends HTMLElement {
     this._filterText = filter;
     this._cellProps = cellProps;
     this._headers = headers;
-    this._update();
+    this.update();
   }
 
   connectedCallback() {
@@ -258,10 +253,10 @@ export class GuiTable extends HTMLElement {
       if (resize) {
         resize = false;
         this._thead.classList.remove('gui-table-resizing');
-        this._update();
+        this.update();
       }
     };
-    this.addEventListener('mousemove', (e) => {
+    document.body.addEventListener('mousemove', (e) => {
       cx = e.clientX;
     }, { signal: this._disposer.signal });
 
@@ -274,13 +269,13 @@ export class GuiTable extends HTMLElement {
       // recompute the available space for the rows
       this._tbody.computeRowHeight();
       // update the whole table
-      this._update();
+      this.update();
     });
     oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
 
     this._initialized = true;
-    this._update();
+    this.update();
   }
 
   disconnectedCallback() {
@@ -288,7 +283,7 @@ export class GuiTable extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  private _update() {
+  update() {
     if (!this._initialized || !this._table) {
       return;
     }
@@ -297,10 +292,10 @@ export class GuiTable extends HTMLElement {
       this._thead.widths.length = 0;
     }
 
-    this._thead.update(this._table.meta, this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
+    this._thead.update(this._table.meta ?? [], this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
 
     // sort table if needed
-    if (this._sortCol.index === -1 || this._sortCol.index >= this._table.meta.length) {
+    if (this._sortCol.index === -1 || this._sortCol.index >= (this._table.meta?.length ?? 0)) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
       this._sortCol.reset();
     } else {
@@ -340,37 +335,34 @@ export class GuiTable extends HTMLElement {
     let rows = this._rows;
     if (this._filterText.length > 0) {
       // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
-      rows = this._rows.filter((row) => filterRow(this._filterText, row));
+      rows = this._rows.filter((row) => this._filterRow(this._filterText, row));
+      this.dispatchEvent(new TableFilterEvent(rows));
     }
 
     this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps, this._rowUpdateCallback);
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
-}
 
-function filterRow(text: string, row: Cell[]): boolean {
-  for (let colIdx = 0; colIdx < row.length; colIdx++) {
-    if (
-      utils.stringify({
-        value: row[colIdx].value,
-        dateFmt: getGlobalDateTimeFormat(),
-        numFmt: getGlobalNumberFormat(),
-      })
-        .toLowerCase()
-        .includes(text)
-    ) {
-      return true;
+  private _filterRow(text: string, row: Cell[]): boolean {
+    for (let colIdx = 0; colIdx < row.length; colIdx++) {
+      if (
+        utils.stringify({ value: row[colIdx].value })
+          .toLowerCase()
+          .includes(text)
+      ) {
+        return true;
+      }
     }
+    return false;
   }
-  return false;
 }
 
 class GuiTableHead extends HTMLElement {
   widths: number[] = [];
 
   update(
-    meta: std_n.core.NativeTableColumnMeta[],
+    meta: TableLikeMeta[],
     minColWidth: number,
     sortCol: SortCol,
     availableWidth: number,
@@ -383,7 +375,7 @@ class GuiTableHead extends HTMLElement {
       const header = this._getOrCreateHeader(colIdx, colWidth);
       header.update(
         colIdx,
-        meta[colIdx],
+        meta?.[colIdx],
         sortCol.index === colIdx ? sortCol.ord : 'default',
         headers?.[colIdx],
       );
@@ -442,6 +434,12 @@ class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
 class TableSortEvent extends CustomEvent<number> {
   constructor(index: number) {
     super('table-sort', { detail: index, bubbles: true });
+  }
+}
+
+class TableFilterEvent extends CustomEvent<Cell[][]> {
+  constructor(rows: Cell[][]) {
+    super('table-filter', { detail: rows, bubbles: true });
   }
 }
 
@@ -532,9 +530,29 @@ class GuiTableHeadCell extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  update(index: number, meta: std_n.core.NativeTableColumnMeta, sort: SortOrd, title?: string) {
+  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, title?: string) {
     this._index = index;
-    this._title.textContent = title ?? meta.header ?? meta.typeName ?? `Column ${index + 1}`;
+    if (title) {
+      this._title.textContent = title;
+      if (meta?.typeName) {
+        const type = document.createElement('span');
+        type.className = "gui-thead-type";
+        type.textContent = meta.typeName;
+        this._title.appendChild(type);
+      }
+    } else if (meta?.header) {
+      this._title.textContent = meta.header;
+      if (meta.typeName) {
+        const type = document.createElement('span');
+        type.className = "gui-thead-type";
+        type.textContent = meta.typeName;
+        this._title.appendChild(type);
+      }
+    } else if (meta?.typeName) {
+      this._title.textContent = meta.typeName;
+    } else {
+      this._title.textContent = `Column ${index + 1}`;
+    }
     this._sorter.textContent = this._sortGraphemes[sort];
   }
 }
@@ -756,6 +774,7 @@ declare global {
 
   interface HTMLElementEventMap {
     'table-sort': TableSortEvent;
+    'table-filter': TableFilterEvent;
     'table-resize-col': TableResizeColEvent;
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;

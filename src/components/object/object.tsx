@@ -5,18 +5,28 @@ import { GuiValueProps } from '../index.js';
  * A subset of `GuiValueProps` used to type `GuiObject.props` field
  */
 export type ObjectProps = Partial<Omit<GuiValueProps, 'value'>>;
-export type GuiObjectProps = { value: unknown } & ObjectProps;
+export type GuiObjectProps = { value: unknown; nested: boolean } & ObjectProps;
 
 export class GuiObject extends HTMLElement {
   private _value: unknown;
+  private _nested = false;
   private _props: ObjectProps = {};
 
-  setAttrs({ value = this._value, ...props }: Partial<GuiObjectProps>): void {
+  connectedCallback() {
+    this.className = 'gui-object';
+  }
+
+  setAttrs({
+    value = this._value,
+    nested = this._nested,
+    ...props
+  }: Partial<GuiObjectProps>): void {
     for (const key in props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this._props as any)[key] = (props as any)[key];
     }
     this._value = value;
+    this._nested = nested;
     this.update();
   }
 
@@ -32,6 +42,14 @@ export class GuiObject extends HTMLElement {
   set value(value: unknown) {
     this._value = value;
     this.update();
+  }
+
+  get nested() {
+    return this._nested;
+  }
+
+  set nested(nested: boolean) {
+    this._nested = nested;
   }
 
   update() {
@@ -154,6 +172,7 @@ export class GuiObject extends HTMLElement {
           }
 
           const fragment = document.createDocumentFragment();
+
           for (let i = 0; i < this._value.$type.attrs.length; i++) {
             const attr = this._value.$type.attrs[i];
             const attrVal = this._value.$attrs[i];
@@ -171,10 +190,12 @@ export class GuiObject extends HTMLElement {
             if (this._shouldNest(attrVal)) {
               const content = document.createElement('details');
               const summary = document.createElement('summary');
+              summary.textContent = this._typeName(attrVal);
               content.appendChild(summary);
               summary.onclick = () => {
                 content.appendChild(
                   <gui-object
+                    nested
                     value={attrVal}
                     {...Object.assign({}, this._props, { data: attr.name })}
                   />,
@@ -202,7 +223,19 @@ export class GuiObject extends HTMLElement {
               );
             }
           }
-          this.replaceChildren(fragment);
+
+          if (this._nested) {
+            this.replaceChildren(fragment);
+            return;
+          }
+
+          this.style.gridTemplateColumns = 'auto';
+          this.replaceChildren(
+            <article>
+              <header>{this._typeName(this._value)}</header>
+              <div className="gui-object">{fragment}</div>
+            </article>,
+          );
           return;
         }
 
@@ -216,7 +249,7 @@ export class GuiObject extends HTMLElement {
                 <div>{key}</div>
                 <div className="gui-object-value">
                   <details>
-                    <summary />
+                    <summary>{val.$type.name}</summary>
                     <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                   </details>
                 </div>
@@ -248,6 +281,21 @@ export class GuiObject extends HTMLElement {
       !(val instanceof GCEnum) &&
       !(val instanceof Node)
     );
+  }
+
+  private _typeName(val: unknown): string | null {
+    if (val instanceof GCObject) {
+      if (val.$type.name.startsWith('::')) {
+        return '<anonymous>';
+      }
+      return val.$type.name;
+    }
+    if (typeof val === 'object') {
+      if (val !== null) {
+        return val.constructor.name;
+      }
+    }
+    return null;
   }
 }
 
