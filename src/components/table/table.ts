@@ -280,18 +280,11 @@ export class GuiTable extends HTMLElement {
       }
     };
 
-    this.addEventListener(
-      'mousemove',
-      (e) => {
-        cx = e.clientX;
-      },
-      { signal: this._disposer.signal },
-    );
-
+    document.body.addEventListener('mousemove', (e) => {
+      cx = e.clientX;
+    }, { signal: this._disposer.signal });
     document.body.addEventListener('mouseup', cancelColResize, { signal: this._disposer.signal });
-    document.body.addEventListener('mouseleave', cancelColResize, {
-      signal: this._disposer.signal,
-    });
+    document.body.addEventListener('mouseleave', cancelColResize, { signal: this._disposer.signal });
 
     const oResize = new ResizeObserver(() => {
       // reset manual column resize for best-effort display on resize
@@ -471,7 +464,6 @@ class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
     super('table-resize-col', { detail: { index, x }, bubbles: true });
   }
 }
-
 
 
 /**
