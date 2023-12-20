@@ -19,15 +19,6 @@ export class GuiTaskInfo extends HTMLElement {
   private _taskCancelBtn = document.createElement('button');
   private _taskDetailsDiv = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
-  private _timeZone: core.TimeZone | null = null;
-  timeFmtOptions: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  };
 
   constructor() {
     super();
@@ -91,13 +82,6 @@ export class GuiTaskInfo extends HTMLElement {
     return this._task;
   }
 
-  set timeZone(t: core.TimeZone) {
-    this._timeZone = t;
-    if (this._task) {
-      this._updateTaskInfo(this._task);
-    }
-  }
-
   async updateInfo(): Promise<void> {
     if (!this._task) {
       return;
@@ -111,9 +95,6 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private _updateTaskInfo(t: TaskInfoLike) {
-    if (!this._timeZone) {
-      this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
-    }
     this._task = t;
     if (t.type) {
       this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
@@ -146,11 +127,11 @@ export class GuiTaskInfo extends HTMLElement {
       </tr>,
       <tr>
         <td>Creation</td>
-        <td>{t.creation.format(this._timeZone, this.timeFmtOptions)}</td>
+        <td>{t.creation}</td>
       </tr>,
       <tr>
         <td>Start</td>
-        <td>{t.start?.format(this._timeZone, this.timeFmtOptions)}</td>
+        <td>{t.start}</td>
       </tr>,
       <tr>
         <td>Progress</td>

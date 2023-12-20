@@ -1,5 +1,5 @@
-import { GreyCat, runtime, Value, core } from '@greycat/sdk';
-import { timeToDate, parseTaskParams, TaskStatusEnum } from '../utils.js';
+import { GreyCat, runtime, Value } from '@greycat/sdk';
+import { parseTaskParams, TaskStatusEnum } from '../utils.js';
 
 type Property = { name: string; description: string };
 
@@ -11,7 +11,6 @@ export class GuiTask extends HTMLElement {
   private _taskReRunButton: HTMLButtonElement = document.createElement('button');
   private _taskCancelButton: HTMLButtonElement = document.createElement('button');
   private _taskDetailsDiv: HTMLDivElement = document.createElement('div');
-  private _timeZone: core.TimeZone | null = null;
 
   constructor() {
     super();
@@ -67,17 +66,7 @@ export class GuiTask extends HTMLElement {
     this._updateTask(t);
   }
 
-  set timeZone(t: core.TimeZone) {
-    this._timeZone = t;
-    if (this._task) {
-      this._updateTask(this._task);
-    }
-  }
-
   private _updateTask(t: runtime.Task) {
-    if (!this._timeZone) {
-      this._timeZone = core.TimeZone.Europe_Luxembourg(this._greycat);
-    }
     this._task = t;
     if (t.type) {
       this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
@@ -90,7 +79,7 @@ export class GuiTask extends HTMLElement {
     const properties: Property[] = [
       { name: 'User ID', description: t.user_id.toString() },
       { name: 'Task ID', description: t.task_id.toString() },
-      { name: 'Creation', description: t.creation ? timeToDate(t.creation, this._timeZone) : undefinedProperty },
+      { name: 'Creation', description: t.creation ? t.creation.toString() : undefinedProperty },
       { name: 'Status', description: TaskStatusEnum[t.status.value as number] ?? undefinedProperty },
       { name: 'Files', description: `${prefixURI}/` },
     ];

@@ -144,7 +144,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
   get colorScaleWidth() {
     return this._colorScaleWidth;
   }
-  
+
   set colorScaleWidth(width: number) {
     this._colorScaleWidth = width;
     this.render();
@@ -270,17 +270,16 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
           this._tooltip.updateRows([
             {
               key: this._tooltipLabels?.[0] ?? this._axisLabels?.[0] ?? 'x',
-              value: { value: xIndex[0], raw: true },
+              value: { value: xIndex[0] },
             },
             {
               key: this._tooltipLabels?.[1] ?? this._axisLabels?.[1] ?? 'y',
-              value: { value: yIndex[0], raw: true },
+              value: { value: yIndex[0] },
             },
             {
               key: this._tooltipLabels?.[2] ?? this._axisLabels?.[2] ?? 'z',
               value: {
                 value: `${table.cols[xIndex[1]]?.[yIndex[1]]?.toString() ?? ''}`,
-                raw: true,
               },
             },
           ]);

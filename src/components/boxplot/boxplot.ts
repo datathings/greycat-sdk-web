@@ -190,23 +190,23 @@ export class GuiBoxPlot extends HTMLElement {
         this._tooltip.updateRows([
           {
             key: 'Median',
-            value: { value: this._numberFormatter(this._cursorInfo.median), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.median) },
           },
           {
             key: 'Q1',
-            value: { value: this._numberFormatter(this._cursorInfo.q1), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.q1) },
           },
           {
             key: 'Q3',
-            value: { value: this._numberFormatter(this._cursorInfo.q3), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.q3) },
           },
           {
             key: 'Max',
-            value: { value: this._numberFormatter(this._cursorInfo.max), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.max) },
           },
           {
             key: 'Min',
-            value: { value: this._numberFormatter(this._cursorInfo.min), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.min) },
           },
         ]);
 

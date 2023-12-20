@@ -1,5 +1,4 @@
-import * as sdk from '@greycat/sdk';
-import { GreyCat, Value, AbiReader, runtime, core } from '@greycat/sdk';
+import { GreyCat, Value, AbiReader, runtime } from '@greycat/sdk';
 
 export enum TaskStatusEnum {
   empty,
@@ -8,18 +7,6 @@ export enum TaskStatusEnum {
   cancelled,
   error,
   ended,
-}
-
-export function timeToDate(time: sdk.core.time, timeZone: core.TimeZone): string {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  };
-  return time.format(timeZone, options);
 }
 
 export async function parseTaskParams(g: GreyCat, t: runtime.TaskInfo | runtime.Task): Promise<Value[]> {
