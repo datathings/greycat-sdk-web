@@ -64,16 +64,12 @@ gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
   top: 100%;
   left: 0;
   z-index: 100;
-  background-color: white;
-  border: 1px solid #ccc;
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  background-color: rgba(var(--base-1), 1.0);
+  border: 1px solid rgb(var(--base-1));
   padding: 10px;
   width: 100%;
 }
 
-/* gui-table gui-thead gui-thead-cell .gui-thead-dropdown .show {
-  display: block;
-} */
 gui-table gui-tbody {
   position: relative;
   display: flex;

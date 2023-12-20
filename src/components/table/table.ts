@@ -78,7 +78,7 @@ export class GuiTable extends HTMLElement {
       this._filterColumn = ev.detail.index;
       this._filterText = ev.detail.text;
 
-      this._update();
+      this.update();
     });
 
     this._tbody.addEventListener('click', (e) => {
@@ -193,7 +193,7 @@ export class GuiTable extends HTMLElement {
 
   set filterColumn(id: number) {
     this._filterColumn = id;
-    this._update();
+    this.update();
   }
 
   set cellProps(props: CellPropsFactory) {
@@ -279,11 +279,7 @@ export class GuiTable extends HTMLElement {
         this.update();
       }
     };
-<<<<<<< Updated upstream
-    document.body.addEventListener('mousemove', (e) => {
-      cx = e.clientX;
-    }, { signal: this._disposer.signal });
-=======
+
     this.addEventListener(
       'mousemove',
       (e) => {
@@ -291,7 +287,6 @@ export class GuiTable extends HTMLElement {
       },
       { signal: this._disposer.signal },
     );
->>>>>>> Stashed changes
 
     document.body.addEventListener('mouseup', cancelColResize, { signal: this._disposer.signal });
     document.body.addEventListener('mouseleave', cancelColResize, {
@@ -327,17 +322,7 @@ export class GuiTable extends HTMLElement {
       this._thead.widths.length = 0;
     }
 
-<<<<<<< Updated upstream
     this._thead.update(this._table.meta ?? [], this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
-=======
-    this._thead.update(
-      this._table.meta,
-      this._minColWidth,
-      this._sortCol,
-      this._tbody.virtualScroller.scrollWidth,
-      this._headers,
-    );
->>>>>>> Stashed changes
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= (this._table.meta?.length ?? 0)) {
@@ -380,12 +365,8 @@ export class GuiTable extends HTMLElement {
     let rows = this._rows;
     if (this._filterText.length > 0) {
       // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
-<<<<<<< Updated upstream
-      rows = this._rows.filter((row) => this._filterRow(this._filterText, row));
+      rows = this._rows.filter((row) => this._filterRow(this._filterText, this._filterColumn, row));
       this.dispatchEvent(new TableFilterEvent(rows));
-=======
-      rows = this._rows.filter((row) => filterRow(this._filterText, this._filterColumn, row));
->>>>>>> Stashed changes
     }
 
     this._tbody.update(
@@ -399,49 +380,25 @@ export class GuiTable extends HTMLElement {
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
-<<<<<<< Updated upstream
-  private _filterRow(text: string, row: Cell[]): boolean {
-    for (let colIdx = 0; colIdx < row.length; colIdx++) {
-      if (
-        utils.stringify({ value: row[colIdx].value })
+  private _filterRow(text: string, column: number, row: Cell[]): boolean {
+    if (column !== -1) {
+      if (utils
+          .stringify({ value: row[column].value })
           .toLowerCase()
-          .includes(text)
-      ) {
+          .includes(text)) {
         return true;
+      }
+    } else {
+      for (let colIdx = 0; colIdx < row.length; colIdx++) {
+        if (utils
+          .stringify({ value: row[column].value })
+          .toLowerCase()
+          .includes(text)) {
+          return true;
+        }
       }
     }
     return false;
-=======
-function filterRow(text: string, column: number, row: Cell[]): boolean {
-  if (column !== -1) {
-    if (
-      utils
-        .stringify({
-          value: row[column].value,
-          dateFmt: getGlobalDateTimeFormat(),
-          numFmt: getGlobalNumberFormat(),
-        })
-        .toLowerCase()
-        .includes(text)
-    ) {
-      return true;
-    }
-  } else {
-    for (let colIdx = 0; colIdx < row.length; colIdx++) {
-      if (
-        utils
-          .stringify({
-            value: row[colIdx].value,
-            dateFmt: getGlobalDateTimeFormat(),
-            numFmt: getGlobalNumberFormat(),
-          })
-          .toLowerCase()
-          .includes(text)
-      ) {
-        return true;
-      }
-    }
->>>>>>> Stashed changes
   }
 }
 
@@ -526,11 +483,12 @@ class TableSortEvent extends CustomEvent<number> {
   }
 }
 
-<<<<<<< Updated upstream
+
 class TableFilterEvent extends CustomEvent<Cell[][]> {
   constructor(rows: Cell[][]) {
     super('table-filter', { detail: rows, bubbles: true });
-=======
+  }
+}
 
 /**
  * `detail` contains the target input of dropdown from magnifier button
@@ -538,7 +496,6 @@ class TableFilterEvent extends CustomEvent<Cell[][]> {
 class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
   constructor(index: number, text: string) {
     super('table-filter-column', { detail: { index, text }, bubbles: true });
->>>>>>> Stashed changes
   }
 }
 
@@ -592,9 +549,15 @@ class GuiTableHeadCell extends HTMLElement {
 
     this.addEventListener('click', (e) => {
       if (e.target === this._magnifier) {
-        this._isDropdownOpen = !this._isDropdownOpen;
-        this._dropdown.style.display = this._isDropdownOpen ? 'block' : 'none';
-        this._magnifier.textContent = this._isDropdownOpen ? '❌' : '🔍';
+        this._isDropdownOpen = !this._isDropdownOpen; 
+        this.updateDropdownDisplay();
+
+        if (this._isDropdownOpen) {
+          this._input.focus();
+          // When user clicks somewhere outside of dropdown or clicks esc button, clear input and filtering
+          document.addEventListener('keydown', this.handleKeyDown);
+          document.addEventListener('click', this.handleOutsideClick);
+        }
       } else if (e.target !== this._resizer && e.target !== this._input) {
         this.dispatchEvent(new TableSortEvent(this._index));
       }
@@ -649,7 +612,37 @@ class GuiTableHeadCell extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.replaceChildren(); // cleanup
+    this.replaceChildren();
+    if (this._isDropdownOpen) {
+      document.removeEventListener('keydown', this.handleKeyDown);
+      document.removeEventListener('click', this.handleOutsideClick);
+    }
+  }
+
+  handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'Escape') {
+      this.closeDropdown();
+    }
+  };
+  
+  handleOutsideClick = (e: MouseEvent) => {
+    if (!this.contains(e.target as Node) && this._isDropdownOpen) {
+      this.closeDropdown();
+    }
+  };
+
+  closeDropdown() {
+    this._isDropdownOpen = false;
+    this.updateDropdownDisplay();
+    document.removeEventListener('keydown', this.handleKeyDown);
+    document.removeEventListener('click', this.handleOutsideClick);
+    this._input.value = '';
+    this.dispatchEvent(new TableFilterColumnEvent(-1, ''));
+  }
+
+  updateDropdownDisplay() {
+    this._dropdown.style.display = this._isDropdownOpen ? 'block' : 'none';
+    this._magnifier.textContent = this._isDropdownOpen ? '❌' : '🔍';
   }
 
   update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, title?: string) {
@@ -902,11 +895,8 @@ declare global {
 
   interface HTMLElementEventMap {
     'table-sort': TableSortEvent;
-<<<<<<< Updated upstream
     'table-filter': TableFilterEvent;
-=======
     'table-filter-column': TableFilterColumnEvent;
->>>>>>> Stashed changes
     'table-resize-col': TableResizeColEvent;
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
