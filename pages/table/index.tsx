@@ -21,7 +21,6 @@ app.actions.prepend(
 );
 
 const tableEl = document.createElement('gui-table');
-tableEl.filterable = true;
 const table = await greycat.default.call<core.Table>('project::table');
 
 tableEl.table = table;
@@ -82,6 +81,16 @@ app.main.appendChild(
         />
       </div>
     </header>
-    {tableEl}
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+      <input
+        type="search"
+        placeholder="Filter on every column"
+        oninput={(ev) => {
+          tableEl.filter = (ev.target as HTMLInputElement).value;
+        }}
+        style={{ marginBottom: '0', borderRadius: '0' }}
+      />
+      {tableEl}
+    </div>
   </article>,
 );

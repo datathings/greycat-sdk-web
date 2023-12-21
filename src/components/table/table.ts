@@ -51,13 +51,11 @@ export class GuiTable extends HTMLElement {
   private _sortCol: SortCol = new SortCol(-1, 'default');
   private _cellProps = DEFAULT_CELL_PROPS;
   private _prevFromRowIdx = 0;
-  private _filterable = false;
   private _filterText = '';
   private _filterColumns: Array<string | undefined> = [];
   private _headers: string[] | undefined;
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
-  private _filterInput = document.createElement('input');
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   /**
    * This is set to `true` when a column is manually resized.
@@ -70,14 +68,6 @@ export class GuiTable extends HTMLElement {
 
   constructor() {
     super();
-
-    this._filterInput.className = 'gui-table-filter';
-    this._filterInput.type = 'search';
-    this._filterInput.placeholder = 'Filter the table';
-    this._filterInput.addEventListener('input', () => {
-      this._filterText = this._filterInput.value;
-      this.update();
-    });
 
     this._thead.addEventListener('table-sort', (ev) => {
       this._sortCol.sortBy(ev.detail);
@@ -190,15 +180,6 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
-  get filterable() {
-    return this._filterable;
-  }
-
-  set filterable(filterable: boolean) {
-    this._filterable = filterable;
-    this.update();
-  }
-
   /**
    * Global filter for all columns
    */
@@ -248,13 +229,11 @@ export class GuiTable extends HTMLElement {
     filter = this._filterText,
     cellProps = this._cellProps,
     headers = this._headers,
-    filterable = this._filterable,
   }: Partial<{
     table: TableLike | undefined;
     filter: string;
     cellProps: CellPropsFactory;
     headers: string[] | undefined;
-    filterable: boolean;
   }>) {
     if (this._table !== table && table !== undefined) {
       this._computeTable(table);
@@ -262,7 +241,6 @@ export class GuiTable extends HTMLElement {
     this._filterText = filter;
     this._cellProps = cellProps;
     this._headers = headers;
-    this._filterable = filterable;
     this.update();
   }
 
@@ -345,16 +323,6 @@ export class GuiTable extends HTMLElement {
   }
 
   update() {
-    if (this._filterable) {
-      if (!(this.children[0] instanceof HTMLInputElement)) {
-        this.prepend(this._filterInput);
-      }
-    } else {
-      if (this.children[0] instanceof HTMLInputElement) {
-        this.children[0].remove();
-      }
-    }
-
     if (!this._initialized || !this._table) {
       return;
     }

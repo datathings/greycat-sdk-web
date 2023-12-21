@@ -1,6 +1,5 @@
 import { io } from '@greycat/sdk';
-import '../../tabs/index.js'; // make sure we import what we depend on
-import '../../table/index.js'; // make sure we import what we depend on
+import type { GuiTable } from '../../index.js';
 
 export class GuiCsvStatistics extends HTMLElement {
   private _stats: io.CsvStatistics | null | undefined;
@@ -249,6 +248,12 @@ export class GuiCsvStatistics extends HTMLElement {
       counts.push(count);
     }
 
+    const table = (
+      <gui-table
+        table={{ cols: [words, counts], meta: [{ header: 'Word' }, { header: 'Count' }] }}
+      />
+    ) as GuiTable;
+
     this._dialog.replaceChildren(
       <article>
         <header>{column.name}</header>
@@ -257,10 +262,12 @@ export class GuiCsvStatistics extends HTMLElement {
           <gui-tab>Word List (Donut)</gui-tab>
 
           <gui-panel data-tab="Word List">
-            <gui-table
-              table={{ cols: [words, counts], meta: [{ header: 'Word' }, { header: 'Count' }] }}
-              filterable
+            <input
+              type="search"
+              placeholder="Filter"
+              oninput={(ev) => (table.filter = (ev.target as HTMLInputElement).value)}
             />
+            {table}
           </gui-panel>
           <gui-panel data-tab="Word List (Donut)">
             <gui-donut table={column.word_list} withInfo withLabelInfo withLabels />
