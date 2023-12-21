@@ -11,7 +11,20 @@ document.body.prepend(app);
 const progress = (<progress value={0} max={100} />) as HTMLProgressElement;
 
 async function runAnalysis(filepath: string) {
-  const task = await io.CsvAnalysis.analyze(filepath, null);
+  const task = await io.CsvAnalysis.analyze(
+    filepath,
+    io.CsvAnalysisConfig.createFrom({
+      header_lines: 1,
+      date_check_limit: null,
+      date_formats: null,
+      decimal_separator: null,
+      enum_limit: null,
+      row_limit: null,
+      separator: null,
+      string_delimiter: null,
+      thousands_separator: null,
+    }),
+  );
   const handler = new TaskHandler(task);
   await handler.start(500, (info) => (progress.value = (info.progress ?? 0) * 100));
   const stats = await greycat.default.getFile<io.CsvStatistics>(

@@ -38,6 +38,8 @@ tableEl.onrowupdate = (el, row) => {
       break;
   }
 };
+// tableEl.filter = "low";
+// tableEl.filterColumn = 2;
 
 tableEl.addEventListener('table-dblclick', (ev) => {
   window.alert(
@@ -79,6 +81,16 @@ app.main.appendChild(
         />
       </div>
     </header>
-    {tableEl}
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+      <input
+        type="search"
+        placeholder="Filter on every column"
+        oninput={(ev) => {
+          tableEl.filter = (ev.target as HTMLInputElement).value;
+        }}
+        style={{ marginBottom: '0', borderRadius: '0' }}
+      />
+      {tableEl}
+    </div>
   </article>,
 );
