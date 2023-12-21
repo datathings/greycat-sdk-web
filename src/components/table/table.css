@@ -10,6 +10,10 @@ gui-table {
   height: 100%;
   width: 100%;
 }
+gui-table > input.gui-table-filter {
+  --border-radius: 0;
+  margin-bottom: 0;
+}
 gui-table gui-thead {
   position: sticky;
   top: 0;
