@@ -24,7 +24,7 @@ export type Cell = {
   value: unknown;
   /**
    * The original index of the row in the column.
-   * 
+   *
    * This is required because sorting/filtering changes indexing.
    */
   originalIndex: number;
@@ -46,12 +46,13 @@ export class GuiTable extends HTMLElement {
   private _rows: Array<Cell[]> = [];
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
-  private _minColWidth = 150;
+  private _minColWidth = 100;
   private _scrollToRowIndex = 0;
   private _sortCol: SortCol = new SortCol(-1, 'default');
   private _cellProps = DEFAULT_CELL_PROPS;
   private _prevFromRowIdx = 0;
   private _filterText = '';
+  private _filterColumns: Array<string | undefined> = [];
   private _headers: string[] | undefined;
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
@@ -73,12 +74,20 @@ export class GuiTable extends HTMLElement {
       this.update();
     });
 
+    this._thead.addEventListener('table-filter-column', (ev) => {
+      this._filterColumns[ev.detail.index] = ev.detail.text;
+      this.update();
+    });
+
     this._tbody.addEventListener('click', (e) => {
       let rowEl: GuiTableBodyCell | undefined;
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
         rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+      } else if (
+        e.target instanceof GuiValue &&
+        e.target.parentElement instanceof GuiTableBodyCell
+      ) {
         // also trigger table-row-click when the cell value is clicked
         rowEl = e.target.parentElement;
       } else {
@@ -92,7 +101,10 @@ export class GuiTable extends HTMLElement {
       if (e.target instanceof GuiTableBodyCell) {
         // trigger table-row-click when the cell is clicked
         rowEl = e.target;
-      } else if (e.target instanceof GuiValue && e.target.parentElement instanceof GuiTableBodyCell) {
+      } else if (
+        e.target instanceof GuiValue &&
+        e.target.parentElement instanceof GuiTableBodyCell
+      ) {
         // also trigger table-row-click when the cell value is clicked
         rowEl = e.target.parentElement;
       } else {
@@ -168,12 +180,29 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  /**
+   * Global filter for all columns
+   */
   get filter(): string {
     return this._filterText;
   }
 
   set filter(text: string) {
     this._filterText = text.toLowerCase();
+    this.update();
+  }
+
+  /**
+   * Per-column filter.
+   * 
+   * *Specify as many entry as there is columns in the table. `undefined` or "empty string" means no filtering for that column.
+   */
+  get filterColumns() {
+    return this._filterColumns;
+  }
+
+  set filterColumns(filters: Array<string | undefined>) {
+    this._filterColumns = filters;
     this.update();
   }
 
@@ -242,13 +271,17 @@ export class GuiTable extends HTMLElement {
       requestAnimationFrame(colResizeLoop);
     };
 
-    this._thead.addEventListener('table-resize-col', (e) => {
-      resize = true;
-      index = e.detail.index;
-      px = cx = e.detail.x;
-      this._thead.classList.add('gui-table-resizing');
-      requestAnimationFrame(colResizeLoop);
-    }, { signal: this._disposer.signal });
+    this._thead.addEventListener(
+      'table-resize-col',
+      (e) => {
+        resize = true;
+        index = e.detail.index;
+        px = cx = e.detail.x;
+        this._thead.classList.add('gui-table-resizing');
+        requestAnimationFrame(colResizeLoop);
+      },
+      { signal: this._disposer.signal },
+    );
     const cancelColResize = () => {
       if (resize) {
         resize = false;
@@ -256,12 +289,18 @@ export class GuiTable extends HTMLElement {
         this.update();
       }
     };
-    document.body.addEventListener('mousemove', (e) => {
-      cx = e.clientX;
-    }, { signal: this._disposer.signal });
 
+    document.body.addEventListener(
+      'mousemove',
+      (e) => {
+        cx = e.clientX;
+      },
+      { signal: this._disposer.signal },
+    );
     document.body.addEventListener('mouseup', cancelColResize, { signal: this._disposer.signal });
-    document.body.addEventListener('mouseleave', cancelColResize, { signal: this._disposer.signal });
+    document.body.addEventListener('mouseleave', cancelColResize, {
+      signal: this._disposer.signal,
+    });
 
     const oResize = new ResizeObserver(() => {
       // reset manual column resize for best-effort display on resize
@@ -292,7 +331,13 @@ export class GuiTable extends HTMLElement {
       this._thead.widths.length = 0;
     }
 
-    this._thead.update(this._table.meta ?? [], this._minColWidth, this._sortCol, this._tbody.virtualScroller.scrollWidth, this._headers);
+    this._thead.update(
+      this._table.meta ?? [],
+      this._minColWidth,
+      this._sortCol,
+      this._tbody.virtualScroller.scrollWidth,
+      this._headers,
+    );
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= (this._table.meta?.length ?? 0)) {
@@ -333,24 +378,46 @@ export class GuiTable extends HTMLElement {
     }
 
     let rows = this._rows;
-    if (this._filterText.length > 0) {
+    if (this._filterText.length > 0 || this._filterColumns.find((s) => s && s.length > 0)) {
       // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
-      rows = this._rows.filter((row) => this._filterRow(this._filterText, row));
+      rows = this._rows.filter((row) => this._filterRow(this._filterText, this._filterColumns, row));
       this.dispatchEvent(new TableFilterEvent(rows));
     }
 
-    this._tbody.update(this._prevFromRowIdx, this._thead.widths, rows, this._cellProps, this._rowUpdateCallback);
+    this._tbody.update(
+      this._prevFromRowIdx,
+      this._thead.widths,
+      rows,
+      this._cellProps,
+      this._rowUpdateCallback,
+    );
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
-  private _filterRow(text: string, row: Cell[]): boolean {
-    for (let colIdx = 0; colIdx < row.length; colIdx++) {
-      if (
-        utils.stringify({ value: row[colIdx].value })
-          .toLowerCase()
-          .includes(text)
-      ) {
+  private _filterRow(globalFilter: string, colFilters: Array<string | undefined>, row: Cell[]): boolean {
+    // cache stringified cells
+    const cells: string[] = [];
+
+    for (let i = 0; i < row.length; i++) {
+      const colFilter = colFilters[i];
+      cells[i] = utils.stringify({ value: row[i].value }).toLowerCase();
+      if (colFilter && colFilter.length > 0) {
+        // check column filter
+        if (!cells[i].includes(colFilter)) {
+          return false;
+        }
+      }
+    }
+
+    if (globalFilter.length === 0) {
+      // we did not return false already with the column filters, and there is no global filter
+      // so this row is containing usefull data
+      return true;
+    }
+
+    for (let i = 0; i < row.length; i++) {
+      if (cells[i].includes(globalFilter)) {
         return true;
       }
     }
@@ -443,6 +510,15 @@ class TableFilterEvent extends CustomEvent<Cell[][]> {
   }
 }
 
+/**
+ * `detail` contains the target input of dropdown from filter button
+ */
+class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+  constructor(index: number, text: string) {
+    super('table-filter-column', { detail: { index, text }, bubbles: true });
+  }
+}
+
 export type TableClickEventDetail = {
   /**
    * The current row index. This is not necessarily the "original" row index.
@@ -482,14 +558,43 @@ class GuiTableHeadCell extends HTMLElement {
   private _title = document.createElement('div');
   private _sorter = document.createElement('div');
   private _resizer = document.createElement('div');
-  private _sortGraphemes = { asc: '↓', desc: '↑', default: '⇅' } as const;
+  private _filter = document.createElement('div');
+  private _dropdown = document.createElement('div');
+  private _input = document.createElement('input');
+  private _icons = { asc: '↓', desc: '↑', default: '↕', search: '', close: '' };
 
   constructor() {
     super();
 
     this.addEventListener('click', (e) => {
-      if (e.target !== this._resizer) {
+      if (e.target === this._filter) {
+        if (!this._dropdown.classList.contains('open')) {
+          this.openDropdown();
+        }
+      } else if (e.target !== this._resizer && e.target !== this._input) {
         this.dispatchEvent(new TableSortEvent(this._index));
+      }
+    });
+
+    this._filter.classList.add('gui-thead-filter');
+
+    this._dropdown.classList.add('gui-thead-dropdown');
+    this._input.type = 'search';
+    this._input.placeholder = 'Filter column';
+    this._dropdown.appendChild(this._input);
+
+    this._input.addEventListener('input', (e) => {
+      const target = e.target as HTMLInputElement;
+      this.dispatchEvent(new TableFilterColumnEvent(this._index, target.value));
+    });
+
+    this._input.addEventListener('blur', () => {
+      this.closeDropdown();
+    });
+
+    this._input.addEventListener('keydown', (ev) => {
+      if (ev.key === 'Escape' || ev.key === 'Enter') {
+        this.closeDropdown();
       }
     });
 
@@ -510,24 +615,47 @@ class GuiTableHeadCell extends HTMLElement {
   }
 
   connectedCallback() {
+    const styles = getComputedStyle(this);
+    this._icons.default = styles.getPropertyValue('--icon-sort-default');
+    this._icons.asc = styles.getPropertyValue('--icon-sort-asc');
+    this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
+    this._icons.search = styles.getPropertyValue('--icon-search');
+    this._icons.close = styles.getPropertyValue('--icon-close');
+    this._filter.style.backgroundImage = this._icons.search;
+
     const fragment = document.createDocumentFragment();
 
     this._title.classList.add('gui-thead-title');
     fragment.appendChild(this._title);
 
     this._sorter.classList.add('gui-thead-sorter');
-    this._sorter.textContent = '⇅'; // asc: ↓   desc: ↑
+    this._sorter.textContent = this._icons.default;
     fragment.appendChild(this._sorter);
+
+    fragment.appendChild(this._filter);
 
     this._resizer.classList.add('gui-thead-resizer');
 
     fragment.appendChild(this._resizer);
+    fragment.appendChild(this._dropdown);
 
     this.appendChild(fragment);
   }
 
   disconnectedCallback() {
-    this.replaceChildren(); // cleanup
+    this.replaceChildren();
+  }
+
+  closeDropdown() {
+    this._dropdown.classList.remove('open');
+    this._filter.classList.remove('open');
+    this._filter.style.backgroundImage = this._icons.search;
+  }
+
+  openDropdown() {
+    this._dropdown.classList.add('open');
+    this._filter.classList.add('open');
+    this._input.focus();
   }
 
   update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, title?: string) {
@@ -536,7 +664,7 @@ class GuiTableHeadCell extends HTMLElement {
       this._title.textContent = title;
       if (meta?.typeName) {
         const type = document.createElement('span');
-        type.className = "gui-thead-type";
+        type.className = 'gui-thead-type';
         type.textContent = meta.typeName;
         this._title.appendChild(type);
       }
@@ -544,7 +672,7 @@ class GuiTableHeadCell extends HTMLElement {
       this._title.textContent = meta.header;
       if (meta.typeName) {
         const type = document.createElement('span');
-        type.className = "gui-thead-type";
+        type.className = 'gui-thead-type';
         type.textContent = meta.typeName;
         this._title.appendChild(type);
       }
@@ -553,7 +681,7 @@ class GuiTableHeadCell extends HTMLElement {
     } else {
       this._title.textContent = `Column ${index + 1}`;
     }
-    this._sorter.textContent = this._sortGraphemes[sort];
+    this._sorter.textContent = this._icons[sort];
   }
 }
 
@@ -590,7 +718,13 @@ class GuiTableBody extends HTMLElement {
     firstRow.remove();
   }
 
-  update(fromRowIdx: number, colWidths: number[], rows: Cell[][], cellProps: CellPropsFactory, updateCallback: RowUpdateCallback): void {
+  update(
+    fromRowIdx: number,
+    colWidths: number[],
+    rows: Cell[][],
+    cellProps: CellPropsFactory,
+    updateCallback: RowUpdateCallback,
+  ): void {
     // Make it one more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
@@ -775,6 +909,7 @@ declare global {
   interface HTMLElementEventMap {
     'table-sort': TableSortEvent;
     'table-filter': TableFilterEvent;
+    'table-filter-column': TableFilterColumnEvent;
     'table-resize-col': TableResizeColEvent;
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
