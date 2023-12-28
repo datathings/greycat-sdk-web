@@ -57,13 +57,6 @@ export class GuiTable extends HTMLElement {
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
-  /**
-   * This is set to `true` when a column is manually resized.
-   *
-   * It is only used internally to know if `resetColumnWidth` should be called
-   * automatically on updates or not.
-   */
-  private _manualColResize = false;
   private _disposer = new Disposer();
 
   constructor() {
@@ -166,17 +159,19 @@ export class GuiTable extends HTMLElement {
 
   resetColumnsWidth(): void {
     this._thead.widths.length = 0;
-    this._manualColResize = false;
     this.update();
   }
 
-  setColumnsWidths(widths: number[]) {
+  get columnsWidths() {
+    return this._thead.widths;
+  }
+
+  set columnsWidths(widths: number[]) {
     for (let i = 0; i < this._thead.widths.length; i++) {
       if (!isNaN(widths[i])) {
         this._thead.widths[i] = widths[i];
       }
     }
-    this._manualColResize = true;
     this.update();
   }
 
@@ -229,11 +224,13 @@ export class GuiTable extends HTMLElement {
     filter = this._filterText,
     cellProps = this._cellProps,
     headers = this._headers,
+    columnsWidths = this._thead.widths,
   }: Partial<{
-    table: TableLike | undefined;
+    table: TableLike;
     filter: string;
     cellProps: CellPropsFactory;
-    headers: string[] | undefined;
+    headers: string[];
+    columnsWidths: number[];
   }>) {
     if (this._table !== table && table !== undefined) {
       this._computeTable(table);
@@ -241,6 +238,7 @@ export class GuiTable extends HTMLElement {
     this._filterText = filter;
     this._cellProps = cellProps;
     this._headers = headers;
+    this._thead.widths = columnsWidths;
     this.update();
   }
 
@@ -262,11 +260,13 @@ export class GuiTable extends HTMLElement {
       const hcell = this._thead.children[index] as GuiTableHeadCell;
       const newWidth = Math.round(hcell.colWidth - dx);
       if (newWidth >= this._minColWidth) {
+        // record the new manually set width
         this._thead.widths[index] = newWidth;
+        // update the header cell width
         hcell.colWidth = newWidth;
+        // update the associated body cells widths
         this._tbody.resizeColumn(index, newWidth);
         px = cx;
-        this._manualColResize = true;
       }
       requestAnimationFrame(colResizeLoop);
     };
@@ -303,8 +303,6 @@ export class GuiTable extends HTMLElement {
     });
 
     const oResize = new ResizeObserver(() => {
-      // reset manual column resize for best-effort display on resize
-      this._thead.widths.length = 0;
       // recompute the available space for the rows
       this._tbody.computeRowHeight();
       // update the whole table
@@ -327,9 +325,6 @@ export class GuiTable extends HTMLElement {
       return;
     }
     const start = Date.now();
-    if (!this._manualColResize) {
-      this._thead.widths.length = 0;
-    }
 
     this._thead.update(
       this._table.meta ?? [],
@@ -388,6 +383,7 @@ export class GuiTable extends HTMLElement {
       this._prevFromRowIdx,
       this._thead.widths,
       rows,
+      this._minColWidth,
       this._cellProps,
       this._rowUpdateCallback,
     );
@@ -435,10 +431,15 @@ class GuiTableHead extends HTMLElement {
     availableWidth: number,
     headers?: string[],
   ): void {
-    const defaultColWidth = Math.max(minColWidth, availableWidth / meta.length);
-
+    let takenWidth = 0;
     for (let colIdx = 0; colIdx < meta.length; colIdx++) {
-      const colWidth = (this.widths[colIdx] = this.widths[colIdx] ?? defaultColWidth);
+      let colWidth: number;
+      if (this.widths[colIdx]) {
+        colWidth = this.widths[colIdx];
+      } else {
+        colWidth = Math.max((availableWidth - takenWidth) / (meta.length - colIdx), minColWidth);
+      }
+      takenWidth += colWidth;
       const header = this._getOrCreateHeader(colIdx, colWidth);
       header.update(
         colIdx,
@@ -711,6 +712,8 @@ class GuiTableBody extends HTMLElement {
     firstRow.update(
       0,
       [150],
+      150,
+      this.virtualScroller.scrollWidth,
       [{ value: 'testing row height', originalIndex: 0 }],
       DEFAULT_CELL_PROPS,
     );
@@ -722,6 +725,7 @@ class GuiTableBody extends HTMLElement {
     fromRowIdx: number,
     colWidths: number[],
     rows: Cell[][],
+    minColWidth: number,
     cellProps: CellPropsFactory,
     updateCallback: RowUpdateCallback,
   ): void {
@@ -740,6 +744,8 @@ class GuiTableBody extends HTMLElement {
     // therefore we need to update "fromRowIdx" to the maximum index - the max number of displayable rows
     fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
 
+    // copy the current scroll width before removing the scroller
+    const availableWidth = this.virtualScroller.scrollWidth;
     // remove virtual scroller while updating
     this.virtualScroller.remove();
 
@@ -756,7 +762,7 @@ class GuiTableBody extends HTMLElement {
       }
       const row = this._getOrCreateRow(rowIdx);
       // update the DOM row to reflect the new row's data
-      row.update(realIdx, colWidths, rows[realIdx], cellProps);
+      row.update(realIdx, colWidths, minColWidth, availableWidth, rows[realIdx], cellProps);
       // at the right position
       row.style.top = `${realIdx * this.rowHeight}px`;
       updateCallback(row, rows[realIdx]);
@@ -804,11 +810,12 @@ class GuiTableBody extends HTMLElement {
 class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
-  update(index: number, colWidths: number[], row: Cell[], cellProps: CellPropsFactory): void {
+  update(index: number, colWidths: number[], minColWidth: number, availableWidth: number, row: Cell[], cellProps: CellPropsFactory): void {
     this.idx = index;
     // this.setAttribute('data-col', `${col}`);
     this.setAttribute('data-row', `${index}`);
     let colIdx: number;
+    let takenWidth = 0;
     for (colIdx = 0; colIdx < row.length; colIdx++) {
       const cell = this._getOrCreateCell(colIdx);
       cell.rowIdx = index;
@@ -816,7 +823,14 @@ class GuiTableBodyRow extends HTMLElement {
       cell.data = row;
       cell.setAttribute('data-col', `${colIdx}`);
       (cell.children[0] as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
-      cell.style.width = `${colWidths[colIdx]}px`;
+      let colWidth: number;
+      if (colWidths[colIdx]) {
+        colWidth = colWidths[colIdx];
+      } else {
+        colWidth = Math.max((availableWidth - takenWidth) / (row.length - colIdx), minColWidth);
+      }
+      takenWidth += colWidth;
+      cell.style.width = `${colWidth}px`;
     }
 
     // remove exceeding cells

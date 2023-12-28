@@ -11,7 +11,6 @@ export class GuiObject extends HTMLElement {
   private _value: unknown;
   private _nested = false;
   private _props: ObjectProps = {};
-  private _arrayExpandIndex = 25;
 
   connectedCallback() {
     this.className = 'gui-object';
@@ -104,35 +103,19 @@ export class GuiObject extends HTMLElement {
 
         // Array
         if (Array.isArray(this._value)) {
-          const arr = this._value;
-          const fragment = document.createDocumentFragment();
-          const endIndex = Math.min(this._arrayExpandIndex, arr.length);
-
-          for (let i = 0; i < endIndex; i++) {
-            fragment.appendChild(
-              <>
-                <div>
-                  <em>{i}</em>
-                </div>
-                <div>
-                  <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
-                </div>
-              </>,
-            );
+          this.style.gridTemplateColumns = 'auto';
+          const indexes: number[] = [];
+          const values: unknown[] = [];
+          for (let i = 0; i < this._value.length; i++) {
+            indexes.push(i);
+            values.push(this._value[i]);
           }
-
-          if (endIndex < arr.length) {
-            const expandLink = document.createElement('a');
-            expandLink.textContent = 'Show more ' + `(${arr.length})`;
-            expandLink.onclick = (event) => {
-                event.preventDefault();
-                this._arrayExpandIndex += 25;
-                this.update();
-            };
-            fragment.appendChild(expandLink);
-        }
-
-          this.replaceChildren(fragment);
+          this.replaceChildren(
+            <gui-table
+              table={{ cols: [indexes, values], meta: [{ header: 'Index' }, { header: 'Value' }] }}
+              columnsWidths={[135]}
+            />,
+          );
           return;
         }
 

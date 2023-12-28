@@ -420,6 +420,11 @@ fn complex_object() {
   map.set("first", { foo: "BAR", baz: 42 });
   map.set("second", TimeZone::Africa_Abidjan);
 
+  var array = [42, 3.14, "hello world"];
+  for (var i = 0; i < 100; i++) {
+    array.add(i);
+  }
+
   return ComplexObject {
     string: "Hello, world!",
     int: 42,
@@ -429,7 +434,7 @@ fn complex_object() {
     geo: geo::new(1.4, -0.85),
     null: null,
     enum: TimeZone::Europe_Paris,
-    array: [42, 3.14, "hello world"],
+    array: array,
     nodeTime: nodeTime::new(),
     nodeIndex: nodeIndex::new(),
     nodeList: nodeList::new(),
