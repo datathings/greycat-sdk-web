@@ -103,33 +103,19 @@ export class GuiObject extends HTMLElement {
 
         // Array
         if (Array.isArray(this._value)) {
-          const arr = this._value;
-          if (arr.length === 0) {
-            this.style.gridTemplateColumns = 'auto';
-            this.replaceChildren(<em>empty array</em>);
-            return;
+          this.style.gridTemplateColumns = 'auto';
+          const indexes: number[] = [];
+          const values: unknown[] = [];
+          for (let i = 0; i < this._value.length; i++) {
+            indexes.push(i);
+            values.push(this._value[i]);
           }
-
-          if (arr.length > 15) {
-            this.style.gridTemplateColumns = 'auto';
-            this.replaceChildren(<em>Array({arr.length})</em>);
-            return;
-          }
-
-          const fragment = document.createDocumentFragment();
-          for (let i = 0; i < arr.length; i++) {
-            fragment.appendChild(
-              <>
-                <div>
-                  <em>{i}</em>
-                </div>
-                <div>
-                  <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
-                </div>
-              </>,
-            );
-          }
-          this.replaceChildren(fragment);
+          this.replaceChildren(
+            <gui-table
+              table={{ cols: [indexes, values], meta: [{ header: 'Index' }, { header: 'Value' }] }}
+              columnsWidths={[135]}
+            />,
+          );
           return;
         }
 
