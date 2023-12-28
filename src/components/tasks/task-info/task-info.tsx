@@ -19,6 +19,8 @@ export class GuiTaskInfo extends HTMLElement {
   private _taskCancelBtn = document.createElement('button');
   private _taskDetailsDiv = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
+  private _onFilesClick: ((ev: Event) => void) | null = null;
+
 
   constructor() {
     super();
@@ -81,6 +83,10 @@ export class GuiTaskInfo extends HTMLElement {
   get task() {
     return this._task;
   }
+
+  set onFilesClick(callback: (ev: Event) => void) {
+    this._onFilesClick = callback;
+}
 
   async updateInfo(): Promise<void> {
     if (!this._task) {
@@ -156,8 +162,17 @@ export class GuiTaskInfo extends HTMLElement {
       <tr>
         <td>Files</td>
         <td>
-          {/* TODO: Beket make it so that users can override that by providing there own callback 'onclick' */}
-          <a href={prefixURI}>{new URL(prefixURI).pathname}</a>
+          <a href="#"
+            onclick={(ev: MouseEvent) => {
+              ev.preventDefault();
+              if (this._onFilesClick) {
+                this._onFilesClick(ev);
+              } else {
+                window.location.href = prefixURI;
+              }
+            }}>
+            {new URL(prefixURI).pathname}
+          </a>
         </td>
       </tr>,
     );

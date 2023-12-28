@@ -1,4 +1,4 @@
-import type { GuiTaskList, GuiTaskSelect } from '../../src';
+import type { GuiTaskList, GuiTaskSelect, GuiTaskInfo } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -8,7 +8,10 @@ await app.init();
 document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
-const dialogContent = document.createElement('gui-task-info');
+const dialogContent = (<gui-task-info />) as GuiTaskInfo;
+dialogContent.onFilesClick = (event: Event) => {
+  console.log(event.target);
+};
 const runningTasks = (
   <gui-task-list
     kind="running"
