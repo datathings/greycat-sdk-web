@@ -102,6 +102,7 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
+        // Array
         if (Array.isArray(this._value)) {
           const arr = this._value;
           const fragment = document.createDocumentFragment();
