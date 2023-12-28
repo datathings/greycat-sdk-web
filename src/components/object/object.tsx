@@ -168,7 +168,6 @@ export class GuiObject extends HTMLElement {
 
         // any non-native GreyCat object
         if (this._value instanceof GCObject && !this._value.$type.is_native) {
-          console.log('object: ', this._value);
           if (this._value.$attrs === undefined || this._value.$attrs.length === 0) {
             this.replaceChildren(<em>empty object</em>);
             return;
