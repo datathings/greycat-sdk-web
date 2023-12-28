@@ -1,5 +1,5 @@
 import { GreyCat, runtime, Value } from '@greycat/sdk';
-import { parseTaskParams, TaskStatusEnum } from '../utils.js';
+import { parseTaskArgs, TaskStatusEnum } from '../utils.js';
 
 type Property = { name: string; description: string };
 
@@ -124,7 +124,7 @@ export class GuiTask extends HTMLElement {
       if (this._taskIsBeingExecuted(taskStatus)) {
         throw new Error(`Cannot re-run the task since it's being already executed`);
       }
-      this._params = await parseTaskParams(this._greycat, this._task);
+      this._params = await parseTaskArgs(this._greycat, this._task);
       const newTask = await this._greycat.call<runtime.Task>(`${this._task.mod}::${this._task.fun}`, this._params);
       if (newTask) {
         this._updateTask(newTask);

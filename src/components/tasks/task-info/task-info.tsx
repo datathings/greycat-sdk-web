@@ -1,5 +1,5 @@
 import { GreyCat, runtime, Value, core } from '@greycat/sdk';
-import { parseTaskParams } from '../utils.js';
+import { parseTaskArgs } from '../utils.js';
 
 export interface TaskInfoLike extends runtime.Task {
   start?: core.time | null;
@@ -156,6 +156,7 @@ export class GuiTaskInfo extends HTMLElement {
       <tr>
         <td>Files</td>
         <td>
+          {/* TODO: Beket make it so that users can override that by providing there own callback 'onclick' */}
           <a href={prefixURI}>{new URL(prefixURI).pathname}</a>
         </td>
       </tr>,
@@ -207,7 +208,7 @@ export class GuiTaskInfo extends HTMLElement {
       if (!this._task || !taskStatus || this._taskIsBeingExecuted(taskStatus)) {
         return;
       }
-      this._params = (await parseTaskParams(this._greycat, this._task)) as Value[];
+      this._params = (await parseTaskArgs(this._greycat, this._task)) as Value[];
       const newTask = await this._greycat.call<runtime.Task>(
         `${this._task.mod}::${this._task.fun}`,
         this._params,

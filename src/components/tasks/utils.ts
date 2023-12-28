@@ -9,10 +9,10 @@ export enum TaskStatusEnum {
   ended,
 }
 
-export async function parseTaskParams(g: GreyCat, t: runtime.TaskInfo | runtime.Task): Promise<Value[]> {
+export async function parseTaskArgs(g: GreyCat, t: runtime.TaskInfo | runtime.Task): Promise<Value[]> {
   const params: Value[] = [];
 
-  const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/params.gcb`);
+  const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`);
   if (!response.ok) {
     throw new Error('Network response error');
   }
