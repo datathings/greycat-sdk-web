@@ -110,13 +110,13 @@ export class GuiObject extends HTMLElement {
           for (let i = 0; i < endIndex; i++) {
             fragment.appendChild(
               <>
-                 <div>
-                   <em>{i}</em>
-                 </div>
-                 <div>
-                   <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
-                 </div>
-               </>,
+                <div>
+                  <em>{i}</em>
+                </div>
+                <div>
+                  <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
+                </div>
+              </>,
             );
           }
 
