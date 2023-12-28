@@ -13,6 +13,10 @@ gui-object > article > .gui-object {
   padding: var(--spacing);
 }
 
+.gui-object > gui-table {
+  min-height: 400px;
+}
+
 /*
  * When not displaying a gui-table as direct child,
  * we align=start to keep object key/value stacked top
