@@ -11,6 +11,7 @@ export class GuiObject extends HTMLElement {
   private _value: unknown;
   private _nested = false;
   private _props: ObjectProps = {};
+  private _arrayExpandIndex = 25;
 
   connectedCallback() {
     this.className = 'gui-object';
@@ -101,34 +102,35 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
-        // Array
         if (Array.isArray(this._value)) {
           const arr = this._value;
-          if (arr.length === 0) {
-            this.style.gridTemplateColumns = 'auto';
-            this.replaceChildren(<em>empty array</em>);
-            return;
-          }
-
-          if (arr.length > 15) {
-            this.style.gridTemplateColumns = 'auto';
-            this.replaceChildren(<em>Array({arr.length})</em>);
-            return;
-          }
-
           const fragment = document.createDocumentFragment();
-          for (let i = 0; i < arr.length; i++) {
+          const endIndex = Math.min(this._arrayExpandIndex, arr.length);
+
+          for (let i = 0; i < endIndex; i++) {
             fragment.appendChild(
               <>
-                <div>
-                  <em>{i}</em>
-                </div>
-                <div>
-                  <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
-                </div>
-              </>,
+                 <div>
+                   <em>{i}</em>
+                 </div>
+                 <div>
+                   <gui-object value={arr[i]} {...Object.assign({}, this._props, { data: i })} />
+                 </div>
+               </>,
             );
           }
+
+          if (endIndex < arr.length) {
+            const expandLink = document.createElement('a');
+            expandLink.textContent = 'Show more ' + `(${arr.length})`;
+            expandLink.onclick = (event) => {
+                event.preventDefault();
+                this._arrayExpandIndex += 25;
+                this.update();
+            };
+            fragment.appendChild(expandLink);
+        }
+
           this.replaceChildren(fragment);
           return;
         }
@@ -166,6 +168,7 @@ export class GuiObject extends HTMLElement {
 
         // any non-native GreyCat object
         if (this._value instanceof GCObject && !this._value.$type.is_native) {
+          console.log('object: ', this._value);
           if (this._value.$attrs === undefined || this._value.$attrs.length === 0) {
             this.replaceChildren(<em>empty object</em>);
             return;
