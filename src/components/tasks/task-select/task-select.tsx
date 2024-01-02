@@ -2,16 +2,12 @@ import { AbiFunction, GreyCat } from '@greycat/sdk';
 
 export class GuiTaskSelect extends HTMLElement {
   private _greycat = greycat.default;
-  private _select = document.createElement('select');
-  private _selected: AbiFunction | null = null;
+  private _select = document.createElement('gui-searchable-select');
 
   constructor() {
     super();
 
-    this._select.addEventListener('change', (ev) => {
-      this._selected =
-        this._greycat.abi.fn_by_fqn.get((ev.target as HTMLOptionElement).value) ?? null;
-    });
+    this._select.placeholder = 'Select a task';
   }
 
   connectedCallback() {
@@ -24,44 +20,31 @@ export class GuiTaskSelect extends HTMLElement {
   }
 
   update() {
-    const fragment = document.createDocumentFragment();
+    const options = [];
     for (let i = 0; i < this._greycat.abi.functions.length; i++) {
       const fn = this._greycat.abi.functions[i];
       if (fn.is_task) {
-        const option = document.createElement('option');
-        option.value = fn.fqn;
-        option.textContent = fn.fqn;
-        fragment.appendChild(option);
+        options.push({ text: fn.fqn, value: fn.fqn });
       }
     }
-    this._select.replaceChildren(fragment);
-    this._select.prepend(<option selected>Select a task</option>);
+    this._select.options = options;
   }
 
   set selected(fn: AbiFunction | null) {
     if (fn === null) {
-      for (let i = 0; i < this._select.children.length; i++) {
-        const option = this._select.children[i] as HTMLOptionElement;
-        option.selected = false;
-      }
-      this._selected = null;
+      this._select.selected = undefined;
       return;
     }
 
-    for (let i = 0; i < this._select.children.length; i++) {
-      const option = this._select.children[i] as HTMLOptionElement;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if (option.value === fn.fqn) {
-        option.selected = true;
-        this._selected = fn;
-      } else {
-        option.selected = false;
-      }
-    }
+    this._select.selected = fn.fqn;
   }
 
   get selected() {
-    return this._selected;
+    const fqn = this._select.selected;
+    if (fqn) {
+      return this._greycat.abi.fn_by_fqn.get(fqn) ?? null;
+    }
+    return null;
   }
 
   set greycat(greycat: GreyCat) {

@@ -61,7 +61,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -83,7 +83,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -369,7 +369,15 @@ task task_with_params(name: String, age: int) {
 
 @expose
 task task_long_running() {
-  Runtime::sleep(1_min);
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: 60,
+  };
+  for (var i = 0; i < 60; i++) {
+    progress.update(i + 1);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(1_s);
+  }
 }
 
 @expose

@@ -8,13 +8,13 @@ await app.init();
 document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
-const dialogContent = document.createElement('gui-task-info');
+const info = document.createElement('gui-task-info');
 const runningTasks = (
   <gui-task-list
     kind="running"
     ontask-list-click={(ev) => {
       console.log('running clicked', ev.detail);
-      dialogContent.task = ev.detail;
+      info.setAttrs({ task: ev.detail });
       dialog.showModal();
     }}
   />
@@ -23,7 +23,8 @@ const taskHistory = (
   <gui-task-list
     kind="history"
     ontask-list-click={(ev) => {
-      dialogContent.task = ev.detail;
+      console.log('history clicked', ev.detail);
+      info.setAttrs({ task: ev.detail });
       dialog.showModal();
     }}
   />
@@ -36,10 +37,15 @@ const dialog = (
         <a href="#close" aria-label="Close" onclick={() => dialog.close()} className="close"></a>
         Selected task
       </header>
-      {dialogContent}
+      {info}
     </article>
   </dialog>
 ) as HTMLDialogElement;
+
+dialog.onclose = () => {
+  console.log('dialog closed');
+  info.stopPolling();
+};
 
 app.main.appendChild(
   <div role="list" style={{ gridTemplateRows: 'auto 1fr auto' }}>

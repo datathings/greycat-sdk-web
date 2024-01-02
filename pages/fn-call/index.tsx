@@ -62,7 +62,7 @@ app.main.replaceChildren(
             Call
           </a>
         </header>
-        <div className="container-fluid">{argumentsEl}</div>
+        {argumentsEl}
       </article>
       <article>
         <header>Function result</header>

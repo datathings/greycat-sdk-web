@@ -42,6 +42,8 @@ const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
 
 export class GuiTable extends HTMLElement {
+  static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+  
   private _table: TableLike | undefined;
   private _rows: Array<Cell[]> = [];
   private _thead = document.createElement('gui-thead');
@@ -360,7 +362,7 @@ export class GuiTable extends HTMLElement {
 
         let compare = 0;
         if (aType === 'string' && bType === 'string') {
-          compare = a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+          compare = GuiTable.COLLATOR.compare(a, b);
         } else {
           compare = a >= b ? 1 : -1;
         }
@@ -374,7 +376,6 @@ export class GuiTable extends HTMLElement {
 
     let rows = this._rows;
     if (this._filterText.length > 0 || this._filterColumns.find((s) => s && s.length > 0)) {
-      // BOTTLENECK, this creates GC work & copies for every render if a filter text is set
       rows = this._rows.filter((row) => this._filterRow(this._filterText, this._filterColumns, row));
       this.dispatchEvent(new TableFilterEvent(rows));
     }

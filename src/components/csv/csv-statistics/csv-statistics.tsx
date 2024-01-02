@@ -243,14 +243,24 @@ export class GuiCsvStatistics extends HTMLElement {
   showWordList(column: io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
+    let wTotal = 0;
+    let cTotal = 0n;
     for (const [word, count] of column.word_list) {
+      wTotal++;
       words.push(word);
       counts.push(count);
+      cTotal += BigInt(count);
     }
 
     const table = (
       <gui-table
-        table={{ cols: [words, counts], meta: [{ header: 'Word' }, { header: 'Count' }] }}
+        table={{
+          cols: [words, counts],
+          meta: [
+            { header: `Word (${wTotal})` },
+            { header: `Count (${cTotal})` },
+          ],
+        }}
       />
     ) as GuiTable;
 
