@@ -1,6 +1,6 @@
 import { TaskHandler, io } from '@greycat/sdk';
 import '../layout';
-import { GuiCsvStatistics } from '../../src';
+import { GuiCsvStatistics, GuiTable } from '../../src';
 
 const app = document.createElement('app-layout');
 app.title = 'Csv Analysis';
@@ -18,7 +18,7 @@ async function runAnalysis(filepath: string) {
       date_check_limit: null,
       date_formats: null,
       decimal_separator: null,
-      enum_limit: null,
+      enum_limit: 10_000,
       row_limit: null,
       separator: null,
       string_delimiter: null,
@@ -30,9 +30,26 @@ async function runAnalysis(filepath: string) {
   const stats = await greycat.default.getFile<io.CsvStatistics>(
     `${task.user_id}/tasks/${task.task_id}/result.gcb`,
   );
+  console.log('stats', stats);
+
+  sample.table = await io.CsvFormat.sample(
+    filepath,
+    io.CsvFormat.createFrom({
+      header_lines: 1,
+      decimal_separator: null,
+      separator: null,
+      string_delimiter: null,
+      thousands_separator: null,
+      columns: null,
+      columns_size: null,
+    }),
+    null,
+    null,
+  );
   return stats;
 }
 
+const sample = (<gui-table style={{ height: '400px' }} />) as GuiTable;
 const stats = await runAnalysis('./csv-analysis/data/small.csv');
 const csvStatistics = (<gui-csv-statistics statistics={stats} />) as GuiCsvStatistics;
 
@@ -67,6 +84,12 @@ app.main.appendChild(
         <strong>Statistics</strong>
       </label>
       {csvStatistics}
+    </fieldset>
+    <fieldset>
+      <label>
+        <strong>Sample</strong>
+      </label>
+      {sample}
     </fieldset>
   </div>,
 );

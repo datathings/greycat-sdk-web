@@ -6,10 +6,23 @@ div[role='list'] {
   row-gap: var(--spacing);
 }
 
-div[role='list'] > * {
+div[role='list'] > :not(dialog[open]) {
   min-width: 0px;
 }
 
 .text-muted {
   color: var(--muted-color);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing);
+  > a {
+    font-weight: normal;
+  }
+
+  > button {
+    width: fit-content;
+    margin-bottom: 0;
+  }
 }
