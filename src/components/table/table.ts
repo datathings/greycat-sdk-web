@@ -113,7 +113,7 @@ export class GuiTable extends HTMLElement {
         this._tbody.computeRowHeight();
       }
       const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
-      
+
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
       } else {
@@ -602,6 +602,8 @@ class GuiTableHeadCell extends HTMLElement {
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' || ev.key === 'Enter') {
         this.closeDropdown();
+        ev.preventDefault();
+        ev.stopPropagation();
       }
     });
 
