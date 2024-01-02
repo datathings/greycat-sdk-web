@@ -43,7 +43,7 @@ export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
 
 export class GuiTable extends HTMLElement {
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
-  
+
   private _table: TableLike | undefined;
   private _rows: Array<Cell[]> = [];
   private _thead = document.createElement('gui-thead');
@@ -110,6 +110,12 @@ export class GuiTable extends HTMLElement {
 
     this.addEventListener('scroll', () => {
       const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+      if (isNaN(fromRowIdx)) {
+        this._prevFromRowIdx = 0;
+        this.update();
+        return;
+      }
+
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
       } else {
@@ -305,10 +311,12 @@ export class GuiTable extends HTMLElement {
     });
 
     const oResize = new ResizeObserver(() => {
-      // recompute the available space for the rows
-      this._tbody.computeRowHeight();
-      // update the whole table
-      this.update();
+      if (this.isConnected) {
+        // recompute the available space for the rows
+        this._tbody.computeRowHeight();
+        // update the whole table
+        this.update();
+      }
     });
     oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
