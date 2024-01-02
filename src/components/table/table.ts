@@ -109,13 +109,11 @@ export class GuiTable extends HTMLElement {
     });
 
     this.addEventListener('scroll', () => {
-      const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
-      if (isNaN(fromRowIdx)) {
-        this._prevFromRowIdx = 0;
-        this.update();
-        return;
+      if (this._tbody.rowHeight === 0) {
+        this._tbody.computeRowHeight();
       }
-
+      const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+      
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
       } else {
@@ -311,12 +309,10 @@ export class GuiTable extends HTMLElement {
     });
 
     const oResize = new ResizeObserver(() => {
-      if (this.isConnected) {
-        // recompute the available space for the rows
-        this._tbody.computeRowHeight();
-        // update the whole table
-        this.update();
-      }
+      // recompute the available space for the rows
+      this._tbody.computeRowHeight();
+      // update the whole table
+      this.update();
     });
     oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
@@ -326,6 +322,7 @@ export class GuiTable extends HTMLElement {
   }
 
   disconnectedCallback() {
+    this._prevFromRowIdx = 0;
     this._disposer.dispose();
     this.replaceChildren(); // cleanup
   }
