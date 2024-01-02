@@ -1,7 +1,9 @@
 import { io } from '@greycat/sdk';
 import type { GuiTable } from '../../index.js';
 
+
 export class GuiCsvStatistics extends HTMLElement {
+  private static readonly MAX_CONTENT_LENGTH = 50;
   private _stats: io.CsvStatistics | null | undefined;
   private _main = document.createElement('div');
   private _dialog = document.createElement('dialog');
@@ -36,7 +38,11 @@ export class GuiCsvStatistics extends HTMLElement {
               <th></th>
               {this._stats.columns.map((c) => (
                 <th>
-                  <b>{c.name}</b>
+                  <b
+                    title={c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.name : ''}
+                  >
+                    {c.name}
+                  </b>
                 </th>
               ))}
             </tr>
@@ -183,7 +189,11 @@ export class GuiCsvStatistics extends HTMLElement {
             <tr>
               <td>Example</td>
               {this._stats.columns.map((c) => (
-                <td>{c.example}</td>
+                <td
+                  title={typeof c.example === 'string' && c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.example : ''}
+                >
+                  {c.example}
+                </td>
               ))}
             </tr>
             <tr>
