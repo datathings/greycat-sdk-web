@@ -1,7 +1,6 @@
 import { io } from '@greycat/sdk';
 import type { GuiTable } from '../../index.js';
 
-
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;
   private _stats: io.CsvStatistics | null | undefined;
