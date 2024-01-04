@@ -19,8 +19,6 @@ export class GuiTaskInfo extends HTMLElement {
   private _taskCancelBtn = document.createElement('button');
   private _taskDetailsDiv = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
-  private _onFilesClick: ((ev: Event) => void) | null = null;
-
 
   constructor() {
     super();
@@ -83,10 +81,6 @@ export class GuiTaskInfo extends HTMLElement {
   get task() {
     return this._task;
   }
-
-  set onFilesClick(callback: (ev: Event) => void) {
-    this._onFilesClick = callback;
-}
 
   async updateInfo(): Promise<void> {
     if (!this._task) {
@@ -162,15 +156,16 @@ export class GuiTaskInfo extends HTMLElement {
       <tr>
         <td>Files</td>
         <td>
-          <a href="#"
-            onclick={(ev: MouseEvent) => {
-              ev.preventDefault();
-              if (this._onFilesClick) {
-                this._onFilesClick(ev);
-              } else {
+          <a
+            href="#"
+            onclick={() => {
+              const doDefault = this.dispatchEvent(new GuiFilesClickEvent());
+              console.log({ doDefault });
+              if (doDefault) {
                 window.location.href = prefixURI;
               }
-            }}>
+            }}
+          >
             {new URL(prefixURI).pathname}
           </a>
         </td>
@@ -265,9 +260,20 @@ export class GuiTaskInfo extends HTMLElement {
   }
 }
 
+export class GuiFilesClickEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-files-click';
+  constructor() {
+    super(GuiFilesClickEvent.NAME, { cancelable: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-task-info': GuiTaskInfo;
+  }
+
+  interface HTMLElementEventMap {
+    'gui-files-click': GuiFilesClickEvent;
   }
 
   namespace JSX {
@@ -275,7 +281,16 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-task-info': GreyCat.Element<GuiTaskInfo>;
+      'gui-task-info': GreyCat.Element<
+        GuiTaskInfo & {
+          'ongui-files-click': (
+            this: GlobalEventHandlers,
+            ev: GuiFilesClickEvent,
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }

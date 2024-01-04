@@ -8,10 +8,16 @@ await app.init();
 document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
-const dialogContent = (<gui-task-info />) as GuiTaskInfo;
-dialogContent.onFilesClick = (event: Event) => {
-  console.log(event.target);
-};
+const dialogContent = (
+  <gui-task-info
+    ongui-files-click={(ev) => {
+      console.log('clicked on files', ev);
+      // use preventDefault if you want to process the click differently that the default behavior
+      // ev.preventDefault();
+    }}
+  />
+) as GuiTaskInfo;
+
 const runningTasks = (
   <gui-task-list
     kind="running"
