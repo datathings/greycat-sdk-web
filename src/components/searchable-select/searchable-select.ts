@@ -127,6 +127,15 @@ export class GuiSearchableSelect extends HTMLElement {
     this._input.disabled = disabled;
   }
 
+  get selected() {
+    const item = this._list.querySelector('.selected');
+    if (item) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (item as any).__value;
+    }
+    return;
+  }
+
   /**
    * Changes the currently selected item using the `value` for comparison.
    *

@@ -2,6 +2,7 @@ import { io } from '@greycat/sdk';
 import type { GuiTable } from '../../index.js';
 
 export class GuiCsvStatistics extends HTMLElement {
+  private static readonly MAX_CONTENT_LENGTH = 50;
   private _stats: io.CsvStatistics | null | undefined;
   private _main = document.createElement('div');
   private _dialog = document.createElement('dialog');
@@ -36,7 +37,11 @@ export class GuiCsvStatistics extends HTMLElement {
               <th></th>
               {this._stats.columns.map((c) => (
                 <th>
-                  <b>{c.name}</b>
+                  <b
+                    title={c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.name : ''}
+                  >
+                    {c.name}
+                  </b>
                 </th>
               ))}
             </tr>
@@ -183,7 +188,11 @@ export class GuiCsvStatistics extends HTMLElement {
             <tr>
               <td>Example</td>
               {this._stats.columns.map((c) => (
-                <td>{c.example}</td>
+                <td
+                  title={typeof c.example === 'string' && c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.example : ''}
+                >
+                  {c.example}
+                </td>
               ))}
             </tr>
             <tr>
@@ -227,7 +236,13 @@ export class GuiCsvStatistics extends HTMLElement {
               {this._stats.columns.map((c) => {
                 return (
                   <td>
-                    <a href="#" onclick={() => this.showWordList(c)}>
+                    <a
+                      href="#"
+                      onclick={(ev) => {
+                        ev.preventDefault();
+                        this.showWordList(c);
+                      }}
+                    >
                       Show
                     </a>
                   </td>
@@ -243,14 +258,21 @@ export class GuiCsvStatistics extends HTMLElement {
   showWordList(column: io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
+    let wTotal = 0;
+    let cTotal = 0n;
     for (const [word, count] of column.word_list) {
+      wTotal++;
       words.push(word);
       counts.push(count);
+      cTotal += BigInt(count);
     }
 
     const table = (
       <gui-table
-        table={{ cols: [words, counts], meta: [{ header: 'Word' }, { header: 'Count' }] }}
+        table={{
+          cols: [words, counts],
+          meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
+        }}
       />
     ) as GuiTable;
 

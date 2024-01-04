@@ -114,6 +114,7 @@ export class GuiObject extends HTMLElement {
             <gui-table
               table={{ cols: [indexes, values], meta: [{ header: 'Index' }, { header: 'Value' }] }}
               columnsWidths={[135]}
+              cellProps={(_, value) => ({ value, ...this._props })}
             />,
           );
           return;
@@ -146,7 +147,9 @@ export class GuiObject extends HTMLElement {
         // core.Table special handling
         if (this._value instanceof core.Table) {
           this.style.gridTemplateColumns = 'auto';
-          this.replaceChildren(<gui-table table={this._value} />);
+          this.replaceChildren(
+            <gui-table table={this._value} cellProps={(_, value) => ({ value, ...this._props })} />,
+          );
           return;
         }
 

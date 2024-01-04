@@ -75,7 +75,10 @@ function proxy(): PluginOption {
           const isRpc = (!isFileApi && (req.method === 'POST')) || (req.method === 'HEAD' && req.originalUrl === '/runtime::Runtime::abi');
           if (isFileApi || isRpc) {
             // proxy to GreyCat
-            proxy.web(req, res);
+            proxy.web(req, res, {}, (err) => {
+              console.error(`${err.code}: make sure GreyCat is started and listening at ${proxy.options.target}`);
+              return;
+            });
             return;
           }
         }

@@ -6,6 +6,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["DOM", "ES2022"],
+    "types": [],
     "moduleDetection": "force",
 
     "sourceMap": false,

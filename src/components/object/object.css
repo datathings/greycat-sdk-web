@@ -14,7 +14,7 @@ gui-object > article > .gui-object {
 }
 
 .gui-object > gui-table {
-  min-height: 400px;
+  min-height: 250px;
 }
 
 /*

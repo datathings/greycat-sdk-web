@@ -22,7 +22,15 @@ export class GuiUserRoles extends HTMLElement {
           <th>Name</th>
           <th>Permissions</th>
           <th>
-            <button onclick={() => this._createRole()}>Create</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._createRole();
+              }}
+            >
+              Create
+            </a>
           </th>
         </tr>
       </thead>,
@@ -205,7 +213,15 @@ export class GuiUserRoles extends HTMLElement {
             ))}
           </td>
           <td>
-            <button onclick={() => this._editRole(role)}>✎</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._editRole(role);
+              }}
+            >
+              Edit
+            </a>
           </td>
         </tr>,
       );

@@ -1,4 +1,4 @@
-import type { GuiTaskList, GuiTaskSelect, GuiTaskInfo } from '../../src';
+import type { GuiTaskList, GuiTaskSelect } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -8,22 +8,18 @@ await app.init();
 document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
-const dialogContent = (
-  <gui-task-info
-    ongui-files-click={(ev) => {
-      console.log('clicked on files', ev);
-      // use preventDefault if you want to process the click differently that the default behavior
-      // ev.preventDefault();
-    }}
-  />
-) as GuiTaskInfo;
-
+const info = document.createElement('gui-task-info');
+info.addEventListener('gui-files-click', (ev) => {
+  console.log('clicked on files', ev);
+  // use preventDefault if you want to process the click differently that the default behavior
+  // ev.preventDefault();
+});
 const runningTasks = (
   <gui-task-list
     kind="running"
     ontask-list-click={(ev) => {
       console.log('running clicked', ev.detail);
-      dialogContent.task = ev.detail;
+      info.task = ev.detail;
       dialog.showModal();
     }}
   />
@@ -32,20 +28,21 @@ const taskHistory = (
   <gui-task-list
     kind="history"
     ontask-list-click={(ev) => {
-      dialogContent.task = ev.detail;
+      console.log('history clicked', ev.detail);
+      info.task = ev.detail;
       dialog.showModal();
     }}
   />
 ) as GuiTaskList;
 
 const dialog = (
-  <dialog>
+  <dialog onclose={() => info.stopPolling()}>
     <article>
       <header>
         <a href="#close" aria-label="Close" onclick={() => dialog.close()} className="close"></a>
         Selected task
       </header>
-      {dialogContent}
+      {info}
     </article>
   </dialog>
 ) as HTMLDialogElement;

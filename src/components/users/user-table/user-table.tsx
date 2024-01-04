@@ -53,7 +53,15 @@ export class GuiUserTable extends HTMLElement {
           <th>Activated</th>
           <th>Groups</th>
           <th>
-            <button onclick={() => this._createUser()}>Create</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._createUser();
+              }}
+            >
+              Create
+            </a>
           </th>
         </tr>
       </thead>,
@@ -348,7 +356,15 @@ export class GuiUserTable extends HTMLElement {
             ))}
           </td>
           <td>
-            <button onclick={() => this._editUser(user)}>✎</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._editUser(user);
+              }}
+            >
+              Edit
+            </a>
           </td>
         </tr>,
       );

@@ -1,4 +1,4 @@
-import { GreyCat, runtime, Value, core } from '@greycat/sdk';
+import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
 
 export interface TaskInfoLike extends runtime.Task {
@@ -14,37 +14,26 @@ export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
   private _task: TaskInfoLike | null = null;
   private _params: Value[] = [];
-  private _taskNameDiv = document.createElement('div');
-  private _taskRerunBtn = document.createElement('button');
-  private _taskCancelBtn = document.createElement('button');
-  private _taskDetailsDiv = document.createElement('tbody');
+  private _title = document.createTextNode('');
+  private _btn = document.createElement('button');
+  private _details = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
+  private _handler: TaskHandler | null = null;
 
   constructor() {
     super();
 
     this._lastUpdate.textContent = new Date().toISOString();
-
-    this._taskRerunBtn = document.createElement('button');
-    this._taskRerunBtn.textContent = 'Re-run';
-    this._taskRerunBtn.addEventListener('click', () => this._taskReRunButtonHandler());
-
-    this._taskCancelBtn.classList.add('outline');
-    this._taskCancelBtn.addEventListener('click', () => this._taskCancelButtonHandler());
-    this._taskCancelBtn.textContent = 'Cancel';
   }
 
   connectedCallback() {
-    const content = (
+    this.appendChild(
       <article>
         <header>
-          {this._taskNameDiv}
-          <div className="grid">
-            {this._taskRerunBtn}
-            {this._taskCancelBtn}
-          </div>
+          {this._title}
+          <div className="header-actions">{this._btn}</div>
         </header>
-        <table role="grid">{this._taskDetailsDiv}</table>
+        <table role="grid">{this._details}</table>
         <footer>
           <a
             href="#"
@@ -57,10 +46,12 @@ export class GuiTaskInfo extends HTMLElement {
           </a>
           {this._lastUpdate}
         </footer>
-      </article>
+      </article>,
     );
 
-    this.appendChild(content);
+    if (this._task) {
+      this.update();
+    }
   }
 
   disconnectedCallback() {
@@ -73,13 +64,42 @@ export class GuiTaskInfo extends HTMLElement {
 
   set task(t: TaskInfoLike | null) {
     this._task = t;
-    if (this._task) {
-      this._updateTaskInfo(this._task);
-    }
+    this.update();
   }
 
   get task() {
     return this._task;
+  }
+
+  setAttrs({
+    task = this._task,
+    greycat = this._greycat,
+  }: Partial<{ task: TaskInfoLike | null; greycat: GreyCat }>) {
+    this._task = task;
+    this._greycat = greycat;
+    this.update();
+  }
+
+  async update(): Promise<void> {
+    if (!this._task || this._handler) {
+      return;
+    }
+
+    if (this._isAlive(this._task.status)) {
+      this._handler = new TaskHandler(this._task);
+      await this._handler.start(2000, (info) => {
+        this._updateTaskInfo(info);
+      });
+      this._handler = null;
+    }
+    this._updateTaskInfo(this._task);
+  }
+
+  /**
+   * Cleans up polling if any
+   */
+  stopPolling(): void {
+    this._handler?.stop();
   }
 
   async updateInfo(): Promise<void> {
@@ -95,24 +115,27 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   private _updateTaskInfo(t: TaskInfoLike) {
+    this._lastUpdate.textContent = new Date().toISOString();
     this._task = t;
     if (t.type) {
-      this._taskNameDiv.textContent = `${t.mod}::${t.type}::${t.fun}`;
+      this._title.textContent = `${t.mod}::${t.type}::${t.fun}`;
     } else {
-      this._taskNameDiv.textContent = `${t.mod}::${t.fun}`;
+      this._title.textContent = `${t.mod}::${t.fun}`;
     }
 
-    if (this._taskIsBeingExecuted(t.status)) {
-      this._taskRerunBtn.disabled = true;
-      this._taskCancelBtn.disabled = false;
+    if (this._isAlive(t.status)) {
+      this._btn.textContent = 'Cancel';
+      this._btn.classList.add('outline');
+      this._btn.onclick = () => this.cancel();
     } else {
-      this._taskRerunBtn.disabled = false;
-      this._taskCancelBtn.disabled = true;
+      this._btn.textContent = 'Re-run';
+      this._btn.classList.remove('outline');
+      this._btn.onclick = () => this.run();
     }
 
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}/`;
 
-    this._taskDetailsDiv.replaceChildren(
+    this._details.replaceChildren(
       <tr>
         <td>Status</td>
         <td>{t.status.key}</td>
@@ -135,7 +158,7 @@ export class GuiTaskInfo extends HTMLElement {
       </tr>,
       <tr>
         <td>Progress</td>
-        <td>{t.progress ?? '<none>'}</td>
+        <td>{t.progress ? (t.progress * 100).toFixed() + '%' : '<none>'}</td>
       </tr>,
       <tr>
         <td>Remaining</td>
@@ -160,7 +183,6 @@ export class GuiTaskInfo extends HTMLElement {
             href="#"
             onclick={() => {
               const doDefault = this.dispatchEvent(new GuiFilesClickEvent());
-              console.log({ doDefault });
               if (doDefault) {
                 window.location.href = prefixURI;
               }
@@ -176,13 +198,17 @@ export class GuiTaskInfo extends HTMLElement {
       this._task.status === runtime.TaskStatus.running(this._greycat) ||
       this._task.status === runtime.TaskStatus.waiting(this._greycat)
     ) {
-      this._taskCancelBtn.disabled = false;
+      this._btn.textContent = 'Cancel';
+      this._btn.classList.add('outline');
+      this._btn.onclick = () => this.cancel();
     } else {
-      this._taskCancelBtn.disabled = true;
+      this._btn.textContent = 'Re-run';
+      this._btn.classList.remove('outline');
+      this._btn.onclick = () => this.run();
     }
   }
 
-  private async _getTaskStatus(): Promise<runtime.TaskStatus | null> {
+  async status(): Promise<runtime.TaskStatus | null> {
     if (!this._task) {
       return null;
     }
@@ -202,20 +228,10 @@ export class GuiTaskInfo extends HTMLElement {
     return null;
   }
 
-  private _taskIsBeingExecuted(taskStatus: runtime.TaskStatus): boolean {
-    if (
-      taskStatus === runtime.TaskStatus.running(this._greycat) ||
-      taskStatus === runtime.TaskStatus.waiting(this._greycat)
-    ) {
-      return true;
-    }
-    return false;
-  }
-
-  private async _taskReRunButtonHandler() {
+  async run() {
     try {
-      const taskStatus = await this._getTaskStatus();
-      if (!this._task || !taskStatus || this._taskIsBeingExecuted(taskStatus)) {
+      const taskStatus = await this.status();
+      if (!this._task || !taskStatus || this._isAlive(taskStatus)) {
         return;
       }
       this._params = (await parseTaskArgs(this._greycat, this._task)) as Value[];
@@ -223,35 +239,44 @@ export class GuiTaskInfo extends HTMLElement {
         `${this._task.mod}::${this._task.fun}`,
         this._params,
       );
-      const newTaskInfo = await runtime.Task.info(newTask.user_id, newTask.task_id, this._greycat);
-      if (newTaskInfo) {
-        this._updateTaskInfo(newTaskInfo);
-      }
+      this._task = newTask;
+      this.update();
     } catch (error) {
       this._handleError(error as Error);
     }
   }
 
-  private async _taskCancelButtonHandler() {
-    try {
-      const taskStatus = await this._getTaskStatus();
-      if (!this._task || !taskStatus || !this._taskIsBeingExecuted(taskStatus)) {
-        return;
-      }
-      const isCancelled = await runtime.Task.cancel(this._task.task_id, this._greycat);
-      if (isCancelled) {
-        const cancelledTaskInfo = await runtime.Task.info(
-          this._task.user_id,
-          this._task.task_id,
-          this._greycat,
-        );
-        if (cancelledTaskInfo) {
-          this._updateTaskInfo(cancelledTaskInfo);
-        }
-      }
-    } catch (error) {
-      this._handleError(error as Error);
+  async cancel() {
+    if (!this._task) {
+      return;
     }
+    if (!this._handler) {
+      this._handler = new TaskHandler(this._task);
+    }
+    try {
+      this._btn.ariaBusy = 'true';
+      const info = await this._handler.cancel();
+      if (info) {
+        this._updateTaskInfo(info);
+      }
+    } catch (err) {
+      this._handleError(err);
+    } finally {
+      this._btn.ariaBusy = null;
+    }
+  }
+
+  /**
+   * If the task is 'running' or 'waiting' it is considered 'alive'
+   */
+  private _isAlive(status: runtime.TaskStatus): boolean {
+    if (
+      status === runtime.TaskStatus.running(this._greycat) ||
+      status === runtime.TaskStatus.waiting(this._greycat)
+    ) {
+      return true;
+    }
+    return false;
   }
 
   private _handleError(error: unknown) {

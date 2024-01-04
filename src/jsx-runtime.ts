@@ -40,6 +40,12 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
         } else {
           element.classList.add(value as string);
         }
+      } else if (key === 'style') {
+        if (typeof value === 'string') {
+          element.style.cssText = value;
+        } else {
+          Object.assign(element.style, value);
+        }
       }
     }
     return element;
