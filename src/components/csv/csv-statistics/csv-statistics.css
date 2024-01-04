@@ -3,6 +3,10 @@ gui-csv-statistics {
 
   table > thead > tr > th,
   table > tbody > tr > td {
+    max-width: 150px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     border-right: var(--border-width) solid var(--table-border-color);
   }
 
