@@ -64,9 +64,7 @@ export class GuiTaskInfo extends HTMLElement {
 
   set task(t: TaskInfoLike | null) {
     this._task = t;
-    if (this._task) {
-      this._updateTaskInfo(this._task);
-    }
+    this.update();
   }
 
   get task() {
@@ -94,6 +92,7 @@ export class GuiTaskInfo extends HTMLElement {
       });
       this._handler = null;
     }
+    this._updateTaskInfo(this._task);
   }
 
   /**
@@ -180,7 +179,17 @@ export class GuiTaskInfo extends HTMLElement {
       <tr>
         <td>Files</td>
         <td>
-          <a href={prefixURI}>{new URL(prefixURI).pathname}</a>
+          <a
+            href="#"
+            onclick={() => {
+              const doDefault = this.dispatchEvent(new GuiFilesClickEvent());
+              if (doDefault) {
+                window.location.href = prefixURI;
+              }
+            }}
+          >
+            {new URL(prefixURI).pathname}
+          </a>
         </td>
       </tr>,
     );
@@ -276,9 +285,20 @@ export class GuiTaskInfo extends HTMLElement {
   }
 }
 
+export class GuiFilesClickEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-files-click';
+  constructor() {
+    super(GuiFilesClickEvent.NAME, { cancelable: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-task-info': GuiTaskInfo;
+  }
+
+  interface HTMLElementEventMap {
+    'gui-files-click': GuiFilesClickEvent;
   }
 
   namespace JSX {
@@ -286,7 +306,16 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-task-info': GreyCat.Element<GuiTaskInfo>;
+      'gui-task-info': GreyCat.Element<
+        GuiTaskInfo & {
+          'ongui-files-click': (
+            this: GlobalEventHandlers,
+            ev: GuiFilesClickEvent,
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }

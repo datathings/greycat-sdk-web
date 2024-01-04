@@ -9,12 +9,17 @@ document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
 const info = document.createElement('gui-task-info');
+info.addEventListener('gui-files-click', (ev) => {
+  console.log('clicked on files', ev);
+  // use preventDefault if you want to process the click differently that the default behavior
+  // ev.preventDefault();
+});
 const runningTasks = (
   <gui-task-list
     kind="running"
     ontask-list-click={(ev) => {
       console.log('running clicked', ev.detail);
-      info.setAttrs({ task: ev.detail });
+      info.task = ev.detail;
       dialog.showModal();
     }}
   />
@@ -24,14 +29,14 @@ const taskHistory = (
     kind="history"
     ontask-list-click={(ev) => {
       console.log('history clicked', ev.detail);
-      info.setAttrs({ task: ev.detail });
+      info.task = ev.detail;
       dialog.showModal();
     }}
   />
 ) as GuiTaskList;
 
 const dialog = (
-  <dialog>
+  <dialog onclose={() => info.stopPolling()}>
     <article>
       <header>
         <a href="#close" aria-label="Close" onclick={() => dialog.close()} className="close"></a>
@@ -41,11 +46,6 @@ const dialog = (
     </article>
   </dialog>
 ) as HTMLDialogElement;
-
-dialog.onclose = () => {
-  console.log('dialog closed');
-  info.stopPolling();
-};
 
 app.main.appendChild(
   <div role="list" style={{ gridTemplateRows: 'auto 1fr auto' }}>
