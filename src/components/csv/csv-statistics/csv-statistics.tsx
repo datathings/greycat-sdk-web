@@ -227,7 +227,13 @@ export class GuiCsvStatistics extends HTMLElement {
               {this._stats.columns.map((c) => {
                 return (
                   <td>
-                    <a href="#" onclick={() => this.showWordList(c)}>
+                    <a
+                      href="#"
+                      onclick={(ev) => {
+                        ev.preventDefault();
+                        this.showWordList(c);
+                      }}
+                    >
                       Show
                     </a>
                   </td>
@@ -256,10 +262,7 @@ export class GuiCsvStatistics extends HTMLElement {
       <gui-table
         table={{
           cols: [words, counts],
-          meta: [
-            { header: `Word (${wTotal})` },
-            { header: `Count (${cTotal})` },
-          ],
+          meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
         }}
       />
     ) as GuiTable;

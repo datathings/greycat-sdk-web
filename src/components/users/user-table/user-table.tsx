@@ -53,7 +53,13 @@ export class GuiUserTable extends HTMLElement {
           <th>Activated</th>
           <th>Groups</th>
           <th>
-            <a href="#" onclick={() => this._createUser()}>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._createUser();
+              }}
+            >
               Create
             </a>
           </th>
@@ -350,7 +356,13 @@ export class GuiUserTable extends HTMLElement {
             ))}
           </td>
           <td>
-            <a href="#" onclick={() => this._editUser(user)}>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._editUser(user);
+              }}
+            >
               Edit
             </a>
           </td>
