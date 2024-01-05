@@ -19,6 +19,14 @@ export type SerieWithOptions = Serie & SerieOptions;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
+export type Cursor = {
+  x: number;
+  y: number;
+  startX: number;
+  startY: number;
+  selection: boolean;
+};
+
 export type SelectionOptions = {
   /**
    * If a selection is smallr than this value in pixels it will be ignored.
@@ -43,10 +51,12 @@ export type Tooltip = {
    *
    * *If this is defined, the default tooltip will not display.*
    *
+   * **This method will be called in the `requestAnimationFrame(loop)` therefore the less work it does the better**
+   *
    * @param data
    * @returns
    */
-  render?: (data: SerieData[]) => void;
+  render?: (data: SerieData[], cursor: Cursor) => void;
 };
 
 export type CommonAxis = {

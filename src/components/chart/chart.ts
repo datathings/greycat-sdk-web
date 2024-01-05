@@ -12,18 +12,11 @@ import {
   SerieOptions,
   SelectionOptions,
   BarSerie,
+  Cursor,
 } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
-
-type Cursor = {
-  x: number;
-  y: number;
-  startX: number;
-  startY: number;
-  selection: boolean;
-};
 
 type ComputedState = {
   leftAxes: number;
@@ -712,10 +705,12 @@ export class GuiChart extends HTMLElement {
           ...s,
         } satisfies SerieData;
       });
+      // we need to give a clone of the cursor because we don't want users to mutate our own version of it
+      const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
-      this._config.tooltip?.render?.(data);
+      this._config.tooltip?.render?.(data, cursor);
       // dispatch event
-      this.dispatchEvent(new GuiChartCursorEvent(data));
+      this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
     }
 
     if (updateSelection && this._config.selection !== false) {
@@ -1309,11 +1304,12 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
 }
 
 /**
- * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ * - `detail.cursor` contains the current cursor info
  */
-export class GuiChartCursorEvent extends CustomEvent<SerieData[]> {
-  constructor(data: SerieData[]) {
-    super(CURSOR_EVENT_TYPE, { detail: data, bubbles: true });
+export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[], cursor: Cursor }> {
+  constructor(data: SerieData[], cursor: Cursor) {
+    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }
 }
 
