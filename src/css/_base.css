@@ -34,6 +34,8 @@
 
   --table-border-color: rgba(var(--text-2), 0.2);
 
+  --border-width: 2px;
+
   --block-spacing-vertical: var(--spacing);
   --block-spacing-horizontal: var(--spacing);
 
