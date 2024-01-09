@@ -6,16 +6,23 @@
   const chartEl = document.createElement('gui-chart');
   const boxplot = await greycat.default.call<core.Table>('project::boxplot_float');
 
+  //Vertical Example
   chartEl.setConfig({
     table: { cols: [[]] },
     xAxis: {
       scale: 'linear',
+      min: 0,
+      max: 10,
+      ticks: [],
     },
     yAxes: {
       left: {
-        position: 'left',
+        min: boxplot.min,
+        max: boxplot.max,
       },
     },
+    selection: false,
+    cursor: false,
     series: [
       {
         type: 'custom',
@@ -45,6 +52,53 @@
       },
     ],
   });
+  
+  //Horizontal Example
+  chartEl.setConfig({
+    table: { cols: [[]] },
+    series: [
+      {
+        type: 'custom',
+        yAxis: 'left',
+        yCol: 0,
+        hideInTooltip: true,
+        draw(ctx, series, xScale, yScale) {
+          const boxPlotCanvas: BoxPlotCanvas = {
+            max: xScale(boxplot.max),
+            median: xScale(boxplot.percentile50),
+            min: xScale(boxplot.min),
+            q1: xScale(boxplot.percentile25),
+            q3: xScale(boxplot.percentile75),
+            crossValue: yScale(5),
+          };
+
+          const boxPlotOptions: BoxPlotOptions = {
+            width: 200,
+            iqrColor: series.color,
+            whiskerColor: series.color,
+            medianColor: series.color,
+            orientation: 'horizontal',
+          };
+
+          ctx.boxPlot(boxPlotCanvas, boxPlotOptions);
+        },
+      },
+    ],
+    xAxis: {
+      scale: 'linear',
+      min: boxplot.min,
+      max: boxplot.max,
+    },
+    yAxes: {
+      left: {
+        min: 0,
+        max: 10,
+        ticks: [],
+      },
+    },
+    selection: false,
+    cursor: false,
+  })
   ```
 
 ## Recommended way of providing boxplot into custom gui-chart (boxplot) web component
