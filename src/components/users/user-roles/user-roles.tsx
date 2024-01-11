@@ -56,8 +56,19 @@ export class GuiUserRoles extends HTMLElement {
     this.render();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set roles(roles: runtime.UserRole[]) {
-    this._roles = roles.sort((a, b) =>
+    this.value = roles;
+  }
+
+  get value() {
+    return this._roles;
+  }
+
+  set value(value: runtime.UserRole[]) {
+    this._roles = Array.from(value).sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
     );
     this.render();

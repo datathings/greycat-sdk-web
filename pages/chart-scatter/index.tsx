@@ -61,6 +61,8 @@ chart.setConfig({
       type: 'scatter',
       yAxis: 'left',
       yCol: 0,
+      width: 3,
+      markerWidth: 5,
     },
   ],
   xAxis: {

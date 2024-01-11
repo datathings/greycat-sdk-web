@@ -20,7 +20,7 @@ app.main.appendChild(
 
     <gui-tab>Tab B</gui-tab>
     <gui-panel data-tab="Tab B">
-      <gui-table table={table} />
+      <gui-table value={table} />
     </gui-panel>
 
     <gui-tab>Tab C</gui-tab>

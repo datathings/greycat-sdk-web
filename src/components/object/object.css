@@ -1,12 +1,22 @@
 gui-object {
   --gui-object-font-size: var(--font-size);
   --gui-object-font-family: var(--font-family);
+  --gui-object-table-min-height: 400px;
 }
 
 .gui-object {
   display: grid;
+}
+
+.gui-object.gui-object-grid {
+  align-content: start;
   grid-template-columns: auto 1fr;
   column-gap: calc(var(--spacing) * 2);
+}
+
+gui-object > article {
+  display: grid;
+  grid-template-rows: auto 1fr;
 }
 
 gui-object > article > .gui-object {
@@ -15,14 +25,6 @@ gui-object > article > .gui-object {
 
 .gui-object > gui-table {
   min-height: 250px;
-}
-
-/*
- * When not displaying a gui-table as direct child,
- * we align=start to keep object key/value stacked top
- */
-gui-object:not(:has(> gui-table)) {
-  align-content: start;
 }
 
 gui-object .gui-object-value > details {

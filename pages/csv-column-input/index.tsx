@@ -27,9 +27,6 @@ app.main.appendChild(
           values: null,
           encoder: null,
         })}
-        onchange={function () {
-          console.log('string', this.value);
-        }}
       />
       <div className="placeholder">
         {offset}...{(offset += 2) - 1}
@@ -40,9 +37,6 @@ app.main.appendChild(
           mandatory: true,
           offset: offset++,
         })}
-        onchange={function () {
-          console.log('int', this.value);
-        }}
       />
       <gui-csv-column-input
         value={io.CsvColumnFloat.createFrom({
@@ -50,9 +44,6 @@ app.main.appendChild(
           mandatory: true,
           offset: offset++,
         })}
-        onchange={function () {
-          console.log('float', this.value);
-        }}
       />
       <div className="placeholder">{offset++}</div>
       <gui-csv-column-input
@@ -62,9 +53,6 @@ app.main.appendChild(
           offset: offset++,
           unit: core.DurationUnit.minutes(),
         })}
-        onchange={function () {
-          console.log('time', this.value);
-        }}
       />
       <gui-csv-column-input
         value={io.CsvColumnIgnored.createFrom({
@@ -72,9 +60,6 @@ app.main.appendChild(
           mandatory: true,
           offset: offset++,
         })}
-        onchange={function () {
-          console.log('ignored', this.value);
-        }}
       />
       <gui-csv-column-input
         value={io.CsvColumnDate.createFrom({
@@ -85,9 +70,6 @@ app.main.appendChild(
           format: null,
           tz: null,
         })}
-        onchange={function () {
-          console.log('date', this.value);
-        }}
       />
       <gui-csv-column-input
         value={io.CsvColumnDuration.createFrom({
@@ -96,9 +78,6 @@ app.main.appendChild(
           offset: offset++,
           unit: null,
         })}
-        onchange={function () {
-          console.log('duration', this.value);
-        }}
       />
       <div className="placeholder">
         {offset}...{(offset += 4) - 1}
@@ -109,10 +88,13 @@ app.main.appendChild(
           mandatory: true,
           offset: offset++,
         })}
-        onchange={function () {
-          console.log('ignored', this.value);
-        }}
       />
     </div>
   </div>,
 );
+
+app.main.querySelectorAll('gui-csv-column-input').forEach((el) => {
+  el.onchange = () => {
+    console.log('onchange', el, el.value);
+  };
+});

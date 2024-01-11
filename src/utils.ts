@@ -246,3 +246,25 @@ export function putFileProgress(
     xhr.send(file);
   });
 }
+
+export function getIndexInParent(element: Element): number {
+  const parent = element.parentElement;
+
+  if (!parent) {
+    return -1;
+  }
+
+  let index = 0;
+  let current = parent.firstElementChild;
+
+  while (current) {
+    if (current === element) {
+      return index;
+    }
+
+    current = current.nextElementSibling;
+    index++;
+  }
+
+  return index;
+}

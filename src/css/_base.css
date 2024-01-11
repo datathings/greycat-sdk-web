@@ -9,6 +9,7 @@
 
   /* keep 'spacing' an even value */
   --spacing: 6px;
+  --outline-width: 2px;
 
   --form-element-active-border-color: var(--primary);
   --form-element-spacing-vertical: calc(var(--spacing) / 2);
@@ -51,6 +52,9 @@
 
   --range-thumb-color: var(--primary);
   --range-thumb-hover-color: var(--primary-hover);
+
+  --border-width: 1px;
+  --border-color: var(--bg-1);
 }
 
 /* Dark colors (default) */
@@ -62,7 +66,7 @@
   --primary: rgb(var(--accent-0));
   --primary-hover: rgb(148, 224, 17);
   --primary-focus: rgba(205, 249, 127, 0.2);
-  --primary-inverse: rgb(var(--text-inverse));
+  --primary-inverse: #000;
 
   --secondary: #5684f1;
   --secondary-hover: #3b6ee4;
@@ -113,6 +117,9 @@
   --shadow: 0px 1px 1px 0px rgb(var(--base-1));
 
   --icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(0,0,0)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+
+  --fieldset-group-label-color: var(--color);
+  --fieldset-group-label-background: #303030;
 }
 
 /* Light colors */
@@ -122,7 +129,7 @@
   --primary: #37c43e;
   --primary-hover: #4fd24a;
   --primary-focus: rgba(205, 249, 127, 0.6);
-  --primary-inverse: rgb(var(--text-inverse));
+  --primary-inverse: #fff;
 
   --secondary: #5684f1;
   --secondary-hover: #3b6ee4;
@@ -159,6 +166,8 @@
   --color-8: #fe7d3e;
   --color-9: #ffc645;
   --color-10: #ea70bf;
+
+  --fieldset-group-label-background: #f3f3f3;
 }
 
 *,
@@ -299,4 +308,175 @@ table[role='grid'] tbody tr:nth-child(odd) {
 
 table > tbody > tr:last-child td {
   border-bottom: 0;
+}
+
+.p-1 {
+  padding: var(--spacing);
+}
+
+.pt-1 {
+  padding-top: var(--spacing);
+}
+
+.pr-1 {
+  padding-right: var(--spacing);
+}
+
+.pl-1 {
+  padding-left: var(--spacing);
+}
+
+.pb-1 {
+  padding-bottom: var(--spacing);
+}
+
+.px-1 {
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
+}
+
+.py-1 {
+  padding-top: var(--spacing);
+  padding-bottom: var(--spacing);
+}
+
+.p-2 {
+  padding: calc(var(--spacing) * 2);
+}
+
+.pt-2 {
+  padding-top: calc(var(--spacing) * 2);
+}
+
+.pr-2 {
+  padding-right: calc(var(--spacing) * 2);
+}
+
+.pl-2 {
+  padding-left: calc(var(--spacing) * 2);
+}
+
+.pb-2 {
+  padding-bottom: calc(var(--spacing) * 2);
+}
+
+.px-2 {
+  padding-left: calc(var(--spacing) * 2);
+  padding-right: calc(var(--spacing) * 2);
+}
+
+.py-2 {
+  padding-top: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 2);
+}
+
+fieldset[role='group'] {
+  display: inline-flex;
+  width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: var(--box-shadow);
+  margin-bottom: 0;
+  transition: all 0.3s;
+
+  > label,
+  > input,
+  > select,
+  > gui-searchable-select,
+  > gui-searchable-select > input {
+    box-shadow: 0 0 0 transparent;
+    margin-bottom: 0;
+    transition: all 0.3s;
+  }
+
+  > .gui-input-bool {
+    display: flex;
+    align-items: center;
+    padding: var(--spacing);
+    border: var(--border-width) solid var(--form-element-border-color);
+    background-color: #202020;
+    transition: all 0.3s;
+
+    > input[type='checkbox'] {
+      margin: 0;
+      box-shadow: 0 0 0 transparent;
+    }
+  }
+
+  > :not(label, input, select, gui-searchable-select, gui-searchable-select > input) {
+    display: flex;
+    padding: var(--spacing);
+    border: var(--border-width) solid var(--form-element-border-color);
+  }
+
+  > input[type='submit'],
+  > input[type='button'],
+  > button {
+    width: fit-content;
+  }
+
+  > label:has(+ .gui-input-bool),
+  > .gui-input-bool + label {
+    flex: 1;
+  }
+
+  > label {
+    display: inline-flex;
+    align-items: center;
+    flex-shrink: 0;
+    background-color: var(--fieldset-group-label-background);
+    color: var(--fieldset-group-label-color);
+    border: var(--border-width) solid var(--form-element-border-color);
+    padding: 0 var(--spacing);
+  }
+
+  /* First element in the group */
+  > *:first-child,
+  > gui-searchable-select:first-child > input {
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* For middle elements in groups of more than 2 elements */
+  > *:not(:first-child, :last-child),
+  > gui-searchable-select:not(:first-child, :last-child) > input {
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+
+    border-right: 0;
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+
+  /* Last element in the group */
+  > *:last-child,
+  > gui-searchable-select:last-child > input {
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
+
+    border-left: 0;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+
+  /* Where the fieldset is comprised of 2 inputs make sure the two are separated with a border */
+  > input:has(+ :is(gui-searchable-select, input, select)),
+  > select:has(+ :is(gui-searchable-select, input, select)),
+  > gui-searchable-select:has(+ :is(gui-searchable-select, input, select)) {
+    border-right: var(--border-width) solid var(--form-element-border-color);
+  }
+
+  /** Selects every focused input */
+  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)),
+  /* and every other non-focused elements when one of the input is focused */
+  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)) :where(> *:not(:focus)) {
+    --form-element-border-color: var(--form-element-active-border-color);
+    --box-shadow: 0 0 0 var(--outline-width) var(--form-element-focus-color);
+    /* --fieldset-group-label-color: var(--primary-inverse); */
+    /* --fieldset-group-label-background: var(--form-element-active-border-color); */
+  }
 }

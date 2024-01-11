@@ -133,6 +133,18 @@ export type SerieOptions = {
   markerWidth: number;
   markerShape: MarkerShape;
   markerColor: string;
+  /**
+   * When defined, this value is used to control the marker drawing logic.
+   * 
+   * All values are in pixels.
+   * 
+   * If only `markerThreshold.x` is defined, then the marker will be drawn if `Math.abs(cursor.x - closestValue.x) <= markerThreshold.x`
+   *
+   * If only `markerThreshold.y` is defined, then the marker will be drawn if `Math.abs(cursor.y - closestValue.y) <= markerThreshold.y`
+   * 
+   * If both `markerThreshold.x` and `markerThreshold.y` the same logic applies but both must be `true` for the marker to be drawn.
+   */
+  markerThreshold?: {x?: number; y?: number };
   opacity: number;
   fillOpacity: number;
   /**

@@ -271,13 +271,13 @@ export class CanvasContext {
 
       switch (serie.markerShape) {
         case 'circle':
-          this.circle(x, y, serie.markerWidth, { fill: color, color });
+          this.circle(x, y, serie.width, { fill: color, color });
           break;
         case 'square':
-          this.rectangle(x, y, serie.markerWidth, serie.markerWidth, { fill: color, color });
+          this.rectangle(x, y, serie.width, serie.width, { fill: color, color });
           break;
         case 'triangle':
-          this.triangle(x, y, serie.markerWidth, serie.markerWidth, { fill: color, color });
+          this.triangle(x, y, serie.width, serie.width, { fill: color, color });
           break;
       }
     }

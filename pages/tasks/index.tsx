@@ -19,7 +19,7 @@ const runningTasks = (
     kind="running"
     ontask-list-click={(ev) => {
       console.log('running clicked', ev.detail);
-      info.task = ev.detail;
+      info.value = ev.detail;
       dialog.showModal();
     }}
   />
@@ -29,7 +29,7 @@ const taskHistory = (
     kind="history"
     ontask-list-click={(ev) => {
       console.log('history clicked', ev.detail);
-      info.task = ev.detail;
+      info.value = ev.detail;
       dialog.showModal();
     }}
   />
@@ -57,8 +57,8 @@ app.main.appendChild(
           {select}
           <button
             onclick={async () => {
-              if (select.selected !== null) {
-                await greycat.default.call(select.selected.fqn);
+              if (select.value !== null) {
+                await greycat.default.call(select.value.fqn);
               }
               runningTasks.updateTasks();
               taskHistory.updateTasks();

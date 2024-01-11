@@ -6,8 +6,5 @@
 @import '../../node_modules/@picocss/pico/css/pico.css';
 
 @import './_base.css';
-@import './_pico-override.css';
-
 @import './_custom.css';
-
 @import './_components.css';

@@ -172,6 +172,56 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
   render() {
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
 
+    if (Array.isArray(this._value)) {
+      this._disposeClickHandler?.();
+      const children = document.createDocumentFragment();
+      children.appendChild(document.createTextNode('['));
+      for (let i = 0; i < this._value.length; i++) {
+        const value = this._value[i];
+        const content = utils.stringify({
+          value,
+          name: this._name,
+          tiny: this._tiny,
+          dateFmt: this._dateFmt,
+          numFmt,
+        });
+
+        let linkify = false;
+        if (typeof this._linkify === 'function') {
+          linkify = this._linkify(value);
+        } else if (this._linkify) {
+          linkify = true;
+        }
+
+        if (linkify) {
+          const link = document.createElement('a');
+          const onclick = (e: MouseEvent) => this._onClick?.(e, value, content, this._data);
+          link.addEventListener('auxclick', onclick);
+          link.addEventListener('click', onclick);
+          this._disposeClickHandler = () => {
+            link.removeEventListener('click', onclick);
+            link.removeEventListener('auxclick', onclick);
+          };
+          link.textContent = content;
+          link.title = utils.stringify({
+            value,
+            dateFmt: this._dateFmt,
+            numFmt,
+            pretty: true,
+          });
+          children.appendChild(link);
+        } else {
+          children.appendChild(document.createTextNode(content));
+        }
+        if (i < this._value.length - 1) {
+          children.appendChild(document.createTextNode(', '));
+        }
+      }
+      children.appendChild(document.createTextNode(']'));
+      this.replaceChildren(children);
+      return;
+    }
+
     // reset content
     const content = utils.stringify({
       value: this._value,

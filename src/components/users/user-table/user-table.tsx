@@ -85,8 +85,19 @@ export class GuiUserTable extends HTMLElement {
     Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);
   }
 
-  set users(users: Array<runtime.User>) {
-    this._users = users;
+  /**
+   * @deprecated use `value` instead
+   */
+  set users(users: runtime.User[]) {
+    this.value = users;
+  }
+
+  get value() {
+    return this._users;
+  }
+
+  set value(value: runtime.User[]) {
+    this._users = value;
     this.render();
   }
 

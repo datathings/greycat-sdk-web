@@ -30,17 +30,31 @@ export class GuiTaskSelect extends HTMLElement {
     this._select.options = options;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set selected(fn: AbiFunction | null) {
-    if (fn === null) {
-      this._select.selected = undefined;
+    this.value = fn;
+  }
+
+  set value(value: AbiFunction | null) {
+    if (value === null) {
+      this._select.value = undefined;
       return;
     }
 
-    this._select.selected = fn.fqn;
+    this._select.value = value.fqn;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   get selected() {
-    const fqn = this._select.selected;
+    return this.value;
+  }
+
+  get value() {
+    const fqn = this._select.value as string | undefined;
     if (fqn) {
       return this._greycat.abi.fn_by_fqn.get(fqn) ?? null;
     }

@@ -482,6 +482,29 @@ fn complex_object() {
     map: map,
   };
 }
+
+@expose
+fn obj1() {
+  return {
+    prop1: "Hello",
+    prop2: User { id: 1000, name: "user1", activated: false, external: false },
+    prop3: Runtime::info(),
+  };
+}
+
+@expose
+fn obj2() {
+  var prop3 = Map::new();
+  prop3.set("entry1", Runtime::info());
+  prop3.set("entry2", Runtime::info());
+  prop3.set("entry3", Runtime::info());
+
+  return {
+    prop1: "Hello",
+    prop2: [User { id: 1000, name: "user1", activated: false, external: false }, User { id: 1001, name: "user2", activated: false, external: false }],
+    prop3: prop3,
+  };
+}
 // pages/object end
 
 type SemiRecursive {
@@ -510,3 +533,6 @@ fn mapTest() {
   map.set(DurationUnit::hours, ["hours", 3]);
   return map;
 }
+
+@expose
+fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit) {}

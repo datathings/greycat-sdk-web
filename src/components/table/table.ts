@@ -124,11 +124,25 @@ export class GuiTable extends HTMLElement {
     });
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   get table() {
     return this._table;
   }
 
+  get value() {
+    return this._table;
+  }
+
+  /**
+   * @deprecated use `value` instead
+   */
   set table(table: TableLike | undefined) {
+    this.value = table;
+  }
+
+  set value(table: TableLike | undefined) {
     if (table === undefined) {
       this._table = undefined;
       this.update();
@@ -227,17 +241,21 @@ export class GuiTable extends HTMLElement {
 
   setAttrs({
     table = this._table,
+    value = this._table,
     filter = this._filterText,
     cellProps = this._cellProps,
     headers = this._headers,
     columnsWidths = this._thead.widths,
   }: Partial<{
+    /** @deprecated use `value` instead */
     table: TableLike;
+    value: TableLike;
     filter: string;
     cellProps: CellPropsFactory;
     headers: string[];
     columnsWidths: number[];
   }>) {
+    table = table ?? value;
     if (this._table !== table && table !== undefined) {
       this._computeTable(table);
     }

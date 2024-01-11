@@ -17,8 +17,15 @@ export class GuiCsvStatistics extends HTMLElement {
     this.replaceChildren();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set statistics(statistics: io.CsvStatistics | null | undefined) {
-    this._stats = statistics;
+    this.value = statistics;
+  }
+
+  set value(value: io.CsvStatistics | null | undefined) {
+    this._stats = value;
     this.render();
   }
 
@@ -38,7 +45,11 @@ export class GuiCsvStatistics extends HTMLElement {
               {this._stats.columns.map((c) => (
                 <th>
                   <b
-                    title={c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.name : ''}
+                    title={
+                      c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH
+                        ? c.name
+                        : ''
+                    }
                   >
                     {c.name}
                   </b>
@@ -189,7 +200,12 @@ export class GuiCsvStatistics extends HTMLElement {
               <td>Example</td>
               {this._stats.columns.map((c) => (
                 <td
-                  title={typeof c.example === 'string' && c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.example : ''}
+                  title={
+                    typeof c.example === 'string' &&
+                    c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH
+                      ? c.example
+                      : ''
+                  }
                 >
                   {c.example}
                 </td>
@@ -269,7 +285,7 @@ export class GuiCsvStatistics extends HTMLElement {
 
     const table = (
       <gui-table
-        table={{
+        value={{
           cols: [words, counts],
           meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
         }}
@@ -292,7 +308,7 @@ export class GuiCsvStatistics extends HTMLElement {
             {table}
           </gui-panel>
           <gui-panel data-tab="Word List (Donut)">
-            <gui-donut table={column.word_list} withInfo withLabelInfo withLabels />
+            <gui-donut value={column.word_list} withInfo withLabelInfo withLabels />
           </gui-panel>
         </gui-tabs>
         <footer>

@@ -12,7 +12,7 @@ app.actions.prepend(
     <a
       href="#"
       onclick={async () => {
-        tableEl.table = await greycat.default.call<core.Table>('project::table');
+        tableEl.value = await greycat.default.call<core.Table>('project::table');
       }}
     >
       Randomize
@@ -23,7 +23,7 @@ app.actions.prepend(
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');
 
-tableEl.table = table;
+tableEl.value = table;
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
   switch (klass) {
@@ -56,7 +56,7 @@ app.main.appendChild(
       <div>
         <gui-searchable-select
           placeholder="Search a timezone"
-          selected="UTC"
+          value="UTC"
           options={core.TimeZone.$fields().map((en) => ({
             text: en.value as string,
             value: en.value as string,

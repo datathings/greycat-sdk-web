@@ -608,6 +608,20 @@ export class GuiChart extends HTMLElement {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
         }
 
+        if (serie.markerThreshold) {
+          // shortcuts if cursor's above threshold
+          if (serie.markerThreshold.x) {
+            if (Math.abs(this._cursor.x - x) > serie.markerThreshold.x) {
+              continue;
+            }
+          }
+          if (serie.markerThreshold.y) {
+            if (Math.abs(this._cursor.y - y) > serie.markerThreshold.y) {
+              continue;
+            }
+          }
+        }
+
         // marker
         switch (serie.type ?? 'line') {
           case 'line+scatter':

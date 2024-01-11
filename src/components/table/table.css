@@ -4,8 +4,8 @@ gui-table {
   --icon-sort-desc: ↑;
 
   position: relative;
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-rows: min-content 1fr;
   overflow: auto;
   height: 100%;
   width: 100%;

@@ -250,13 +250,27 @@ export class GuiTaskList extends HTMLElement {
     this.render();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set tasks(tasks: TaskInfoLike[]) {
-    this._tasks = tasks;
-    this.render();
+    this.value = tasks;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   get tasks() {
+    return this.value;
+  }
+
+  get value() {
     return this._tasks;
+  }
+
+  set value(value: TaskInfoLike[]) {
+    this._tasks = value;
+    this.render();
   }
 
   set kind(kind: TaskKind) {

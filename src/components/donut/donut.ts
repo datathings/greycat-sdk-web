@@ -12,7 +12,9 @@ const LABELTEXTMULT = 0.05;
 type DonutTable = core.Table | Map<string, number | bigint>;
 
 interface GuiDoughnutProps {
+  /** @deprecated use `value` instead */
   table: DonutTable | null;
+  value: DonutTable | null;
   dataColumn: number;
   labelColumn?: number;
   defaultInfoRow?: number;
@@ -71,8 +73,15 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     return this._table;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set table(table: DonutTable | null) {
-    this._table = table;
+    this.value = table;
+  }
+
+  set value(value: DonutTable | null) {
+    this._table = value;
     this._drawDoughnut();
   }
 
@@ -181,6 +190,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
 
   setAttrs({
     table = this._table,
+    value = this._table,
     colors = this._colors,
     dataColumn = this._dataColumn,
     labelColumn = this._labelColumn,
@@ -193,7 +203,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     withLabelInfo = this._withLabelInfo,
     name = this._name,
   }: Partial<GuiDoughnutProps>): void {
-    this._table = table;
+    this._table = table ?? value;
     this._colors = colors;
     this._dataColumn = dataColumn;
     this._labelColumn = labelColumn;
