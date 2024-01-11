@@ -84,5 +84,5 @@
   - `table.cols[0]` = list of starting positions on the x-axis for each bar. Ex: [0, 10, 20, 30, 40, 50, 60, 70, 80, 90]
   - `table.cols[1]` = list of ending positions on the x-axis for each bar. Ex: [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
   - `table.cols[2]` = list of heights (y values) for each bar. Ex: [20.0, 15.0, 30.0, 20.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0]
-  - `table.cols[3]` = list of accumulated heights (z values) after each bar. Ex: [20.0, 35.0, 65.0, 85.0, 95.0, 96.0, 97.0, 98.0, 99.0, 100.0]
+  - `table.cols[3]` = list of heights as percentage of total (z values) for each bar. Ex: [20.0, 15.0, 30.0, 20.0, 10.0, 1.0, 1.0, 1.0, 1.0, 1.0]
   ```
