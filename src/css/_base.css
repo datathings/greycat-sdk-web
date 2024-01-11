@@ -124,8 +124,6 @@
 
   --fieldset-group-label-color: var(--color);
   --fieldset-group-label-background: #303030;
-
-  --form-element-border-color: #a2afb9;
 }
 
 /* Light colors */
@@ -174,6 +172,7 @@
   --color-10: #ea70bf;
 
   --fieldset-group-label-background: #f3f3f3;
+  --form-element-border-color: #a2afb9;
 }
 
 *,
