@@ -598,7 +598,14 @@ export class NodeInput implements IInput {
         placeholder='Reference in hex eg. "a2c4e6"'
         oninput={() => {
           this.invalid = false;
-          oninput(this.value);
+          try {
+            BigInt(`0x${this.element.value}`);
+          } catch {
+            this.invalid = true;
+          }
+          if (!this.invalid) {
+            oninput(this.value);
+          }
         }}
       />
     ) as HTMLInputElement;
@@ -638,10 +645,7 @@ export class NodeInput implements IInput {
   }
 
   get value() {
-    return new core.node(
-      greycat.default.abi.types[greycat.default.abi.core_node_offset],
-      BigInt(`0x${this.element.value}`),
-    );
+    return core.node.fromRef(this.element.value);
   }
 
   set value(value: core.node) {
@@ -662,7 +666,14 @@ export class NodeTimeInput implements IInput {
         placeholder='Reference in hex eg. "a2c4e6"'
         oninput={() => {
           this.invalid = false;
-          oninput(this.value);
+          try {
+            BigInt(`0x${this.element.value}`);
+          } catch {
+            this.invalid = true;
+          }
+          if (!this.invalid) {
+            oninput(this.value);
+          }
         }}
       />
     ) as HTMLInputElement;
@@ -702,10 +713,7 @@ export class NodeTimeInput implements IInput {
   }
 
   get value() {
-    return new core.nodeTime(
-      greycat.default.abi.types[greycat.default.abi.core_node_time_offset],
-      BigInt(`0x${this.element.value}`),
-    );
+    return core.nodeTime.fromRef(this.element.value);
   }
 
   set value(value: core.nodeTime) {
@@ -726,7 +734,14 @@ export class NodeGeoInput implements IInput {
         placeholder='Reference in hex eg. "a2c4e6"'
         oninput={() => {
           this.invalid = false;
-          oninput(this.value);
+          try {
+            BigInt(`0x${this.element.value}`);
+          } catch {
+            this.invalid = true;
+          }
+          if (!this.invalid) {
+            oninput(this.value);
+          }
         }}
       />
     ) as HTMLInputElement;
@@ -766,10 +781,7 @@ export class NodeGeoInput implements IInput {
   }
 
   get value() {
-    return new core.nodeGeo(
-      greycat.default.abi.types[greycat.default.abi.core_node_geo_offset],
-      BigInt(`0x${this.element.value}`),
-    );
+    return core.nodeGeo.fromRef(this.element.value);
   }
 
   set value(value: core.nodeGeo) {
@@ -790,7 +802,14 @@ export class NodeListInput implements IInput {
         placeholder='Reference in hex eg. "a2c4e6"'
         oninput={() => {
           this.invalid = false;
-          oninput(this.value);
+          try {
+            BigInt(`0x${this.element.value}`);
+          } catch {
+            this.invalid = true;
+          }
+          if (!this.invalid) {
+            oninput(this.value);
+          }
         }}
       />
     ) as HTMLInputElement;
@@ -830,10 +849,7 @@ export class NodeListInput implements IInput {
   }
 
   get value() {
-    return new core.nodeList(
-      greycat.default.abi.types[greycat.default.abi.core_node_list_offset],
-      BigInt(`0x${this.element.value}`),
-    );
+    return core.nodeList.fromRef(this.element.value);
   }
 
   set value(value: core.nodeList) {
@@ -854,7 +870,14 @@ export class NodeIndexInput implements IInput {
         placeholder='Reference in hex eg. "a2c4e6"'
         oninput={() => {
           this.invalid = false;
-          oninput(this.value);
+          try {
+            BigInt(`0x${this.element.value}`);
+          } catch {
+            this.invalid = true;
+          }
+          if (!this.invalid) {
+            oninput(this.value);
+          }
         }}
       />
     ) as HTMLInputElement;
@@ -894,10 +917,7 @@ export class NodeIndexInput implements IInput {
   }
 
   get value() {
-    return new core.nodeIndex(
-      greycat.default.abi.types[greycat.default.abi.core_node_index_offset],
-      BigInt(`0x${this.element.value}`),
-    );
+    return core.nodeIndex.fromRef(this.element.value);
   }
 
   set value(value: core.nodeIndex) {

@@ -18,7 +18,7 @@ async function runAnalysis(filepath: string) {
       date_check_limit: null,
       date_formats: null,
       decimal_separator: null,
-      enum_limit: 10_000,
+      enumerable_limit: 10_000,
       row_limit: null,
       separator: null,
       string_delimiter: null,
@@ -32,7 +32,7 @@ async function runAnalysis(filepath: string) {
   );
   console.log('stats', stats);
 
-  sample.table = await io.CsvFormat.sample(
+  sample.value = await io.CsvFormat.sample(
     filepath,
     io.CsvFormat.createFrom({
       header_lines: 1,
@@ -51,7 +51,7 @@ async function runAnalysis(filepath: string) {
 
 const sample = (<gui-table style={{ height: '400px' }} />) as GuiTable;
 const stats = await runAnalysis('./csv-analysis/data/small.csv');
-const csvStatistics = (<gui-csv-statistics statistics={stats} />) as GuiCsvStatistics;
+const csvStatistics = (<gui-csv-statistics value={stats} />) as GuiCsvStatistics;
 
 app.main.appendChild(
   <div>
@@ -68,7 +68,7 @@ app.main.appendChild(
       <select
         onchange={async (ev) => {
           const select = ev.target as HTMLSelectElement;
-          csvStatistics.statistics = await runAnalysis(select.value);
+          csvStatistics.value = await runAnalysis(select.value);
         }}
       >
         <option value="./csv-analysis/data/small.csv" selected>

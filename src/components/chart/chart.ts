@@ -666,7 +666,8 @@ export class GuiChart extends HTMLElement {
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
-          nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+          nameEl.textContent =
+            serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -682,7 +683,8 @@ export class GuiChart extends HTMLElement {
           if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
-            nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+            nameEl.textContent =
+              serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (
@@ -1049,15 +1051,18 @@ export class GuiChart extends HTMLElement {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let yAxis: d3.Axis<any>;
       let translateX: number = 0;
+      let textAnchor = 'start';
 
       if (ord.position === undefined || ord.position === 'left') {
         leftAxesIdx++;
         yAxis = d3.axisLeft(yScales[yAxisName]);
         translateX = style.margin.left + leftAxesIdx * style.margin.left;
+        textAnchor = 'end';
       } else {
         rightAxesIdx++;
         yAxis = d3.axisRight(yScales[yAxisName]);
         translateX = this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right);
+        textAnchor = 'start';
       }
 
       if (ord.hook) {
@@ -1086,7 +1091,10 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      this._yAxisGroups[yAxisName].attr('transform', `translate(${translateX}, 0)`).call(yAxis);
+      this._yAxisGroups[yAxisName]
+        .attr('transform', `translate(${translateX}, 0)`)
+        .attr('text-anchor', textAnchor)
+        .call(yAxis);
     }
 
     // remove no longer used yAxisGroup
@@ -1321,7 +1329,7 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
  */
-export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[], cursor: Cursor }> {
+export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
   constructor(data: SerieData[], cursor: Cursor) {
     super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }

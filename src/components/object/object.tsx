@@ -41,17 +41,17 @@ export class GuiObject extends HTMLElement {
     this.components.set(core.Table._type, 'gui-table');
     this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
     this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
-    // primitives
-    this.components.set(core.geo._type, 'gui-value');
-    this.components.set(core.time._type, 'gui-value');
-    this.components.set(core.duration._type, 'gui-value');
-    this.components.set(core.Date._type, 'gui-value');
-    // nodes
-    this.components.set(core.node._type, 'gui-value');
-    this.components.set(core.nodeTime._type, 'gui-value');
-    this.components.set(core.nodeList._type, 'gui-value');
-    this.components.set(core.nodeGeo._type, 'gui-value');
-    this.components.set(core.nodeIndex._type, 'gui-value');
+    // // primitives
+    // this.components.set(core.geo._type, 'gui-value');
+    // this.components.set(core.time._type, 'gui-value');
+    // this.components.set(core.duration._type, 'gui-value');
+    // this.components.set(core.Date._type, 'gui-value');
+    // // nodes
+    // this.components.set(core.node._type, 'gui-value');
+    // this.components.set(core.nodeTime._type, 'gui-value');
+    // this.components.set(core.nodeList._type, 'gui-value');
+    // this.components.set(core.nodeGeo._type, 'gui-value');
+    // this.components.set(core.nodeIndex._type, 'gui-value');
     // special
     this.components.set(runtime.Task._type, 'gui-task-info');
     this.components.set(runtime.TaskInfo._type, 'gui-task-info');
@@ -165,6 +165,7 @@ export class GuiObject extends HTMLElement {
           if (customElement) {
             const element = document.createElement(customElement) as GuiObject;
             element.value = this._value;
+            Object.assign(element, this._props);
             this.replaceChildren(element);
             return;
           }
@@ -348,9 +349,20 @@ export class GuiObject extends HTMLElement {
             );
           }
         }
+
+        if (this._withHeader) {
+          this.replaceChildren(
+            <article>
+              <header>{this._typeName(this._value)}</header>
+              <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
+            </article>,
+          );
+          return;
+        }
+
         this.classList.add('gui-object-grid');
         this.replaceChildren(fragment);
-        break;
+        return;
       }
     }
   }

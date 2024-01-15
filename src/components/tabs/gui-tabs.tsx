@@ -4,9 +4,6 @@ export class GuiTabs extends HTMLElement {
 
   connectedCallback() {
     const activeTabName = this.querySelector('gui-tab.activeTab')?.textContent;
-    if (!activeTabName) {
-      console.warn('Set class="activeTab" to at least one <gui-tab />');
-    }
     const tabs = this.querySelectorAll('gui-tab');
     tabs.forEach((tab) => {
       const tabName = tab.textContent;
@@ -27,7 +24,8 @@ export class GuiTabs extends HTMLElement {
       tab.addEventListener('click', () => this._internalSelect(tab));
     });
 
-    this.querySelectorAll('gui-panel').forEach((panel) => {
+    const panels = this.querySelectorAll('gui-panel');
+    panels.forEach((panel) => {
       const tabName = panel.getAttribute('data-tab');
       if (!tabName) {
         return;
@@ -42,6 +40,13 @@ export class GuiTabs extends HTMLElement {
       const activePanel = this.panels.get(activeTabName);
       if (activePanel) {
         this.appendChild(activePanel);
+      }
+    } else {
+      const firstTab = tabs.item(0);
+      const firstPanel = panels.item(0);
+      if (firstTab && firstPanel) {
+        firstTab.classList.add('activeTab');
+        this.appendChild(firstPanel);
       }
     }
   }

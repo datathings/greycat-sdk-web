@@ -276,7 +276,7 @@ export class GuiCsvStatistics extends HTMLElement {
     const counts: (number | bigint)[] = [];
     let wTotal = 0;
     let cTotal = 0n;
-    for (const [word, count] of column.word_list) {
+    for (const [word, count] of column.enumerable_count) {
       wTotal++;
       words.push(word);
       counts.push(count);
@@ -296,10 +296,10 @@ export class GuiCsvStatistics extends HTMLElement {
       <article>
         <header>{column.name}</header>
         <gui-tabs>
-          <gui-tab className="activeTab">Word List</gui-tab>
-          <gui-tab>Word List (Donut)</gui-tab>
+          <gui-tab className="activeTab">Enumerable Count</gui-tab>
+          <gui-tab>Enumerable Count (Donut)</gui-tab>
 
-          <gui-panel data-tab="Word List">
+          <gui-panel data-tab="Enumerable Count">
             <input
               type="search"
               placeholder="Filter"
@@ -307,8 +307,8 @@ export class GuiCsvStatistics extends HTMLElement {
             />
             {table}
           </gui-panel>
-          <gui-panel data-tab="Word List (Donut)">
-            <gui-donut value={column.word_list} withInfo withLabelInfo withLabels />
+          <gui-panel data-tab="Enumerable Count (Donut)">
+            <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
           </gui-panel>
         </gui-tabs>
         <footer>
