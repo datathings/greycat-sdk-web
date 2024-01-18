@@ -223,9 +223,9 @@ body {
     --font-size: var(--font-size-sm);
   }
 
-  body>header,
-  body>main,
-  body>footer,
+  body > header,
+  body > main,
+  body > footer,
   section {
     --block-spacing-vertical: calc(var(--spacing) * 2);
   }
@@ -243,9 +243,9 @@ body {
     --font-size: var(--font-size-md);
   }
 
-  body>header,
-  body>main,
-  body>footer,
+  body > header,
+  body > main,
+  body > footer,
   section {
     --block-spacing-vertical: calc(var(--spacing) * 1.5);
   }
@@ -261,9 +261,9 @@ body {
     --font-size: var(--font-size-lg);
   }
 
-  body>header,
-  body>main,
-  body>footer,
+  body > header,
+  body > main,
+  body > footer,
   section {
     --block-spacing-vertical: var(--spacing);
   }
@@ -275,9 +275,9 @@ body {
     --font-size: var(--font-size-xl);
   }
 
-  body>header,
-  body>main,
-  body>footer,
+  body > header,
+  body > main,
+  body > footer,
   section {
     --block-spacing-vertical: var(--spacing);
   }
@@ -311,7 +311,7 @@ table[role='grid'] tbody tr:nth-child(odd) {
   background-color: var(--table-row-stripped-background-color);
 }
 
-table>tbody>tr:last-child td {
+table > tbody > tr:last-child td {
   border-bottom: 0;
 }
 
@@ -383,17 +383,17 @@ fieldset[role='group'] {
   margin-bottom: 0;
   transition: all 0.3s;
 
-  >label,
-  >input,
-  >select,
-  >gui-searchable-select,
-  >gui-searchable-select>input {
+  > label,
+  > input,
+  > select,
+  > gui-searchable-select,
+  > gui-searchable-select > input {
     box-shadow: 0 0 0 transparent;
     margin-bottom: 0;
     transition: all 0.3s;
   }
 
-  >.gui-input-bool {
+  > .gui-input-bool {
     display: flex;
     align-items: center;
     padding: var(--spacing);
@@ -401,7 +401,7 @@ fieldset[role='group'] {
     background-color: #202020;
     transition: all 0.3s;
 
-    >input[type='checkbox'] {
+    > input[type='checkbox'] {
       margin: 0;
       box-shadow: 0 0 0 transparent;
     }
@@ -413,18 +413,18 @@ fieldset[role='group'] {
     border: var(--border-width) solid var(--form-element-border-color);
   }
 
-  >input[type='submit'],
-  >input[type='button'],
-  >button {
+  > input[type='submit'],
+  > input[type='button'],
+  > button {
     width: fit-content;
   }
 
-  >label:has(+ .gui-input-bool),
-  >.gui-input-bool+label {
+  > label:has(+ .gui-input-bool),
+  > .gui-input-bool + label {
     flex: 1;
   }
 
-  >label {
+  > label {
     display: inline-flex;
     align-items: center;
     flex-shrink: 0;
@@ -435,8 +435,8 @@ fieldset[role='group'] {
   }
 
   /* First element in the group */
-  >*:first-child,
-  >gui-searchable-select:first-child>input {
+  > *:first-child,
+  > gui-searchable-select:first-child > input {
     border-top-left-radius: var(--border-radius);
     border-bottom-left-radius: var(--border-radius);
 
@@ -446,8 +446,8 @@ fieldset[role='group'] {
   }
 
   /* For middle elements in groups of more than 2 elements */
-  >*:not(:first-child, :last-child),
-  >gui-searchable-select:not(:first-child, :last-child)>input {
+  > *:not(:first-child, :last-child),
+  > gui-searchable-select:not(:first-child, :last-child) > input {
     border-left: 0;
     border-top-left-radius: 0;
     border-bottom-left-radius: 0;
@@ -458,8 +458,8 @@ fieldset[role='group'] {
   }
 
   /* Last element in the group */
-  >*:last-child,
-  >gui-searchable-select:last-child>input {
+  > *:last-child,
+  > gui-searchable-select:last-child > input {
     border-top-right-radius: var(--border-radius);
     border-bottom-right-radius: var(--border-radius);
 
@@ -469,9 +469,9 @@ fieldset[role='group'] {
   }
 
   /* Where the fieldset is comprised of 2 inputs make sure the two are separated with a border */
-  >input:has(+ :is(gui-searchable-select, input, select)),
-  >select:has(+ :is(gui-searchable-select, input, select)),
-  >gui-searchable-select:has(+ :is(gui-searchable-select, input, select)) {
+  > input:has(+ :is(gui-searchable-select, input, select)),
+  > select:has(+ :is(gui-searchable-select, input, select)),
+  > gui-searchable-select:has(+ :is(gui-searchable-select, input, select)) {
     border-right: var(--border-width) solid var(--form-element-border-color);
   }
 
