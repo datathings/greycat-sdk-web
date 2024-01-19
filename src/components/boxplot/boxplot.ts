@@ -8,10 +8,12 @@ const DEFAULT_AXIS_LABEL = ['x-Axis', 'y-Axis', 'z-Axis'];
 const DEFAULT_SIZE = { height: 100, width: 100 };
 const BOX_SIZE = 10;
 
-// const checkTableDateTime = (table: core.Table table.meta[0].type === core.Date._type || table.meta[0].type === core.time._type;
-
 export interface BoxPlotProps {
+  /**
+   * @deprecated use `value` instead
+   */
   boxPlot: util.BoxPlotFloat | null;
+  value: util.BoxPlotFloat | null;
   columns: number[];
   axisLabel: string[];
   xAxisFormat: (v: unknown) => string;
@@ -59,8 +61,15 @@ export class GuiBoxPlot extends HTMLElement {
     return this._boxPlot;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set boxPlot(boxPlot: util.BoxPlotFloat | null) {
-    this._boxPlot = boxPlot;
+    this.value = boxPlot;
+  }
+
+  set value(value: util.BoxPlotFloat | null) {
+    this._boxPlot = value;
     this.render();
   }
 
@@ -86,11 +95,12 @@ export class GuiBoxPlot extends HTMLElement {
 
   setAttrs({
     boxPlot = this._boxPlot,
+    value = this._boxPlot,
     xAxisFormat = this._xAxisFormat,
     numberFormatter = this._numberFormatter,
     axisLabel = this._axisLabel,
   }: Partial<BoxPlotProps>) {
-    this._boxPlot = boxPlot;
+    this._boxPlot = boxPlot ?? value;
     this._xAxisFormat = xAxisFormat;
     this._numberFormatter = numberFormatter;
     this._axisLabel = axisLabel;
@@ -190,23 +200,23 @@ export class GuiBoxPlot extends HTMLElement {
         this._tooltip.updateRows([
           {
             key: 'Median',
-            value: { value: this._numberFormatter(this._cursorInfo.median), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.median) },
           },
           {
             key: 'Q1',
-            value: { value: this._numberFormatter(this._cursorInfo.q1), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.q1) },
           },
           {
             key: 'Q3',
-            value: { value: this._numberFormatter(this._cursorInfo.q3), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.q3) },
           },
           {
             key: 'Max',
-            value: { value: this._numberFormatter(this._cursorInfo.max), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.max) },
           },
           {
             key: 'Min',
-            value: { value: this._numberFormatter(this._cursorInfo.min), raw: true },
+            value: { value: this._numberFormatter(this._cursorInfo.min) },
           },
         ]);
 
@@ -356,7 +366,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-boxplot': Partial<Omit<GuiBoxPlot, 'children'>>;
+      'gui-boxplot': GreyCat.Element<GuiBoxPlot>;
     }
   }
 }

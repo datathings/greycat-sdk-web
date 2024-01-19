@@ -1,0 +1,15 @@
+gui-csv-column-input table > tbody tr td:nth-child(1) {
+  font-weight: bold;
+}
+
+gui-csv-column-input input,
+gui-csv-column-input select {
+  margin-bottom: 0 !important;
+}
+
+gui-csv-column-input {
+  :where(input, select, textarea, .grid) + small {
+    margin-top: calc(var(--spacing) * 0.5);
+    margin-bottom: 0;
+  }
+}

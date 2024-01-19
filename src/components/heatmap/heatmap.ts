@@ -13,7 +13,9 @@ enum ScaleType {
 }
 
 export interface HeatmapProps {
+  /** @deprecated use `value` instead */
   table: core.Table | null;
+  value: core.Table | null;
   axisLabels?: string[];
   tooltipLabels?: string[];
   xLabels?: string[];
@@ -76,8 +78,15 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     return this._table;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set table(table: core.Table | null) {
-    this._table = table;
+    this.value = table;
+  }
+
+  set value(value: core.Table | null) {
+    this._table = value;
     this.render();
   }
 
@@ -144,7 +153,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
   get colorScaleWidth() {
     return this._colorScaleWidth;
   }
-  
+
   set colorScaleWidth(width: number) {
     this._colorScaleWidth = width;
     this.render();
@@ -152,6 +161,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
 
   setAttrs({
     table = this._table,
+    value = this._table,
     axisLabels = this._axisLabels,
     tooltipLabels = this._tooltipLabels,
     xLabels = this.xLabels,
@@ -162,7 +172,7 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
     xTicks = this._xTicks,
     yTicks = this._yTicks,
   }: Partial<HeatmapProps>) {
-    this._table = table;
+    this._table = table ?? value;
     this._axisLabels = axisLabels;
     this._tooltipLabels = tooltipLabels;
     this._xLabels = xLabels ? xLabels : [];
@@ -270,17 +280,16 @@ export class GuiHeatmap extends HTMLElement implements HeatmapProps {
           this._tooltip.updateRows([
             {
               key: this._tooltipLabels?.[0] ?? this._axisLabels?.[0] ?? 'x',
-              value: { value: xIndex[0], raw: true },
+              value: { value: xIndex[0] },
             },
             {
               key: this._tooltipLabels?.[1] ?? this._axisLabels?.[1] ?? 'y',
-              value: { value: yIndex[0], raw: true },
+              value: { value: yIndex[0] },
             },
             {
               key: this._tooltipLabels?.[2] ?? this._axisLabels?.[2] ?? 'z',
               value: {
                 value: `${table.cols[xIndex[1]]?.[yIndex[1]]?.toString() ?? ''}`,
-                raw: true,
               },
             },
           ]);
@@ -606,7 +615,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-heatmap': Partial<Omit<GuiHeatmap, 'children'>>;
+      'gui-heatmap': GreyCat.Element<GuiHeatmap>;
     }
   }
 }

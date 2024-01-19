@@ -1,29 +1,76 @@
 .gui-input-nullable {
-  display: grid;
-  grid-template-columns: 1fr 65px;
-  column-gap: var(--spacing);
+  display: flex;
+  gap: var(--spacing);
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing);
 
-  & > * {
-    min-width: 0px;
+  > input,
+  > select {
+    margin-bottom: 0;
   }
 
-  > label {
+  > :first-child:not(input[type="checkbox"]) {
+    flex-basis: 100%;
+  }
+
+  > :last-child {
+    flex-shrink: 0;
+    flex-basis: 65px;
     height: fit-content;
+    margin-bottom: 0;
+    margin-right: 0;
+    align-self: flex-start;
+  }
+
+  > input[type='checkbox'] {
+    align-self: center;
   }
 }
 
 .gui-input-any {
   display: grid;
-  grid-template-columns: 1fr 350px;
+  grid-template-columns: 1fr auto;
   column-gap: var(--spacing);
+  align-items: center;
 
-  & > * {
+  > * {
     min-width: 0px;
+  }
+
+  > input,
+  > select {
+    margin-bottom: 0;
+  }
+
+  > input[type='checkbox'] {
+    align-self: center;
+  }
+
+  > :last-child {
+    align-self: flex-start;
   }
 }
 
 .gui-input-labelled-fieldset {
   margin-bottom: 0;
+}
+
+.gui-input-object-attributes {
+  width: 100%;
+  display: grid;
+  grid-template-rows: auto;
+  row-gap: calc(var(--spacing) * 0.5);
+
+  & > fieldset {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    width: 100%;
+
+    & > * {
+      min-width: 0;
+    }
+  }
 }
 
 /* for potential overflow content (eg. gui-searcheable-list from AnyInput)
@@ -34,12 +81,17 @@
   display: flex;
   flex-direction: column;
   gap: calc(var(--spacing) * 0.5);
+  padding: 0 var(--spacing);
 
-  & > :first-child {
+  & > a {
+    width: fit-content;
+  }
+
+  & > :not(a):first-child {
     padding-top: var(--spacing);
   }
 
-  & > :last-child {
+  & > :not(a):last-child {
     padding-bottom: var(--spacing);
   }
 
@@ -48,7 +100,7 @@
     grid-template-columns: 1fr auto;
     column-gap: var(--spacing);
     align-items: center;
-  
+
     & > * {
       min-width: 0px;
     }
@@ -60,12 +112,64 @@
     & gui-searchable-select {
       padding-bottom: 0;
     }
+
+    > :last-child {
+      align-self: flex-start;
+    }
   }
 }
 
-.gui-input-fn-call .gui-input-array,
-.gui-input-object .gui-input-array {
-  border: 1px solid var(--bg-1);
+.gui-input-map {
+  display: grid;
+  grid-template-rows: auto;
+  row-gap: var(--spacing);
+
+  > a {
+    width: fit-content;
+  }
+
+  .gui-input-map-entry-container {
+    display: grid;
+    grid-template-columns: 1fr min-content;
+    column-gap: var(--spacing);
+    align-items: center;
+
+    & > * {
+      min-width: 0px;
+    }
+
+    .gui-input-map-entry {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      align-items: center;
+      column-gap: var(--spacing);
+
+      & > * {
+        min-width: 0px;
+      }
+
+      & > fieldset {
+        margin-bottom: 0;
+
+        & > :not(label) {
+          flex: 1;
+        }
+      }
+    }
+  }
+}
+
+fieldset[role='group']
+  > :is(
+    .gui-input-array,
+    .gui-input-nullable,
+    .gui-input-nullable,
+    .gui-input-any,
+    .gui-input-map
+  ) {
+  border: var(--border-width) solid var(--form-element-border-color);
+  border-left-width: 0px;
   background-color: rgba(var(--base-1), 0.9);
-  margin-bottom: var(--spacing);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
 }

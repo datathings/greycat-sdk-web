@@ -16,10 +16,13 @@ const input = new AnyInput('any-value', (v) => {
 });
 
 app.main.replaceChildren(
-  <div className="grid">
-    <div style={{ overflow: 'auto' }}>{input.element}</div>
+  <div>
+    <fieldset>
+      <label>Input</label>
+      {input.element}
+    </fieldset>
     <article>
-      <header>Object Viewer</header>
+      <header>Input value</header>
       <div className="container-fluid">{objViewer}</div>
     </article>
   </div>,

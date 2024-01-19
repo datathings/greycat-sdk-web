@@ -1,16 +1,23 @@
 declare namespace GreyCat {
-  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & {
+  // type EventHandlers<T> = {
+  //   [K in keyof T as K extends `on${string}` ? K : never]: T[K] extends ((this: GlobalEventHandlers, ev: Event) => any) | null ? T[K] : never;
+  // };
+  // type Bindable<T> = {
+  //   [K in keyof T as `$${string & K}`]: T[K];
+  // };
+  type ExtendedHTMLProperties = {
     className?: string | string[];
-    style?: Partial<CSSStyleDeclaration>;
-    // $ref?: (el: T) => void;
-  };
+    style?: Partial<CSSStyleDeclaration> | string;
+  }
+
+  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties;
 }
 
 declare namespace JSX {
   type IntrinsicElement = IntrinsicElements[keyof IntrinsicElements];
 
   interface AttributeCollection {
-    children: HTMLElement | HTMLElement[];
+    children?: HTMLElement | HTMLElement[];
     [prop: string]: unknown;
   }
 

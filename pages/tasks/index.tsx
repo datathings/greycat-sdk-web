@@ -8,13 +8,18 @@ await app.init();
 document.body.prepend(app);
 
 const select = (<gui-task-select />) as GuiTaskSelect;
-const dialogContent = document.createElement('gui-task-info');
+const info = document.createElement('gui-task-info');
+info.addEventListener('gui-files-click', (ev) => {
+  console.log('clicked on files', ev);
+  // use preventDefault if you want to process the click differently that the default behavior
+  // ev.preventDefault();
+});
 const runningTasks = (
   <gui-task-list
     kind="running"
     ontask-list-click={(ev) => {
       console.log('running clicked', ev.detail);
-      dialogContent.task = ev.detail;
+      info.value = ev.detail;
       dialog.showModal();
     }}
   />
@@ -23,20 +28,21 @@ const taskHistory = (
   <gui-task-list
     kind="history"
     ontask-list-click={(ev) => {
-      dialogContent.task = ev.detail;
+      console.log('history clicked', ev.detail);
+      info.value = ev.detail;
       dialog.showModal();
     }}
   />
 ) as GuiTaskList;
 
 const dialog = (
-  <dialog>
+  <dialog onclose={() => info.stopPolling()}>
     <article>
       <header>
         <a href="#close" aria-label="Close" onclick={() => dialog.close()} className="close"></a>
         Selected task
       </header>
-      {dialogContent}
+      {info}
     </article>
   </dialog>
 ) as HTMLDialogElement;
@@ -51,8 +57,8 @@ app.main.appendChild(
           {select}
           <button
             onclick={async () => {
-              if (select.selected !== null) {
-                await greycat.default.call(select.selected.fqn);
+              if (select.value !== null) {
+                await greycat.default.call(select.value.fqn);
               }
               runningTasks.updateTasks();
               taskHistory.updateTasks();

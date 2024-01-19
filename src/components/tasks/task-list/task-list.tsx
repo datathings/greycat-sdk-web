@@ -15,6 +15,8 @@ export class GuiTaskList extends HTMLElement {
   private _tasks: TaskInfoLike[] = [];
   private _tbody = document.createElement('tbody');
   private _greycat = greycat.default;
+  private _updateDelay = 5000;
+  private _updateIntervalId = -1;
 
   constructor() {
     super();
@@ -120,9 +122,12 @@ export class GuiTaskList extends HTMLElement {
         {this._footer}
       </article>,
     );
+
+    this._updateIntervalId = setInterval(() => this.updateTasks(), this._updateDelay);
   }
 
   disconnectedCallback() {
+    clearInterval(this._updateIntervalId);
     this.replaceChildren();
   }
 
@@ -171,7 +176,7 @@ export class GuiTaskList extends HTMLElement {
               <td>{task.start}</td>
               <td>{task.duration}</td>
               <td>{task.remaining}</td>
-              <td>{task.progress}</td>
+              <td>{task.progress ? (task.progress * 100).toFixed() + '%' : null}</td>
             </tr>
           ) as HTMLTableRowElement;
           break;
@@ -240,19 +245,32 @@ export class GuiTaskList extends HTMLElement {
         this._nbTotal = -1; // no pagination for running list
         break;
       }
-      
     }
 
     this.render();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set tasks(tasks: TaskInfoLike[]) {
-    this._tasks = tasks;
-    this.render();
+    this.value = tasks;
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   get tasks() {
+    return this.value;
+  }
+
+  get value() {
     return this._tasks;
+  }
+
+  set value(value: TaskInfoLike[]) {
+    this._tasks = value;
+    this.render();
   }
 
   set kind(kind: TaskKind) {
@@ -299,6 +317,23 @@ export class GuiTaskList extends HTMLElement {
   set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this.updateTasks();
+  }
+
+  get updateDelay() {
+    return this._updateDelay;
+  }
+
+  /**
+   * Delay in milliseconds between updates.
+   *
+   * Disable the automatic updates by setting it to `-1`.
+   */
+  set updateDelay(updateDelay: number) {
+    this._updateDelay = updateDelay;
+    clearInterval(this._updateIntervalId);
+    if (this._updateDelay !== -1) {
+      setInterval(() => this.updateTasks(), updateDelay);
+    }
   }
 }
 

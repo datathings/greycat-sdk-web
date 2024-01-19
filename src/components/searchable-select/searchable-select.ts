@@ -1,6 +1,9 @@
+import { getIndexInParent } from '../../utils.js';
+
 export interface SearchableOption {
-  value: unknown;
   text: string;
+  /** If the `value` is not defined, `text` will be used */
+  value?: unknown;
   selected?: boolean;
 }
 
@@ -63,7 +66,9 @@ export class GuiSearchableSelect extends HTMLElement {
           item.classList.add('selected');
           this._list.style.visibility = 'hidden';
           this._input.value = item.textContent!;
-          this.dispatchEvent(new GuiSearchableSelectChangeEvent(this._options[getIndexInParent(item)].value));
+          const index = getIndexInParent(item);
+          const value = this._options[index].value === undefined ? this._options[index].text : this._options[index].value;
+          this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -107,6 +112,10 @@ export class GuiSearchableSelect extends HTMLElement {
     this.appendChild(this._input);
     this.appendChild(this._list);
 
+    if (this._options.length === 0) {
+      this._emptyList();
+    }
+
     for (let i = 0; i < this._options.length; i++) {
       const opt = this._options[i];
       if (opt.selected) {
@@ -127,25 +136,73 @@ export class GuiSearchableSelect extends HTMLElement {
     this._input.disabled = disabled;
   }
 
-  set selected(selected: string) {
+  /**
+   * @deprecated use `value` instead
+   */
+  get selected() {
+    return this.value;
+  }
+
+  /**
+   * @deprecated use `value` instead
+   */
+  set selected(selected: unknown) {
+    this.value = selected;
+  }
+
+  get value() {
+    const item = this._list.querySelector('.selected');
+    if (item) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return (item as any).__value;
+    }
+    return;
+  }
+
+  /**
+   * Changes the currently selected item using the `value` for comparison.
+   *
+   * *The equality check on the value is made using `===`.*
+   *
+   * *If `undefined`, it empties the input.*
+   */
+  set value(value: unknown) {
+    if (value === undefined) {
+      this._input.value = '';
+      return;
+    }
+
     for (let i = 0; i < this._list.children.length; i++) {
       const item = this._list.children.item(i) as HTMLElement;
-      if (item.textContent === selected) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      if ((item as any).__value === value) {
         item.classList.add('selected');
+        this._input.value = item.textContent as string;
       } else {
         item.classList.remove('selected');
       }
     }
-    this._input.value = selected;
   }
 
   set options(options: SearchableOption[]) {
     this._options = options;
     const fragment = document.createDocumentFragment();
+
+    if (options.length === 0) {
+      this._emptyList();
+      return;
+    }
+
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
       const itemEl = document.createElement('div');
+      const value = opt.value === undefined ? opt.text : opt.value;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (itemEl as any).__value = value;
       itemEl.textContent = opt.text;
+      if (opt.selected) {
+        itemEl.classList.add('selected');
+      }
       itemEl.addEventListener('mousedown', (ev) => {
         ev.preventDefault();
         this._input.value = opt.text;
@@ -158,12 +215,19 @@ export class GuiSearchableSelect extends HTMLElement {
         opt.selected = true;
         this._list.style.visibility = 'hidden';
         this._input.focus();
-        this.dispatchEvent(new GuiSearchableSelectChangeEvent(opt.value));
+        this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
       });
 
       fragment.appendChild(itemEl);
     }
     this._list.replaceChildren(fragment);
+  }
+
+  private _emptyList(): void {
+    const empty = document.createElement('small');
+    empty.className = 'color-muted';
+    empty.textContent = 'Empty';
+    this._list.replaceChildren(empty);
   }
 }
 
@@ -194,17 +258,6 @@ function isElementOutOfView(element: Element): boolean {
   );
 }
 
-function getIndexInParent(childElement: Element): number {
-  let index = 0;
-  let currentElement: Element | null = childElement;
-
-  while ((currentElement = currentElement.previousElementSibling) !== null) {
-    index++;
-  }
-
-  return index;
-}
-
 declare global {
   interface HTMLElementTagNameMap {
     'gui-searchable-select': GuiSearchableSelect;
@@ -219,8 +272,8 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-searchable-select': Partial<
-        Omit<GuiSearchableSelect, 'children'> & {
+      'gui-searchable-select': GreyCat.Element<
+        GuiSearchableSelect & {
           [ONSEARCHABLE_CHANGE]: (
             this: GlobalEventHandlers,
             ev: GuiSearchableSelectChangeEvent,

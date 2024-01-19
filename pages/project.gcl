@@ -369,7 +369,15 @@ task task_with_params(name: String, age: int) {
 
 @expose
 task task_long_running() {
-  Runtime::sleep(1_min);
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: 60,
+  };
+  for (var i = 0; i < 60; i++) {
+    progress.update(i + 1);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(1_s);
+  }
 }
 
 @expose
@@ -410,11 +418,21 @@ type ComplexObject {
   nodeGeo: nodeGeo;
   nested: any;
   nodeNested: node<ComplexObject>?;
+  map: Map<String, any>;
 }
 
 @expose
 @write
 fn complex_object() {
+  var map = Map<String, any>::new();
+  map.set("first", { foo: "BAR", baz: 42 });
+  map.set("second", TimeZone::Africa_Abidjan);
+
+  var array = [42, 3.14, "hello world"];
+  for (var i = 0; i < 100; i++) {
+    array.add(i);
+  }
+
   return ComplexObject {
     string: "Hello, world!",
     int: 42,
@@ -424,7 +442,7 @@ fn complex_object() {
     geo: geo::new(1.4, -0.85),
     null: null,
     enum: TimeZone::Europe_Paris,
-    array: [42, 3.14, "hello world"],
+    array: array,
     nodeTime: nodeTime::new(),
     nodeIndex: nodeIndex::new(),
     nodeList: nodeList::new(),
@@ -459,11 +477,39 @@ fn complex_object() {
         nodeList: nodeList::new(),
         nodeGeo: nodeGeo::new(),
         nested: [],
+        map: Map<String, ComplexObject>::new(),
       }),
+    map: map,
+  };
+}
+
+@expose
+fn obj1() {
+  return {
+    prop1: "Hello",
+    prop2: User { id: 1000, name: "user1", activated: false, external: false },
+    prop3: Runtime::info(),
+  };
+}
+
+@expose
+fn obj2() {
+  var prop3 = Map::new();
+  prop3.set("entry1", Runtime::info());
+  prop3.set("entry2", Runtime::info());
+  prop3.set("entry3", Runtime::info());
+
+  return {
+    prop1: "Hello",
+    prop2: [User { id: 1000, name: "user1", activated: false, external: false }, User { id: 1001, name: "user2", activated: false, external: false }],
+    prop3: prop3,
   };
 }
 // pages/object end
 
+type SemiRecursive {
+  sub: SemiRecursive?;
+}
 
 type FooBar {}
 
@@ -477,3 +523,16 @@ fn add(a: int, b: int): int {
 fn anything(v: any?) {
   return v;
 }
+
+
+@expose
+fn mapTest() {
+  var map = Map::new();
+  map.set(DurationUnit::seconds, ["seconds", 1]);
+  map.set(DurationUnit::minutes, ["minutes", 2]);
+  map.set(DurationUnit::hours, ["hours", 3]);
+  return map;
+}
+
+@expose
+fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit) {}

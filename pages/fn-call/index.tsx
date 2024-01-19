@@ -1,6 +1,6 @@
-import { AbiFunction, FnCallInput, Value } from '../../src';
+import { AbiFunction, FnCallInput, Value, prettyError } from '../../src';
 import '../layout';
-import s from './index.module.css';
+import './index.css';
 
 const app = document.createElement('app-layout');
 app.title = 'Fn Call';
@@ -11,6 +11,7 @@ document.body.prepend(app);
 
 const argumentsEl = document.createElement('gui-object');
 const resultEl = document.createElement('gui-object');
+resultEl.value = `Click on 'Call' to see the result`;
 
 const input = new FnCallInput(
   'some-name',
@@ -25,49 +26,42 @@ const handleFnCall = async () => {
   try {
     resultEl.value = await greycat.default.call(input.fn.fqn, argumentsEl.value as Value[]);
   } catch (err) {
-    // TODO proper error handling
-    console.error(err);
+    resultEl.value = prettyError(err, 'Something went wrong with the function call');
   }
 };
 
 app.main.replaceChildren(
-  <div role="list">
-    <div className="grid">
-      <article>
-        <header>Pick a function</header>
-        <div className="container-fluid">
-          <gui-searchable-select
-            options={greycat.default.abi.functions.map((fn) => ({
-              text: fn.fqn,
-              value: fn,
-              selected: input.fn === fn,
-            }))}
-            onsearchable-select-change={(ev) => {
-              input.fn = ev.detail as AbiFunction;
-              resultEl.value = undefined;
-            }}
-          />
-        </div>
-      </article>
-      <article>
-        <header>Function arguments</header>
-        <div className="container-fluid">{input.element}</div>
-      </article>
-    </div>
-    <div className="grid">
-      <article>
-        <header className={s.callFnHeader}>
-          Input Data
-          <a href="#" onclick={handleFnCall}>
-            Call
-          </a>
-        </header>
-        <div className="container-fluid">{argumentsEl}</div>
-      </article>
-      <article>
-        <header>Function result</header>
-        <div className={['container-fluid', s.resultContainer]}>{resultEl}</div>
-      </article>
-    </div>
+  <div>
+    <fieldset>
+      <label>Pick a function:</label>
+      <gui-searchable-select
+        options={greycat.default.abi.functions.map((fn) => ({
+          text: fn.fqn,
+          value: fn,
+          selected: input.fn === fn,
+        }))}
+        onsearchable-select-change={(ev) => {
+          input.fn = ev.detail as AbiFunction;
+          resultEl.value = undefined;
+        }}
+      />
+    </fieldset>
+    <fieldset>
+      <label>Set the arguments of that function:</label>
+      {input.element}
+    </fieldset>
+    <details>
+      <summary>Show arguments</summary>
+      {argumentsEl}
+    </details>
+    <article>
+      <header>
+        Call the function
+        <a href="#" onclick={handleFnCall}>
+          Call
+        </a>
+      </header>
+      <div className="p-1">{resultEl}</div>
+    </article>
   </div>,
 );

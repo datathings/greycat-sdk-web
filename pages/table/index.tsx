@@ -1,4 +1,4 @@
-import { type core } from '../../src';
+import { core } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -12,7 +12,7 @@ app.actions.prepend(
     <a
       href="#"
       onclick={async () => {
-        tableEl.table = await greycat.default.call<core.Table>('project::table');
+        tableEl.value = await greycat.default.call<core.Table>('project::table');
       }}
     >
       Randomize
@@ -23,15 +23,7 @@ app.actions.prepend(
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');
 
-const dateFmt = new Intl.DateTimeFormat('fr-FR', { timeZone: 'Europe/Paris', timeStyle: 'medium', dateStyle: 'medium' });
-
-tableEl.cellProps = (_, value) => {
-  return {
-    value,
-    dateFmt,
-  };
-};
-tableEl.table = table;
+tableEl.value = table;
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
   switch (klass) {
@@ -46,6 +38,8 @@ tableEl.onrowupdate = (el, row) => {
       break;
   }
 };
+// tableEl.filter = "low";
+// tableEl.filterColumn = 2;
 
 tableEl.addEventListener('table-dblclick', (ev) => {
   window.alert(
@@ -57,7 +51,46 @@ tableEl.addEventListener('table-dblclick', (ev) => {
 
 app.main.appendChild(
   <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-    <header>project::table</header>
-    {tableEl}
+    <header style={{ display: 'flex', justifyContent: 'space-between' }}>
+      project::table
+      <div>
+        <gui-searchable-select
+          placeholder="Search a timezone"
+          value="UTC"
+          options={core.TimeZone.$fields().map((en) => ({
+            text: en.value as string,
+            value: en.value as string,
+          }))}
+          onsearchable-select-change={(ev) => {
+            tableEl.cellProps = (_, value) => ({
+              value,
+              dateFmt: new Intl.DateTimeFormat('fr-FR', {
+                year: '2-digit',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: ev.detail as string,
+                timeZoneName: 'longOffset',
+              }),
+            });
+            tableEl.update();
+          }}
+          style={{ fontWeight: 'normal' }}
+        />
+      </div>
+    </header>
+    <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
+      <input
+        type="search"
+        placeholder="Filter on every column"
+        oninput={(ev) => {
+          tableEl.filter = (ev.target as HTMLInputElement).value;
+        }}
+        style={{ marginBottom: '0', borderRadius: '0' }}
+      />
+      {tableEl}
+    </div>
   </article>,
 );

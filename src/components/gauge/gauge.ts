@@ -137,7 +137,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-gauge': Partial<Omit<GuiGauge, 'children'>>;
+      'gui-gauge': GreyCat.Element<GuiGauge>;
     }
   }
 }
