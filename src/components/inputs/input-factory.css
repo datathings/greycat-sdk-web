@@ -66,6 +66,10 @@
     display: grid;
     grid-template-columns: auto 1fr;
     width: 100%;
+
+    & > * {
+      min-width: 0;
+    }
   }
 }
 
@@ -129,6 +133,10 @@
     grid-template-columns: 1fr min-content;
     column-gap: var(--spacing);
     align-items: center;
+
+    & > * {
+      min-width: 0px;
+    }
 
     .gui-input-map-entry {
       width: 100%;

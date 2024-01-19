@@ -1,4 +1,4 @@
-import { GCEnum, GCObject, core, runtime, util } from '@greycat/sdk';
+import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n, util } from '@greycat/sdk';
 import type { GuiValueProps } from '../index.js';
 
 /**
@@ -197,8 +197,23 @@ export class GuiObject extends HTMLElement {
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.value = {
             cols: [indexes, values],
-            meta: [{ header: 'Index' }, { header: 'Value' }],
-          };
+            meta: [
+              new std_n.core.NativeTableColumnMeta(
+                greycat.default.abi,
+                PrimitiveType.int,
+                greycat.default.abi.type_by_fqn.get('core::int')?.mapped_type_off ?? 0,
+                true,
+                'Index',
+              ),
+              new std_n.core.NativeTableColumnMeta(
+                greycat.default.abi,
+                PrimitiveType.undefined,
+                0,
+                false,
+                'Value',
+              ),
+            ],
+          } as core.Table;
           tableEl.columnsWidths = [135];
           tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
           this.replaceChildren(tableEl);
