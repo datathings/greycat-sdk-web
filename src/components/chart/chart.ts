@@ -595,31 +595,7 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        let { xValue, rowIdx }: { xValue: number | undefined; rowIdx: number } = {
-          xValue: undefined,
-          rowIdx: 0,
-        };
-        if (
-          serie.type === 'scatter' &&
-          serie.xCol !== undefined &&
-          this._config.xAxis.scale === 'linear' &&
-          this._config.yAxes[serie.yAxis].scale === 'linear'
-        ) {
-          let minDistance = Infinity;
-          for (let i = 0; i < this._config.table.cols[0].length; i++) {
-            const xPos = xScale(vMap(this._config.table.cols[serie.xCol ?? 0][i]));
-            const yPos = yScales[serie.yAxis](vMap(this._config.table.cols[serie.yCol][i]));
-            const distance = Math.hypot(xPos - this._cursor.x, yPos - this._cursor.y);
-            if (distance < minDistance) {
-              xValue = this._config.table.cols[serie.xCol ?? 0][i];
-              rowIdx = i;
-              minDistance = distance;
-            }
-          }
-        } else {
-          ({ xValue, rowIdx } = closest(this._config.table, serie, v));
-        }
-
+        const { xValue, rowIdx } = closest(this._config.table, serie, v);
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])

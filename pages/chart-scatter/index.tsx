@@ -54,15 +54,13 @@ chart.setConfig({
   table: {
     cols: [
       Array.from({ length: 1000 }, d3.randomNormal(5, 1)),
-      Array.from({ length: 1000 }, d3.randomNormal(5, 1)),
     ],
   },
   series: [
     {
       type: 'scatter',
       yAxis: 'left',
-      yCol: 1,
-      xCol: 0,
+      yCol: 0,
       width: 3,
       markerWidth: 5,
     },
@@ -70,7 +68,7 @@ chart.setConfig({
   xAxis: {
     scale: 'linear',
     min: 0,
-    max: 10,
+    max: 1000,
   },
   yAxes: { left: { scale: 'linear', min: 0, max: 10 } },
   cursor: true,
