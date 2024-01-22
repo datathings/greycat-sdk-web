@@ -595,30 +595,8 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        let { xValue, rowIdx }: { xValue: number | undefined; rowIdx: number } = {
-          xValue: undefined,
-          rowIdx: 0,
-        };
-        if (
-          serie.type === 'scatter' &&
-          serie.xCol !== undefined &&
-          this._config.xAxis.scale === 'linear' &&
-          this._config.yAxes[serie.yAxis].scale === 'linear'
-        ) {
-          let minDistance = Infinity;
-          for (let i = 0; i < this._config.table.cols[0].length; i++) {
-            const xPos = xScale(vMap(this._config.table.cols[serie.xCol ?? 0][i]));
-            const yPos = yScales[serie.yAxis](vMap(this._config.table.cols[serie.yCol][i]));
-            const distance = Math.hypot(xPos - this._cursor.x, yPos - this._cursor.y);
-            if (distance < minDistance) {
-              xValue = this._config.table.cols[serie.xCol ?? 0][i];
-              rowIdx = i;
-              minDistance = distance;
-            }
-          }
-        } else {
-          ({ xValue, rowIdx } = closest(this._config.table, serie, v));
-        }
+
+        const { xValue, rowIdx } = closest(this._config.table,serie,this._cursor,xScale,yScales[serie.yAxis],v,this._config);
 
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
@@ -727,7 +705,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s, v);
+        const { xValue, rowIdx } = closest(this._config.table, s, this._cursor, xScale, yScales[s.yAxis], v, this._config);
 
         return {
           color: this._colors[i],
