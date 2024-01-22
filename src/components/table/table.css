@@ -72,6 +72,7 @@ gui-table gui-thead gui-thead-cell .gui-thead-filter {
   background-position: 1px 50%;
   background-repeat: no-repeat;
   background-size: 18px;
+  background-image: var(--icon-search);
 }
 gui-table gui-thead gui-thead-cell .gui-thead-filter:hover {
   background-color: var(--primary-focus);
