@@ -591,10 +591,15 @@ class GuiTableHeadCell extends HTMLElement {
   constructor() {
     super();
 
+    // make the filter focusable so we can catch it on the input blur event
+    this._filter.tabIndex = 0;
+
     this.addEventListener('click', (e) => {
       if (e.target === this._filter) {
         if (!this._dropdown.classList.contains('open')) {
           this.openDropdown();
+        } else if (this._dropdown.classList.contains('open')) {
+          this.closeDropdown();
         }
       } else if (e.target !== this._resizer && e.target !== this._input) {
         this.dispatchEvent(new TableSortEvent(this._index));
@@ -613,10 +618,13 @@ class GuiTableHeadCell extends HTMLElement {
       this.dispatchEvent(new TableFilterColumnEvent(this._index, target.value));
     });
 
-    this._input.addEventListener('blur', () => {
-      this.closeDropdown();
+    this._input.addEventListener('blur', (e) => {
+      // if the user clicked on the search icon, we let the click event handle the dropdown
+      if (e.relatedTarget !== this._filter) {
+        this.closeDropdown();
+      }
     });
-
+    
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' || ev.key === 'Enter') {
         this.closeDropdown();
