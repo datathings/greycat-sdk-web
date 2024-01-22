@@ -646,7 +646,6 @@ class GuiTableHeadCell extends HTMLElement {
     this._icons.default = styles.getPropertyValue('--icon-sort-default');
     this._icons.asc = styles.getPropertyValue('--icon-sort-asc');
     this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
-    this._icons.search = styles.getPropertyValue('--icon-search');
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
 
