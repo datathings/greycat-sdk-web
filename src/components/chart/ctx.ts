@@ -35,6 +35,7 @@ export class CanvasContext {
     if (table.cols.length === 0) {
       return;
     }
+    this.ctx.beginPath();
 
     const typeCol = serie.lineTypeCol ?? -1;
     const colorCol = serie.colorCol ?? -1;
@@ -108,6 +109,7 @@ export class CanvasContext {
     if (table.cols.length === 0) {
       return;
     }
+    this.ctx.beginPath();
 
     const typeCol = serie.lineTypeCol ?? -1;
     const colorCol = serie.colorCol ?? -1;
