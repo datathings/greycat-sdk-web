@@ -4,18 +4,18 @@ import './layout.css';
 export class AppLayout extends HTMLElement {
   readonly main = document.createElement('main');
   readonly actions = document.createElement('ul');
+  readonly lastAction = document.createElement('li');
 
   constructor() {
     super();
 
     this.main.className = 'container-fluid';
-    this.actions.appendChild(
-      <li>
-        <a href="#" onclick={() => this._toggleTheme()}>
-          Light / Dark
-        </a>
-      </li>,
+    this.lastAction.appendChild(
+      <a href="#" onclick={() => this._toggleTheme()}>
+        Light / Dark
+      </a>,
     );
+    this.actions.appendChild(this.lastAction);
   }
 
   connectedCallback() {
@@ -65,6 +65,18 @@ export class AppLayout extends HTMLElement {
     code.textContent = err instanceof Error ? err.stack ?? err.message : `${err}`;
 
     this.main.replaceChildren(document.createTextNode('Is GreyCat started?'), error);
+  }
+
+  addSimpleAction(text: string, onclick: (ev: MouseEvent) => void): this {
+    this.lastAction.before(
+      <li>
+        <a href="#" onclick={onclick}>
+          {text}
+        </a>
+      </li>,
+    );
+
+    return this;
   }
 
   private _toggleTheme(): void {

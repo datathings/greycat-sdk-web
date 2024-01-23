@@ -148,18 +148,21 @@ export class GuiTable extends HTMLElement {
       this.update();
       return;
     }
-    this._computeTable(table);
+    this._table = table;
+    this.computeTable();
     this.update();
   }
 
-  private _computeTable(table: TableLike) {
-    this._table = table;
-    this._rows.length = table.cols[0]?.length ?? 0;
+  computeTable() {
+    if (!this._table) {
+      return;
+    }
+    this._rows.length = this._table.cols[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
-      this._rows[rowIdx] = new Array(table.cols.length);
-      for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
-        this._rows[rowIdx][colIdx] = { value: table.cols[colIdx][rowIdx], originalIndex: rowIdx };
+      this._rows[rowIdx] = new Array(this._table.cols.length);
+      for (let colIdx = 0; colIdx < this._table.cols.length; colIdx++) {
+        this._rows[rowIdx][colIdx] = { value: this._table.cols[colIdx][rowIdx], originalIndex: rowIdx };
       }
     }
   }
@@ -179,6 +182,20 @@ export class GuiTable extends HTMLElement {
 
   resetColumnsWidth(): void {
     this._thead.widths.length = 0;
+    this.update();
+  }
+
+  fitColumnsToHeaders(): void {
+    if (!this._table) {
+      return;
+    }
+    this._thead.querySelectorAll('gui-thead-cell').forEach((el, i) => {
+      const titleEl = el.querySelector<HTMLElement>('.gui-thead-title')!;
+      const titleFitWidth = titleEl.scrollWidth + 48 /* the minimum for the icons */ + 6 /* some extra */;
+      if (titleFitWidth > el.scrollWidth) {
+        this._thead.widths[i] = titleFitWidth;
+      }
+    });
     this.update();
   }
 
@@ -255,10 +272,8 @@ export class GuiTable extends HTMLElement {
     headers: string[];
     columnsWidths: number[];
   }>) {
-    table = table ?? value;
-    if (this._table !== table && table !== undefined) {
-      this._computeTable(table);
-    }
+    this._table = table ?? value;
+    this.computeTable();
     this._filterText = filter;
     this._cellProps = cellProps;
     this._headers = headers;
@@ -624,7 +639,7 @@ class GuiTableHeadCell extends HTMLElement {
         this.closeDropdown();
       }
     });
-    
+
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' || ev.key === 'Enter') {
         this.closeDropdown();
