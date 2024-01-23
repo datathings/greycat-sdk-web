@@ -595,7 +595,9 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie, v);
+
+        const { xValue, rowIdx } = closest(this._config,serie,this._cursor,xScale,yScales[serie.yAxis],v);
+
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
@@ -703,7 +705,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s, v);
+        const { xValue, rowIdx } = closest(this._config, s, this._cursor, xScale, yScales[s.yAxis], v);
 
         return {
           color: this._colors[i],

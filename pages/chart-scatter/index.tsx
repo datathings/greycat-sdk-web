@@ -9,10 +9,13 @@ await app.init();
 
 document.body.prepend(app);
 
-let nbPoints = 10;
+let nbPoints = 100;
 const randomTable = (): TableLike => {
   return {
-    cols: [Array.from({ length: nbPoints }, d3.randomNormal(5, 1))],
+    cols: [
+      Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
+      Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
+    ],
   };
 };
 
@@ -72,19 +75,17 @@ chart.setConfig({
     {
       type: 'scatter',
       yAxis: 'left',
-      yCol: 0,
+      yCol: 1,
+      xCol: 0,
       width: 3,
       markerWidth: 5,
       markerColor: 'orange',
-      markerThreshold: {
-        x: 5,
-        y: 5,
-      },
     },
   ],
   xAxis: {
     scale: 'linear',
     min: 0,
+    max: 10,
   },
   yAxes: { left: { scale: 'linear', min: 0, max: 10 } },
   cursor: true,
