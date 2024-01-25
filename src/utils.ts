@@ -194,57 +194,67 @@ export function emptyDataElement(cssClass: string) {
 
 /**
  * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
- * 
+ *
  * @param file the File to upload
  * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
  * @param progress a callback called on progress
  * @param greycat
+ *
+ * @returns a `start` function that returns a `Promise` that resolves when the upload is complete, and a `stop` function that aborts the upload.
+ *
  */
 export function putFileProgress(
   file: File,
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
   g = greycat.default,
-) {
-  return new Promise<void>((resolve, reject) => {
-    const route = `files/${filepath}`;
-    const xhr = new XMLHttpRequest();
-    xhr.open('PUT', `${g.api}/${route}`, true);
+): { start: () => Promise<void>; stop: () => void } {
+  const xhr = new XMLHttpRequest();
 
-    // Track upload progress
-    xhr.upload.addEventListener('progress', (event) => {
-      if (event.lengthComputable) {
-        progress(event);
-      }
+  const stop = () => {
+    xhr.abort();
+  };
+  const start = () =>
+    new Promise<void>((resolve, reject) => {
+      const route = `files/${filepath}`;
+      xhr.open('PUT', `${g.api}/${route}`, true);
+
+      // Track upload progress
+      xhr.upload.addEventListener('progress', (event) => {
+        if (event.lengthComputable) {
+          progress(event);
+        }
+      });
+
+      // Handle success and failure
+      xhr.onload = () => {
+        if (xhr.status >= 200 && xhr.status < 300) {
+          resolve();
+        } else if (xhr.status === 403) {
+          // forbidden
+          // unauthorized
+          debugLogger(xhr.status, route);
+          reject(new Error('forbidden'));
+        } else if (xhr.status === 401) {
+          // unauthorized
+          debugLogger(xhr.status, route);
+          g.token = undefined;
+          g.unauthorizedHandler?.();
+          reject(new Error(`you must be logged-in to upload files`));
+        } else {
+          reject(new Error(`File upload failed with status ${xhr.status}`));
+        }
+      };
+
+      xhr.onerror = () => {
+        reject(new Error('Network error during file upload'));
+      };
+
+      // Send the file
+      xhr.send(file);
     });
 
-    // Handle success and failure
-    xhr.onload = () => {
-      if (xhr.status >= 200 && xhr.status < 300) {
-        resolve();
-      } else if (xhr.status === 403) {
-        // forbidden
-        // unauthorized
-        debugLogger(xhr.status, route);
-        reject(new Error('forbidden'));
-      } else if (xhr.status === 401) {
-        // unauthorized
-        debugLogger(xhr.status, route);
-        g.token = undefined;
-        g.unauthorizedHandler?.();
-        reject(new Error(`you must be logged-in to upload files`));
-      } else {
-        reject(new Error(`File upload failed with status ${xhr.status}`));
-      }
-    };
-
-    xhr.onerror = () => {
-      reject(new Error('Network error during file upload'));
-    };
-
-    // Send the file
-    xhr.send(file);
-  });
+  return { start, stop };
 }
 
 export function getIndexInParent(element: Element): number {
