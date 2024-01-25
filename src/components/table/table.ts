@@ -191,9 +191,9 @@ export class GuiTable extends HTMLElement {
     }
     this._thead.querySelectorAll('gui-thead-cell').forEach((el, i) => {
       const titleEl = el.querySelector<HTMLElement>('.gui-thead-title')!;
-      const titleFitWidth = titleEl.scrollWidth + 48 /* the minimum for the icons */ + 6 /* some extra */;
+      const titleFitWidth = titleEl.scrollWidth + 48 /* the minimum for the icons */ + 6 /* spacing (arguably this should be tied to var(--spacing)) */;
       if (titleFitWidth > el.scrollWidth) {
-        this._thead.widths[i] = titleFitWidth;
+        this._thead.widths[i] = titleFitWidth + 1; // +1 to prevent ellipsis from happening
       }
     });
     this.update();
