@@ -629,7 +629,6 @@ export class GuiChart extends HTMLElement {
           case 'line+scatter':
           case 'scatter':
           case 'line':
-          case 'step':
           case 'line+area':
           case 'area': {
             // make sure to also add a marker when 'yCol2' is defined
@@ -975,9 +974,6 @@ export class GuiChart extends HTMLElement {
       switch (serie.type) {
         case 'line':
           this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'step':
-          this._ctx.step(this._config.table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+scatter':
           this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);

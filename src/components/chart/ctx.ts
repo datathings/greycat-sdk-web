@@ -1,5 +1,5 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions } from './types.js';
+import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions, CurveSeries } from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
@@ -31,7 +31,7 @@ const SEGMENTS: Record<number, number[]> = {
 export class CanvasContext {
   constructor(public ctx: Ctx) {}
 
-  line(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  line(table: TableLike, serie: SerieWithOptions & CurveSeries, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -77,82 +77,10 @@ export class CanvasContext {
         this.ctx.moveTo(x, y);
         first = false;
       } else {
-        this.ctx.lineTo(x, y);
-      }
-
-      if (prevSegments !== lineDash || this.ctx.strokeStyle !== currColor) {
-        // close previous path
-        this.ctx.stroke();
-
-        // start new path type
-        this.ctx.strokeStyle = currColor;
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        this.ctx.setLineDash(lineDash);
-      }
-
-      prevSegments = lineDash;
-      this.ctx.strokeStyle = currColor;
-
-      if (x === xMax) {
-        break;
-      }
-    }
-
-    this.ctx.stroke();
-    // this.ctx.closePath();
-
-    this.ctx.restore();
-  }
-
-  step(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
-      return;
-    }
-    this.ctx.beginPath();
-
-    const typeCol = serie.lineTypeCol ?? -1;
-    const colorCol = serie.colorCol ?? -1;
-    const colorMap = serie.colorMapping ?? ((v) => v);
-
-    this.ctx.save();
-
-    this.ctx.lineWidth = serie.width;
-    this.ctx.strokeStyle = serie.color;
-    this.ctx.globalAlpha = serie.opacity ?? 1;
-
-    const [xMin, xMax] = xScale.range();
-    const [yMin, yMax] = yScale.range();
-
-    let prevSegments = SEGMENTS[0];
-    // let prevColor = serie.color;
-    let first = true;
-    for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
-        // close previous path
-        if (!first) {
-          this.ctx.stroke();
+        if (serie.curve === 'stepAfter') {
+          const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+          this.ctx.lineTo(x, prevY);
         }
-        first = true;
-        continue;
-      }
-      const notDefined =
-        table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
-      const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[table.cols[typeCol]?.[i] ?? 0];
-      const currColor = notDefined
-        ? serie.color
-        : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
-
-      if (first) {
-        this.ctx.setLineDash(lineDash);
-        this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
-        first = false;
-      } else {
-        const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
-        this.ctx.lineTo(x, prevY);
         this.ctx.lineTo(x, y);
       }
 
@@ -287,7 +215,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  area(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  area(table: TableLike, serie: SerieWithOptions & CurveSeries, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -313,6 +241,10 @@ export class CanvasContext {
     // line
     for (let i = 1; i < table.cols[0].length; i++) {
       const pt = computePoint(serie.xCol, serie.yCol, i);
+      if (serie.curve === 'stepAfter') {
+        const prevY = computePoint(serie.xCol, serie.yCol, i - 1).y;
+        this.ctx.lineTo(pt.x, prevY);
+      }
       this.ctx.lineTo(pt.x, pt.y);
       lastX = pt.x;
 
@@ -374,6 +306,10 @@ export class CanvasContext {
           y = yMax;
         }
         this.ctx.lineTo(x, y);
+        if (serie.curve === 'stepAfter') {
+          const prevY = computePoint(serie.xCol, serie.yCol2, i - 1).y;
+          this.ctx.lineTo(x, prevY);
+        }
       }
       this.ctx.lineTo(firstX, firstY); // start of line
       this.ctx.fill();

@@ -14,6 +14,7 @@ export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 export type SerieWithOptions = Serie & SerieOptions;
+export type CurveStyle = 'linear' | 'stepAfter';
 
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +39,7 @@ export type SelectionOptions = {
    * - `'vertical'` means only selectable according to y axes
    * - `'horizontal'` means only selectable according to x axis
    * - `'both'` means selectable on y & x axes
-   * 
+   *
    * Defaults to 'horizontal'
    */
   orientation: 'vertical' | 'horizontal' | 'both';
@@ -80,7 +81,7 @@ export type CommonAxis = {
   cursorFormat?: string;
   /**
    * Zoom ratio on wheel events on the axis.
-   * 
+   *
    * Setting this to `0` disables the behavior completely.
    */
   ratio?: number;
@@ -135,16 +136,16 @@ export type SerieOptions = {
   markerColor: string;
   /**
    * When defined, this value is used to control the marker drawing logic.
-   * 
+   *
    * All values are in pixels.
-   * 
+   *
    * If only `markerThreshold.x` is defined, then the marker will be drawn if `Math.abs(cursor.x - closestValue.x) <= markerThreshold.x`
    *
    * If only `markerThreshold.y` is defined, then the marker will be drawn if `Math.abs(cursor.y - closestValue.y) <= markerThreshold.y`
-   * 
+   *
    * If both `markerThreshold.x` and `markerThreshold.y` the same logic applies but both must be `true` for the marker to be drawn.
    */
-  markerThreshold?: {x?: number; y?: number };
+  markerThreshold?: { x?: number; y?: number };
   opacity: number;
   fillOpacity: number;
   /**
@@ -155,7 +156,7 @@ export type SerieOptions = {
   yCol2: SecondOrdinate;
   /**
    * If `true` this serie value won't show in the tooltip.
-   * 
+   *
    * *This only works when using the native tooltip*
    */
   hideInTooltip: boolean;
@@ -172,6 +173,17 @@ export type SerieOptions = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
 };
+
+export interface CurveSeries {
+  /**
+   * If defined, the line will be drawn using the specified style default to `linear`
+   *
+   * `linear` - draws a straight line between points
+   *
+   * `stepAfter` - draws a vertical line from the previous point to the current point
+   */
+  curve?: CurveStyle;
+}
 
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
@@ -215,19 +227,15 @@ export interface CustomSerie<K> extends CommonSerie<K> {
   draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
-export interface LineSerie<K> extends CommonSerie<K> {
+export interface LineSerie<K> extends CurveSeries, CommonSerie<K> {
   type: 'line';
-}
-
-export interface StepSerie<K> extends CommonSerie<K> {
-  type: 'step';
 }
 
 export interface BarSerie<K> extends CommonSerie<K> {
   type: 'bar';
   /**
    * Use this when you want to have bars that match a specific width.
-   * 
+   *
    * For every entry in those columns the bar will span from `spanCol[0] to `spanCol[1]`.
    */
   spanCol?: [number, number];
@@ -237,15 +245,15 @@ export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
 }
 
-export interface LineScatterSerie<K> extends CommonSerie<K> {
+export interface LineScatterSerie<K> extends CurveSeries, CommonSerie<K> {
   type: 'line+scatter';
 }
 
-export interface AreaSerie<K> extends CommonSerie<K> {
+export interface AreaSerie<K> extends CurveSeries, CommonSerie<K> {
   type: 'area';
 }
 
-export interface LineAreaSerie<K> extends CommonSerie<K> {
+export interface LineAreaSerie<K> extends CurveSeries, CommonSerie<K> {
   type: 'line+area';
 }
 
@@ -256,8 +264,7 @@ export type Serie<K extends string = string> =
   | LineScatterSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
-  | CustomSerie<K>
-  | StepSerie<K>;
+  | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
   table: TableLike;
