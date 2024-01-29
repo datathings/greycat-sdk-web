@@ -250,6 +250,10 @@ export function putFileProgress(
         reject(new Error('Network error during file upload'));
       };
 
+      xhr.onabort = () => {
+        reject(new Error('Upload aborted'));
+      };
+
       // Send the file
       xhr.send(file);
     });
