@@ -257,11 +257,17 @@ export interface LineAreaSerie<K> extends CurveSeries, CommonSerie<K> {
   type: 'line+area';
 }
 
+export interface StepSerie<K> extends CommonSerie<K> {
+  /**@deprecated type `step` is deprecated use type `line` with curve parameter as `stepAfter` */
+  type: 'step';
+}
+
 export type Serie<K extends string = string> =
   | LineSerie<K>
   | BarSerie<K>
   | ScatterSerie<K>
   | LineScatterSerie<K>
+  | StepSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
   | CustomSerie<K>;
