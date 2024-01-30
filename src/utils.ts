@@ -208,57 +208,56 @@ export function putFileProgress(
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
   g = greycat.default,
-): { start: () => Promise<void>; stop: () => void } {
+): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 
-  const stop = () => {
-    xhr.abort();
-  };
-  const start = () =>
-    new Promise<void>((resolve, reject) => {
-      const route = `files/${filepath}`;
-      xhr.open('PUT', `${g.api}/${route}`, true);
+  const promise = new Promise<void>((resolve, reject) => {
+    const route = `files/${filepath}`;
+    xhr.open('PUT', `${g.api}/${route}`, true);
 
-      // Track upload progress
-      xhr.upload.addEventListener('progress', (event) => {
-        if (event.lengthComputable) {
-          progress(event);
-        }
-      });
-
-      // Handle success and failure
-      xhr.onload = () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          resolve();
-        } else if (xhr.status === 403) {
-          // forbidden
-          // unauthorized
-          debugLogger(xhr.status, route);
-          reject(new Error('forbidden'));
-        } else if (xhr.status === 401) {
-          // unauthorized
-          debugLogger(xhr.status, route);
-          g.token = undefined;
-          g.unauthorizedHandler?.();
-          reject(new Error(`you must be logged-in to upload files`));
-        } else {
-          reject(new Error(`File upload failed with status ${xhr.status}`));
-        }
-      };
-
-      xhr.onerror = () => {
-        reject(new Error('Network error during file upload'));
-      };
-
-      xhr.onabort = () => {
-        reject(new Error('Upload aborted'));
-      };
-
-      // Send the file
-      xhr.send(file);
+    // Track upload progress
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        progress(event);
+      }
     });
 
-  return { start, stop };
+    // Handle success and failure
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else if (xhr.status === 403) {
+        // forbidden
+        // unauthorized
+        debugLogger(xhr.status, route);
+        reject(new Error('forbidden'));
+      } else if (xhr.status === 401) {
+        // unauthorized
+        debugLogger(xhr.status, route);
+        g.token = undefined;
+        g.unauthorizedHandler?.();
+        reject(new Error(`you must be logged-in to upload files`));
+      } else {
+        reject(new Error(`File upload failed with status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error during file upload'));
+    };
+
+    xhr.onabort = () => {
+      reject(new Error('Upload aborted'));
+    };
+
+    // Send the file
+    xhr.send(file);
+  });
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  (promise as any).abort = () => xhr.abort();
+
+  return promise as Promise<void> & { abort: () => void };
 }
 
 export function getIndexInParent(element: Element): number {
