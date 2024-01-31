@@ -38,6 +38,10 @@ export class GuiSearchableSelect extends HTMLElement {
       this._list.style.visibility = 'visible';
     });
 
+    this._input.addEventListener('click', () => {
+      this._list.style.visibility = 'visible';
+    });
+
     this._input.addEventListener('blur', () => {
       setTimeout(() => {
         this._list.style.visibility = 'hidden';
