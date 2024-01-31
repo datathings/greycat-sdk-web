@@ -10,6 +10,7 @@ export interface SearchableOption {
 export class GuiSearchableSelect extends HTMLElement {
   private _input: HTMLInputElement;
   private _list: HTMLElement;
+  private _clearButton: HTMLElement;
   private _options: SearchableOption[];
 
   constructor() {
@@ -17,10 +18,18 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._options = [];
 
+    this._clearButton = document.createElement('div');
+    this._clearButton.innerText = '✕';
+    this._clearButton.classList.add('gui-searchable-select-clear');
+
+    this._clearButton.addEventListener('click', () => {
+      this._input.value = '';
+      this._input.focus();
+    });
+
     // Create an input element for searching
     this._input = document.createElement('input');
     this._input.classList.add('gui-searchable-select-input');
-    this._input.type = 'search';
     this._input.placeholder = 'Search...';
 
     // Handle input events for filtering options
@@ -115,6 +124,7 @@ export class GuiSearchableSelect extends HTMLElement {
   connectedCallback() {
     this.appendChild(this._input);
     this.appendChild(this._list);
+    this.appendChild(this._clearButton);
 
     if (this._options.length === 0) {
       this._emptyList();
