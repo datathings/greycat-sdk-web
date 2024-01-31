@@ -200,7 +200,7 @@ export class GuiSearchableSelect extends HTMLElement {
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
       const itemEl = document.createElement('div');
-      const value = opt.value === undefined ? opt.text : opt.value;
+      const value = 'value' in opt ? opt.value : opt.text;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (itemEl as any).__value = value;
       itemEl.textContent = opt.text;
