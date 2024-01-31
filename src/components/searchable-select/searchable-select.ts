@@ -48,6 +48,10 @@ export class GuiSearchableSelect extends HTMLElement {
       this.showDropdown()
     });
 
+    this._input.addEventListener('click', () => {
+      this.showDropdown();
+    });
+
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
         this.hideDropdown()
