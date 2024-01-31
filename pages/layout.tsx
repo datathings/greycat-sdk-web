@@ -1,4 +1,4 @@
-import { init } from '../src';
+import { GreyCat, IndexedDbCache } from '../src';
 import './layout.css';
 
 export class AppLayout extends HTMLElement {
@@ -50,7 +50,9 @@ export class AppLayout extends HTMLElement {
 
   async init() {
     try {
-      greycat.default = await init();
+      greycat.default = await GreyCat.init({
+        cache: new IndexedDbCache('greycat.default'),
+      });
     } catch (err) {
       this.setError(err);
     }
