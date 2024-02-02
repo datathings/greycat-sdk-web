@@ -643,12 +643,18 @@ export class GuiChart extends HTMLElement {
           case 'bar': {
             const s = serie as BarSerie<string>;
             let w = serie.width;
+            let h = yRange[0] - y;
+            let rectY = y + (yRange[0] - y) / 2;
             if (s.spanCol) {
               const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
               const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, w, yRange[0] - y, {
+            if (s.baseLine !== undefined) {
+              rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
+              h = yScales[serie.yAxis](s.baseLine) - y;
+            }
+            this._uxCtx.rectangle(x, rectY, w, h, {
               color: style['accent-0'],
             });
             break;
