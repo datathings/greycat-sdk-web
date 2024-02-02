@@ -18,7 +18,8 @@
       "import": "./dist/jsx-dev-runtime.js"
     },
     "./css/*.css": "./dist/css/*.css",
-    "./fonts/*.ttf": "./public/*.ttf"
+    "./fonts/*.ttf": "./public/*.ttf",
+    "./fonts/*.woff": "./public/*.woff"
   },
   "license": "Apache-2.0",
   "files": [
@@ -34,7 +35,10 @@
     "dist/jsx-runtime.d.ts",
     "public/OpenSans-Regular.ttf",
     "public/OpenSans-Italic.ttf",
-    "public/OpenSans-Bold.ttf"
+    "public/OpenSans-Bold.ttf",
+    "public/OpenSans-Regular.woff",
+    "public/OpenSans-Italic.woff",
+    "public/OpenSans-Bold.woff"
   ],
   "scripts": {
     "clean": "rm -rf dist",
