@@ -23,7 +23,7 @@ app.actions.prepend(
     <li>
       <fieldset role="group">
         <label htmlFor="">Baseline</label>
-        <input type="number" defaultValue={`${baseLine}`} onchange={updateBaseline} />
+        <input type="number" defaultValue={`${baseLine}`} oninput={updateBaseline} />
       </fieldset>
     </li>
     <li>
