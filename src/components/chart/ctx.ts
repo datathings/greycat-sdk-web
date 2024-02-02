@@ -35,6 +35,7 @@ export class CanvasContext {
     if (table.cols.length === 0) {
       return;
     }
+    this.ctx.beginPath();
 
     const typeCol = serie.lineTypeCol ?? -1;
     const colorCol = serie.colorCol ?? -1;
@@ -108,6 +109,7 @@ export class CanvasContext {
     if (table.cols.length === 0) {
       return;
     }
+    this.ctx.beginPath();
 
     const typeCol = serie.lineTypeCol ?? -1;
     const colorCol = serie.colorCol ?? -1;
@@ -202,6 +204,7 @@ export class CanvasContext {
       let x: number;
       let y: number;
       let w: number;
+      let h: number;
       if (serie.spanCol) {
         let x0 = xScale(vMap(table.cols[serie.spanCol[0]][i]));
         let x1 = xScale(vMap(table.cols[serie.spanCol[1]][i]));
@@ -240,7 +243,12 @@ export class CanvasContext {
       this.ctx.fillStyle = serie.colorCol
         ? colorMap(table.cols[serie.colorCol]?.[i]) ?? serie.color
         : serie.color;
-      this.ctx.fillRect(x, y, w, yMin - y);
+      if (serie.baseLine !== undefined) {
+        h = yScale(serie.baseLine) - y;
+      } else {
+        h = yMin - y;
+      }
+      this.ctx.fillRect(x, y, w, h);
     }
 
     this.ctx.restore();

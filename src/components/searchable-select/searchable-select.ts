@@ -35,22 +35,26 @@ export class GuiSearchableSelect extends HTMLElement {
         }
       });
 
-      this._list.style.visibility = 'visible';
+      this.showDropdown()
     });
 
     this._input.addEventListener('blur', () => {
       setTimeout(() => {
-        this._list.style.visibility = 'hidden';
+        this.hideDropdown()
       }, 0);
     });
 
     this._input.addEventListener('focus', () => {
-      this._list.style.visibility = 'visible';
+      this.showDropdown()
+    });
+
+    this._input.addEventListener('click', () => {
+      this.showDropdown();
     });
 
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
-        this._list.style.visibility = 'hidden';
+        this.hideDropdown()
         ev.preventDefault();
       } else if (ev.key === 'Enter') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -64,7 +68,7 @@ export class GuiSearchableSelect extends HTMLElement {
           ev.preventDefault();
           const item = items[selectedIndex];
           item.classList.add('selected');
-          this._list.style.visibility = 'hidden';
+          this.hideDropdown()
           this._input.value = item.textContent!;
           const index = getIndexInParent(item);
           const value = this._options[index].value === undefined ? this._options[index].text : this._options[index].value;
@@ -105,7 +109,7 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-searchable-select-list');
-    this._list.style.visibility = 'hidden';
+    this.hideDropdown()
   }
 
   connectedCallback() {
@@ -196,7 +200,7 @@ export class GuiSearchableSelect extends HTMLElement {
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
       const itemEl = document.createElement('div');
-      const value = opt.value === undefined ? opt.text : opt.value;
+      const value = 'value' in opt ? opt.value : opt.text;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (itemEl as any).__value = value;
       itemEl.textContent = opt.text;
@@ -213,7 +217,7 @@ export class GuiSearchableSelect extends HTMLElement {
         }
         itemEl.classList.add('selected');
         opt.selected = true;
-        this._list.style.visibility = 'hidden';
+        this.hideDropdown()
         this._input.focus();
         this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
       });
@@ -221,6 +225,14 @@ export class GuiSearchableSelect extends HTMLElement {
       fragment.appendChild(itemEl);
     }
     this._list.replaceChildren(fragment);
+  }
+
+  showDropdown(): void {
+    this._list.style.visibility = 'visible';
+  }
+
+  hideDropdown(): void {
+    this._list.style.visibility = 'hidden';
   }
 
   private _emptyList(): void {

@@ -1,4 +1,5 @@
-import { core } from '../../src';
+import * as d3 from 'd3';
+import { PrimitiveType, core, std_n } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -7,18 +8,29 @@ await app.init();
 
 document.body.prepend(app);
 
-app.actions.prepend(
-  <li>
-    <a
-      href="#"
-      onclick={async () => {
-        tableEl.value = await greycat.default.call<core.Table>('project::table');
-      }}
-    >
-      Randomize
-    </a>
-  </li>,
-);
+app
+  .addSimpleAction('Randomize', async () => {
+    tableEl.value = await greycat.default.call<core.Table>('project::table');
+  })
+  .addSimpleAction('Add column', () => {
+    if (tableEl.value) {
+      const newCol = Array.from({ length: tableEl.value.cols[0].length }).map(d3.randomInt(1000));
+      tableEl.value.cols.push(newCol);
+      tableEl.value.meta?.push(
+        new std_n.core.NativeTableColumnMeta(
+          greycat.default.abi,
+          PrimitiveType.int,
+          greycat.default.abi.type_by_fqn.get('core::int')!.mapped_type_off,
+          false,
+          `Column ${tableEl.value.cols.length}`,
+        ),
+      );
+      tableEl.computeTable();
+      tableEl.update();
+    }
+  })
+  .addSimpleAction('Fit columns', () => tableEl.fitColumnsToHeaders())
+  .addSimpleAction('Reset columns', () => tableEl.resetColumnsWidth());
 
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');

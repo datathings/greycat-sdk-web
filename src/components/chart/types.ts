@@ -231,6 +231,11 @@ export interface BarSerie<K> extends CommonSerie<K> {
    * For every entry in those columns the bar will span from `spanCol[0] to `spanCol[1]`.
    */
   spanCol?: [number, number];
+
+  /**
+   * The point on the y axis from which the bars are drawn either upward or downward
+   */
+  baseLine?: number;
 }
 
 export interface ScatterSerie<K> extends CommonSerie<K> {

@@ -205,10 +205,11 @@ export function putFileProgress(
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
   g = greycat.default,
-) {
-  return new Promise<void>((resolve, reject) => {
+): Promise<void> & { abort: () => void } {
+  const xhr = new XMLHttpRequest();
+
+  const promise = new Promise<void>((resolve, reject) => {
     const route = `files/${filepath}`;
-    const xhr = new XMLHttpRequest();
     xhr.open('PUT', `${g.api}/${route}`, true);
 
     // Track upload progress
@@ -245,6 +246,11 @@ export function putFileProgress(
     // Send the file
     xhr.send(file);
   });
+
+  const cancellablePromise = promise as Promise<void> & { abort: () => void };
+  cancellablePromise.abort = () => xhr.abort();
+
+  return cancellablePromise;
 }
 
 export function getIndexInParent(element: Element): number {

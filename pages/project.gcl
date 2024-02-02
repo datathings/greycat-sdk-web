@@ -536,3 +536,14 @@ fn mapTest() {
 
 @expose
 fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit) {}
+
+@expose
+fn now() {
+  var now = time::now();
+  return {
+    azores: now.toDate(TimeZone::Atlantic_Azores),
+    utc: now.toDateUTC(),
+    paris: now.toDate(TimeZone::Europe_Paris),
+    athens: now.toDate(TimeZone::Europe_Athens),
+  };
+}

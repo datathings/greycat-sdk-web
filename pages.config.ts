@@ -40,7 +40,9 @@ function computeInputs() {
   const input = {};
 
   function readdir(path: string) {
-    readdirSync(path).forEach((entry) => handleEntry(resolve(__dirname, path, entry)));
+    readdirSync(path)
+      .filter((entry) => !entry.startsWith('_'))
+      .forEach((entry) => handleEntry(resolve(__dirname, path, entry)));
   }
 
   function handleEntry(path: string) {

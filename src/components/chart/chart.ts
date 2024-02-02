@@ -595,7 +595,9 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie, v);
+
+        const { xValue, rowIdx } = closest(this._config,serie,this._cursor,xScale,yScales[serie.yAxis],v);
+
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
@@ -641,12 +643,18 @@ export class GuiChart extends HTMLElement {
           case 'bar': {
             const s = serie as BarSerie<string>;
             let w = serie.width;
+            let h = yRange[0] - y;
+            let rectY = y + (yRange[0] - y) / 2;
             if (s.spanCol) {
               const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
               const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, w, yRange[0] - y, {
+            if (s.baseLine !== undefined) {
+              rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
+              h = yScales[serie.yAxis](s.baseLine) - y;
+            }
+            this._uxCtx.rectangle(x, rectY, w, h, {
               color: style['accent-0'],
             });
             break;
@@ -703,7 +711,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s, v);
+        const { xValue, rowIdx } = closest(this._config, s, this._cursor, xScale, yScales[s.yAxis], v);
 
         return {
           color: this._colors[i],

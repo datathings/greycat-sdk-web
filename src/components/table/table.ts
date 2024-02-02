@@ -148,18 +148,24 @@ export class GuiTable extends HTMLElement {
       this.update();
       return;
     }
-    this._computeTable(table);
+    this._table = table;
+    this.computeTable();
     this.update();
   }
 
-  private _computeTable(table: TableLike) {
-    this._table = table;
-    this._rows.length = table.cols[0]?.length ?? 0;
+  computeTable() {
+    if (!this._table) {
+      return;
+    }
+    this._rows.length = this._table.cols[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
-      this._rows[rowIdx] = new Array(table.cols.length);
-      for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
-        this._rows[rowIdx][colIdx] = { value: table.cols[colIdx][rowIdx], originalIndex: rowIdx };
+      this._rows[rowIdx] = new Array(this._table.cols.length);
+      for (let colIdx = 0; colIdx < this._table.cols.length; colIdx++) {
+        this._rows[rowIdx][colIdx] = {
+          value: this._table.cols[colIdx][rowIdx],
+          originalIndex: rowIdx,
+        };
       }
     }
   }
@@ -179,6 +185,23 @@ export class GuiTable extends HTMLElement {
 
   resetColumnsWidth(): void {
     this._thead.widths.length = 0;
+    this.update();
+  }
+
+  fitColumnsToHeaders(): void {
+    if (!this._table) {
+      return;
+    }
+    this._thead.querySelectorAll('gui-thead-cell').forEach((el, i) => {
+      const titleEl = el.querySelector<HTMLElement>('.gui-thead-title')!;
+      const titleFitWidth =
+        titleEl.scrollWidth +
+        48 /* the minimum for the icons */ +
+        6; /* spacing (arguably this should be tied to var(--spacing)) */
+      if (titleFitWidth > el.scrollWidth) {
+        this._thead.widths[i] = titleFitWidth + 1; // +1 to prevent ellipsis from happening
+      }
+    });
     this.update();
   }
 
@@ -209,7 +232,7 @@ export class GuiTable extends HTMLElement {
 
   /**
    * Per-column filter.
-   * 
+   *
    * *Specify as many entry as there is columns in the table. `undefined` or "empty string" means no filtering for that column.
    */
   get filterColumns() {
@@ -255,10 +278,8 @@ export class GuiTable extends HTMLElement {
     headers: string[];
     columnsWidths: number[];
   }>) {
-    table = table ?? value;
-    if (this._table !== table && table !== undefined) {
-      this._computeTable(table);
-    }
+    this._table = table ?? value;
+    this.computeTable();
     this._filterText = filter;
     this._cellProps = cellProps;
     this._headers = headers;
@@ -399,7 +420,9 @@ export class GuiTable extends HTMLElement {
 
     let rows = this._rows;
     if (this._filterText.length > 0 || this._filterColumns.find((s) => s && s.length > 0)) {
-      rows = this._rows.filter((row) => this._filterRow(this._filterText, this._filterColumns, row));
+      rows = this._rows.filter((row, rowIdx) =>
+        this._filterRow(this._filterText, this._filterColumns, row, rowIdx, this._cellProps),
+      );
       this.dispatchEvent(new TableFilterEvent(rows));
     }
 
@@ -415,13 +438,19 @@ export class GuiTable extends HTMLElement {
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
-  private _filterRow(globalFilter: string, colFilters: Array<string | undefined>, row: Cell[]): boolean {
+  private _filterRow(
+    globalFilter: string,
+    colFilters: Array<string | undefined>,
+    row: Cell[],
+    rowIdx: number,
+    cellProps: CellPropsFactory,
+  ): boolean {
     // cache stringified cells
     const cells: string[] = [];
 
     for (let i = 0; i < row.length; i++) {
       const colFilter = colFilters[i];
-      cells[i] = utils.stringify({ value: row[i].value }).toLowerCase();
+      cells[i] = utils.stringify(cellProps(row, row[i].value, rowIdx, i)).toLowerCase();
       if (colFilter && colFilter.length > 0) {
         // check column filter
         if (!cells[i].includes(colFilter)) {
@@ -514,7 +543,7 @@ class GuiTableHead extends HTMLElement {
 /**
  * `detail` contains the target column index and the current `event.clientX`
  */
-class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
+export class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
   constructor(index: number, x: number) {
     super('table-resize-col', { detail: { index, x }, bubbles: true });
   }
@@ -523,13 +552,13 @@ class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
 /**
  * `detail` contains the target column index
  */
-class TableSortEvent extends CustomEvent<number> {
+export class TableSortEvent extends CustomEvent<number> {
   constructor(index: number) {
     super('table-sort', { detail: index, bubbles: true });
   }
 }
 
-class TableFilterEvent extends CustomEvent<Cell[][]> {
+export class TableFilterEvent extends CustomEvent<Cell[][]> {
   constructor(rows: Cell[][]) {
     super('table-filter', { detail: rows, bubbles: true });
   }
@@ -538,7 +567,7 @@ class TableFilterEvent extends CustomEvent<Cell[][]> {
 /**
  * `detail` contains the target input of dropdown from filter button
  */
-class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+export class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
   constructor(index: number, text: string) {
     super('table-filter-column', { detail: { index, text }, bubbles: true });
   }
@@ -562,13 +591,13 @@ export type TableClickEventDetail = {
   row: Cell[];
 };
 
-class TableClickEvent extends CustomEvent<TableClickEventDetail> {
+export class TableClickEvent extends CustomEvent<TableClickEventDetail> {
   constructor(rowIdx: number, colIdx: number, row: Cell[]) {
     super('table-click', { detail: { rowIdx, colIdx, row }, bubbles: true });
   }
 }
 
-class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
+export class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
   constructor(rowIdx: number, colIdx: number, row: Cell[]) {
     super('table-dblclick', { detail: { rowIdx, colIdx, row }, bubbles: true });
   }
@@ -591,10 +620,15 @@ class GuiTableHeadCell extends HTMLElement {
   constructor() {
     super();
 
+    // make the filter focusable so we can catch it on the input blur event
+    this._filter.tabIndex = 0;
+
     this.addEventListener('click', (e) => {
       if (e.target === this._filter) {
         if (!this._dropdown.classList.contains('open')) {
           this.openDropdown();
+        } else if (this._dropdown.classList.contains('open')) {
+          this.closeDropdown();
         }
       } else if (e.target !== this._resizer && e.target !== this._input) {
         this.dispatchEvent(new TableSortEvent(this._index));
@@ -613,8 +647,11 @@ class GuiTableHeadCell extends HTMLElement {
       this.dispatchEvent(new TableFilterColumnEvent(this._index, target.value));
     });
 
-    this._input.addEventListener('blur', () => {
-      this.closeDropdown();
+    this._input.addEventListener('blur', (e) => {
+      // if the user clicked on the search icon, we let the click event handle the dropdown
+      if (e.relatedTarget !== this._filter) {
+        this.closeDropdown();
+      }
     });
 
     this._input.addEventListener('keydown', (ev) => {
@@ -646,7 +683,6 @@ class GuiTableHeadCell extends HTMLElement {
     this._icons.default = styles.getPropertyValue('--icon-sort-default');
     this._icons.asc = styles.getPropertyValue('--icon-sort-asc');
     this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
-    this._icons.search = styles.getPropertyValue('--icon-search');
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
 
@@ -836,7 +872,14 @@ class GuiTableBody extends HTMLElement {
 class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
-  update(index: number, colWidths: number[], minColWidth: number, availableWidth: number, row: Cell[], cellProps: CellPropsFactory): void {
+  update(
+    index: number,
+    colWidths: number[],
+    minColWidth: number,
+    availableWidth: number,
+    row: Cell[],
+    cellProps: CellPropsFactory,
+  ): void {
     this.idx = index;
     // this.setAttribute('data-col', `${col}`);
     this.setAttribute('data-row', `${index}`);

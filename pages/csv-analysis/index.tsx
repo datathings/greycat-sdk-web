@@ -46,6 +46,7 @@ async function runAnalysis(filepath: string) {
     null,
     null,
   );
+  sample.fitColumnsToHeaders();
   return stats;
 }
 

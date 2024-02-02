@@ -347,7 +347,7 @@ export class GuiObject extends HTMLElement {
                 <div>{key}</div>
                 <div className="gui-object-value">
                   <details>
-                    <summary>{val.$type.name}</summary>
+                    <summary>{this._typeName(val)}</summary>
                     <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                   </details>
                 </div>
