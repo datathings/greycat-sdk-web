@@ -438,6 +438,30 @@ export class GuiTable extends HTMLElement {
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
+  asCsv(sep = ','): string {
+    if (!this._table) {
+      return '';
+    }
+
+    const header = this._table.meta?.map((m, i) => {
+      if (m.header) {
+        return m.header;
+      }
+      if (m.typeName) {
+        return m.typeName;
+      }
+      return `column-${i}`;
+    }).join(sep) ?? '';
+
+    const body = this._rows.map((row, rowIdx) => {
+      return row.map((cell, colIdx) => {
+        return utils.stringify(this._cellProps(row, cell.value, rowIdx, colIdx));
+      }).join(sep);
+    }).join('\n');
+
+    return header + '\n' + body;
+  }
+
   private _filterRow(
     globalFilter: string,
     colFilters: Array<string | undefined>,
@@ -887,19 +911,14 @@ class GuiTableBodyRow extends HTMLElement {
     let takenWidth = 0;
     for (colIdx = 0; colIdx < row.length; colIdx++) {
       const cell = this._getOrCreateCell(colIdx);
-      cell.rowIdx = index;
-      cell.colIdx = colIdx;
-      cell.data = row;
-      cell.setAttribute('data-col', `${colIdx}`);
-      (cell.children[0] as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
       let colWidth: number;
       if (colWidths[colIdx]) {
         colWidth = colWidths[colIdx];
       } else {
         colWidth = Math.max((availableWidth - takenWidth) / (row.length - colIdx), minColWidth);
       }
+      cell.update(index, colIdx, row, cellProps, colWidth);
       takenWidth += colWidth;
-      cell.style.width = `${colWidth}px`;
     }
 
     // remove exceeding cells
@@ -910,7 +929,6 @@ class GuiTableBodyRow extends HTMLElement {
     let cell = this.children[index] as GuiTableBodyCell | undefined;
     if (!cell) {
       cell = document.createElement('gui-tbody-cell');
-      cell.appendChild(document.createElement('gui-value'));
       this.appendChild(cell);
     }
     return cell;
@@ -933,6 +951,26 @@ class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
   data: Cell[] = [];
+  value: GuiValue;
+
+  constructor() {
+    super();
+
+    this.value = document.createElement('gui-value');
+  }
+
+  connectedCallback() {
+    this.appendChild(this.value);
+  }
+
+  update(index: number, colIdx: number, row: Cell[], cellProps: CellPropsFactory, colWidth: number) {
+    this.rowIdx = index;
+    this.colIdx = colIdx;
+    this.data = row;
+    this.setAttribute('data-col', `${colIdx}`);
+    this.value.setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+    this.style.width = `${colWidth}px`;
+  }
 }
 
 type SortOrd = 'asc' | 'desc' | 'default';
