@@ -1,78 +1,43 @@
 gui-task-info {
-  flex-direction: column;
-}
-
-/* gui-task-info > article {
-  padding-left: 0;
-  padding-right: 0;
-}
-
-gui-task-info > header,
-gui-task-info > footer {
-  margin-left: 0;
-  margin-right: 0;
-} */
-
-gui-task-info header {
   display: grid;
-  grid-template-columns: auto 150px;
-  column-gap: var(--spacing);
-  align-items: center;
-  margin-bottom: 0;
-}
+  grid-template-rows: auto 1fr auto;
 
-gui-task-info header .grid {
-  gap: var(--spacing);
-}
+  header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing);
+    align-items: center;
+  }
 
-gui-task-info header .grid button {
-  margin-bottom: 0;
-}
+  table {
+    margin-bottom: 0;
 
-gui-task-info table {
-  margin-bottom: 0;
-}
+    tbody {
+      tr {
+        td {
+          &:nth-child(1) {
+            font-weight: bold;
+          }
 
-/* :where(article) gui-task-info table {
-  margin-left: calc(var(--block-spacing-horizontal) * -1);
-  margin-right: calc(var(--block-spacing-horizontal) * -1);
-  width: calc(100% + (var(--block-spacing-horizontal) * 2));
-} */
+          &:nth-child(2) {
+            text-align: right;
+          }
+        }
+      }
+    }
+  }
 
-gui-task-info table > tbody tr td:nth-child(1) {
-  font-weight: bold;
-}
+  footer {
+    margin-top: 0;
+    display: flex;
+    justify-content: space-between;
 
-gui-task-info table > tbody tr td:nth-child(2) {
-  text-align: right;
-}
+    small {
+      color: var(--muted-color);
 
-gui-task-info footer {
-  margin-top: 0;
-  display: flex;
-  justify-content: space-between;
-}
-
-gui-task-info footer small {
-  color: var(--muted-color);
-}
-
-gui-task-info footer small::before {
-  content: 'Last update ';
-}
-
-gui-task-info .button {
-  margin-right: 10px;
-}
-
-gui-task-info .task-details {
-  font-size: 14px;
-}
-
-gui-task-info .property {
-  display: flex;
-}
-
-gui-task-info .property-name {
-  flex: 1;
+      &::before {
+        content: 'Last update ';
+      }
+    }
+  }
 }

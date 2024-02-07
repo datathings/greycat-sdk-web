@@ -16,7 +16,7 @@ app.main.appendChild(donut);
 const table = await greycat.default.call<core.Table>('project::donut');
 console.log({ table });
 donut.setAttrs({
-  table,
+  value: table,
   dataColumn: 1,
   labelColumn: 0,
   withInfo: true,

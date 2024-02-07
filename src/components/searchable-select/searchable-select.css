@@ -27,7 +27,7 @@ gui-searchable-select {
     flex-direction: column;
     pointer-events: auto;
 
-    & * {
+    & div {
       margin-bottom: 0;
       pointer-events: auto;
 

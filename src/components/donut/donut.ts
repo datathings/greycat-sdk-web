@@ -9,8 +9,12 @@ const BREAKARCMULT = 0.85;
 const AFTERBREAKMULT = 0.05;
 const LABELTEXTMULT = 0.05;
 
+type DonutTable = core.Table | Map<string, number | bigint>;
+
 interface GuiDoughnutProps {
-  table: core.Table | null;
+  /** @deprecated use `value` instead */
+  table: DonutTable | null;
+  value: DonutTable | null;
   dataColumn: number;
   labelColumn?: number;
   defaultInfoRow?: number;
@@ -29,9 +33,9 @@ interface GuiDoughnutProps {
  * Displays a given `core.Table` into a doughnut chart
  */
 export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
-  private _table: core.Table | null = null;
+  private _table: DonutTable | null = null;
   private _dataColumn = 1;
-  private _labelColumn?: number;
+  private _labelColumn = 0;
   private _defaultInfoRow?: number;
   private _width = DEFAULT_SIZE.width;
   private _height = DEFAULT_SIZE.height;
@@ -65,12 +69,19 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _breakArc = d3.arc<any>();
 
-  get table(): core.Table | null {
+  get table(): DonutTable | null {
     return this._table;
   }
 
-  set table(table: core.Table | null) {
-    this._table = table;
+  /**
+   * @deprecated use `value` instead
+   */
+  set table(table: DonutTable | null) {
+    this.value = table;
+  }
+
+  set value(value: DonutTable | null) {
+    this._table = value;
     this._drawDoughnut();
   }
 
@@ -83,11 +94,11 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     this._drawDoughnut();
   }
 
-  get labelColumn(): number | undefined {
+  get labelColumn(): number {
     return this._labelColumn;
   }
 
-  set labelColumn(column: number | undefined) {
+  set labelColumn(column: number) {
     this._labelColumn = column;
     this._drawDoughnut();
   }
@@ -179,6 +190,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
 
   setAttrs({
     table = this._table,
+    value = this._table,
     colors = this._colors,
     dataColumn = this._dataColumn,
     labelColumn = this._labelColumn,
@@ -191,7 +203,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     withLabelInfo = this._withLabelInfo,
     name = this._name,
   }: Partial<GuiDoughnutProps>): void {
-    this._table = table;
+    this._table = table ?? value;
     this._colors = colors;
     this._dataColumn = dataColumn;
     this._labelColumn = labelColumn;
@@ -269,6 +281,9 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   }
 
   private _getTableData() {
+    if (this._table instanceof Map) {
+      return Array.from(this._table.values()) as number[];
+    }
     if (!this._table || this._table.cols.length < this._dataColumn) {
       return [];
     }
@@ -276,6 +291,9 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   }
 
   private _getTableLabels(labelsIdx: number) {
+    if (this._table instanceof Map) {
+      return Array.from(this._table.keys());
+    }
     if (!this._table || this._table.cols.length < labelsIdx) {
       return [];
     }
@@ -287,7 +305,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     this._svg?.attr('transform', `translate(${this._width / 2},${this._height / 2})`);
   }
 
-  private _drawLabels(ref: this, radius: number, total: number) {
+  private _drawLabels(ref: this, radius: number) {
     const pieData = this._pie(this._getTableData());
     const arcRadius = this._radius ? radius : radius * OUTARCMULT;
     const breakRadius = this._radius ? radius * 1.1 : radius * BREAKARCMULT;
@@ -314,20 +332,12 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
       })
       .attr('class', 'pie-label-line');
 
-    const labels =
-      this._labelColumn !== undefined ? this._getTableLabels(this._labelColumn) : undefined;
+    const labels = this._getTableLabels(this._labelColumn);
     this._svg
       ?.selectAll('labels')
       .data(pieData)
       .join('text')
-      .text(
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (d: any, idx: number) => {
-          return labels
-            ? (labels[idx] as string)
-            : `${d.data} (${((Number(d.data) / total) * 100).toFixed(2).replace(/[.,]0+$/, '')}%)`;
-        },
-      )
+      .text((_, idx: number) => labels[idx])
       .attr('transform', function (d) {
         const pos = ref._breakArc.centroid(d);
         const midangle = ref._getMidAngle(d);
@@ -362,7 +372,6 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     this._info.classList.remove('no-data');
     this._info.style.width = `${2 * radius}px`;
     this._info.style.height = `${2 * radius}px`;
-    this._info.style.fontSize = `${(1 / 6) * radius}px`;
 
     if (this._withLabelInfo && this._labelColumn != null) {
       const labelEl = document.createElement('div');
@@ -484,7 +493,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
         this._svg?.selectAll('.pie-label-line').remove();
         this._svg?.selectAll('.pie-label').remove();
 
-        this._drawLabels(ref, radius, total);
+        this._drawLabels(ref, radius);
       } else {
         this._svg?.selectAll('.pie-label').remove();
       }
@@ -503,6 +512,15 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
 declare global {
   interface HTMLElementTagNameMap {
     'gui-donut': GuiDonut;
+  }
+
+  namespace JSX {
+    interface IntrinsicElements {
+      /**
+       * Please, don't use this in a React context. Use `WCWrapper`.
+       */
+      'gui-donut': GreyCat.Element<GuiDonut>;
+    }
   }
 }
 

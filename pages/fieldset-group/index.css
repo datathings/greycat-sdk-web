@@ -1,0 +1,6 @@
+.fieldset-group-container {
+  padding-top: var(--spacing);
+  > fieldset {
+    width: 250px;
+  }
+}

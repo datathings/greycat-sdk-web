@@ -17,5 +17,5 @@ app.main.appendChild(heatmap);
 
 heatmap.xLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 heatmap.yLabels = ["Paris", "London", "New-York", "Beijing", "Perth", "Oslo"];
-heatmap.table = table;
+heatmap.value = table;
 heatmap.colorScaleWidth = 50;

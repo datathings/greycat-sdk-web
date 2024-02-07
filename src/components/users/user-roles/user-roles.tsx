@@ -22,7 +22,15 @@ export class GuiUserRoles extends HTMLElement {
           <th>Name</th>
           <th>Permissions</th>
           <th>
-            <button onclick={() => this._createRole()}>Create</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._createRole();
+              }}
+            >
+              Create
+            </a>
           </th>
         </tr>
       </thead>,
@@ -48,8 +56,19 @@ export class GuiUserRoles extends HTMLElement {
     this.render();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
   set roles(roles: runtime.UserRole[]) {
-    this._roles = roles.sort((a, b) =>
+    this.value = roles;
+  }
+
+  get value() {
+    return this._roles;
+  }
+
+  set value(value: runtime.UserRole[]) {
+    this._roles = Array.from(value).sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
     );
     this.render();
@@ -125,12 +144,10 @@ export class GuiUserRoles extends HTMLElement {
         </div>
 
         <footer>
-          <div className="grid">
-            <button className="outline" onclick={() => this._dialog.close()}>
-              Close
-            </button>
-            {this._dialogSubmitBtn}
-          </div>
+          <button className="outline" onclick={() => this._dialog.close()}>
+            Close
+          </button>
+          {this._dialogSubmitBtn}
         </footer>
       </article>,
     );
@@ -207,7 +224,15 @@ export class GuiUserRoles extends HTMLElement {
             ))}
           </td>
           <td>
-            <button onclick={() => this._editRole(role)}>✎</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._editRole(role);
+              }}
+            >
+              Edit
+            </a>
           </td>
         </tr>,
       );
@@ -227,7 +252,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-user-roles': Partial<Omit<GuiUserRoles, 'children'>>;
+      'gui-user-roles': GreyCat.Element<GuiUserRoles>;
     }
   }
 }

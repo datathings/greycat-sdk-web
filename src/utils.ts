@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import { core, debugLogger } from '@greycat/sdk';
 
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
@@ -190,4 +190,87 @@ export function emptyDataElement(cssClass: string) {
   incompleteTableEl.style.color = getCSSVar('--color-9') ?? 'inherit';
   incompleteTableEl.textContent = `Table is empty or is missing an index`;
   return incompleteTableEl;
+}
+
+/**
+ * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
+ * 
+ * @param file the File to upload
+ * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
+ * @param progress a callback called on progress
+ * @param greycat
+ */
+export function putFileProgress(
+  file: File,
+  filepath: string | null = file.name,
+  progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
+  g = greycat.default,
+): Promise<void> & { abort: () => void } {
+  const xhr = new XMLHttpRequest();
+
+  const promise = new Promise<void>((resolve, reject) => {
+    const route = `files/${filepath}`;
+    xhr.open('PUT', `${g.api}/${route}`, true);
+
+    // Track upload progress
+    xhr.upload.addEventListener('progress', (event) => {
+      if (event.lengthComputable) {
+        progress(event);
+      }
+    });
+
+    // Handle success and failure
+    xhr.onload = () => {
+      if (xhr.status >= 200 && xhr.status < 300) {
+        resolve();
+      } else if (xhr.status === 403) {
+        // forbidden
+        // unauthorized
+        debugLogger(xhr.status, route);
+        reject(new Error('forbidden'));
+      } else if (xhr.status === 401) {
+        // unauthorized
+        debugLogger(xhr.status, route);
+        g.token = undefined;
+        g.unauthorizedHandler?.();
+        reject(new Error(`you must be logged-in to upload files`));
+      } else {
+        reject(new Error(`File upload failed with status ${xhr.status}`));
+      }
+    };
+
+    xhr.onerror = () => {
+      reject(new Error('Network error during file upload'));
+    };
+
+    // Send the file
+    xhr.send(file);
+  });
+
+  const cancellablePromise = promise as Promise<void> & { abort: () => void };
+  cancellablePromise.abort = () => xhr.abort();
+
+  return cancellablePromise;
+}
+
+export function getIndexInParent(element: Element): number {
+  const parent = element.parentElement;
+
+  if (!parent) {
+    return -1;
+  }
+
+  let index = 0;
+  let current = parent.firstElementChild;
+
+  while (current) {
+    if (current === element) {
+      return index;
+    }
+
+    current = current.nextElementSibling;
+    index++;
+  }
+
+  return index;
 }

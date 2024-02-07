@@ -12,18 +12,11 @@ import {
   SerieOptions,
   SelectionOptions,
   BarSerie,
+  Cursor,
 } from './types.js';
 import { relativeTimeFormat, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
-
-type Cursor = {
-  x: number;
-  y: number;
-  startX: number;
-  startY: number;
-  selection: boolean;
-};
 
 type ComputedState = {
   leftAxes: number;
@@ -85,7 +78,7 @@ export class GuiChart extends HTMLElement {
       max: number | Date | core.time | core.Date | undefined;
     }
   > = {};
-  private _computed!: ComputedState;
+  private _computed: ComputedState | undefined;
 
   constructor() {
     super();
@@ -220,7 +213,9 @@ export class GuiChart extends HTMLElement {
       event.stopPropagation();
 
       throttle((event: WheelEvent) => {
-        // if this is too slow, maybe cache xRange, yRange
+        if (!this._computed) {
+          return;
+        }
         const { xRange, yRange, xScale: scale, yScales } = this._computed;
         if (event.shiftKey) {
           // x axis panning
@@ -455,6 +450,9 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
+    if (!this._computed) {
+      return;
+    }
     this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
@@ -597,7 +595,9 @@ export class GuiChart extends HTMLElement {
         };
 
         const v = +xScale.invert(this._cursor.x);
-        const { xValue, rowIdx } = closest(this._config.table, serie, v);
+
+        const { xValue, rowIdx } = closest(this._config,serie,this._cursor,xScale,yScales[serie.yAxis],v);
+
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
@@ -608,6 +608,20 @@ export class GuiChart extends HTMLElement {
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
           yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
+        }
+
+        if (serie.markerThreshold) {
+          // shortcuts if cursor's above threshold
+          if (serie.markerThreshold.x) {
+            if (Math.abs(this._cursor.x - x) > serie.markerThreshold.x) {
+              continue;
+            }
+          }
+          if (serie.markerThreshold.y) {
+            if (Math.abs(this._cursor.y - y) > serie.markerThreshold.y) {
+              continue;
+            }
+          }
         }
 
         // marker
@@ -629,12 +643,18 @@ export class GuiChart extends HTMLElement {
           case 'bar': {
             const s = serie as BarSerie<string>;
             let w = serie.width;
+            let h = yRange[0] - y;
+            let rectY = y + (yRange[0] - y) / 2;
             if (s.spanCol) {
               const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
               const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
-            this._uxCtx.rectangle(x, y + (yRange[0] - y) / 2, w, yRange[0] - y, {
+            if (s.baseLine !== undefined) {
+              rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
+              h = yScales[serie.yAxis](s.baseLine) - y;
+            }
+            this._uxCtx.rectangle(x, rectY, w, h, {
               color: style['accent-0'],
             });
             break;
@@ -654,7 +674,8 @@ export class GuiChart extends HTMLElement {
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
-          nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+          nameEl.textContent =
+            serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -670,7 +691,8 @@ export class GuiChart extends HTMLElement {
           if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
-            nameEl.textContent = serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+            nameEl.textContent =
+              serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (
@@ -689,7 +711,7 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config.table, s, v);
+        const { xValue, rowIdx } = closest(this._config, s, this._cursor, xScale, yScales[s.yAxis], v);
 
         return {
           color: this._colors[i],
@@ -707,10 +729,12 @@ export class GuiChart extends HTMLElement {
           ...s,
         } satisfies SerieData;
       });
+      // we need to give a clone of the cursor because we don't want users to mutate our own version of it
+      const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
-      this._config.tooltip?.render?.(data);
+      this._config.tooltip?.render?.(data, cursor);
       // dispatch event
-      this.dispatchEvent(new GuiChartCursorEvent(data));
+      this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
     }
 
     if (updateSelection && this._config.selection !== false) {
@@ -809,6 +833,9 @@ export class GuiChart extends HTMLElement {
   private _selection(
     orientation: SelectionOptions['orientation'] | undefined = 'horizontal',
   ): void {
+    if (!this._computed) {
+      return;
+    }
     const { xRange, yRange, xScale, yScales } = this._computed;
     // ensure start/end are bound to the ranges
     let startX = this._cursor.startX;
@@ -925,6 +952,9 @@ export class GuiChart extends HTMLElement {
    * Draws the chart to the different canvas & svg elements.
    */
   update(): void {
+    if (!this._computed) {
+      return;
+    }
     // clear the main canvas
     this._ctx.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
     // clear the ux canvas too (to prevent phantom markers)
@@ -1029,15 +1059,18 @@ export class GuiChart extends HTMLElement {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       let yAxis: d3.Axis<any>;
       let translateX: number = 0;
+      let textAnchor = 'start';
 
       if (ord.position === undefined || ord.position === 'left') {
         leftAxesIdx++;
         yAxis = d3.axisLeft(yScales[yAxisName]);
         translateX = style.margin.left + leftAxesIdx * style.margin.left;
+        textAnchor = 'end';
       } else {
         rightAxesIdx++;
         yAxis = d3.axisRight(yScales[yAxisName]);
         translateX = this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right);
+        textAnchor = 'start';
       }
 
       if (ord.hook) {
@@ -1066,7 +1099,10 @@ export class GuiChart extends HTMLElement {
         }
       }
 
-      this._yAxisGroups[yAxisName].attr('transform', `translate(${translateX}, 0)`).call(yAxis);
+      this._yAxisGroups[yAxisName]
+        .attr('transform', `translate(${translateX}, 0)`)
+        .attr('text-anchor', textAnchor)
+        .call(yAxis);
     }
 
     // remove no longer used yAxisGroup
@@ -1298,11 +1334,12 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
 }
 
 /**
- * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ * - `detail.cursor` contains the current cursor info
  */
-export class GuiChartCursorEvent extends CustomEvent<SerieData[]> {
-  constructor(data: SerieData[]) {
-    super(CURSOR_EVENT_TYPE, { detail: data, bubbles: true });
+export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
+  constructor(data: SerieData[], cursor: Cursor) {
+    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }
 }
 
@@ -1322,7 +1359,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-chart': Partial<Omit<GuiChart, 'children'>>;
+      'gui-chart': GreyCat.Element<GuiChart>;
     }
   }
 }

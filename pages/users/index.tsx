@@ -24,11 +24,11 @@ app.main.appendChild(
   <div role="list">
     <article>
       <header>Users</header>
-      <gui-user-table users={users} groups={groups} roles={roles} />
+      <gui-user-table value={users} groups={groups} roles={roles} />
     </article>
     <article>
       <header>Roles</header>
-      <gui-user-roles roles={roles} permissions={permissions} />
+      <gui-user-roles value={roles} permissions={permissions} />
     </article>
   </div>,
 );

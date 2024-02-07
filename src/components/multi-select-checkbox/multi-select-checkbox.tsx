@@ -97,7 +97,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-multi-select-checkbox': Partial<Omit<GuiMultiSelectCheckbox, 'children'>>;
+      'gui-multi-select-checkbox': GreyCat.Element<GuiMultiSelectCheckbox>;
     }
   }
 }

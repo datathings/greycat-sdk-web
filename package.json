@@ -18,7 +18,8 @@
       "import": "./dist/jsx-dev-runtime.js"
     },
     "./css/*.css": "./dist/css/*.css",
-    "./fonts/*.ttf": "./public/*.ttf"
+    "./fonts/*.ttf": "./public/*.ttf",
+    "./fonts/*.woff": "./public/*.woff"
   },
   "license": "Apache-2.0",
   "files": [
@@ -34,7 +35,10 @@
     "dist/jsx-runtime.d.ts",
     "public/OpenSans-Regular.ttf",
     "public/OpenSans-Italic.ttf",
-    "public/OpenSans-Bold.ttf"
+    "public/OpenSans-Bold.ttf",
+    "public/OpenSans-Regular.woff",
+    "public/OpenSans-Italic.woff",
+    "public/OpenSans-Bold.woff"
   ],
   "scripts": {
     "clean": "rm -rf dist",
@@ -54,12 +58,12 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/stable/6.5/6.5.17-stable.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/stable/6.7/6.7.34-stable.tgz",
     "d3": "7.8.5"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/stable/6.5/6.5.6-stable.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/stable/6.7/6.7.16-stable.tgz",
     "@picocss/pico": "1.5.10",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",

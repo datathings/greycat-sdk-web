@@ -53,7 +53,15 @@ export class GuiUserTable extends HTMLElement {
           <th>Activated</th>
           <th>Groups</th>
           <th>
-            <button onclick={() => this._createUser()}>Create</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._createUser();
+              }}
+            >
+              Create
+            </a>
           </th>
         </tr>
       </thead>,
@@ -77,8 +85,19 @@ export class GuiUserTable extends HTMLElement {
     Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);
   }
 
-  set users(users: Array<runtime.User>) {
-    this._users = users;
+  /**
+   * @deprecated use `value` instead
+   */
+  set users(users: runtime.User[]) {
+    this.value = users;
+  }
+
+  get value() {
+    return this._users;
+  }
+
+  set value(value: runtime.User[]) {
+    this._users = value;
     this.render();
   }
 
@@ -194,12 +213,10 @@ export class GuiUserTable extends HTMLElement {
         </div>
 
         <footer>
-          <div className="grid">
-            <button className="outline" onclick={() => this._dialog.close()}>
-              Close
-            </button>
-            {this._dialogSubmitBtn}
-          </div>
+          <button className="outline" onclick={() => this._dialog.close()}>
+            Close
+          </button>
+          {this._dialogSubmitBtn}
         </footer>
       </article>,
     );
@@ -350,7 +367,15 @@ export class GuiUserTable extends HTMLElement {
             ))}
           </td>
           <td>
-            <button onclick={() => this._editUser(user)}>✎</button>
+            <a
+              href="#"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._editUser(user);
+              }}
+            >
+              Edit
+            </a>
           </td>
         </tr>,
       );
@@ -377,7 +402,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-user-table': Partial<Omit<GuiUserTable, 'children'>>;
+      'gui-user-table': GreyCat.Element<GuiUserTable>;
     }
   }
 }
