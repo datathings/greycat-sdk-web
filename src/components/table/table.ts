@@ -254,6 +254,15 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  get sortBy() {
+    return [this._sortCol.index, this._sortCol.ord] as const;
+  }
+
+  set sortBy([index, ord]: readonly [number] | readonly [number, SortOrd]) {
+    this._sortCol.sortBy(index, ord);
+    this.update();
+  }
+
   set onrowupdate(cb: RowUpdateCallback) {
     this._rowUpdateCallback = cb;
   }
@@ -266,6 +275,8 @@ export class GuiTable extends HTMLElement {
     table = this._table,
     value = this._table,
     filter = this._filterText,
+    filterColumns = this._filterColumns,
+    sortBy = [this._sortCol.index, this._sortCol.ord],
     cellProps = this._cellProps,
     headers = this._headers,
     columnsWidths = this._thead.widths,
@@ -274,6 +285,8 @@ export class GuiTable extends HTMLElement {
     table: TableLike;
     value: TableLike;
     filter: string;
+    filterColumns: Array<string | undefined>,
+    sortBy: readonly [number] | readonly [number, SortOrd],
     cellProps: CellPropsFactory;
     headers: string[];
     columnsWidths: number[];
@@ -281,6 +294,8 @@ export class GuiTable extends HTMLElement {
     this._table = table ?? value;
     this.computeTable();
     this._filterText = filter;
+    this._filterColumns = filterColumns;
+    this._sortCol.sortBy(sortBy[0], sortBy[1]);
     this._cellProps = cellProps;
     this._headers = headers;
     this._thead.widths = columnsWidths;
@@ -993,18 +1008,22 @@ class SortCol {
     this._ord = 'default';
   }
 
-  sortBy(index: number): void {
+  sortBy(index: number, ord?: SortOrd): void {
     if (this._index === index) {
-      if (this._ord === 'default') {
-        this._ord = 'asc';
-      } else if (this._ord === 'asc') {
-        this._ord = 'desc';
+      if (ord) {
+        this._ord = ord;
       } else {
-        this._ord = 'default';
+        if (this._ord === 'default') {
+          this._ord = 'asc';
+        } else if (this._ord === 'asc') {
+          this._ord = 'desc';
+        } else {
+          this._ord = 'default';
+        }
       }
     } else {
       this._index = index;
-      this._ord = 'asc';
+      this._ord = ord ?? 'asc';
     }
   }
 
