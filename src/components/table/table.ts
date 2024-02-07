@@ -988,7 +988,7 @@ class GuiTableBodyCell extends HTMLElement {
   }
 }
 
-type SortOrd = 'asc' | 'desc' | 'default';
+export type SortOrd = 'asc' | 'desc' | 'default';
 
 /**
  * Sorting state machine.
