@@ -1,13 +1,13 @@
 gui-heatmap {
   /* margin variables, can only be pixels */
   --m-top: 10px;
-  --m-right: 40px;
+  --m-right: 60px;
   --m-bottom: 25px;
-  --m-left: 40px;
+  --m-left: 60px;
 
   /* color scale margin variables, can only be pixels */
-  --colorscale-m-top: 10px;
-  --colorscale-m-right: 40px;
-  --colorscale-m-bottom: 25px;
-  --colorscale-m-left: 40px;
+  --color-scale-m-top: 10px;
+  --color-scale-m-right: 40px;
+  --color-scale-m-bottom: 25px;
+  --color-scale-m-left: 20px;
 }
