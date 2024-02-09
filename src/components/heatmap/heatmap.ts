@@ -55,6 +55,7 @@ export type TooltipData = {
 export type HeatmapConfig = {
   table: TableLike;
   markerColor?: Color;
+  displayValue?: boolean;
   tooltip?: {
     position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'follow';
     render?: (data: TooltipData, cursor: Cursor) => void;
@@ -392,13 +393,17 @@ export class GuiHeatmap extends HTMLElement {
         const value = this.config.table.cols[col][row];
 
         if (typeof value === 'number') {
+          const x = xScale(xLabels[col])!;
+          const y = yScale(yLabels[row])!;
           this._ctx.ctx.fillStyle = colorScale(value);
-          this._ctx.ctx.fillRect(
-            xScale(xLabels[col])!,
-            yScale(yLabels[row])!,
-            xScale.bandwidth(),
-            yScale.bandwidth(),
-          );
+          this._ctx.ctx.fillRect(x, y, xScale.bandwidth(), yScale.bandwidth());
+          if (this.config.displayValue) {
+            this._ctx.text(x + xScale.bandwidth() / 2, y + yScale.bandwidth() / 2, `${value}`, {
+              color: style['text-0'],
+              align: 'center',
+              baseline: 'top',
+            });
+          }
         }
       }
     }
