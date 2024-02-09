@@ -332,7 +332,7 @@ export class GuiHeatmap extends HTMLElement {
         yValue: yDomain[colIndex],
       };
       this._config.tooltip?.render?.(data, cursor);
-      this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+      this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
 
       const valueElem = document.createElement('div');
       valueElem.classList.add('gui-chart-tooltip-value');
@@ -593,7 +593,7 @@ const CURSOR_EVENT_TYPE = 'cursor';
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
  */
-export class GuiChartCursorEvent extends CustomEvent<{ data: TooltipData; cursor: Cursor }> {
+export class HeatmapCursorEvent extends CustomEvent<{ data: TooltipData; cursor: Cursor }> {
   constructor(data: TooltipData, cursor: Cursor) {
     super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }
@@ -605,7 +605,7 @@ declare global {
   }
 
   interface HTMLElementEventMap {
-    [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
+    [CURSOR_EVENT_TYPE]: HeatmapCursorEvent;
   }
 
   namespace JSX {
