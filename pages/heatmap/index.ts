@@ -24,7 +24,6 @@ const config: HeatmapConfig = {
   yAxis: {
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
   },
-  colorScaleColors: ['blue', '#ff0000'],
   tooltip: {
     position: 'follow',
   },

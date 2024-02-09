@@ -10,4 +10,11 @@ gui-heatmap {
   --color-scale-m-right: 40px;
   --color-scale-m-bottom: 25px;
   --color-scale-m-left: 20px;
+
+  /* tooltip */
+  .gui-chart-tooltip {
+    background-color: rgb(var(--base-1));
+    padding: var(--spacing);
+    border: 1px solid rgb(var(--neutral-0));
+  }
 }
