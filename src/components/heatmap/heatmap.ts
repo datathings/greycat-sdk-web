@@ -587,7 +587,7 @@ export class GuiHeatmap extends HTMLElement {
   }
 }
 
-const CURSOR_EVENT_TYPE = 'cursor';
+const CURSOR_EVENT_TYPE = 'heatmap-cursor';
 
 /**
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
