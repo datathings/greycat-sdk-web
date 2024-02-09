@@ -342,7 +342,11 @@ export class GuiHeatmap extends HTMLElement {
 
       const valueElem = document.createElement('div');
       valueElem.classList.add('gui-chart-tooltip-value');
-      valueElem.textContent = `${data.value}`;
+      if (this.config.colorScale?.format) {
+        valueElem.textContent = `${d3.format(this.config.colorScale.format)(data.value)}`;
+      } else {
+        valueElem.textContent = `${data.value}`;
+      }
       valueElem.style.color = colorScale(data.value);
       this._tooltip.appendChild(valueElem);
 
@@ -451,6 +455,9 @@ export class GuiHeatmap extends HTMLElement {
       .call(this._colorScaleXAxis);
 
     this._colorScaleYAxis = d3.axisLeft(colorYScale);
+    if (this._config.colorScale?.format) {
+      this._colorScaleYAxis.tickFormat(d3.format(this._config.colorScale.format));
+    }
     this._colorScaleYAxisGroup
       .attr(
         'transform',
