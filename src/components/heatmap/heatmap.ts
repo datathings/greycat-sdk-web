@@ -332,27 +332,29 @@ export class GuiHeatmap extends HTMLElement {
       this._config.tooltip?.render?.(data, cursor);
       this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
 
-      const valueElem = document.createElement('div');
-      valueElem.classList.add('gui-chart-tooltip-value');
-      if (this.config.colorScale?.format) {
-        valueElem.textContent = `${d3.format(this.config.colorScale.format)(data.value)}`;
-      } else {
-        valueElem.textContent = `${data.value}`;
+      if (!this._config.tooltip?.render) {
+        const valueElem = document.createElement('div');
+        valueElem.classList.add('gui-chart-tooltip-value');
+        if (this.config.colorScale?.format) {
+          valueElem.textContent = `${d3.format(this.config.colorScale.format)(data.value)}`;
+        } else {
+          valueElem.textContent = `${data.value}`;
+        }
+        valueElem.style.color = colorScale(data.value);
+        this._tooltip.appendChild(valueElem);
+
+        const xElem = document.createElement('div');
+        xElem.classList.add('gui-chart-tooltip-value');
+        xElem.style.color = style['text-0'];
+        xElem.textContent = `${data.xValue}`;
+        this._tooltip.appendChild(xElem);
+
+        const yElem = document.createElement('div');
+        yElem.classList.add('gui-chart-tooltip-value');
+        yElem.style.color = style['text-0'];
+        yElem.textContent = `${data.yValue}`;
+        this._tooltip.appendChild(yElem);
       }
-      valueElem.style.color = colorScale(data.value);
-      this._tooltip.appendChild(valueElem);
-
-      const xElem = document.createElement('div');
-      xElem.classList.add('gui-chart-tooltip-value');
-      xElem.style.color = style['text-0'];
-      xElem.textContent = `${data.xValue}`;
-      this._tooltip.appendChild(xElem);
-
-      const yElem = document.createElement('div');
-      yElem.classList.add('gui-chart-tooltip-value');
-      yElem.style.color = style['text-0'];
-      yElem.textContent = `${data.yValue}`;
-      this._tooltip.appendChild(yElem);
     }
   }
 
