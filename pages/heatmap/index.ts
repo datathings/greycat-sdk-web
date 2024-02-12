@@ -18,11 +18,15 @@ app.main.appendChild(heatmap);
 
 const config: HeatmapConfig = {
   table: table,
+  displayValue: true,
+
   xAxis: {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    padding: 0.1,
   },
   yAxis: {
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
+    padding: 0.1,
   },
   tooltip: {
     position: 'follow',

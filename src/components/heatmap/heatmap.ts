@@ -397,15 +397,29 @@ export class GuiHeatmap extends HTMLElement {
         const value = this.config.table.cols[col][row];
 
         if (typeof value === 'number') {
+          const color = colorScale(value);
           const x = xScale(xLabels[col])!;
           const y = yScale(yLabels[row])!;
-          this._ctx.ctx.fillStyle = colorScale(value);
+          this._ctx.ctx.fillStyle = color;
           this._ctx.ctx.fillRect(x, y, xScale.bandwidth(), yScale.bandwidth());
           if (this.config.displayValue) {
+            const rgbValues = color.match(/\d+/g)?.map(Number);
+            if (!rgbValues) return;
+            // Destructure RGB values
+            const [r, g, b] = rgbValues;
+
+            // Calculate relative luminance
+            const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+
+            let textColor = 'white';
+            if (luminance > 0.5) {
+              textColor = 'black';
+            }
             this._ctx.text(x + xScale.bandwidth() / 2, y + yScale.bandwidth() / 2, `${value}`, {
-              color: style['text-0'],
+              color: textColor,
               align: 'center',
               baseline: 'top',
+              font: '10px',
             });
           }
         }
