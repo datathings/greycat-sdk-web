@@ -20,11 +20,16 @@ const config: HeatmapConfig = {
   table: table,
   displayValue: true,
 
+  colorScale: {
+    title: 'Temperature avg',
+  },
   xAxis: {
+    title: 'Month',
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     padding: 0.1,
   },
   yAxis: {
+    title: 'City',
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
     padding: 0.1,
   },

@@ -42,9 +42,12 @@ type ComputedState = {
 };
 
 export type TooltipData = {
+  xTitle?: string;
   xValue: string;
   yValue: string;
+  yTitle?: string;
   value: number;
+  title?: string;
 };
 
 export type HeatmapConfig = {
@@ -68,6 +71,7 @@ export type HeatmapConfig = {
     padding?: number;
   };
   colorScale?: {
+    title?: string;
     colors?: string[];
     range?: [number, number];
     type?: 'linear' | 'log';
@@ -92,8 +96,6 @@ export class GuiHeatmap extends HTMLElement {
   private _xAxis!: d3.Axis<string>;
   private _yAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
   private _yAxis!: d3.Axis<string>;
-  private _colorScaleXAxis!: d3.Axis<string>;
-  private _colorScaleXAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
   private _colorScaleYAxis!: d3.Axis<d3.NumberValue>;
   private _colorScaleYAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
 
@@ -135,7 +137,6 @@ export class GuiHeatmap extends HTMLElement {
 
     this._xAxisGroup = this._svg.append('g');
     this._yAxisGroup = this._svg.append('g');
-    this._colorScaleXAxisGroup = this._svg.append('g');
     this._colorScaleYAxisGroup = this._svg.append('g');
 
     // tooltip
@@ -328,11 +329,18 @@ export class GuiHeatmap extends HTMLElement {
         value: this.config.table.cols[colIndex][rowIndex] as number,
         xValue: xDomain[colIndex],
         yValue: yDomain[rowIndex],
+        title: this.config.colorScale?.title,
+        xTitle: this.config.xAxis.title,
+        yTitle: this.config.yAxis.title,
       };
       this._config.tooltip?.render?.(data, cursor);
       this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
 
       if (!this._config.tooltip?.render) {
+        const nameEl = document.createElement('div');
+        if (data.title) {
+          nameEl.textContent = data.title;
+        }
         const valueElem = document.createElement('div');
         valueElem.classList.add('gui-chart-tooltip-value');
         if (this.config.colorScale?.format) {
@@ -341,19 +349,27 @@ export class GuiHeatmap extends HTMLElement {
           valueElem.textContent = `${data.value}`;
         }
         valueElem.style.color = colorScale(data.value);
-        this._tooltip.appendChild(valueElem);
+        this._tooltip.append(nameEl, valueElem);
 
+        const xNameEl = document.createElement('div');
+        if (this.config.xAxis.title) {
+          xNameEl.textContent = this.config.xAxis.title;
+        }
         const xElem = document.createElement('div');
         xElem.classList.add('gui-chart-tooltip-value');
         xElem.style.color = style['text-0'];
         xElem.textContent = `${data.xValue}`;
-        this._tooltip.appendChild(xElem);
+        this._tooltip.append(xNameEl, xElem);
 
+        const yNameEl = document.createElement('div');
+        if (this.config.yAxis.title) {
+          yNameEl.textContent = this.config.yAxis.title;
+        }
         const yElem = document.createElement('div');
         yElem.classList.add('gui-chart-tooltip-value');
         yElem.style.color = style['text-0'];
         yElem.textContent = `${data.yValue}`;
-        this._tooltip.appendChild(yElem);
+        this._tooltip.append(yNameEl, yElem);
       }
     }
   }
