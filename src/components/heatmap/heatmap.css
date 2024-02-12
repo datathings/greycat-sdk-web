@@ -6,10 +6,7 @@ gui-heatmap {
   --m-left: 60px;
 
   /* color scale margin variables, can only be pixels */
-  --color-scale-m-top: 10px;
   --color-scale-m-right: 40px;
-  --color-scale-m-bottom: 25px;
-  --color-scale-m-left: 20px;
 
   /* tooltip */
   .gui-chart-tooltip {

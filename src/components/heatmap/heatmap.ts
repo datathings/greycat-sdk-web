@@ -24,16 +24,11 @@ type ComputedState = {
     margin: {
       top: number;
       right: number;
-      rightEmpty: number;
       bottom: number;
       left: number;
-      leftEmpty: number;
     };
     colorScaleMargin: {
-      top: number;
       right: number;
-      bottom: number;
-      left: number;
     };
   };
   xScale: d3.ScaleBand<string>;
@@ -316,10 +311,7 @@ export class GuiHeatmap extends HTMLElement {
       const xDomain = xScale.domain();
       const yDomain = yScale.domain();
 
-      const colIndex = Math.floor(
-        (this._cursor.x - style.colorScaleMargin.left - style.colorScaleMargin.right) /
-          xScale.step(),
-      );
+      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
 
       const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
 
@@ -428,22 +420,18 @@ export class GuiHeatmap extends HTMLElement {
 
     //Draw the color scale
     this._ctx.ctx.beginPath();
-    const gradient = this._ctx.ctx.createLinearGradient(0, this._canvas.height, 0, 0);
+    const colorYMin = colorYScale(colorYScale.domain()[0]) - colorYScale(colorYScale.domain()[1]);
+    const colorYMax = colorYScale(colorYScale.domain()[1]);
+
+    const gradient = this._ctx.ctx.createLinearGradient(0, colorYMin, 0, colorYMax);
 
     gradient.addColorStop(0, this._colors[0]);
     for (let index = 1; index < this._colors.length; index++) {
       gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
-
     this._ctx.ctx.fillStyle = gradient;
 
-    this._ctx.ctx.fillRect(
-      colorXScale('0') ?? 0,
-      colorYScale(colorYScale.domain()[1]),
-      colorXScale.bandwidth(),
-      //TODO fix this
-      colorYScale(colorYScale.domain()[0]) - 10,
-    );
+    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorYMax, colorXScale.bandwidth(), colorYMin);
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
@@ -463,22 +451,12 @@ export class GuiHeatmap extends HTMLElement {
     this._yAxisGroup.attr('transform', `translate(${style.margin.left},0)`).call(this._yAxis);
 
     // Add the color scale
-    this._colorScaleXAxis = d3.axisBottom(colorXScale);
-    this._colorScaleXAxisGroup
-      .attr('transform', `translate(0,${this._canvas.height - style.colorScaleMargin.bottom})`)
-      .call(this._colorScaleXAxis);
-
     this._colorScaleYAxis = d3.axisLeft(colorYScale);
     if (this._config.colorScale?.format) {
       this._colorScaleYAxis.tickFormat(d3.format(this._config.colorScale.format));
     }
     this._colorScaleYAxisGroup
-      .attr(
-        'transform',
-        `translate(${
-          this._canvas.width - style.colorScaleMargin.right - style.colorScaleMargin.left
-        },0)`,
-      )
+      .attr('transform', `translate(${this._canvas.width - style.colorScaleMargin.right},0)`)
       .call(this._colorScaleYAxis);
   }
 
@@ -502,16 +480,11 @@ export class GuiHeatmap extends HTMLElement {
       margin: {
         top: this._parseInt(style.getPropertyValue('--m-top')),
         right: this._parseInt(style.getPropertyValue('--m-right')),
-        rightEmpty: this._parseInt(style.getPropertyValue('--m-right-empty')),
         bottom: this._parseInt(style.getPropertyValue('--m-bottom')),
         left: this._parseInt(style.getPropertyValue('--m-left')),
-        leftEmpty: this._parseInt(style.getPropertyValue('--m-left-empty')),
       },
       colorScaleMargin: {
-        top: this._parseInt(style.getPropertyValue('--color-scale-m-top')),
         right: this._parseInt(style.getPropertyValue('--color-scale-m-right')),
-        bottom: this._parseInt(style.getPropertyValue('--color-scale-m-bottom')),
-        left: this._parseInt(style.getPropertyValue('--color-scale-m-left')),
       },
     };
 
@@ -524,16 +497,13 @@ export class GuiHeatmap extends HTMLElement {
     // compute ranges based on available width, height and margins
     const xRange = [
       props.margin.left,
-      this._canvas.width -
-        props.margin.right -
-        props.colorScaleMargin.right -
-        props.colorScaleMargin.left,
+      this._canvas.width - props.margin.right - props.colorScaleMargin.right,
     ];
     const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
     const colorScaleXRange = [
-      this._canvas.width - props.colorScaleMargin.right - props.colorScaleMargin.left,
-      this._canvas.width - props.colorScaleMargin.left,
+      this._canvas.width - props.colorScaleMargin.right,
+      this._canvas.width,
     ];
 
     let colorScaleMin: number | null = null;
@@ -606,6 +576,7 @@ export class GuiHeatmap extends HTMLElement {
       colorScale = d3
         .scaleSequentialLog()
         .domain([colorScaleMin, colorScaleMax])
+        .range(yRange)
         .interpolator(d3.interpolateRgbBasis(this._colors));
     } else {
       // default to linear scale
@@ -613,6 +584,7 @@ export class GuiHeatmap extends HTMLElement {
       colorScale = d3
         .scaleSequential()
         .domain([colorScaleMin, colorScaleMax])
+        .range(yRange)
         .interpolator(d3.interpolateRgbBasis(this._colors));
     }
 
