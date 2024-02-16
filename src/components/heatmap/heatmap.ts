@@ -1,613 +1,659 @@
-import { core } from '@greycat/sdk';
 import * as d3 from 'd3';
-import { Canvas, RectOptions, SimpleTooltip } from '../../chart-utils/index.js';
-import { Disposable } from '../../internals.js';
-import { getCSSVars, getHeatmapColors } from '../../utils.js';
 
-const DEFAULT_COLORS = ['red', 'blue'];
-const DEFAULT_COLORSCALE_WIDTH = 90;
+import { debounce } from '../../internals.js';
+import { getColors } from '../../utils.js';
+import { CanvasContext } from '../chart/ctx.js';
+import { Color, Cursor } from '../chart/types.js';
+import { Disposer, TableLike } from '../common.js';
 
-enum ScaleType {
-  linear,
-  log,
-}
+type ColorYScale =
+  | d3.ScaleLinear<number, number, never>
+  | d3.ScaleLogarithmic<number, number, never>;
 
-export interface HeatmapProps {
-  /** @deprecated use `value` instead */
-  table: core.Table | null;
-  value: core.Table | null;
-  axisLabels?: string[];
-  tooltipLabels?: string[];
-  xLabels?: string[];
-  yLabels?: string[];
-  scaleType?: ScaleType;
-  colorScaleRange?: [number, number];
-  xTicks?: number;
-  yTicks?: number;
-  colorScaleWidth?: number;
-}
+type ComputedState = {
+  xRange: number[];
+  yRange: number[];
+  style: {
+    'text-0': string;
+    'accent-0': string;
+    cursor: {
+      color: string;
+      bgColor: string;
+      lineColor: string;
+    };
+    margin: {
+      top: number;
+      right: number;
+      bottom: number;
+      left: number;
+    };
+    colorScaleMargin: {
+      right: number;
+    };
+  };
+  xScale: d3.ScaleBand<string>;
+  yScale: d3.ScaleBand<string>;
+  colorScale: d3.ScaleSequential<string, string>;
+  colorYScale: ColorYScale;
+  colorXScale: d3.ScaleBand<string>;
+  colorScaleXRange: number[];
+  xLabels: string[];
+  yLabels: string[];
+};
 
-/**
- * Displays an heatmap chart based on a given `core.Table`
- */
-export class GuiHeatmap extends HTMLElement implements HeatmapProps {
-  private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined> | undefined;
-  private _canvas?: Canvas | undefined;
-  private _xAxis: d3.ScaleBand<string>;
-  private _yAxis: d3.ScaleBand<string>;
-  private _axisLabels?: string[];
-  private _tooltipLabels?: string[];
-  private _table: core.Table | null = null;
-  private _width = 0;
-  private _height = 0;
-  private _colorScale?: d3.ScaleSequential<string, string>;
-  private _colorScaleXAxis: d3.ScaleBand<number>;
-  private _colorScaleYAxis:
-    | d3.ScaleLogarithmic<number, number, never>
-    | d3.ScaleLinear<number, number>;
-  //private _colorScaleContainer?: d3.Selection<HTMLDivElement, unknown, null, undefined>;
-  private _colorScaleCanvas?: Canvas | undefined;
-  private _colorScaleWidth = DEFAULT_COLORSCALE_WIDTH;
-  private _colors: string[] = DEFAULT_COLORS;
-  private _nullValueColor?: string;
-  private _selectedColor = 'yellow';
-  private _xLabels?: string[];
-  private _yLabels?: string[];
-  private _scaleType?: ScaleType;
-  private _colorScaleRange?: [number, number];
-  private _tooltip?: SimpleTooltip;
-  private _xTicks?: number;
-  private _yTicks?: number;
+export type TooltipData = {
+  xTitle?: string;
+  xValue: string;
+  yValue: string;
+  yTitle?: string;
+  value: number;
+  title?: string;
+};
 
-  private _disposeResizer: Disposable | undefined;
-  private _cursor: { x: number; y: number } = { x: 0, y: 0 };
-  private _hover = false;
+export type HeatmapConfig = {
+  table: TableLike;
+  markerColor?: Color;
+  displayValue?: boolean;
+  tooltip?: {
+    position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'follow';
+    render?: (data: TooltipData, cursor: Cursor) => void;
+  };
+  xAxis: {
+    title?: string;
+    labels?: string[];
+    hook?: (axis: d3.Axis<string>) => void;
+    padding?: number;
+  };
+  yAxis: {
+    title?: string;
+    labels?: string[];
+    hook?: (axis: d3.Axis<string>) => void;
+    padding?: number;
+  };
+  colorScale?: {
+    title?: string;
+    colors?: string[];
+    range?: [number, number];
+    type?: 'linear' | 'log';
+    format?: string;
+  };
+};
+
+export class GuiHeatmap extends HTMLElement {
+  private _disposer: Disposer;
+  private _config: HeatmapConfig;
+  private _colors: string[] = [];
+  private _cursor: Cursor = {
+    x: -1,
+    y: -1,
+    startX: -1,
+    startY: -1,
+    selection: false,
+  };
+
+  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _xAxis!: d3.Axis<string>;
+  private _yAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _yAxis!: d3.Axis<string>;
+  private _colorScaleYAxis!: d3.Axis<d3.NumberValue>;
+  private _colorScaleYAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+
+  private readonly _canvas: HTMLCanvasElement;
+  private readonly _ctx: CanvasContext;
+
+  private readonly _uxCanvas: HTMLCanvasElement;
+  private readonly _uxCtx: CanvasContext;
+
+  private readonly _tooltip = document.createElement('div');
+
+  private _computed: ComputedState | undefined;
 
   constructor() {
     super();
 
-    this._xAxis = d3.scaleBand();
-    this._yAxis = d3.scaleBand();
-    //Color scale
+    this._disposer = new Disposer();
+    this._config = { table: { cols: [] }, xAxis: {}, yAxis: {} };
 
-    this._colorScaleXAxis = d3.scaleBand();
-    this._colorScaleYAxis = d3.scaleLinear();
-  }
+    // main canvas
+    this._canvas = document.createElement('canvas');
+    this._canvas.style.display = 'block';
+    this._canvas.style.position = 'absolute';
+    this._canvas.style.background = 'transparent';
+    this._ctx = new CanvasContext(this._canvas.getContext('2d') as CanvasRenderingContext2D);
 
-  get table(): core.Table | null {
-    return this._table;
-  }
+    // ux canvas
+    this._uxCanvas = document.createElement('canvas');
+    this._uxCanvas.style.display = 'block';
+    this._uxCanvas.style.position = 'absolute';
+    this._uxCanvas.style.background = 'transparent';
+    this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set table(table: core.Table | null) {
-    this.value = table;
-  }
+    // svg
+    this._svg = d3
+      .create('svg')
+      .style('background', 'transparent')
+      .style('position', 'absolute') as d3.Selection<SVGSVGElement, unknown, null, undefined>;
 
-  set value(value: core.Table | null) {
-    this._table = value;
-    this.render();
-  }
+    this._xAxisGroup = this._svg.append('g');
+    this._yAxisGroup = this._svg.append('g');
+    this._colorScaleYAxisGroup = this._svg.append('g');
 
-  get axisLabels() {
-    return this._axisLabels;
-  }
-  set axisLabels(axisLabel: string[] | undefined) {
-    this._axisLabels = axisLabel;
-  }
+    // tooltip
+    this._tooltip.style.position = 'absolute';
+    this._tooltip.classList.add('gui-chart-tooltip');
 
-  get tooltipLabels() {
-    return this._tooltipLabels;
-  }
-  set tooltipLabels(tooltipLabels: string[] | undefined) {
-    this._tooltipLabels = tooltipLabels;
-  }
-
-  get xLabels() {
-    return this._xLabels;
-  }
-  set xLabels(labels: string[] | undefined) {
-    this._xLabels = labels ? labels : [];
-  }
-
-  get yLabels() {
-    return this._yLabels;
-  }
-  set yLabels(labels: string[] | undefined) {
-    this._yLabels = labels ? labels : [];
-  }
-
-  get yTicks() {
-    return this._yTicks;
-  }
-  set yTicks(val: number | undefined) {
-    this._yTicks = val;
-  }
-
-  get xTicks() {
-    return this._xTicks;
-  }
-  set xTicks(val: number | undefined) {
-    this._xTicks = val;
-  }
-
-  get scaleType() {
-    return this._scaleType;
-  }
-
-  set scaleType(type: ScaleType | undefined) {
-    this._scaleType = type;
-    this.render();
-  }
-
-  get colorScaleRange() {
-    return this._colorScaleRange;
-  }
-
-  set colorScaleRange(range: [number, number] | undefined) {
-    this._colorScaleRange = range;
-    this.render();
-  }
-
-  get colorScaleWidth() {
-    return this._colorScaleWidth;
-  }
-
-  set colorScaleWidth(width: number) {
-    this._colorScaleWidth = width;
-    this.render();
-  }
-
-  setAttrs({
-    table = this._table,
-    value = this._table,
-    axisLabels = this._axisLabels,
-    tooltipLabels = this._tooltipLabels,
-    xLabels = this.xLabels,
-    yLabels = this.yLabels,
-    scaleType = this._scaleType,
-    colorScaleRange = this._colorScaleRange,
-    colorScaleWidth = this._colorScaleWidth,
-    xTicks = this._xTicks,
-    yTicks = this._yTicks,
-  }: Partial<HeatmapProps>) {
-    this._table = table ?? value;
-    this._axisLabels = axisLabels;
-    this._tooltipLabels = tooltipLabels;
-    this._xLabels = xLabels ? xLabels : [];
-    this._yLabels = yLabels ? yLabels : [];
-    this._scaleType = scaleType;
-    this._colorScaleRange = colorScaleRange;
-    this._colorScaleWidth = colorScaleWidth;
-    this._xTicks = xTicks;
-    this._yTicks = yTicks;
-    this.render();
+    this.addEventListener('touchmove', (event) => {
+      // prevents the browser from processing emulated mouse events
+      event.preventDefault();
+      if (event.touches.length > 0) {
+        const { left, top } = this._canvas.getBoundingClientRect();
+        this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
+        this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
+        this._updateUX();
+      }
+    });
+    this.addEventListener('touchcancel', () => {
+      this._resetCursor();
+    });
   }
 
   connectedCallback() {
-    this.style.position = 'relative';
     const style = getComputedStyle(this);
     if (style.display === 'inline') {
       // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
       this.style.display = 'block';
     }
+    this.style.position = 'relative';
 
-    this._colors = getHeatmapColors(this);
+    this.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
 
-    if (this._colors.length === 0) {
-      this._colors = DEFAULT_COLORS;
+    // trigger a resize before the observer to prevent resize-flickering on mount
+    this._resize();
+
+    document.addEventListener(
+      'mousemove',
+      (event) => {
+        const { left, top } = this._canvas.getBoundingClientRect();
+        this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
+        this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
+        this._updateUX();
+      },
+      { signal: this._disposer.signal },
+    );
+
+    const obs = new ResizeObserver(debounce(() => this._resize(), 50));
+    this._disposer.disposables.push(() => obs.disconnect());
+    obs.observe(this);
+
+    const animRef = { id: -1 };
+    const animationCallback = () => {
+      this._updateUX();
+      animRef.id = window.requestAnimationFrame(animationCallback);
+    };
+    animRef.id = window.requestAnimationFrame(animationCallback);
+    this._disposer.disposables.push(() => window.cancelAnimationFrame(animRef.id));
+  }
+
+  /**
+   * Resizes the internal elements and re-renders (this is automatically called by a `ResizeObserver`)
+   */
+  private _resize() {
+    const { width, height } = this.getBoundingClientRect();
+    if (width === 0 || height === 0) {
+      // do not even try to render if 0-sized
+      return;
     }
 
-    const [selectedColor = this._selectedColor, nullValueColor = this._nullValueColor] = getCSSVars(
-      this,
-      'heatmap-selected-color',
-      'heatmap-null-color',
-    );
-    this._nullValueColor = nullValueColor;
-    this._selectedColor = selectedColor;
+    // resize main canvas
+    this._canvas.width = width;
+    this._canvas.height = height;
+    // resize ux canvas
+    this._uxCanvas.width = width;
+    this._uxCanvas.height = height;
+    // resize svg
+    this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
+    // recompute state
+    this.compute();
 
-    const oResize = new ResizeObserver(() => this._initialize());
-
-    oResize.observe(this);
-    this._disposeResizer = () => oResize.disconnect();
+    this.update();
   }
 
   disconnectedCallback() {
-    this._disposeResizer?.();
-    this._canvas?.dispose();
     this.replaceChildren(); // cleanup
+    this._disposer.dispose();
   }
 
-  private _initialize() {
-    this.innerHTML = '';
-    this._canvas?.dispose();
+  private _resetCursor() {
+    this._cursor.x = -1;
+    this._cursor.y = -1;
+    this._cursor.startX = -1;
+    this._cursor.startY = -1;
+    this._cursor.selection = false;
+  }
 
-    const { width, height } = this.getBoundingClientRect();
-    this._width = width;
-    this._height = height;
+  /**
+   * A type-safe equivalent to `set config(config)`
+   */
+  setConfig(config: HeatmapConfig): void {
+    this.config = config;
+  }
 
-    this._svg = d3.select(this).append('svg').attr('width', width).attr('height', height);
+  set config(config: HeatmapConfig) {
+    this._config = config;
+    this.compute();
+    this.update();
+  }
 
-    this._tooltip = new SimpleTooltip();
+  get config(): HeatmapConfig {
+    return this._config;
+  }
 
-    const onHover = () => {
-      if (!this._hover) {
-        // clear hover canvas
-        canvas.clearHoverAndHideTooltip();
-        // do not re-enqueue
-        return;
+  /**
+   * This is all about cursor interactions.
+   *
+   * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
+   */
+  private _updateUX() {
+    if (!this._computed) {
+      return;
+    }
+    this._clearUX();
+
+    // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
+    const { xRange, yRange, style, xScale, yScale, colorScale } = this._computed;
+
+    const updateUX =
+      this._cursor.x !== -1 &&
+      this._cursor.y !== -1 &&
+      this._cursor.x >= xRange[0] &&
+      this._cursor.x <= xRange[1] &&
+      this._cursor.y >= yRange[1] &&
+      this._cursor.y <= yRange[0];
+
+    if (updateUX) {
+      // make tooltip visible and located properly
+      this.appendChild(this._tooltip);
+      switch (this._config.tooltip?.position ?? 'top-left') {
+        case 'top-left':
+          this._tooltip.style.left = `${xRange[0] + 10}px`;
+          this._tooltip.style.top = `${yRange[1]}px`;
+          break;
+        case 'top-right':
+          this._tooltip.style.right = `${xRange[0] + 10}px`;
+          this._tooltip.style.top = `${yRange[1]}px`;
+          break;
+        case 'bottom-left':
+          this._tooltip.style.left = `${xRange[0] + 10}px`;
+          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+          break;
+        case 'bottom-right':
+          this._tooltip.style.right = `${xRange[0] + 10}px`;
+          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+          break;
+        case 'follow':
+          {
+            let tooltipX = this._cursor.x - 70;
+            let tooltipY = this._cursor.y - 80;
+            if (tooltipX < xRange[0]) {
+              tooltipX = this._cursor.x + 50;
+            }
+            if (tooltipY < yRange[1]) {
+              tooltipY = this._cursor.y + 50;
+            }
+            this._tooltip.style.left = `${tooltipX}px`;
+            this._tooltip.style.top = `${tooltipY}px`;
+          }
+          break;
       }
-      const table = this._table;
 
-      if (!table) {
-        // re-enqueue hover animation
-        return requestAnimationFrame(onHover);
-      }
+      //highlight the hovered cell
 
-      const ctx = canvas.hoverCtx;
-      if (!ctx) {
-        return;
-      }
-      ctx.clear();
+      const xDomain = xScale.domain();
+      const yDomain = yScale.domain();
 
-      // update
-      const xIndex = this._scaleBandInvert(this._xAxis)(this._cursor.x);
-      const yIndex = this._scaleBandInvert(this._yAxis)(canvas.height - this._cursor.y);
+      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
 
-      /*       if (!table.data?.[yIndex[1]]?.[xIndex[1]]) {
-        // do not display rect when no value present
-        canvas.showTooltip(false);
-        return requestAnimationFrame(onHover);
-      } */
+      const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
 
-      canvas.showTooltip(true);
+      const x = xScale(xDomain[colIndex])!;
+      const y = yScale(yDomain[rowIndex])!;
 
-      const rectWidth = this._xAxis.bandwidth();
-      const rectHeight = this._yAxis.bandwidth();
+      this._uxCtx.ctx.strokeStyle = this._config.markerColor ?? `${style['accent-0']}`;
+      this._uxCtx.ctx.strokeRect(x, y, xScale.bandwidth(), yScale.bandwidth());
 
-      const px = this._xAxis(xIndex[0]);
-      const py = this._yAxis(yIndex[0]);
-      const opts: RectOptions = {
-        color: this._selectedColor,
-        width: rectWidth,
-        height: rectHeight,
+      // we need to give a clone of the cursor because we don't want users to mutate our own version of it
+      const cursor: Cursor = { ...this._cursor };
+      // call tooltip render if defined
+      const data: TooltipData = {
+        value: this.config.table.cols[colIndex][rowIndex] as number,
+        xValue: xDomain[colIndex],
+        yValue: yDomain[rowIndex],
+        title: this.config.colorScale?.title,
+        xTitle: this.config.xAxis.title,
+        yTitle: this.config.yAxis.title,
       };
-      if (px && py) {
-        ctx.rect({ x: px, y: py }, opts);
+      this._config.tooltip?.render?.(data, cursor);
+      this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
 
-        if (this._tooltip) {
-          this._tooltip.updateRows([
-            {
-              key: this._tooltipLabels?.[0] ?? this._axisLabels?.[0] ?? 'x',
-              value: { value: xIndex[0] },
-            },
-            {
-              key: this._tooltipLabels?.[1] ?? this._axisLabels?.[1] ?? 'y',
-              value: { value: yIndex[0] },
-            },
-            {
-              key: this._tooltipLabels?.[2] ?? this._axisLabels?.[2] ?? 'z',
-              value: {
-                value: `${table.cols[xIndex[1]]?.[yIndex[1]]?.toString() ?? ''}`,
-              },
-            },
-          ]);
-          canvas.moveTooltip(
-            this._cursor.x,
-            ctx.height < this._cursor.y ? ctx.height : this._cursor.y,
-          );
+      if (!this._config.tooltip?.render) {
+        const nameEl = document.createElement('div');
+        if (data.title) {
+          nameEl.textContent = data.title;
         }
+        const valueElem = document.createElement('div');
+        valueElem.classList.add('gui-chart-tooltip-value');
+        if (this.config.colorScale?.format) {
+          valueElem.textContent = `${d3.format(this.config.colorScale.format)(data.value)}`;
+        } else {
+          valueElem.textContent = `${data.value}`;
+        }
+        valueElem.style.color = colorScale(data.value);
+        this._tooltip.append(nameEl, valueElem);
+
+        const xNameEl = document.createElement('div');
+        if (this.config.xAxis.title) {
+          xNameEl.textContent = this.config.xAxis.title;
+        }
+        const xElem = document.createElement('div');
+        xElem.classList.add('gui-chart-tooltip-value');
+        xElem.style.color = style['text-0'];
+        xElem.textContent = `${data.xValue}`;
+        this._tooltip.append(xNameEl, xElem);
+
+        const yNameEl = document.createElement('div');
+        if (this.config.yAxis.title) {
+          yNameEl.textContent = this.config.yAxis.title;
+        }
+        const yElem = document.createElement('div');
+        yElem.classList.add('gui-chart-tooltip-value');
+        yElem.style.color = style['text-0'];
+        yElem.textContent = `${data.yValue}`;
+        this._tooltip.append(yNameEl, yElem);
       }
-
-      return requestAnimationFrame(onHover);
-    };
-
-    const m = this._margins();
-    const canvas = (this._canvas = new Canvas(
-      width - m.root.left - m.root.right - this._colorScaleWidth - m.colorscale.right,
-      height - m.root.top - m.root.bottom,
-      this._tooltip,
-      {
-        enter: () => {
-          this._hover = true;
-          requestAnimationFrame(onHover);
-        },
-        move: (cursor) => {
-          this._cursor = cursor;
-        },
-        leave: () => {
-          this._hover = false;
-        },
-      },
-    ));
-
-    this._colorScaleCanvas = new Canvas(
-      this._colorScaleWidth - m.colorscale.left - m.colorscale.right,
-      height - m.colorscale.top - m.colorscale.bottom,
-    );
-    const canvasLeft = m.root.left;
-    const colorScaleLeft = this._canvas.width + canvasLeft + m.colorscale.left;
-
-    this._canvas.root.style.top = `${m.root.top}px`;
-    this._canvas.root.style.left = `${canvasLeft}px`;
-    this._canvas.root.style.position = 'absolute';
-
-    this._colorScaleCanvas.root.style.top = `${m.colorscale.top}px`;
-    this._colorScaleCanvas.root.style.left = `${colorScaleLeft + 5}px`;
-    this._colorScaleCanvas.root.style.position = 'absolute';
-    this._colorScaleCanvas.showTooltip(false);
-    this.appendChild(this._canvas.root);
-    this.appendChild(this._colorScaleCanvas.root);
-
-    this._buildColorScale();
-
-    this.render();
-  }
-
-  private _buildColorScale() {
-    switch (this._scaleType) {
-      case ScaleType.log:
-        this._colorScaleYAxis = d3.scaleLog();
-        this._colorScale = d3
-          .scaleSequentialLog<string>()
-          .interpolator(d3.interpolateRgbBasis(this._colors));
-
-        break;
-      case ScaleType.linear:
-      default:
-        this._colorScaleYAxis = d3.scaleLinear();
-        this._colorScale = d3
-          .scaleSequential<string, string>()
-          .interpolator(d3.interpolateRgbBasis(this._colors));
-
-        break;
     }
   }
 
-  render() {
-    const canvas = this._canvas;
-    if (!canvas) {
+  private _clearUX(): void {
+    // clear ux canvas
+    this._uxCtx.ctx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
+    // clear tooltip
+    this._tooltip.replaceChildren();
+    this._tooltip.style.top = '';
+    this._tooltip.style.right = '';
+    this._tooltip.style.bottom = '';
+    this._tooltip.style.left = '';
+    this._tooltip.remove();
+  }
+
+  /**
+   * Draws the chart to the different canvas & svg elements.
+   */
+  update(): void {
+    if (!this._computed) {
       return;
     }
+    // clear the main canvas
+    this._ctx.ctx.clearRect(0, 0, this._canvas.width, this._canvas.height);
+    // clear the ux canvas too (to prevent phantom markers)
+    this._clearUX();
 
-    const ctx = canvas.ctx;
-    if (!ctx) {
-      return;
-    }
+    const { xScale, yScale, style, colorScale, colorXScale, colorYScale, xLabels, yLabels } =
+      this._computed;
 
-    this._cursor;
-    ctx.clear();
+    //Draw the heatmap
+    for (let col = 0; col < this.config.table.cols.length; col++) {
+      for (let row = 0; row < this.config.table.cols[col].length; row++) {
+        const value = this.config.table.cols[col][row];
 
-    const table = this._table;
-    if (!table) {
-      return;
-    }
+        if (typeof value === 'number') {
+          const color = colorScale(value);
+          const x = xScale(xLabels[col])!;
+          const y = yScale(yLabels[row])!;
+          this._ctx.ctx.fillStyle = color;
+          this._ctx.ctx.fillRect(x, y, xScale.bandwidth(), yScale.bandwidth());
+          if (this.config.displayValue) {
+            const rgbValues = color.match(/\d+/g)?.map(Number);
+            if (!rgbValues) return;
+            // Destructure RGB values
+            const [r, g, b] = rgbValues;
 
-    const svg = this._svg;
-    if (!svg) {
-      return;
-    }
+            // Calculate relative luminance
+            const luminance = (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
 
-    const colorScale = this._colorScale;
-    if (!colorScale) {
-      return;
-    }
-
-    svg.selectChildren().remove();
-
-    const m = this._margins();
-
-    const newWidth =
-      this._width - m.root.left - m.root.right - this._colorScaleWidth - m.colorscale.right;
-    const newHeight = this._height - m.root.top - m.root.bottom;
-
-    this._xAxis
-      .domain(
-        this._xLabels ??
-        table.cols.map((_, i) => {
-          // use column index as xAxis label
-          return ` ${i}`;
-        }),
-      )
-      .range([0, newWidth])
-      .padding(0.05);
-
-    this._yAxis
-      .domain(
-        this.yLabels ??
-        table.cols[0].map((_v, i) => {
-          // use row index as yAxis label
-          return `${i}`;
-        }),
-      )
-      .range([newHeight, 0])
-      .padding(0.05);
-
-    const extent = d3.extent<number>(
-      table.meta.flatMap((v) => {
-        return [v.min === 0 ? 1 : v.min as number, v.max as number];
-      }),
-    );
-
-    this._colorScaleRange = extent[0] !== undefined ? extent : [1, 10];
-
-    this._colorScaleXAxis.domain([0]).range([this._colorScaleWidth, 0]);
-    this._colorScaleYAxis.range([newHeight, 0]);
-    this._colorScaleYAxis.domain(this._colorScaleRange);
-    colorScale?.domain(this._colorScaleRange);
-
-    const xAxis = d3.axisBottom(this._xAxis);
-    const yAxis = d3.axisLeft(this._yAxis);
-    const yTicks = this._yTicks;
-    const yLabels = this._yLabels;
-    const xTicks = this._xTicks;
-    const xLabels = this._xLabels;
-
-    if (yTicks !== undefined && yLabels) {
-      const newYLabels = yLabels.filter((_v, i) => !(i % Math.floor(yLabels.length / yTicks)));
-      yAxis.tickValues(newYLabels);
-    }
-    if (xTicks !== undefined && xLabels) {
-      const newXLabels = xLabels.filter((_v, i) => !(i % Math.floor(xLabels.length / xTicks)));
-      xAxis.tickValues(newXLabels);
-    }
-
-    const yColorScaleAxis = d3.axisLeft(this._colorScaleYAxis);
-    yColorScaleAxis.tickFormat(function (d) {
-      const value = d.valueOf();
-      const format = d3.format('.3s');
-      const formattedValue = format(value);
-      return String(formattedValue);
-    });
-
-    const rectWidth = this._xAxis.bandwidth();
-    const rectHeight = this._yAxis.bandwidth();
-    table.cols.forEach((col, colIdx) => {
-      col.forEach((val, rowIdx) => {
-        let color = null;
-        if (
-          typeof val === 'number' &&
-          val <= colorScale.domain()[1] &&
-          val >= colorScale.domain()[0]
-        ) {
-          color = this._colorScale?.(val);
-        } else if (this._nullValueColor) {
-          color = this._nullValueColor;
-        }
-        if (color) {
-          const px = this._xAxis(this.xLabels?.[colIdx] ?? `${colIdx}`);
-          const py = this._yAxis(this.yLabels?.[rowIdx] ?? `${rowIdx}`);
-          const opts: RectOptions = {
-            color: color,
-            width: rectWidth,
-            height: rectHeight,
-            fill: true,
-          };
-          if (px && py) {
-            ctx.rect({ x: px, y: py }, opts);
+            let textColor = 'white';
+            if (luminance > 0.5) {
+              textColor = 'black';
+            }
+            this._ctx.text(x + xScale.bandwidth() / 2, y + yScale.bandwidth() / 2, `${value}`, {
+              color: textColor,
+              align: 'center',
+              baseline: 'top',
+              font: '10px',
+            });
           }
         }
-      });
-    });
-
-    this._drawColorScaleBar(colorScale.domain()[1]);
-
-    //Axises
-
-    //x axis ticks
-    svg
-      .append('g')
-      .attr('transform', `translate(${m.root.left}, ${this._height - m.root.bottom})`)
-      .call(xAxis)
-      .selectAll('text')
-      .attr('dx', '-2.2em')
-      .attr('dy', '0em')
-      .attr('transform', 'rotate(-65)');
-
-    //y axis ticks
-    svg
-      .append('g')
-      .attr('transform', `translate(${m.root.left}, ${m.root.top})`)
-      .call(yAxis)
-      .selectAll('text')
-      .append('title');
-
-    if (this._axisLabels) {
-      svg
-        .append('g')
-        .append('text')
-        .attr('class', 'gui-x-axis-label')
-        .attr('x', `-${this._height / 2}`)
-        .attr('dy', 11)
-        .attr('transform', 'rotate(-90)')
-        .text(this._axisLabels[1]);
-
-      svg
-        .append('g')
-        .append('text')
-        .attr('class', 'gui-y-axis-label')
-        .attr('x', `${this._width / 2}`)
-        .attr('y', canvas.height + m.root.top + m.root.bottom)
-        .text(this._axisLabels[0]);
-
-      svg
-        .append('g')
-        .append('text')
-        .attr('class', 'gui-z-axis-label')
-        .attr('x', `-${this._height / 2}`)
-        .attr('y', canvas.width + m.root.left + 15)
-        .attr('transform', 'rotate(-90)')
-        .text(this._axisLabels[2]);
+      }
     }
 
-    //color scale y axis
-    svg
-      .append('g')
-      .attr(
-        'transform',
-        `translate(${canvas.width + m.root.left + m.colorscale.left}, ${m.colorscale.top
-        })`,
-      )
-      .call(yColorScaleAxis)
-      .selectAll('text')
-      .append('title');
-  }
+    //Draw the color scale
+    this._ctx.ctx.beginPath();
+    const colorYMin = colorYScale(colorYScale.domain()[0]) - colorYScale(colorYScale.domain()[1]);
+    const colorYMax = colorYScale(colorYScale.domain()[1]);
 
-  private _drawColorScaleBar(_max: number) {
-    const ctx = this._colorScaleCanvas?.ctx.ctx;
-    if (!ctx) {
-      return;
-    }
-    ctx.beginPath();
-    const gradient = ctx.createLinearGradient(0, this._height ?? 0, 0, 0);
+    const gradient = this._ctx.ctx.createLinearGradient(0, colorYMin, 0, colorYMax);
 
     gradient.addColorStop(0, this._colors[0]);
     for (let index = 1; index < this._colors.length; index++) {
       gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
+    this._ctx.ctx.fillStyle = gradient;
 
-    ctx.fillStyle = gradient;
-    ctx.fillRect(
-      this._colorScaleXAxis(0) ?? 0,
-      this._colorScaleYAxis(_max),
-      this._colorScaleXAxis.bandwidth(),
-      this._height ?? 0,
-    );
+    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorYMax, colorXScale.bandwidth(), colorYMin);
+
+    // Add the x-axis.
+    this._xAxis = d3.axisBottom(xScale);
+
+    if (this._config.xAxis.hook) {
+      this._config.xAxis.hook(this._xAxis);
+    }
+    this._xAxisGroup
+      .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
+      .call(this._xAxis);
+
+    //Add the y-axis
+    this._yAxis = d3.axisLeft(yScale);
+    if (this._config.yAxis.hook) {
+      this._config.yAxis.hook(this._yAxis);
+    }
+    this._yAxisGroup.attr('transform', `translate(${style.margin.left},0)`).call(this._yAxis);
+
+    // Add the color scale
+    this._colorScaleYAxis = d3.axisLeft(colorYScale);
+    if (this._config.colorScale?.format) {
+      this._colorScaleYAxis.tickFormat(d3.format(this._config.colorScale.format));
+    }
+    this._colorScaleYAxisGroup
+      .attr('transform', `translate(${this._canvas.width - style.colorScaleMargin.right},0)`)
+      .call(this._colorScaleYAxis);
   }
 
-  private _scaleBandInvert(scale: d3.ScaleBand<string>): (value: number) => [string, number] {
-    const domain = scale.domain();
-    const eachBand = scale.step();
+  /**
+   * Computes axes min/max bounds, display ranges, styles and scales.
+   *
+   * This method is potentially heavy has it iterates over the table content.
+   * Try to use it only when the table changes or when the component needs to resize.
+   */
+  compute(): void {
+    const style = getComputedStyle(this);
 
-    return function (value: number) {
-      const index = Math.floor(value / eachBand);
-      return [domain[Math.max(0, Math.min(index, domain.length - 1))], index];
+    const props = {
+      'text-0': `rgb(${style.getPropertyValue('--text-0')})`,
+      'accent-0': `rgb(${style.getPropertyValue('--accent-0')})`,
+      cursor: {
+        color: style.getPropertyValue('--cursor-c'),
+        bgColor: style.getPropertyValue('--cursor-bg-c'),
+        lineColor: style.getPropertyValue('--cursor-line-c'),
+      },
+      margin: {
+        top: this._parseInt(style.getPropertyValue('--m-top')),
+        right: this._parseInt(style.getPropertyValue('--m-right')),
+        bottom: this._parseInt(style.getPropertyValue('--m-bottom')),
+        left: this._parseInt(style.getPropertyValue('--m-left')),
+      },
+      colorScaleMargin: {
+        right: this._parseInt(style.getPropertyValue('--color-scale-m-right')),
+      },
+    };
+
+    if (this._config.colorScale?.colors && this._config.colorScale.colors.length > 1) {
+      this._colors = this._config.colorScale.colors;
+    } else {
+      this._colors = getColors().slice(0, 2);
+    }
+
+    // compute ranges based on available width, height and margins
+    const xRange = [
+      props.margin.left,
+      this._canvas.width - props.margin.right - props.colorScaleMargin.right,
+    ];
+    const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
+
+    const colorScaleXRange = [
+      this._canvas.width - props.colorScaleMargin.right,
+      this._canvas.width,
+    ];
+
+    let colorScaleMin: number | null = null;
+    let colorScaleMax: number | null = null;
+
+    if (this._config.colorScale?.range !== undefined) {
+      colorScaleMin = this._config.colorScale.range[0];
+      colorScaleMax = this._config.colorScale.range[1];
+    }
+
+    if (colorScaleMin === null || colorScaleMax === null) {
+      for (let col = 0; col < this.config.table.cols.length; col++) {
+        for (let row = 0; row < this.config.table.cols[col].length; row++) {
+          const value = this.config.table.cols[col][row];
+          if (typeof value === 'number') {
+            if (colorScaleMin === null || value < colorScaleMin) {
+              colorScaleMin = value;
+            }
+            if (colorScaleMax === null || value > colorScaleMax) {
+              colorScaleMax = value;
+            }
+          }
+        }
+      }
+    }
+
+    if (colorScaleMin === null) {
+      colorScaleMin = 0;
+    }
+    if (colorScaleMax === null) {
+      colorScaleMax = 1;
+    }
+
+    let xLabels = this.config.xAxis.labels ?? [];
+    let yLabels = this.config.yAxis.labels ?? [];
+
+    if (xLabels.length === 0) {
+      xLabels = [];
+      for (let i = 0; i < this.config.table.cols.length; i++) {
+        xLabels.push(i.toString());
+      }
+    }
+
+    if (yLabels.length === 0 && this.config.table.cols[0] !== undefined) {
+      yLabels = [];
+      for (let i = 0; i < this.config.table.cols[0].length; i++) {
+        yLabels.push(i.toString());
+      }
+    }
+
+    const xScale = d3
+      .scaleBand()
+      .domain(xLabels)
+      .range(xRange)
+      .paddingInner(this.config.xAxis.padding ?? 0)
+      .paddingOuter(0);
+    const yScale = d3
+      .scaleBand()
+      .domain(yLabels)
+      .range(yRange)
+      .paddingInner(this.config.yAxis.padding ?? 0)
+      .paddingOuter(0);
+
+    const colorXScale = d3.scaleBand().domain(['0']).range(colorScaleXRange);
+
+    let colorYScale: ColorYScale;
+    let colorScale: d3.ScaleSequential<string, string>;
+    if (this.config.colorScale?.type === 'log') {
+      colorYScale = d3.scaleLog().domain([colorScaleMin, colorScaleMax]).range(yRange);
+      colorScale = d3
+        .scaleSequentialLog()
+        .domain([colorScaleMin, colorScaleMax])
+        .range(yRange)
+        .interpolator(d3.interpolateRgbBasis(this._colors));
+    } else {
+      // default to linear scale
+      colorYScale = d3.scaleLinear().domain([colorScaleMin, colorScaleMax]).range(yRange);
+      colorScale = d3
+        .scaleSequential()
+        .domain([colorScaleMin, colorScaleMax])
+        .range(yRange)
+        .interpolator(d3.interpolateRgbBasis(this._colors));
+    }
+
+    this._computed = {
+      colorScale,
+      colorYScale,
+      xRange,
+      yRange,
+      style: props,
+      xScale,
+      yScale,
+      colorScaleXRange,
+      colorXScale,
+      xLabels,
+      yLabels,
     };
   }
 
-  private _margins() {
-    const style = getComputedStyle(this);
-    return {
-      root: {
-        top: parseInt(style.getPropertyValue('--m-top')),
-        right: parseInt(style.getPropertyValue('--m-right')),
-        bottom: parseInt(style.getPropertyValue('--m-bottom')),
-        left: parseInt(style.getPropertyValue('--m-left')),
-      },
-      colorscale: {
-        top: parseInt(style.getPropertyValue('--colorscale-m-top')),
-        right: parseInt(style.getPropertyValue('--colorscale-m-right')),
-        bottom: parseInt(style.getPropertyValue('--colorscale-m-bottom')),
-        left: parseInt(style.getPropertyValue('--colorscale-m-left')),
-      }
+  /**
+   * `parseInt` that returns `0` when `NaN` is encountered
+   */
+  private _parseInt(prop: string): number {
+    // note: we leverage js weirdness that parses '23px' as 23... for reasons
+    // which is convenient here, cause we use this for CSS prop parsing
+    const n = parseInt(prop);
+    if (isNaN(n)) {
+      return 0;
     }
+    return isNaN(n) ? 0 : n;
+  }
+}
+
+const CURSOR_EVENT_TYPE = 'heatmap-cursor';
+
+/**
+ * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ * - `detail.cursor` contains the current cursor info
+ */
+export class HeatmapCursorEvent extends CustomEvent<{ data: TooltipData; cursor: Cursor }> {
+  constructor(data: TooltipData, cursor: Cursor) {
+    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
     'gui-heatmap': GuiHeatmap;
+  }
+
+  interface HTMLElementEventMap {
+    [CURSOR_EVENT_TYPE]: HeatmapCursorEvent;
   }
 
   namespace JSX {
