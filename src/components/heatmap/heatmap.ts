@@ -214,21 +214,24 @@ export class GuiHeatmap extends HTMLElement {
 
     const { xRange, yRange, style, xScale, yScale, colorScale } = this._computed;
 
+    const paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
+    const paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
+
     const updateUX =
       this._cursor.x !== -1 &&
       this._cursor.y !== -1 &&
-      this._cursor.x >= xRange[0] &&
-      this._cursor.x <= xRange[1] &&
-      this._cursor.y >= yRange[1] &&
-      this._cursor.y <= yRange[0];
+      this._cursor.x >= xRange[0] + paddingX &&
+      this._cursor.x <= xRange[1] - paddingX &&
+      this._cursor.y >= yRange[1] + paddingY &&
+      this._cursor.y <= yRange[0] - paddingY;
 
     if (updateUX) {
       // highlight the hovered cell
       const xDomain = xScale.domain();
       const yDomain = yScale.domain();
 
-      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
-      const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
+      const colIndex = Math.floor((this._cursor.x - style.margin.right - paddingX) / xScale.step());
+      const rowIndex = Math.floor((yRange[0] - this._cursor.y - paddingY) / yScale.step());
 
       const x = xScale(xDomain[colIndex])!;
       const y = yScale(yDomain[rowIndex])!;
