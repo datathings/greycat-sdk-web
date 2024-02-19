@@ -14,7 +14,7 @@ export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 export type SerieWithOptions = Serie & SerieOptions;
-export type CurveStyle = 'linear' | 'stepAfter';
+export type CurveStyle = 'linear' | 'step-after';
 
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -174,16 +174,15 @@ export type SerieOptions = {
   colorMapping?: (v: any) => Color | null | undefined;
 };
 
-export interface CurveSeries {
+export type LineOptions = {
   /**
-   * If defined, the line will be drawn using the specified style default to `linear`
+   * If defined, the line will be drawn using the specified curve style, defaults to `linear`.
    *
-   * `linear` - draws a straight line between points
-   *
-   * `stepAfter` - draws a vertical line from the previous point to the current point
+   * - `linear`: draws a straight line between points
+   * - `step-after`: draws a vertical line from the previous point to the current point
    */
   curve?: CurveStyle;
-}
+};
 
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
@@ -227,7 +226,7 @@ export interface CustomSerie<K> extends CommonSerie<K> {
   draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
-export interface LineSerie<K> extends CurveSeries, CommonSerie<K> {
+export interface LineSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line';
 }
 
@@ -250,20 +249,20 @@ export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
 }
 
-export interface LineScatterSerie<K> extends CurveSeries, CommonSerie<K> {
+export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
 }
 
-export interface AreaSerie<K> extends CurveSeries, CommonSerie<K> {
+export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'area';
 }
 
-export interface LineAreaSerie<K> extends CurveSeries, CommonSerie<K> {
+export interface LineAreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+area';
 }
 
 export interface StepSerie<K> extends CommonSerie<K> {
-  /**@deprecated type `step` is deprecated use type `line` with curve parameter as `stepAfter` */
+  /**@deprecated type `step` is deprecated, use type `line` with a `curve: 'step-after'` */
   type: 'step';
 }
 

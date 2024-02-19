@@ -56,8 +56,8 @@ export class GuiChart extends HTMLElement {
     selection: false,
   };
 
-  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  private _xAxisGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
   private _xAxis!: d3.Axis<Date | d3.NumberValue>;
   private _yAxisGroups: Record<string, d3.Selection<SVGGElement, unknown, null, undefined>> = {};
 

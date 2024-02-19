@@ -1,7 +1,6 @@
 import type { core } from '@greycat/sdk';
 import '../layout';
 import './index.css';
-import { HeatmapConfig } from '../../src';
 
 const app = document.createElement('app-layout');
 app.title = 'Heatmap';
@@ -16,26 +15,22 @@ heatmap.style.width = '100%';
 heatmap.style.height = '768px';
 app.main.appendChild(heatmap);
 
-const config: HeatmapConfig = {
+heatmap.config = {
   table: table,
   displayValue: true,
 
   colorScale: {
-    title: 'Temperature avg',
+    title: 'Average in °C',
+    colors: ['cyan', 'orange', 'red'],
   },
   xAxis: {
     title: 'Month',
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-    padding: 0.1,
+    innerPadding: 0.05,
   },
   yAxis: {
     title: 'City',
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
-    padding: 0.1,
-  },
-  tooltip: {
-    position: 'follow',
+    innerPadding: 0.05,
   },
 };
-
-heatmap.config = config;

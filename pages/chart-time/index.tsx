@@ -69,6 +69,7 @@ chart.setConfig({
     {
       title: 'Value',
       type: 'line',
+      curve: 'step-after',
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,

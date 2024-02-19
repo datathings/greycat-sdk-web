@@ -10,7 +10,7 @@ gui-heatmap {
 }
 
 /* tooltip */
-gui-heatmap .gui-chart-tooltip {
+gui-heatmap-tooltip {
   font-size: 10px;
 
   display: grid;
@@ -18,16 +18,13 @@ gui-heatmap .gui-chart-tooltip {
   grid-auto-rows: auto;
   grid-auto-flow: row;
 
-  /* background-color: rgb(var(--base-1)); */
-  /* padding: 0.5em; */
-  /* border: 1px solid rgb(var(--neutral-0)); */
   background-color: rgb(var(--base-1));
   padding: var(--spacing);
   border: 1px solid rgb(var(--neutral-0));
-}
 
-gui-heatmap .gui-chart-tooltip-value {
-  padding-left: 1em;
-  justify-self: start;
-  justify-self: end;
+  .gui-heatmap-tooltip-value {
+    padding-left: 1em;
+    justify-self: start;
+    justify-self: end;
+  }
 }

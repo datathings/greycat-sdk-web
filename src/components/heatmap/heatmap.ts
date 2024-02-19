@@ -3,8 +3,10 @@ import * as d3 from 'd3';
 import { debounce } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from '../chart/ctx.js';
-import { Color, Cursor } from '../chart/types.js';
-import { Disposer, TableLike } from '../common.js';
+import { Cursor } from '../chart/types.js';
+import { Disposer } from '../common.js';
+import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
+import './tooltip.js';
 
 type ColorYScale =
   | d3.ScaleLinear<number, number, never>
@@ -13,24 +15,7 @@ type ColorYScale =
 type ComputedState = {
   xRange: number[];
   yRange: number[];
-  style: {
-    'text-0': string;
-    'accent-0': string;
-    cursor: {
-      color: string;
-      bgColor: string;
-      lineColor: string;
-    };
-    margin: {
-      top: number;
-      right: number;
-      bottom: number;
-      left: number;
-    };
-    colorScaleMargin: {
-      right: number;
-    };
-  };
+  style: HeatmapStyle;
   xScale: d3.ScaleBand<string>;
   yScale: d3.ScaleBand<string>;
   colorScale: d3.ScaleSequential<string, string>;
@@ -39,44 +24,6 @@ type ComputedState = {
   colorScaleXRange: number[];
   xLabels: string[];
   yLabels: string[];
-};
-
-export type TooltipData = {
-  xTitle?: string;
-  xValue: string;
-  yValue: string;
-  yTitle?: string;
-  value: number;
-  title?: string;
-};
-
-export type HeatmapConfig = {
-  table: TableLike;
-  markerColor?: Color;
-  displayValue?: boolean;
-  tooltip?: {
-    position?: 'top-left' | 'top-right' | 'bottom-left' | 'bottom-right' | 'follow';
-    render?: (data: TooltipData, cursor: Cursor) => void;
-  };
-  xAxis: {
-    title?: string;
-    labels?: string[];
-    hook?: (axis: d3.Axis<string>) => void;
-    padding?: number;
-  };
-  yAxis: {
-    title?: string;
-    labels?: string[];
-    hook?: (axis: d3.Axis<string>) => void;
-    padding?: number;
-  };
-  colorScale?: {
-    title?: string;
-    colors?: string[];
-    range?: [number, number];
-    type?: 'linear' | 'log';
-    format?: string;
-  };
 };
 
 export class GuiHeatmap extends HTMLElement {
@@ -91,13 +38,13 @@ export class GuiHeatmap extends HTMLElement {
     selection: false,
   };
 
-  private _svg!: d3.Selection<SVGSVGElement, unknown, null, undefined>;
-  private _xAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
+  private _xAxisGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _yAxisGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
+  private _colorScaleYAxisGroup: d3.Selection<SVGGElement, unknown, null, undefined>;
   private _xAxis!: d3.Axis<string>;
-  private _yAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
   private _yAxis!: d3.Axis<string>;
   private _colorScaleYAxis!: d3.Axis<d3.NumberValue>;
-  private _colorScaleYAxisGroup!: d3.Selection<SVGGElement, unknown, null, undefined>;
 
   private readonly _canvas: HTMLCanvasElement;
   private readonly _ctx: CanvasContext;
@@ -105,7 +52,7 @@ export class GuiHeatmap extends HTMLElement {
   private readonly _uxCanvas: HTMLCanvasElement;
   private readonly _uxCtx: CanvasContext;
 
-  private readonly _tooltip = document.createElement('div');
+  private readonly _tooltip = document.createElement('gui-heatmap-tooltip');
 
   private _computed: ComputedState | undefined;
 
@@ -141,7 +88,6 @@ export class GuiHeatmap extends HTMLElement {
 
     // tooltip
     this._tooltip.style.position = 'absolute';
-    this._tooltip.classList.add('gui-chart-tooltip');
 
     this.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
@@ -159,6 +105,8 @@ export class GuiHeatmap extends HTMLElement {
   }
 
   connectedCallback() {
+    this._colors = getColors(this);
+
     const style = getComputedStyle(this);
     if (style.display === 'inline') {
       // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
@@ -175,9 +123,13 @@ export class GuiHeatmap extends HTMLElement {
       'mousemove',
       (event) => {
         const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
-        this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
-        this._updateUX();
+        const x = Math.round(event.pageX - (left + window.scrollX));
+        const y = Math.round(event.pageY - (top + window.scrollY));
+        if (this._cursor.x !== x || this._cursor.y !== y) {
+          this._cursor.x = x;
+          this._cursor.y = y;
+          this._updateUX();
+        }
       },
       { signal: this._disposer.signal },
     );
@@ -260,7 +212,6 @@ export class GuiHeatmap extends HTMLElement {
     }
     this._clearUX();
 
-    // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
     const { xRange, yRange, style, xScale, yScale, colorScale } = this._computed;
 
     const updateUX =
@@ -272,27 +223,48 @@ export class GuiHeatmap extends HTMLElement {
       this._cursor.y <= yRange[0];
 
     if (updateUX) {
-      // make tooltip visible and located properly
-      this.appendChild(this._tooltip);
-      switch (this._config.tooltip?.position ?? 'top-left') {
-        case 'top-left':
-          this._tooltip.style.left = `${xRange[0] + 10}px`;
-          this._tooltip.style.top = `${yRange[1]}px`;
-          break;
-        case 'top-right':
-          this._tooltip.style.right = `${xRange[0] + 10}px`;
-          this._tooltip.style.top = `${yRange[1]}px`;
-          break;
-        case 'bottom-left':
-          this._tooltip.style.left = `${xRange[0] + 10}px`;
-          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
-          break;
-        case 'bottom-right':
-          this._tooltip.style.right = `${xRange[0] + 10}px`;
-          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
-          break;
-        case 'follow':
-          {
+      // highlight the hovered cell
+      const xDomain = xScale.domain();
+      const yDomain = yScale.domain();
+
+      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
+      const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
+
+      const x = xScale(xDomain[colIndex])!;
+      const y = yScale(yDomain[rowIndex])!;
+
+      // we need to give a clone of the cursor because we don't want users to mutate our own version of it
+      const cursor: Cursor = { ...this._cursor };
+      // call tooltip render if defined
+      const data: HeatmapData = {
+        value: this.config.table.cols[colIndex][rowIndex] as number,
+        xValue: xDomain[colIndex],
+        yValue: yDomain[rowIndex],
+        title: this.config.colorScale?.title,
+        xTitle: this.config.xAxis.title,
+        yTitle: this.config.yAxis.title,
+      };
+
+      if (this._config.tooltip?.render) {
+        // delegate all tooltip related work to the render method
+        this._config.tooltip.render(data, cursor);
+      } else {
+        // make tooltip visible
+        this._tooltip.style.visibility = 'visible';
+
+        // position the tooltip properly
+        switch (this._config.tooltip?.position ?? 'follow') {
+          case 'in-place': {
+            this._tooltip.style.left = `${x - 1}px`;
+            this._tooltip.style.top = `${y - 1}px`;
+            this._tooltip.style.width = `${xScale.bandwidth() + 1}px`;
+            this._tooltip.style.height = `${yScale.bandwidth() + 1}px`;
+            break;
+          }
+          case 'follow': {
+            this._uxCtx.ctx.strokeStyle = this._config.markerColor ?? style['accent-0'];
+            this._uxCtx.ctx.strokeRect(x, y, xScale.bandwidth(), yScale.bandwidth());
+
             let tooltipX = this._cursor.x - 70;
             let tooltipY = this._cursor.y - 80;
             if (tooltipX < xRange[0]) {
@@ -303,87 +275,23 @@ export class GuiHeatmap extends HTMLElement {
             }
             this._tooltip.style.left = `${tooltipX}px`;
             this._tooltip.style.top = `${tooltipY}px`;
+            break;
           }
-          break;
+        }
+
+        // update the tooltip content
+        this._tooltip.update(this._config, data, colorScale, style);
       }
 
-      //highlight the hovered cell
-
-      const xDomain = xScale.domain();
-      const yDomain = yScale.domain();
-
-      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
-
-      const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
-
-      const x = xScale(xDomain[colIndex])!;
-      const y = yScale(yDomain[rowIndex])!;
-
-      this._uxCtx.ctx.strokeStyle = this._config.markerColor ?? `${style['accent-0']}`;
-      this._uxCtx.ctx.strokeRect(x, y, xScale.bandwidth(), yScale.bandwidth());
-
-      // we need to give a clone of the cursor because we don't want users to mutate our own version of it
-      const cursor: Cursor = { ...this._cursor };
-      // call tooltip render if defined
-      const data: TooltipData = {
-        value: this.config.table.cols[colIndex][rowIndex] as number,
-        xValue: xDomain[colIndex],
-        yValue: yDomain[rowIndex],
-        title: this.config.colorScale?.title,
-        xTitle: this.config.xAxis.title,
-        yTitle: this.config.yAxis.title,
-      };
-      this._config.tooltip?.render?.(data, cursor);
       this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
-
-      if (!this._config.tooltip?.render) {
-        const nameEl = document.createElement('div');
-        if (data.title) {
-          nameEl.textContent = data.title;
-        }
-        const valueElem = document.createElement('div');
-        valueElem.classList.add('gui-chart-tooltip-value');
-        if (this.config.colorScale?.format) {
-          valueElem.textContent = `${d3.format(this.config.colorScale.format)(data.value)}`;
-        } else {
-          valueElem.textContent = `${data.value}`;
-        }
-        valueElem.style.color = colorScale(data.value);
-        this._tooltip.append(nameEl, valueElem);
-
-        const xNameEl = document.createElement('div');
-        if (this.config.xAxis.title) {
-          xNameEl.textContent = this.config.xAxis.title;
-        }
-        const xElem = document.createElement('div');
-        xElem.classList.add('gui-chart-tooltip-value');
-        xElem.style.color = style['text-0'];
-        xElem.textContent = `${data.xValue}`;
-        this._tooltip.append(xNameEl, xElem);
-
-        const yNameEl = document.createElement('div');
-        if (this.config.yAxis.title) {
-          yNameEl.textContent = this.config.yAxis.title;
-        }
-        const yElem = document.createElement('div');
-        yElem.classList.add('gui-chart-tooltip-value');
-        yElem.style.color = style['text-0'];
-        yElem.textContent = `${data.yValue}`;
-        this._tooltip.append(yNameEl, yElem);
-      }
     }
   }
 
   private _clearUX(): void {
     // clear ux canvas
     this._uxCtx.ctx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
-    // clear tooltip
-    this._tooltip.replaceChildren();
-    this._tooltip.style.top = '';
-    this._tooltip.style.right = '';
-    this._tooltip.style.bottom = '';
-    this._tooltip.style.left = '';
-    this._tooltip.remove();
+    // hide tooltip
+    this._tooltip.style.visibility = 'hidden';
   }
 
   /**
@@ -401,7 +309,7 @@ export class GuiHeatmap extends HTMLElement {
     const { xScale, yScale, style, colorScale, colorXScale, colorYScale, xLabels, yLabels } =
       this._computed;
 
-    //Draw the heatmap
+    // Draw the heatmap
     for (let col = 0; col < this.config.table.cols.length; col++) {
       for (let row = 0; row < this.config.table.cols[col].length; row++) {
         const value = this.config.table.cols[col][row];
@@ -436,7 +344,7 @@ export class GuiHeatmap extends HTMLElement {
       }
     }
 
-    //Draw the color scale
+    // Draw the color scale
     this._ctx.ctx.beginPath();
     const colorYMin = colorYScale(colorYScale.domain()[0]) - colorYScale(colorYScale.domain()[1]);
     const colorYMax = colorYScale(colorYScale.domain()[1]);
@@ -461,7 +369,7 @@ export class GuiHeatmap extends HTMLElement {
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(this._xAxis);
 
-    //Add the y-axis
+    // Add the y-axis
     this._yAxis = d3.axisLeft(yScale);
     if (this._config.yAxis.hook) {
       this._config.yAxis.hook(this._yAxis);
@@ -506,10 +414,20 @@ export class GuiHeatmap extends HTMLElement {
       },
     };
 
-    if (this._config.colorScale?.colors && this._config.colorScale.colors.length > 1) {
-      this._colors = this._config.colorScale.colors;
-    } else {
-      this._colors = getColors().slice(0, 2);
+    let colorScaleMin: number | null = null;
+    let colorScaleMax: number | null = null;
+
+    if (this._config.colorScale) {
+      if (this._config.colorScale.colors && this._config.colorScale.colors.length > 1) {
+        this._colors = this._config.colorScale.colors;
+      } else {
+        this._colors = getColors(this).slice(0, 2);
+      }
+
+      if (this._config.colorScale.range !== undefined) {
+        colorScaleMin = this._config.colorScale.range[0];
+        colorScaleMax = this._config.colorScale.range[1];
+      }
     }
 
     // compute ranges based on available width, height and margins
@@ -523,14 +441,6 @@ export class GuiHeatmap extends HTMLElement {
       this._canvas.width - props.colorScaleMargin.right,
       this._canvas.width,
     ];
-
-    let colorScaleMin: number | null = null;
-    let colorScaleMax: number | null = null;
-
-    if (this._config.colorScale?.range !== undefined) {
-      colorScaleMin = this._config.colorScale.range[0];
-      colorScaleMax = this._config.colorScale.range[1];
-    }
 
     if (colorScaleMin === null || colorScaleMax === null) {
       for (let col = 0; col < this.config.table.cols.length; col++) {
@@ -555,20 +465,18 @@ export class GuiHeatmap extends HTMLElement {
       colorScaleMax = 1;
     }
 
-    let xLabels = this.config.xAxis.labels ?? [];
-    let yLabels = this.config.yAxis.labels ?? [];
+    const xLabels = this.config.xAxis.labels ?? [];
+    const yLabels = this.config.yAxis.labels ?? [];
 
     if (xLabels.length === 0) {
-      xLabels = [];
-      for (let i = 0; i < this.config.table.cols.length; i++) {
-        xLabels.push(i.toString());
+      for (let colIdx = 0; colIdx < this.config.table.cols.length; colIdx++) {
+        xLabels.push(`${colIdx}`);
       }
     }
 
     if (yLabels.length === 0 && this.config.table.cols[0] !== undefined) {
-      yLabels = [];
-      for (let i = 0; i < this.config.table.cols[0].length; i++) {
-        yLabels.push(i.toString());
+      for (let rowIdx = 0; rowIdx < this.config.table.cols[0].length; rowIdx++) {
+        yLabels.push(`${rowIdx}`);
       }
     }
 
@@ -576,19 +484,20 @@ export class GuiHeatmap extends HTMLElement {
       .scaleBand()
       .domain(xLabels)
       .range(xRange)
-      .paddingInner(this.config.xAxis.padding ?? 0)
-      .paddingOuter(0);
+      .paddingInner(this.config.xAxis.innerPadding ?? 0)
+      .paddingOuter(this.config.xAxis.outerPadding ?? 0);
     const yScale = d3
       .scaleBand()
       .domain(yLabels)
       .range(yRange)
-      .paddingInner(this.config.yAxis.padding ?? 0)
-      .paddingOuter(0);
+      .paddingInner(this.config.yAxis.innerPadding ?? 0)
+      .paddingOuter(this.config.yAxis.outerPadding ?? 0);
 
     const colorXScale = d3.scaleBand().domain(['0']).range(colorScaleXRange);
 
     let colorYScale: ColorYScale;
     let colorScale: d3.ScaleSequential<string, string>;
+
     if (this.config.colorScale?.type === 'log') {
       colorYScale = d3.scaleLog().domain([colorScaleMin, colorScaleMax]).range(yRange);
       colorScale = d3
@@ -641,8 +550,8 @@ const CURSOR_EVENT_TYPE = 'heatmap-cursor';
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
  */
-export class HeatmapCursorEvent extends CustomEvent<{ data: TooltipData; cursor: Cursor }> {
-  constructor(data: TooltipData, cursor: Cursor) {
+export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
+  constructor(data: HeatmapData, cursor: Cursor) {
     super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
   }
 }
