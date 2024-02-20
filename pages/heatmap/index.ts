@@ -6,17 +6,18 @@ const app = document.createElement('app-layout');
 app.title = 'Heatmap';
 await app.init();
 
-document.body.prepend(app);
+document.body.appendChild(app);
 
-const table = await greycat.default.call<core.Table>('project::heatmap');
+app.addSimpleAction(`Switch tooltip to 'in-place'`, (_, a) => {
+  const oldpos = heatmap.config.tooltip ? heatmap.config.tooltip.position ? heatmap.config.tooltip.position : 'follow' : 'follow';
+  const newpos = oldpos === 'in-place' ? 'follow' : 'in-place';
+  heatmap.config.tooltip = { position: newpos };
+  a.textContent = `Switch tooltip to '${oldpos}'`;
+});
 
 const heatmap = document.createElement('gui-heatmap');
-heatmap.style.width = '100%';
-heatmap.style.height = '768px';
-app.main.appendChild(heatmap);
-
 heatmap.config = {
-  table: table,
+  table: await greycat.default.call<core.Table>('project::heatmap'),
   displayValue: true,
 
   colorScale: {
@@ -25,7 +26,20 @@ heatmap.config = {
   },
   xAxis: {
     title: 'Month',
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+    labels: [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ],
     innerPadding: 0.05,
   },
   yAxis: {
@@ -34,3 +48,4 @@ heatmap.config = {
     innerPadding: 0.05,
   },
 };
+app.main.appendChild(heatmap);

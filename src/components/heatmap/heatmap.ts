@@ -212,7 +212,7 @@ export class GuiHeatmap extends HTMLElement {
     }
     this._clearUX();
 
-    const { xRange, yRange, style, xScale, yScale, colorScale } = this._computed;
+    const { xRange, yRange, style, xScale, yScale, xLabels, yLabels, colorScale } = this._computed;
 
     const paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
     const paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
@@ -227,22 +227,22 @@ export class GuiHeatmap extends HTMLElement {
 
     if (updateUX) {
       // highlight the hovered cell
-      const xDomain = xScale.domain();
-      const yDomain = yScale.domain();
-
       const colIndex = Math.floor((this._cursor.x - style.margin.right - paddingX) / xScale.step());
       const rowIndex = Math.floor((yRange[0] - this._cursor.y - paddingY) / yScale.step());
 
-      const x = xScale(xDomain[colIndex])!;
-      const y = yScale(yDomain[rowIndex])!;
+      // make it pixel-perfect with Math.round
+      const x = Math.round(xScale(xLabels[colIndex])!) + 1;
+      const y = Math.round(yScale(yLabels[rowIndex])!);
+      const w = Math.round(xScale.bandwidth());
+      const h = Math.round(yScale.bandwidth());
 
       // we need to give a clone of the cursor because we don't want users to mutate our own version of it
       const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
       const data: HeatmapData = {
         value: this.config.table.cols[colIndex][rowIndex] as number,
-        xValue: xDomain[colIndex],
-        yValue: yDomain[rowIndex],
+        xValue: xLabels[colIndex],
+        yValue: yLabels[rowIndex],
         title: this.config.colorScale?.title,
         xTitle: this.config.xAxis.title,
         yTitle: this.config.yAxis.title,
@@ -258,15 +258,15 @@ export class GuiHeatmap extends HTMLElement {
         // position the tooltip properly
         switch (this._config.tooltip?.position ?? 'follow') {
           case 'in-place': {
-            this._tooltip.style.left = `${x - 1}px`;
-            this._tooltip.style.top = `${y - 1}px`;
-            this._tooltip.style.width = `${xScale.bandwidth() + 1}px`;
-            this._tooltip.style.height = `${yScale.bandwidth() + 1}px`;
+            this._tooltip.style.left = `${x}px`;
+            this._tooltip.style.top = `${y}px`;
+            this._tooltip.style.width = `${w}px`;
+            this._tooltip.style.height = `${h}px`;
             break;
           }
           case 'follow': {
             this._uxCtx.ctx.strokeStyle = this._config.markerColor ?? style['accent-0'];
-            this._uxCtx.ctx.strokeRect(x, y, xScale.bandwidth(), yScale.bandwidth());
+            this._uxCtx.ctx.strokeRect(x, y, w, h);
 
             let tooltipX = this._cursor.x - 70;
             let tooltipY = this._cursor.y - 80;
@@ -278,6 +278,8 @@ export class GuiHeatmap extends HTMLElement {
             }
             this._tooltip.style.left = `${tooltipX}px`;
             this._tooltip.style.top = `${tooltipY}px`;
+            this._tooltip.style.width = '';
+            this._tooltip.style.height = '';
             break;
           }
         }
@@ -319,10 +321,14 @@ export class GuiHeatmap extends HTMLElement {
 
         if (typeof value === 'number') {
           const color = colorScale(value);
-          const x = xScale(xLabels[col])!;
-          const y = yScale(yLabels[row])!;
+          // make it pixel-perfect with Math.round
+          const x = Math.round(xScale(xLabels[col])!) + 1;
+          const y = Math.round(yScale(yLabels[row])!);
+          const w = Math.round(xScale.bandwidth());
+          const h = Math.round(yScale.bandwidth());
+          xScale.bandwidth(), yScale.bandwidth()
           this._ctx.ctx.fillStyle = color;
-          this._ctx.ctx.fillRect(x, y, xScale.bandwidth(), yScale.bandwidth());
+          this._ctx.ctx.fillRect(x, y, w, h);
           if (this.config.displayValue) {
             const rgbValues = color.match(/\d+/g)?.map(Number);
             if (!rgbValues) return;
@@ -349,18 +355,17 @@ export class GuiHeatmap extends HTMLElement {
 
     // Draw the color scale
     this._ctx.ctx.beginPath();
-    const colorYMin = colorYScale(colorYScale.domain()[0]) - colorYScale(colorYScale.domain()[1]);
-    const colorYMax = colorYScale(colorYScale.domain()[1]);
+    const [minColorScale, maxColorScale] = colorYScale.domain();
+    const colorScapeTop = colorYScale(minColorScale) - colorYScale(maxColorScale);
+    const colorScaleBottom = colorYScale(maxColorScale);
 
-    const gradient = this._ctx.ctx.createLinearGradient(0, colorYMin, 0, colorYMax);
-
+    const gradient = this._ctx.ctx.createLinearGradient(0, colorScapeTop, 0, colorScaleBottom);
     gradient.addColorStop(0, this._colors[0]);
     for (let index = 1; index < this._colors.length; index++) {
       gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
     this._ctx.ctx.fillStyle = gradient;
-
-    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorYMax, colorXScale.bandwidth(), colorYMin);
+    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorScaleBottom, Math.round(colorXScale.bandwidth()), colorScapeTop);
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);

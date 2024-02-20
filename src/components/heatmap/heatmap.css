@@ -11,20 +11,22 @@ gui-heatmap {
 
 /* tooltip */
 gui-heatmap-tooltip {
-  font-size: 10px;
+  --font-size: 10px;
+  --border-color: rgb(var(--neutral-0));
+  font-size: var(--font-size);
 
   display: grid;
   grid-template-columns: 1fr auto;
   grid-auto-rows: auto;
   grid-auto-flow: row;
+  column-gap: var(--spacing);
 
   background-color: rgb(var(--base-1));
   padding: var(--spacing);
-  border: 1px solid rgb(var(--neutral-0));
+  border: var(--border-width) solid var(--border-color);
+  overflow: hidden;
 
   .gui-heatmap-tooltip-value {
-    padding-left: 1em;
-    justify-self: start;
     justify-self: end;
   }
 }
