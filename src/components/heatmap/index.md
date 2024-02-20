@@ -1,25 +1,12 @@
 # `<gui-heatmap />`
+
 ![Heatmap](assets/heatmap.png)
 
-## Usage
-```ts
-// Provide the table from greycat backend
-const table = await greycat.default.call<core.Table>('project::heatmap');
-
-const heatmap = document.createElement('gui-heatmap');
-heatmap.style.width = '1024px';
-heatmap.style.height = '768px';
-
-heatmap.xLabels = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-heatmap.yLabels = ["Paris", "London", "New-York", "Beijing", "Perth", "Oslo"];
-heatmap.table = table;
-heatmap.colorScaleWidth = 50;
-```
-
 ## Example of a table from the backend
+
 ```ts
 @expose
-fn heatmap() {
+fn heatmapTable() {
   var table = Table::new(12);
 
   // ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -42,43 +29,127 @@ fn heatmap() {
 }
 ```
 
-## Properties for the heatmap
+## Usage
+
 ```ts
-export interface HeatmapProps {
-  // Table of the contents
-  table: core.Table | null;
-  // Naming for the axes. If not set, default is "x", "y", "z"
-  axisLabels?: string[];
-  // When hovered over the heatmap, you can customise the labels for the tooltip. Default is "x", "y", "z"
-  tooltipLabels?: string[];
-  // X axis labels for the ticks
-  xLabels?: string[];
-  // Y axis labels for the ticks
-  yLabels?: string[];
-  // Linear or Log
-  scaleType?: ScaleType;
-  // Range for the color scale
-  colorScaleRange?: [number, number];
-  // Will show "xTicks" number of labels within xLabels
-  xTicks?: number;
-  // Will show "yTicks" number of labels within yLabels
-  yTicks?: number;
-  // You can customize the width of the color scale
-  colorScaleWidth?: number;
+const heatmap = document.createElement('gui-heatmap');
+
+heatmap.setConfig({ 
+  table: heatmapTable(),
+  displayValue: true,
+  markerColor: 'white',
+  colorScale: {
+    title: 'Average in °C',
+    colors: ['cyan', 'orange', 'red'],
+  },
+  xAxis: {
+    title: 'Month',
+    labels: [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ],
+    innerPadding: 0.05,
+  },
+  yAxis: {
+    title: 'City',
+    labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
+    innerPadding: 0.05,
+  },
+  tooltip: {
+    position: 'in-place',
+  },
+});
+
+```
+
+## Properties for the heatmap
+
+###Config
+```ts
+export type HeatmapConfig = {
+  table: TableLike;
+  markerColor?: Color;
+  /**
+   * Displays the value centered in each square. Defaults to `false`.
+   */
+  displayValue?: boolean;
+  tooltip?: HeatmapTooltip;
+  xAxis: HeatmapAxis;
+  yAxis: HeatmapAxis;
+  colorScale?: HeatmapColorScale;
+};
+```
+
+### Heatmap Axis
+
+```ts
+export type HeatmapAxis = {
+  /** Used in the tooltip */
+  title?: string;
+  /** */
+  labels?: string[];
+  /**
+   * Sets the inner padding to the specified value which must be in the range [0, 1].
+   * The inner padding determines the ratio of the range that is reserved for blank space between bands.
+   *
+   * The default setting is 0.
+   */
+  innerPadding?: number;
+  /**
+   * Sets the outer padding to the specified value which must be in the range [0, 1].
+   * The outer padding determines the ratio of the range that is reserved for blank space before the first band and after the last band.
+   *
+   * The default setting is 0.
+   */
+  outerPadding?: number;
+  hook?: (axis: d3.Axis<string>) => void;
 }
 ```
 
+### Heatmap color scale
+
+```ts
+export type HeatmapColorScale = {
+  /** Used in the tooltip */
+  title?: string;
+  colors?: string[];
+  range?: [number, number];
+  type?: 'linear' | 'log';
+  format?: string;
+};
+```
+
+### Tooltip
+
+```ts
+export type HeatmapTooltip = {
+  /**
+   * The position of the tooltip.
+   *
+   * - `'follow'`: follows the mouse cursor
+   * - `'in-place'`: replaces the hovered square with the tooltip content
+   *
+   * Defaults to `'follow'`.
+   */
+  position?: 'in-place' | 'follow';
+  render?: (data: HeatmapData, cursor: Cursor) => void;
+};
+```
+
 ## Customization
+
 ```css
 gui-heatmap {
-  /** override colorscale colors */
-  --color-8: #3b254c;
-  --color-9: #779ef7;
-  --color-0: #37c43e;
-  --color-3: #ffe35b;
-  --color-2: #fe7e6d;
-  --color-12: #f7458e;
-
   /* margin variables, can only be pixels */
   --m-top: 10px;
   --m-right: 40px;
@@ -86,9 +157,6 @@ gui-heatmap {
   --m-left: 40px;
 
   /* color scale margin variables, can only be pixels */
-  --colorscale-m-top: 10px;
-  --colorscale-m-right: 40px;
-  --colorscale-m-bottom: 25px;
-  --colorscale-m-left: 40px;
+  --color-scale-m-right: 40px;
 }
 ```
