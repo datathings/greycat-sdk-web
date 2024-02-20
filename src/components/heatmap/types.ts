@@ -49,10 +49,12 @@ export type HeatmapAxis = {
    */
   outerPadding?: number;
   hook?: (axis: d3.Axis<string>) => void;
-}
+};
 
 export type HeatmapColorScale = {
+  /**Used in the tooltip */
   title?: string;
+  /** The color range to be used, will be interpolated */
   colors?: string[];
   range?: [number, number];
   type?: 'linear' | 'log';
