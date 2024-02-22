@@ -19,6 +19,7 @@ const heatmap = document.createElement('gui-heatmap');
 heatmap.config = {
   table: await greycat.default.call<core.Table>('project::heatmap'),
   displayValue: true,
+  markerColor: 'white',
 
   colorScale: {
     title: 'Average in °C',
@@ -46,6 +47,9 @@ heatmap.config = {
     title: 'City',
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
     innerPadding: 0.05,
+  },
+  tooltip: {
+    position: 'in-place',
   },
 };
 app.main.appendChild(heatmap);
