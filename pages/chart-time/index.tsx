@@ -1,3 +1,4 @@
+import * as d3 from 'd3';
 import { core } from '@greycat/sdk';
 import '../layout';
 
@@ -49,6 +50,16 @@ const colors = {
   high: 'red',
 };
 
+const dtFormat = new Intl.DateTimeFormat('en-GB', {
+  year: '2-digit',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'longOffset',
+});
+
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -59,10 +70,18 @@ chart.setConfig({
   cursor: true,
   xAxis: {
     scale: 'time',
-    // format: '%a, %H:%M',
+    // display time on xAxis in locale time
+    format: (x, specifier) => d3.timeFormat(specifier)(new Date(x)),
+    // display cursor time on xAxis in locale time with a DateTimeFormat
+    cursorFormat: (x) => dtFormat.format(new Date(x)),
   },
   yAxes: {
-    temp: {},
+    temp: {
+      // override cursor format for y values
+      cursorFormat: (y) => `${y}`,
+      // align the cursor display to start at the yAxis rather than ending at it by default
+      cursorAlign: 'start',
+    },
   },
   table,
   series: [

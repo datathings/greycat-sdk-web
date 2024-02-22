@@ -2821,7 +2821,7 @@ packages:
     dev: true
 
   '@get.greycat.io/files/sdk/js/testing/6.7/6.7.31-testing.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.7/6.7.31-testing.tgz}
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/sdk/js/testing/6.7/6.7.31-testing.tgz}
     name: '@greycat/sdk'
     version: 6.7.31-testing
     engines: {node: '>=18'}

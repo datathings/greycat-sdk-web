@@ -13,8 +13,11 @@ import {
   SelectionOptions,
   BarSerie,
   Cursor,
+  Ordinate,
+  Axis,
 } from './types.js';
-import { relativeTimeFormat, vMap } from './internals.js';
+import { smartFormatSpecifier } from './utils.js';
+import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
 
@@ -519,60 +522,126 @@ export class GuiChart extends HTMLElement {
           thickness: 2,
         });
 
+        const defaultCursorPadding = 10;
+
         // bottom axis text
         const xValue = +xScale.invert(this._cursor.x);
-        let bottomText = `${xValue}`;
-        if (this._config.xAxis.scale === 'time') {
-          if (this._config.xAxis.cursorFormat === undefined) {
+        let bottomText: string;
+        if (this._config.xAxis.cursorFormat === undefined) {
+          if (this._config.xAxis.scale === 'time') {
             bottomText = d3.isoFormat(new Date(xValue));
           } else {
+            bottomText = `${xValue}`;
+          }
+        } else if (typeof this._config.xAxis.cursorFormat === 'string') {
+          if (this._config.xAxis.scale === 'time') {
             bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(xValue));
+          } else {
+            bottomText = d3.format(this._config.xAxis.cursorFormat)(xScale.invert(this._cursor.x));
           }
         } else {
-          if (this._config.xAxis.cursorFormat) {
-            bottomText = d3.format(this._config.xAxis.cursorFormat)(xScale.invert(this._cursor.x));
+          if (this._config.xAxis.scale === 'time') {
+            const [from, to] = xScale.range();
+            const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+            const specifier = smartFormatSpecifier(span);
+            bottomText = this._config.xAxis.cursorFormat(xValue, specifier);
+          } else {
+            bottomText = this._config.xAxis.cursorFormat(xValue);
           }
         }
         // TODO clip on boundaries
-        this._uxCtx.text(this._cursor.x, yRange[0] + 8, bottomText, {
+        this._uxCtx.text(this._cursor.x, yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding), bottomText, {
           color: style.cursor.color,
           backgroundColor: style.cursor.bgColor,
-          align: 'center',
-          baseline: 'top',
+          align: this._config.xAxis.cursorAlign ?? 'center',
+          baseline: this._config.xAxis.cursorBaseline ?? 'top',
         });
         let leftAxesIdx = -1;
         let rightAxesIdx = -1;
+
+        // cursor formatter
+        const cursorFormatter = (name: string, axis: Ordinate): string => {
+          if (axis.cursorFormat === undefined) {
+            if (axis.scale === 'time') {
+              return d3.isoFormat(
+                new Date(+vMap(yScales[name].invert(this._cursor.y))),
+              );
+            } else {
+              return `${vMap(yScales[name].invert(this._cursor.y))}`;
+            }
+          } else if (typeof axis.cursorFormat === 'string') {
+            if (axis.scale === 'time') {
+              return d3.utcFormat(axis.cursorFormat)(
+                new Date(+vMap(yScales[name].invert(this._cursor.y))),
+              );
+            } else {
+              return d3.format(axis.cursorFormat)(
+                vMap(yScales[name].invert(this._cursor.y)),
+              );
+            }
+          }
+          if (axis.scale === 'time') {
+            const [from, to] = yScales[name].range();
+            const span = Math.abs(+yScales[name].invert(to) - +yScales[name].invert(from));
+            const specifier = smartFormatSpecifier(span);
+            return axis.cursorFormat(+vMap(yScales[name].invert(this._cursor.y)), specifier);
+          }
+          return axis.cursorFormat(vMap(yScales[name].invert(this._cursor.y)));
+        }
+
         // y axes texts
         for (const yAxisName in yScales) {
           const yAxis = this._config.yAxes[yAxisName];
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
+            let padding: number;
+            const align = yAxis.cursorAlign ?? 'end';
+            switch (align) {
+              case 'center':
+                padding = 0;
+                break;
+              case 'end':
+                padding = -(yAxis.cursorPadding ?? defaultCursorPadding);
+                break;
+              case 'start':
+                padding = +(yAxis.cursorPadding ?? defaultCursorPadding);
+                break;
+            }
             this._uxCtx.text(
-              style.margin.left + leftAxesIdx * style.margin.left - 8,
+              style.margin.left + leftAxesIdx * style.margin.left + padding,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
-                vMap(yScales[yAxisName].invert(this._cursor.y)),
-              ),
+              cursorFormatter(yAxisName, yAxis),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
-                align: 'end',
-                baseline: 'middle',
+                align,
+                baseline: yAxis.cursorBaseline ?? 'middle',
               },
             );
           } else {
             rightAxesIdx++;
+            let padding: number;
+            const align = yAxis.cursorAlign ?? 'start';
+            switch (align) {
+              case 'center':
+                padding = 0;
+                break;
+              case 'end':
+                padding = -(yAxis.cursorPadding ?? defaultCursorPadding);
+                break;
+              case 'start':
+                padding = +(yAxis.cursorPadding ?? defaultCursorPadding);
+                break;
+            }
             this._uxCtx.text(
-              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + 8,
+              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + padding,
               this._cursor.y,
-              d3.format(yAxis.cursorFormat ?? yAxis.format ?? '.2f')(
-                vMap(yScales[yAxisName].invert(this._cursor.y)),
-              ),
+              cursorFormatter(yAxisName, yAxis),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
-                align: 'start',
-                baseline: 'middle',
+                align,
+                baseline: yAxis.cursorBaseline ?? 'middle',
               },
             );
           }
@@ -596,7 +665,7 @@ export class GuiChart extends HTMLElement {
 
         const v = +xScale.invert(this._cursor.x);
 
-        const { xValue, rowIdx } = closest(this._config,serie,this._cursor,xScale,yScales[serie.yAxis],v);
+        const { xValue, rowIdx } = closest(this._config, serie, this._cursor, xScale, yScales[serie.yAxis], v);
 
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
@@ -672,6 +741,24 @@ export class GuiChart extends HTMLElement {
           }
         }
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
+          const createFormatter = (axis: Axis) => {
+            if (axis.format === undefined) {
+              return (x: unknown) => `${x}`;
+            } else if (typeof axis.format === 'string') {
+              return d3.format(axis.format);
+            } else {
+              if (axis.scale === 'time') {
+                const [from, to] = xScale.range();
+                const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+                const specifier = smartFormatSpecifier(span);
+                const format = axis.format;
+                return (v: number) => format(v, specifier);
+              }
+            }
+            return axis.format;
+          };
+          const formatter = createFormatter(this._config.yAxes[serie.yAxis]);
+
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent =
@@ -685,7 +772,7 @@ export class GuiChart extends HTMLElement {
             valueEl.classList.add('right');
           }
           valueEl.style.color = color;
-          valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue);
+          valueEl.textContent = formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
           if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
@@ -702,7 +789,7 @@ export class GuiChart extends HTMLElement {
               valueEl.classList.add('right');
             }
             valueEl.style.color = color;
-            valueEl.textContent = d3.format(this._config.yAxes[serie.yAxis].format ?? '')(yValue2);
+            valueEl.textContent = formatter(yValue2);
             this._tooltip.append(nameEl, valueEl);
           }
         }
@@ -810,20 +897,37 @@ export class GuiChart extends HTMLElement {
         ) {
           valueEl.classList.add('right');
         }
-        if (this._config.xAxis.scale === 'time') {
-          let fromStr: string;
-          let toStr: string;
-          if (this._config.xAxis.cursorFormat === undefined) {
+        let fromStr: string;
+        let toStr: string;
+        if (this._config.xAxis.cursorFormat === undefined) {
+          if (this._config.xAxis.scale === 'time') {
             fromStr = d3.isoFormat(new Date(from));
             toStr = d3.isoFormat(new Date(to));
           } else {
+            fromStr = `${from}`;
+            toStr = `${to}`;
+          }
+        } else if (typeof this._config.xAxis.cursorFormat === 'string') {
+          if (this._config.xAxis.scale === 'time') {
             fromStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(from));
             toStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(to));
+          } else {
+            fromStr = d3.format(this._config.xAxis.cursorFormat)(from);
+            toStr = d3.format(this._config.xAxis.cursorFormat)(to);
           }
-          valueEl.textContent = `${fromStr}, ${toStr}`;
         } else {
-          valueEl.textContent = `${from}, ${to}`;
+          if (this._config.xAxis.scale === 'time') {
+            const [from, to] = xScale.range();
+            const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+            const specifier = smartFormatSpecifier(span);
+            fromStr = this._config.xAxis.cursorFormat(from, specifier);
+            toStr = this._config.xAxis.cursorFormat(to, specifier);
+          } else {
+            fromStr = this._config.xAxis.cursorFormat(from);
+            toStr = this._config.xAxis.cursorFormat(to);
+          }
         }
+        valueEl.textContent = `${fromStr}, ${toStr}`;
 
         this._tooltip.append(nameEl, valueEl);
       }
@@ -1011,29 +1115,44 @@ export class GuiChart extends HTMLElement {
       serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
     }
 
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const applyFormatter = (axis: Axis, d3Axis: d3.Axis<any>) => {
+      if (axis.format === undefined) {
+        if (axis.scale === 'time') {
+          const scale = d3Axis.scale() as Scale;
+          const [from, to] = scale.range();
+          const span = Math.abs(+scale.invert(to) - +scale.invert(from));
+          const specifier = smartFormatSpecifier(span);
+          const tickFormat = d3.utcFormat(specifier);
+          (d3Axis as d3.Axis<Date>).tickFormat(tickFormat);
+        }
+      } else if (typeof axis.format === 'string') {
+        if (axis.scale === 'time') {
+          (d3Axis as d3.Axis<Date>).tickFormat(d3.utcFormat(axis.format));
+        } else {
+          d3Axis.tickFormat(d3.format(axis.format));
+        }
+      } else {
+        if (axis.scale === 'time') {
+          const formatter = axis.format;
+          const scale = d3Axis.scale() as Scale;
+          const [from, to] = scale.range();
+          const span = Math.abs(+scale.invert(to) - +scale.invert(from));
+          const specifier = smartFormatSpecifier(span);
+          d3Axis.tickFormat((v) => formatter(+v, specifier));
+        } else {
+          const formatter = axis.format;
+          d3Axis.tickFormat((v) => formatter(+v));
+        }
+      }
+    }
+
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
     if (this._config.xAxis.hook) {
       this._config.xAxis.hook(this._xAxis);
     } else {
-      if (this._config.xAxis.scale === 'time') {
-        if (this._config.xAxis.format === undefined) {
-          const [from, to] = xScale.range();
-          const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-          const tickFormat = d3.utcFormat(relativeTimeFormat(span));
-          (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
-        } else {
-          const format = this._config.xAxis.format;
-          this._xAxis.tickFormat((v) => {
-            if (typeof v === 'number') {
-              return d3.utcFormat(format)(new Date(v));
-            }
-            return d3.utcFormat(format)(v as Date);
-          });
-        }
-      } else if (this._config.xAxis.format) {
-        this._xAxis.tickFormat(d3.format(this._config.xAxis.format));
-      }
+      applyFormatter(this._config.xAxis, this._xAxis);
       if (Array.isArray(this._config.xAxis.ticks)) {
         this._xAxis.tickValues(this._config.xAxis.ticks.map(vMap));
       } else if (typeof this._config.xAxis.ticks === 'function') {
@@ -1076,22 +1195,7 @@ export class GuiChart extends HTMLElement {
       if (ord.hook) {
         ord.hook(yAxis);
       } else {
-        if (ord.format) {
-          if (ord.scale === 'time') {
-            yAxis.tickFormat(d3.utcFormat(ord.format));
-          } else {
-            yAxis.tickFormat(d3.format(ord.format));
-          }
-        } else {
-          if (ord.scale === 'time') {
-            const [from, to] = yScales[yAxisName].range();
-            const span = Math.abs(
-              +yScales[yAxisName].invert(to) - +yScales[yAxisName].invert(from),
-            );
-            const tickFormat = d3.utcFormat(relativeTimeFormat(span));
-            (this._xAxis as d3.Axis<Date>).tickFormat(tickFormat);
-          }
-        }
+        applyFormatter(ord, yAxis);
         if (Array.isArray(ord.ticks)) {
           yAxis.tickValues(ord.ticks.map(vMap));
         } else if (typeof ord.ticks === 'function') {

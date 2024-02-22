@@ -8,6 +8,8 @@ const CIRCLE_END_ANGLE = Math.PI * 2;
 type Ctx = CanvasRenderingContext2D;
 type LineSerieOptions = SerieWithOptions & LineOptions;
 
+export type CanvasTextAlign = 'start' | 'center' | 'end';
+
 export type ShapeOptions = {
   color?: Color;
   fill?: Color;
@@ -30,7 +32,7 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) {}
+  constructor(public ctx: Ctx) { }
 
   line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
@@ -480,30 +482,38 @@ export class CanvasContext {
       const xPadding = 4;
       const yPadding = 4;
 
-      if (opts.align === 'end') {
-        this.rectangle(
-          x - mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'start') {
-        this.rectangle(
-          x + mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'center') {
-        this.rectangle(
-          x,
-          y + mx.fontBoundingBoxAscent / 2,
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
+      switch (opts.align) {
+        case 'start': {
+          this.rectangle(
+            x + mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        case 'end': {
+          this.rectangle(
+            (x) - mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        default:
+        case 'center': {
+          this.rectangle(
+            x,
+            y + mx.fontBoundingBoxAscent / 2,
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
       }
     }
 
