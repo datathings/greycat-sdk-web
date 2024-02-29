@@ -1,5 +1,6 @@
 import {
   AddPanelOptions,
+  AddPanelPositionOptions,
   DockviewComponent,
   GroupPanelContentPartInitParameters,
   IContentRenderer,
@@ -10,9 +11,8 @@ import './dashboard.css';
 class DashboardElem implements IContentRenderer {
   _root: HTMLElement;
 
-  constructor(id: string) {
+  constructor() {
     this._root = document.createElement('div');
-    this._root.innerHTML = 'Hello';
   }
 
   get element() {
@@ -21,7 +21,8 @@ class DashboardElem implements IContentRenderer {
 
   init(parameters: GroupPanelContentPartInitParameters): void {
     const params = parameters.params as DashboardPanelProps;
-    const elem = document.createElement(params.component);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const elem = document.createElement(params.component) as any;
     this._root.appendChild(elem);
 
     if (params.component === 'gui-chart') {
@@ -35,13 +36,14 @@ class DashboardElem implements IContentRenderer {
 
 type DashboardPanelProps = {
   component: string;
-  params: Record<string, any>;
+  params: Record<string, unknown>;
 };
 
 export type DashboardWindow<T extends keyof HTMLElementTagNameMap> = {
   title: string;
   component: T;
-  args: Record<string, any>;
+  args: Record<string, unknown>;
+  position?: AddPanelPositionOptions;
 };
 
 export class GuiDashboard extends HTMLElement {
@@ -58,14 +60,18 @@ export class GuiDashboard extends HTMLElement {
 
     this._dockView.layout(this.clientWidth, this.clientHeight);
 
-    this.init();
+    this._panels.forEach((panel) => {
+      this.initPanels(panel);
+    });
   }
 
   disconnectedCallback() {}
 
   set panels(props: DashboardWindow<keyof HTMLElementTagNameMap>[]) {
-    this._panels = props;
-    this.init();
+    this._panels.push(...props);
+    props.forEach((panel) => {
+      this.initPanels(panel);
+    });
   }
   get panels() {
     return this._panels;
@@ -73,23 +79,21 @@ export class GuiDashboard extends HTMLElement {
 
   addPanel(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
     this._panels.push(panel);
-    this.init();
+    this.initPanels(panel);
   }
 
-  init() {
-    this._panels.forEach((panel, id) => {
-      const panelOptions: AddPanelOptions<DashboardPanelProps> = {
-        id: id.toString(),
-        component: 'default',
-        title: panel.title,
-        position: { direction: 'right' },
-        params: {
-          component: panel.component,
-          params: panel.args,
-        },
-      };
-      this._dockView?.addPanel(panelOptions);
-    });
+  initPanels(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
+    const panelOptions: AddPanelOptions<DashboardPanelProps> = {
+      id: `${(this._dockView?.totalPanels ?? 0) + 1}`,
+      component: 'default',
+      title: panel.title,
+      position: { direction: 'right', ...panel.position },
+      params: {
+        component: panel.component,
+        params: panel.args,
+      },
+    };
+    this._dockView?.addPanel(panelOptions);
   }
 }
 
