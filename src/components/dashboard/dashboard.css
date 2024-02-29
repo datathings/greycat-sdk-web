@@ -42,35 +42,14 @@ gui-dashboard {
     --dv-drag-over-background-color: var(--primary-focus);
     --dv-drag-over-border-color: var(--primary);
     --dv-tabs-container-scrollbar-color: var(--scrollbar-bg);
-    --dv-icon-hover-background-color: #5a5d5e4f;
-    --dv-floating-box-shadow: 8px 8px 8px 0px #53595d80;
+    --dv-icon-hover-background-color: var(--primary-hover);
     --dv-group-view-background-color: var(--bg-2);
-    --dv-tabs-and-actions-container-background-color: #252526;
+    --dv-tabs-and-actions-container-background-color: var(--bg-2);
     --dv-activegroup-visiblepanel-tab-background-color: var(--bg-0);
-    --dv-activegroup-hiddenpanel-tab-background-color: #2d2d2d;
-    --dv-inactivegroup-visiblepanel-tab-background-color: #1e1e1e;
-    --dv-inactivegroup-hiddenpanel-tab-background-color: #2d2d2d;
+    --dv-activegroup-hiddenpanel-tab-background-color: var(--bg-2);
+    --dv-inactivegroup-visiblepanel-tab-background-color: var(--bg-2);
     --dv-tab-divider-color: var(--bg-2);
-    --dv-activegroup-visiblepanel-tab-color: white;
-    --dv-activegroup-hiddenpanel-tab-color: #969696;
-    --dv-inactivegroup-visiblepanel-tab-color: #8f8f8f;
-    --dv-inactivegroup-hiddenpanel-tab-color: #626262;
-    --dv-separator-border: #444;
-    --dv-paneview-header-border-color: #ccc3;
-}
-
-/* light theme */
-:root[data-theme='light'] xp-dockview {
-    --dv-icon-hover-background-color: rgba(90, 93, 94, 0.31);
-    --dv-floating-box-shadow: 8px 8px 8px 0px rgba(83, 89, 93, 0.5);
-    --dv-tabs-and-actions-container-background-color: #f3f3f3;
-    --dv-activegroup-hiddenpanel-tab-background-color: #ececec;
-    --dv-inactivegroup-visiblepanel-tab-background-color: white;
-    --dv-inactivegroup-hiddenpanel-tab-background-color: #ececec;
-    --dv-activegroup-visiblepanel-tab-color: rgb(51, 51, 51);
-    --dv-activegroup-hiddenpanel-tab-color: rgba(51, 51, 51, 0.7);
-    --dv-inactivegroup-visiblepanel-tab-color: rgba(51, 51, 51, 0.7);
-    --dv-inactivegroup-hiddenpanel-tab-color: rgba(51, 51, 51, 0.35);
-    --dv-separator-border: rgba(128, 128, 128, 0.35);
-    --dv-paneview-header-border-color: rgb(51, 51, 51);
+    --dv-activegroup-visiblepanel-tab-color: var(--text);
+    --dv-inactivegroup-visiblepanel-tab-color: var(--text-2);
+    --dv-separator-border: var(--bg-0);
 }
