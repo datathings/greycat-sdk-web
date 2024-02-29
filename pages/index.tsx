@@ -22,6 +22,7 @@ app.main.replaceChildren(
           <li><a href="./csv-column-input/">Csv Column Input</a></li>
           {/* <li><a href="./date-time/">Date / Time</a></li> */}
           <li><a href="./donut/">Donut</a></li>
+          <li><a href="./dashboard/">Dashboard</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>
           <li><a href="./fieldset-group/">Fieldset Group</a></li>
           <li><a href="./fn-call/">Fn Call</a></li>

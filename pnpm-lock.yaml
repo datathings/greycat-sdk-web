@@ -11,6 +11,9 @@ dependencies:
   d3:
     specifier: 7.8.5
     version: 7.8.5
+  dockview-core:
+    specifier: 1.8.3
+    version: 1.8.3
 
 devDependencies:
   '@custom-elements-manifest/analyzer':
@@ -1608,6 +1611,10 @@ packages:
     dependencies:
       path-type: 4.0.0
     dev: true
+
+  /dockview-core@1.8.3:
+    resolution: {integrity: sha512-Zz/P7PxjI+TLfnKB5A73yUXh2StKW7ftUJq/JxYCVRsW5eTjHoFet38Ek4GL2njtOUsLeKwEabNkYmKHdwaaEg==}
+    dev: false
 
   /doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}

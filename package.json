@@ -59,7 +59,8 @@
   },
   "dependencies": {
     "@greycat/sdk": "https://get.greycat.io/files/sdk/js/testing/6.7/6.7.31-testing.tgz",
-    "d3": "7.8.5"
+    "d3": "7.8.5",
+    "dockview-core": "1.8.3"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
