@@ -1,13 +1,32 @@
 gui-heatmap {
   /* margin variables, can only be pixels */
   --m-top: 10px;
-  --m-right: 40px;
+  --m-right: 60px;
   --m-bottom: 25px;
-  --m-left: 40px;
+  --m-left: 60px;
 
   /* color scale margin variables, can only be pixels */
-  --colorscale-m-top: 10px;
-  --colorscale-m-right: 40px;
-  --colorscale-m-bottom: 25px;
-  --colorscale-m-left: 40px;
+  --color-scale-m-right: 40px;
+}
+
+/* tooltip */
+gui-heatmap-tooltip {
+  --font-size: 10px;
+  --border-color: rgb(var(--neutral-0));
+  font-size: var(--font-size);
+
+  display: grid;
+  grid-template-columns: 1fr auto;
+  grid-auto-rows: auto;
+  grid-auto-flow: row;
+  column-gap: var(--spacing);
+
+  background-color: rgb(var(--base-1));
+  padding: var(--spacing);
+  border: var(--border-width) solid var(--border-color);
+  overflow: hidden;
+
+  .gui-heatmap-tooltip-value {
+    justify-self: end;
+  }
 }

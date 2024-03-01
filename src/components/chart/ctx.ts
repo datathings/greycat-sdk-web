@@ -1,11 +1,14 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions } from './types.js';
+import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions, LineOptions } from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
 type Ctx = CanvasRenderingContext2D;
+type LineSerieOptions = SerieWithOptions & LineOptions;
+
+export type CanvasTextAlign = 'start' | 'center' | 'end';
 
 export type ShapeOptions = {
   color?: Color;
@@ -29,9 +32,9 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) {}
+  constructor(public ctx: Ctx) { }
 
-  line(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -77,6 +80,10 @@ export class CanvasContext {
         this.ctx.moveTo(x, y);
         first = false;
       } else {
+        if (serie.curve === 'step-after') {
+          const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+          this.ctx.lineTo(x, prevY);
+        }
         this.ctx.lineTo(x, y);
       }
 
@@ -293,7 +300,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  area(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  area(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols.length === 0) {
       return;
     }
@@ -319,6 +326,10 @@ export class CanvasContext {
     // line
     for (let i = 1; i < table.cols[0].length; i++) {
       const pt = computePoint(serie.xCol, serie.yCol, i);
+      if (serie.curve === 'step-after') {
+        const prevY = computePoint(serie.xCol, serie.yCol, i - 1).y;
+        this.ctx.lineTo(pt.x, prevY);
+      }
       this.ctx.lineTo(pt.x, pt.y);
       lastX = pt.x;
 
@@ -380,6 +391,10 @@ export class CanvasContext {
           y = yMax;
         }
         this.ctx.lineTo(x, y);
+        if (serie.curve === 'step-after') {
+          const prevY = computePoint(serie.xCol, serie.yCol2, i - 1).y;
+          this.ctx.lineTo(x, prevY);
+        }
       }
       this.ctx.lineTo(firstX, firstY); // start of line
       this.ctx.fill();
@@ -467,30 +482,38 @@ export class CanvasContext {
       const xPadding = 4;
       const yPadding = 4;
 
-      if (opts.align === 'end') {
-        this.rectangle(
-          x - mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'start') {
-        this.rectangle(
-          x + mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'center') {
-        this.rectangle(
-          x,
-          y + mx.fontBoundingBoxAscent / 2,
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
+      switch (opts.align) {
+        case 'start': {
+          this.rectangle(
+            x + mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        case 'end': {
+          this.rectangle(
+            (x) - mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        default:
+        case 'center': {
+          this.rectangle(
+            x,
+            y + mx.fontBoundingBoxAscent / 2,
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
       }
     }
 

@@ -14,6 +14,7 @@ export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 export type SerieWithOptions = Serie & SerieOptions;
+export type CurveStyle = 'linear' | 'step-after';
 
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -38,7 +39,7 @@ export type SelectionOptions = {
    * - `'vertical'` means only selectable according to y axes
    * - `'horizontal'` means only selectable according to x axis
    * - `'both'` means selectable on y & x axes
-   * 
+   *
    * Defaults to 'horizontal'
    */
   orientation: 'vertical' | 'horizontal' | 'both';
@@ -63,24 +64,13 @@ export type CommonAxis = {
   title?: string;
   min?: number | Date | core.time | core.Date;
   max?: number | Date | core.time | core.Date;
-  /**
-   * Formats the ticks on the axis
-   * See https://d3js.org/d3-format#format
-   *
-   * If the `scale` is `'time'` and `format` is `undefined`, the display is defaulting to ISO.
-   * See https://d3js.org/d3-time-format#utcFormat
-   */
-  format?: string;
-  /**
-   * Formats the cursor hover text on the axis
-   *
-   * See https://d3js.org/d3-format#format for number values
-   * See https://d3js.org/d3-time-format#utcFormat for time values in UTC
-   */
-  cursorFormat?: string;
+  cursorAlign?: 'start' | 'center' | 'end';
+  cursorBaseline?: CanvasTextBaseline;
+  cursorPadding?: number;
+
   /**
    * Zoom ratio on wheel events on the axis.
-   * 
+   *
    * Setting this to `0` disables the behavior completely.
    */
   ratio?: number;
@@ -93,7 +83,7 @@ export type CommonAxis = {
   hook?: (axis: d3.Axis<any>) => void;
 };
 
-export interface LinearAxis extends CommonAxis {
+export type LinearAxis = {
   scale?: 'linear';
   /**
    * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
@@ -102,9 +92,26 @@ export interface LinearAxis extends CommonAxis {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ticks?: any[];
-}
 
-export interface LogAxis extends CommonAxis {
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   */
+  format?: ((value: unknown) => string) | string;
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   */
+  cursorFormat?: ((value: unknown) => string) | string;
+};
+
+export type LogAxis = {
   scale: 'log';
   /**
    * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
@@ -113,17 +120,54 @@ export interface LogAxis extends CommonAxis {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   ticks?: any[];
-}
 
-export interface TimeAxis extends CommonAxis {
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   */
+  format?: ((value: unknown) => string) | string;
+
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   */
+  cursorFormat?: ((value: unknown) => string) | string;
+};
+
+export type TimeAxis = {
   scale: 'time';
   /**
    * Time axis can also leverage `d3.TimeInterval` by specifying for instance `d3.utcHour.every(24)`
    */
   ticks?: d3.TimeInterval | (core.time | core.Date | Date | number)[] | null;
-}
 
-export type Axis = LinearAxis | LogAxis | TimeAxis;
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
+   * - When `cursorFormat: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
+   *   The `specifier` parameter is set to be the best possible specifier for the range.
+   * - When `cursorFormat: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
+   */
+  format?: ((value: number, specifier: string) => string) | string;
+  /**
+   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
+   * - When `cursorFormat: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
+   *   The `specifier` parameter is set to be the best possible specifier for the range.
+   * - When `cursorFormat: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
+   */
+  cursorFormat?: ((value: number, specifier: string) => string) | string;
+};
+
+export type Axis = CommonAxis & (LinearAxis | LogAxis | TimeAxis);
 
 export type Ordinate = Axis & { position?: AxisPosition };
 
@@ -135,16 +179,16 @@ export type SerieOptions = {
   markerColor: string;
   /**
    * When defined, this value is used to control the marker drawing logic.
-   * 
+   *
    * All values are in pixels.
-   * 
+   *
    * If only `markerThreshold.x` is defined, then the marker will be drawn if `Math.abs(cursor.x - closestValue.x) <= markerThreshold.x`
    *
    * If only `markerThreshold.y` is defined, then the marker will be drawn if `Math.abs(cursor.y - closestValue.y) <= markerThreshold.y`
-   * 
+   *
    * If both `markerThreshold.x` and `markerThreshold.y` the same logic applies but both must be `true` for the marker to be drawn.
    */
-  markerThreshold?: {x?: number; y?: number };
+  markerThreshold?: { x?: number; y?: number };
   opacity: number;
   fillOpacity: number;
   /**
@@ -155,7 +199,7 @@ export type SerieOptions = {
   yCol2: SecondOrdinate;
   /**
    * If `true` this serie value won't show in the tooltip.
-   * 
+   *
    * *This only works when using the native tooltip*
    */
   hideInTooltip: boolean;
@@ -171,6 +215,16 @@ export type SerieOptions = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
+};
+
+export type LineOptions = {
+  /**
+   * If defined, the line will be drawn using the specified curve style, defaults to `linear`.
+   *
+   * - `linear`: draws a straight line between points
+   * - `step-after`: draws a vertical line from the previous point to the current point
+   */
+  curve?: CurveStyle;
 };
 
 export interface CommonSerie<K> extends Partial<SerieOptions> {
@@ -215,19 +269,15 @@ export interface CustomSerie<K> extends CommonSerie<K> {
   draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
-export interface LineSerie<K> extends CommonSerie<K> {
+export interface LineSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line';
-}
-
-export interface StepSerie<K> extends CommonSerie<K> {
-  type: 'step';
 }
 
 export interface BarSerie<K> extends CommonSerie<K> {
   type: 'bar';
   /**
    * Use this when you want to have bars that match a specific width.
-   * 
+   *
    * For every entry in those columns the bar will span from `spanCol[0] to `spanCol[1]`.
    */
   spanCol?: [number, number];
@@ -242,16 +292,21 @@ export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
 }
 
-export interface LineScatterSerie<K> extends CommonSerie<K> {
+export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
 }
 
-export interface AreaSerie<K> extends CommonSerie<K> {
+export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'area';
 }
 
-export interface LineAreaSerie<K> extends CommonSerie<K> {
+export interface LineAreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+area';
+}
+
+export interface StepSerie<K> extends CommonSerie<K> {
+  /**@deprecated type `step` is deprecated, use type `line` with a `curve: 'step-after'` */
+  type: 'step';
 }
 
 export type Serie<K extends string = string> =
@@ -259,10 +314,10 @@ export type Serie<K extends string = string> =
   | BarSerie<K>
   | ScatterSerie<K>
   | LineScatterSerie<K>
+  | StepSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
-  | CustomSerie<K>
-  | StepSerie<K>;
+  | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
   table: TableLike;

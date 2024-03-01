@@ -1,8 +1,3 @@
-gui-heatmap {
-  --color-8: #3b254c;
-  --color-9: #779ef7;
-  --color-0: #37c43e;
-  --color-3: #ffe35b;
-  --color-2: #fe7e6d;
-  --color-12: #f7458e;
+gui-heatmap-tooltip {
+  --font-size: 14px;
 }
