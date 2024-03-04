@@ -566,19 +566,19 @@ export class GuiChart extends HTMLElement {
               return d3.isoFormat(
                 new Date(+vMap(yScales[name].invert(this._cursor.y))),
               );
-            } else {
-              return `${vMap(yScales[name].invert(this._cursor.y))}`;
             }
-          } else if (typeof axis.cursorFormat === 'string') {
+            const defaultFormatter = yScales[name].tickFormat() as unknown as (x: number) => string;
+            return defaultFormatter(vMap(yScales[name].invert(this._cursor.y)));
+          }
+          if (typeof axis.cursorFormat === 'string') {
             if (axis.scale === 'time') {
               return d3.utcFormat(axis.cursorFormat)(
                 new Date(+vMap(yScales[name].invert(this._cursor.y))),
               );
-            } else {
-              return d3.format(axis.cursorFormat)(
-                vMap(yScales[name].invert(this._cursor.y)),
-              );
             }
+            return d3.format(axis.cursorFormat)(
+              vMap(yScales[name].invert(this._cursor.y)),
+            );
           }
           if (axis.scale === 'time') {
             const [from, to] = yScales[name].range();
@@ -744,16 +744,16 @@ export class GuiChart extends HTMLElement {
           const createFormatter = (axis: Axis) => {
             if (axis.format === undefined) {
               return (x: unknown) => `${x}`;
-            } else if (typeof axis.format === 'string') {
+            }
+            if (typeof axis.format === 'string') {
               return d3.format(axis.format);
-            } else {
-              if (axis.scale === 'time') {
-                const [from, to] = xScale.range();
-                const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-                const specifier = smartFormatSpecifier(span);
-                const format = axis.format;
-                return (v: number) => format(v, specifier);
-              }
+            }
+            if (axis.scale === 'time') {
+              const [from, to] = xScale.range();
+              const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+              const specifier = smartFormatSpecifier(span);
+              const format = axis.format;
+              return (v: number) => format(v, specifier);
             }
             return axis.format;
           };

@@ -122,6 +122,7 @@ chart.config = {
     left: {
       min: 0,
       max: 200,
+      format: '.2s'
     },
     right: {
       position: 'right',

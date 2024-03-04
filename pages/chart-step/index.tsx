@@ -19,6 +19,7 @@ const timepoints = [
 ];
 
 chart.setConfig({
+  cursor: true,
   xAxis: {
     scale: 'time',
     ticks: timepoints,
@@ -29,13 +30,14 @@ chart.setConfig({
   table: {
     cols: [
       timepoints,
-      [2000, 2500, 1000, 1700, 3200],
+      [2000, 25000, 100000, 170, 3200],
     ],
   },
   series: [
     {
       title: 'Value',
-      type: 'step',
+      type: 'line',
+      curve: 'step-after',
       yAxis: 'balance',
       xCol: 0,
       yCol: 1,
