@@ -422,10 +422,7 @@ export class CanvasContext {
           this.ctx.lineTo(x, prevY);
         }
       }
-      this.ctx.lineTo(firstX, firstY); // start of line
-      this.ctx.strokeStyle = 'red';
-      this.ctx.globalAlpha = 1;
-      this.ctx.stroke();
+      this.ctx.fill();
     }
 
     this.ctx.restore();
