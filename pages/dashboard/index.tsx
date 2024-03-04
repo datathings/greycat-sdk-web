@@ -1,4 +1,4 @@
-import { ChartConfig, DashboardWindow, GuiChart, core } from '../../src';
+import { ChartConfig, DashboardPanels, GuiChart, core } from '../../src';
 import '../layout';
 
 class CustomComponent extends HTMLElement {
@@ -40,8 +40,8 @@ document.body.prepend(app);
 
 const dashboard = document.createElement('gui-dashboard');
 
-const panels: DashboardWindow<keyof HTMLElementTagNameMap>[] = [
-  {
+const panels: DashboardPanels = {
+  chart: {
     component: 'gui-chart',
     title: 'Chart',
     handler: async (elem: GuiChart) => {
@@ -62,11 +62,12 @@ const panels: DashboardWindow<keyof HTMLElementTagNameMap>[] = [
       elem.config = config;
     },
   },
-  {
+  costum: {
     component: 'my-custom-comp',
     title: 'Custom Component',
   },
-];
+};
+
 dashboard.panels = panels;
 
 app.main.appendChild(

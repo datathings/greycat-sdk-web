@@ -36,6 +36,8 @@ type DashboardPanelProps = {
   params: any;
 };
 
+export type DashboardPanels = Record<string, DashboardWindow<keyof HTMLElementTagNameMap>>;
+
 export type DashboardWindow<T extends keyof HTMLElementTagNameMap> = {
   title: string;
   component: T;
@@ -45,7 +47,7 @@ export type DashboardWindow<T extends keyof HTMLElementTagNameMap> = {
 
 export class GuiDashboard extends HTMLElement {
   private _dockView?: DockviewComponent;
-  private _panels: DashboardWindow<keyof HTMLElementTagNameMap>[] = [];
+  private _panels: DashboardPanels = {};
 
   connectedCallback() {
     this._dockView = new DockviewComponent({
@@ -57,9 +59,10 @@ export class GuiDashboard extends HTMLElement {
 
     this._dockView.layout(this.clientWidth, this.clientHeight);
 
-    this._panels.forEach((panel) => {
+    for (const key in this._panels) {
+      const panel = this._panels[key];
       this.initPanels(panel);
-    });
+    }
 
     this._dockView.onDidLayoutChange(() => {
       localStorage.setItem('dockview', JSON.stringify(this._dockView?.toJSON()));
@@ -68,20 +71,23 @@ export class GuiDashboard extends HTMLElement {
 
   disconnectedCallback() {}
 
-  set panels(props: DashboardWindow<keyof HTMLElementTagNameMap>[]) {
-    this._panels.push(...props);
-    props.forEach((panel) => {
-      this.initPanels(panel);
-    });
+  set panels(props: DashboardPanels) {
+    for (const key in this._panels) {
+      if (!this._dockView?.getPanel(key)) {
+        const panel = this._panels[key];
+        this.initPanels(panel);
+      }
+    }
+    this._panels = props;
   }
   get panels() {
     return this._panels;
   }
 
-  addPanel(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
+  /*   addPanel(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
     this._panels.push(panel);
     this.initPanels(panel);
-  }
+  } */
 
   initPanels(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
     const panelOptions: AddPanelOptions<DashboardPanelProps> = {
