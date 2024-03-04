@@ -1115,6 +1115,13 @@ export class GuiChart extends HTMLElement {
       serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
     }
 
+
+    // Clean Canvas bounds
+    this._ctx.ctx.clearRect(0, 0, this._canvas.width, style.margin.top);
+    this._ctx.ctx.clearRect(0, this._canvas.height - style.margin.bottom, this._canvas.width, style.margin.bottom);
+    this._ctx.ctx.clearRect(0, 0, style.margin.left, this._canvas.height);
+    this._ctx.ctx.clearRect(this._canvas.width - style.margin.right, 0, style.margin.right, this._canvas.height);
+
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const applyFormatter = (axis: Axis, d3Axis: d3.Axis<any>) => {
       if (axis.format === undefined) {
