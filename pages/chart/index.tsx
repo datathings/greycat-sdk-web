@@ -131,7 +131,8 @@ chart.config = {
   series: [
     {
       title: 'Custom',
-      type: 'step',
+      type: 'line',
+      curve: 'step-after',
       yAxis: 'left',
       yCol: LINE_COL,
       width: 4,
