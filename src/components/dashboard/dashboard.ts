@@ -25,25 +25,22 @@ class DashboardElem implements IContentRenderer {
     const elem = document.createElement(params.component) as any;
     this._root.appendChild(elem);
 
-    if (params.component === 'gui-chart') {
-      elem.config = params.params.config;
-    } else if (params.component === 'gui-table') {
-      elem.value = params.params.value;
+    if (params.params.handler) {
+      params.params.handler(elem);
     }
-    console.log('params', params);
   }
 }
 
 type DashboardPanelProps = {
   component: string;
-  params: Record<string, unknown>;
+  params: any;
 };
 
 export type DashboardWindow<T extends keyof HTMLElementTagNameMap> = {
   title: string;
   component: T;
-  args: Record<string, unknown>;
   position?: AddPanelPositionOptions;
+  handler?: (elem: any) => Promise<void>;
 };
 
 export class GuiDashboard extends HTMLElement {
@@ -62,6 +59,10 @@ export class GuiDashboard extends HTMLElement {
 
     this._panels.forEach((panel) => {
       this.initPanels(panel);
+    });
+
+    this._dockView.onDidLayoutChange(() => {
+      localStorage.setItem('dockview', JSON.stringify(this._dockView?.toJSON()));
     });
   }
 
@@ -90,9 +91,11 @@ export class GuiDashboard extends HTMLElement {
       position: { direction: 'right', ...panel.position },
       params: {
         component: panel.component,
-        params: panel.args,
+        params: { handler: panel.handler },
       },
     };
+    console.log(panelOptions);
+
     this._dockView?.addPanel(panelOptions);
   }
 }

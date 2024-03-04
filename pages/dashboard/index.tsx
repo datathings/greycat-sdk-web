@@ -1,13 +1,26 @@
-import { ChartConfig, DashboardWindow, core } from '../../src';
+import { ChartConfig, DashboardWindow, GuiChart, core } from '../../src';
 import '../layout';
 
 class CustomComponent extends HTMLElement {
+  count: number = 0;
   constructor() {
     super();
   }
 
   connectedCallback(): void {
     this.textContent = `Hello from the other side!`;
+    const button = document.createElement('button');
+    const count = document.createElement('p');
+    count.innerText = `Count: ${this.count}`;
+    button.innerText = 'Click me';
+
+    button.addEventListener('click', () => {
+      this.count++;
+      count.innerText = `Count: ${this.count}`;
+    });
+
+    this.appendChild(count);
+    this.appendChild(button);
   }
 }
 
@@ -25,56 +38,42 @@ await app.init();
 
 document.body.prepend(app);
 
-const table = await greycat.default.call<core.Table>('project::table');
-
 const dashboard = document.createElement('gui-dashboard');
 
-const config: ChartConfig = {
-  table: table,
-  xAxis: {},
-  yAxes: { left: {} },
-  series: [
-    {
-      type: 'line',
-      yAxis: 'left',
-      yCol: 1,
-      xCol: 0,
-    },
-  ],
-};
-
 const panels: DashboardWindow<keyof HTMLElementTagNameMap>[] = [
-  { component: 'gui-chart', title: 'Chart', args: { config: config } },
   {
-    component: 'gui-table',
-    title: 'Table',
-    args: { value: table },
-    position: { direction: 'below' },
+    component: 'gui-chart',
+    title: 'Chart',
+    handler: async (elem: GuiChart) => {
+      const table = await greycat.default.call<core.Table>('project::table');
+      const config: ChartConfig = {
+        table: table,
+        xAxis: {},
+        yAxes: { left: {} },
+        series: [
+          {
+            type: 'line',
+            yAxis: 'left',
+            yCol: 1,
+            xCol: 0,
+          },
+        ],
+      };
+      elem.config = config;
+    },
   },
   {
     component: 'my-custom-comp',
     title: 'Custom Component',
-    args: {},
-    position: { direction: 'right' },
   },
 ];
 dashboard.panels = panels;
 
-function addPanel() {
-  dashboard.addPanel({
-    component: 'gui-chart',
-    title: 'Chart',
-    args: { config: config },
-  });
-}
-
 app.main.appendChild(
   <div className="grid">
-    <article style={{ display: 'grid', gridTemplateRows: 'auto auto 1fr' }}>
+    <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
       <header>Dashboard</header>
-      <button style={{ width: '200px' }} onclick={addPanel}>
-        Add Panel
-      </button>
+
       {dashboard}
     </article>
   </div>,
