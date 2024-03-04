@@ -1,4 +1,4 @@
-import { ChartConfig, DashboardPanels, GuiChart, core } from '../../src';
+import { FetchFactory, PanelFactory, UIFactory, core } from '../../src';
 import '../layout';
 
 class CustomComponent extends HTMLElement {
@@ -40,14 +40,13 @@ document.body.prepend(app);
 
 const dashboard = document.createElement('gui-dashboard');
 
-const panels: DashboardPanels = {
+const panels: PanelFactory = {
   chart: {
-    component: 'gui-chart',
     title: 'Chart',
-    handler: async (elem: GuiChart) => {
-      const table = await greycat.default.call<core.Table>('project::table');
-      const config: ChartConfig = {
-        table: table,
+    position: { direction: 'right' },
+    attrs: {
+      config: {
+        table: { cols: [[], []] },
         xAxis: {},
         yAxes: { left: {} },
         series: [
@@ -58,17 +57,29 @@ const panels: DashboardPanels = {
             xCol: 0,
           },
         ],
-      };
-      elem.config = config;
+      },
     },
   },
   costum: {
-    component: 'my-custom-comp',
     title: 'Custom Component',
+    position: { direction: 'right' },
   },
 };
 
-dashboard.panels = panels;
+const fetchers: FetchFactory = {
+  chart: async () => {
+    return await greycat.default.call<core.Table>('project::table');
+  },
+};
+
+const uiFactory: UIFactory = {
+  chart: 'gui-chart',
+  costum: 'my-custom-comp',
+};
+
+dashboard.panelFactory = panels;
+dashboard.fetchFactory = fetchers;
+dashboard.uiFactory = uiFactory;
 
 app.main.appendChild(
   <div className="grid">

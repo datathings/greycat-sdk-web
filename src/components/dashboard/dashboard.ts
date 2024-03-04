@@ -19,35 +19,54 @@ class DashboardElem implements IContentRenderer {
     return this._root;
   }
 
-  init(parameters: GroupPanelContentPartInitParameters): void {
+  async init(parameters: GroupPanelContentPartInitParameters) {
+    console.log('init', parameters);
+
     const params = parameters.params as DashboardPanelProps;
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const elem = document.createElement(params.component) as any;
     this._root.appendChild(elem);
+    Object.assign(elem, params.attrs);
 
-    if (params.params.handler) {
-      params.params.handler(elem);
+    if (params.fetcher) {
+      const data = await params.fetcher();
+      if (params.component === 'gui-chart') {
+        elem.config.table = data;
+      } else {
+        elem.value = data;
+      }
     }
   }
 }
 
 type DashboardPanelProps = {
   component: string;
-  params: any;
+  attrs?: Record<string, any>;
+  fetcher?: () => Promise<void>;
 };
 
-export type DashboardPanels = Record<string, DashboardWindow<keyof HTMLElementTagNameMap>>;
-
-export type DashboardWindow<T extends keyof HTMLElementTagNameMap> = {
+export type PanelProps = {
   title: string;
-  component: T;
   position?: AddPanelPositionOptions;
-  handler?: (elem: any) => Promise<void>;
+  attrs?: Record<string, any>;
 };
 
+export type PanelFactory = Record<string, PanelProps>;
+export type FetchFactory = Record<string, () => Promise<any>>;
+export type UIFactory = Record<string, keyof HTMLElementTagNameMap>;
+
+type GuiDashboardState = {
+  panelFactory: PanelFactory;
+  fetchFactory: FetchFactory;
+  uiFactory: UIFactory;
+};
 export class GuiDashboard extends HTMLElement {
   private _dockView?: DockviewComponent;
-  private _panels: DashboardPanels = {};
+  private _state: GuiDashboardState = {
+    panelFactory: {},
+    fetchFactory: {},
+    uiFactory: {},
+  };
 
   connectedCallback() {
     this._dockView = new DockviewComponent({
@@ -59,50 +78,52 @@ export class GuiDashboard extends HTMLElement {
 
     this._dockView.layout(this.clientWidth, this.clientHeight);
 
-    for (const key in this._panels) {
-      const panel = this._panels[key];
-      this.initPanels(panel);
-    }
-
+    /* 
     this._dockView.onDidLayoutChange(() => {
       localStorage.setItem('dockview', JSON.stringify(this._dockView?.toJSON()));
-    });
+    }); */
+    this.initPanels();
   }
 
   disconnectedCallback() {}
 
-  set panels(props: DashboardPanels) {
-    for (const key in this._panels) {
-      if (!this._dockView?.getPanel(key)) {
-        const panel = this._panels[key];
-        this.initPanels(panel);
+  set fetchFactory(factory: FetchFactory) {
+    this._state.fetchFactory = factory;
+    this.initPanels();
+  }
+
+  set panelFactory(factory: PanelFactory) {
+    this._state.panelFactory = factory;
+
+    this.initPanels();
+  }
+
+  set uiFactory(factory: UIFactory) {
+    this._state.uiFactory = factory;
+    this.initPanels();
+  }
+
+  initPanels() {
+    for (const [key, panelProps] of Object.entries(this._state.panelFactory)) {
+      if (this._dockView?.getPanel(key) !== undefined) {
+        continue;
       }
+
+      const panelOptions: AddPanelOptions<DashboardPanelProps> = {
+        id: key,
+        component: 'default',
+        title: panelProps.title,
+        position: panelProps.position,
+        params: {
+          component: this._state.uiFactory[key],
+          attrs: panelProps.attrs,
+          fetcher: this._state.fetchFactory[key],
+        },
+      };
+      console.log('panelOptions', panelOptions);
+
+      this._dockView?.addPanel(panelOptions);
     }
-    this._panels = props;
-  }
-  get panels() {
-    return this._panels;
-  }
-
-  /*   addPanel(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
-    this._panels.push(panel);
-    this.initPanels(panel);
-  } */
-
-  initPanels(panel: DashboardWindow<keyof HTMLElementTagNameMap>) {
-    const panelOptions: AddPanelOptions<DashboardPanelProps> = {
-      id: `${(this._dockView?.totalPanels ?? 0) + 1}`,
-      component: 'default',
-      title: panel.title,
-      position: { direction: 'right', ...panel.position },
-      params: {
-        component: panel.component,
-        params: { handler: panel.handler },
-      },
-    };
-    console.log(panelOptions);
-
-    this._dockView?.addPanel(panelOptions);
   }
 }
 
