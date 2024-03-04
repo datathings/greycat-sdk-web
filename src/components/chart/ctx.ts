@@ -336,13 +336,17 @@ export class CanvasContext {
     let first = true;
 
     // line
+    let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
       const pt = computePoint(serie.xCol, serie.yCol, i);
 
       if (prevPt.x < xMin && pt.x < xMin) {
         prevPt = pt;
+        this.ctx.fillStyle = pt.color;
         continue;
       }
+
+      iterations++;
 
       if (first) {
         this.ctx.moveTo(prevPt.x, prevPt.y);
@@ -370,16 +374,16 @@ export class CanvasContext {
           this.ctx.lineTo(firstX, yBound); // bottom start
         } else {
           // fill in regard to another serie
-          for (let i = table.cols[0].length - 1; i >= 0; i--) {
-            const pt = computePoint(serie.xCol, serie.yCol2, i);
+          for (let a = i; a >= i - iterations; a--) {
+            const pt = computePoint(serie.xCol, serie.yCol2, a);
             this.ctx.lineTo(pt.x, pt.y);
           }
+          iterations = 0;
         }
         // close the area line by going back to the first pt
         this.ctx.lineTo(firstX, firstY);
         // and finally, fill the area
         this.ctx.fill();
-
         // start a new path
         this.ctx.beginPath();
         firstX = pt.x;
@@ -406,8 +410,8 @@ export class CanvasContext {
       this.ctx.lineTo(firstX, firstY); // start of line
       // and finally, fill the area
       this.ctx.fill();
-    } else {
-      // fill in regard to another serie
+    } else if (iterations > 0) {
+      // fill in regard to another serie if not already done
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
         const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
         const y = yScale(vMap(table.cols[serie.yCol2][i]));
