@@ -282,8 +282,8 @@ fn histogram_table(): Table {
   var histogramWeight = HistogramFloat {};
   while (csv.available() > 0) {
     var res = csv.read();
-    var height_inch = res[1] as float;
-    var weight_pound = res[2] as float; 
+    var height_inch = res?[1] as float;
+    var weight_pound = res?[2] as float; 
 
     var height_cm = height_inch * 2.54;
     var weight_kg = weight_pound * 0.453592;

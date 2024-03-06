@@ -196,8 +196,9 @@ export class GuiDashboard extends HTMLElement {
   }
 
   getAttrs() {
+    // TODO actually call `.getAttrs()` on every components
     return {
-      dockview: this.dockview.toJSON(),
+      model: this.dockview.toJSON(),
       components: this._components,
       associations: this._associations,
     };

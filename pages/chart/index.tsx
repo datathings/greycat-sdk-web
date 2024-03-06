@@ -122,6 +122,7 @@ chart.config = {
     left: {
       min: 0,
       max: 200,
+      format: '.2s'
     },
     right: {
       position: 'right',
@@ -131,7 +132,8 @@ chart.config = {
   series: [
     {
       title: 'Custom',
-      type: 'step',
+      type: 'line',
+      curve: 'step-after',
       yAxis: 'left',
       yCol: LINE_COL,
       width: 4,
