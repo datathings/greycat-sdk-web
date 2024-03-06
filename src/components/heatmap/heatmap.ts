@@ -4,7 +4,7 @@ import { debounce } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from '../chart/ctx.js';
 import { Cursor } from '../chart/types.js';
-import { Disposer } from '../common.js';
+import { Disposer, TableLike } from '../common.js';
 import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
 import './tooltip.js';
 
@@ -201,6 +201,27 @@ export class GuiHeatmap extends HTMLElement {
     return this._config;
   }
 
+  set value(table: TableLike) {
+    this._config.table = table;
+    this.compute();
+    this.update();
+  }
+
+  get value(): TableLike {
+    return this._config.table;
+  }
+
+  setAttrs({
+    config = this._config,
+    value = this._config.table,
+  }: {
+    config: HeatmapConfig;
+    value: TableLike;
+  }) {
+    this.config = config;
+    this.value = value;
+  }
+
   /**
    * This is all about cursor interactions.
    *
@@ -326,7 +347,7 @@ export class GuiHeatmap extends HTMLElement {
           const y = Math.round(yScale(yLabels[row])!);
           const w = Math.round(xScale.bandwidth());
           const h = Math.round(yScale.bandwidth());
-          xScale.bandwidth(), yScale.bandwidth()
+          xScale.bandwidth(), yScale.bandwidth();
           this._ctx.ctx.fillStyle = color;
           this._ctx.ctx.fillRect(x, y, w, h);
           if (this.config.displayValue) {
@@ -365,7 +386,12 @@ export class GuiHeatmap extends HTMLElement {
       gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
     this._ctx.ctx.fillStyle = gradient;
-    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorScaleBottom, Math.round(colorXScale.bandwidth()), colorScapeTop);
+    this._ctx.ctx.fillRect(
+      colorXScale('0') ?? 0,
+      colorScaleBottom,
+      Math.round(colorXScale.bandwidth()),
+      colorScapeTop,
+    );
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);

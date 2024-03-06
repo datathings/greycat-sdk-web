@@ -218,6 +218,36 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     this.render();
   }
 
+  getAttrs(): {
+    table: DonutTable | null;
+    value: DonutTable | null;
+    dataColumn: number;
+    labelColumn: number | undefined;
+    defaultInfoRow: number | undefined;
+    radius: number | undefined;
+    rotation: number | undefined;
+    thickness: number | undefined;
+    withInfo: boolean;
+    withLabels: boolean;
+    withLabelInfo: boolean;
+    name: string | undefined;
+  } {
+    return {
+      table: this._table,
+      value: this._table,
+      dataColumn: this._dataColumn,
+      labelColumn: this._labelColumn,
+      defaultInfoRow: this._defaultInfoRow,
+      radius: this._radius,
+      rotation: this._rotation,
+      thickness: this._thickness,
+      withInfo: this._withInfo,
+      withLabels: this._withLabels,
+      withLabelInfo: this._withLabelInfo,
+      name: this._name,
+    };
+  }
+
   connectedCallback() {
     const style = getComputedStyle(this);
     if (style.display === 'inline') {
@@ -297,7 +327,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     if (!this._table || this._table.cols.length < labelsIdx) {
       return [];
     }
-    return this._table.cols[labelsIdx].map((v) => v ? v.toString() : '');
+    return this._table.cols[labelsIdx].map((v) => (v ? v.toString() : ''));
   }
 
   private _updateDimensions() {
@@ -447,8 +477,8 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
         ? arcRadius - this._thickness
         : arcRadius * 0.7
       : this._thickness != null
-        ? radius - this._thickness
-        : radius * 0.7;
+      ? radius - this._thickness
+      : radius * 0.7;
     this._arc.innerRadius(innerRadius).outerRadius(this._withLabels ? arcRadius : radius);
     if (this._rotation != null) {
       const radian = this._rotation * (Math.PI / 180);

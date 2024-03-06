@@ -86,6 +86,16 @@ export class GuiGauge extends HTMLElement {
     this.render();
   }
 
+  getAttrs(): {
+    value: number;
+    thickness: number;
+  } {
+    return {
+      value: this._value,
+      thickness: this._thickness,
+    };
+  }
+
   render() {
     d3.select(this)
       .select('g path')

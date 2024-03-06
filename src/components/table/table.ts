@@ -285,8 +285,8 @@ export class GuiTable extends HTMLElement {
     table: TableLike;
     value: TableLike;
     filter: string;
-    filterColumns: Array<string | undefined>,
-    sortBy: readonly [number] | readonly [number, SortOrd],
+    filterColumns: Array<string | undefined>;
+    sortBy: readonly [number] | readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[];
     columnsWidths: number[];
@@ -300,6 +300,26 @@ export class GuiTable extends HTMLElement {
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this.update();
+  }
+
+  getAttrs(): {
+    table: TableLike | undefined;
+    filter: string;
+    filterColumns: Array<string | undefined>;
+    sortBy: readonly [number, SortOrd];
+    cellProps: CellPropsFactory;
+    headers: string[] | undefined;
+    columnsWidths: number[];
+  } {
+    return {
+      table: this._table,
+      filter: this._filterText,
+      filterColumns: this._filterColumns,
+      sortBy: [this._sortCol.index, this._sortCol.ord],
+      cellProps: this._cellProps,
+      headers: this._headers,
+      columnsWidths: this._thead.widths,
+    };
   }
 
   connectedCallback() {
@@ -458,21 +478,28 @@ export class GuiTable extends HTMLElement {
       return '';
     }
 
-    const header = this._table.meta?.map((m, i) => {
-      if (m.header) {
-        return m.header;
-      }
-      if (m.typeName) {
-        return m.typeName;
-      }
-      return `column-${i}`;
-    }).join(sep) ?? '';
+    const header =
+      this._table.meta
+        ?.map((m, i) => {
+          if (m.header) {
+            return m.header;
+          }
+          if (m.typeName) {
+            return m.typeName;
+          }
+          return `column-${i}`;
+        })
+        .join(sep) ?? '';
 
-    const body = this._rows.map((row, rowIdx) => {
-      return row.map((cell, colIdx) => {
-        return utils.stringify(this._cellProps(row, cell.value, rowIdx, colIdx));
-      }).join(sep);
-    }).join('\n');
+    const body = this._rows
+      .map((row, rowIdx) => {
+        return row
+          .map((cell, colIdx) => {
+            return utils.stringify(this._cellProps(row, cell.value, rowIdx, colIdx));
+          })
+          .join(sep);
+      })
+      .join('\n');
 
     return header + '\n' + body;
   }
@@ -978,7 +1005,13 @@ class GuiTableBodyCell extends HTMLElement {
     this.appendChild(this.value);
   }
 
-  update(index: number, colIdx: number, row: Cell[], cellProps: CellPropsFactory, colWidth: number) {
+  update(
+    index: number,
+    colIdx: number,
+    row: Cell[],
+    cellProps: CellPropsFactory,
+    colWidth: number,
+  ) {
     this.rowIdx = index;
     this.colIdx = colIdx;
     this.data = row;
@@ -1001,7 +1034,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) { }
+  ) {}
 
   reset() {
     this._index = -1;
