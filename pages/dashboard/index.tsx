@@ -1,5 +1,72 @@
-import { FetchFactory, PanelFactory, UIFactory, core } from '../../src';
+import { defineComp, greycatFetcher } from '../../src';
 import '../layout';
+
+const app = document.createElement('app-layout');
+app.title = 'Object';
+await app.init();
+
+document.body.prepend(app);
+
+const chart = defineComp({
+  component: 'gui-chart',
+  title: 'Chart',
+  position: { direction: 'right' },
+  attrs: {
+    config: {
+      cursor: true,
+      xAxis: {
+        scale: 'time',
+      },
+      yAxes: {
+        temp: {
+        },
+      },
+      table: { cols: [] },
+      series: [
+        {
+          title: 'Value',
+          type: 'line',
+          curve: 'step-after',
+          yAxis: 'temp',
+          xCol: 0,
+          yCol: 1,
+        },
+      ],
+    },
+  },
+});
+
+const custom1 = defineComp({
+  component: 'my-custom-comp',
+  title: 'Custom 1',
+  position: { direction: 'right' },
+});
+
+const table = defineComp({
+  component: 'gui-table', // gui-dashboard
+  title: 'Table', // dockview-api
+  position: { direction: 'below', referencePanel: 'custom1' }, // dockview-api
+  attrs: {
+    // gui-dashboard
+    value: { cols: [] },
+  },
+});
+
+app.main.appendChild(
+  <gui-dashboard
+    components={{ chart, custom1, table }}
+    associations={{
+      chart: ['greycatFetcher', { fqn: 'project::chart_time' }],
+      table: ['greycatFetcher', { fqn: 'project::table' }],
+    }}
+    fetchers={{ greycatFetcher }}
+    updateEvery={5000}
+    ongui-dashboard-update={(ev) => {
+      console.log('layout updated', ev.detail);
+      // => localStorage.setItem('save', JSON.stringify(dashboard.getAttrs()));
+    }}
+  />,
+);
 
 class CustomComponent extends HTMLElement {
   count: number = 0;
@@ -8,19 +75,27 @@ class CustomComponent extends HTMLElement {
   }
 
   connectedCallback(): void {
-    this.textContent = `Hello from the other side!`;
-    const button = document.createElement('button');
-    const count = document.createElement('p');
-    count.innerText = `Count: ${this.count}`;
-    button.innerText = 'Click me';
+    this.style.display = 'contents';
 
-    button.addEventListener('click', () => {
-      this.count++;
-      count.innerText = `Count: ${this.count}`;
-    });
+    const counter = document.createTextNode(`${this.count}`);
+    this.appendChild(
+      <div style={{ padding: 'var(--spacing)' }}>
+        <h4>Hello from custom component</h4>
+        <span>Count: {counter}</span>
+        <button
+          onclick={() => {
+            this.count++;
+            counter.textContent = `${this.count}`;
+          }}
+        >
+          Click me
+        </button>
+      </div>,
+    );
+  }
 
-    this.appendChild(count);
-    this.appendChild(button);
+  disconnectedCallback() {
+    this.replaceChildren();
   }
 }
 
@@ -31,62 +106,3 @@ declare global {
     'my-custom-comp': CustomComponent;
   }
 }
-
-const app = document.createElement('app-layout');
-app.title = 'Object';
-await app.init();
-
-document.body.prepend(app);
-
-const dashboard = document.createElement('gui-dashboard');
-
-const panels: PanelFactory = {
-  chart: {
-    title: 'Chart',
-    position: { direction: 'right' },
-    attrs: {
-      config: {
-        table: { cols: [[], []] },
-        xAxis: {},
-        yAxes: { left: {} },
-        series: [
-          {
-            type: 'line',
-            yAxis: 'left',
-            yCol: 1,
-            xCol: 0,
-          },
-        ],
-      },
-    },
-  },
-  costum: {
-    title: 'Custom Component',
-    position: { direction: 'right' },
-  },
-};
-
-const fetchers: FetchFactory = {
-  chart: async () => {
-    return await greycat.default.call<core.Table>('project::table');
-  },
-};
-
-const uiFactory: UIFactory = {
-  chart: 'gui-chart',
-  costum: 'my-custom-comp',
-};
-
-dashboard.panelFactory = panels;
-dashboard.fetchFactory = fetchers;
-dashboard.uiFactory = uiFactory;
-
-app.main.appendChild(
-  <div className="grid">
-    <article style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-      <header>Dashboard</header>
-
-      {dashboard}
-    </article>
-  </div>,
-);

@@ -93,16 +93,16 @@ app.actions.prepend(
 
 const table = await greycat.default.call<core.Table>('project::chart', [150]);
 
+
+const chart = document.createElement('gui-chart');
+app.main.replaceChildren(chart);
+
 const LINE_COL = 0;
 const SCATTER_COL = 1;
 const AREA_COL = 2;
 const BAR_COL = 3;
 const LINE_TYPE_COL = 4;
 const LINE_COLOR_COL = 5;
-
-const chart = document.createElement('gui-chart');
-app.main.replaceChildren(chart);
-
 const customColorMap = {
   Low: 'red',
   Medium: 'blue',
