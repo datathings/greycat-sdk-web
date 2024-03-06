@@ -284,6 +284,10 @@ class DashboardPanel implements IContentRenderer {
     this.inner = createElement(params.component, params.attrs ?? {}) as HTMLElement;
     this._root.appendChild(this.inner);
   }
+
+  focus(): void {
+      // noop
+  }
 }
 
 declare global {
