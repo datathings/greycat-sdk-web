@@ -672,7 +672,7 @@ export class GuiChart extends HTMLElement {
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
             : this._config.table.cols[serie.yCol][rowIdx];
         const x = xScale(vMap(xValue));
-        const y = yScales[serie.yAxis](vMap(yValue));
+        let y = yScales[serie.yAxis](vMap(yValue));
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
@@ -701,31 +701,58 @@ export class GuiChart extends HTMLElement {
           case 'step':
           case 'line+area':
           case 'area': {
-            // make sure to also add a marker when 'yCol2' is defined
-            this._drawMarker(serie, x, y, w, serie.markerColor);
-            if (yValue2 !== undefined) {
-              const y2 = yScales[serie.yAxis](vMap(yValue2));
-              this._drawMarker(serie, x, y2, w, serie.markerColor);
+            // only draw marker if inside the range
+            if (y <= yRange[0] && y >= yRange[1] && x <= xRange[1] && x >= xRange[0]) {
+              // make sure to also add a marker when 'yCol2' is defined
+              this._drawMarker(serie, x, y, w, serie.markerColor);
+              if (yValue2 !== undefined) {
+                const y2 = yScales[serie.yAxis](vMap(yValue2));
+                this._drawMarker(serie, x, y2, w, serie.markerColor);
+              }
             }
             break;
           }
           case 'bar': {
             const s = serie as BarSerie<string>;
             let w = serie.width;
-            let h = yRange[0] - y;
-            let rectY = y + (yRange[0] - y) / 2;
+            let rectX = x;
+            let h: number;
+            let rectY: number;
             if (s.spanCol) {
               const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
               const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
+
+            if (y < yRange[1]) {
+              y = yRange[1];
+            } else if (y > yRange[0]) {
+              y = yRange[0];
+            }
+
             if (s.baseLine !== undefined) {
               rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
               h = yScales[serie.yAxis](s.baseLine) - y;
+            } else {
+              rectY = y + (yRange[0] - y) / 2;
+              h = yRange[0] - y;
             }
-            this._uxCtx.rectangle(x, rectY, w, h, {
-              color: style['accent-0'],
-            });
+
+            if (x - w / 2 < xRange[0]) {
+              const newW = xRange[0] - x + w / 2;
+              rectX = xRange[0] + (w - newW) / 2;
+              w = w - newW;
+            } else if (x + w / 2 > xRange[1]) {
+              const newW = x + w / 2 - xRange[1];
+              rectX = xRange[1] - (w - newW) / 2;
+              w = w - newW;
+            }
+
+            if (rectX < xRange[1] && rectX > xRange[0]) {
+              this._uxCtx.rectangle(rectX, rectY, w, h, {
+                color: style['accent-0'],
+              });
+            }
             break;
           }
         }

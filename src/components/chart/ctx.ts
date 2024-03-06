@@ -237,19 +237,14 @@ export class CanvasContext {
         if (x1 > xMax) {
           x1 = xMax;
         }
-        if (y < yMax) {
-          y = yMax;
-        }
-        if (y > yMin) {
-          y = yMin;
-        }
+
         x = x0;
         w = x1 - x0;
       } else {
         x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
         y = yScale(vMap(table.cols[serie.yCol][i]));
         w = serie.width;
-        if (x + serie.width < xMin || x > xMax || y > yMin) {
+        if (x + serie.width < xMin || x > xMax) {
           continue;
         }
       }
