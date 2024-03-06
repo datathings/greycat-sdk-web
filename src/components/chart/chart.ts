@@ -21,6 +21,8 @@ import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer } from '../common.js';
 
+const MARKER_RANGE_PADDING = 5;
+
 type ComputedState = {
   leftAxes: number;
   rightAxes: number;
@@ -701,11 +703,19 @@ export class GuiChart extends HTMLElement {
           case 'step':
           case 'line+area':
           case 'area': {
-            // make sure to also add a marker when 'yCol2' is defined
-            this._drawMarker(serie, x, y, w, serie.markerColor);
-            if (yValue2 !== undefined) {
-              const y2 = yScales[serie.yAxis](vMap(yValue2));
-              this._drawMarker(serie, x, y2, w, serie.markerColor);
+            // only draw marker if inside the range
+            if (
+              y <= yRange[0] + MARKER_RANGE_PADDING &&
+              y >= yRange[1] - MARKER_RANGE_PADDING &&
+              x <= xRange[1] + MARKER_RANGE_PADDING &&
+              x >= xRange[0] - MARKER_RANGE_PADDING
+            ) {
+              // make sure to also add a marker when 'yCol2' is defined
+              this._drawMarker(serie, x, y, w, serie.markerColor);
+              if (yValue2 !== undefined) {
+                const y2 = yScales[serie.yAxis](vMap(yValue2));
+                this._drawMarker(serie, x, y2, w, serie.markerColor);
+              }
             }
             break;
           }
