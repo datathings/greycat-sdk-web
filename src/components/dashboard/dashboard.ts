@@ -7,7 +7,6 @@ import {
   SerializedDockview,
 } from 'dockview-core';
 
-import './dashboard.css';
 import { createElement } from '@greycat/web/jsx-runtime';
 
 /**

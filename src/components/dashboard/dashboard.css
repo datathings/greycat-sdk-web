@@ -1,55 +1,54 @@
 @import 'dockview-core/dist/styles/dockview.css';
 
-
 gui-dashboard {
-    display: block;
-    width: 100%;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+
+  .groupview > .content-container {
+    display: grid !important;
+    position: relative;
     overflow: hidden;
 
-    .groupview>.content-container {
-        display: grid !important;
-        position: relative;
-        overflow: hidden;
-
-        &>* {
-            /* ie. https://datacadamia.com/web/css/grid/overflow */
-            min-width: 0px;
-        }
+    & > * {
+      /* ie. https://datacadamia.com/web/css/grid/overflow */
+      min-width: 0px;
     }
+  }
 
-    .branch-node>.split-view-container>.view-container:empty {
-        justify-content: center;
-        align-items: center;
-        display: flex;
+  .branch-node > .split-view-container > .view-container:empty {
+    justify-content: center;
+    align-items: center;
+    display: flex;
 
-        &::after {
-            content: 'No selection';
-            color: var(--muted-color);
-        }
+    &::after {
+      content: 'No selection';
+      color: var(--muted-color);
     }
+  }
 
-    .tabs-and-actions-container .tabs-container {
-        scrollbar-width: auto;
-    }
+  .tabs-and-actions-container .tabs-container {
+    scrollbar-width: auto;
+  }
 }
 
 /* default dark theme */
 gui-dashboard {
-    --dv-background-color: var(--bg-2);
-    --dv-paneview-active-outline-color: var(--primary);
-    --dv-tabs-and-actions-container-font-size: 13px;
-    --dv-tabs-and-actions-container-height: 25px;
-    --dv-drag-over-background-color: var(--primary-focus);
-    --dv-drag-over-border-color: var(--primary);
-    --dv-tabs-container-scrollbar-color: var(--scrollbar-bg);
-    --dv-icon-hover-background-color: var(--primary-hover);
-    --dv-group-view-background-color: var(--bg-2);
-    --dv-tabs-and-actions-container-background-color: var(--bg-2);
-    --dv-activegroup-visiblepanel-tab-background-color: var(--bg-0);
-    --dv-activegroup-hiddenpanel-tab-background-color: var(--bg-2);
-    --dv-inactivegroup-visiblepanel-tab-background-color: var(--bg-2);
-    --dv-tab-divider-color: var(--bg-2);
-    --dv-activegroup-visiblepanel-tab-color: var(--text);
-    --dv-inactivegroup-visiblepanel-tab-color: var(--text-2);
-    --dv-separator-border: var(--bg-0);
+  --dv-background-color: var(--bg-2);
+  --dv-paneview-active-outline-color: var(--primary);
+  --dv-tabs-and-actions-container-font-size: 13px;
+  --dv-tabs-and-actions-container-height: 25px;
+  --dv-drag-over-background-color: var(--primary-focus);
+  --dv-drag-over-border-color: var(--primary);
+  --dv-tabs-container-scrollbar-color: var(--scrollbar-bg);
+  --dv-icon-hover-background-color: var(--primary-hover);
+  --dv-group-view-background-color: var(--bg-2);
+  --dv-tabs-and-actions-container-background-color: var(--bg-2);
+  --dv-activegroup-visiblepanel-tab-background-color: var(--bg-0);
+  --dv-activegroup-hiddenpanel-tab-background-color: var(--bg-2);
+  --dv-inactivegroup-visiblepanel-tab-background-color: var(--bg-2);
+  --dv-tab-divider-color: var(--bg-2);
+  --dv-activegroup-visiblepanel-tab-color: var(--text);
+  --dv-inactivegroup-visiblepanel-tab-color: var(--text-2);
+  --dv-separator-border: var(--bg-0);
 }
