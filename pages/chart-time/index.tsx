@@ -41,11 +41,11 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
-chart.addEventListener('canvas-enter', () => {
+chart.addEventListener('gui-enter', () => {
   console.log('canvas-enter');
 });
 
-chart.addEventListener('canvas-leave', () => {
+chart.addEventListener('gui-leave', () => {
   console.log('canvas-leave');
   currentValue.innerHTML = '';
 });

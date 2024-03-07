@@ -1465,7 +1465,7 @@ export class GuiChart extends HTMLElement {
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  */
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
-  static readonly NAME = 'gui-selection';
+  static readonly NAME = 'selection';
   constructor(from: unknown, to: unknown) {
     super(GuiChartSelectionEvent.NAME, { detail: { from, to }, bubbles: true });
   }
@@ -1475,7 +1475,7 @@ export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unk
  * Called when the selection is reset.
  */
 export class GuiChartResetSelectionEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-reset-selection';
+  static readonly NAME = 'reset-selection';
   constructor() {
     super(GuiChartResetSelectionEvent.NAME, { bubbles: true });
   }
@@ -1486,7 +1486,7 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
  * - `detail.cursor` contains the current cursor info
  */
 export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
-  static readonly NAME = 'gui-cursor';
+  static readonly NAME = 'cursor';
   constructor(data: SerieData[], cursor: Cursor) {
     super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
