@@ -1,4 +1,4 @@
-@import 'dockview-core/dist/styles/dockview.css';
+@import '../../../node_modules/dockview-core/dist/styles/dockview.css';
 
 gui-dashboard {
   display: block;
