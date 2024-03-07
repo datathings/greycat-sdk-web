@@ -72,6 +72,8 @@ export class GuiChart extends HTMLElement {
 
   private readonly _tooltip = document.createElement('div');
 
+  private canvasEntered = false;
+
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
   private _userYAxes: Record<
@@ -476,6 +478,11 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY !== -1;
 
     if (updateUX) {
+      if (!this.canvasEntered) {
+        this.canvasEntered = true;
+        this.dispatchEvent(new GuiChartCanvasEnterEvent());
+      }
+
       // make tooltip visible and located properly
       this.appendChild(this._tooltip);
       switch (this._config.tooltip?.position ?? 'top-left') {
@@ -849,6 +856,11 @@ export class GuiChart extends HTMLElement {
       this._config.tooltip?.render?.(data, cursor);
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+    } else {
+      if (this.canvasEntered) {
+        this.canvasEntered = false;
+        this.dispatchEvent(new GuiChartCanvasLeaveEvent());
+      }
     }
 
     if (updateSelection && this._config.selection !== false) {
@@ -1452,6 +1464,8 @@ export class GuiChart extends HTMLElement {
 const SELECTION_EVENT_TYPE = 'selection';
 const CURSOR_EVENT_TYPE = 'cursor';
 const RESET_SELECTION_EVENT_TYPE = 'reset-selection';
+const CANVAS_ENTER_EVENT_TYPE = 'canvas-enter';
+const CANVAS_LEAVE_EVENT_TYPE = 'canvas-leave';
 
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
@@ -1481,6 +1495,24 @@ export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor
   }
 }
 
+/**
+ * Called when the cursor enters the canvas.
+ */
+export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
+  constructor() {
+    super(CANVAS_ENTER_EVENT_TYPE, { bubbles: true });
+  }
+}
+
+/**
+ * Called when the cursor leaves the canvas.
+ */
+export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
+  constructor() {
+    super(CANVAS_LEAVE_EVENT_TYPE, { bubbles: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-chart': GuiChart;
@@ -1490,6 +1522,8 @@ declare global {
     [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
     [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
     [RESET_SELECTION_EVENT_TYPE]: GuiChartResetSelectionEvent;
+    [CANVAS_ENTER_EVENT_TYPE]: GuiChartCanvasEnterEvent;
+    [CANVAS_LEAVE_EVENT_TYPE]: GuiChartCanvasLeaveEvent;
   }
 
   namespace JSX {

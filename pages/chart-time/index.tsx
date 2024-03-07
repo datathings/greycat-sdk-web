@@ -41,6 +41,15 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
+chart.addEventListener('canvas-enter', () => {
+  console.log('canvas-enter');
+});
+
+chart.addEventListener('canvas-leave', () => {
+  console.log('canvas-leave');
+  currentValue.innerHTML = '';
+});
+
 let table = await greycat.default.call<core.Table>('project::chart_time');
 console.log(table);
 
