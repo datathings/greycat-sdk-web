@@ -72,7 +72,7 @@ export class GuiChart extends HTMLElement {
 
   private readonly _tooltip = document.createElement('div');
 
-  private canvasEntered = false;
+  private _canvasEntered = false;
 
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
@@ -478,8 +478,8 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY !== -1;
 
     if (updateUX) {
-      if (!this.canvasEntered) {
-        this.canvasEntered = true;
+      if (!this._canvasEntered) {
+        this._canvasEntered = true;
         this.dispatchEvent(new GuiChartCanvasEnterEvent());
       }
 
@@ -857,8 +857,8 @@ export class GuiChart extends HTMLElement {
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
     } else {
-      if (this.canvasEntered) {
-        this.canvasEntered = false;
+      if (this._canvasEntered) {
+        this._canvasEntered = false;
         this.dispatchEvent(new GuiChartCanvasLeaveEvent());
       }
     }
