@@ -342,8 +342,8 @@ export class GuiHeatmap extends HTMLElement {
       for (let row = 0; row < (this.config.table.cols?.[col]?.length ?? 0); row++) {
         const value = this.config.table.cols?.[col]?.[row];
 
-        if (typeof value === 'number') {
-          const color = colorScale(value);
+        if (!isNaN(Number(value))) {
+          const color = colorScale(Number(value));
           // make it pixel-perfect with Math.round
           const x = Math.round(xScale(xLabels[col])!) + 1;
           const y = Math.round(yScale(yLabels[row])!);
