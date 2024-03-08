@@ -109,12 +109,7 @@ export function closest(
   let rowIdx = 0;
   let res = undefined;
   let distance: number | null = null;
-  if (
-    serie.type === 'scatter' &&
-    serie.xCol !== undefined &&
-    config.xAxis.scale === 'linear' &&
-    config.yAxes[serie.yAxis].scale === 'linear'
-  ) {
+  if (serie.type === 'scatter' && serie.xCol !== undefined && serie.useXYForProximityHoover) {
     let minDistance = Infinity;
     for (let i = 0; i < (config.table.cols?.[0]?.length ?? 0); i++) {
       const xPos = xScale(vMap(config.table.cols?.[serie.xCol][i]));

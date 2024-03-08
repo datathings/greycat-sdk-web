@@ -290,6 +290,17 @@ export interface BarSerie<K> extends CommonSerie<K> {
 
 export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
+
+  /**
+   * If `true` the serie will use the x/y coordinates for proximity detection on hover.
+   *
+   * This is useful for scatter serie where the x and y values are not ordered.
+   *
+   * **Important: if set to true the xCol has to be defined**
+   *
+   * Defaults to `false`.
+   */
+  useXYForProximityHoover: boolean;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
