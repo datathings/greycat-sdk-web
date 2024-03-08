@@ -116,36 +116,36 @@ export function closest(
     config.yAxes[serie.yAxis].scale === 'linear'
   ) {
     let minDistance = Infinity;
-    for (let i = 0; i < config.table.cols[0].length; i++) {
-      const xPos = xScale(vMap(config.table.cols[serie.xCol][i]));
-      const yPos = yScale(vMap(config.table.cols[serie.yCol][i]));
+    for (let i = 0; i < (config.table.cols?.[0]?.length ?? 0); i++) {
+      const xPos = xScale(vMap(config.table.cols?.[serie.xCol][i]));
+      const yPos = yScale(vMap(config.table.cols?.[serie.yCol][i]));
       const distance = Math.hypot(xPos - cursor.x, yPos - cursor.y);
       if (distance < minDistance) {
-        res = config.table.cols[serie.xCol][i];
+        res = config.table.cols?.[serie.xCol][i];
         rowIdx = i;
         minDistance = distance;
       }
     }
   } else {
-    for (let i = 0; i < config.table.cols[0].length; i++) {
+    for (let i = 0; i < (config.table.cols?.[0]?.length ?? 0); i++) {
       let x: number;
       if (serie.type === 'bar' && serie.spanCol) {
-        const x0 = vMap(config.table.cols[serie.spanCol[0]][i]);
-        const x1 = vMap(config.table.cols[serie.spanCol[1]][i]);
+        const x0 = vMap(config.table.cols?.[serie.spanCol[0]][i]);
+        const x1 = vMap(config.table.cols?.[serie.spanCol[1]][i]);
         if (v >= x0 && v <= x1) {
           return { xValue: x0 + (x1 - x0) / 2, rowIdx: i };
         }
         x = x0;
       } else {
-        x = serie.xCol === undefined ? i : vMap(config.table.cols[serie.xCol][i]);
+        x = serie.xCol === undefined ? i : vMap(config.table.cols?.[serie.xCol][i]);
         if (x === v) {
-          return { xValue: serie.xCol === undefined ? i : config.table.cols[serie.xCol][i], rowIdx: i };
+          return { xValue: serie.xCol === undefined ? i : config.table.cols?.[serie.xCol][i], rowIdx: i };
         }
       }
       const d2 = Math.abs(x - v);
       if (distance == null || distance > d2) {
         rowIdx = i;
-        res = serie.xCol === undefined ? i : config.table.cols[serie.xCol][i];
+        res = serie.xCol === undefined ? i : config.table.cols?.[serie.xCol][i];
         distance = d2;
       } else if (distance != null && x > v && distance < d2) {
         return { xValue: res, rowIdx };

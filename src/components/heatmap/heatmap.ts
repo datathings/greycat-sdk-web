@@ -263,7 +263,7 @@ export class GuiHeatmap extends HTMLElement {
       const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
       const data: HeatmapData = {
-        value: this.config.table.cols[colIndex][rowIndex] as number,
+        value: this.config.table.cols?.[colIndex]?.[rowIndex] as number,
         xValue: xLabels[colIndex],
         yValue: yLabels[rowIndex],
         title: this.config.colorScale?.title,
@@ -338,9 +338,9 @@ export class GuiHeatmap extends HTMLElement {
       this._computed;
 
     // Draw the heatmap
-    for (let col = 0; col < this.config.table.cols.length; col++) {
-      for (let row = 0; row < this.config.table.cols[col].length; row++) {
-        const value = this.config.table.cols[col][row];
+    for (let col = 0; col < (this.config.table.cols?.length ?? 0); col++) {
+      for (let row = 0; row < (this.config.table.cols?.[col]?.length ?? 0); row++) {
+        const value = this.config.table.cols?.[col]?.[row];
 
         if (typeof value === 'number') {
           const color = colorScale(value);
@@ -479,9 +479,9 @@ export class GuiHeatmap extends HTMLElement {
     ];
 
     if (colorScaleMin === null || colorScaleMax === null) {
-      for (let col = 0; col < this.config.table.cols.length; col++) {
-        for (let row = 0; row < this.config.table.cols[col].length; row++) {
-          const value = this.config.table.cols[col][row];
+      for (let col = 0; col < (this.config.table.cols?.length ?? 0); col++) {
+        for (let row = 0; row < (this.config.table.cols?.[col]?.length ?? 0); row++) {
+          const value = this.config.table.cols?.[col]?.[row];
           if (typeof value === 'number') {
             if (colorScaleMin === null || value < colorScaleMin) {
               colorScaleMin = value;
@@ -505,13 +505,13 @@ export class GuiHeatmap extends HTMLElement {
     const yLabels = this.config.yAxis.labels ?? [];
 
     if (xLabels.length === 0) {
-      for (let colIdx = 0; colIdx < this.config.table.cols.length; colIdx++) {
+      for (let colIdx = 0; colIdx < (this.config.table.cols?.length ?? 0); colIdx++) {
         xLabels.push(`${colIdx}`);
       }
     }
 
-    if (yLabels.length === 0 && this.config.table.cols[0] !== undefined) {
-      for (let rowIdx = 0; rowIdx < this.config.table.cols[0].length; rowIdx++) {
+    if (yLabels.length === 0 && this.config.table.cols?.[0] !== undefined) {
+      for (let rowIdx = 0; rowIdx < this.config.table.cols?.[0].length; rowIdx++) {
         yLabels.push(`${rowIdx}`);
       }
     }
