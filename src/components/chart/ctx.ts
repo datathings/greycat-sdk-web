@@ -1,5 +1,12 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions, LineOptions } from './types.js';
+import type {
+  Scale,
+  Color,
+  SerieWithOptions,
+  BarSerie,
+  SerieOptions,
+  LineOptions,
+} from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
@@ -35,7 +42,7 @@ export class CanvasContext {
   constructor(public ctx: Ctx) { }
 
   line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
     this.ctx.beginPath();
@@ -122,7 +129,7 @@ export class CanvasContext {
   }
 
   step(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
     this.ctx.beginPath();
@@ -203,7 +210,7 @@ export class CanvasContext {
     xScale: Scale,
     yScale: Scale,
   ): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
@@ -266,7 +273,7 @@ export class CanvasContext {
   }
 
   scatter(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
@@ -305,7 +312,7 @@ export class CanvasContext {
   }
 
   area(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
@@ -315,10 +322,15 @@ export class CanvasContext {
     const colorCol = serie.colorCol ?? -1;
     const colorMap = serie.colorMapping ?? ((v) => v);
 
-    const { x, y, color } = computePoint(serie.xCol, serie.yCol, 0);
+    const { x, y, color } = computePoint(table.cols, serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint(serie.xCol, serie.yCol, table.cols[0]?.length - 1 ?? 0);
+    let { x: lastX } = computePoint(
+      table.cols,
+      serie.xCol,
+      serie.yCol,
+      table.cols[0]?.length - 1 ?? 0,
+    );
 
     this.ctx.save();
     this.ctx.globalAlpha = serie.fillOpacity;
@@ -333,7 +345,7 @@ export class CanvasContext {
     // line
     let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
-      const pt = computePoint(serie.xCol, serie.yCol, i);
+      const pt = computePoint(table.cols, serie.xCol, serie.yCol, i);
 
       if (prevPt.x < xMin && pt.x < xMin) {
         prevPt = pt;
@@ -351,7 +363,7 @@ export class CanvasContext {
       }
 
       if (serie.curve === 'step-after') {
-        const prevY = computePoint(serie.xCol, serie.yCol, i - 1).y;
+        const prevY = computePoint(table.cols, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
       }
       this.ctx.lineTo(pt.x, pt.y);
@@ -370,7 +382,7 @@ export class CanvasContext {
         } else {
           // fill in regard to another serie
           for (let a = i; a >= i - iterations; a--) {
-            const pt = computePoint(serie.xCol, serie.yCol2, a);
+            const pt = computePoint(table.cols, serie.xCol, serie.yCol2, a);
             this.ctx.lineTo(pt.x, pt.y);
           }
           iterations = 0;
@@ -413,7 +425,7 @@ export class CanvasContext {
 
         this.ctx.lineTo(x, y);
         if (serie.curve === 'step-after') {
-          const prevY = computePoint(serie.xCol, serie.yCol2, i - 1).y;
+          const prevY = computePoint(table.cols, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
         }
       }
@@ -422,12 +434,18 @@ export class CanvasContext {
 
     this.ctx.restore();
 
-    function computePoint(xCol: number | undefined, yCol: number, i: number) {
-      const x = xScale(xCol === undefined ? i : vMap(table.cols[xCol][i]));
-      const y = yScale(vMap(table.cols[yCol][i]));
+    function computePoint(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cols: any[][],
+      xCol: number | undefined,
+      yCol: number,
+      i: number,
+    ) {
+      const x = xScale(xCol === undefined ? i : vMap(cols[xCol][i]));
+      const y = yScale(vMap(cols[yCol][i]));
 
-      const notDefined = table.cols[yCol][i] === undefined || table.cols[yCol][i] === null;
-      const color = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
+      const notDefined = cols[yCol][i] === undefined || cols[yCol][i] === null;
+      const color = notDefined ? serie.color : colorMap(cols[colorCol]?.[i]) ?? serie.color;
       return { color, y, x };
     }
   }
