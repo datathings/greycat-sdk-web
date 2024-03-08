@@ -13,10 +13,9 @@ import {
   SelectionOptions,
   BarSerie,
   Cursor,
-  Ordinate,
   Axis,
 } from './types.js';
-import { smartFormatSpecifier } from './utils.js';
+import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer, TableLike } from '../common.js';
@@ -465,7 +464,11 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (!this._computed) {
+    if (
+      !this._computed ||
+      this._config.table.cols === undefined ||
+      this._config.table.cols.length === 0
+    ) {
       return;
     }
     this._clearUX();
@@ -543,72 +546,26 @@ export class GuiChart extends HTMLElement {
 
         // bottom axis text
         const xValue = +xScale.invert(this._cursor.x);
-        let bottomText: string;
-        if (this._config.xAxis.cursorFormat === undefined) {
-          if (this._config.xAxis.scale === 'time') {
-            bottomText = d3.isoFormat(new Date(xValue));
-          } else {
-            bottomText = `${xValue}`;
-          }
-        } else if (typeof this._config.xAxis.cursorFormat === 'string') {
-          if (this._config.xAxis.scale === 'time') {
-            bottomText = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(xValue));
-          } else {
-            bottomText = d3.format(this._config.xAxis.cursorFormat)(xScale.invert(this._cursor.x));
-          }
-        } else {
-          if (this._config.xAxis.scale === 'time') {
-            const [from, to] = xScale.range();
-            const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-            const specifier = smartFormatSpecifier(span);
-            bottomText = this._config.xAxis.cursorFormat(xValue, specifier);
-          } else {
-            bottomText = this._config.xAxis.cursorFormat(xValue);
-          }
-        }
+        const formatter = createFormatter(this._config.xAxis, xScale, true);
         // TODO clip on boundaries
-        this._uxCtx.text(this._cursor.x, yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding), bottomText, {
-          color: style.cursor.color,
-          backgroundColor: style.cursor.bgColor,
-          align: this._config.xAxis.cursorAlign ?? 'center',
-          baseline: this._config.xAxis.cursorBaseline ?? 'top',
-        });
+        this._uxCtx.text(
+          this._cursor.x,
+          yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding),
+          formatter(xValue),
+          {
+            color: style.cursor.color,
+            backgroundColor: style.cursor.bgColor,
+            align: this._config.xAxis.cursorAlign ?? 'center',
+            baseline: this._config.xAxis.cursorBaseline ?? 'top',
+          },
+        );
         let leftAxesIdx = -1;
         let rightAxesIdx = -1;
-
-        // cursor formatter
-        const cursorFormatter = (name: string, axis: Ordinate): string => {
-          if (axis.cursorFormat === undefined) {
-            if (axis.scale === 'time') {
-              return d3.isoFormat(
-                new Date(+vMap(yScales[name].invert(this._cursor.y))),
-              );
-            }
-            const defaultFormatter = yScales[name].tickFormat() as unknown as (x: number) => string;
-            return defaultFormatter(vMap(yScales[name].invert(this._cursor.y)));
-          }
-          if (typeof axis.cursorFormat === 'string') {
-            if (axis.scale === 'time') {
-              return d3.utcFormat(axis.cursorFormat)(
-                new Date(+vMap(yScales[name].invert(this._cursor.y))),
-              );
-            }
-            return d3.format(axis.cursorFormat)(
-              vMap(yScales[name].invert(this._cursor.y)),
-            );
-          }
-          if (axis.scale === 'time') {
-            const [from, to] = yScales[name].range();
-            const span = Math.abs(+yScales[name].invert(to) - +yScales[name].invert(from));
-            const specifier = smartFormatSpecifier(span);
-            return axis.cursorFormat(+vMap(yScales[name].invert(this._cursor.y)), specifier);
-          }
-          return axis.cursorFormat(vMap(yScales[name].invert(this._cursor.y)));
-        }
 
         // y axes texts
         for (const yAxisName in yScales) {
           const yAxis = this._config.yAxes[yAxisName];
+          const formatter = createFormatter(yAxis, yScales[yAxisName], true);
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
             let padding: number;
@@ -627,7 +584,7 @@ export class GuiChart extends HTMLElement {
             this._uxCtx.text(
               style.margin.left + leftAxesIdx * style.margin.left + padding,
               this._cursor.y,
-              cursorFormatter(yAxisName, yAxis),
+              formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -651,9 +608,11 @@ export class GuiChart extends HTMLElement {
                 break;
             }
             this._uxCtx.text(
-              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + padding,
+              this._canvas.width -
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
-              cursorFormatter(yAxisName, yAxis),
+              formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
                 color: style.cursor.color,
                 backgroundColor: style.cursor.bgColor,
@@ -682,7 +641,14 @@ export class GuiChart extends HTMLElement {
 
         const v = +xScale.invert(this._cursor.x);
 
-        const { xValue, rowIdx } = closest(this._config, serie, this._cursor, xScale, yScales[serie.yAxis], v);
+        const { xValue, rowIdx } = closest(
+          this._config,
+          serie,
+          this._cursor,
+          xScale,
+          yScales[serie.yAxis],
+          v,
+        );
 
         const yValue =
           typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
@@ -795,7 +761,7 @@ export class GuiChart extends HTMLElement {
             if (axis.scale === 'time') {
               const [from, to] = xScale.range();
               const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-              const specifier = smartFormatSpecifier(span);
+              const specifier = smartTimeFormatSpecifier(span);
               const format = axis.format;
               return (v: number) => format(v, specifier);
             }
@@ -842,7 +808,14 @@ export class GuiChart extends HTMLElement {
       // ain't gonna be more than a few series, using .map is fine here
       const data: SerieData[] = this._config.series.map((s, i) => {
         const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(this._config, s, this._cursor, xScale, yScales[s.yAxis], v);
+        const { xValue, rowIdx } = closest(
+          this._config,
+          s,
+          this._cursor,
+          xScale,
+          yScales[s.yAxis],
+          v,
+        );
 
         return {
           color: this._colors[i],
@@ -854,7 +827,7 @@ export class GuiChart extends HTMLElement {
           fillOpacity: 0.2,
           yCol2: 'min',
           xValue,
-          yValue: this._config.table.cols[s.yCol][rowIdx],
+          yValue: this._config.table.cols?.[s.yCol]?.[rowIdx],
           rowIdx,
           hideInTooltip: false,
           ...s,
@@ -968,7 +941,7 @@ export class GuiChart extends HTMLElement {
           if (this._config.xAxis.scale === 'time') {
             const [from, to] = xScale.range();
             const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-            const specifier = smartFormatSpecifier(span);
+            const specifier = smartTimeFormatSpecifier(span);
             fromStr = this._config.xAxis.cursorFormat(from, specifier);
             toStr = this._config.xAxis.cursorFormat(to, specifier);
           } else {
@@ -1164,51 +1137,28 @@ export class GuiChart extends HTMLElement {
       serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
     }
 
-
     // Clean Canvas bounds
     this._ctx.ctx.clearRect(0, 0, this._canvas.width, style.margin.top);
-    this._ctx.ctx.clearRect(0, this._canvas.height - style.margin.bottom, this._canvas.width, style.margin.bottom);
+    this._ctx.ctx.clearRect(
+      0,
+      this._canvas.height - style.margin.bottom,
+      this._canvas.width,
+      style.margin.bottom,
+    );
     this._ctx.ctx.clearRect(0, 0, style.margin.left, this._canvas.height);
-    this._ctx.ctx.clearRect(this._canvas.width - style.margin.right, 0, style.margin.right, this._canvas.height);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const applyFormatter = (axis: Axis, d3Axis: d3.Axis<any>) => {
-      if (axis.format === undefined) {
-        if (axis.scale === 'time') {
-          const scale = d3Axis.scale() as Scale;
-          const [from, to] = scale.range();
-          const span = Math.abs(+scale.invert(to) - +scale.invert(from));
-          const specifier = smartFormatSpecifier(span);
-          const tickFormat = d3.utcFormat(specifier);
-          (d3Axis as d3.Axis<Date>).tickFormat(tickFormat);
-        }
-      } else if (typeof axis.format === 'string') {
-        if (axis.scale === 'time') {
-          (d3Axis as d3.Axis<Date>).tickFormat(d3.utcFormat(axis.format));
-        } else {
-          d3Axis.tickFormat(d3.format(axis.format));
-        }
-      } else {
-        if (axis.scale === 'time') {
-          const formatter = axis.format;
-          const scale = d3Axis.scale() as Scale;
-          const [from, to] = scale.range();
-          const span = Math.abs(+scale.invert(to) - +scale.invert(from));
-          const specifier = smartFormatSpecifier(span);
-          d3Axis.tickFormat((v) => formatter(+v, specifier));
-        } else {
-          const formatter = axis.format;
-          d3Axis.tickFormat((v) => formatter(+v));
-        }
-      }
-    }
+    this._ctx.ctx.clearRect(
+      this._canvas.width - style.margin.right,
+      0,
+      style.margin.right,
+      this._canvas.height,
+    );
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
     if (this._config.xAxis.hook) {
       this._config.xAxis.hook(this._xAxis);
     } else {
-      applyFormatter(this._config.xAxis, this._xAxis);
+      this._xAxis.tickFormat(createFormatter(this._config.xAxis, xScale));
       if (Array.isArray(this._config.xAxis.ticks)) {
         this._xAxis.tickValues(this._config.xAxis.ticks.map(vMap));
       } else if (typeof this._config.xAxis.ticks === 'function') {
@@ -1251,7 +1201,7 @@ export class GuiChart extends HTMLElement {
       if (ord.hook) {
         ord.hook(yAxis);
       } else {
-        applyFormatter(ord, yAxis);
+        yAxis.tickFormat(createFormatter(ord, yScales[yAxisName]));
         if (Array.isArray(ord.ticks)) {
           yAxis.tickValues(ord.ticks.map(vMap));
         } else if (typeof ord.ticks === 'function') {
@@ -1336,8 +1286,8 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < this._config.table.cols?.[serie.xCol]?.length ?? 0; row++) {
-            const value = vMap(this._config.table.cols[serie.xCol][row]);
+          for (let row = 0; row < (this._config.table.cols?.[serie.xCol]?.length ?? 0); row++) {
+            const value = vMap(this._config.table.cols?.[serie.xCol]?.[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1360,7 +1310,7 @@ export class GuiChart extends HTMLElement {
     }
 
     if (xMax === null) {
-      xMax = Math.max(0, (this._config.table.cols[0]?.length ?? 0) - 1);
+      xMax = Math.max(0, (this._config.table.cols?.[0]?.length ?? 0) - 1);
     }
 
     // TODO handle the case where no yAxes have been defined at all
@@ -1385,8 +1335,8 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < this._config.table.cols?.[serie.yCol]?.length ?? 0; row++) {
-              const value = vMap(this._config.table.cols[serie.yCol][row]);
+            for (let row = 0; row < (this._config.table.cols?.[serie.yCol]?.length ?? 0); row++) {
+              const value = vMap(this._config.table.cols?.[serie.yCol]?.[row]);
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1401,7 +1351,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._config.table.cols[serie.yCol2][row]);
+                const value = vMap(this._config.table.cols?.[serie.yCol2]?.[row]);
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
