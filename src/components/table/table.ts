@@ -157,13 +157,13 @@ export class GuiTable extends HTMLElement {
     if (!this._table) {
       return;
     }
-    this._rows.length = this._table.cols[0]?.length ?? 0;
+    this._rows.length = this._table.cols?.[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
-      this._rows[rowIdx] = new Array(this._table.cols.length);
-      for (let colIdx = 0; colIdx < this._table.cols.length; colIdx++) {
+      this._rows[rowIdx] = new Array(this._table.cols?.length);
+      for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
         this._rows[rowIdx][colIdx] = {
-          value: this._table.cols[colIdx][rowIdx],
+          value: this._table.cols?.[colIdx][rowIdx],
           originalIndex: rowIdx,
         };
       }
