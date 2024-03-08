@@ -218,8 +218,10 @@ export class GuiHeatmap extends HTMLElement {
     config: HeatmapConfig;
     value: TableLike;
   }) {
-    this.config = config;
-    this.value = value;
+    this._config = config;
+    this._config.table = value;
+    this.compute();
+    this.update();
   }
 
   /**
