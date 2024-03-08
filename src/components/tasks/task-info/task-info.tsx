@@ -100,6 +100,18 @@ export class GuiTaskInfo extends HTMLElement {
     this.update();
   }
 
+  getAttrs(): {
+    task: TaskInfoLike | null;
+    value: TaskInfoLike | null;
+    greycat: GreyCat;
+  } {
+    return {
+      task: this._task,
+      value: this._task,
+      greycat: this._greycat,
+    };
+  }
+
   async update(): Promise<void> {
     if (!this._task || this._handler) {
       return;

@@ -3,9 +3,9 @@
 
 export const Fragment = '<></>';
 
-export function createElement<K extends keyof HTMLElementTagNameMap>(
+export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: JSX.AttributeCollection,
+  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }>,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();
@@ -30,11 +30,11 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
     const keys = Object.keys(props);
     for (let i = 0; i < keys.length; i++) {
       const key = keys[i];
-      const value = props[key];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const value = (props as any)[key];
       if (key.startsWith('on') && typeof value === 'function') {
         element.addEventListener(key.substring(2), value as EventListener);
       } else if (key === 'className') {
-        const value = props[key];
         if (Array.isArray(value)) {
           element.classList.add(...value);
         } else {
@@ -55,7 +55,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
   for (let i = 0; i < keys.length; i++) {
     const key = keys[i];
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = props[key] as any;
+    const value = (props as any)[key] as any;
 
     if (value === undefined || value === null) {
       continue;

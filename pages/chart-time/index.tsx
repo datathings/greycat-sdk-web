@@ -41,8 +41,14 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
-let table = await greycat.default.call<core.Table>('project::chart_time');
-console.log(table);
+chart.addEventListener('gui-enter', () => {
+  console.log('canvas-enter');
+});
+
+chart.addEventListener('gui-leave', () => {
+  console.log('canvas-leave');
+  currentValue.innerHTML = '';
+});
 
 const colors = {
   low: 'cyan',
@@ -83,7 +89,7 @@ chart.setConfig({
       cursorAlign: 'start',
     },
   },
-  table,
+  table: { cols: [] },
   series: [
     {
       title: 'Value',
@@ -98,11 +104,9 @@ chart.setConfig({
   ],
 });
 
-// eslint-disable-next-line no-inner-declarations
+randomize();
+
 async function randomize() {
-  table = await greycat.default.call<core.Table>('project::chart_time');
-  console.log({ table });
-  chart.config.table = table;
-  chart.compute();
-  chart.update();
+  chart.value = await greycat.default.call<core.Table>('project::chart_time');
+  console.log({ table: chart.value });
 }
