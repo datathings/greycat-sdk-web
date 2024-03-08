@@ -72,6 +72,8 @@ export class GuiChart extends HTMLElement {
 
   private readonly _tooltip = document.createElement('div');
 
+  private _canvasEntered = false;
+
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
   private _userYAxes: Record<
@@ -486,6 +488,11 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY !== -1;
 
     if (updateUX) {
+      if (!this._canvasEntered) {
+        this._canvasEntered = true;
+        this.dispatchEvent(new GuiChartCanvasEnterEvent());
+      }
+
       // make tooltip visible and located properly
       this.appendChild(this._tooltip);
       switch (this._config.tooltip?.position ?? 'top-left') {
@@ -682,7 +689,7 @@ export class GuiChart extends HTMLElement {
             ? Number(this._config.table.cols[serie.yCol][rowIdx])
             : this._config.table.cols[serie.yCol][rowIdx];
         const x = xScale(vMap(xValue));
-        const y = yScales[serie.yAxis](vMap(yValue));
+        let y = yScales[serie.yAxis](vMap(yValue));
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
@@ -711,31 +718,58 @@ export class GuiChart extends HTMLElement {
           case 'step':
           case 'line+area':
           case 'area': {
-            // make sure to also add a marker when 'yCol2' is defined
-            this._drawMarker(serie, x, y, w, serie.markerColor);
-            if (yValue2 !== undefined) {
-              const y2 = yScales[serie.yAxis](vMap(yValue2));
-              this._drawMarker(serie, x, y2, w, serie.markerColor);
+            // only draw marker if inside the range
+            if (y <= yRange[0] && y >= yRange[1] && x <= xRange[1] && x >= xRange[0]) {
+              // make sure to also add a marker when 'yCol2' is defined
+              this._drawMarker(serie, x, y, w, serie.markerColor);
+              if (yValue2 !== undefined) {
+                const y2 = yScales[serie.yAxis](vMap(yValue2));
+                this._drawMarker(serie, x, y2, w, serie.markerColor);
+              }
             }
             break;
           }
           case 'bar': {
             const s = serie as BarSerie<string>;
             let w = serie.width;
-            let h = yRange[0] - y;
-            let rectY = y + (yRange[0] - y) / 2;
+            let rectX = x;
+            let h: number;
+            let rectY: number;
             if (s.spanCol) {
               const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
               const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
+
+            if (y < yRange[1]) {
+              y = yRange[1];
+            } else if (y > yRange[0]) {
+              y = yRange[0];
+            }
+
             if (s.baseLine !== undefined) {
               rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
               h = yScales[serie.yAxis](s.baseLine) - y;
+            } else {
+              rectY = y + (yRange[0] - y) / 2;
+              h = yRange[0] - y;
             }
-            this._uxCtx.rectangle(x, rectY, w, h, {
-              color: style['accent-0'],
-            });
+
+            if (x - w / 2 < xRange[0]) {
+              const newW = xRange[0] - x + w / 2;
+              rectX = xRange[0] + (w - newW) / 2;
+              w = w - newW;
+            } else if (x + w / 2 > xRange[1]) {
+              const newW = x + w / 2 - xRange[1];
+              rectX = xRange[1] - (w - newW) / 2;
+              w = w - newW;
+            }
+
+            if (rectX < xRange[1] && rectX > xRange[0]) {
+              this._uxCtx.rectangle(rectX, rectY, w, h, {
+                color: style['accent-0'],
+              });
+            }
             break;
           }
         }
@@ -832,6 +866,11 @@ export class GuiChart extends HTMLElement {
       this._config.tooltip?.render?.(data, cursor);
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+    } else {
+      if (this._canvasEntered) {
+        this._canvasEntered = false;
+        this.dispatchEvent(new GuiChartCanvasLeaveEvent());
+      }
     }
 
     if (updateSelection && this._config.selection !== false) {
@@ -1432,16 +1471,13 @@ export class GuiChart extends HTMLElement {
   }
 }
 
-const SELECTION_EVENT_TYPE = 'selection';
-const CURSOR_EVENT_TYPE = 'cursor';
-const RESET_SELECTION_EVENT_TYPE = 'reset-selection';
-
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  */
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
+  static readonly NAME = 'selection';
   constructor(from: unknown, to: unknown) {
-    super(SELECTION_EVENT_TYPE, { detail: { from, to }, bubbles: true });
+    super(GuiChartSelectionEvent.NAME, { detail: { from, to }, bubbles: true });
   }
 }
 
@@ -1449,8 +1485,9 @@ export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unk
  * Called when the selection is reset.
  */
 export class GuiChartResetSelectionEvent extends CustomEvent<void> {
+  static readonly NAME = 'reset-selection';
   constructor() {
-    super(RESET_SELECTION_EVENT_TYPE, { bubbles: true });
+    super(GuiChartResetSelectionEvent.NAME, { bubbles: true });
   }
 }
 
@@ -1459,9 +1496,38 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
  * - `detail.cursor` contains the current cursor info
  */
 export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
+  static readonly NAME = 'cursor';
   constructor(data: SerieData[], cursor: Cursor) {
-    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
+    super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
+}
+
+/**
+ * Called when the cursor enters the canvas.
+ */
+export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-enter';
+  constructor() {
+    super(GuiChartCanvasEnterEvent.NAME, { bubbles: true });
+  }
+}
+
+/**
+ * Called when the cursor leaves the canvas.
+ */
+export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-leave';
+  constructor() {
+    super(GuiChartCanvasLeaveEvent.NAME, { bubbles: true });
+  }
+}
+
+interface GuiChartEventMap {
+  [GuiChartCursorEvent.NAME]: GuiChartCursorEvent;
+  [GuiChartSelectionEvent.NAME]: GuiChartSelectionEvent;
+  [GuiChartResetSelectionEvent.NAME]: GuiChartResetSelectionEvent;
+  [GuiChartCanvasEnterEvent.NAME]: GuiChartCanvasEnterEvent;
+  [GuiChartCanvasLeaveEvent.NAME]: GuiChartCanvasLeaveEvent;
 }
 
 declare global {
@@ -1469,18 +1535,23 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap {
-    [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
-    [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
-    [RESET_SELECTION_EVENT_TYPE]: GuiChartResetSelectionEvent;
-  }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-chart': GreyCat.Element<GuiChart>;
+      'gui-chart': GreyCat.Element<
+        GuiChart & {
+          [EVENT in keyof GuiChartEventMap as `on${EVENT}`]: (
+            this: GlobalEventHandlers,
+            ev: GuiChartEventMap[EVENT],
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }
