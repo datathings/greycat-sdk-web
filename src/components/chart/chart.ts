@@ -72,6 +72,8 @@ export class GuiChart extends HTMLElement {
 
   private readonly _tooltip = document.createElement('div');
 
+  private _canvasEntered = false;
+
   private _userXAxisMin: number | Date | core.time | core.Date | undefined;
   private _userXAxisMax: number | Date | core.time | core.Date | undefined;
   private _userYAxes: Record<
@@ -476,6 +478,11 @@ export class GuiChart extends HTMLElement {
       this._cursor.startY !== -1;
 
     if (updateUX) {
+      if (!this._canvasEntered) {
+        this._canvasEntered = true;
+        this.dispatchEvent(new GuiChartCanvasEnterEvent());
+      }
+
       // make tooltip visible and located properly
       this.appendChild(this._tooltip);
       switch (this._config.tooltip?.position ?? 'top-left') {
@@ -849,6 +856,11 @@ export class GuiChart extends HTMLElement {
       this._config.tooltip?.render?.(data, cursor);
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+    } else {
+      if (this._canvasEntered) {
+        this._canvasEntered = false;
+        this.dispatchEvent(new GuiChartCanvasLeaveEvent());
+      }
     }
 
     if (updateSelection && this._config.selection !== false) {
@@ -1449,16 +1461,13 @@ export class GuiChart extends HTMLElement {
   }
 }
 
-const SELECTION_EVENT_TYPE = 'selection';
-const CURSOR_EVENT_TYPE = 'cursor';
-const RESET_SELECTION_EVENT_TYPE = 'reset-selection';
-
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  */
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
+  static readonly NAME = 'selection';
   constructor(from: unknown, to: unknown) {
-    super(SELECTION_EVENT_TYPE, { detail: { from, to }, bubbles: true });
+    super(GuiChartSelectionEvent.NAME, { detail: { from, to }, bubbles: true });
   }
 }
 
@@ -1466,8 +1475,9 @@ export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unk
  * Called when the selection is reset.
  */
 export class GuiChartResetSelectionEvent extends CustomEvent<void> {
+  static readonly NAME = 'reset-selection';
   constructor() {
-    super(RESET_SELECTION_EVENT_TYPE, { bubbles: true });
+    super(GuiChartResetSelectionEvent.NAME, { bubbles: true });
   }
 }
 
@@ -1476,9 +1486,38 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
  * - `detail.cursor` contains the current cursor info
  */
 export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
+  static readonly NAME = 'cursor';
   constructor(data: SerieData[], cursor: Cursor) {
-    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
+    super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
+}
+
+/**
+ * Called when the cursor enters the canvas.
+ */
+export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-enter';
+  constructor() {
+    super(GuiChartCanvasEnterEvent.NAME, { bubbles: true });
+  }
+}
+
+/**
+ * Called when the cursor leaves the canvas.
+ */
+export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-leave';
+  constructor() {
+    super(GuiChartCanvasLeaveEvent.NAME, { bubbles: true });
+  }
+}
+
+interface GuiChartEventMap {
+  [GuiChartCursorEvent.NAME]: GuiChartCursorEvent;
+  [GuiChartSelectionEvent.NAME]: GuiChartSelectionEvent;
+  [GuiChartResetSelectionEvent.NAME]: GuiChartResetSelectionEvent;
+  [GuiChartCanvasEnterEvent.NAME]: GuiChartCanvasEnterEvent;
+  [GuiChartCanvasLeaveEvent.NAME]: GuiChartCanvasLeaveEvent;
 }
 
 declare global {
@@ -1486,18 +1525,23 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap {
-    [CURSOR_EVENT_TYPE]: GuiChartCursorEvent;
-    [SELECTION_EVENT_TYPE]: GuiChartSelectionEvent;
-    [RESET_SELECTION_EVENT_TYPE]: GuiChartResetSelectionEvent;
-  }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-chart': GreyCat.Element<GuiChart>;
+      'gui-chart': GreyCat.Element<
+        GuiChart & {
+          [EVENT in keyof GuiChartEventMap as `on${EVENT}`]: (
+            this: GlobalEventHandlers,
+            ev: GuiChartEventMap[EVENT],
+            options?: boolean | AddEventListenerOptions,
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          ) => any;
+        }
+      >;
     }
   }
 }
