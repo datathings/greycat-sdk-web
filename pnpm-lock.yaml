@@ -11,6 +11,9 @@ dependencies:
   d3:
     specifier: 7.8.5
     version: 7.8.5
+  dockview-core:
+    specifier: 1.10.1
+    version: 1.10.1
 
 devDependencies:
   '@custom-elements-manifest/analyzer':
@@ -1609,6 +1612,10 @@ packages:
       path-type: 4.0.0
     dev: true
 
+  /dockview-core@1.10.1:
+    resolution: {integrity: sha512-uebSq/KUyNxVNiu0NCLADMr6ewPhaNj6L+hELbz6HsIfUrc/tNYTU72U1rwUyWeDL8cYkIWd7fUsZvUp6Ux/Dw==}
+    dev: false
+
   /doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
@@ -2811,7 +2818,7 @@ packages:
     dev: true
 
   '@get.greycat.io/files/lang/stable/6.9/6.9.15-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/lang/stable/6.9/6.9.15-stable.tgz}
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/stable/6.9/6.9.15-stable.tgz}
     name: '@greycat/lang'
     version: 6.9.15-stable
     engines: {node: '>=16.17.0'}
@@ -2821,7 +2828,7 @@ packages:
     dev: true
 
   '@get.greycat.io/files/sdk/js/stable/6.9/6.9.10-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.9/6.9.10-stable.tgz}
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/sdk/js/stable/6.9/6.9.10-stable.tgz}
     name: '@greycat/sdk'
     version: 6.9.10-stable
     engines: {node: '>=18'}
