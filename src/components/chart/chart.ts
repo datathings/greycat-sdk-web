@@ -19,7 +19,7 @@ import {
 import { smartFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
-import { Disposer } from '../common.js';
+import { Disposer, TableLike } from '../common.js';
 
 type ComputedState = {
   leftAxes: number;
@@ -422,6 +422,16 @@ export class GuiChart extends HTMLElement {
     this._cursor.startX = -1;
     this._cursor.startY = -1;
     this._cursor.selection = false;
+  }
+
+  set value(table: TableLike) {
+    this._config.table = table;
+    this.compute();
+    this.update();
+  }
+
+  get value() {
+    return this._config.table;
   }
 
   /**
@@ -1326,7 +1336,7 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < this._config.table.cols[serie.xCol].length; row++) {
+          for (let row = 0; row < this._config.table.cols?.[serie.xCol]?.length ?? 0; row++) {
             const value = vMap(this._config.table.cols[serie.xCol][row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
@@ -1375,7 +1385,7 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < this._config.table.cols[serie.yCol].length; row++) {
+            for (let row = 0; row < this._config.table.cols?.[serie.yCol]?.length ?? 0; row++) {
               const value = vMap(this._config.table.cols[serie.yCol][row]);
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
