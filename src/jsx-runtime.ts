@@ -24,11 +24,13 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
     // this is an internal optimisation for component that do define a one-off
     // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
     // those component can batch update in one method call.
-    const cleanProps = {};
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const cleanProps: Record<any, any> = {};
     let hasAttrs = false;
     const signals: string[] = [];
     for (const name in props) {
-      const value = props[name];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const value = (props as any)[name];
       if (isSignal(value)) {
         // cleanProps[name] = value();
         signals.push(name);
@@ -42,7 +44,8 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
     }
     for (const name of signals) {
       effect(() => {
-        element[name] = props[name]();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        element[name] = (props as any)[name]();
       });
     }
     batchUpdate = true;
