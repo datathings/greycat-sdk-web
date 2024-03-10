@@ -58,6 +58,8 @@
 
   --border-width: 1px;
   --border-color: var(--bg-1);
+
+  --muted-border-color: var(--primary-focus);
 }
 
 /* Dark colors (default) */

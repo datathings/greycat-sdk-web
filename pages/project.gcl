@@ -1,7 +1,10 @@
+@include("./signals");
+
 use util;
 use runtime;
 use math;
 use io;
+use signals;
 
 fn main() {
   for (var i = 0; i < 15; i++) {
@@ -11,6 +14,8 @@ fn main() {
         activated: true,
       });
   }
+
+  signals_init();
 }
 
 // pages/chart start

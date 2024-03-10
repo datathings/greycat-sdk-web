@@ -1,25 +1,21 @@
-declare namespace GreyCat {
-  // type EventHandlers<T> = {
-  //   [K in keyof T as K extends `on${string}` ? K : never]: T[K] extends ((this: GlobalEventHandlers, ev: Event) => any) | null ? T[K] : never;
-  // };
-  // type Bindable<T> = {
-  //   [K in keyof T as `$${string & K}`]: T[K];
-  // };
-  type ExtendedHTMLProperties = {
-    className?: string | string[];
-    style?: Partial<CSSStyleDeclaration> | string;
-  }
+declare type Signal<T> = SignalReader<T> & SignalWriter<T>;
+declare type SignalReader<T> = () => T;
+declare type SignalWriter<T> = {
+  set: (newValue: T) => void;
+  update: (updater: (currValue: T) => T) => void;
+};
 
-  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties;
+declare namespace GreyCat {
+  type ElementProperties = {
+    className?: string | string[] | { [className: string]: boolean | SignalReader<boolean> };
+    style?: Partial<CSSStyleDeclaration> | string;
+  };
+  type Element<T extends HTMLElement> = Partial<Omit<T, 'children' | 'style' | 'className'>> &
+    ElementProperties;
 }
 
 declare namespace JSX {
   type IntrinsicElement = IntrinsicElements[keyof IntrinsicElements];
-
-  interface AttributeCollection {
-    children?: HTMLElement | HTMLElement[];
-    [prop: string]: unknown;
-  }
 
   interface Element extends Node { }
 
@@ -79,7 +75,11 @@ declare namespace JSX {
     i: GreyCat.Element<HTMLElement>;
     iframe: GreyCat.Element<HTMLIFrameElement>;
     img: GreyCat.Element<HTMLImageElement>;
-    input: GreyCat.Element<HTMLInputElement>;
+    input: GreyCat.Element<HTMLInputElement> & {
+      '$:value'?: Signal<string>;
+      '$:valueAsNumber'?: Signal<number>;
+      '$:valueAsDate'?: Signal<Date>;
+    };
     ins: GreyCat.Element<HTMLModElement>;
     kbd: GreyCat.Element<HTMLElement>;
     keygen: GreyCat.Element<HTMLElement>;

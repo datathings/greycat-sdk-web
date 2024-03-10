@@ -1,0 +1,21 @@
+var users: nodeIndex<String, MyUser>?;
+
+type MyUser {
+  name: String;
+  age: int;
+}
+
+@expose
+fn findUser(name: String): MyUser? {
+  return users?.get(name);
+}
+
+fn signals_init() {
+  if (users != null) {
+    return;
+  }
+
+  users = nodeIndex<String, MyUser>::new();
+  users.set("Leiko", MyUser { name: "Leiko", age: 35 });
+  users.set("Jack Black", MyUser { name: "Jack Black", age: 54 });
+}

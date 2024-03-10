@@ -11,4 +11,6 @@ export * from './globals.js';
 export * from './greycat.js';
 export * from './serialize.js';
 // export * from './reactive.js';
+export * from './signal.js';
+
 export * from '@greycat/sdk';

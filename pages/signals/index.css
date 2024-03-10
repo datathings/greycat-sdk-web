@@ -1,0 +1,7 @@
+h4 {
+  margin-bottom: var(--spacing);
+}
+
+.done {
+  text-decoration: line-through;
+}
