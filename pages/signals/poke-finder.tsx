@@ -1,4 +1,4 @@
-import { computed, signal } from '../../src';
+import { signal } from '../../src';
 
 export class PokeFinder extends HTMLElement {
   name = signal('pikachu');
@@ -39,16 +39,6 @@ export class PokeFinder extends HTMLElement {
             Find
           </button>
           <gui-object value={this.pokemon} style={{ flex: '1' }} />
-          {computed(() => {
-            if (this.pokemon() == null) {
-              return;
-            }
-            return (
-              <audio controls>
-                <source src={this.pokemon()?.cries.legacy as string} type="audio/ogg" />
-              </audio>
-            );
-          })}
         </div>
       </div>,
     );

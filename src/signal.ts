@@ -14,23 +14,26 @@ export function isSignal(fn: unknown): fn is Signal<unknown> {
 
 export function signal<T>(value: T): Signal<T> {
   const observers = new Set<() => void>();
-  const reader = () => {
+
+  function reader() {
     if (observed) {
       observers.add(observed);
     }
     return value;
-  };
+  }
+
   const writer = {
-    set: (newValue: T) => {
+    set(newValue: T) {
       value = newValue;
       observers.forEach((obs) => obs());
     },
-    update: (updater: (currValue: T) => T) => {
+    update(updater: (currValue: T) => T) {
       value = updater(value);
       observers.forEach((obs) => obs());
     },
     [GreyCatSignal]: true,
   };
+
   return Object.assign(reader, writer);
 }
 
@@ -45,16 +48,16 @@ export function computed<T>(fn: () => T): SignalReader<T> {
   let value: T | undefined;
   const observers = new Set<() => void>();
 
-  const compute = () => {
+  function compute() {
     const tmp = observed;
     observed = compute;
     value = fn();
     observed = tmp;
     observers.forEach((obs) => obs());
     return value;
-  };
+  }
 
-  const reader = () => {
+  function reader() {
     if (value === undefined) {
       value = compute();
     }
@@ -62,7 +65,7 @@ export function computed<T>(fn: () => T): SignalReader<T> {
       observers.add(observed);
     }
     return value;
-  };
+  }
 
   return Object.assign(reader, { [GreyCatSignal]: true });
 }
