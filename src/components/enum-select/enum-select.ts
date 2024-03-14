@@ -148,6 +148,24 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
     this.render();
   }
 
+  getAttrs(): {
+    greycat: GreyCat;
+    fqn: string | null;
+    selected: GCEnum | null;
+    value: GCEnum | null;
+    useValue: boolean;
+    renderOption: OptionRenderer | null;
+  } {
+    return {
+      greycat: this._greycat,
+      fqn: this._fqn,
+      selected: this._selected,
+      value: this._selected,
+      useValue: this._useValue,
+      renderOption: this._renderOption,
+    };
+  }
+
   connectedCallback() {
     this.appendChild(this._select);
     this._select.addEventListener('change', this._onChangeHandler);

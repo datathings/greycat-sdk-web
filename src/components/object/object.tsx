@@ -88,6 +88,15 @@ export class GuiObject extends HTMLElement {
     this.update();
   }
 
+  getAttrs() {
+    return {
+      value: this._value,
+      withHeader: this._withHeader,
+      nested: this._nested,
+      ...this._props,
+    };
+  }
+
   set props(props: ObjectProps) {
     this._props = props;
     this.update();

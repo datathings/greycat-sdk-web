@@ -164,6 +164,30 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
+  getAttrs(): {
+    value: unknown;
+    name: string | undefined;
+    linkify: boolean | ((value: unknown) => boolean);
+    tiny: boolean;
+    onClick: ClickHandler;
+    dateFmt: Intl.DateTimeFormat | undefined;
+    numFmt: Intl.NumberFormat | undefined;
+    text: string | undefined;
+    data: unknown;
+  } {
+    return {
+      value: this._value,
+      name: this._name,
+      linkify: this._linkify,
+      tiny: this._tiny,
+      onClick: this._onClick,
+      dateFmt: this._dateFmt,
+      numFmt: this._numFmt,
+      text: this._text,
+      data: this._data,
+    };
+  }
+
   deconnectedCallback() {
     this._disposeClickHandler?.();
     this.replaceChildren();

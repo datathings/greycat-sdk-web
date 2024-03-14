@@ -69,10 +69,10 @@ export class AppLayout extends HTMLElement {
     this.main.replaceChildren(document.createTextNode('Is GreyCat started?'), error);
   }
 
-  addSimpleAction(text: string, onclick: (ev: MouseEvent) => void): this {
+  addSimpleAction(text: string, onclick: (ev: MouseEvent, a: HTMLAnchorElement) => void): this {
     this.lastAction.before(
       <li>
-        <a href="#" onclick={onclick}>
+        <a href="#" onclick={(ev) => onclick(ev, ev.target as HTMLAnchorElement)}>
           {text}
         </a>
       </li>,

@@ -40,14 +40,30 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
-let table = await greycat.default.call<core.Table>('project::chart_time');
-console.log(table);
+chart.addEventListener('gui-enter', () => {
+  console.log('canvas-enter');
+});
+
+chart.addEventListener('gui-leave', () => {
+  console.log('canvas-leave');
+  currentValue.innerHTML = '';
+});
 
 const colors = {
   low: 'cyan',
   normal: null,
   high: 'red',
 };
+
+const dtFormat = new Intl.DateTimeFormat('en-GB', {
+  year: '2-digit',
+  month: '2-digit',
+  day: '2-digit',
+  hour: '2-digit',
+  minute: '2-digit',
+  second: '2-digit',
+  timeZoneName: 'longOffset',
+});
 
 chart.setConfig({
   tooltip: {
@@ -59,16 +75,23 @@ chart.setConfig({
   cursor: true,
   xAxis: {
     scale: 'time',
-    // format: '%a, %H:%M',
+    // display cursor time on xAxis in locale time with a DateTimeFormat
+    cursorFormat: (x) => dtFormat.format(new Date(x)),
   },
   yAxes: {
-    temp: {},
+    temp: {
+      // override cursor format for y values
+      // cursorFormat: (y) => `${y}`,
+      // align the cursor display to start at the yAxis rather than ending at it by default
+      cursorAlign: 'start',
+    },
   },
-  table,
+  table: { cols: [] },
   series: [
     {
       title: 'Value',
       type: 'line',
+      curve: 'step-after',
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,
@@ -78,11 +101,9 @@ chart.setConfig({
   ],
 });
 
-// eslint-disable-next-line no-inner-declarations
+randomize();
+
 async function randomize() {
-  table = await greycat.default.call<core.Table>('project::chart_time');
-  console.log({ table });
-  chart.config.table = table;
-  chart.compute();
-  chart.update();
+  chart.value = await greycat.default.call<core.Table>('project::chart_time');
+  console.log({ table: chart.value });
 }

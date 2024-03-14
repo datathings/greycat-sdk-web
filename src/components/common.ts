@@ -18,10 +18,13 @@ export type TableLikeMeta = {
   typeName?: string | null;
 };
 
-// duck-type core.Table
+/**
+ * Leveraging duck-typing to describe a core::Table-like type that also accepts an empty object `{}`
+ * or a set of columns without meta.
+ */
 export type TableLike = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cols: any[][];
+  cols?: any[][];
   meta?: TableLikeMeta[];
 };
 

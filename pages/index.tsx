@@ -17,11 +17,13 @@ app.main.replaceChildren(
           <li><a href="./chart-scatter/">Chart (scatter)</a></li>
           <li><a href="./chart-time/">Chart (time)</a></li>
           <li><a href="./chart-bar/">Chart (bar)</a></li>
+          <li><a href="./chart-in-mem/">Chart (in-mem)</a></li>
           <li><a href="./chart/">Chart</a></li>
           <li><a href="./csv-analysis/">Csv Analysis</a></li>
           <li><a href="./csv-column-input/">Csv Column Input</a></li>
           {/* <li><a href="./date-time/">Date / Time</a></li> */}
           <li><a href="./donut/">Donut</a></li>
+          <li><a href="./dashboard/">Dashboard</a></li>
           <li><a href="./enum-select/">Enum (select)</a></li>
           <li><a href="./fieldset-group/">Fieldset Group</a></li>
           <li><a href="./fn-call/">Fn Call</a></li>

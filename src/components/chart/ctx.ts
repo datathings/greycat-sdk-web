@@ -1,11 +1,21 @@
 import { vMap } from './internals.js';
-import type { Scale, Color, SerieWithOptions, BarSerie, SerieOptions, CurveSeries } from './types.js';
+import type {
+  Scale,
+  Color,
+  SerieWithOptions,
+  BarSerie,
+  SerieOptions,
+  LineOptions,
+} from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
 type Ctx = CanvasRenderingContext2D;
+type LineSerieOptions = SerieWithOptions & LineOptions;
+
+export type CanvasTextAlign = 'start' | 'center' | 'end';
 
 export type ShapeOptions = {
   color?: Color;
@@ -29,10 +39,10 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) {}
+  constructor(public ctx: Ctx) { }
 
-  line(table: TableLike, serie: SerieWithOptions & CurveSeries, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+  line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
     this.ctx.beginPath();
@@ -48,15 +58,19 @@ export class CanvasContext {
     this.ctx.globalAlpha = serie.opacity ?? 1;
 
     const [xMin, xMax] = xScale.range();
-    const [yMin, yMax] = yScale.range();
 
     let prevSegments = SEGMENTS[0];
     // let prevColor = serie.color;
     let first = true;
-    for (let i = 0; i < table.cols[0].length; i++) {
+
+    for (let i = 1; i < table.cols[0].length; i++) {
+      const prevX = xScale(serie.xCol === undefined ? i - 1 : vMap(table.cols[serie.xCol][i - 1]));
+      const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+
       const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
       const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+
+      if (prevX < xMin && x < xMin) {
         // close previous path
         if (!first) {
           this.ctx.stroke();
@@ -74,11 +88,14 @@ export class CanvasContext {
       if (first) {
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(prevX, prevY);
+        if (serie.curve === 'step-after') {
+          this.ctx.lineTo(x, prevY);
+        }
+        this.ctx.lineTo(x, y);
         first = false;
       } else {
-        if (serie.curve === 'stepAfter') {
-          const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+        if (serie.curve === 'step-after') {
           this.ctx.lineTo(x, prevY);
         }
         this.ctx.lineTo(x, y);
@@ -98,7 +115,9 @@ export class CanvasContext {
       prevSegments = lineDash;
       this.ctx.strokeStyle = currColor;
 
-      if (x === xMax) {
+      // draw the last segment and stop
+      if (x > xMax) {
+        this.ctx.lineTo(x, y);
         break;
       }
     }
@@ -110,7 +129,7 @@ export class CanvasContext {
   }
 
   step(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
     this.ctx.beginPath();
@@ -191,7 +210,7 @@ export class CanvasContext {
     xScale: Scale,
     yScale: Scale,
   ): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
@@ -225,19 +244,14 @@ export class CanvasContext {
         if (x1 > xMax) {
           x1 = xMax;
         }
-        if (y < yMax) {
-          y = yMax;
-        }
-        if (y > yMin) {
-          y = yMin;
-        }
+
         x = x0;
         w = x1 - x0;
       } else {
         x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
         y = yScale(vMap(table.cols[serie.yCol][i]));
         w = serie.width;
-        if (x + serie.width < xMin || x > xMax || y > yMin) {
+        if (x + serie.width < xMin || x > xMax) {
           continue;
         }
       }
@@ -259,7 +273,7 @@ export class CanvasContext {
   }
 
   scatter(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
@@ -297,34 +311,59 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  area(table: TableLike, serie: SerieWithOptions & CurveSeries, xScale: Scale, yScale: Scale): void {
-    if (table.cols.length === 0) {
+  area(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+    if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
 
     const [xMin, xMax] = xScale.range();
-    const [yMin, yMax] = yScale.range();
+    // const [yMin, yMax] = yScale.range();
 
     const colorCol = serie.colorCol ?? -1;
     const colorMap = serie.colorMapping ?? ((v) => v);
 
-    const { x, y, color } = computePoint(serie.xCol, serie.yCol, 0);
+    const { x, y, color } = computePoint(table.cols, serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint(serie.xCol, serie.yCol, table.cols[0]?.length - 1 ?? 0);
+    let { x: lastX } = computePoint(
+      table.cols,
+      serie.xCol,
+      serie.yCol,
+      table.cols[0]?.length - 1 ?? 0,
+    );
 
     this.ctx.save();
     this.ctx.globalAlpha = serie.fillOpacity;
     this.ctx.fillStyle = color;
 
     this.ctx.beginPath();
-    this.ctx.moveTo(firstX, firstY);
+
+    let prevPt = { x: firstX, y: firstY, color };
+
+    let first = true;
 
     // line
+    let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
-      const pt = computePoint(serie.xCol, serie.yCol, i);
-      if (serie.curve === 'stepAfter') {
-        const prevY = computePoint(serie.xCol, serie.yCol, i - 1).y;
+      const pt = computePoint(table.cols, serie.xCol, serie.yCol, i);
+
+      if (prevPt.x < xMin && pt.x < xMin) {
+        prevPt = pt;
+        this.ctx.fillStyle = pt.color;
+        continue;
+      }
+
+      iterations++;
+
+      if (first) {
+        this.ctx.moveTo(prevPt.x, prevPt.y);
+        firstX = prevPt.x;
+        firstY = prevPt.y;
+        first = false;
+      }
+
+      if (serie.curve === 'step-after') {
+        const prevY = computePoint(table.cols, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
       }
       this.ctx.lineTo(pt.x, pt.y);
@@ -342,22 +381,28 @@ export class CanvasContext {
           this.ctx.lineTo(firstX, yBound); // bottom start
         } else {
           // fill in regard to another serie
-          for (let i = table.cols[0].length - 1; i >= 0; i--) {
-            const pt = computePoint(serie.xCol, serie.yCol2, i);
+          for (let a = i; a >= i - iterations; a--) {
+            const pt = computePoint(table.cols, serie.xCol, serie.yCol2, a);
             this.ctx.lineTo(pt.x, pt.y);
           }
+          iterations = 0;
         }
         // close the area line by going back to the first pt
         this.ctx.lineTo(firstX, firstY);
         // and finally, fill the area
         this.ctx.fill();
-
         // start a new path
         this.ctx.beginPath();
         firstX = pt.x;
         firstY = pt.y;
         this.ctx.moveTo(firstX, firstY);
         this.ctx.fillStyle = pt.color;
+      }
+      prevPt = pt;
+
+      if (pt.x > xMax) {
+        this.ctx.lineTo(pt.x, pt.y);
+        break;
       }
     }
 
@@ -372,49 +417,35 @@ export class CanvasContext {
       this.ctx.lineTo(firstX, firstY); // start of line
       // and finally, fill the area
       this.ctx.fill();
-    } else {
-      // fill in regard to another serie
+    } else if (iterations > 0) {
+      // fill in regard to another serie if not already done
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
-        let x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-        let y = yScale(vMap(table.cols[serie.yCol2][i]));
-        if (x < xMin) {
-          x = xMin;
-        } else if (x > xMax) {
-          x = xMax;
-        }
-        if (y > yMin) {
-          y = yMin;
-        } else if (y < yMax) {
-          y = yMax;
-        }
+        const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+        const y = yScale(vMap(table.cols[serie.yCol2][i]));
+
         this.ctx.lineTo(x, y);
-        if (serie.curve === 'stepAfter') {
-          const prevY = computePoint(serie.xCol, serie.yCol2, i - 1).y;
+        if (serie.curve === 'step-after') {
+          const prevY = computePoint(table.cols, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
         }
       }
-      this.ctx.lineTo(firstX, firstY); // start of line
       this.ctx.fill();
     }
 
     this.ctx.restore();
 
-    function computePoint(xCol: number | undefined, yCol: number, i: number) {
-      let x = xScale(xCol === undefined ? i : vMap(table.cols[xCol][i]));
-      let y = yScale(vMap(table.cols[yCol][i]));
-      if (x < xMin) {
-        x = xMin;
-      } else if (x > xMax) {
-        x = xMax;
-      }
-      if (y > yMin) {
-        y = yMin;
-      } else if (y < yMax) {
-        y = yMax;
-      }
+    function computePoint(
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cols: any[][],
+      xCol: number | undefined,
+      yCol: number,
+      i: number,
+    ) {
+      const x = xScale(xCol === undefined ? i : vMap(cols[xCol][i]));
+      const y = yScale(vMap(cols[yCol][i]));
 
-      const notDefined = table.cols[yCol][i] === undefined || table.cols[yCol][i] === null;
-      const color = notDefined ? serie.color : colorMap(table.cols[colorCol]?.[i]) ?? serie.color;
+      const notDefined = cols[yCol][i] === undefined || cols[yCol][i] === null;
+      const color = notDefined ? serie.color : colorMap(cols[colorCol]?.[i]) ?? serie.color;
       return { color, y, x };
     }
   }
@@ -479,30 +510,38 @@ export class CanvasContext {
       const xPadding = 4;
       const yPadding = 4;
 
-      if (opts.align === 'end') {
-        this.rectangle(
-          x - mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'start') {
-        this.rectangle(
-          x + mx.width / 2,
-          y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
-      } else if (opts.align === 'center') {
-        this.rectangle(
-          x,
-          y + mx.fontBoundingBoxAscent / 2,
-          mx.width + xPadding * 2,
-          mx.fontBoundingBoxAscent + yPadding * 2,
-          { color: opts.backgroundColor, fill: opts.backgroundColor },
-        );
+      switch (opts.align) {
+        case 'start': {
+          this.rectangle(
+            x + mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        case 'end': {
+          this.rectangle(
+            x - mx.width / 2,
+            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
+        default:
+        case 'center': {
+          this.rectangle(
+            x,
+            y + mx.fontBoundingBoxAscent / 2,
+            mx.width + xPadding * 2,
+            mx.fontBoundingBoxAscent + yPadding * 2,
+            { color: opts.backgroundColor, fill: opts.backgroundColor },
+          );
+          break;
+        }
       }
     }
 

@@ -6,19 +6,22 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/6.7/6.7.23-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/6.7/6.7.23-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.0-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.0-dev.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
+  dockview-core:
+    specifier: 1.10.1
+    version: 1.10.1
 
 devDependencies:
   '@custom-elements-manifest/analyzer':
     specifier: 0.8.4
     version: 0.8.4
   '@greycat/lang':
-    specifier: https://get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz
-    version: '@get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz'
+    specifier: https://get.greycat.io/files/lang/dev/7.0/7.0.4-dev.tgz
+    version: '@get.greycat.io/files/lang/dev/7.0/7.0.4-dev.tgz'
   '@picocss/pico':
     specifier: 1.5.10
     version: 1.5.10
@@ -1609,6 +1612,10 @@ packages:
       path-type: 4.0.0
     dev: true
 
+  /dockview-core@1.10.1:
+    resolution: {integrity: sha512-uebSq/KUyNxVNiu0NCLADMr6ewPhaNj6L+hELbz6HsIfUrc/tNYTU72U1rwUyWeDL8cYkIWd7fUsZvUp6Ux/Dw==}
+    dev: false
+
   /doctrine@3.0.0:
     resolution: {integrity: sha512-yS+Q5i3hBf7GBkd4KG8a7eBNNWNGLTaEwwYWUijIYM7zrlYDM0BFXHjjPWlWZ1Rg7UaddZeIDmi9jF3HmqiQ2w==}
     engines: {node: '>=6.0.0'}
@@ -2810,20 +2817,20 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  '@get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/dev/6.7/6.7.0-dev.tgz}
+  '@get.greycat.io/files/lang/dev/7.0/7.0.4-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/lang/dev/7.0/7.0.4-dev.tgz}
     name: '@greycat/lang'
-    version: 0.0.0
+    version: 7.0.4-dev
     engines: {node: '>=16.17.0'}
     dependencies:
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/6.7/6.7.23-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/6.7/6.7.23-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.0-dev.tgz':
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.0-dev.tgz}
     name: '@greycat/sdk'
-    version: 6.7.23-dev
+    version: 7.0.0-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6

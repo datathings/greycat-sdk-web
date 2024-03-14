@@ -157,13 +157,13 @@ export class GuiTable extends HTMLElement {
     if (!this._table) {
       return;
     }
-    this._rows.length = this._table.cols[0]?.length ?? 0;
+    this._rows.length = this._table.cols?.[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
-      this._rows[rowIdx] = new Array(this._table.cols.length);
-      for (let colIdx = 0; colIdx < this._table.cols.length; colIdx++) {
+      this._rows[rowIdx] = new Array(this._table.cols?.length);
+      for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
         this._rows[rowIdx][colIdx] = {
-          value: this._table.cols[colIdx][rowIdx],
+          value: this._table.cols?.[colIdx][rowIdx],
           originalIndex: rowIdx,
         };
       }
@@ -254,6 +254,15 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  get sortBy() {
+    return [this._sortCol.index, this._sortCol.ord] as const;
+  }
+
+  set sortBy([index, ord]: readonly [number] | readonly [number, SortOrd]) {
+    this._sortCol.sortBy(index, ord);
+    this.update();
+  }
+
   set onrowupdate(cb: RowUpdateCallback) {
     this._rowUpdateCallback = cb;
   }
@@ -266,6 +275,8 @@ export class GuiTable extends HTMLElement {
     table = this._table,
     value = this._table,
     filter = this._filterText,
+    filterColumns = this._filterColumns,
+    sortBy = [this._sortCol.index, this._sortCol.ord],
     cellProps = this._cellProps,
     headers = this._headers,
     columnsWidths = this._thead.widths,
@@ -274,6 +285,8 @@ export class GuiTable extends HTMLElement {
     table: TableLike;
     value: TableLike;
     filter: string;
+    filterColumns: Array<string | undefined>;
+    sortBy: readonly [number] | readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[];
     columnsWidths: number[];
@@ -281,10 +294,32 @@ export class GuiTable extends HTMLElement {
     this._table = table ?? value;
     this.computeTable();
     this._filterText = filter;
+    this._filterColumns = filterColumns;
+    this._sortCol.sortBy(sortBy[0], sortBy[1]);
     this._cellProps = cellProps;
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this.update();
+  }
+
+  getAttrs(): {
+    table: TableLike | undefined;
+    filter: string;
+    filterColumns: Array<string | undefined>;
+    sortBy: readonly [number, SortOrd];
+    cellProps: CellPropsFactory;
+    headers: string[] | undefined;
+    columnsWidths: number[];
+  } {
+    return {
+      table: this._table,
+      filter: this._filterText,
+      filterColumns: this._filterColumns,
+      sortBy: [this._sortCol.index, this._sortCol.ord],
+      cellProps: this._cellProps,
+      headers: this._headers,
+      columnsWidths: this._thead.widths,
+    };
   }
 
   connectedCallback() {
@@ -436,6 +471,37 @@ export class GuiTable extends HTMLElement {
     );
 
     this.dispatchEvent(new GuiRenderEvent(start));
+  }
+
+  asCsv(sep = ','): string {
+    if (!this._table) {
+      return '';
+    }
+
+    const header =
+      this._table.meta
+        ?.map((m, i) => {
+          if (m.header) {
+            return m.header;
+          }
+          if (m.typeName) {
+            return m.typeName;
+          }
+          return `column-${i}`;
+        })
+        .join(sep) ?? '';
+
+    const body = this._rows
+      .map((row, rowIdx) => {
+        return row
+          .map((cell, colIdx) => {
+            return utils.stringify(this._cellProps(row, cell.value, rowIdx, colIdx));
+          })
+          .join(sep);
+      })
+      .join('\n');
+
+    return header + '\n' + body;
   }
 
   private _filterRow(
@@ -887,19 +953,14 @@ class GuiTableBodyRow extends HTMLElement {
     let takenWidth = 0;
     for (colIdx = 0; colIdx < row.length; colIdx++) {
       const cell = this._getOrCreateCell(colIdx);
-      cell.rowIdx = index;
-      cell.colIdx = colIdx;
-      cell.data = row;
-      cell.setAttribute('data-col', `${colIdx}`);
-      (cell.children[0] as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
       let colWidth: number;
       if (colWidths[colIdx]) {
         colWidth = colWidths[colIdx];
       } else {
         colWidth = Math.max((availableWidth - takenWidth) / (row.length - colIdx), minColWidth);
       }
+      cell.update(index, colIdx, row, cellProps, colWidth);
       takenWidth += colWidth;
-      cell.style.width = `${colWidth}px`;
     }
 
     // remove exceeding cells
@@ -910,7 +971,6 @@ class GuiTableBodyRow extends HTMLElement {
     let cell = this.children[index] as GuiTableBodyCell | undefined;
     if (!cell) {
       cell = document.createElement('gui-tbody-cell');
-      cell.appendChild(document.createElement('gui-value'));
       this.appendChild(cell);
     }
     return cell;
@@ -933,9 +993,35 @@ class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
   data: Cell[] = [];
+  value: GuiValue;
+
+  constructor() {
+    super();
+
+    this.value = document.createElement('gui-value');
+  }
+
+  connectedCallback() {
+    this.appendChild(this.value);
+  }
+
+  update(
+    index: number,
+    colIdx: number,
+    row: Cell[],
+    cellProps: CellPropsFactory,
+    colWidth: number,
+  ) {
+    this.rowIdx = index;
+    this.colIdx = colIdx;
+    this.data = row;
+    this.setAttribute('data-col', `${colIdx}`);
+    this.value.setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+    this.style.width = `${colWidth}px`;
+  }
 }
 
-type SortOrd = 'asc' | 'desc' | 'default';
+export type SortOrd = 'asc' | 'desc' | 'default';
 
 /**
  * Sorting state machine.
@@ -948,25 +1034,29 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) { }
+  ) {}
 
   reset() {
     this._index = -1;
     this._ord = 'default';
   }
 
-  sortBy(index: number): void {
+  sortBy(index: number, ord?: SortOrd): void {
     if (this._index === index) {
-      if (this._ord === 'default') {
-        this._ord = 'asc';
-      } else if (this._ord === 'asc') {
-        this._ord = 'desc';
+      if (ord) {
+        this._ord = ord;
       } else {
-        this._ord = 'default';
+        if (this._ord === 'default') {
+          this._ord = 'asc';
+        } else if (this._ord === 'asc') {
+          this._ord = 'desc';
+        } else {
+          this._ord = 'default';
+        }
       }
     } else {
       this._index = index;
-      this._ord = 'asc';
+      this._ord = ord ?? 'asc';
     }
   }
 
