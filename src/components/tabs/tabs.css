@@ -2,7 +2,7 @@ gui-tabs {
   --gui-panel-display: grid;
   --gui-panel-hidden: none;
 
-  min-width: 0;
+  min-width: 0px;
   display: grid;
   grid-template-rows: min-content auto;
 

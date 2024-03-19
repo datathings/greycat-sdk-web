@@ -1,0 +1,14 @@
+gui-input,
+gui-input-string,
+gui-input-number,
+gui-input-bool,
+gui-input-enum {
+  display: contents;
+}
+
+gui-input-object {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: var(--spacing);
+}

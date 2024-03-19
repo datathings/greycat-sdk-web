@@ -1,0 +1,559 @@
+use util;
+use runtime;
+use math;
+use io;
+
+fn main() {
+  for (var i = 0; i < 15; i++) {
+    SecurityEntity::set(UserGroup {
+        id: 0,
+        name: "group-${i}",
+        activated: true,
+      });
+  }
+}
+
+// pages/chart start
+enum Confidence {
+  High;
+  Medium;
+  Low;
+}
+
+@expose
+fn boxplot_float() {
+  var histogram = HistogramFloat {};
+
+  var random = Random::new();
+  random.setSeed(12345);
+  var testSize = 10;
+
+  for (var i = 0; i < testSize; i++) {
+    var v = random.uniformf(-100.0, 100.0);
+    histogram.add(v);
+  }
+
+  return histogram.toBoxPlot();
+}
+
+@expose
+fn chart(nbRows: int) {
+  if (nbRows < 5) {
+    throw "min nbRows 5";
+  }
+
+  var LINE_COL = 0;
+  var SCATTER_COL = 1;
+  var AREA_COL = 2;
+  var BAR_COL = 3;
+  var LINE_TYPE_COL = 4;
+  var LINE_COLOR_COL = 5;
+
+  var prev1 = 100_f;
+  var prev2 = 80_f;
+
+  var table = Table::new(6);
+
+  var rand = Random::new();
+
+  for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
+    prev1 = prev1 + 5 - rand.uniformf(0_f, 1_f) * 10;
+    prev1 = maxf(0_f, prev1);
+
+    table.set(rowIdx, LINE_COL, prev1);
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    if (rowIdx >= 20 && rowIdx <= 45) {
+      // dashed
+      table.set(rowIdx, LINE_TYPE_COL, 1);
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Low);
+    } else if (rowIdx >= 80 && rowIdx <= 100) {
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::Medium);
+    } else {
+      // solid
+      table.set(rowIdx, LINE_TYPE_COL, 0);
+      table.set(rowIdx, LINE_COLOR_COL, Confidence::High);
+    }
+
+    prev2 = prev2 + 5 - rand.uniformf(0_f, 1_f) * 10;
+    prev2 = maxf(0_f, prev2);
+
+    table.set(rowIdx, SCATTER_COL, prev2);
+
+    if (rowIdx >= 0 && rowIdx < 5) {
+      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+    }
+
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+    }
+
+    if (rowIdx == 10) {
+      table.set(rowIdx, LINE_COL, null);
+    }
+
+    if (rowIdx == 75) {
+      table.set(rowIdx, LINE_COL, null);
+    }
+  }
+
+  return table;
+}
+// pages/chart end
+
+// pages/chart-time start
+@expose
+fn chart_time(): Table {
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
+  var min = -10.0;
+  var max = 40.0;
+  var prevTime = time::now();
+  var prevTemp = rand.uniformf(min, max);
+
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  table.set(1, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  table.set(2, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  table.set(3, 2, null);
+  prevTime = prevTime + 1_hour;
+
+  for (var i = 4; i < 500; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, prevTemp);
+    if (prevTemp < 10) {
+      table.set(i, 2, "low");
+    } else if (prevTemp >= 10 && prevTemp <= 25) {
+      table.set(i, 2, "normal");
+    } else {
+      table.set(i, 2, "high");
+    }
+
+    prevTime = prevTime + 1_hour;
+    if (prevTemp >= max) {
+      prevTemp = prevTemp + rand.uniformf(-5.0, -0.1);
+    } else if (prevTemp <= min) {
+      prevTemp = prevTemp + rand.uniformf(0.1, 5.0);
+    } else {
+      prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
+    }
+  }
+
+  // put some null at the end also for tests
+  var row = table.rows();
+  table.set(row, 0, prevTime);
+  table.set(row, 1, null);
+  table.set(row, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 1, 0, prevTime);
+  table.set(row + 1, 1, null);
+  table.set(row + 1, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(row + 2, 0, prevTime);
+  table.set(row + 2, 1, null);
+  table.set(row + 2, 2, null);
+
+  return table;
+}
+// pages/chart-time end
+
+// pages/chart-colored-area start
+@expose
+fn chart_colored_area(): Table {
+  var firstTime = time::now();
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  // 0
+  table.set(0, 0, firstTime - 6_day);
+  table.set(0, 1, -10.5);
+  table.set(0, 2, "low");
+  // 1
+  table.set(1, 0, firstTime - 5_day);
+  table.set(1, 1, -8.5);
+  table.set(1, 2, "low");
+  // 2
+  table.set(2, 0, firstTime - 4_day);
+  table.set(2, 1, 3.1);
+  table.set(2, 2, "low");
+  // 3
+  table.set(3, 0, firstTime - 3_day);
+  table.set(3, 1, 33.7);
+  table.set(3, 2, "high");
+  // 4
+  table.set(4, 0, firstTime - 2_day);
+  table.set(4, 1, 22.0);
+  table.set(4, 2, "normal");
+  // 5
+  table.set(5, 0, firstTime - 1_day);
+  table.set(5, 1, 18.9);
+  table.set(5, 2, "normal");
+  // 6
+  table.set(6, 0, firstTime);
+  table.set(6, 1, 6.4);
+  table.set(6, 2, "low");
+
+  return table;
+}
+// pages/chart-colored-area end
+
+// pages/donut start
+@expose
+fn donut(): Table {
+  var nbRows = 5;
+  var table = Table::new(2);
+
+  var continents = ["Africa", "Antartica", "Asia", "Europe", "North America", "South America", "Oceania"];
+  var countries = [54, 0, 49, 44, 23, 12, 14];
+
+  for (row, continent in continents) {
+    table.set(row, 0, continent);
+    table.set(row, 1, countries[row]);
+  }
+
+  return table;
+}
+// pages/donut end
+
+// pages/enum-select start
+enum TrafficLight {
+  Green;
+  Yellow;
+  Red;
+}
+// pages/enum-select end
+
+// pages/heatmap start
+@expose
+fn heatmap() {
+  var table = Table::new(12);
+
+  //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  var paris = [4.9, 5.6, 8.8, 11.4, 15.1, 18.2, 20.4, 20.2, 16.9, 12.9, 8.1, 5.4];
+  var london = [5.2, 5.3, 7.6, 9.9, 13.3, 16.5, 18.7, 18.5, 15.7, 12.0, 8.0, 5.5];
+  var newyork = [0.6, 2.1, 6.1, 11.9, 17.1, 22.1, 24.9, 24.3, 20.2, 14.1, 8.9, 3.3];
+  var beijing = [-3.1, 0.3, 6.7, 14.8, 20.8, 24.9, 26.7, 25.5, 20.8, 13.7, 5.0, -0.9];
+  var perth = [24.5, 24.9, 23.1, 19.7, 16.5, 14.0, 13.0, 13.5, 14.8, 17.3, 20.3, 22.7];
+  var oslo = [-4.3, -4.0, -0.2, 4.5, 10.8, 15.2, 16.4, 15.2, 10.8, 6.3, 0.7, -3.1];
+
+  var cities = [paris, london, newyork, beijing, perth, oslo];
+
+  for (row, city in cities) {
+    for (col, temp in city) {
+      table.set(row, col, temp);
+    }
+  }
+
+  return table;
+}
+// pages/heatmap end
+
+// pages/hello start
+@expose
+fn hello(name: String): String {
+  return "Hello, ${name}";
+}
+// pages/hello end
+
+// pages/histogram
+@expose
+fn histogram_table(): Table {
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader::new("pages/chart-bar-histogram/heightweight.csv", csvFormat);
+
+  var histogramHeight = HistogramFloat {};
+  var histogramWeight = HistogramFloat {};
+  while (csv.available() > 0) {
+    var res = csv.read();
+    var height_inch = res?[1] as float;
+    var weight_pound = res?[2] as float; 
+
+    var height_cm = height_inch * 2.54;
+    var weight_kg = weight_pound * 0.453592;
+
+    histogramHeight.add(height_cm);
+    histogramWeight.add(weight_kg);
+  }
+
+  return histogramHeight.all();
+}
+// pages/histogram end
+
+@expose
+fn table(): Table {
+  var rand = Random::new();
+
+  var table = Table::new(3);
+  table.setHeader(0, "Timestamp");
+  table.setHeader(1, "Temperature");
+  table.setHeader(2, "Class");
+
+  var min = -10.0;
+  var max = 40.0;
+  var prevTime = time::now();
+  var prevTemp = rand.uniformf(min, max);
+
+  // purposedly start with null values to test out the behavior
+  table.set(0, 0, prevTime);
+  table.set(0, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(1, 0, prevTime);
+  table.set(1, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(2, 0, prevTime);
+  table.set(2, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+  table.set(3, 0, prevTime);
+  table.set(3, 1, null);
+  table.set(0, 2, null);
+  prevTime = prevTime + 1_hour;
+
+  for (var i = 4; i < 500; i++) {
+    table.set(i, 0, prevTime);
+    table.set(i, 1, prevTemp);
+    if (prevTemp < 10) {
+      table.set(i, 2, "low");
+    } else if (prevTemp >= 10 && prevTemp <= 25) {
+      table.set(i, 2, "normal");
+    } else {
+      table.set(i, 2, "high");
+    }
+
+    prevTime = prevTime + 1_hour;
+    if (prevTemp >= max) {
+      prevTemp = prevTemp + rand.uniformf(-5.0, -0.1);
+    } else if (prevTemp <= min) {
+      prevTemp = prevTemp + rand.uniformf(0.1, 5.0);
+    } else {
+      prevTemp = prevTemp + rand.uniformf(-2.5, 2.5);
+    }
+  }
+
+  return table;
+}
+// pages/table end
+
+// pages/tasks start
+@expose
+fn task_without_params() {
+  for (var i = 0; i < 100; i++) {
+    println("test");
+  }
+  return 42;
+}
+
+@expose
+fn task_with_params(name: String, age: int) {
+  return name;
+}
+
+@expose
+fn task_long_running() {
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: 60,
+  };
+  for (var i = 0; i < 60; i++) {
+    progress.update(i + 1);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(1_s);
+  }
+}
+
+@expose
+fn mainTask() {
+  Task::spawn(TaskRequest { function: project::subTask, arguments: [0] });
+  Task::spawn(TaskRequest { function: project::subTask, arguments: [1] });
+}
+
+fn subTask(id: int) {
+  return id;
+}
+// pages/tasks end
+
+// pages/users start
+@expose
+@permission("foo")
+fn foo() {}
+
+@expose
+@permission("bar")
+fn bar() {}
+// pages/users end
+
+// pages/object start
+type ComplexObject {
+  string: String;
+  int: int;
+  float: float;
+  bool: bool;
+  char: char;
+  geo: geo;
+  null: any?;
+  enum: TimeZone;
+  array: Array;
+  nodeTime: nodeTime;
+  nodeIndex: nodeIndex;
+  nodeList: nodeList;
+  nodeGeo: nodeGeo;
+  nested: any;
+  nodeNested: node<ComplexObject>?;
+  map: Map<String, any>;
+}
+
+@expose
+@write
+fn complex_object() {
+  var map = Map<String, any>::new();
+  map.set("first", { foo: "BAR", baz: 42 });
+  map.set("second", TimeZone::Africa_Abidjan);
+
+  var array = [42, 3.14, "hello world"];
+  for (var i = 0; i < 100; i++) {
+    array.add(i);
+  }
+
+  return ComplexObject {
+    string: "Hello, world!",
+    int: 42,
+    float: 3.14,
+    bool: false,
+    char: 'd',
+    geo: geo::new(1.4, -0.85),
+    null: null,
+    enum: TimeZone::Europe_Paris,
+    array: array,
+    nodeTime: nodeTime::new(),
+    nodeIndex: nodeIndex::new(),
+    nodeList: nodeList::new(),
+    nodeGeo: nodeGeo::new(),
+    nested: {
+      string: "Hello, world!",
+      int: 42,
+      float: 3.14,
+      bool: false,
+      char: 'd',
+      geo: geo::new(1.4, -0.85),
+      null: null,
+      array: [42, 3.14, "hello world"],
+      nodeTime: nodeTime::new(),
+      nodeIndex: nodeIndex::new(),
+      nodeList: nodeList::new(),
+      nodeGeo: nodeGeo::new(),
+      enum: TimeZone::Europe_Luxembourg,
+    },
+    nodeNested: node<ComplexObject>::new(ComplexObject {
+        string: "Nested Hello, world!",
+        int: 1337,
+        float: 3.1415,
+        bool: true,
+        char: 'g',
+        geo: geo::max,
+        null: null,
+        enum: TimeZone::Asia_Tokyo,
+        array: [1337, 3.1415, "GreyCat"],
+        nodeTime: nodeTime::new(),
+        nodeIndex: nodeIndex::new(),
+        nodeList: nodeList::new(),
+        nodeGeo: nodeGeo::new(),
+        nested: [],
+        map: Map<String, ComplexObject>::new(),
+      }),
+    map: map,
+  };
+}
+
+@expose
+fn obj1() {
+  return {
+    prop1: "Hello",
+    prop2: User { id: 1000, name: "user1", activated: false, external: false },
+    prop3: Runtime::info(),
+  };
+}
+
+@expose
+fn obj2() {
+  var prop3 = Map::new();
+  prop3.set("entry1", Runtime::info());
+  prop3.set("entry2", Runtime::info());
+  prop3.set("entry3", Runtime::info());
+
+  return {
+    prop1: "Hello",
+    prop2: [User { id: 1000, name: "user1", activated: false, external: false }, User { id: 1001, name: "user2", activated: false, external: false }],
+    prop3: prop3,
+  };
+}
+// pages/object end
+
+type SemiRecursive {
+  sub: SemiRecursive?;
+}
+
+type FooBar {}
+
+@expose
+fn add(a: int, b: int): int {
+  println("add(${a}, ${b}) = ${a + b}");
+  return a + b;
+}
+
+@expose
+fn anything(v: any?) {
+  return v;
+}
+
+
+@expose
+fn mapTest() {
+  var map = Map::new();
+  map.set(DurationUnit::seconds, ["seconds", 1]);
+  map.set(DurationUnit::minutes, ["minutes", 2]);
+  map.set(DurationUnit::hours, ["hours", 3]);
+  return map;
+}
+
+@expose
+fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit) {}
+
+@expose
+fn now() {
+  var now = time::now();
+  return {
+    azores: now.toDate(TimeZone::Atlantic_Azores),
+    utc: now.toDateUTC(),
+    paris: now.toDate(TimeZone::Europe_Paris),
+    athens: now.toDate(TimeZone::Europe_Athens),
+  };
+}
+
+enum SensorKind {
+  Temp;
+  Pressure;
+}
+
+type Sensor {
+  id: int;
+  kind: SensorKind;
+}

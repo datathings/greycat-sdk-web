@@ -27,5 +27,5 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "files": ["./src/jsx-dev-runtime.ts", "./src/jsx-runtime.ts", "./jsx.d.ts"]
+  "files": ["./jsx.d.ts", "./src/jsx-runtime.ts", "./src/jsx-dev-runtime.ts"]
 }

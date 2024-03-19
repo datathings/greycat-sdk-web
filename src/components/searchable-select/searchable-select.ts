@@ -1,4 +1,5 @@
 import { getIndexInParent } from '../../utils.js';
+import { GuiChangeEvent, GuiUpdateEvent } from '../events.js';
 
 export interface SearchableOption {
   text: string;
@@ -67,12 +68,13 @@ export class GuiSearchableSelect extends HTMLElement {
         if (selectedIndex !== -1) {
           ev.preventDefault();
           const item = items[selectedIndex];
+          this._list.querySelectorAll(`div.selected`).forEach((e) => e.classList.remove('selected'));
           item.classList.add('selected');
           this.hideDropdown()
           this._input.value = item.textContent!;
           const index = getIndexInParent(item);
           const value = this._options[index].value === undefined ? this._options[index].text : this._options[index].value;
-          this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
+          this.dispatchEvent(new GuiChangeEvent(value));
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -155,10 +157,10 @@ export class GuiSearchableSelect extends HTMLElement {
   }
 
   get value() {
-    const item = this._list.querySelector('.selected');
-    if (item) {
+    const items = this._list.getElementsByClassName('selected');
+    if (items.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return (item as any).__value;
+      return (items[0] as any).__value;
     }
     return;
   }
@@ -219,7 +221,7 @@ export class GuiSearchableSelect extends HTMLElement {
         opt.selected = true;
         this.hideDropdown()
         this._input.focus();
-        this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
+        this.dispatchEvent(new GuiChangeEvent(value));
       });
 
       fragment.appendChild(itemEl);
@@ -240,15 +242,6 @@ export class GuiSearchableSelect extends HTMLElement {
     empty.className = 'color-muted';
     empty.textContent = 'Empty';
     this._list.replaceChildren(empty);
-  }
-}
-
-const SEARCHABLE_CHANGE = 'searchable-select-change';
-const ONSEARCHABLE_CHANGE = `on${SEARCHABLE_CHANGE}`;
-
-export class GuiSearchableSelectChangeEvent extends CustomEvent<unknown> {
-  constructor(value: unknown) {
-    super(SEARCHABLE_CHANGE, { detail: value, bubbles: true });
   }
 }
 
@@ -275,8 +268,9 @@ declare global {
     'gui-searchable-select': GuiSearchableSelect;
   }
 
-  interface HTMLElementEventMap {
-    [SEARCHABLE_CHANGE]: GuiSearchableSelectChangeEvent;
+  interface GuiSearchableSelectEventMap {
+    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
+    [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 
   namespace JSX {
@@ -284,16 +278,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-searchable-select': GreyCat.Element<
-        GuiSearchableSelect & {
-          [ONSEARCHABLE_CHANGE]: (
-            this: GlobalEventHandlers,
-            ev: GuiSearchableSelectChangeEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
     }
   }
 }

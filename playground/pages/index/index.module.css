@@ -1,0 +1,31 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+  overflow: auto;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+}
+
+.paletteContainer {
+  display: flex;
+  gap: calc(var(--spacing) * 4);
+}
+
+.palette {
+  width: 250px;
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: var(--spacing);
+  border: var(--border-width) solid var(--border-color);
+  padding: var(--spacing);
+
+  > div {
+    display: flex;
+    justify-content: start;
+    padding: 4px 8px;
+  }
+}

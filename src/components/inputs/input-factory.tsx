@@ -1444,7 +1444,7 @@ export class AnyInput implements IInput {
     }
     this._typeSelect.value = greycat.default.abi.core_string_offset;
     this._typeSelect.options = options;
-    this._typeSelect.addEventListener('searchable-select-change', (ev) => {
+    this._typeSelect.addEventListener('gui-change', (ev) => {
       const type = greycat.default.abi.types[ev.detail as number];
       const newInput = InputFactory.create(name, type, oninput);
       this.element.children[0].remove();

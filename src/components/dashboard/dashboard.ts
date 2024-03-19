@@ -100,7 +100,7 @@ export class GuiDashboard extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.replaceChildren();
+    // noop
   }
 
   /**
@@ -285,7 +285,7 @@ class DashboardPanel implements IContentRenderer {
   }
 
   focus(): void {
-      // noop
+    // noop
   }
 }
 
@@ -294,25 +294,18 @@ declare global {
     'gui-dashboard': GuiDashboard;
   }
 
-  interface HTMLElementEventMap {
+  interface GuiDashboardEventMap {
     [GuiDashboardUpdateEvent.NAME]: GuiDashboardUpdateEvent;
   }
+
+  interface HTMLElementEventMap extends GuiDashboardEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-dashboard': GreyCat.Element<
-        GuiDashboard & {
-          [EVENT in `on${typeof GuiDashboardUpdateEvent.NAME}`]: (
-            this: GlobalEventHandlers,
-            ev: GuiDashboardUpdateEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-dashboard': GreyCat.Element<GuiDashboard, GuiDashboardEventMap>;
     }
   }
 }
