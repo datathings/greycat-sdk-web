@@ -562,19 +562,19 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         </label>
       );
       if (attr.nullable) {
-        const lazyloadingLink = (
+        attrs.append(
+          label,
           <a
             href=""
             onclick={(ev) => {
               ev.preventDefault();
               input.type = attrTy;
-              lazyloadingLink.replaceWith(input);
+              (ev.target as HTMLElement).replaceWith(input);
             }}
           >
             Set
-          </a>
-        ) as HTMLAnchorElement;
-        attrs.append(label, lazyloadingLink);
+          </a>,
+        );
       } else {
         attrs.append(label, input);
       }

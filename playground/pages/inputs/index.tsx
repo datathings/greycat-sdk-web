@@ -31,8 +31,6 @@ GuiInput.factory['project::Sensor'] = 'project-sensor-form';
 //  - core::Date
 //  - allow for removal of nullable attr (essentially resetting to 'null')
 
-
-
 document.body.appendChild(
   <app-layout title="Inputs">
     <div
