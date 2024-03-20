@@ -603,7 +603,21 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   set type(fn: AbiFunction | undefined) {
     if (this._fn) {
       // we already have an AbiFunction defined, lets compare
-      // TODO
+      if (this._fn === fn) {
+        // same function, no need to re-render
+      } else {
+        // different function, let's clean
+        this._params.clear();
+        this._fn = fn;
+        if (this._fn) {
+          for (const param of this._fn.params) {
+            const input = document.createElement('gui-input');
+            input.type = param.type;
+            input.config = { nullable: param.nullable };
+            this._params.set(param.name, input);
+          }
+        }
+      }
     } else {
       // no previous fn definition
       this._fn = fn;

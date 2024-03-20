@@ -235,38 +235,34 @@ function ObjectViewer() {
 }
 
 function FnViewer() {
-  const options: SearchableOption[] = greycat.default.abi.functions.map((fn, i) => {
-    return {
-      text: fn.fqn,
-      value: i,
-      selected: fn.fqn === 'project::goodFnForTestingFnCallInput',
-    };
-  });
+  const options: SearchableOption[] = greycat.default.abi.functions
+    .filter((f) => f.params.length > 0)
+    .map((fn) => {
+      return {
+        text: fn.fqn,
+        value: fn,
+        selected: fn.fqn === 'project::goodFnForTestingFnCallInput',
+      };
+    });
   const typeSelector = (
     <gui-searchable-select
       style={{ width: '300px' }}
       placeholder="Search a fn..."
       options={options}
       ongui-change={(ev) => {
-        input.type = greycat.default.abi.functions[ev.detail];
+        input.type = ev.detail;
       }}
     />
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-fn');
-  input.type = greycat.default.abi.functions[typeSelector.value];
+  input.type = typeSelector.value;
   input.addEventListener('gui-update', () => {
-    console.log(
-      `[gui-update][gui-input-fn][${greycat.default.abi.functions[typeSelector.value].name}]`,
-      input.value,
-    );
+    console.log(`[gui-update][gui-input-fn][${typeSelector.value.fqn}]`, input.value);
     display.value = input.value;
   });
   input.addEventListener('gui-change', () => {
-    console.log(
-      `[gui-change][gui-input-fn][${greycat.default.abi.functions[typeSelector.value].name}]`,
-      input.value,
-    );
+    console.log(`[gui-change][gui-input-fn][${typeSelector.value.fqn}]`, input.value);
     display.value = input.value;
   });
 
@@ -276,7 +272,7 @@ function FnViewer() {
         slot="header"
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <h6 style={{ margin: '0' }}>Function:</h6>
+        <h6 style={{ margin: '0' }}>Function</h6>
         {typeSelector}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>

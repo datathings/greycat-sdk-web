@@ -10,7 +10,7 @@ gui-input-object,
 gui-input-fn {
   display: grid;
   grid-template-columns: auto 1fr;
-  align-items: center;
+  align-items: start;
   gap: var(--spacing);
 
   > label {
@@ -23,8 +23,8 @@ gui-input-fn {
 
 .gui-input-attr-name,
 .gui-input-param-name {
-  font-size: var(--sl-font-size-small);
-  line-height: var(--sl-font-size-small);
+  font-size: var(--sl-font-size-medium);
+  line-height: var(--sl-font-size-medium);
 }
 
 .gui-input-attr-type,
