@@ -6,9 +6,30 @@ gui-input-enum {
   display: contents;
 }
 
-gui-input-object {
+gui-input-object,
+gui-input-fn {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: center;
   gap: var(--spacing);
+
+  > label {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 2px;
+  }
+}
+
+.gui-input-attr-name,
+.gui-input-param-name {
+  font-size: var(--sl-font-size-small);
+  line-height: var(--sl-font-size-small);
+}
+
+.gui-input-attr-type,
+.gui-input-param-type {
+  font-size: var(--sl-font-size-small);
+  line-height: var(--sl-font-size-small);
+  color: var(--sl-color-gray-500);
 }

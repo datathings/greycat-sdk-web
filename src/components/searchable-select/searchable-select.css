@@ -9,6 +9,7 @@ gui-searchable-select {
   display: block;
 
   .gui-searchable-select-input {
+    width: 100%;
     margin-bottom: 0;
   }
 

@@ -4,7 +4,8 @@ import { GuiChangeEvent, GuiUpdateEvent } from '../events.js';
 export interface SearchableOption {
   text: string;
   /** If the `value` is not defined, `text` will be used */
-  value?: unknown;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value?: any;
   selected?: boolean;
 }
 
@@ -166,13 +167,14 @@ export class GuiSearchableSelect extends HTMLElement {
   }
 
   /**
-   * Changes the currently selected item using the `value` for comparison.
+   * Changes the currently selected item using the `option.value` property for comparison with the given one.
    *
    * *The equality check on the value is made using `===`.*
    *
    * *If `undefined`, it empties the input.*
    */
-  set value(value: unknown) {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  set value(value: any) {
     if (value === undefined) {
       this._input.value = '';
       return;

@@ -535,7 +535,7 @@ fn mapTest() {
 }
 
 @expose
-fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit) {}
+fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, optionalFlag: bool?) {}
 
 @expose
 fn now() {
@@ -556,4 +556,9 @@ enum SensorKind {
 type Sensor {
   id: int;
   kind: SensorKind;
+}
+
+type Link {
+  name: String;
+  next: Link?;
 }

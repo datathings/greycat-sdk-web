@@ -37,6 +37,8 @@
 :host,
 .sl-theme-dark,
 .sl-theme-light {
+  --form-element-border-color: var(--sl-color-neutral-300);
+
   --sl-color-success-50: var(--sl-color-sky-50);
   --sl-color-success-100: var(--sl-color-sky-100);
   --sl-color-success-200: var(--sl-color-sky-200);
@@ -92,15 +94,15 @@
   --sl-font-serif: Georgia, 'Times New Roman', serif;
 
   /* Font sizes */
-  --sl-font-size-2x-small: 0.625rem; /* 10px */
-  --sl-font-size-x-small: 0.75rem; /* 12px */
-  --sl-font-size-small: 0.875rem; /* 14px */
-  --sl-font-size-medium: 1rem; /* 16px */
-  --sl-font-size-large: 1.25rem; /* 20px */
-  --sl-font-size-x-large: 1.5rem; /* 24px */
-  --sl-font-size-2x-large: 2.25rem; /* 36px */
-  --sl-font-size-3x-large: 3rem; /* 48px */
-  --sl-font-size-4x-large: 4.5rem; /* 72px */
+  --sl-font-size-2x-small: 10px;
+  --sl-font-size-x-small: 12px;
+  --sl-font-size-small: 13px;
+  --sl-font-size-medium: 14px;
+  --sl-font-size-large: 16px;
+  --sl-font-size-x-large: 18px;
+  --sl-font-size-2x-large: 24px;
+  --sl-font-size-3x-large: 30px;
+  --sl-font-size-4x-large: 40px;
 
   /* Font weights */
   --sl-font-weight-light: 300;

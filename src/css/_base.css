@@ -494,3 +494,8 @@ input:not(:-webkit-any([type='checkbox'], [type='radio'])) {
   width: auto;
   margin-bottom: 0;
 }
+
+label,
+fieldset legend {
+  margin-bottom: 0;
+}
