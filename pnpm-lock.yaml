@@ -2780,13 +2780,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-<<<<<<< Updated upstream
   '@get.greycat.io/files/lang/testing/6.10/6.10.2-testing.tgz':
     resolution: {tarball: https://get.greycat.io/files/lang/testing/6.10/6.10.2-testing.tgz}
-=======
-  '@get.greycat.io/files/lang/testing/6.9/6.9.0-testing.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/testing/6.9/6.9.0-testing.tgz}
->>>>>>> Stashed changes
     name: '@greycat/lang'
     version: 6.10.2-testing
     engines: {node: '>=16.17.0'}
@@ -2795,13 +2790,8 @@ packages:
       vscode-languageserver-types: 3.17.5
     dev: true
 
-<<<<<<< Updated upstream
   '@get.greycat.io/files/sdk/js/testing/6.10/6.10.1-testing.tgz':
     resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.1-testing.tgz}
-=======
-  '@get.greycat.io/files/sdk/js/testing/6.9/6.9.0-testing.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/sdk/js/testing/6.9/6.9.0-testing.tgz}
->>>>>>> Stashed changes
     name: '@greycat/sdk'
     version: 6.10.1-testing
     engines: {node: '>=18'}

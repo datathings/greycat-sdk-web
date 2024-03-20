@@ -1,6 +1,8 @@
 import { signal } from '../../src';
 
 export class PokeFinder extends HTMLElement {
+  ctrl: AbortController = new AbortController();
+
   name = signal('pikachu');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   pokemon = signal<any>(null);
@@ -10,12 +12,25 @@ export class PokeFinder extends HTMLElement {
     if (name.length === 0) {
       return;
     }
-    const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`);
-    if (res.ok && res.status === 200) {
-      const value = await res.json();
-      this.pokemon.set(value);
-    } else {
-      this.pokemon.set(null);
+    this.ctrl.abort();
+    this.ctrl = new AbortController();
+    try {
+      const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${name}`, {
+        signal: this.ctrl.signal,
+      });
+      if (res.ok && res.status === 200) {
+        const value = await res.json();
+        this.pokemon.set(value);
+      } else {
+        this.pokemon.set(null);
+      }
+    } catch (err) {
+      if (err instanceof Error) {
+        if (err.name === 'AbortError') {
+          // ignore previous fetch
+          return;
+        }
+      }
     }
   };
 

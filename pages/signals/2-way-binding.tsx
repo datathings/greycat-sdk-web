@@ -4,6 +4,7 @@ export class TwoWayDataBinding extends HTMLElement {
   search = signal('default value');
 
   connectedCallback() {
+
     this.appendChild(
       <div>
         <h4 style={{ marginBottom: 'var(--spacing)' }}>2-way data binding:</h4>
