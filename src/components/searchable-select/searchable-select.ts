@@ -1,5 +1,5 @@
 import { getIndexInParent } from '../../utils.js';
-import { GuiChangeEvent, GuiUpdateEvent } from '../events.js';
+import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
 export interface SearchableOption {
   text: string;
@@ -271,7 +271,7 @@ declare global {
   }
 
   interface GuiSearchableSelectEventMap {
-    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
+    [GuiInputEvent.NAME]: GuiInputEvent;
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 

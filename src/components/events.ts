@@ -1,12 +1,12 @@
 /**
- * Bound to the underlying 'update' events
+ * Bound to the underlying 'input' events
  */
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GuiUpdateEvent<T = any> extends CustomEvent<T> {
-  static readonly NAME = 'gui-update';
+export class GuiInputEvent<T = any> extends CustomEvent<T> {
+  static readonly NAME = 'gui-input';
 
   constructor(value: T) {
-    super(GuiUpdateEvent.NAME, { detail: value, bubbles: true });
+    super(GuiInputEvent.NAME, { detail: value, bubbles: true });
   }
 }
 
@@ -24,7 +24,7 @@ export class GuiChangeEvent<T = any> extends CustomEvent<T> {
 
 declare global {
   interface HTMLElementEventMap {
-    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
+    [GuiInputEvent.NAME]: GuiInputEvent;
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 }

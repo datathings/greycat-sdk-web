@@ -5,10 +5,11 @@ import '@shoelace-style/shoelace/dist/components/select/select.js';
 import { registerCustomElement } from '../common.js';
 import '../searchable-select/index.js';
 import type { GuiSearchableSelect } from '../searchable-select/index.js';
-import { GuiChangeEvent, GuiUpdateEvent } from '../events.js';
+import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
 export interface GuiInputConfig {
   nullable?: boolean;
+  // TODO
 }
 
 export abstract class GuiInputElement<T> extends HTMLElement {
@@ -196,7 +197,7 @@ export class GuiInputString extends GuiInputElement<string | null> {
     this._input = document.createElement('sl-input');
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiUpdateEvent(this.value));
+      this.dispatchEvent(new GuiInputEvent(this.value));
     });
     this._input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
@@ -235,7 +236,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     this._input.type = 'number';
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiUpdateEvent(this.value));
+      this.dispatchEvent(new GuiInputEvent(this.value));
     });
     this._input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
@@ -276,7 +277,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     this._input.appendChild(<sl-option value="false">false</sl-option>);
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiUpdateEvent(this.value));
+      this.dispatchEvent(new GuiInputEvent(this.value));
     });
     this._input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
@@ -331,7 +332,7 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
     this._input.step = 1;
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiUpdateEvent(this.value));
+      this.dispatchEvent(new GuiInputEvent(this.value));
     });
     this._input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
@@ -462,7 +463,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         const input = document.createElement('gui-input');
         input.addEventListener('gui-update', (ev) => {
           ev.stopPropagation();
-          this.dispatchEvent(new GuiUpdateEvent(this.value));
+          this.dispatchEvent(new GuiInputEvent(this.value));
         });
         input.addEventListener('gui-change', (ev) => {
           ev.stopPropagation();
@@ -527,7 +528,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         const input = document.createElement('gui-input');
         input.addEventListener('gui-update', (ev) => {
           ev.stopPropagation();
-          this.dispatchEvent(new GuiUpdateEvent(this.value));
+          this.dispatchEvent(new GuiInputEvent(this.value));
         });
         input.addEventListener('gui-change', (ev) => {
           ev.stopPropagation();
@@ -707,7 +708,7 @@ declare global {
   }
 
   interface GuiInputEventMap {
-    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
+    [GuiInputEvent.NAME]: GuiInputEvent;
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 

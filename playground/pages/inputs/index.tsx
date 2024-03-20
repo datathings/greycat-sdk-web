@@ -1,8 +1,11 @@
 import {
+  ArrayInput,
   GreyCat,
+  GuiInput,
   GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
+  MapInput,
   SearchableOption,
   core,
   registerCustomElement,
@@ -19,7 +22,7 @@ greycat.default = await GreyCat.init({
 // matches a WebComponent that inherits GuiInputElement:
 // eg.
 //
-// GuiInput.factory['project::Sensor'] = 'project-sensor-form';
+GuiInput.factory['project::Sensor'] = 'project-sensor-form';
 
 // TODO:
 //  - Map
@@ -27,6 +30,8 @@ greycat.default = await GreyCat.init({
 //  - core::duration
 //  - core::Date
 //  - allow for removal of nullable attr (essentially resetting to 'null')
+
+
 
 document.body.appendChild(
   <app-layout title="Inputs">
@@ -61,6 +66,8 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
+      {new MapInput('wjhatever', () => {}).element}
+      {new ArrayInput('wjhatever', () => {}).element}
       {/* TODO Map */}
       {/* TODO Array */}
       {/* TODO core::duration */}
