@@ -1,0 +1,21 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "moduleResolution": "Bundler",
+    "module": "es2022",
+    "target": "es2022",
+    "rootDir": "..",
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "jsxImportSource": "@greycat/web",
+    "useDefineForClassFields": false,
+    "types": ["vite/client"],
+    "paths": {
+      "@/*": ["./*"],
+      "@greycat/web": ["../src"],
+      "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"],
+    },
+  },
+  "include": ["**/*.ts", "**/*.tsx"],
+  "exclude": ["./gcdata", "./files", "./public"]
+}

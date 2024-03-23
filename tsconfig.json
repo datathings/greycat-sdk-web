@@ -32,5 +32,5 @@
     "jsxImportSource": "@greycat/web"
   },
   "include": ["src", "jsx.d.ts"],
-  "exclude": ["src/_boilerplate", "./src/jsx-runtime.ts", "src/jsx-dev-runtime.ts"]
+  "exclude": ["./src/jsx-runtime.ts", "src/jsx-dev-runtime.ts"]
 }

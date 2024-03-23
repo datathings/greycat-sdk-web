@@ -10,8 +10,6 @@ export function isSignal(fn: unknown): fn is Signal<unknown> {
   return false;
 }
 
-// let dependencies: Set<Signal<unknown>> | undefined;
-
 export function signal<T>(value: T): Signal<T> {
   const observers = new Set<() => void>();
 

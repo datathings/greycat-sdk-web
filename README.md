@@ -29,3 +29,7 @@ Start the Web dev server:
 pnpm dev
 ```
 Open your browser at `http://localhost:5173/`
+
+## v7 Breaking changes:
+- Removed `gui-enum-select`, replaced with `gui-input-enum`
+- `gui-searchable-select` no longer trigger `'gui-searchable-change'` events, replaced with the new `'gui-change'` event

@@ -35,22 +35,36 @@ small {
 
 h1 {
   --font-size: 28px;
+  --typography-spacing-vertical: 2rem;
 }
 
 h2 {
   --font-size: 25px;
+  --typography-spacing-vertical: 1.8rem;
 }
 
 h3 {
   --font-size: 21px;
+  --typography-spacing-vertical: 1.6rem;
 }
 
 h4 {
   --font-size: 18px;
+  --typography-spacing-vertical: 1.4rem;
 }
 
 h5 {
   --font-size: 15px;
+  --typography-spacing-vertical: 1.2rem;
+}
+
+h6 {
+  --font-size: 1rem;
+  --typography-spacing-vertical: 1rem;
+}
+
+:where(dl, ol, ul) li {
+  margin-bottom: 0;
 }
 
 :not(thead, tfoot) > * > td {

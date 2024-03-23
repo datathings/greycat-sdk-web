@@ -21,3 +21,4 @@ export * from './inputs/index.js';
 export * from './periodic-tasks/periodic-task-list/index.js';
 export * from './tabs/index.js';
 export * from './dashboard/index.js';
+export * from './events.js';

@@ -4,4 +4,7 @@ if (theme === null) {
   // this is mainly because PicoCSS is 'light' by default, and we want 'dark' by default
   // no matter the user-defined 'color-scheme'
   document.documentElement.setAttribute('data-theme', 'dark');
+  document.body.classList.add('sl-theme-dark');
+} else {
+  document.body.classList.add(`sl-theme-${theme}`);
 }

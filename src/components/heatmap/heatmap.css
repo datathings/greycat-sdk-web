@@ -7,6 +7,11 @@ gui-heatmap {
 
   /* color scale margin variables, can only be pixels */
   --color-scale-m-right: 40px;
+
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
 }
 
 /* tooltip */

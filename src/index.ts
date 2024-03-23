@@ -1,4 +1,5 @@
 import './reset.js';
+import './shoelace.js';
 import * as greycat from './exports.js';
 
 export * from './exports.js';
@@ -8,7 +9,7 @@ Object.assign(globalThis.greycat, greycat);
 
 declare global {
   type GreyCatExt = typeof greycat;
-  interface GreyCatGlobal extends GreyCatExt {}
+  interface GreyCatGlobal extends GreyCatExt { }
 
   interface Window {
     greycat: GreyCatGlobal;

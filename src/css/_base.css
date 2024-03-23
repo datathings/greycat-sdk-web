@@ -51,7 +51,7 @@
 
   --grid-spacing-vertical: var(--spacing);
 
-  --typography-spacing-vertical: 25px;
+  --typography-spacing-vertical: calc(var(--spacing) * 3);
 
   --range-thumb-color: var(--primary);
   --range-thumb-hover-color: var(--primary-hover);
@@ -391,7 +391,8 @@ fieldset[role='group'] {
   > input,
   > select,
   > gui-searchable-select,
-  > gui-searchable-select > input {
+  > gui-searchable-select > input,
+  > gui-input {
     box-shadow: 0 0 0 transparent;
     margin-bottom: 0;
     transition: all 0.3s;
@@ -411,7 +412,7 @@ fieldset[role='group'] {
     }
   }
 
-  > :not(label, input, select, gui-searchable-select, gui-searchable-select > input) {
+  > :not(label, input, select, gui-searchable-select, gui-searchable-select > input, gui-input) {
     display: flex;
     padding: var(--spacing);
     border: var(--border-width) solid var(--form-element-border-color);
@@ -482,8 +483,21 @@ fieldset[role='group'] {
   /** Selects every focused input */
   &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)),
   /* and every other non-focused elements when one of the input is focused */
-  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)) :where(> *:not(:focus)) {
+  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)) > :not(:focus) {
     --form-element-border-color: var(--form-element-active-border-color);
     --box-shadow: 0 0 0 var(--outline-width) var(--form-element-focus-color);
   }
+}
+
+input:not(:is([type='checkbox'], [type='radio'])),
+select,
+textarea,
+input:not(:-webkit-any([type='checkbox'], [type='radio'])) {
+  width: auto;
+  margin-bottom: 0;
+}
+
+label,
+fieldset legend {
+  margin-bottom: 0;
 }

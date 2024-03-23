@@ -1,7 +1,7 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../jsx.d.ts" />
 
-import { effect, isSignal } from './signal.js';
+import { effect, isSignal } from '@greycat/web';
 
 export const Fragment = '<></>';
 
@@ -45,7 +45,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
     for (const name of signals) {
       effect(() => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        element[name] = (props as any)[name]();
+        (element as any)[name] = (props as any)[name]();
       });
     }
     batchUpdate = true;

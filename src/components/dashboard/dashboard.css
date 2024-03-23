@@ -1,9 +1,7 @@
 @import '../../../node_modules/dockview-core/dist/styles/dockview.css';
 
 gui-dashboard {
-  display: block;
-  width: 100%;
-  overflow: hidden;
+  display: contents;
 
   .groupview > .content-container {
     display: grid !important;

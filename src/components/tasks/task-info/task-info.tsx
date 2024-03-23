@@ -2,12 +2,10 @@ import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
 
 export interface TaskInfoLike extends runtime.Task {
-  start?: core.time | null;
   progress?: number | null;
   remaining?: core.duration | null;
-  duration?: core.duration | null;
-  sub_waiting?: bigint | number | null;
-  sub_tasks_all?: bigint | number | null;
+  sub_waiting?: number | bigint | null;
+  sub_tasks_all?: number | bigint | null;
 }
 
 export class GuiTaskInfo extends HTMLElement {

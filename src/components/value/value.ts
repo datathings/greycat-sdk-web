@@ -1,4 +1,4 @@
-import { utils } from '@greycat/sdk';
+import { AbiType, utils } from '@greycat/sdk';
 import { getGlobalNumberFormat } from '../../globals.js';
 import { Disposable } from '../../internals.js';
 
@@ -243,6 +243,12 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       }
       children.appendChild(document.createTextNode(']'));
       this.replaceChildren(children);
+      return;
+    }
+
+    if (this._value instanceof AbiType) {
+      this.textContent = `<${this._value.name}>`;
+      this.title = this._value.name;
       return;
     }
 
