@@ -56,6 +56,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     ['core::char']: 'gui-input-string',
     [core.time._type]: 'gui-input-time',
     [core.duration._type]: 'gui-input-duration',
+    [core.Array._type]: 'gui-input-array',
   };
 
   private _type: AbiFunction | AbiType | undefined;
@@ -830,10 +831,10 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   connectedCallback() {
+    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
     this._inputs.forEach((input) => {
       this.appendChild(input);
     });
-    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
   }
 
   disconnectedCallback() {
@@ -858,7 +859,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
         </a>
       </div>
     );
-    this.insertBefore(elem, this.children[this.children.length - 1]);
+    this.appendChild(elem);
   }
 }
 

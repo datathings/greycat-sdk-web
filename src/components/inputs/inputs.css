@@ -31,6 +31,7 @@ gui-input-any {
 gui-input-array {
 
   >div {
+    margin-left: var(--spacing);
     display: flex;
     align-items: center;
     gap: var(--spacing);
