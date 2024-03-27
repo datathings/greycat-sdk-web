@@ -38,6 +38,17 @@ gui-input-array {
   }
 }
 
+gui-input-map {
+
+
+  >div {
+    margin-left: var(--spacing);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing);
+  }
+}
+
 .gui-input-attr-name,
 .gui-input-param-name {
   font-size: var(--sl-font-size-medium);

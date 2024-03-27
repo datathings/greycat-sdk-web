@@ -57,6 +57,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     [core.time._type]: 'gui-input-time',
     [core.duration._type]: 'gui-input-duration',
     [core.Array._type]: 'gui-input-array',
+    [core.Map._type]: 'gui-input-map',
   };
 
   private _type: AbiFunction | AbiType | undefined;
@@ -863,6 +864,73 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 }
 
+export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
+  private _inputs: Map<GuiInputAny, GuiInputAny> = new Map();
+
+  constructor() {
+    super();
+  }
+
+  get value() {
+    const map = new Map<unknown, unknown>();
+    this._inputs.forEach((input, key) => {
+      map.set(key.value, input.value);
+    });
+    return map;
+  }
+
+  set value(value: Map<unknown, unknown> | null) {
+    if (value === null) {
+      this._inputs.clear();
+    } else {
+      value.forEach((val, key) => {
+        this._addInput(key, val);
+      });
+    }
+  }
+
+  connectedCallback() {
+    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
+    this._inputs.forEach((input, _) => {
+      this.appendChild(input);
+    });
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  _addInput(key?: unknown, val?: unknown) {
+    const valInput = document.createElement('gui-input-any');
+    valInput.value = val;
+    const keyInput = document.createElement('gui-input-any');
+    keyInput.value = key;
+    this._inputs.set(keyInput, valInput);
+    const elem = (
+      <div>
+        {keyInput}
+        {valInput}
+        <a
+          onclick={() => {
+            this._inputs.delete(keyInput);
+            this.removeChild(elem);
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          &#10005;
+        </a>
+      </div>
+    );
+    valInput.addEventListener('gui-change', () => {
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    keyInput.addEventListener('gui-change', () => {
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this.appendChild(elem);
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input': GuiInput;
@@ -876,6 +944,7 @@ declare global {
     'gui-input-duration': GuiInputDuration;
     'gui-input-any': GuiInputAny;
     'gui-input-array': GuiInputArray;
+    'gui-input-map': GuiInputMap;
   }
 
   interface GuiInputEventMap {
@@ -898,6 +967,7 @@ declare global {
       'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
       'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
       'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
+      'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
     }
   }
 }
@@ -913,3 +983,4 @@ registerCustomElement('gui-input-fn', GuiInputFn);
 registerCustomElement('gui-input-duration', GuiInputDuration);
 registerCustomElement('gui-input-any', GuiInputAny);
 registerCustomElement('gui-input-array', GuiInputArray);
+registerCustomElement('gui-input-map', GuiInputMap);

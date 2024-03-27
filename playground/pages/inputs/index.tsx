@@ -48,6 +48,9 @@ document.body.appendChild(
         <gui-input-array />
       </input-viewer>
 
+      <input-viewer header="Map">
+        <gui-input-map />
+      </input-viewer>
       <input-viewer header="String">
         <gui-input value="Hello world!" />
       </input-viewer>
