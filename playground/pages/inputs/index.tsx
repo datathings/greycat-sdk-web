@@ -40,6 +40,14 @@ document.body.appendChild(
         gap: 'var(--spacing)',
       }}
     >
+      <input-viewer header="Any">
+        <gui-input-any />
+      </input-viewer>
+
+      <input-viewer header="Array">
+        <gui-input-array />
+      </input-viewer>
+
       <input-viewer header="String">
         <gui-input value="Hello world!" />
       </input-viewer>
@@ -51,6 +59,9 @@ document.body.appendChild(
       </input-viewer>
       <input-viewer header="core::time">
         <gui-input type="core::time" />
+      </input-viewer>
+      <input-viewer header="core::duration">
+        <gui-input type="core::duration" />
       </input-viewer>
       {EnumViewer()}
       <input-viewer header="Enum (value)">
@@ -64,11 +75,11 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
+
       {new MapInput('wjhatever', () => {}).element}
       {new ArrayInput('wjhatever', () => {}).element}
       {/* TODO Map */}
       {/* TODO Array */}
-      {/* TODO core::duration */}
       {/* TODO core::Date */}
     </div>
   </app-layout>,

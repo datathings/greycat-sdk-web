@@ -55,6 +55,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     ['core::String']: 'gui-input-string',
     ['core::char']: 'gui-input-string',
     [core.time._type]: 'gui-input-time',
+    [core.duration._type]: 'gui-input-duration',
   };
 
   private _type: AbiFunction | AbiType | undefined;
@@ -350,6 +351,7 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
   get value() {
     const epochMs = this._input.valueAsNumber;
+
     if (isNaN(epochMs)) {
       return null;
     }
@@ -695,6 +697,171 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   }
 }
 
+export class GuiInputDuration extends GuiInputElement<core.duration | null> {
+  private _input: SlInput;
+  private _select: GuiSearchableSelect;
+
+  constructor() {
+    super();
+
+    this._input = document.createElement('sl-input');
+    this._input.type = 'number';
+    this._input.step = 1;
+    this._input.addEventListener('sl-input', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+    this._input.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+
+    this._select = document.createElement('gui-searchable-select');
+    this._select.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this._select.placeholder = core.DurationUnit._type;
+    this._select.options = core.DurationUnit.$fields().map((v) => ({
+      text: v.key,
+      value: v.offset,
+    }));
+  }
+
+  connectedCallback() {
+    this.appendChild(this._input);
+    this.appendChild(this._select);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get value() {
+    const durationValue = this._input.valueAsNumber;
+    const durationUnit = core.DurationUnit.$fields()[this._select.value];
+
+    if (isNaN(durationValue) || !durationUnit) {
+      return null;
+    }
+
+    return core.duration.from_unit(durationValue, durationUnit);
+  }
+
+  set value(value: core.duration | null) {
+    if (value === null) {
+      this._input.value = '';
+    } else {
+      this._input.valueAsNumber = value.ms;
+    }
+  }
+}
+
+export class GuiInputAny extends GuiInputElement<unknown> {
+  private _input: GuiInput;
+  private _select: GuiSearchableSelect;
+
+  private _defaultType: AbiType | undefined;
+
+  constructor() {
+    super();
+
+    this._defaultType = greycat.default.findType('core::String');
+
+    this._input = document.createElement('gui-input');
+    this._input.type = this._defaultType;
+
+    this._select = document.createElement('gui-searchable-select');
+    this._select.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      this._input.type = greycat.default.abi.types[ev.detail];
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this._select.options = greycat.default.abi.types.map((v) => ({
+      text: v.name,
+      value: v.offset,
+    }));
+    if (this._defaultType) {
+      this._select.value = this._defaultType?.offset;
+    }
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set value(val: unknown) {
+    this._input.value = val;
+  }
+
+  connectedCallback() {
+    this.appendChild(
+      <>
+        {this._input}
+        {this._select}
+      </>,
+    );
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+}
+
+export class GuiInputArray extends GuiInputElement<unknown[] | null> {
+  private _inputs: GuiInputAny[] = [];
+
+  constructor() {
+    super();
+  }
+
+  get value() {
+    return this._inputs.map((input) => input.value);
+  }
+
+  set value(value: unknown[] | null) {
+    if (value === null) {
+      this._inputs = [];
+    } else {
+      value.forEach((val) => {
+        this._addInput(val);
+      });
+    }
+  }
+
+  connectedCallback() {
+    this._inputs.forEach((input) => {
+      this.appendChild(input);
+    });
+    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  _addInput(val?: unknown) {
+    const input = document.createElement('gui-input-any');
+    input.value = val;
+    this._inputs.push(input);
+    const elem = (
+      <div>
+        {input}
+        <a
+          onclick={() => {
+            this._inputs = this._inputs.filter((i) => i !== input);
+            this.removeChild(elem);
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          &#10005;
+        </a>
+      </div>
+    );
+    this.insertBefore(elem, this.children[this.children.length - 1]);
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input': GuiInput;
@@ -705,6 +872,9 @@ declare global {
     'gui-input-enum': GuiInputEnum;
     'gui-input-object': GuiInputObject;
     'gui-input-fn': GuiInputFn;
+    'gui-input-duration': GuiInputDuration;
+    'gui-input-any': GuiInputAny;
+    'gui-input-array': GuiInputArray;
   }
 
   interface GuiInputEventMap {
@@ -724,6 +894,9 @@ declare global {
       'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
       'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
       'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
+      'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
+      'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
+      'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
     }
   }
 }
@@ -736,3 +909,6 @@ registerCustomElement('gui-input-time', GuiInputTime);
 registerCustomElement('gui-input-enum', GuiInputEnum);
 registerCustomElement('gui-input-object', GuiInputObject);
 registerCustomElement('gui-input-fn', GuiInputFn);
+registerCustomElement('gui-input-duration', GuiInputDuration);
+registerCustomElement('gui-input-any', GuiInputAny);
+registerCustomElement('gui-input-array', GuiInputArray);

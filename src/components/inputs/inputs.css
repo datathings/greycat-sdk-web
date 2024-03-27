@@ -13,11 +13,27 @@ gui-input-fn {
   align-items: start;
   gap: var(--spacing);
 
-  > label {
+  >label {
     display: flex;
     flex-direction: column;
     align-items: end;
     gap: 2px;
+  }
+}
+
+gui-input-any {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--spacing);
+}
+
+gui-input-array {
+
+  >div {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing);
   }
 }
 
