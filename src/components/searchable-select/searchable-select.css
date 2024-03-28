@@ -13,6 +13,11 @@ gui-searchable-select {
     margin-bottom: 0;
   }
 
+  sl-icon {
+    background-size: contain;
+    background-image: var(--icon-search);
+  }
+
   .gui-searchable-select-list {
     z-index: var(--gui-searchable-select-list-z-index);
     position: absolute;

@@ -1,3 +1,4 @@
+import { SlInput } from '@shoelace-style/shoelace';
 import { getIndexInParent } from '../../utils.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
@@ -10,7 +11,7 @@ export interface SearchableOption {
 }
 
 export class GuiSearchableSelect extends HTMLElement {
-  private _input: HTMLInputElement;
+  private _input: SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
 
@@ -20,11 +21,13 @@ export class GuiSearchableSelect extends HTMLElement {
     this._options = [];
 
     // Create an input element for searching
-    this._input = document.createElement('input');
-    this._input.classList.add('gui-searchable-select-input');
+    this._input = document.createElement('sl-input');
+    // this._input.classList.add('gui-searchable-select-input');
     this._input.type = 'search';
     this._input.placeholder = 'Search...';
-
+    const icon = document.createElement('sl-icon');
+    icon.setAttribute('slot', 'prefix');
+    this._input.appendChild(icon);
     // Handle input events for filtering options
     this._input.addEventListener('input', () => {
       const query = this._input.value.toLowerCase();
