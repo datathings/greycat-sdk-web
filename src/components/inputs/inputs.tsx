@@ -773,7 +773,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   constructor() {
     super();
 
-    this._defaultType = greycat.default.findType('core::String');
+    // this._defaultType = greycat.default.findType('core::String');
 
     this._input = document.createElement('gui-input');
     this._input.type = this._defaultType;
@@ -799,6 +799,34 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
   set value(val: unknown) {
     this._input.value = val;
+
+    switch (typeof val) {
+      case 'bigint':
+      case 'number':
+        this._select.value = greycat.default.findType('core::int')?.offset;
+        break;
+      case 'boolean':
+        this._select.value = greycat.default.findType('core::bool')?.offset;
+        break;
+      case 'string':
+        this._select.value = greycat.default.findType('core::String')?.offset;
+        break;
+      case 'undefined':
+        this._select.value = greycat.default.findType('core::String')?.offset;
+        break;
+      case 'object': {
+        if (Array.isArray(val)) {
+          this._select.value = greycat.default.findType(core.Array._type)?.offset;
+        } else if (val instanceof Map) {
+          this._select.value = greycat.default.findType(core.Map._type)?.offset;
+        } else if (val instanceof GCObject) {
+          this._select.value = greycat.default.findType(val.$type.name)?.offset;
+        } else {
+          this._select.value = greycat.default.findType('core::String')?.offset;
+        }
+        break;
+      }
+    }
   }
 
   connectedCallback() {
@@ -827,20 +855,17 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   set value(value: unknown[] | null) {
-    if (value === null) {
-      this._inputs = [];
-    } else {
-      value.forEach((val) => {
-        this._addInput(val);
-      });
-    }
+    this._inputs = [];
+
+    value?.forEach((val) => {
+      this._addInput(val);
+    });
+
+    this._render();
   }
 
   connectedCallback() {
-    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
-    this._inputs.forEach((input) => {
-      this.appendChild(input);
-    });
+    this._render();
   }
 
   disconnectedCallback() {
@@ -866,6 +891,28 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
       </div>
     );
     this.appendChild(elem);
+  }
+
+  _render() {
+    this.replaceChildren();
+    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
+    this._inputs.forEach((input) => {
+      const elem = (
+        <div>
+          {input}
+          <a
+            onclick={() => {
+              this._inputs = this._inputs.filter((i) => i !== input);
+              this.removeChild(elem);
+              this.dispatchEvent(new GuiChangeEvent(this.value));
+            }}
+          >
+            &#10005;
+          </a>
+        </div>
+      );
+      this.appendChild(elem);
+    });
   }
 }
 
