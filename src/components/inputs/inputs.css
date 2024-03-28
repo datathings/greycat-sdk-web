@@ -21,13 +21,6 @@ gui-input-fn {
   }
 }
 
-gui-input-any {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: var(--spacing);
-}
-
 gui-input-array {
   >div {
     margin-left: var(--spacing);
@@ -43,6 +36,21 @@ gui-input-map {
     display: flex;
     align-items: center;
     gap: var(--spacing);
+  }
+}
+
+gui-input-duration {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  gui-input-number sl-input::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-right: none;
+  }
+
+  gui-searchable-select sl-input::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 }
 

@@ -1,4 +1,4 @@
-import { AbiFunction, AbiType, GCEnum, GCObject, core } from '@greycat/sdk';
+import { AbiFunction, AbiType, GCEnum, GCObject, core, decomposeDuration } from '@greycat/sdk';
 import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
@@ -700,20 +700,18 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 }
 
 export class GuiInputDuration extends GuiInputElement<core.duration | null> {
-  private _input: SlInput;
+  private _input: GuiInputNumber;
   private _select: GuiSearchableSelect;
 
   constructor() {
     super();
 
-    this._input = document.createElement('sl-input');
-    this._input.type = 'number';
-    this._input.step = 1;
-    this._input.addEventListener('sl-input', (ev) => {
+    this._input = document.createElement('gui-input-number');
+    this._input.addEventListener('gui-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this._input.addEventListener('sl-change', (ev) => {
+    this._input.addEventListener('gui-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -740,7 +738,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
   }
 
   get value() {
-    const durationValue = this._input.valueAsNumber;
+    const durationValue = Number(this._input.value);
     const durationUnit = core.DurationUnit.$fields()[this._select.value];
 
     if (isNaN(durationValue) || !durationUnit) {
@@ -752,9 +750,12 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
 
   set value(value: core.duration | null) {
     if (value === null) {
-      this._input.value = '';
+      this._input.value = null;
+      this._select.value = null;
     } else {
-      this._input.valueAsNumber = value.ms;
+      const [val, unit] = decomposeDuration(value);
+      this._select.value = unit;
+      this._input.value = val;
     }
   }
 }
