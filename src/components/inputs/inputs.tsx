@@ -112,6 +112,9 @@ export class GuiInput extends GuiInputElement<unknown> {
         const tagName = GuiInput.factory[this._type.name];
         if (tagName) {
           this._inner = document.createElement(tagName);
+          if (this._value !== undefined) {
+            this._inner.value = this._value;
+          }
         } else {
           const input = document.createElement('gui-input-object');
           input.type = this._type;
@@ -754,7 +757,8 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
       this._select.value = null;
     } else {
       const [val, unit] = decomposeDuration(value);
-      this._select.value = unit;
+
+      this._select.value = unit.offset;
       this._input.value = val;
     }
   }
