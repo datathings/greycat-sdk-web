@@ -29,7 +29,6 @@ gui-input-any {
 }
 
 gui-input-array {
-
   >div {
     margin-left: var(--spacing);
     display: flex;
@@ -39,8 +38,6 @@ gui-input-array {
 }
 
 gui-input-map {
-
-
   >div {
     margin-left: var(--spacing);
     display: flex;
@@ -48,6 +45,24 @@ gui-input-map {
     gap: var(--spacing);
   }
 }
+
+gui-input-any {
+  display: flex;
+  align-items: center;
+  gap: 0;
+
+  sl-input::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  gui-searchable-select sl-input::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-right: none;
+  }
+
+
+}
+
 
 .gui-input-attr-name,
 .gui-input-param-name {

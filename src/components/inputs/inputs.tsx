@@ -799,8 +799,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   connectedCallback() {
     this.appendChild(
       <>
-        {this._input}
         {this._select}
+        {this._input}
       </>,
     );
   }
