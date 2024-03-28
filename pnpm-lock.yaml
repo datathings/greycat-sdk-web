@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.2-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.2-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.3-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.3-dev.tgz'
   '@shoelace-style/shoelace':
     specifier: 2.14.0
     version: 2.14.0(@types/react@18.2.66)
@@ -23,8 +23,8 @@ devDependencies:
     specifier: 0.8.4
     version: 0.8.4
   '@greycat/lang':
-    specifier: https://get.greycat.io/files/lang/dev/7.0/7.0.5-dev.tgz
-    version: '@get.greycat.io/files/lang/dev/7.0/7.0.5-dev.tgz'
+    specifier: https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz
+    version: '@get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz'
   '@picocss/pico':
     specifier: 1.5.10
     version: 1.5.10
@@ -2931,20 +2931,20 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  '@get.greycat.io/files/lang/dev/7.0/7.0.5-dev.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/dev/7.0/7.0.5-dev.tgz}
+  '@get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz}
     name: '@greycat/lang'
-    version: 7.0.5-dev
+    version: 7.0.52-dev
     engines: {node: '>=16.17.0'}
     dependencies:
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.2-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.2-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.3-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.3-dev.tgz}
     name: '@greycat/sdk'
-    version: 7.0.2-dev
+    version: 7.0.3-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6
