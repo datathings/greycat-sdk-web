@@ -147,7 +147,6 @@ export class GuiInput extends GuiInputElement<unknown> {
         case 'object': {
           if (this._value instanceof GCEnum) {
             this._inner = document.createElement('gui-input-enum');
-            this._inner.value = this._value;
           } else if (this._value instanceof GCObject) {
             const tagName = GuiInput.factory[this._value.$type.name];
             if (tagName) {
@@ -155,13 +154,10 @@ export class GuiInput extends GuiInputElement<unknown> {
             } else {
               this._inner = document.createElement('gui-input-object');
             }
-            this._inner.value = this._value;
           } else if (Array.isArray(this._value)) {
-            // we have an 'Array' here, it should be possible to add/delete entries
-            this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
+            this._inner = document.createElement('gui-input-array');
           } else if (this._value instanceof Map) {
-            // we have a 'Map' here, it should be possible to add/delete entries
-            this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
+            this._inner = document.createElement('gui-input-map');
           } else if (this._value === null) {
             // we have a 'null' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
@@ -169,6 +165,7 @@ export class GuiInput extends GuiInputElement<unknown> {
             // we have an '{ ... }' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
           }
+          this._inner.value = this._value;
           break;
         }
         case 'string': {
@@ -799,7 +796,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
   set value(val: unknown) {
     this._input.value = val;
-
     switch (typeof val) {
       case 'bigint':
       case 'number':
