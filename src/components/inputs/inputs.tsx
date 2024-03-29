@@ -924,24 +924,22 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     this._inputs.forEach((input, key) => {
       map.set(key.value, input.value);
     });
+
     return map;
   }
 
   set value(value: Map<unknown, unknown> | null) {
-    if (value === null) {
-      this._inputs.clear();
-    } else {
-      value.forEach((val, key) => {
-        this._addInput(key, val);
-      });
-    }
+    this._inputs.clear();
+
+    value?.forEach((val, key) => {
+      this._addInput(key, val);
+    });
+
+    this.render();
   }
 
   connectedCallback() {
-    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
-    this._inputs.forEach((input, _) => {
-      this.appendChild(input);
-    });
+    this.render();
   }
 
   disconnectedCallback() {
@@ -954,6 +952,17 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     const keyInput = document.createElement('gui-input-any');
     keyInput.value = key;
     this._inputs.set(keyInput, valInput);
+
+    valInput.addEventListener('gui-change', () => {
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    keyInput.addEventListener('gui-change', () => {
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    return [keyInput, valInput];
+  }
+
+  _createMapInput(keyInput: GuiInputAny, valInput: GuiInputAny) {
     const elem = (
       <div>
         {keyInput}
@@ -969,13 +978,24 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
         </a>
       </div>
     );
-    valInput.addEventListener('gui-change', () => {
-      this.dispatchEvent(new GuiChangeEvent(this.value));
+    return elem;
+  }
+
+  override render() {
+    this.replaceChildren();
+    this.appendChild(
+      <a
+        onclick={() => {
+          const elems = this._addInput();
+          this.appendChild(this._createMapInput(elems[0], elems[1]));
+        }}
+      >
+        Add
+      </a>,
+    );
+    this._inputs.forEach((valInput, keyInput) => {
+      this.appendChild(this._createMapInput(keyInput, valInput));
     });
-    keyInput.addEventListener('gui-change', () => {
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    this.appendChild(elem);
   }
 }
 
