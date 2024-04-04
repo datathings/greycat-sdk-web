@@ -144,6 +144,7 @@ chart.config = {
     {
       type: 'line+scatter',
       yAxis: 'left',
+      plotRadius: 3,
       yCol: SCATTER_COL,
     },
     {
