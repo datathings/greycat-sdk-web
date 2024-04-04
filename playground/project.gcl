@@ -1,10 +1,6 @@
-@include("./pages/signals");
-
 use util;
 use runtime;
-use math;
 use io;
-use signals;
 
 fn main() {
   for (var i = 0; i < 15; i++) {
@@ -14,8 +10,6 @@ fn main() {
         activated: true,
       });
   }
-
-  signals_init();
 }
 
 // pages/chart start
@@ -566,4 +560,16 @@ type Sensor {
 type Link {
   name: String;
   next: Link?;
+
+  @expose
+  static fn whatever(link: node<Link>) {
+    // 
+  }
 }
+
+@expose
+fn link_whatever(l: node<Link>) {
+  // 
+}
+
+

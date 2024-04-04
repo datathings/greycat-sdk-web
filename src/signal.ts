@@ -42,7 +42,7 @@ export function effect<T>(fn: () => T): T {
   return res;
 }
 
-export function computed<T>(fn: () => T): SignalReader<T> {
+export function computed<T>(fn: () => T): Computed<T> {
   let value: T | undefined;
   const observers = new Set<() => void>();
 
@@ -68,15 +68,71 @@ export function computed<T>(fn: () => T): SignalReader<T> {
   return Object.assign(reader, { [GreyCatSignal]: true });
 }
 
-export function mapSignal<K extends keyof HTMLElementTagNameMap, T, U extends JSX.Element>(
-  tagName: K,
+export interface Id {
+  id: string;
+}
+
+/**
+ * @param signal 
+ * @param container 
+ * @param callbackfn 
+ * @returns 
+ */
+export function foreach<T extends Id, U extends Node>(
   signal: Signal<T[]>,
+  container: JSX.Element,
   callbackfn: (el: T, i: number) => U,
-): HTMLElementTagNameMap[K] {
-  const container = document.createElement(tagName);
+): JSX.Element {
+  let refs: Record<string, Node> = {};
+
   effect(() => {
-    const children = signal().map(callbackfn);
-    container.replaceChildren(...children);
+    const items = signal();
+    const newRefs: Record<string, Node> = {};
+    const children = document.createDocumentFragment();
+
+    if ((container as Element).children.length === 0) {
+      // initialization
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const id = item.id;
+        const ref = document.createComment(id);
+        newRefs[id] = ref;
+        children.appendChild(ref);
+        children.appendChild(callbackfn(items[i], i));
+      }
+      container.appendChild(children);
+    } else {
+      // update
+      for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        const id = item.id;
+        if (refs[id]) {
+          // found matching node
+          newRefs[id] = refs[id];
+        } else {
+          // create new node
+          const ref = document.createComment(id);
+          newRefs[id] = ref;
+          children.appendChild(ref);
+          children.appendChild(callbackfn(item, i));
+        }
+      }
+
+      // remove excess nodes
+      for (const id in refs) {
+        if (!(id in newRefs)) {
+          // delete no longer needed node
+          const node = refs[id];
+          container.removeChild(node.nextSibling!);
+          container.removeChild(node);
+        }
+      }
+    }
+
+    // update refs
+    refs = newRefs;
+    // update children
+    container.appendChild(children);
   });
   return container;
 }

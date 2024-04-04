@@ -1,5 +1,7 @@
-export * from './boxplot/index.js';
 export * from './common.js';
+export * from './events.js';
+// components
+export * from './boxplot/index.js';
 export * from './csv/csv-statistics/index.js';
 export * from './csv/csv-column-input/index.js';
 export * from './enum-select/index.js';
@@ -14,11 +16,9 @@ export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task-info/index.js';
 export * from './tasks/task-list/index.js';
-export * from './tasks/task-select/index.js';
 export * from './object/object.js';
 export * from './searchable-select/index.js';
 export * from './inputs/index.js';
 export * from './periodic-tasks/periodic-task-list/index.js';
 export * from './tabs/index.js';
 export * from './dashboard/index.js';
-export * from './events.js';

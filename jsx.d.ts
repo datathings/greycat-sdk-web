@@ -1,5 +1,6 @@
 declare type Signal<T> = SignalReader<T> & SignalWriter<T>;
 declare type SignalReader<T> = () => T;
+declare type Computed<T> = SignalReader<T>;
 declare type SignalWriter<T> = {
   set: (newValue: T) => void;
   update: (updater: (currValue: T) => T) => void;
@@ -11,7 +12,11 @@ declare namespace GreyCat {
     style?: Partial<CSSStyleDeclaration> | string;
   };
 
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ElementProperties & {
+  type SignalProperties<T> = {
+    [K in keyof T]: T[K] extends Function ? T[K] : T[K] | SignalReader<T[K]>;
+  };
+
+  type Element<T, EventMap = {}> = Partial<SignalProperties<Omit<T, 'children' | 'style' | 'className'>>> & ElementProperties & {
     [EVENT in keyof EventMap as `on${EVENT}`]?: (
       this: GlobalEventHandlers,
       ev: EventMap[EVENT],

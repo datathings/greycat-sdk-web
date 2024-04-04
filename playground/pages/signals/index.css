@@ -2,6 +2,20 @@ h4 {
   margin-bottom: var(--spacing);
 }
 
-.done {
-  text-decoration: line-through;
+.todo-item {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--muted-border-color);
+  user-select: none;
+
+  &:hover {
+    background-color: var(--bg-1);
+  }
+
+  &.done {
+    > span {
+      text-decoration: line-through;
+      color: var(--muted-color);
+    }
+  }
 }

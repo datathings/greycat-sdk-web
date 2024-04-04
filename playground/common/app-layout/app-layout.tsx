@@ -14,6 +14,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Chart (custom)',          href: 'chart-custom/' },
     { title: 'Chart (in-mem)',          href: 'chart-in-mem/' },
     { title: 'Chart (scatter)',         href: 'chart-scatter/' },
+    { title: 'Chart (line+scatter)',    href: 'chart-line-scatter/' },
     { title: 'Chart (step)',            href: 'chart-step/' },
     { title: 'Chart (time)',            href: 'chart-time/' },
     { title: 'Csv (analysis)',          href: 'csv-analysis/' },
@@ -64,6 +65,7 @@ export class AppLayout extends HTMLElement {
   }
 
   connectedCallback() {
+    console.log('[app-layout] connected');
     const nb_pathname_parts = window.location.pathname
       .split('/')
       .filter((s) => s.length != 0).length;
@@ -71,9 +73,13 @@ export class AppLayout extends HTMLElement {
     const buttons: HTMLElement[] = [];
 
     const main = document.createElement('main');
-    const actions = Array.from(this.querySelectorAll('[slot="action"]'));
-    this._actions.prepend(...actions);
-    main.append(...Array.from(this.childNodes));
+    const actions = this.querySelectorAll('[slot="action"]');
+    for (let i = 0; i < actions.length; i++) {
+      this._actions.prepend(actions[i]);
+    }
+    for (let i = 0; i < this.childNodes.length; i++) {
+      main.appendChild(this.childNodes[i]);
+    }
 
     this.appendChild(
       <>
@@ -114,6 +120,7 @@ export class AppLayout extends HTMLElement {
   }
 
   disconnectedCallback() {
+    console.log('[app-layout] disconnected');
     this.replaceChildren();
   }
 
