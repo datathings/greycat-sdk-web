@@ -1,4 +1,4 @@
-import { core, debugLogger } from '@greycat/sdk';
+import { core, getDebuggerLogger } from '@greycat/sdk';
 
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
@@ -226,11 +226,13 @@ export function putFileProgress(
       } else if (xhr.status === 403) {
         // forbidden
         // unauthorized
-        debugLogger(xhr.status, route);
+        const logger = getDebuggerLogger();
+        logger(xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
         // unauthorized
-        debugLogger(xhr.status, route);
+        const logger = getDebuggerLogger();
+        logger(xhr.status, route);
         g.token = undefined;
         g.unauthorizedHandler?.();
         reject(new Error(`you must be logged-in to upload files`));

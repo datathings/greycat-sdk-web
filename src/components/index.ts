@@ -14,7 +14,6 @@ export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './tasks/task-info/index.js';
 export * from './tasks/task-list/index.js';
-export * from './tasks/task-select/index.js';
 export * from './object/object.js';
 export * from './searchable-select/index.js';
 export * from './inputs/index.js';
