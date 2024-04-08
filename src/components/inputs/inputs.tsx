@@ -4,7 +4,7 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import { registerCustomElement } from '../common.js';
 import '../searchable-select/index.js';
-import type { GuiSearchableSelect } from '../searchable-select/index.js';
+import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
 export interface GuiInputConfig {
@@ -825,6 +825,14 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     }
   }
 
+  set options(options: SearchableOption[]) {
+    this._select.options = options;
+  }
+
+  get options() {
+    return this._select.options;
+  }
+
   connectedCallback() {
     this.appendChild(
       <>
@@ -915,8 +923,19 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
   private _inputs: Map<GuiInputAny, GuiInputAny> = new Map();
 
+  private allowedKeys: AbiType[] = [];
+
   constructor() {
     super();
+
+    this.allowedKeys = [
+      greycat.default.findType('core::String')!,
+      greycat.default.findType('core::int')!,
+      greycat.default.findType('core::float')!,
+      greycat.default.findType('core::char')!,
+      greycat.default.findType('core::duration')!,
+      greycat.default.findType('core::time')!,
+    ];
   }
 
   get value() {
@@ -952,6 +971,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     const keyInput = document.createElement('gui-input-any');
     keyInput.value = key;
     this._inputs.set(keyInput, valInput);
+
+    keyInput.options = this.allowedKeys.map((v) => ({
+      text: v.name,
+      value: v.offset,
+    }));
 
     valInput.addEventListener('gui-change', () => {
       this.dispatchEvent(new GuiChangeEvent(this.value));
