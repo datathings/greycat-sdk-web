@@ -160,6 +160,9 @@ export class GuiSearchableSelect extends HTMLElement {
     this.value = selected;
   }
 
+  /**
+   * The currently selected value.
+   */
   get value() {
     const items = this._list.getElementsByClassName('selected');
     if (items.length > 0) {

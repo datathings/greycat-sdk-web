@@ -1,6 +1,5 @@
 use util;
 use runtime;
-use math;
 use io;
 
 fn main() {
@@ -561,4 +560,16 @@ type Sensor {
 type Link {
   name: String;
   next: Link?;
+
+  @expose
+  static fn whatever(link: node<Link>) {
+    // 
+  }
 }
+
+@expose
+fn link_whatever(l: node<Link>) {
+  // 
+}
+
+

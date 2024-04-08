@@ -672,7 +672,7 @@ export class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
 /**
  * A column header cell.
  */
-class GuiTableHeadCell extends HTMLElement {
+export class GuiTableHeadCell extends HTMLElement {
   private _index = 0;
   private _width = 0;
   private _title = document.createElement('div');
@@ -814,7 +814,7 @@ class GuiTableHeadCell extends HTMLElement {
   }
 }
 
-class GuiTableBody extends HTMLElement {
+export class GuiTableBody extends HTMLElement {
   rowHeight = 0;
   maxVirtualRows = 0;
   virtualScroller = document.createElement('div');
@@ -935,7 +935,7 @@ class GuiTableBody extends HTMLElement {
   }
 }
 
-class GuiTableBodyRow extends HTMLElement {
+export class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
   update(
@@ -989,7 +989,7 @@ class GuiTableBodyRow extends HTMLElement {
   }
 }
 
-class GuiTableBodyCell extends HTMLElement {
+export class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
   data: Cell[] = [];

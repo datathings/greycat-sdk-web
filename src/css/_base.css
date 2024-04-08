@@ -490,9 +490,15 @@ fieldset[role='group'] {
 input:not(:is([type='checkbox'], [type='radio'])),
 select,
 textarea,
-input:not(:-webkit-any([type='checkbox'], [type='radio'])) {
-  width: auto;
+input:not(:-webkit-any([type='checkbox'], [type='radio'])),
+button {
+  width: fit-content;
   margin-bottom: 0;
+}
+
+button {
+  --form-element-spacing-vertical: 2px;
+  --form-element-spacing-horizontal: 4px;
 }
 
 label,

@@ -14,6 +14,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Chart (custom)',          href: 'chart-custom/' },
     { title: 'Chart (in-mem)',          href: 'chart-in-mem/' },
     { title: 'Chart (scatter)',         href: 'chart-scatter/' },
+    { title: 'Chart (line+scatter)',    href: 'chart-line-scatter/' },
     { title: 'Chart (step)',            href: 'chart-step/' },
     { title: 'Chart (time)',            href: 'chart-time/' },
     { title: 'Csv (analysis)',          href: 'csv-analysis/' },

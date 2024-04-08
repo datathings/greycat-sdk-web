@@ -106,7 +106,7 @@ document.body.appendChild(
               text: en.value as string,
               value: en.value as string,
             }))}
-            onsearchable-select-change={(ev) => {
+            ongui-change={(ev) => {
               tableEl.cellProps = (_, value) => ({
                 value,
                 dateFmt: new Intl.DateTimeFormat('fr-FR', {
