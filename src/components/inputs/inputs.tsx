@@ -490,6 +490,9 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
   get value() {
     if (this._type) {
+      if (this._attrs.size === 0) {
+        return null;
+      }
       const attrs: unknown[] = [];
       let index = 0;
       this._attrs.forEach((input) => {
@@ -512,8 +515,9 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
   set value(value: GCObject | null) {
     if (value === null) {
-      this._type = undefined;
+      //this._type = undefined;
       this._attrs.clear();
+      this.render();
     } else {
       if (this._type?.name === value.$type.name) {
         // the value is of the same type, so we can just update the value of the inputs
@@ -553,6 +557,21 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
+    if (this.value === null) {
+      const elem = (
+        <a
+          onclick={() => {
+            this.type = this._type;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Set
+        </a>
+      );
+      this.replaceChildren(elem);
+      return;
+    }
+
     const attrs = document.createDocumentFragment();
     let index = 0;
     this._attrs.forEach((input, name) => {
@@ -569,6 +588,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         </label>
       );
       if (attr.nullable) {
+        input.config = { nullable: true };
         attrs.append(
           label,
           <a
@@ -587,7 +607,22 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       }
       index++;
     });
+
     this.replaceChildren(attrs);
+
+    if (this.config.nullable) {
+      const elem = (
+        <a
+          onclick={() => {
+            this.value = null;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Clear
+        </a>
+      );
+      this.append(elem);
+    }
   }
 }
 
