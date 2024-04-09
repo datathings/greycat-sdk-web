@@ -58,13 +58,13 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/testing/6.10/6.10.1-testing.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/lang/testing/6.10/6.10.12-testing.tgz",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/testing/6.10/6.10.2-testing.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/testing/6.10/6.10.45-testing.tgz",
     "@picocss/pico": "1.5.10",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
