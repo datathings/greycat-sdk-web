@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/lang/testing/6.10/6.10.12-testing.tgz
-    version: '@get.greycat.io/files/lang/testing/6.10/6.10.12-testing.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.12-testing.tgz
+    version: '@get.greycat.io/files/sdk/js/testing/6.10/6.10.12-testing.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -2530,6 +2530,11 @@ packages:
     engines: {node: '>=8'}
     dev: true
 
+  /slugify@1.6.6:
+    resolution: {integrity: sha512-h+z7HKHYXj6wJU+AnS/+IH8Uh9fdcX1Lrhg1/VMdf9PwoBQXFcXiAdsy2tSK0P6gKwJLXp02r90ahUCqHk9rrw==}
+    engines: {node: '>=8.0.0'}
+    dev: false
+
   /source-map-js@1.0.2:
     resolution: {integrity: sha512-R0XvVJ9WusLiqTCEiGCmICCMplcCkIwwR11mOSD9CR5u+IXYdiseeEuXCVAjS54zqwkLcPNnmU4OeJ6tUrWhDw==}
     engines: {node: '>=0.10.0'}
@@ -2746,9 +2751,11 @@ packages:
 
   /vscode-languageserver-textdocument@1.0.11:
     resolution: {integrity: sha512-X+8T3GoiwTVlJbicx/sIAF+yuJAqz8VvwJyoMVhwEMoEKE/fkDmrqUgDMyBECcM2A2frVZIUj5HI/ErRXCfOeA==}
+    dev: true
 
   /vscode-languageserver-types@3.17.5:
     resolution: {integrity: sha512-Ld1VelNuX9pdF39h2Hgaeb5hEZM2Z3jUrrMgWQAu82jMtZp7p3vJT3BzToKtZI7NgQssZje5o0zryOrhQvzQAg==}
+    dev: true
 
   /vscode-oniguruma@1.7.0:
     resolution: {integrity: sha512-L9WMGRfrjOhgHSdOYgCt/yRMsXzLDJSL7BPrOZt73gU0iWO4mpqzqQzOz5srxqTvMBaR0XZTSrVWo4j55Rc6cA==}
@@ -2810,18 +2817,8 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  '@get.greycat.io/files/lang/testing/6.10/6.10.12-testing.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/testing/6.10/6.10.12-testing.tgz}
-    name: '@greycat/lang'
-    version: 6.10.12-testing
-    engines: {node: '>=16.17.0'}
-    dependencies:
-      vscode-languageserver-textdocument: 1.0.11
-      vscode-languageserver-types: 3.17.5
-    dev: false
-
   '@get.greycat.io/files/lang/testing/6.10/6.10.45-testing.tgz':
-    resolution: {tarball: https://get.greycat.io/files/lang/testing/6.10/6.10.45-testing.tgz}
+    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/testing/6.10/6.10.45-testing.tgz}
     name: '@greycat/lang'
     version: 6.10.45-testing
     engines: {node: '>=16.17.0'}
@@ -2829,3 +2826,12 @@ packages:
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
     dev: true
+
+  '@get.greycat.io/files/sdk/js/testing/6.10/6.10.12-testing.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.12-testing.tgz}
+    name: '@greycat/sdk'
+    version: 6.10.12-testing
+    engines: {node: '>=18'}
+    dependencies:
+      slugify: 1.6.6
+    dev: false
