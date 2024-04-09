@@ -833,6 +833,14 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     return this._select.options;
   }
 
+  get selectValue() {
+    return this._select.value;
+  }
+
+  set selectValue(value: number | null) {
+    this._select.value = value;
+  }
+
   connectedCallback() {
     this.appendChild(
       <>
@@ -877,8 +885,14 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   _addInput(val?: unknown) {
-    const input = document.createElement('gui-input-any');
+    const input = document.createElement('gui-input-any') as GuiInputAny;
     input.value = val;
+
+    const prevSelectedType = this._inputs[this._inputs.length - 1]?.selectValue;
+    if (prevSelectedType !== null) {
+      input.selectValue = prevSelectedType;
+    }
+
     this._inputs.push(input);
     const elem = (
       <div>
