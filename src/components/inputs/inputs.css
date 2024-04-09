@@ -72,32 +72,33 @@ gui-input-duration {
     border-right: none;
   }
 
-  >gui-searchable-select sl-input::part(base) {
+  gui-searchable-select sl-input::part(base) {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
   }
 }
-
-
-
 
 gui-input-any {
   display: flex;
   gap: 0;
 
-  sl-input::part(base) {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  }
 
-  gui-searchable-select:first-child sl-input::part(base) {
+  >gui-searchable-select:first-child sl-input::part(base) {
     background-color: var(--sl-color-gray-200);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     border-right: none;
   }
 
+  gui-searchable-select+gui-input {
+
+    sl-input::part(base) {
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+
+    sl-select::part(combobox) {
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+  }
 }
-
-
-
 
 .gui-input-attr-name,
 .gui-input-param-name {
