@@ -4,6 +4,8 @@ import {
   GroupPanelContentPartInitParameters,
   IContentRenderer,
   IDockviewPanel,
+  PanelUpdateEvent,
+  Parameters,
   SerializedDockview,
 } from 'dockview-core';
 
@@ -225,8 +227,17 @@ export class GuiDashboard extends HTMLElement {
 
     // instantiate component wrappers if needed
     for (const [id, props] of Object.entries(this._components)) {
-      if (dockview.panels.find((p) => p.id === id)) {
-        // panel already initialized
+      const panel = dockview.panels.find((p) => p.id === id);
+      if (panel) {
+        // panel is already in dockview
+        // update attrs
+        panel.update({
+          params: {
+            attrs: props.attrs,
+          }
+        });
+        // update the fetchers
+        this.updatePanel(panel);
         continue;
       }
 
@@ -243,6 +254,13 @@ export class GuiDashboard extends HTMLElement {
       };
 
       dockview.addPanel(options)
+    }
+
+    // cleanup old panels
+    for (const panel of dockview.panels) {
+      if (this._components[panel.id] === undefined) {
+        dockview.removePanel(panel);
+      }
     }
   }
 
@@ -284,8 +302,18 @@ class DashboardPanel implements IContentRenderer {
     this._root.appendChild(this.inner);
   }
 
+  update(event: PanelUpdateEvent<Parameters>): void {
+    for (const name in event.params.params.attrs) {
+      const value = event.params.params.attrs[name];
+      if (name in this.inner) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this.inner as any)[name] = value;
+      }
+    }
+  }
+
   focus(): void {
-      // noop
+    // noop
   }
 }
 
