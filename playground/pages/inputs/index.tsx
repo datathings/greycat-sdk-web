@@ -55,7 +55,7 @@ document.body.appendChild(
         <gui-input value="Hello world!" />
       </input-viewer>
       <input-viewer header="int | float">
-        <gui-input value={42} />
+        <gui-input value={42} config={{ nullable: true }} />
       </input-viewer>
       <input-viewer header="bool?">
         <gui-input value={false} config={{ nullable: true }} />
@@ -104,8 +104,8 @@ export class InputViewer extends HTMLElement {
     const display = document.createElement('gui-value');
     const input = this.children[0];
     display.value = input.value;
-    input.addEventListener('gui-update', () => {
-      console.log(`[gui-update][${header}]`, input.value);
+    input.addEventListener('gui-input', () => {
+      console.log(`[gui-input][${header}]`, input.value);
       display.value = input.value;
     });
     input.addEventListener('gui-change', () => {
@@ -166,6 +166,7 @@ function EnumViewer() {
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-enum');
+  input.config = { nullable: false };
   input.type = greycat.default.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(

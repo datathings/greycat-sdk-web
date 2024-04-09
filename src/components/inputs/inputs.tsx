@@ -217,6 +217,9 @@ export class GuiInputString extends GuiInputElement<string | null> {
   }
 
   get value() {
+    if (this._input.value.length === 0) {
+      return null;
+    }
     return this._input.value;
   }
 
@@ -256,6 +259,9 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   }
 
   get value() {
+    if (this._input.value.length === 0) {
+      return null;
+    }
     return this._input.valueAsNumber;
   }
 
@@ -377,9 +383,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   constructor() {
     super();
 
-    // this._label = document.createElement('label');
-    // this._label.textContent = '<enum>';
-
     this._input = document.createElement('gui-searchable-select');
     this._input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
@@ -388,12 +391,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 
   connectedCallback() {
-    // this.appendChild(
-    //   <fieldset role="group">
-    //     {this._label}
-    //     {this._input}
-    //   </fieldset>,
-    // );
     this.appendChild(this._input);
   }
 
@@ -435,6 +432,10 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     }
     this.type = value.$type;
     this._input.value = value.offset;
+  }
+
+  override render(): void {
+    this._input.config = this._config;
   }
 }
 
