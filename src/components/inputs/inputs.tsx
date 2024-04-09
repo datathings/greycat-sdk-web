@@ -147,6 +147,7 @@ export class GuiInput extends GuiInputElement<unknown> {
         case 'object': {
           if (this._value instanceof GCEnum) {
             this._inner = document.createElement('gui-input-enum');
+            this._inner.value = this._value;
           } else if (this._value instanceof GCObject) {
             const tagName = GuiInput.factory[this._value.$type.name];
             if (tagName) {
@@ -154,10 +155,13 @@ export class GuiInput extends GuiInputElement<unknown> {
             } else {
               this._inner = document.createElement('gui-input-object');
             }
+            this._inner.value = this._value;
           } else if (Array.isArray(this._value)) {
             this._inner = document.createElement('gui-input-array');
+            this._inner.value = this._value;
           } else if (this._value instanceof Map) {
             this._inner = document.createElement('gui-input-map');
+            this._inner.value = this._value;
           } else if (this._value === null) {
             // we have a 'null' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
@@ -165,7 +169,6 @@ export class GuiInput extends GuiInputElement<unknown> {
             // we have an '{ ... }' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
           }
-          this._inner.value = this._value;
           break;
         }
         case 'string': {
@@ -477,7 +480,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         });
         input.config = { nullable: attr.nullable };
 
-        input.type = greycat.default.abi.types[attr.abi_type];
+        input.value = greycat.default.abi.types[attr.abi_type];
         // SAFETY:
         // we are dealing with the attribute of the type of that 'value'
         // therefore, we have to have the properties defined on 'value'
