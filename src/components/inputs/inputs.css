@@ -38,7 +38,12 @@ gui-input-array {
     margin-left: var(--spacing);
     display: flex;
     gap: var(--spacing);
+
+    >a {
+      align-self: center;
+    }
   }
+
 }
 
 gui-input-map {
@@ -59,6 +64,10 @@ gui-input-map {
     display: flex;
     align-items: center;
     gap: var(--spacing);
+
+    >a {
+      align-self: center;
+    }
   }
 }
 
@@ -89,7 +98,6 @@ gui-input-any {
   }
 
   gui-searchable-select+gui-input {
-
     sl-input::part(base) {
       border-radius: 0 var(--border-radius) var(--border-radius) 0;
     }
