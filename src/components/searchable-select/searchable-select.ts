@@ -207,16 +207,39 @@ export class GuiSearchableSelect extends HTMLElement {
 
   set options(options: SearchableOption[]) {
     this._options = options;
-    const fragment = document.createDocumentFragment();
+    this._renderList(options);
+  }
 
-    if (this._config.nullable) {
-      this._options.unshift({ text: 'Null', value: null });
-    }
+  set config(config: GuiSearchableInputConfig) {
+    this._config = config;
+    this._renderList(this._options);
+  }
 
+  showDropdown(): void {
+    this._list.style.visibility = 'visible';
+  }
+
+  hideDropdown(): void {
+    this._list.style.visibility = 'hidden';
+  }
+
+  private _emptyList(): void {
+    const empty = document.createElement('small');
+    empty.className = 'color-muted';
+    empty.textContent = 'Empty';
+    this._list.replaceChildren(empty);
+  }
+
+  private _renderList(options: SearchableOption[]): void {
     if (options.length === 0) {
       this._emptyList();
       return;
     }
+
+    if (this._config.nullable) {
+      options.unshift({ text: 'Null', value: null });
+    }
+    const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
@@ -246,25 +269,6 @@ export class GuiSearchableSelect extends HTMLElement {
       fragment.appendChild(itemEl);
     }
     this._list.replaceChildren(fragment);
-  }
-
-  set config(config: GuiSearchableInputConfig) {
-    this._config = config;
-  }
-
-  showDropdown(): void {
-    this._list.style.visibility = 'visible';
-  }
-
-  hideDropdown(): void {
-    this._list.style.visibility = 'hidden';
-  }
-
-  private _emptyList(): void {
-    const empty = document.createElement('small');
-    empty.className = 'color-muted';
-    empty.textContent = 'Empty';
-    this._list.replaceChildren(empty);
   }
 }
 

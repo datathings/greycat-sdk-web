@@ -1,11 +1,9 @@
 import {
-  ArrayInput,
   GreyCat,
   GuiInput,
   GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
-  MapInput,
   SearchableOption,
   core,
   registerCustomElement,
@@ -64,7 +62,7 @@ document.body.appendChild(
         <gui-input type="core::time" />
       </input-viewer>
       <input-viewer header="core::duration">
-        <gui-input type="core::duration" />
+        <gui-input type="core::duration" config={{ nullable: true }} />
       </input-viewer>
       {EnumViewer()}
       <input-viewer header="Enum (value)">
@@ -78,12 +76,6 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
-
-      {new MapInput('wjhatever', () => {}).element}
-      {new ArrayInput('wjhatever', () => {}).element}
-      {/* TODO Map */}
-      {/* TODO Array */}
-      {/* TODO core::Date */}
     </div>
   </app-layout>,
 );
@@ -166,7 +158,7 @@ function EnumViewer() {
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-enum');
-  input.config = { nullable: false };
+  input.config = { nullable: true };
   input.type = greycat.default.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(

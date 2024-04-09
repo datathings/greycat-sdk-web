@@ -187,6 +187,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     }
 
     this._inner.config = this._config;
+
     this.replaceChildren(this._inner);
   }
 }
@@ -400,15 +401,15 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
   set type(type: AbiType | undefined) {
     if (type) {
-      if (this._type !== type) {
-        // type changed
-        this._type = type;
-        this._input.placeholder = this._type.name;
-        this._input.options = this._type.enum_values!.map((v) => ({
-          text: v.key,
-          value: v.offset,
-        }));
+      if (!type.is_enum) {
+        throw new Error('Type is not an enum');
       }
+      this._type = type;
+      this._input.placeholder = this._type.name;
+      this._input.options = this._type.enum_values!.map((v) => ({
+        text: v.key,
+        value: v.offset,
+      }));
     } else {
       this._type = undefined;
       this._input.placeholder = '';
@@ -702,7 +703,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
 export class GuiInputDuration extends GuiInputElement<core.duration | null> {
   private _input: GuiInputNumber;
-  private _select: GuiSearchableSelect;
+  private _select: GuiInputEnum;
 
   constructor() {
     super();
@@ -712,21 +713,17 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this._input.addEventListener('gui-input', (ev) => {
+    this._input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    this._select = document.createElement('gui-searchable-select');
+    this._select = document.createElement('gui-input-enum');
     this._select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this._select.placeholder = core.DurationUnit._type;
-    this._select.options = core.DurationUnit.$fields().map((v) => ({
-      text: v.key,
-      value: v.offset,
-    }));
+    this._select.type = greycat.default.findType('core::DurationUnit');
   }
 
   connectedCallback() {
@@ -740,7 +737,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
 
   get value() {
     const durationValue = Number(this._input.value);
-    const durationUnit = core.DurationUnit.$fields()[this._select.value];
+    const durationUnit = this._select.value as core.DurationUnit | null;
 
     if (isNaN(durationValue) || !durationUnit) {
       return null;
@@ -756,9 +753,14 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     } else {
       const [val, unit] = decomposeDuration(value);
 
-      this._select.value = unit.offset;
+      this._select.value = unit;
       this._input.value = val;
     }
+  }
+
+  override render(): void {
+    this._input.config = this.config;
+    this._select.config = this.config;
   }
 }
 
