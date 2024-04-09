@@ -23,11 +23,10 @@ greycat.default = await GreyCat.init({
 GuiInput.factory['project::Sensor'] = 'project-sensor-form';
 
 // TODO:
-//  - Map
-//  - Array
-//  - core::duration
-//  - core::Date
 //  - allow for removal of nullable attr (essentially resetting to 'null')
+//  - Validation for Maps unique keys, and char input
+//  - Validation if input not nullable, and value is null
+//  - Fix styling, example Array input with duration type
 
 document.body.appendChild(
   <app-layout title="Inputs">
