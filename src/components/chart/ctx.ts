@@ -6,6 +6,8 @@ import type {
   BarSerie,
   SerieOptions,
   LineOptions,
+  ScatterSerie,
+  LineScatterSerie,
 } from './types.js';
 import type { TableLike } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
@@ -272,7 +274,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  scatter(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  scatter(table: TableLike, serie: (ScatterSerie<unknown> | LineScatterSerie<unknown>) & SerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
@@ -297,13 +299,13 @@ export class CanvasContext {
 
       switch (serie.markerShape) {
         case 'circle':
-          this.circle(x, y, serie.width, { fill: color, color });
+          this.circle(x, y, serie.plotRadius ?? serie.width, { fill: color, color });
           break;
         case 'square':
-          this.rectangle(x, y, serie.width, serie.width, { fill: color, color });
+          this.rectangle(x, y, serie.plotRadius ?? serie.width, serie.width, { fill: color, color });
           break;
         case 'triangle':
-          this.triangle(x, y, serie.width, serie.width, { fill: color, color });
+          this.triangle(x, y, serie.plotRadius ?? serie.width, serie.width, { fill: color, color });
           break;
       }
     }
