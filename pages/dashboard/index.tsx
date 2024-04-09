@@ -1,5 +1,6 @@
-import { defineComp, greycatFetcher } from '../../src';
+import { GuiDashboard, defineComp, greycatFetcher } from '../../src';
 import '../layout';
+import './custom-comp';
 
 const app = document.createElement('app-layout');
 app.title = 'Object';
@@ -18,8 +19,7 @@ const chart = defineComp({
         scale: 'time',
       },
       yAxes: {
-        temp: {
-        },
+        temp: {},
       },
       table: { cols: [] },
       series: [
@@ -40,6 +40,9 @@ const custom1 = defineComp({
   component: 'my-custom-comp',
   title: 'Custom 1',
   position: { direction: 'right' },
+  attrs: {
+    count: 2,
+  },
 });
 
 const table = defineComp({
@@ -60,7 +63,7 @@ app.main.appendChild(
       table: ['greycatFetcher', { fqn: 'project::table' }],
     }}
     fetchers={{ greycatFetcher }}
-    updateEvery={5000}
+    // updateEvery={5000}
     ongui-dashboard-update={(ev) => {
       console.log('layout updated', ev.detail);
       // => localStorage.setItem('save', JSON.stringify(dashboard.getAttrs()));
@@ -68,41 +71,9 @@ app.main.appendChild(
   />,
 );
 
-class CustomComponent extends HTMLElement {
-  count: number = 0;
-  constructor() {
-    super();
-  }
-
-  connectedCallback(): void {
-    this.style.display = 'contents';
-
-    const counter = document.createTextNode(`${this.count}`);
-    this.appendChild(
-      <div style={{ padding: 'var(--spacing)' }}>
-        <h4>Hello from custom component</h4>
-        <span>Count: {counter}</span>
-        <button
-          onclick={() => {
-            this.count++;
-            counter.textContent = `${this.count}`;
-          }}
-        >
-          Click me
-        </button>
-      </div>,
-    );
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
-  }
-}
-
-customElements.define('my-custom-comp', CustomComponent);
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'my-custom-comp': CustomComponent;
-  }
-}
+setTimeout(() => {
+  const dashboard = app.main.children[0] as GuiDashboard;
+  const components = { custom1, table };
+  components.custom1.attrs!.count = 100;
+  dashboard.components = components;
+}, 2000);
