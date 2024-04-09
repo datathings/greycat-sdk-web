@@ -476,7 +476,8 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
           this.dispatchEvent(new GuiChangeEvent(this.value));
         });
         input.config = { nullable: attr.nullable };
-        input.value = greycat.default.abi.types[attr.abi_type];
+
+        input.type = greycat.default.abi.types[attr.abi_type];
         // SAFETY:
         // we are dealing with the attribute of the type of that 'value'
         // therefore, we have to have the properties defined on 'value'
