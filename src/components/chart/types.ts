@@ -16,6 +16,17 @@ export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'botto
 export type SerieWithOptions = Serie & SerieOptions;
 export type CurveStyle = 'linear' | 'step-after';
 
+export type SerieStyle = {
+  transparency?: number;
+  dash?: number[];
+  width?: number;
+  color?: Color | null;
+  /**Only used for area series */
+  fill?: Color | null;
+  /**Only used for area series */
+  fillTransparency?: number;
+};
+
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
@@ -189,7 +200,9 @@ export type SerieOptions = {
    * If both `markerThreshold.x` and `markerThreshold.y` the same logic applies but both must be `true` for the marker to be drawn.
    */
   markerThreshold?: { x?: number; y?: number };
+  /**@deprecated use styleMapping */
   opacity: number;
+  /**@deprecated use styleMapping */
   fillOpacity: number;
   /**
    * - `'min'`: draws the area from `yCol` to the bottom
@@ -204,6 +217,7 @@ export type SerieOptions = {
    */
   hideInTooltip: boolean;
   /**
+   * @deprecated use `styleMapping` instead
    * Maps the col values (from `colorCol`) to a color definition.
    *
    * *Returning `null` or `undefined` will make the painting use the default color of the serie*
@@ -215,6 +229,24 @@ export type SerieOptions = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
+  /**
+   * Maps the col values to be used in th styleMapping.
+   *
+   */
+  styleCol?: number;
+  /**
+   * Maps the col values (from `styleCol`) to a style definition.
+   *
+   * *Returning `null` or `undefined` will make the painting use the default style of the serie*
+   *
+   * *Not defining a `styleMapping` will use the value as-is for styling, meaning the serie's column can contain style codes directly*
+   *
+   * @param v the current cell value
+   * @returns the style used for canvas painting
+   *
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  styleMapping?: (v: any) => SerieStyle;
 };
 
 export type LineOptions = {
