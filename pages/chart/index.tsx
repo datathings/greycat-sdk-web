@@ -93,7 +93,6 @@ app.actions.prepend(
 
 const table = await greycat.default.call<core.Table>('project::chart', [150]);
 
-
 const chart = document.createElement('gui-chart');
 app.main.replaceChildren(chart);
 
@@ -122,7 +121,7 @@ chart.config = {
     left: {
       min: 0,
       max: 200,
-      format: '.2s'
+      format: '.2s',
     },
     right: {
       position: 'right',
@@ -138,8 +137,13 @@ chart.config = {
       yCol: LINE_COL,
       width: 4,
       lineTypeCol: LINE_TYPE_COL,
-      colorCol: LINE_COLOR_COL,
-      colorMapping: (v) => customColorMap[v.key as keyof typeof customColorMap],
+      styleCol: LINE_COLOR_COL,
+      styleMapping: (v) => {
+        return {
+          color: customColorMap[v.key as keyof typeof customColorMap],
+          dash: v.key === 'Dashed' ? [8, 8] : v.key === 'Dotted' ? [2, 2] : [],
+        };
+      },
     },
     {
       type: 'line+scatter',
