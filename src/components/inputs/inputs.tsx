@@ -49,10 +49,10 @@ export class GuiInput extends GuiInputElement<unknown> {
    *
    */
   static readonly factory: Record<string, GuiInputElementMap> = {
-    ['core::int']: 'gui-input-number',
-    ['core::float']: 'gui-input-number',
+    [core.int._type]: 'gui-input-number',
+    [core.float._type]: 'gui-input-number',
     ['core::bool']: 'gui-input-bool',
-    ['core::String']: 'gui-input-string',
+    [core.String._type]: 'gui-input-string',
     ['core::char']: 'gui-input-string',
     [core.time._type]: 'gui-input-time',
     [core.duration._type]: 'gui-input-duration',
@@ -762,7 +762,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this._select.type = greycat.default.findType('core::DurationUnit');
+    this._select.type = greycat.default.findType(core.DurationUnit._type);
   }
 
   connectedCallback() {
@@ -812,8 +812,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   constructor() {
     super();
 
-    // this._defaultType = greycat.default.findType('core::String');
-
     this._input = document.createElement('gui-input');
     this._input.type = this._defaultType;
 
@@ -841,16 +839,16 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     switch (typeof val) {
       case 'bigint':
       case 'number':
-        this._select.value = greycat.default.findType('core::int')?.offset;
+        this._select.value = greycat.default.findType(core.int._type)?.offset;
         break;
       case 'boolean':
         this._select.value = greycat.default.findType('core::bool')?.offset;
         break;
       case 'string':
-        this._select.value = greycat.default.findType('core::String')?.offset;
+        this._select.value = greycat.default.findType(core.String._type)?.offset;
         break;
       case 'undefined':
-        this._select.value = greycat.default.findType('core::String')?.offset;
+        this._select.value = greycat.default.findType(core.String._type)?.offset;
         break;
       case 'object': {
         if (Array.isArray(val)) {
@@ -860,7 +858,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
         } else if (val instanceof GCObject) {
           this._select.value = greycat.default.findType(val.$type.name)?.offset;
         } else {
-          this._select.value = greycat.default.findType('core::String')?.offset;
+          this._select.value = greycat.default.findType(core.String._type)?.offset;
         }
         break;
       }
@@ -985,12 +983,13 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     super();
 
     this.allowedKeys = [
-      greycat.default.findType('core::String')!,
-      greycat.default.findType('core::int')!,
-      greycat.default.findType('core::float')!,
-      greycat.default.findType('core::char')!,
-      greycat.default.findType('core::duration')!,
-      greycat.default.findType('core::time')!,
+      greycat.default.abi.type_by_fqn.get(core.String._type)!,
+      greycat.default.abi.type_by_fqn.get(core.int._type)!,
+      greycat.default.abi.type_by_fqn.get(core.float._type)!,
+      greycat.default.abi.type_by_fqn.get('core::char')!,
+      greycat.default.abi.type_by_fqn.get(core.duration._type)!,
+      greycat.default.abi.type_by_fqn.get(core.time._type)!,
+      // greycat.default.abi.type_by_fqn.get(core.node._type)!,
     ];
   }
 
