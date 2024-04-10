@@ -1,4 +1,4 @@
-import { core, debugLogger } from '@greycat/sdk';
+import { core, getDebuggerLogger } from '@greycat/sdk';
 
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
@@ -194,7 +194,7 @@ export function emptyDataElement(cssClass: string) {
 
 /**
  * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
- * 
+ *
  * @param file the File to upload
  * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
  * @param progress a callback called on progress
@@ -207,6 +207,8 @@ export function putFileProgress(
   g = greycat.default,
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
+
+  const debugLogger = getDebuggerLogger();
 
   const promise = new Promise<void>((resolve, reject) => {
     const route = `files/${filepath}`;
