@@ -1,4 +1,4 @@
-import { SlInput } from '@shoelace-style/shoelace';
+import type { SlInput } from '@shoelace-style/shoelace';
 import { getIndexInParent } from '../../utils.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
