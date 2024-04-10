@@ -65,7 +65,7 @@
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/dev/7.0/7.0.5-dev.tgz",
+    "@greycat/lang": "https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz",
     "@picocss/pico": "1.5.10",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",

@@ -1,12 +1,17 @@
 import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
 
-export interface TaskInfoLike extends runtime.Task {
+// export type TaskInfoLike = runtime.Task & runtime.TaskInfo;
+
+export type TaskInfoLike = Omit<
+  runtime.TaskInfo,
+  'progress' | 'remaining' | 'sub_waiting' | 'sub_tasks_all'
+> & {
   progress?: number | null;
   remaining?: core.duration | null;
   sub_waiting?: number | bigint | null;
   sub_tasks_all?: number | bigint | null;
-}
+};
 
 export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
@@ -137,7 +142,7 @@ export class GuiTaskInfo extends HTMLElement {
       return;
     }
     try {
-      this.task = await runtime.Task.info(this._task.user_id, this._task.task_id);
+      this.value = await runtime.Task.info(this._task.user_id, this._task.task_id);
       this._lastUpdate.textContent = new Date().toISOString();
     } catch (err) {
       this._handleError(err);

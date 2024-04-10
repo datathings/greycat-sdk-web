@@ -1138,14 +1138,19 @@ export class GuiChart extends HTMLElement {
     }
 
     // Clean Canvas bounds
-    this._ctx.ctx.clearRect(0, 0, this._canvas.width, style.margin.top);
+    // +/- 1 to prevent line being removed on upper/lower bounds, only occurs when the line is exactly on the edge on firefox
+    // Top
+    this._ctx.ctx.clearRect(0, 0, this._canvas.width, style.margin.top - 1);
+    // Bottom
     this._ctx.ctx.clearRect(
       0,
-      this._canvas.height - style.margin.bottom,
+      this._canvas.height - style.margin.bottom + 1,
       this._canvas.width,
       style.margin.bottom,
     );
+    // Left
     this._ctx.ctx.clearRect(0, 0, style.margin.left, this._canvas.height);
+    // Right
     this._ctx.ctx.clearRect(
       this._canvas.width - style.margin.right,
       0,

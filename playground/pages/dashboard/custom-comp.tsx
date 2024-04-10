@@ -1,23 +1,32 @@
 import { registerCustomElement } from '@greycat/web';
 
 class CustomComponent extends HTMLElement {
-  count: number = 0;
+  private _counter: Text;
+
   constructor() {
     super();
+
+    this._counter = document.createTextNode('0');
+  }
+
+  get count() {
+    return parseInt(this._counter.textContent as string);
+  }
+
+  set count(count: number) {
+    this._counter.textContent = `${count}`;
   }
 
   connectedCallback(): void {
     this.style.display = 'contents';
 
-    const counter = document.createTextNode(`${this.count}`);
     this.appendChild(
       <div style={{ padding: 'var(--spacing)' }}>
         <h4>Hello from custom component</h4>
-        <span>Count: {counter}</span>
+        <span>Count: {this._counter}</span>
         <button
           onclick={() => {
             this.count++;
-            counter.textContent = `${this.count}`;
           }}
         >
           Click me

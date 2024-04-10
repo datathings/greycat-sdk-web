@@ -208,8 +208,6 @@ export function putFileProgress(
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 
-  const debugLogger = getDebuggerLogger();
-
   const promise = new Promise<void>((resolve, reject) => {
     const route = `files/${filepath}`;
     xhr.open('PUT', `${g.api}/${route}`, true);
@@ -228,11 +226,13 @@ export function putFileProgress(
       } else if (xhr.status === 403) {
         // forbidden
         // unauthorized
-        debugLogger(xhr.status, route);
+        const logger = getDebuggerLogger();
+        logger(xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
         // unauthorized
-        debugLogger(xhr.status, route);
+        const logger = getDebuggerLogger();
+        logger(xhr.status, route);
         g.token = undefined;
         g.unauthorizedHandler?.();
         reject(new Error(`you must be logged-in to upload files`));

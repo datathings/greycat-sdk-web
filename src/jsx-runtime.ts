@@ -16,10 +16,6 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
   }
 
   const element = document.createElement(tagName);
-  // if (typeof props['$ref'] === 'function') {
-  //   props['$ref'](element);
-  //   delete props['$ref'];
-  // }
 
   if ('setAttrs' in element && typeof element.setAttrs === 'function') {
     // this is an internal optimisation for component that do define a one-off

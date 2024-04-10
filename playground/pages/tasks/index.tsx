@@ -1,11 +1,26 @@
-import { GreyCat, IndexedDbCache, type GuiTaskList, type GuiTaskSelect } from '@greycat/web';
+import {
+  GreyCat,
+  IndexedDbCache,
+  type GuiTaskList,
+  GuiSearchableSelect,
+  GuiInputFn,
+} from '@greycat/web';
 import '@/common';
 
 greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const select = (<gui-task-select />) as GuiTaskSelect;
+const fnInput = (<gui-input-fn />) as GuiInputFn;
+const fnSelector = (
+  <gui-searchable-select
+    placeholder="Select a function to run as a task"
+    options={greycat.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
+    ongui-change={(ev) => {
+      fnInput.type = ev.detail;
+    }}
+  />
+) as GuiSearchableSelect;
 const info = document.createElement('gui-task-info');
 info.addEventListener('gui-files-click', (ev) => {
   console.log('clicked on files', ev);
@@ -50,22 +65,21 @@ document.body.appendChild(
     <div role="list" style={{ gridTemplateRows: 'auto 1fr auto' }}>
       <article>
         <header>Create task</header>
-        <div className="container-fluid">
-          <label>Task fqn</label>
-          <div className="grid">
-            {select}
-            <button
-              onclick={async () => {
-                if (select.value !== null) {
-                  await greycat.default.call(select.value.fqn);
-                }
-                runningTasks.updateTasks();
-                taskHistory.updateTasks();
-              }}
-            >
-              Create
-            </button>
-          </div>
+        <div role="list" style={{ padding: 'var(--spacing)' }}>
+          {fnSelector}
+          {fnInput}
+          <button
+            style={{ justifySelf: 'end' }}
+            onclick={async () => {
+              if (fnSelector.value) {
+                await greycat.default.spawn(fnSelector.value.fqn, fnInput.value);
+              }
+              runningTasks.updateTasks();
+              taskHistory.updateTasks();
+            }}
+          >
+            Spawn
+          </button>
         </div>
       </article>
       <article>
