@@ -322,13 +322,13 @@ export interface BarSerie<K> extends CommonSerie<K> {
 
 export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
-  /** @deprecated This is not used. Use `width` to specify the radius of the plots */
+  /** This is not used. Use `width` to specify the radius of the plots */
   plotRadius?: never;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
-  /** @deprecated Specifies the radius of the plot in a `'line+scatter'` */
+  /** Specifies the radius of the plot in a `'line+scatter'` */
   plotRadius?: number;
 }
 

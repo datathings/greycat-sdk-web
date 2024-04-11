@@ -130,7 +130,7 @@ export class CanvasContext {
         this.ctx.stroke();
 
         // start new path type
-        this.ctx.strokeStyle = currColor!;
+        this.ctx.strokeStyle = currColor;
         this.ctx.lineWidth = lineWidth;
         this.ctx.globalAlpha = lineTransparency;
         this.ctx.setLineDash(lineDash);
@@ -291,14 +291,13 @@ export class CanvasContext {
         y = yMax;
       }
 
-      if (serie.colorCol) {
-        this.ctx.fillStyle = colorMap(table.cols[serie.colorCol][i]) ?? serie.color;
-      } else if (serie.styleCol) {
+      if (serie.styleCol) {
         const style = styleMap(table.cols[serie.styleCol]?.[i]);
         this.ctx.fillStyle = style.fill ?? serie.color;
         this.ctx.strokeStyle = style.color ?? serie.color;
         this.ctx.globalAlpha = style.opacity ?? serie.opacity;
-      } else {
+      } else if (serie.colorCol) {
+        this.ctx.fillStyle = colorMap(table.cols[serie.colorCol][i]) ?? serie.color;
         this.ctx.fillStyle = serie.color;
         this.ctx.globalAlpha = serie.opacity;
       }
@@ -343,15 +342,15 @@ export class CanvasContext {
       let fill = serie.color;
       let width = serie.width;
 
-      if (serie.colorCol) {
-        color = colorMap(table.cols[serie.colorCol][i]) ?? serie.color;
-        fill = color;
-      } else if (serie.styleCol) {
+      if (serie.styleCol) {
         const style = styleMap(table.cols[serie.styleCol][i]);
         fill = style.fill ?? serie.color;
         color = style.color ?? serie.color;
         this.ctx.globalAlpha = style.opacity ?? serie.opacity;
         width = style.width ?? serie.width;
+      } else if (serie.colorCol) {
+        color = colorMap(table.cols[serie.colorCol][i]) ?? serie.color;
+        fill = color;
       }
 
       switch (serie.markerShape) {
