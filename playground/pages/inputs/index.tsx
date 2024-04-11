@@ -69,6 +69,9 @@ document.body.appendChild(
       </input-viewer>
       {ObjectViewer()}
       <input-viewer header="Object (instance)">
+        <gui-input value={{ name: 'John', age: 42 }} />
+      </input-viewer>
+      <input-viewer header="Custom Form">
         <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />
       </input-viewer>
       <input-viewer header="Recursive type">
@@ -180,7 +183,7 @@ function EnumViewer() {
         slot="header"
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
-        <h6 style={{ margin: '0' }}>Enum (type):</h6>
+        <h6 style={{ margin: '0' }}>Enum (type)</h6>
         {typeSelector}
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>

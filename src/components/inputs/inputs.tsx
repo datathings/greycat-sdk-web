@@ -90,6 +90,9 @@ export class GuiInput extends GuiInputElement<unknown> {
 
   set value(value: unknown) {
     this._value = value;
+    if (value instanceof GCObject) {
+      this._type = value.$type;
+    }
     this.render();
   }
 
@@ -167,7 +170,8 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
           } else {
             // we have an '{ ... }' here
-            this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
+            this._inner = document.createElement('gui-input-map');
+            this._inner.value = this._value;
           }
           break;
         }
@@ -480,7 +484,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         });
         input.config = { nullable: attr.nullable };
 
-        input.value = greycat.default.abi.types[attr.abi_type];
+        // input.value = greycat.default.abi.types[attr.abi_type];
         // SAFETY:
         // we are dealing with the attribute of the type of that 'value'
         // therefore, we have to have the properties defined on 'value'
@@ -974,26 +978,43 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 }
 
-export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
-  private _inputs: Map<GuiInputAny, GuiInputAny> = new Map();
+export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object | null> {
+  as_object = false;
+  private _inputs: Map<GuiInputAny, GuiInputElement<unknown>> = new Map();
 
-  private allowedKeys: AbiType[] = [];
+  static ALLOWED_KEY_OPTIONS: Array<{ text: string; value: number }> = [];
 
   constructor() {
     super();
 
-    this.allowedKeys = [
-      greycat.default.abi.type_by_fqn.get(core.String._type)!,
-      greycat.default.abi.type_by_fqn.get(core.int._type)!,
-      greycat.default.abi.type_by_fqn.get(core.float._type)!,
-      greycat.default.abi.type_by_fqn.get('core::char')!,
-      greycat.default.abi.type_by_fqn.get(core.duration._type)!,
-      greycat.default.abi.type_by_fqn.get(core.time._type)!,
-      // greycat.default.abi.type_by_fqn.get(core.node._type)!,
-    ];
+    if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
+      GuiInputMap.ALLOWED_KEY_OPTIONS = [
+        { text: 'String', value: greycat.default.abi.core_string_offset },
+        { text: 'int', value: greycat.default.abi.core_int_offset },
+        { text: 'float', value: greycat.default.abi.core_float_offset },
+        { text: 'char', value: greycat.default.abi.core_char_offset },
+        { text: 'duration', value: greycat.default.abi.core_duration_offset },
+        { text: 'time', value: greycat.default.abi.core_time_offset },
+        { text: 'node', value: greycat.default.abi.core_node_offset },
+        { text: 'nodeGeo', value: greycat.default.abi.core_node_geo_offset },
+        { text: 'nodeIndex', value: greycat.default.abi.core_node_index_offset },
+        { text: 'nodeList', value: greycat.default.abi.core_node_list_offset },
+        { text: 'nodeTime', value: greycat.default.abi.core_node_time_offset },
+      ];
+    }
   }
 
   get value() {
+    if (this.as_object) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const value: Record<any, unknown> = {};
+      this._inputs.forEach((input, key) => {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        value[key.value as any] = input.value;
+      });
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return value;
+    }
     const map = new Map<unknown, unknown>();
     this._inputs.forEach((input, key) => {
       map.set(key.value, input.value);
@@ -1002,12 +1023,22 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     return map;
   }
 
-  set value(value: Map<unknown, unknown> | null) {
+  set value(value: Map<unknown, unknown> | object | null) {
     this._inputs.clear();
 
-    value?.forEach((val, key) => {
-      this._addInput(key, val);
-    });
+    if (value instanceof Map) {
+      value.forEach((val, key) => {
+        this.addEntry(key, val);
+      });
+    } else if (value == null) {
+      // noop
+    } else {
+      this.as_object = true;
+      for (const name in value) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.addEntry(name, (value as any)[name]);
+      }
+    }
 
     this.render();
   }
@@ -1020,17 +1051,15 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     this.replaceChildren();
   }
 
-  _addInput(key?: unknown, val?: unknown) {
-    const valInput = document.createElement('gui-input-any');
-    valInput.value = val;
+  addEntry(key?: unknown, val?: unknown): [GuiInputAny, GuiInputElement<unknown>] {
     const keyInput = document.createElement('gui-input-any');
     keyInput.value = key;
+    const valInput = document.createElement('gui-input-any');
+    valInput.value = val;
+
     this._inputs.set(keyInput, valInput);
 
-    keyInput.options = this.allowedKeys.map((v) => ({
-      text: v.name,
-      value: v.offset,
-    }));
+    keyInput.options = GuiInputMap.ALLOWED_KEY_OPTIONS;
 
     valInput.addEventListener('gui-change', () => {
       this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1038,10 +1067,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     keyInput.addEventListener('gui-change', () => {
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
+
     return [keyInput, valInput];
   }
 
-  _createMapInput(keyInput: GuiInputAny, valInput: GuiInputAny) {
+  private _createMapInput(keyInput: GuiInputAny, valInput: GuiInputElement<unknown>) {
     const elem = (
       <div>
         {keyInput}
@@ -1065,7 +1095,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     this.appendChild(
       <a
         onclick={() => {
-          const elems = this._addInput();
+          const elems = this.addEntry();
           this.appendChild(this._createMapInput(elems[0], elems[1]));
         }}
       >

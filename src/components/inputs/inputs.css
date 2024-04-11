@@ -29,7 +29,6 @@ gui-input-array {
   gap: var(--spacing);
 
   gui-input-any::before {
-    content: '•';
     padding: 0 var(--spacing);
     align-self: center;
   }
@@ -54,9 +53,9 @@ gui-input-map {
   gap: var(--spacing);
 
   >div::before {
-    content: '•';
     padding: 0 var(--spacing);
     align-self: center;
+    align-items: center;
   }
 
   >div {
@@ -92,7 +91,7 @@ gui-input-any {
 
 
   >gui-searchable-select:first-child sl-input::part(base) {
-    background-color: var(--sl-color-gray-200);
+    background-color: var(--sl-color-neutral-100);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
     border-right: none;
   }
