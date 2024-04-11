@@ -200,9 +200,7 @@ export type SerieOptions = {
    * If both `markerThreshold.x` and `markerThreshold.y` the same logic applies but both must be `true` for the marker to be drawn.
    */
   markerThreshold?: { x?: number; y?: number };
-  /**@deprecated use styleMapping */
   opacity: number;
-  /**@deprecated use styleMapping */
   fillOpacity: number;
   /**
    * - `'min'`: draws the area from `yCol` to the bottom
@@ -275,10 +273,12 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    */
   yAxis: K;
   /**
+   * @deprecated use `styleMapping` instead
    * offset of the column in the table to use to read lineType values for each x
    */
   lineTypeCol?: number;
   /**
+   * @deprecated use `styleMapping` instead
    * offset of the column in the table to use to read the line color values for segment
    */
   colorCol?: number;
@@ -322,13 +322,13 @@ export interface BarSerie<K> extends CommonSerie<K> {
 
 export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
-  /** This is not used. Use `width` to specify the radius of the plots */
+  /** @deprecated This is not used. Use `width` to specify the radius of the plots */
   plotRadius?: never;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
-  /** Specifies the radius of the plot in a `'line+scatter'` */
+  /** @deprecated Specifies the radius of the plot in a `'line+scatter'` */
   plotRadius?: number;
 }
 
