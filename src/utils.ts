@@ -194,7 +194,7 @@ export function emptyDataElement(cssClass: string) {
 
 /**
  * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
- * 
+ *
  * @param file the File to upload
  * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
  * @param progress a callback called on progress

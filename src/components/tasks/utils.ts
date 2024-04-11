@@ -1,4 +1,5 @@
-import { GreyCat, Value, AbiReader, runtime } from '@greycat/sdk';
+import { GreyCat, Value, AbiReader } from '@greycat/sdk';
+import { TaskInfoLike } from './task-info/task-info.js';
 
 export enum TaskStatusEnum {
   empty,
@@ -9,7 +10,7 @@ export enum TaskStatusEnum {
   ended,
 }
 
-export async function parseTaskArgs(g: GreyCat, t: runtime.TaskInfo | runtime.Task): Promise<Value[]> {
+export async function parseTaskArgs(g: GreyCat, t: TaskInfoLike): Promise<Value[]> {
   const params: Value[] = [];
 
   const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`);

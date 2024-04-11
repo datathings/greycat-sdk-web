@@ -211,8 +211,8 @@ export class GuiHeatmap extends HTMLElement {
     config: HeatmapConfig;
     value: TableLike;
   }) {
-    this._config = config;
     this._config.table = value;
+    this._config = config;
     this.compute();
     this.update();
   }
@@ -512,13 +512,13 @@ export class GuiHeatmap extends HTMLElement {
     const xScale = d3
       .scaleBand()
       .domain(xLabels)
-      .range(xRange)
+      .rangeRound(xRange)
       .paddingInner(this.config.xAxis.innerPadding ?? 0)
       .paddingOuter(this.config.xAxis.outerPadding ?? 0);
     const yScale = d3
       .scaleBand()
       .domain(yLabels)
-      .range(yRange)
+      .rangeRound(yRange)
       .paddingInner(this.config.yAxis.innerPadding ?? 0)
       .paddingOuter(this.config.yAxis.outerPadding ?? 0);
 

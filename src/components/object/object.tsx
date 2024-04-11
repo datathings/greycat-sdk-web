@@ -208,16 +208,16 @@ export class GuiObject extends HTMLElement {
             cols: [indexes, values],
             meta: [
               new std_n.core.NativeTableColumnMeta(
-                greycat.default.abi,
                 PrimitiveType.int,
-                greycat.default.abi.type_by_fqn.get('core::int')?.mapped_type_off ?? 0,
+                greycat.default.abi.type_by_fqn.get(core.int._type)?.mapped_type_off ?? 0,
+                core.int._type,
                 true,
                 'Index',
               ),
               new std_n.core.NativeTableColumnMeta(
-                greycat.default.abi,
                 PrimitiveType.undefined,
                 0,
+                undefined,
                 false,
                 'Value',
               ),

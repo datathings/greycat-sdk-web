@@ -1,4 +1,4 @@
-import { SlInput } from '@shoelace-style/shoelace';
+import type { SlInput } from '@shoelace-style/shoelace';
 import { getIndexInParent } from '../../utils.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
@@ -9,11 +9,16 @@ export interface SearchableOption {
   value?: any;
   selected?: boolean;
 }
+export interface GuiSearchableInputConfig {
+  nullable?: boolean;
+}
 
 export class GuiSearchableSelect extends HTMLElement {
   private _input: SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
+
+  protected _config: GuiSearchableInputConfig = {};
 
   constructor() {
     super();
@@ -40,17 +45,17 @@ export class GuiSearchableSelect extends HTMLElement {
         }
       });
 
-      this.showDropdown()
+      this.showDropdown();
     });
 
     this._input.addEventListener('blur', () => {
       setTimeout(() => {
-        this.hideDropdown()
+        this.hideDropdown();
       }, 0);
     });
 
     this._input.addEventListener('focus', () => {
-      this.showDropdown()
+      this.showDropdown();
     });
 
     this._input.addEventListener('click', () => {
@@ -59,7 +64,7 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
-        this.hideDropdown()
+        this.hideDropdown();
         ev.preventDefault();
       } else if (ev.key === 'Enter') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -72,12 +77,17 @@ export class GuiSearchableSelect extends HTMLElement {
         if (selectedIndex !== -1) {
           ev.preventDefault();
           const item = items[selectedIndex];
-          this._list.querySelectorAll(`div.selected`).forEach((e) => e.classList.remove('selected'));
+          this._list
+            .querySelectorAll(`div.selected`)
+            .forEach((e) => e.classList.remove('selected'));
           item.classList.add('selected');
-          this.hideDropdown()
+          this.hideDropdown();
           this._input.value = item.textContent!;
           const index = getIndexInParent(item);
-          const value = this._options[index].value === undefined ? this._options[index].text : this._options[index].value;
+          const value =
+            this._options[index].value === undefined
+              ? this._options[index].text
+              : this._options[index].value;
           this.dispatchEvent(new GuiChangeEvent(value));
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
@@ -115,7 +125,7 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-searchable-select-list');
-    this.hideDropdown()
+    this.hideDropdown();
   }
 
   connectedCallback() {
@@ -200,12 +210,39 @@ export class GuiSearchableSelect extends HTMLElement {
 
   set options(options: SearchableOption[]) {
     this._options = options;
-    const fragment = document.createDocumentFragment();
+    this._renderList(options);
+  }
 
+  set config(config: GuiSearchableInputConfig) {
+    this._config = config;
+    this._renderList(this._options);
+  }
+
+  showDropdown(): void {
+    this._list.style.visibility = 'visible';
+  }
+
+  hideDropdown(): void {
+    this._list.style.visibility = 'hidden';
+  }
+
+  private _emptyList(): void {
+    const empty = document.createElement('small');
+    empty.className = 'color-muted';
+    empty.textContent = 'Empty';
+    this._list.replaceChildren(empty);
+  }
+
+  private _renderList(options: SearchableOption[]): void {
     if (options.length === 0) {
       this._emptyList();
       return;
     }
+
+    if (this._config.nullable) {
+      options.unshift({ text: 'Null', value: null });
+    }
+    const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
@@ -227,7 +264,7 @@ export class GuiSearchableSelect extends HTMLElement {
         }
         itemEl.classList.add('selected');
         opt.selected = true;
-        this.hideDropdown()
+        this.hideDropdown();
         this._input.focus();
         this.dispatchEvent(new GuiChangeEvent(value));
       });
@@ -235,21 +272,6 @@ export class GuiSearchableSelect extends HTMLElement {
       fragment.appendChild(itemEl);
     }
     this._list.replaceChildren(fragment);
-  }
-
-  showDropdown(): void {
-    this._list.style.visibility = 'visible';
-  }
-
-  hideDropdown(): void {
-    this._list.style.visibility = 'hidden';
-  }
-
-  private _emptyList(): void {
-    const empty = document.createElement('small');
-    empty.className = 'color-muted';
-    empty.textContent = 'Empty';
-    this._list.replaceChildren(empty);
   }
 }
 
@@ -265,10 +287,7 @@ function isElementOutOfView(element: Element): boolean {
   const containerRect = parentContainer.getBoundingClientRect();
 
   // Check if the element is entirely above or below the container's view.
-  return (
-    elementRect.bottom < containerRect.top ||
-    elementRect.top > containerRect.bottom
-  );
+  return elementRect.bottom < containerRect.top || elementRect.top > containerRect.bottom;
 }
 
 declare global {

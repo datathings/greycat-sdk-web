@@ -1,11 +1,9 @@
 import {
-  ArrayInput,
   GreyCat,
   GuiInput,
   GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
-  MapInput,
   SearchableOption,
   core,
   registerCustomElement,
@@ -25,11 +23,10 @@ greycat.default = await GreyCat.init({
 GuiInput.factory['project::Sensor'] = 'project-sensor-form';
 
 // TODO:
-//  - Map
-//  - Array
-//  - core::duration
-//  - core::Date
 //  - allow for removal of nullable attr (essentially resetting to 'null')
+//  - Validation for Maps unique keys, and char input
+//  - Validation if input not nullable, and value is null
+//  - Fix styling, example Array input with duration type
 
 document.body.appendChild(
   <app-layout title="Inputs">
@@ -55,7 +52,7 @@ document.body.appendChild(
         <gui-input value="Hello world!" />
       </input-viewer>
       <input-viewer header="int | float">
-        <gui-input value={42} />
+        <gui-input value={42} config={{ nullable: true }} />
       </input-viewer>
       <input-viewer header="bool?">
         <gui-input value={false} config={{ nullable: true }} />
@@ -64,7 +61,7 @@ document.body.appendChild(
         <gui-input type="core::time" />
       </input-viewer>
       <input-viewer header="core::duration">
-        <gui-input type="core::duration" />
+        <gui-input type="core::duration" config={{ nullable: true }} />
       </input-viewer>
       {EnumViewer()}
       <input-viewer header="Enum (value)">
@@ -78,12 +75,6 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
-
-      {new MapInput('wjhatever', () => {}).element}
-      {new ArrayInput('wjhatever', () => {}).element}
-      {/* TODO Map */}
-      {/* TODO Array */}
-      {/* TODO core::Date */}
     </div>
   </app-layout>,
 );
@@ -104,8 +95,8 @@ export class InputViewer extends HTMLElement {
     const display = document.createElement('gui-value');
     const input = this.children[0];
     display.value = input.value;
-    input.addEventListener('gui-update', () => {
-      console.log(`[gui-update][${header}]`, input.value);
+    input.addEventListener('gui-input', () => {
+      console.log(`[gui-input][${header}]`, input.value);
       display.value = input.value;
     });
     input.addEventListener('gui-change', () => {
@@ -166,6 +157,7 @@ function EnumViewer() {
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-enum');
+  input.config = { nullable: true };
   input.type = greycat.default.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(

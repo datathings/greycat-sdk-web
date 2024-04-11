@@ -49,10 +49,10 @@ export class GuiInput extends GuiInputElement<unknown> {
    *
    */
   static readonly factory: Record<string, GuiInputElementMap> = {
-    ['core::int']: 'gui-input-number',
-    ['core::float']: 'gui-input-number',
+    [core.int._type]: 'gui-input-number',
+    [core.float._type]: 'gui-input-number',
     ['core::bool']: 'gui-input-bool',
-    ['core::String']: 'gui-input-string',
+    [core.String._type]: 'gui-input-string',
     ['core::char']: 'gui-input-string',
     [core.time._type]: 'gui-input-time',
     [core.duration._type]: 'gui-input-duration',
@@ -147,6 +147,7 @@ export class GuiInput extends GuiInputElement<unknown> {
         case 'object': {
           if (this._value instanceof GCEnum) {
             this._inner = document.createElement('gui-input-enum');
+            this._inner.value = this._value;
           } else if (this._value instanceof GCObject) {
             const tagName = GuiInput.factory[this._value.$type.name];
             if (tagName) {
@@ -154,10 +155,13 @@ export class GuiInput extends GuiInputElement<unknown> {
             } else {
               this._inner = document.createElement('gui-input-object');
             }
+            this._inner.value = this._value;
           } else if (Array.isArray(this._value)) {
             this._inner = document.createElement('gui-input-array');
+            this._inner.value = this._value;
           } else if (this._value instanceof Map) {
             this._inner = document.createElement('gui-input-map');
+            this._inner.value = this._value;
           } else if (this._value === null) {
             // we have a 'null' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
@@ -165,7 +169,6 @@ export class GuiInput extends GuiInputElement<unknown> {
             // we have an '{ ... }' here
             this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
           }
-          this._inner.value = this._value;
           break;
         }
         case 'string': {
@@ -187,6 +190,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     }
 
     this._inner.config = this._config;
+
     this.replaceChildren(this._inner);
   }
 }
@@ -217,6 +221,9 @@ export class GuiInputString extends GuiInputElement<string | null> {
   }
 
   get value() {
+    if (this._input.value.length === 0) {
+      return null;
+    }
     return this._input.value;
   }
 
@@ -256,6 +263,9 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   }
 
   get value() {
+    if (this._input.value.length === 0) {
+      return null;
+    }
     return this._input.valueAsNumber;
   }
 
@@ -377,9 +387,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   constructor() {
     super();
 
-    // this._label = document.createElement('label');
-    // this._label.textContent = '<enum>';
-
     this._input = document.createElement('gui-searchable-select');
     this._input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
@@ -388,12 +395,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 
   connectedCallback() {
-    // this.appendChild(
-    //   <fieldset role="group">
-    //     {this._label}
-    //     {this._input}
-    //   </fieldset>,
-    // );
     this.appendChild(this._input);
   }
 
@@ -403,15 +404,15 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
   set type(type: AbiType | undefined) {
     if (type) {
-      if (this._type !== type) {
-        // type changed
-        this._type = type;
-        this._input.placeholder = this._type.name;
-        this._input.options = this._type.enum_values!.map((v) => ({
-          text: v.key,
-          value: v.offset,
-        }));
+      if (!type.is_enum) {
+        throw new Error('Type is not an enum');
       }
+      this._type = type;
+      this._input.placeholder = this._type.name;
+      this._input.options = this._type.enum_values!.map((v) => ({
+        text: v.key,
+        value: v.offset,
+      }));
     } else {
       this._type = undefined;
       this._input.placeholder = '';
@@ -435,6 +436,10 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     }
     this.type = value.$type;
     this._input.value = value.offset;
+  }
+
+  override render(): void {
+    this._input.config = this._config;
   }
 }
 
@@ -474,6 +479,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
           this.dispatchEvent(new GuiChangeEvent(this.value));
         });
         input.config = { nullable: attr.nullable };
+
         input.value = greycat.default.abi.types[attr.abi_type];
         // SAFETY:
         // we are dealing with the attribute of the type of that 'value'
@@ -487,6 +493,9 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
   get value() {
     if (this._type) {
+      if (this._attrs.size === 0) {
+        return null;
+      }
       const attrs: unknown[] = [];
       let index = 0;
       this._attrs.forEach((input) => {
@@ -509,8 +518,9 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
   set value(value: GCObject | null) {
     if (value === null) {
-      this._type = undefined;
+      //this._type = undefined;
       this._attrs.clear();
+      this.render();
     } else {
       if (this._type?.name === value.$type.name) {
         // the value is of the same type, so we can just update the value of the inputs
@@ -550,6 +560,21 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
+    if (this.value === null) {
+      const elem = (
+        <a
+          onclick={() => {
+            this.type = this._type;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Set
+        </a>
+      );
+      this.replaceChildren(elem);
+      return;
+    }
+
     const attrs = document.createDocumentFragment();
     let index = 0;
     this._attrs.forEach((input, name) => {
@@ -566,6 +591,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         </label>
       );
       if (attr.nullable) {
+        input.config = { nullable: true };
         attrs.append(
           label,
           <a
@@ -584,7 +610,22 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       }
       index++;
     });
+
     this.replaceChildren(attrs);
+
+    if (this.config.nullable) {
+      const elem = (
+        <a
+          onclick={() => {
+            this.value = null;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Clear
+        </a>
+      );
+      this.append(elem);
+    }
   }
 }
 
@@ -701,7 +742,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
 export class GuiInputDuration extends GuiInputElement<core.duration | null> {
   private _input: GuiInputNumber;
-  private _select: GuiSearchableSelect;
+  private _select: GuiInputEnum;
 
   constructor() {
     super();
@@ -711,21 +752,17 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this._input.addEventListener('gui-input', (ev) => {
+    this._input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    this._select = document.createElement('gui-searchable-select');
+    this._select = document.createElement('gui-input-enum');
     this._select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this._select.placeholder = core.DurationUnit._type;
-    this._select.options = core.DurationUnit.$fields().map((v) => ({
-      text: v.key,
-      value: v.offset,
-    }));
+    this._select.type = greycat.default.findType(core.DurationUnit._type);
   }
 
   connectedCallback() {
@@ -739,7 +776,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
 
   get value() {
     const durationValue = Number(this._input.value);
-    const durationUnit = core.DurationUnit.$fields()[this._select.value];
+    const durationUnit = this._select.value as core.DurationUnit | null;
 
     if (isNaN(durationValue) || !durationUnit) {
       return null;
@@ -755,9 +792,14 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     } else {
       const [val, unit] = decomposeDuration(value);
 
-      this._select.value = unit.offset;
+      this._select.value = unit;
       this._input.value = val;
     }
+  }
+
+  override render(): void {
+    this._input.config = this.config;
+    this._select.config = this.config;
   }
 }
 
@@ -769,8 +811,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
   constructor() {
     super();
-
-    // this._defaultType = greycat.default.findType('core::String');
 
     this._input = document.createElement('gui-input');
     this._input.type = this._defaultType;
@@ -799,16 +839,16 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     switch (typeof val) {
       case 'bigint':
       case 'number':
-        this._select.value = greycat.default.findType('core::int')?.offset;
+        this._select.value = greycat.default.findType(core.int._type)?.offset;
         break;
       case 'boolean':
         this._select.value = greycat.default.findType('core::bool')?.offset;
         break;
       case 'string':
-        this._select.value = greycat.default.findType('core::String')?.offset;
+        this._select.value = greycat.default.findType(core.String._type)?.offset;
         break;
       case 'undefined':
-        this._select.value = greycat.default.findType('core::String')?.offset;
+        this._select.value = greycat.default.findType(core.String._type)?.offset;
         break;
       case 'object': {
         if (Array.isArray(val)) {
@@ -818,7 +858,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
         } else if (val instanceof GCObject) {
           this._select.value = greycat.default.findType(val.$type.name)?.offset;
         } else {
-          this._select.value = greycat.default.findType('core::String')?.offset;
+          this._select.value = greycat.default.findType(core.String._type)?.offset;
         }
         break;
       }
@@ -831,6 +871,14 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
   get options() {
     return this._select.options;
+  }
+
+  get selectValue() {
+    return this._select.value;
+  }
+
+  set selectValue(value: number | null) {
+    this._select.value = value;
   }
 
   connectedCallback() {
@@ -877,8 +925,14 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   _addInput(val?: unknown) {
-    const input = document.createElement('gui-input-any');
+    const input = document.createElement('gui-input-any') as GuiInputAny;
     input.value = val;
+
+    const prevSelectedType = this._inputs[this._inputs.length - 1]?.selectValue;
+    if (prevSelectedType !== null) {
+      input.selectValue = prevSelectedType;
+    }
+
     this._inputs.push(input);
     const elem = (
       <div>
@@ -929,12 +983,13 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | null> {
     super();
 
     this.allowedKeys = [
-      greycat.default.findType('core::String')!,
-      greycat.default.findType('core::int')!,
-      greycat.default.findType('core::float')!,
-      greycat.default.findType('core::char')!,
-      greycat.default.findType('core::duration')!,
-      greycat.default.findType('core::time')!,
+      greycat.default.abi.type_by_fqn.get(core.String._type)!,
+      greycat.default.abi.type_by_fqn.get(core.int._type)!,
+      greycat.default.abi.type_by_fqn.get(core.float._type)!,
+      greycat.default.abi.type_by_fqn.get('core::char')!,
+      greycat.default.abi.type_by_fqn.get(core.duration._type)!,
+      greycat.default.abi.type_by_fqn.get(core.time._type)!,
+      // greycat.default.abi.type_by_fqn.get(core.node._type)!,
     ];
   }
 
