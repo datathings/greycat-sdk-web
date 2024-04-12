@@ -581,17 +581,16 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
   override render(): void {
     if (this.value === null) {
-      const elem = (
-        <a
-          onclick={() => {
-            this.type = this._type;
-            this.dispatchEvent(new GuiChangeEvent(this.value));
-          }}
-        >
-          Set
-        </a>
-      );
-      this.replaceChildren(elem);
+      const input = document.createElement('gui-input-null');
+      input.addEventListener('gui-change', (ev) => {
+        ev.stopPropagation();
+        if (input.type instanceof AbiType) {
+          this.type = input.type;
+        }
+        this.dispatchEvent(new GuiChangeEvent(this.value));
+      });
+      input.type = this._type;
+      this.replaceChildren(input);
       return;
     }
 
