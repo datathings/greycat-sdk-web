@@ -179,7 +179,7 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           } else if (this._value === null) {
             // we have a 'null' here
-            this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
+            this._inner = document.createElement('gui-input-null'); // TODO replace with proper one
           } else {
             // we have an '{ ... }' here
             this._inner = document.createElement('gui-input-map');
@@ -811,18 +811,21 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   private _input: GuiInput;
   private _select: GuiSearchableSelect;
 
-  private _defaultType: AbiType | undefined;
-
   constructor() {
     super();
 
     this._input = document.createElement('gui-input');
-    this._input.type = this._defaultType;
 
     this._select = document.createElement('gui-searchable-select');
     this._select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
-      this._input.type = greycat.default.abi.types[ev.detail];
+      if (ev.detail === null) {
+        this._input.value = null;
+        this._input.type = undefined;
+        console.log(this._input.type);
+      } else {
+        this._input.type = greycat.default.abi.types[ev.detail];
+      }
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
@@ -839,10 +842,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     this._select.options = opts;
 
     this._select.config = { nullable: true };
-
-    if (this._defaultType) {
-      this._select.value = this._defaultType?.offset;
-    }
   }
 
   get value() {
@@ -854,26 +853,26 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     switch (typeof val) {
       case 'bigint':
       case 'number':
-        this._select.value = greycat.default.findType(core.int._type)?.offset;
+        this._select.value = greycat.default.abi.core_int_offset;
         break;
       case 'boolean':
         this._select.value = greycat.default.findType('core::bool')?.offset;
         break;
       case 'string':
-        this._select.value = greycat.default.findType(core.String._type)?.offset;
+        this._select.value = greycat.default.abi.core_string_offset;
         break;
       case 'undefined':
-        this._select.value = greycat.default.findType(core.String._type)?.offset;
+        this._select.value = undefined;
         break;
       case 'object': {
         if (Array.isArray(val)) {
-          this._select.value = greycat.default.findType(core.Array._type)?.offset;
+          this._select.value = greycat.default.abi.core_array_offset;
         } else if (val instanceof Map) {
-          this._select.value = greycat.default.findType(core.Map._type)?.offset;
+          this._select.value = greycat.default.abi.core_map_offset;
         } else if (val instanceof GCObject) {
           this._select.value = greycat.default.findType(val.$type.name)?.offset;
         } else {
-          this._select.value = greycat.default.findType(core.String._type)?.offset;
+          this._select.value = undefined;
         }
         break;
       }
@@ -1140,6 +1139,10 @@ export class GuiInputNull extends GuiInputElement<unknown> {
   }
 
   override render(): void {
+    if (this.type === undefined) {
+      this.replaceChildren();
+      return;
+    }
     this.replaceChildren(
       <a
         onclick={() => {
