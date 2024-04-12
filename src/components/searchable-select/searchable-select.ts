@@ -240,7 +240,7 @@ export class GuiSearchableSelect extends HTMLElement {
     }
 
     if (this._config.nullable) {
-      options.unshift({ text: 'Null', value: null });
+      options.unshift({ text: 'null', value: null });
     }
     const fragment = document.createDocumentFragment();
 
