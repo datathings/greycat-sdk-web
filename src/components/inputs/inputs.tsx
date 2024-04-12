@@ -475,12 +475,15 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     return this._type;
   }
 
-  set type(type: AbiType | undefined) {
+  set type(type: AbiType | string | undefined) {
     if (this._type === undefined || this._type === type) {
       // no type or same type, noop
     } else {
       // different type, we need to clear the previous attributes
       this._attrs.clear();
+    }
+    if (typeof type === 'string') {
+      type = greycat.default.findType(type);
     }
     this._type = type;
     if (this._type) {
