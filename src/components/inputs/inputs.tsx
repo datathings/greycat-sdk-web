@@ -591,12 +591,6 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
-    // if we have a type but no attributes,
-    if (this.type instanceof AbiType && this._attrs.size === 0) {
-      this.replaceChildren(<span>Unsupported type</span>);
-      return;
-    }
-
     if (this.value === null) {
       const input = document.createElement('gui-input-null');
       input.addEventListener('gui-change', (ev) => {
