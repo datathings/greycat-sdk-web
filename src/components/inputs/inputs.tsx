@@ -58,6 +58,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     [core.duration._type]: 'gui-input-duration',
     [core.Array._type]: 'gui-input-array',
     [core.Map._type]: 'gui-input-map',
+    ['core::any']: 'gui-input-any',
   };
 
   private _type: AbiFunction | AbiType | undefined;
