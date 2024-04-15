@@ -86,11 +86,11 @@ gui-input-duration {
 
   gui-input-number sl-input::part(base) {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
-    border-right: none;
   }
 
   gui-searchable-select sl-input::part(base) {
     border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-left: none;
   }
 }
 
