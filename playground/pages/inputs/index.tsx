@@ -37,6 +37,14 @@ document.body.appendChild(
         gap: 'var(--spacing)',
       }}
     >
+      <input-viewer header="core::geo">
+        <gui-input-geo />
+      </input-viewer>
+
+      <input-viewer header="core::node">
+        <gui-input-node />
+      </input-viewer>
+
       <input-viewer header="Any">
         <gui-input-any />
       </input-viewer>
