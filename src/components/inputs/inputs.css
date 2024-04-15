@@ -23,7 +23,6 @@ gui-input-fn {
 
 gui-input-array {
   border: solid 1px var(--sl-color-gray-200);
-  padding: var(--spacing);
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
@@ -33,21 +32,31 @@ gui-input-array {
     align-self: center;
   }
 
+  /* Add button */
+  >a {
+    padding: 0 var(--spacing);
+
+    &:only-child {
+      margin: auto;
+    }
+  }
+
   >div {
     margin-left: var(--spacing);
     display: flex;
     gap: var(--spacing);
+    align-items: baseline;
 
+    /* remove button */
     >a {
       align-self: center;
+      padding: 0 var(--spacing);
     }
   }
-
 }
 
 gui-input-map {
   border: solid 1px var(--sl-color-gray-200);
-  padding: var(--spacing);
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
@@ -58,14 +67,26 @@ gui-input-map {
     align-items: center;
   }
 
+  /* Add button */
+  >a {
+    padding: 0 var(--spacing);
+
+    &:only-child {
+      margin: auto;
+    }
+  }
+
   >div {
     margin-left: var(--spacing);
     display: flex;
     align-items: center;
     gap: var(--spacing);
+    align-items: baseline;
 
+    /* remove button */
     >a {
       align-self: center;
+      padding: 0 var(--spacing);
     }
   }
 }
