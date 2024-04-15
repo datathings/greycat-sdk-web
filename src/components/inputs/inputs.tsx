@@ -421,6 +421,9 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
   set type(type: AbiType | undefined) {
     if (type) {
+      if (type.name === this._type?.name) {
+        return;
+      }
       if (!type.is_enum) {
         throw new Error('Type is not an enum');
       }
@@ -451,6 +454,7 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
       this._input.value = undefined;
       return;
     }
+
     this.type = value.$type;
     this._input.value = value.offset;
   }
@@ -490,7 +494,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     if (this._type) {
       for (const attr of this._type.attrs) {
         const input = document.createElement('gui-input');
-        input.addEventListener('gui-update', (ev) => {
+        input.addEventListener('gui-input', (ev) => {
           ev.stopPropagation();
           this.dispatchEvent(new GuiInputEvent(this.value));
         });
@@ -561,7 +565,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
       for (const attr of value.$type.attrs) {
         const input = document.createElement('gui-input');
-        input.addEventListener('gui-update', (ev) => {
+        input.addEventListener('gui-input', (ev) => {
           ev.stopPropagation();
           this.dispatchEvent(new GuiInputEvent(this.value));
         });
@@ -990,7 +994,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
 export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object | null> {
   as_object = false;
-  private _inputs: Map<GuiInputAny, GuiInputElement<unknown>> = new Map();
+  private _inputs: Map<GuiInputAny, GuiInputAny> = new Map();
 
   static ALLOWED_KEY_OPTIONS: Array<{ text: string; value: number }> = [];
 
@@ -1066,6 +1070,16 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     keyInput.value = key;
     const valInput = document.createElement('gui-input-any');
     valInput.value = val;
+
+    if (key === undefined && this._inputs.size > 0) {
+      const prevKey = [...this._inputs.keys()][this._inputs.size - 1];
+      keyInput.selectValue = prevKey.selectValue;
+    }
+
+    if (val === undefined && this._inputs.size > 0) {
+      const prevVal = [...this._inputs.values()][this._inputs.size - 1];
+      valInput.selectValue = prevVal.selectValue;
+    }
 
     this._inputs.set(keyInput, valInput);
 
