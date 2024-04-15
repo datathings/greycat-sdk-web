@@ -59,6 +59,12 @@ export class GuiInput extends GuiInputElement<unknown> {
     [core.Array._type]: 'gui-input-array',
     [core.Map._type]: 'gui-input-map',
     ['core::any']: 'gui-input-any',
+    [core.geo._type]: 'gui-input-geo',
+    [core.node._type]: 'gui-input-node',
+    [core.nodeIndex._type]: 'gui-input-node',
+    [core.nodeTime._type]: 'gui-input-node',
+    [core.nodeList._type]: 'gui-input-node',
+    [core.nodeGeo._type]: 'gui-input-node',
   };
 
   private _type: AbiFunction | AbiType | undefined;
@@ -492,6 +498,8 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     }
     this._type = type;
     if (this._type) {
+      console.log('type', this._type.attrs);
+
       for (const attr of this._type.attrs) {
         const input = document.createElement('gui-input');
         input.addEventListener('gui-input', (ev) => {
@@ -1170,6 +1178,112 @@ export class GuiInputNull extends GuiInputElement<unknown> {
   }
 }
 
+export class GuiInputNode extends GuiInputElement<core.node | null> {
+  private _input: GuiInputString;
+
+  constructor() {
+    super();
+
+    this._input = document.createElement('gui-input-string');
+    this._input.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this._input.addEventListener('gui-input', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+  }
+
+  connectedCallback() {
+    this.appendChild(this._input);
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get value() {
+    if (this._input.value !== null) {
+      return core.node.fromRef(this._input.value);
+    }
+    return null;
+  }
+
+  set value(value: core.node | null) {
+    if (value === null) {
+      this._input.value = null;
+    } else {
+      this._input.value = value.ref;
+    }
+  }
+
+  override render(): void {
+    this._input.config = this.config;
+  }
+}
+
+export class GuiInputGeo extends GuiInputElement<core.geo | null> {
+  private _latInput: GuiInputNumber;
+  private _lngInput: GuiInputNumber;
+
+  constructor() {
+    super();
+
+    this._latInput = document.createElement('gui-input-number');
+    this._latInput.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this._latInput.addEventListener('gui-input', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+
+    this._lngInput = document.createElement('gui-input-number');
+    this._lngInput.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+    this._lngInput.addEventListener('gui-input', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+  }
+
+  connectedCallback() {
+    this.appendChild(
+      <>
+        <label>Latitude</label>
+        {this._latInput}
+        <label>Longitude</label>
+        {this._lngInput}
+      </>,
+    );
+  }
+
+  disconnectedCallback() {
+    this.replaceChildren();
+  }
+
+  get value() {
+    if (this._latInput.value === null || this._lngInput.value === null) {
+      return null;
+    }
+    return core.geo.fromLatLng(Number(this._latInput.value), Number(this._lngInput.value));
+  }
+
+  set value(value: core.geo | null) {
+    if (value === null) {
+      this._latInput.value = null;
+      this._lngInput.value = null;
+    } else {
+      this._latInput.value = value.lat;
+      this._lngInput.value = value.lng;
+    }
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input': GuiInput;
@@ -1185,6 +1299,8 @@ declare global {
     'gui-input-array': GuiInputArray;
     'gui-input-map': GuiInputMap;
     'gui-input-null': GuiInputNull;
+    'gui-input-node': GuiInputNode;
+    'gui-input-geo': GuiInputGeo;
   }
 
   interface GuiInputEventMap {
@@ -1209,6 +1325,8 @@ declare global {
       'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
       'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
       'gui-input-null': GreyCat.Element<GuiInputNull, GuiInputEventMap>;
+      'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
+      'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
     }
   }
 }
@@ -1226,3 +1344,5 @@ registerCustomElement('gui-input-any', GuiInputAny);
 registerCustomElement('gui-input-array', GuiInputArray);
 registerCustomElement('gui-input-map', GuiInputMap);
 registerCustomElement('gui-input-null', GuiInputNull);
+registerCustomElement('gui-input-node', GuiInputNode);
+registerCustomElement('gui-input-geo', GuiInputGeo);
