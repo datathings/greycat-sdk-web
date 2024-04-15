@@ -748,9 +748,13 @@ export class GuiChart extends HTMLElement {
           color = serie.colorMapping
             ? serie.colorMapping(this._config.table.cols[serie.colorCol][rowIdx])
             : this._config.table.cols[serie.colorCol][rowIdx];
-          if (!color) {
-            color = serie.color;
-          }
+        } else if (serie.styleCol && serie.styleMapping) {
+          color =
+            serie.styleMapping(this._config.table.cols[serie.styleCol][rowIdx]).color?.toString() ??
+            color;
+        }
+        if (!color) {
+          color = serie.color;
         }
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const createFormatter = (axis: Axis) => {

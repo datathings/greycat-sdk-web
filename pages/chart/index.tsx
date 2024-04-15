@@ -1,5 +1,6 @@
 import { core } from '@greycat/sdk';
 import '../layout';
+import { SerieStyle } from '../../src';
 
 const app = document.createElement('app-layout');
 app.title = 'Chart';
@@ -93,7 +94,6 @@ app.actions.prepend(
 
 const table = await greycat.default.call<core.Table>('project::chart', [150]);
 
-
 const chart = document.createElement('gui-chart');
 app.main.replaceChildren(chart);
 
@@ -101,12 +101,19 @@ const LINE_COL = 0;
 const SCATTER_COL = 1;
 const AREA_COL = 2;
 const BAR_COL = 3;
-const LINE_TYPE_COL = 4;
-const LINE_COLOR_COL = 5;
-const customColorMap = {
-  Low: 'red',
-  Medium: 'blue',
-  High: null,
+const STYLE_COL = 5;
+
+const styleMapping: Record<string, SerieStyle> = {
+  Low: {
+    color: 'red',
+    dash: [2, 2],
+  },
+  Medium: {
+    color: 'blue',
+  },
+  High: {
+    dash: [8, 8],
+  },
 };
 
 chart.config = {
@@ -122,7 +129,7 @@ chart.config = {
     left: {
       min: 0,
       max: 200,
-      format: '.2s'
+      format: '.2s',
     },
     right: {
       position: 'right',
@@ -137,9 +144,8 @@ chart.config = {
       yAxis: 'left',
       yCol: LINE_COL,
       width: 4,
-      lineTypeCol: LINE_TYPE_COL,
-      colorCol: LINE_COLOR_COL,
-      colorMapping: (v) => customColorMap[v.key as keyof typeof customColorMap],
+      styleCol: STYLE_COL,
+      styleMapping: (v) => styleMapping[v.key],
     },
     {
       type: 'line+scatter',
