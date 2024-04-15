@@ -126,6 +126,8 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           }
         } else {
+          console.log('No factory for', this._type.name, this.config.nullable);
+
           if (this.config.nullable && this._value === undefined) {
             const input = document.createElement('gui-input-null');
             input.addEventListener('gui-change', (ev) => {
@@ -591,10 +593,18 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
+    // if we have a type but no attributes,
+    if (this.type instanceof AbiType && this._attrs.size === 0) {
+      this.replaceChildren(<span>Unsupported type</span>);
+      return;
+    }
+
     if (this.value === null) {
       const input = document.createElement('gui-input-null');
       input.addEventListener('gui-change', (ev) => {
         ev.stopPropagation();
+        console.log(input.type);
+
         if (input.type instanceof AbiType) {
           this.type = input.type;
         }
@@ -844,6 +854,14 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       () => ({}) as SearchableOption,
     );
     for (let index = 1; index < greycat.default.abi.types.length; index++) {
+      if (
+        greycat.default.abi.types[index].name[0] === ':' ||
+        (greycat.default.abi.types[index].attrs.length === 0 &&
+          GuiInput.factory[greycat.default.abi.types[index].name] === undefined)
+      ) {
+        continue;
+      }
+
       const t = greycat.default.abi.types[index];
       opts[index - 1].text = t.name;
       opts[index - 1].value = t.offset;
