@@ -126,8 +126,6 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           }
         } else {
-          console.log('No factory for', this._type.name, this.config.nullable);
-
           if (this.config.nullable && this._value === undefined) {
             const input = document.createElement('gui-input-null');
             input.addEventListener('gui-change', (ev) => {
@@ -603,8 +601,6 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       const input = document.createElement('gui-input-null');
       input.addEventListener('gui-change', (ev) => {
         ev.stopPropagation();
-        console.log(input.type);
-
         if (input.type instanceof AbiType) {
           this.type = input.type;
         }
