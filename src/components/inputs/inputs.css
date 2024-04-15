@@ -6,7 +6,7 @@ gui-input-enum {
   display: contents;
 }
 
-gui-input-geo gui-input-fn {
+gui-input-fn {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -17,6 +17,17 @@ gui-input-geo gui-input-fn {
     flex-direction: column;
     align-items: end;
     gap: 2px;
+  }
+}
+
+gui-input-geo {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--spacing);
+
+  >label {
+    align-self: center;
   }
 }
 
