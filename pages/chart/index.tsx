@@ -1,5 +1,6 @@
 import { core } from '@greycat/sdk';
 import '../layout';
+import { SerieStyle } from '../../src';
 
 const app = document.createElement('app-layout');
 app.title = 'Chart';
@@ -100,12 +101,19 @@ const LINE_COL = 0;
 const SCATTER_COL = 1;
 const AREA_COL = 2;
 const BAR_COL = 3;
-const LINE_TYPE_COL = 4;
-const LINE_COLOR_COL = 5;
-const customColorMap = {
-  Low: 'red',
-  Medium: 'blue',
-  High: null,
+const STYLE_COL = 5;
+
+const styleMapping: Record<string, SerieStyle> = {
+  Low: {
+    color: 'red',
+    dash: [2, 2],
+  },
+  Medium: {
+    color: 'blue',
+  },
+  High: {
+    dash: [8, 8],
+  },
 };
 
 chart.config = {
@@ -136,14 +144,8 @@ chart.config = {
       yAxis: 'left',
       yCol: LINE_COL,
       width: 4,
-      lineTypeCol: LINE_TYPE_COL,
-      styleCol: LINE_COLOR_COL,
-      styleMapping: (v) => {
-        return {
-          color: customColorMap[v.key as keyof typeof customColorMap],
-          dash: v.key === 'Dashed' ? [8, 8] : v.key === 'Dotted' ? [2, 2] : [],
-        };
-      },
+      styleCol: STYLE_COL,
+      styleMapping: (v) => styleMapping[v.key],
     },
     {
       type: 'line+scatter',
