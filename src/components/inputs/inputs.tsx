@@ -954,9 +954,9 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     const input = document.createElement('gui-input-any') as GuiInputAny;
     input.value = val;
 
-    const prevSelectedType = this._inputs[this._inputs.length - 1]?.selectValue;
+    const prevSelectedType = this._inputs[this._inputs.length - 1]?.value;
     if (prevSelectedType !== null) {
-      input.selectValue = prevSelectedType;
+      input.value = prevSelectedType;
     }
 
     this._inputs.push(input);
@@ -1081,12 +1081,12 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
     if (key === undefined && this._inputs.size > 0) {
       const prevKey = [...this._inputs.keys()][this._inputs.size - 1];
-      keyInput.selectValue = prevKey.selectValue;
+      keyInput.value = prevKey.value;
     }
 
     if (val === undefined && this._inputs.size > 0) {
       const prevVal = [...this._inputs.values()][this._inputs.size - 1];
-      valInput.selectValue = prevVal.selectValue;
+      valInput.value = prevVal.value;
     }
 
     this._inputs.set(keyInput, valInput);
