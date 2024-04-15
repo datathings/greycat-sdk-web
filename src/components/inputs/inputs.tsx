@@ -822,7 +822,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       if (ev.detail === null) {
         this._input.value = null;
         this._input.type = undefined;
-        console.log(this._input.type);
       } else {
         this._input.type = greycat.default.abi.types[ev.detail];
       }
@@ -841,7 +840,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
     this._select.options = opts;
 
-    this._select.config = { nullable: true };
+    this._select.config = { nullable: this.config.nullable };
   }
 
   get value() {
@@ -1069,6 +1068,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
     this._inputs.set(keyInput, valInput);
 
+    keyInput.config = { nullable: false };
     keyInput.options = GuiInputMap.ALLOWED_KEY_OPTIONS;
 
     valInput.addEventListener('gui-change', () => {
