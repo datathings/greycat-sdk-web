@@ -215,7 +215,9 @@ export class GuiSearchableSelect extends HTMLElement {
 
   set config(config: GuiSearchableInputConfig) {
     this._config = config;
+    const tmpValue = this.value;
     this._renderList(this._options);
+    this.value = tmpValue;
   }
 
   showDropdown(): void {
