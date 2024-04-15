@@ -626,7 +626,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       index++;
     });
 
-    this.replaceChildren(attrs);
+    this.replaceChildren(<div>{attrs}</div>);
 
     if (this.config.nullable) {
       const elem = (
@@ -636,7 +636,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
             this.dispatchEvent(new GuiChangeEvent(this.value));
           }}
         >
-          Clear
+          &#10005;
         </a>
       );
       this.append(elem);

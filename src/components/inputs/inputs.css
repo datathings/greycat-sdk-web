@@ -6,9 +6,7 @@ gui-input-enum {
   display: contents;
 }
 
-gui-input-object,
-gui-input-geo,
-gui-input-fn {
+gui-input-geo gui-input-fn {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;
@@ -19,6 +17,28 @@ gui-input-fn {
     flex-direction: column;
     align-items: end;
     gap: 2px;
+  }
+}
+
+gui-input-object {
+  display: flex;
+
+  >a {
+    padding: 0 var(--spacing);
+  }
+
+  >div {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--spacing);
+
+    >label {
+      display: flex;
+      flex-direction: column;
+      align-items: end;
+      gap: 2px;
+    }
   }
 }
 
