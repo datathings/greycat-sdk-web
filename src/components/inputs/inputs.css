@@ -89,7 +89,6 @@ gui-input-any {
   display: flex;
   gap: 0;
 
-
   >gui-searchable-select:first-child sl-input::part(base) {
     background-color: var(--sl-color-neutral-100);
     border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -97,8 +96,16 @@ gui-input-any {
   }
 
   gui-searchable-select+gui-input {
-    sl-input::part(base) {
-      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    &:not(:has(gui-input-duration)) {
+      sl-input::part(base) {
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      }
+    }
+
+    &:has(gui-input-duration) {
+      gui-input-duration sl-input::part(base) {
+        border-radius: 0 0 0 0;
+      }
     }
 
     sl-select::part(combobox) {
