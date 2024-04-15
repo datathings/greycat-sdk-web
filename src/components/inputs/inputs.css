@@ -105,8 +105,12 @@ gui-input-any {
   }
 
   gui-searchable-select+gui-input {
-    &:not(:has(gui-input-array, gui-input-map)) {
+    &:not(:has(gui-input-array, gui-input-map, gui-input-object)) {
       sl-input::part(base) {
+        border-left: none;
+      }
+
+      sl-select::part(combobox) {
         border-left: none;
       }
     }
