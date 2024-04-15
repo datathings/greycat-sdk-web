@@ -624,6 +624,8 @@ export class GuiChart extends HTMLElement {
         }
       }
 
+      const tooltipSerieData: SerieData[] = [];
+
       // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
         const serie: Serie & SerieOptions = {
@@ -803,42 +805,16 @@ export class GuiChart extends HTMLElement {
             this._tooltip.append(nameEl, valueEl);
           }
         }
+
+        tooltipSerieData.push({ xValue, yValue, rowIdx, ...serie } as SerieData);
       }
 
-      // ain't gonna be more than a few series, using .map is fine here
-      const data: SerieData[] = this._config.series.map((s, i) => {
-        const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(
-          this._config,
-          s,
-          this._cursor,
-          xScale,
-          yScales[s.yAxis],
-          v,
-        );
-
-        return {
-          color: this._colors[i],
-          width: 1,
-          markerWidth: 3,
-          markerShape: 'circle',
-          markerColor: this._config.series[i].color ?? this._colors[i],
-          opacity: 1,
-          fillOpacity: 0.2,
-          yCol2: 'min',
-          xValue,
-          yValue: this._config.table.cols?.[s.yCol]?.[rowIdx],
-          rowIdx,
-          hideInTooltip: false,
-          ...s,
-        } satisfies SerieData;
-      });
       // we need to give a clone of the cursor because we don't want users to mutate our own version of it
       const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
-      this._config.tooltip?.render?.(data, cursor);
+      this._config.tooltip?.render?.(tooltipSerieData, cursor);
       // dispatch event
-      this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+      this.dispatchEvent(new GuiChartCursorEvent(tooltipSerieData, cursor));
     } else {
       if (this._canvasEntered) {
         this._canvasEntered = false;
