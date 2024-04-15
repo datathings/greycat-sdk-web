@@ -16,6 +16,17 @@ export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'botto
 export type SerieWithOptions = Serie & SerieOptions;
 export type CurveStyle = 'linear' | 'step-after';
 
+export type SerieStyle = {
+  transparency?: number;
+  dash?: number[];
+  width?: number;
+  color?: Color | null;
+  /**Only used for area series */
+  fill?: Color | null;
+  /**Only used for area series */
+  fillTransparency?: number;
+};
+
 // we don't care about the type here, it is user-defined
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
@@ -204,6 +215,7 @@ export type SerieOptions = {
    */
   hideInTooltip: boolean;
   /**
+   * @deprecated use `styleMapping` instead
    * Maps the col values (from `colorCol`) to a color definition.
    *
    * *Returning `null` or `undefined` will make the painting use the default color of the serie*
@@ -215,6 +227,24 @@ export type SerieOptions = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
+  /**
+   * Maps the col values to be used in th styleMapping.
+   *
+   */
+  styleCol?: number;
+  /**
+   * Maps the col values (from `styleCol`) to a style definition.
+   *
+   * *Returning `null` or `undefined` will make the painting use the default style of the serie*
+   *
+   * *Not defining a `styleMapping` will use the value as-is for styling, meaning the serie's column can contain style codes directly*
+   *
+   * @param v the current cell value
+   * @returns the style used for canvas painting
+   *
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  styleMapping?: (v: any) => SerieStyle;
 };
 
 export type LineOptions = {
@@ -243,10 +273,12 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    */
   yAxis: K;
   /**
+   * @deprecated use `styleMapping` instead
    * offset of the column in the table to use to read lineType values for each x
    */
   lineTypeCol?: number;
   /**
+   * @deprecated use `styleMapping` instead
    * offset of the column in the table to use to read the line color values for segment
    */
   colorCol?: number;
@@ -290,10 +322,14 @@ export interface BarSerie<K> extends CommonSerie<K> {
 
 export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
+  /** This is not used. Use `width` to specify the radius of the plots */
+  plotRadius?: never;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
+  /** Specifies the radius of the plot in a `'line+scatter'` */
+  plotRadius?: number;
 }
 
 export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {
