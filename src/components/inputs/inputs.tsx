@@ -899,12 +899,18 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     return this._select.options;
   }
 
-  get selectValue() {
-    return this._select.value;
+  get type() {
+    if (this._select.value === null) {
+      return null;
+    }
+    return greycat.default.abi.types[this._select.value];
   }
 
-  set selectValue(value: number | null) {
-    this._select.value = value;
+  set type(value: AbiType | null) {
+    if (value !== null) {
+      this._select.value = value.offset;
+      this._input.type = value;
+    }
   }
 
   connectedCallback() {
@@ -935,6 +941,8 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   set value(value: unknown[] | null) {
     this._inputs = [];
 
+    console.log('value', value);
+
     value?.forEach((val) => {
       this._addInput(val);
     });
@@ -952,11 +960,16 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   _addInput(val?: unknown) {
     const input = document.createElement('gui-input-any') as GuiInputAny;
-    input.value = val;
+    console.log(val);
 
-    const prevSelectedType = this._inputs[this._inputs.length - 1]?.value;
-    if (prevSelectedType !== null) {
-      input.value = prevSelectedType;
+    if (val === undefined && this._inputs.length > 0) {
+      const prevInput = this._inputs[this._inputs.length - 1];
+
+      if (prevInput.type !== null) {
+        input.type = prevInput.type;
+      }
+    } else {
+      input.value = val;
     }
 
     this._inputs.push(input);
@@ -1080,13 +1093,17 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     valInput.value = val;
 
     if (key === undefined && this._inputs.size > 0) {
-      const prevKey = [...this._inputs.keys()][this._inputs.size - 1];
-      keyInput.value = prevKey.value;
+      const prevKyeInput = [...this._inputs.keys()][this._inputs.size - 1];
+      if (prevKyeInput.type !== null) {
+        keyInput.type = prevKyeInput.type;
+      }
     }
 
     if (val === undefined && this._inputs.size > 0) {
-      const prevVal = [...this._inputs.values()][this._inputs.size - 1];
-      valInput.value = prevVal.value;
+      const prevValInput = [...this._inputs.values()][this._inputs.size - 1];
+      if (prevValInput.type !== null) {
+        valInput.type = prevValInput.type;
+      }
     }
 
     this._inputs.set(keyInput, valInput);
