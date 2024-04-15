@@ -498,8 +498,6 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     }
     this._type = type;
     if (this._type) {
-      console.log('type', this._type.attrs);
-
       for (const attr of this._type.attrs) {
         const input = document.createElement('gui-input');
         input.addEventListener('gui-input', (ev) => {
@@ -941,8 +939,6 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   set value(value: unknown[] | null) {
     this._inputs = [];
 
-    console.log('value', value);
-
     value?.forEach((val) => {
       this._addInput(val);
     });
@@ -960,7 +956,6 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   _addInput(val?: unknown) {
     const input = document.createElement('gui-input-any') as GuiInputAny;
-    console.log(val);
 
     if (val === undefined && this._inputs.length > 0) {
       const prevInput = this._inputs[this._inputs.length - 1];
