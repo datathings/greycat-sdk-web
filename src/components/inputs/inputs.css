@@ -75,7 +75,6 @@ gui-input-array {
 
     /* remove button */
     >a {
-      align-self: center;
       padding: 0 var(--spacing);
     }
   }
@@ -104,7 +103,6 @@ gui-input-map {
 
     /* remove button */
     >a {
-      align-self: center;
       padding: 0 var(--spacing);
     }
   }
