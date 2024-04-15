@@ -907,7 +907,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   }
 
   set type(value: AbiType | null) {
-    if (value !== null) {
+    if (value) {
       this._select.value = value.offset;
       this._input.type = value;
     }
