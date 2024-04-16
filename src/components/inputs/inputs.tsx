@@ -801,6 +801,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     super();
 
     this._input = document.createElement('gui-input');
+    this._input.value = null;
 
     this._select = document.createElement('gui-searchable-select');
     this._select.addEventListener('gui-change', (ev) => {
