@@ -60,16 +60,16 @@ document.body.appendChild(
         <gui-input value="Hello world!" />
       </input-viewer>
       <input-viewer header="int | float">
-        <gui-input value={42} config={{ nullable: true }} />
+        <gui-input value={42} />
       </input-viewer>
-      <input-viewer header="bool?">
-        <gui-input value={false} config={{ nullable: true }} />
+      <input-viewer header="bool">
+        <gui-input value={false} />
       </input-viewer>
       <input-viewer header="core::time">
         <gui-input type="core::time" />
       </input-viewer>
       <input-viewer header="core::duration">
-        <gui-input type="core::duration" config={{ nullable: true }} />
+        <gui-input type="core::duration" />
       </input-viewer>
       {EnumViewer()}
       <input-viewer header="Enum (value)">
@@ -115,10 +115,18 @@ export class InputViewer extends HTMLElement {
       display.value = input.value;
     });
 
+    const slCheckbox = document.createElement('sl-checkbox');
+    slCheckbox.textContent = 'Nullable';
+    slCheckbox.addEventListener('sl-change', (e) => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      input.config = { nullable: (e.target as any).checked };
+    });
+
     this.appendChild(
       <sl-card>
-        <h6 slot="header" style={{ margin: '0' }}>
+        <h6 slot="header" style={{ margin: '0', display: 'flex', justifyContent: 'space-between' }}>
           {header}
+          {slCheckbox}
         </h6>
         <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
           {input}
