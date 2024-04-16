@@ -931,6 +931,11 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   disconnectedCallback() {
     this.replaceChildren();
   }
+
+  override render(): void {
+    this._input.config = this.config;
+    this._select.config = this.config;
+  }
 }
 
 export class GuiInputArray extends GuiInputElement<unknown[] | null> {
@@ -941,6 +946,9 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   get value() {
+    if (this._inputs.length === 0) {
+      return null;
+    }
     return this._inputs.map((input) => input.value);
   }
 
@@ -964,6 +972,8 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   _addInput(val?: unknown) {
     const input = document.createElement('gui-input-any') as GuiInputAny;
+
+    input.config = this.config;
 
     if (val === undefined && this._inputs.length > 0) {
       const prevInput = this._inputs[this._inputs.length - 1];
@@ -1043,6 +1053,9 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   }
 
   get value() {
+    if (this._inputs.size === 0) {
+      return null;
+    }
     if (this.as_object) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const value: Record<any, unknown> = {};
@@ -1094,6 +1107,8 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     keyInput.value = key;
     const valInput = document.createElement('gui-input-any');
     valInput.value = val;
+
+    valInput.config = this.config;
 
     if (key === undefined && this._inputs.size > 0) {
       const prevKyeInput = [...this._inputs.keys()][this._inputs.size - 1];
