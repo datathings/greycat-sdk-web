@@ -346,10 +346,14 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     if (this._config.nullable) {
       if (this._input.children.length === 2) {
         this._input.appendChild(<sl-option value="null">null</sl-option>);
+        this._input.value = 'null';
       }
     } else {
       if (this._input.children.length === 3) {
         this._input.children[2].remove();
+        if (this.value === null) {
+          this._input.value = 'false';
+        }
       }
     }
   }
