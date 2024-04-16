@@ -126,14 +126,8 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           }
         } else {
-          if (this.config.nullable && this._value === undefined) {
+          if (this.config.nullable) {
             const input = document.createElement('gui-input-null');
-            input.addEventListener('gui-change', (ev) => {
-              ev.stopPropagation();
-              this.value = ev.detail;
-              this.dispatchEvent(new GuiChangeEvent(this.value));
-            });
-
             input.type = this._type;
             this._inner = input;
           } else {
@@ -172,10 +166,14 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           } else if (this._value instanceof GCObject) {
             const tagName = GuiInput.factory[this._value.$type.name];
-            if (tagName) {
-              this._inner = document.createElement(tagName);
+            if (this.config.nullable) {
+              this._inner = document.createElement('gui-input-null');
             } else {
-              this._inner = document.createElement('gui-input-object');
+              if (tagName) {
+                this._inner = document.createElement(tagName);
+              } else {
+                this._inner = document.createElement('gui-input-object');
+              }
             }
             this._inner.value = this._value;
           } else if (Array.isArray(this._value)) {
@@ -579,6 +577,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
           ev.stopPropagation();
           this.dispatchEvent(new GuiChangeEvent(this.value));
         });
+        input.config = { nullable: attr.nullable };
         // SAFETY:
         // we are dealing with the attribute of the type of that 'value'
         // therefore, we have to have the properties defined on 'value'
@@ -591,7 +590,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
-    if (this.value === null) {
+    /*     if (this.value === null) {
       const input = document.createElement('gui-input-null');
       input.addEventListener('gui-change', (ev) => {
         ev.stopPropagation();
@@ -603,7 +602,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       input.type = this._type;
       this.replaceChildren(input);
       return;
-    }
+    } */
 
     const attrs = document.createDocumentFragment();
     let index = 0;
@@ -627,20 +626,6 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     });
 
     this.replaceChildren(<div>{attrs}</div>);
-
-    if (this.config.nullable) {
-      const elem = (
-        <a
-          onclick={() => {
-            this.value = null;
-            this.dispatchEvent(new GuiChangeEvent(this.value));
-          }}
-        >
-          &#10005;
-        </a>
-      );
-      this.prepend(elem);
-    }
   }
 }
 
@@ -733,18 +718,8 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
         </label>
       );
       if (param.nullable) {
-        const lazyloadingLink = (
-          <a
-            href=""
-            onclick={(ev) => {
-              ev.preventDefault();
-              input.type = param.type;
-              lazyloadingLink.replaceWith(input);
-            }}
-          >
-            Set
-          </a>
-        ) as HTMLAnchorElement;
+        const lazyloadingLink = document.createElement('gui-input-null');
+        lazyloadingLink.type = param.type;
         params.append(label, lazyloadingLink);
       } else {
         params.append(label, input);
@@ -1178,9 +1153,12 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
 export class GuiInputNull extends GuiInputElement<unknown> {
   private _type: AbiType | AbiFunction | undefined;
+  private _inner?: GuiInput;
 
   get value(): unknown {
-    if (this._type instanceof AbiType) {
+    if (this._inner) {
+      return this._inner.value;
+    } else if (this._type instanceof AbiType) {
       return greycat.default.create(this._type.name, []);
     }
     return null;
@@ -1201,10 +1179,30 @@ export class GuiInputNull extends GuiInputElement<unknown> {
       this.replaceChildren();
       return;
     }
+    if (this._inner) {
+      this.replaceChildren(
+        <>
+          <a
+            onclick={() => {
+              this._inner = undefined;
+              this.dispatchEvent(new GuiChangeEvent(this.value));
+              this.render();
+            }}
+          >
+            x
+          </a>
+          {this._inner}
+        </>,
+      );
+      return;
+    }
     this.replaceChildren(
       <a
         onclick={() => {
+          this._inner = document.createElement('gui-input');
+          this._inner.type = this._type!;
           this.dispatchEvent(new GuiChangeEvent(this.value));
+          this.render();
         }}
       >
         Set
