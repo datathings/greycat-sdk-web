@@ -34,8 +34,10 @@ gui-input-geo {
 gui-input-object {
   display: flex;
 
+  /*Remove button*/
   >a {
     padding: 0 var(--spacing);
+    align-self: center;
   }
 
   >div {
@@ -50,6 +52,11 @@ gui-input-object {
       align-items: end;
       gap: 2px;
     }
+  }
+
+  gui-input-object {
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-primary-100) solid var(--spacing);
   }
 }
 
@@ -159,6 +166,20 @@ gui-input-any {
 
     sl-select::part(combobox) {
       border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+  }
+
+  gui-searchable-select+gui-input {
+    margin-left: var(--spacing);
+
+    gui-input-array {
+      margin-left: var(--spacing);
+      border-left: var(--sl-color-primary-100) solid var(--spacing);
+    }
+
+    gui-input-map {
+      margin-left: var(--spacing);
+      border-left: var(--sl-color-primary-100) solid var(--spacing);
     }
   }
 }

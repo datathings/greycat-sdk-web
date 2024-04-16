@@ -639,7 +639,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
           &#10005;
         </a>
       );
-      this.append(elem);
+      this.prepend(elem);
     }
   }
 }
@@ -988,7 +988,6 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     this._inputs.push(input);
     const elem = (
       <div>
-        {input}
         <a
           onclick={() => {
             this._inputs = this._inputs.filter((i) => i !== input);
@@ -998,6 +997,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
         >
           &#10005;
         </a>
+        {input}
       </div>
     );
     this.appendChild(elem);
@@ -1142,8 +1142,6 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   private _createMapInput(keyInput: GuiInputAny, valInput: GuiInputElement<unknown>) {
     const elem = (
       <div>
-        {keyInput}
-        {valInput}
         <a
           onclick={() => {
             this._inputs.delete(keyInput);
@@ -1153,6 +1151,8 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
         >
           &#10005;
         </a>
+        {keyInput}
+        {valInput}
       </div>
     );
     return elem;
