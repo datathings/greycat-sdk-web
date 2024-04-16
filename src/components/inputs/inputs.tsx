@@ -717,13 +717,9 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
           <span className="gui-input-param-type">{typeName}</span>
         </label>
       );
-      if (param.nullable) {
-        const lazyloadingLink = document.createElement('gui-input-null');
-        lazyloadingLink.type = param.type;
-        params.append(label, lazyloadingLink);
-      } else {
-        params.append(label, input);
-      }
+
+      params.append(label, input);
+
       index++;
     });
     this.replaceChildren(params);
