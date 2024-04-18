@@ -1,5 +1,5 @@
 import { core } from '@greycat/sdk';
-import { ChartConfig, Cursor, Scale, Serie } from './components/index.js';
+import { Axis, Ordinate, Scale, Serie, TableLike } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
 
 export type Disposable = () => void;
@@ -99,9 +99,12 @@ export function debounce<T extends (...args: any[]) => void>(
 }
 
 export function closest(
-  config: ChartConfig,
+  table: TableLike,
   serie: Serie<string>,
-  cursor: Cursor,
+  x: number,
+  y: number,
+  xAxis: Axis,
+  yAxes: Record<string, Ordinate>,
   xScale: Scale,
   yScale: Scale,
   v: number,
@@ -112,40 +115,40 @@ export function closest(
   if (
     serie.type === 'scatter' &&
     serie.xCol !== undefined &&
-    config.xAxis.scale === 'linear' &&
-    config.yAxes[serie.yAxis].scale === 'linear'
+    xAxis.scale === 'linear' &&
+    yAxes[serie.yAxis].scale === 'linear'
   ) {
     let minDistance = Infinity;
-    for (let i = 0; i < (config.table.cols?.[0]?.length ?? 0); i++) {
-      const xPos = xScale(vMap(config.table.cols?.[serie.xCol][i]));
-      const yPos = yScale(vMap(config.table.cols?.[serie.yCol][i]));
-      const distance = Math.hypot(xPos - cursor.x, yPos - cursor.y);
+    for (let i = 0; i < (table.cols?.[0]?.length ?? 0); i++) {
+      const xPos = xScale(vMap(table.cols?.[serie.xCol][i]));
+      const yPos = yScale(vMap(table.cols?.[serie.yCol][i]));
+      const distance = Math.hypot(xPos - x, yPos - y);
       if (distance < minDistance) {
-        res = config.table.cols?.[serie.xCol][i];
+        res = table.cols?.[serie.xCol][i];
         rowIdx = i;
         minDistance = distance;
       }
     }
   } else {
-    for (let i = 0; i < (config.table.cols?.[0]?.length ?? 0); i++) {
+    for (let i = 0; i < (table.cols?.[0]?.length ?? 0); i++) {
       let x: number;
       if (serie.type === 'bar' && serie.spanCol) {
-        const x0 = vMap(config.table.cols?.[serie.spanCol[0]][i]);
-        const x1 = vMap(config.table.cols?.[serie.spanCol[1]][i]);
+        const x0 = vMap(table.cols?.[serie.spanCol[0]][i]);
+        const x1 = vMap(table.cols?.[serie.spanCol[1]][i]);
         if (v >= x0 && v <= x1) {
           return { xValue: x0 + (x1 - x0) / 2, rowIdx: i };
         }
         x = x0;
       } else {
-        x = serie.xCol === undefined ? i : vMap(config.table.cols?.[serie.xCol][i]);
+        x = serie.xCol === undefined ? i : vMap(table.cols?.[serie.xCol][i]);
         if (x === v) {
-          return { xValue: serie.xCol === undefined ? i : config.table.cols?.[serie.xCol][i], rowIdx: i };
+          return { xValue: serie.xCol === undefined ? i : table.cols?.[serie.xCol][i], rowIdx: i };
         }
       }
       const d2 = Math.abs(x - v);
       if (distance == null || distance > d2) {
         rowIdx = i;
-        res = serie.xCol === undefined ? i : config.table.cols?.[serie.xCol][i];
+        res = serie.xCol === undefined ? i : table.cols?.[serie.xCol][i];
         distance = d2;
       } else if (distance != null && x > v && distance < d2) {
         return { xValue: res, rowIdx };

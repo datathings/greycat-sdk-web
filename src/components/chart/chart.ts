@@ -609,8 +609,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-                (style.margin.right + rightAxesIdx * style.margin.right) +
-                padding,
+              (style.margin.right + rightAxesIdx * style.margin.right) +
+              padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -642,9 +642,12 @@ export class GuiChart extends HTMLElement {
         const v = +xScale.invert(this._cursor.x);
 
         const { xValue, rowIdx } = closest(
-          this._config,
+          this._config.table,
           serie,
-          this._cursor,
+          this._cursor.x,
+          this._cursor.y,
+          this._config.xAxis,
+          this._config.yAxes,
           xScale,
           yScales[serie.yAxis],
           v,
@@ -734,6 +737,7 @@ export class GuiChart extends HTMLElement {
             if (rectX < xRange[1] && rectX > xRange[0]) {
               this._uxCtx.rectangle(rectX, rectY, w, h, {
                 color: style['accent-0'],
+                center: true,
               });
             }
             break;
@@ -905,6 +909,7 @@ export class GuiChart extends HTMLElement {
         this._uxCtx.rectangle(startX + w / 2, startY + h / 2, w, h, {
           fill: style['accent-0'],
           opacity: 0.1,
+          center: true,
         });
 
         const nameEl = document.createElement('div');
@@ -1490,7 +1495,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap {}
+  interface HTMLElementEventMap extends GuiChartEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {

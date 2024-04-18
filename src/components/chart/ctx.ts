@@ -10,9 +10,15 @@ import type {
   LineScatterSerie,
 } from './types.js';
 import type { TableLike } from '../common.js';
+import { round } from '../../canvas/utils.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
+
+export enum VerticalAxisPos {
+  Left = 0,
+  Right = 1,
+}
 
 type Ctx = CanvasRenderingContext2D;
 type LineSerieOptions = SerieWithOptions & LineOptions;
@@ -25,6 +31,7 @@ export type ShapeOptions = {
   thickness?: number;
   opacity?: number;
   dashed?: boolean;
+  center?: boolean;
 };
 
 export type TextOptions = {
@@ -33,6 +40,7 @@ export type TextOptions = {
   font?: string;
   baseline?: CanvasTextBaseline;
   align?: CanvasTextAlign;
+  opacity?: number;
 };
 
 const SEGMENTS: Record<number, number[]> = {
@@ -42,6 +50,54 @@ const SEGMENTS: Record<number, number[]> = {
 
 export class CanvasContext {
   constructor(public ctx: Ctx) { }
+
+  /**
+   * Clears the content of the canvas entirely.
+   */
+  clear(): void {
+    this.ctx.clearRect(0, 0, this.ctx.canvas.width, this.ctx.canvas.height);
+  }
+
+  /**
+   * Clears the outer content of the given boundaries.
+   */
+  clearInverse(left: number, top: number, right: number, bottom: number): void {
+    const w = this.ctx.canvas.width;
+    const h = this.ctx.canvas.height;
+
+    // +/- 1 to prevent line being removed on upper/lower bounds, only occurs when the line is exactly on the edge on firefox
+    // Top
+    this.ctx.clearRect(0, 0, w, top - 1);
+    // Bottom
+    this.ctx.clearRect(0, h - bottom + 1, w, bottom);
+    // Left
+    this.ctx.clearRect(0, 0, left, h);
+    // Right
+    this.ctx.clearRect(w - right, 0, right, h);
+  }
+
+  /**
+   * Fills the outer content of the given boundaries with the `fillColor`.
+   */
+  rectInverse(left: number, top: number, right: number, bottom: number, fillColor: string): void {
+    const w = this.ctx.canvas.width;
+    const h = this.ctx.canvas.height;
+
+    this.ctx.save();
+    this.ctx.fillStyle = fillColor;
+
+    // +/- 1 to prevent line being removed on upper/lower bounds, only occurs when the line is exactly on the edge on firefox
+    // Top
+    this.ctx.fillRect(0, 0, w, top - 1);
+    // Bottom
+    this.ctx.fillRect(0, h - bottom + 1, w, bottom);
+    // Left
+    this.ctx.fillRect(0, 0, left, h);
+    // Right
+    this.ctx.fillRect(w - right, 0, right, h);
+
+    this.ctx.restore();
+  }
 
   line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
@@ -496,6 +552,7 @@ export class CanvasContext {
     this.ctx.setLineDash(opts.dashed ? [5, 5] : []);
     this.ctx.strokeStyle = opts.color ?? 'inherit';
     this.ctx.globalAlpha = opts.opacity ?? 1;
+    this.ctx.lineWidth = opts.thickness ?? 1;
 
     // horizontal
     this.ctx.beginPath();
@@ -519,7 +576,7 @@ export class CanvasContext {
             y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
             mx.width + xPadding * 2,
             mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor },
+            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
           );
           break;
         }
@@ -529,7 +586,7 @@ export class CanvasContext {
             y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
             mx.width + xPadding * 2,
             mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor },
+            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
           );
           break;
         }
@@ -540,7 +597,7 @@ export class CanvasContext {
             y + mx.fontBoundingBoxAscent / 2,
             mx.width + xPadding * 2,
             mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor },
+            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
           );
           break;
         }
@@ -550,9 +607,10 @@ export class CanvasContext {
     this.ctx.save();
 
     this.ctx.fillStyle = opts.color;
-    this.ctx.font = opts.font ?? `bold 10px sans-serif`;
+    this.ctx.font = opts.font ?? `bold 10px monospace`;
     this.ctx.textBaseline = opts.baseline ?? 'bottom';
     this.ctx.textAlign = opts.align ?? 'start';
+    this.ctx.globalAlpha = opts.opacity ?? 1;
     this.ctx.fillText(text, x, y);
 
     this.ctx.restore();
@@ -564,10 +622,18 @@ export class CanvasContext {
 
     if (opts.fill) {
       this.ctx.fillStyle = opts.fill;
-      this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
+      if (opts.center) {
+        this.ctx.fillRect(x - w / 2, y - h / 2, w, h);
+      } else {
+        this.ctx.fillRect(x, y, w, h);
+      }
     } else {
       this.ctx.strokeStyle = opts.color ?? 'inherit';
-      this.ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+      if (opts.center) {
+        this.ctx.strokeRect(x - w / 2, y - h / 2, w, h);
+      } else {
+        this.ctx.strokeRect(x, y, w, h);
+      }
     }
 
     this.ctx.restore();
@@ -580,6 +646,7 @@ export class CanvasContext {
     this.ctx.moveTo(x - w / 2, y + h / 2);
     this.ctx.lineTo(x, y - h / 2);
     this.ctx.lineTo(x + w / 2, y + h / 2);
+
     if (opts.fill) {
       // no need to close for the fill
       this.ctx.fillStyle = opts.fill;
@@ -673,5 +740,93 @@ export class CanvasContext {
 
       this.ctx.restore();
     }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  horizontalAxis(y: number, scale: Scale, fmt: (v: any) => string): void {
+    this.ctx.save();
+
+    // TODO move this to CSS variables
+    this.ctx.fillStyle = 'hsl(160 5% 60%)';
+    this.ctx.strokeStyle = 'hsl(160 5% 60%)';
+    this.ctx.textBaseline = 'top';
+
+    const ticks = scale.ticks();
+    const [minX, maxX] = scale.range();
+    y += 0.5; // pixel perfect
+
+    this.ctx.beginPath();
+
+    // draw axis line
+    this.ctx.moveTo(minX, y);
+    this.ctx.lineTo(maxX, y);
+
+    for (let i = 0; i < ticks.length; i++) {
+      const tick = ticks[i];
+      const x = round(scale(tick));
+
+      // Draw tick line
+      this.ctx.moveTo(x - 0.5, y);
+      this.ctx.lineTo(x - 0.5, y + 5);
+      // Draw tick label
+      if (i === 0) {
+        this.ctx.textAlign = 'left';
+      } else if (i === ticks.length - 1) {
+        this.ctx.textAlign = 'right';
+      } else {
+        this.ctx.textAlign = 'center';
+      }
+      this.ctx.fillText(fmt(tick), x, y + 10);
+    }
+    this.ctx.stroke();
+
+    this.ctx.restore();
+  }
+
+  // TODO that's not ok, use proper typing
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  verticalAxis(x: number, scale: Scale, fmt: (v: any) => string, position: VerticalAxisPos = VerticalAxisPos.Left): void {
+    this.ctx.save();
+
+    // TODO move this to CSS variables
+    this.ctx.fillStyle = 'hsl(160 5% 60%)';
+    this.ctx.strokeStyle = 'hsl(160 5% 60%)';
+    if (position === VerticalAxisPos.Left) {
+      this.ctx.textAlign = 'end';
+    } else {
+      this.ctx.textAlign = 'start';
+    }
+
+    const ticks = scale.ticks();
+    const [yMin, yMax] = scale.range();
+
+    x -= 0.5; // pixel perfect
+
+    this.ctx.beginPath();
+
+    // draw axis line
+    this.ctx.moveTo(x, yMin);
+    this.ctx.lineTo(x, yMax);
+
+    // draw ticks
+    for (let i = 0; i < ticks.length; i++) {
+      const tick = ticks[i];
+      const y = round(scale(tick));
+
+      // Draw tick line
+      this.ctx.moveTo(x, y + 0.5);
+      if (position === VerticalAxisPos.Left) {
+        this.ctx.lineTo(x - 5, y + 0.5);
+        // Draw tick label (optional)
+        this.ctx.fillText(fmt(tick), x - 10, y + 5);
+      } else {
+        this.ctx.lineTo(x + 5, y + 0.5);
+        // Draw tick label (optional)
+        this.ctx.fillText(fmt(tick), x + 10, y + 5);
+      }
+    }
+    this.ctx.stroke();
+
+    this.ctx.restore();
   }
 }

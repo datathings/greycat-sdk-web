@@ -6,6 +6,11 @@ declare global {
   }
 }
 
+export class GuiElement extends HTMLElement {
+  connectedCallback(): void | Promise<void> { }
+  disconnectedCallback(): void | Promise<void> { }
+}
+
 export class GuiRenderEvent extends CustomEvent<number> {
   constructor(startTimeInMs: number) {
     super('render', { detail: Date.now() - startTimeInMs });
