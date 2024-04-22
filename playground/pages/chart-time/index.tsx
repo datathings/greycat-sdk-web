@@ -69,8 +69,15 @@ chart.setConfig({
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,
-      colorCol: 2,
-      colorMapping: (v: keyof typeof colors) => colors[v],
+      styleCol: 2,
+      width: 2,
+      styleMapping(v) {
+        return {
+          dash: v === 'high' ? [8, 8] : v === 'low' ? [2, 2] : [],
+          color: colors[v as keyof typeof colors],
+          transparency: v === 'low' ? 0.5 : 1,
+        };
+      },
     },
   ],
 });

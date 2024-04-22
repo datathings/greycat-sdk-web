@@ -7,6 +7,7 @@ export class AppLayout extends HTMLElement {
   private static readonly PAGES: Array<{ href: string; title: string }> = [
     { title: 'Index',                   href: 'index/' },
     { title: 'Chart',                   href: 'chart/' },
+    { title: 'Chart 2',                 href: 'chart-2/' },
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },

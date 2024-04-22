@@ -609,8 +609,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-                (style.margin.right + rightAxesIdx * style.margin.right) +
-                padding,
+              (style.margin.right + rightAxesIdx * style.margin.right) +
+              padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -623,6 +623,8 @@ export class GuiChart extends HTMLElement {
           }
         }
       }
+
+      const tooltipSerieData: SerieData[] = [];
 
       // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
@@ -642,9 +644,12 @@ export class GuiChart extends HTMLElement {
         const v = +xScale.invert(this._cursor.x);
 
         const { xValue, rowIdx } = closest(
-          this._config,
+          this._config.table,
           serie,
-          this._cursor,
+          this._cursor.x,
+          this._cursor.y,
+          this._config.xAxis,
+          this._config.yAxes,
           xScale,
           yScales[serie.yAxis],
           v,
@@ -734,6 +739,7 @@ export class GuiChart extends HTMLElement {
             if (rectX < xRange[1] && rectX > xRange[0]) {
               this._uxCtx.rectangle(rectX, rectY, w, h, {
                 color: style['accent-0'],
+                center: true,
               });
             }
             break;
@@ -746,9 +752,13 @@ export class GuiChart extends HTMLElement {
           color = serie.colorMapping
             ? serie.colorMapping(this._config.table.cols[serie.colorCol][rowIdx])
             : this._config.table.cols[serie.colorCol][rowIdx];
-          if (!color) {
-            color = serie.color;
-          }
+        } else if (serie.styleCol && serie.styleMapping) {
+          color =
+            serie.styleMapping(this._config.table.cols[serie.styleCol][rowIdx]).color?.toString() ??
+            color;
+        }
+        if (!color) {
+          color = serie.color;
         }
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const createFormatter = (axis: Axis) => {
@@ -803,42 +813,16 @@ export class GuiChart extends HTMLElement {
             this._tooltip.append(nameEl, valueEl);
           }
         }
+
+        tooltipSerieData.push({ xValue, yValue, rowIdx, ...serie } as SerieData);
       }
 
-      // ain't gonna be more than a few series, using .map is fine here
-      const data: SerieData[] = this._config.series.map((s, i) => {
-        const v = +xScale.invert(this._cursor.x); // prefix with '+' to convert `Date`s to `number` and keep `number` unchanged
-        const { xValue, rowIdx } = closest(
-          this._config,
-          s,
-          this._cursor,
-          xScale,
-          yScales[s.yAxis],
-          v,
-        );
-
-        return {
-          color: this._colors[i],
-          width: 1,
-          markerWidth: 3,
-          markerShape: 'circle',
-          markerColor: this._config.series[i].color ?? this._colors[i],
-          opacity: 1,
-          fillOpacity: 0.2,
-          yCol2: 'min',
-          xValue,
-          yValue: this._config.table.cols?.[s.yCol]?.[rowIdx],
-          rowIdx,
-          hideInTooltip: false,
-          ...s,
-        } satisfies SerieData;
-      });
       // we need to give a clone of the cursor because we don't want users to mutate our own version of it
       const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
-      this._config.tooltip?.render?.(data, cursor);
+      this._config.tooltip?.render?.(tooltipSerieData, cursor);
       // dispatch event
-      this.dispatchEvent(new GuiChartCursorEvent(data, cursor));
+      this.dispatchEvent(new GuiChartCursorEvent(tooltipSerieData, cursor));
     } else {
       if (this._canvasEntered) {
         this._canvasEntered = false;
@@ -905,6 +889,7 @@ export class GuiChart extends HTMLElement {
         this._uxCtx.rectangle(startX + w / 2, startY + h / 2, w, h, {
           fill: style['accent-0'],
           opacity: 0.1,
+          center: true,
         });
 
         const nameEl = document.createElement('div');
@@ -1490,7 +1475,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap {}
+  interface HTMLElementEventMap extends GuiChartEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {

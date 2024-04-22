@@ -163,16 +163,16 @@ export function isNumberColumn(meta: core.TableColumnMeta): boolean {
   return meta.$type.name === 'core::int' || meta.$type.name === 'core::float';
 }
 
-// source: https://stackoverflow.com/questions/9453421/how-to-round-float-numbers-in-javascript
-export function round(value: number, precision: number) {
-  if (Number.isInteger(precision)) {
-    const shift = Math.pow(10, precision);
-    // Limited preventing decimal issue
-    return Math.round(value * shift + 0.00000000000001) / shift;
-  } else {
-    return Math.round(value);
-  }
-}
+// // source: https://stackoverflow.com/questions/9453421/how-to-round-float-numbers-in-javascript
+// export function round(value: number, precision: number) {
+//   if (Number.isInteger(precision)) {
+//     const shift = Math.pow(10, precision);
+//     // Limited preventing decimal issue
+//     return Math.round(value * shift + 0.00000000000001) / shift;
+//   } else {
+//     return Math.round(value);
+//   }
+// }
 
 export function emptyDataElement(cssClass: string) {
   const incompleteTableEl = document.createElement('div');
