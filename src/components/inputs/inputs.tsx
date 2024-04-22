@@ -802,7 +802,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
     this._input = document.createElement('gui-input');
     this._input.value = null;
-
     this._select = document.createElement('gui-searchable-select');
     this._select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
@@ -922,7 +921,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   get value() {
-    if (this._inputs.length === 0) {
+    if (this._inputs.length === 0 && this.config.nullable) {
       return null;
     }
     return this._inputs.map((input) => input.value);
@@ -953,11 +952,10 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
     if (val === undefined && this._inputs.length > 0) {
       const prevInput = this._inputs[this._inputs.length - 1];
-
-      if (prevInput.type !== null) {
+      if (prevInput.type) {
         input.type = prevInput.type;
       }
-    } else {
+    } else if (val !== null) {
       input.value = val;
     }
 
@@ -1029,7 +1027,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   }
 
   get value() {
-    if (this._inputs.size === 0) {
+    if (this._inputs.size === 0 && this.config.nullable) {
       return null;
     }
     if (this.as_object) {
