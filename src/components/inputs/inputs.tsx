@@ -103,7 +103,19 @@ export class GuiInput extends GuiInputElement<unknown> {
     this.render();
   }
 
+  override set config(config: GuiInputConfig) {
+    this._config = config;
+    if (this._inner) {
+      this._inner.config = config;
+    }
+  }
+
+  override get config() {
+    return this._config;
+  }
+
   override render(): void {
+    console.log('render', this._type, this._value);
     if (this._type instanceof AbiFunction) {
       // show object form based on params
       const input = document.createElement('gui-input-fn');
@@ -346,7 +358,6 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     if (this._config.nullable) {
       if (this._input.children.length === 2) {
         this._input.appendChild(<sl-option value="null">null</sl-option>);
-        this._input.value = 'null';
       }
     } else {
       if (this._input.children.length === 3) {
