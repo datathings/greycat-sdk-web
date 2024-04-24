@@ -82,6 +82,7 @@ document.body.appendChild(
       <input-viewer header="Custom Form">
         <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />
       </input-viewer>
+
       <input-viewer header="Recursive type">
         <gui-input type="project::Link" />
       </input-viewer>
@@ -256,6 +257,13 @@ function ObjectViewer() {
     display.value = input.value;
   });
 
+  const slCheckbox = document.createElement('sl-checkbox');
+  slCheckbox.textContent = 'Nullable';
+  slCheckbox.addEventListener('sl-change', (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    input.config = { nullable: (e.target as any).checked };
+  });
+
   return (
     <sl-card>
       <div
@@ -263,7 +271,10 @@ function ObjectViewer() {
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
         <h6 style={{ margin: '0' }}>Object (type):</h6>
-        {typeSelector}
+        <div style={{ display: 'flex', gap: 'var(--spacing)', alignItems: 'center' }}>
+          {typeSelector}
+          {slCheckbox}
+        </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
         {input}
