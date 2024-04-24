@@ -176,7 +176,6 @@ function EnumViewer() {
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-enum');
-  input.config = { nullable: true };
   input.type = greycat.default.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(
@@ -193,6 +192,13 @@ function EnumViewer() {
     display.value = input.value;
   });
 
+  const slCheckbox = document.createElement('sl-checkbox');
+  slCheckbox.textContent = 'Nullable';
+  slCheckbox.addEventListener('sl-change', (e) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    input.config = { nullable: (e.target as any).checked };
+  });
+
   return (
     <sl-card>
       <div
@@ -200,7 +206,10 @@ function EnumViewer() {
         style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
       >
         <h6 style={{ margin: '0' }}>Enum (type)</h6>
-        {typeSelector}
+        <div style={{ display: 'flex', gap: 'var(--spacing)', alignItems: 'center' }}>
+          {typeSelector}
+          {slCheckbox}
+        </div>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
         {input}
