@@ -991,9 +991,8 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
       if (prevInput.type) {
         input.type = prevInput.type;
       }
-    } else if (val !== null) {
-      input.value = val;
     }
+    input.value = val;
 
     this._inputs.push(input);
     const elem = (
@@ -1015,7 +1014,16 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   _render() {
     this.replaceChildren();
-    this.appendChild(<a onclick={() => this._addInput()}>Add</a>);
+    this.appendChild(
+      <a
+        onclick={() => {
+          this._addInput();
+          this.dispatchEvent(new GuiChangeEvent(this.value));
+        }}
+      >
+        Add
+      </a>,
+    );
     this._inputs.forEach((input) => {
       const elem = (
         <div>
@@ -1175,6 +1183,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
         onclick={() => {
           const elems = this.addEntry();
           this.appendChild(this._createMapInput(elems[0], elems[1]));
+          this.dispatchEvent(new GuiChangeEvent(this.value));
         }}
       >
         Add
