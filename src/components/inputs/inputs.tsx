@@ -1047,17 +1047,17 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
     if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
       GuiInputMap.ALLOWED_KEY_OPTIONS = [
-        { text: 'String', value: greycat.default.abi.core_string_offset },
-        { text: 'int', value: greycat.default.abi.core_int_offset },
-        { text: 'float', value: greycat.default.abi.core_float_offset },
-        { text: 'char', value: greycat.default.abi.core_char_offset },
-        { text: 'duration', value: greycat.default.abi.core_duration_offset },
-        { text: 'time', value: greycat.default.abi.core_time_offset },
-        { text: 'node', value: greycat.default.abi.core_node_offset },
-        { text: 'nodeGeo', value: greycat.default.abi.core_node_geo_offset },
-        { text: 'nodeIndex', value: greycat.default.abi.core_node_index_offset },
-        { text: 'nodeList', value: greycat.default.abi.core_node_list_offset },
-        { text: 'nodeTime', value: greycat.default.abi.core_node_time_offset },
+        { text: core.String._type, value: greycat.default.abi.core_string_offset },
+        { text: core.int._type, value: greycat.default.abi.core_int_offset },
+        { text: core.float._type, value: greycat.default.abi.core_float_offset },
+        { text: 'core::char', value: greycat.default.abi.core_char_offset },
+        { text: core.duration._type, value: greycat.default.abi.core_duration_offset },
+        { text: core.time._type, value: greycat.default.abi.core_time_offset },
+        { text: core.node._type, value: greycat.default.abi.core_node_offset },
+        { text: core.nodeGeo._type, value: greycat.default.abi.core_node_geo_offset },
+        { text: core.nodeIndex._type, value: greycat.default.abi.core_node_index_offset },
+        { text: core.nodeList._type, value: greycat.default.abi.core_node_list_offset },
+        { text: core.nodeTime._type, value: greycat.default.abi.core_node_time_offset },
       ];
     }
   }
