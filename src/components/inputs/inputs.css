@@ -54,7 +54,7 @@ gui-input-object {
     }
   }
 
-  gui-input-object {
+  >a+div {
     padding-left: var(--spacing);
     border-left: var(--sl-color-primary-100) solid var(--spacing);
   }
@@ -184,15 +184,6 @@ gui-input-any {
       padding-left: var(--spacing);
       border-left: var(--sl-color-primary-100) solid var(--spacing);
     }
-  }
-}
-
-gui-input-null {
-  display: flex;
-
-  >a {
-    padding: 0 var(--spacing);
-    align-self: center;
   }
 }
 
