@@ -138,18 +138,13 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           }
         } else {
-          if (this.config.nullable) {
-            const input = document.createElement('gui-input-null');
-            input.type = this._type;
-            this._inner = input;
-          } else {
-            const input = document.createElement('gui-input-object');
-            input.type = this._type;
-            if (this._value instanceof GCObject || this._value === null) {
-              input.value = this._value;
-            }
-            this._inner = input;
+          const input = document.createElement('gui-input-object');
+          input.config = this._config;
+          input.type = this._type;
+          if (this._value instanceof GCObject || this._value === null) {
+            input.value = this._value;
           }
+          this._inner = input;
         }
       }
     } else {
@@ -178,15 +173,13 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner.value = this._value;
           } else if (this._value instanceof GCObject) {
             const tagName = GuiInput.factory[this._value.$type.name];
-            if (this.config.nullable) {
-              this._inner = document.createElement('gui-input-null');
+
+            if (tagName) {
+              this._inner = document.createElement(tagName);
             } else {
-              if (tagName) {
-                this._inner = document.createElement(tagName);
-              } else {
-                this._inner = document.createElement('gui-input-object');
-              }
+              this._inner = document.createElement('gui-input-object');
             }
+
             this._inner.value = this._value;
           } else if (Array.isArray(this._value)) {
             this._inner = document.createElement('gui-input-array');
@@ -195,8 +188,8 @@ export class GuiInput extends GuiInputElement<unknown> {
             this._inner = document.createElement('gui-input-map');
             this._inner.value = this._value;
           } else if (this._value === null) {
-            // we have a 'null' here
-            this._inner = document.createElement('gui-input-null'); // TODO replace with proper one
+            // we have a 'null' here, we have neither a type or a value render nothing
+            return;
           } else {
             // we have an '{ ... }' here
             this._inner = document.createElement('gui-input-map');
@@ -486,6 +479,7 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 export class GuiInputObject extends GuiInputElement<GCObject | null> {
   private _type: AbiType | undefined;
   private _attrs: Map<string, GuiInput> = new Map();
+  private _cleared: boolean = false;
 
   connectedCallback() {
     this.render();
@@ -500,7 +494,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   set type(type: AbiType | string | undefined) {
-    if (this._type === undefined || this._type === type) {
+    if (type === undefined || this._type === type) {
       // no type or same type, noop
     } else {
       // different type, we need to clear the previous attributes
@@ -510,7 +504,11 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       type = greycat.default.findType(type);
     }
     this._type = type;
+
     if (this._type) {
+      if (this.config.nullable && !this._cleared) {
+        return;
+      }
       for (const attr of this._type.attrs) {
         const input = document.createElement('gui-input');
         input.addEventListener('gui-input', (ev) => {
@@ -555,6 +553,11 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         }
         index++;
       });
+
+      if (this.config.nullable && attrs.every((attr) => attr === null)) {
+        return null;
+      }
+
       return greycat.default.create(this._type.name, attrs) ?? null;
     }
     return null;
@@ -605,21 +608,25 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   override render(): void {
-    /*     if (this.value === null) {
-      const input = document.createElement('gui-input-null');
-      input.addEventListener('gui-change', (ev) => {
-        ev.stopPropagation();
-        if (input.type instanceof AbiType) {
-          this.type = input.type;
-        }
-        this.dispatchEvent(new GuiChangeEvent(this.value));
-      });
-      input.type = this._type;
-      this.replaceChildren(input);
+    if (this.config.nullable && this._attrs.size === 0) {
+      this.replaceChildren(
+        <a
+          onclick={() => {
+            this._cleared = true;
+            const tmp = this.type;
+            this.type = undefined;
+            this.type = tmp;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Set
+        </a>,
+      );
       return;
-    } */
+    }
 
     const attrs = document.createDocumentFragment();
+
     let index = 0;
     this._attrs.forEach((input, name) => {
       const attr = this._type!.attrs[index];
@@ -640,7 +647,25 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       index++;
     });
 
-    this.replaceChildren(<div>{attrs}</div>);
+    const del = (
+      <a
+        onclick={() => {
+          this._cleared = false;
+          this.value = null;
+          this.dispatchEvent(new GuiChangeEvent(this.value));
+        }}
+      >
+        &#10005;
+      </a>
+    );
+    const frag = document.createDocumentFragment();
+
+    if (this.config.nullable) {
+      frag.appendChild(del);
+    }
+    frag.appendChild(<div> {attrs} </div>);
+
+    this.replaceChildren(frag);
   }
 }
 
@@ -1341,7 +1366,6 @@ declare global {
     'gui-input-any': GuiInputAny;
     'gui-input-array': GuiInputArray;
     'gui-input-map': GuiInputMap;
-    'gui-input-null': GuiInputNull;
     'gui-input-node': GuiInputNode;
     'gui-input-geo': GuiInputGeo;
   }
@@ -1367,7 +1391,6 @@ declare global {
       'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
       'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
       'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
-      'gui-input-null': GreyCat.Element<GuiInputNull, GuiInputEventMap>;
       'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
       'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
     }
@@ -1386,6 +1409,5 @@ registerCustomElement('gui-input-duration', GuiInputDuration);
 registerCustomElement('gui-input-any', GuiInputAny);
 registerCustomElement('gui-input-array', GuiInputArray);
 registerCustomElement('gui-input-map', GuiInputMap);
-registerCustomElement('gui-input-null', GuiInputNull);
 registerCustomElement('gui-input-node', GuiInputNode);
 registerCustomElement('gui-input-geo', GuiInputGeo);
