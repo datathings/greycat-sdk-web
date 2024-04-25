@@ -4,7 +4,6 @@
     "moduleResolution": "Bundler",
     "module": "es2022",
     "target": "es2022",
-    "useDefineForClassFields": false,
     "rootDir": "..",
     "noEmit": true,
     "jsx": "react-jsx",
