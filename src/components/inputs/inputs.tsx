@@ -115,7 +115,6 @@ export class GuiInput extends GuiInputElement<unknown> {
   }
 
   override render(): void {
-    console.log('render', this._type, this._value);
     if (this._type instanceof AbiFunction) {
       // show object form based on params
       const input = document.createElement('gui-input-fn');
