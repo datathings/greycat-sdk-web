@@ -19,6 +19,7 @@ export interface GuiValueProps {
   numFmt?: Intl.NumberFormat;
   /** optional user-defined data */
   data?: unknown;
+  className?: string;
   /** callback used when `linkify` is `true` */
   onClick: ClickHandler<unknown>;
 }
@@ -137,6 +138,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     numFmt = this._numFmt,
     text = this._text,
     data = this._data,
+    className = this.className,
   }: Partial<GuiValueProps>) {
     if (
       this._value === value &&
@@ -147,7 +149,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._dateFmt === dateFmt &&
       this._numFmt === numFmt &&
       this._text === text &&
-      this._data === data
+      this._data === data &&
+      this.className === className
     ) {
       // prevent unecessary re-renders
       return;
@@ -161,6 +164,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._numFmt = numFmt;
     this._text = text;
     this._data = data;
+    this.className = className;
     this.render();
   }
 
