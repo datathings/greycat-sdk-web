@@ -3,6 +3,7 @@ import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
 import { TaskInfoLike } from '../task-info/task-info.js';
 import { GuiClickEvent } from '../../events.js';
+import { getGlobalDateTimeFormat } from '../../../globals.js';
 
 export class GuiTasks extends HTMLElement {
   static readonly HEADERS = [
@@ -47,7 +48,6 @@ export class GuiTasks extends HTMLElement {
       columnsWidths: [100, 150, 350, NaN, NaN, NaN, NaN, 110, NaN],
       cellProps: (_row, value, _r, c) => {
         tmp.data = undefined;
-        tmp.dateFmt = undefined;
         tmp.linkify = undefined;
         tmp.name = undefined;
         tmp.numFmt = undefined;
@@ -55,10 +55,21 @@ export class GuiTasks extends HTMLElement {
         tmp.text = undefined;
         tmp.tiny = undefined;
         tmp.value = value;
-        if (c === 7) {
-          tmp.className = `${value}`;
-        } else {
-          tmp.className = undefined;
+
+        switch (c) {
+          case 3: // Created
+          case 4: // Started
+            tmp.dateFmt = getGlobalDateTimeFormat();
+            tmp.className = undefined;
+            break;
+          case 7: // Status
+            tmp.dateFmt = undefined;
+            tmp.className = `${value}`;
+            break;
+          default:
+            tmp.dateFmt = undefined;
+            tmp.className = undefined;
+            break;
         }
         return tmp;
       },
