@@ -35,9 +35,7 @@ app
   .addSimpleAction('Reset columns', () => tableEl.resetColumnsWidth());
 
 const tableEl = document.createElement('gui-table');
-const table = await greycat.default.call<core.Table>('project::table');
-
-tableEl.value = table;
+tableEl.value = await greycat.default.call<core.Table>('project::table');
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
   switch (klass) {
@@ -52,9 +50,6 @@ tableEl.onrowupdate = (el, row) => {
       break;
   }
 };
-
-// tableEl.filter = "low";
-// tableEl.filterColumn = 2;
 
 tableEl.addEventListener('table-dblclick', (ev) => {
   window.alert(
