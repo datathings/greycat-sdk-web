@@ -28,6 +28,15 @@ export type Cell = {
    * This is required because sorting/filtering changes indexing.
    */
   originalIndex: number;
+  /**
+   * The original index of the column in the table.
+   *
+   * This is required because `ignoreCols` will change indexing if used.
+   *
+   * *This is optional for backward compatible reasons, it is safe to assume that for
+   * versions strictly greater than `> 6.10.36-testing` it is always defined*
+   */
+  originalColIndex?: number;
 };
 
 // reusing the same object for every render to ease gc
@@ -51,6 +60,7 @@ export class GuiTable extends HTMLElement {
   private _minColWidth = 100;
   private _scrollToRowIndex = 0;
   private _sortCol: SortCol = new SortCol(-1, 'default');
+  private _ignoreCols: number[] | undefined;
   private _cellProps = DEFAULT_CELL_PROPS;
   private _prevFromRowIdx = 0;
   private _filterText = '';
@@ -160,14 +170,25 @@ export class GuiTable extends HTMLElement {
     this._rows.length = this._table.cols?.[0]?.length ?? 0;
     for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
       // initialize an empty col of the proper length
-      this._rows[rowIdx] = new Array(this._table.cols?.length);
-      for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
-        this._rows[rowIdx][colIdx] = {
+      const nbCols = this._table.cols?.length ?? 0;
+      const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
+      this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
+
+      let virtColIdx = 0;
+      for (let colIdx = 0; colIdx < nbCols; colIdx++) {
+        if (ignoreCols.includes(colIdx)) {
+          // skip ignored columns
+          continue;
+        }
+        this._rows[rowIdx][virtColIdx] = {
           value: this._table.cols?.[colIdx][rowIdx],
           originalIndex: rowIdx,
+          originalColIndex: colIdx,
         };
+        virtColIdx++;
       }
     }
+    console.log('computedTable', this._rows);
   }
 
   get scrollToRowIndex() {
@@ -177,6 +198,16 @@ export class GuiTable extends HTMLElement {
   set scrollToRowIndex(index: number) {
     this._scrollToRowIndex = index;
     this.scrollToRow(index);
+  }
+
+  get ignoreCols() {
+    return this._ignoreCols;
+  }
+
+  set ignoreCols(ignoreCols: number[] | undefined) {
+    this._ignoreCols = ignoreCols;
+    this.computeTable();
+    this.update();
   }
 
   scrollToRow(rowIdx: number, behavior?: ScrollBehavior): void {
@@ -263,6 +294,29 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  /**
+   * Called everytime a row is rendered in the virtual list.
+   * 
+   * *This can be used to dynamically change styling for instance.*
+   * 
+   * ```ts
+   *  // eg. change column 1 color based on column 2 value
+   *  tableEl.onrowupdate = (el, row) => {
+   *    const klass = row[2].value as string;
+   *    switch (klass) {
+   *      case 'low':
+   *        (el.children[1] as HTMLElement).style.color = 'cyan';
+   *        break;
+   *      case 'normal':
+   *        (el.children[1] as HTMLElement).style.color = 'lightgreen';
+   *        break;
+   *      case 'high':
+   *        (el.children[1] as HTMLElement).style.color = 'orange';
+   *        break;
+   *    }
+   *  };
+   * ```
+   */
   set onrowupdate(cb: RowUpdateCallback) {
     this._rowUpdateCallback = cb;
   }
@@ -280,6 +334,7 @@ export class GuiTable extends HTMLElement {
     cellProps = this._cellProps,
     headers = this._headers,
     columnsWidths = this._thead.widths,
+    ignoreCols = this._ignoreCols,
   }: Partial<{
     /** @deprecated use `value` instead */
     table: TableLike;
@@ -290,8 +345,10 @@ export class GuiTable extends HTMLElement {
     cellProps: CellPropsFactory;
     headers: string[];
     columnsWidths: number[];
+    ignoreCols: number[];
   }>) {
     this._table = table ?? value;
+    this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;
     this._filterColumns = filterColumns;
@@ -407,8 +464,20 @@ export class GuiTable extends HTMLElement {
     }
     const start = Date.now();
 
+    const ignoreCols = Array.from(this._ignoreCols ?? []);
+    const meta: TableLikeMeta[] = [];
+    if (this._table.meta) {
+      for (let i = 0; i < this._table.meta.length; i++) {
+        if (ignoreCols.includes(i)) {
+          continue;
+        }
+        meta.push(this._table.meta[i]);
+      }
+    }
+
     this._thead.update(
-      this._table.meta ?? [],
+      meta,
+      ignoreCols,
       this._minColWidth,
       this._sortCol,
       this._tbody.virtualScroller.scrollWidth,
@@ -416,7 +485,7 @@ export class GuiTable extends HTMLElement {
     );
 
     // sort table if needed
-    if (this._sortCol.index === -1 || this._sortCol.index >= (this._table.meta?.length ?? 0)) {
+    if (this._sortCol.index === -1 || this._sortCol.index >= meta.length) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
       this._sortCol.reset();
     } else {
@@ -545,6 +614,7 @@ class GuiTableHead extends HTMLElement {
 
   update(
     meta: TableLikeMeta[],
+    ignoreCols: number[],
     minColWidth: number,
     sortCol: SortCol,
     availableWidth: number,
@@ -556,7 +626,10 @@ class GuiTableHead extends HTMLElement {
       if (this.widths[colIdx]) {
         colWidth = this.widths[colIdx];
       } else {
-        colWidth = Math.max((availableWidth - takenWidth) / (meta.length - colIdx), minColWidth);
+        colWidth = Math.max(
+          (availableWidth - takenWidth) / (meta.length - colIdx),
+          minColWidth,
+        );
       }
       takenWidth += colWidth;
       const header = this._getOrCreateHeader(colIdx, colWidth);
@@ -1034,7 +1107,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) {}
+  ) { }
 
   reset() {
     this._index = -1;
@@ -1079,7 +1152,7 @@ declare global {
     'gui-tbody-cell': GuiTableBodyCell;
   }
 
-  interface HTMLElementEventMap {
+  interface GuiTableEventMap {
     'table-sort': TableSortEvent;
     'table-filter': TableFilterEvent;
     'table-filter-column': TableFilterColumnEvent;
@@ -1088,12 +1161,13 @@ declare global {
     'table-dblclick': TableDblClickEvent;
   }
 
+  interface HTMLElementEventMap extends GuiTableEventMap { }
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-table': GreyCat.Element<GuiTable>;
+      'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
