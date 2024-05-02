@@ -188,7 +188,6 @@ export class GuiTable extends HTMLElement {
         virtColIdx++;
       }
     }
-    console.log('computedTable', this._rows);
   }
 
   get scrollToRowIndex() {
@@ -860,29 +859,31 @@ class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, title?: string) {
+  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, customHeader?: string) {
     this._index = index;
-    if (title) {
-      this._title.textContent = title;
-      if (meta?.typeName) {
-        const type = document.createElement('span');
-        type.className = 'gui-thead-type';
-        type.textContent = meta.typeName;
-        this._title.appendChild(type);
-      }
+    const title = document.createDocumentFragment();
+
+    const header = document.createElement('span');
+    header.className = 'gui-thead-header';
+
+    if (customHeader) {
+      header.textContent = customHeader;
     } else if (meta?.header) {
-      this._title.textContent = meta.header;
-      if (meta.typeName) {
-        const type = document.createElement('span');
-        type.className = 'gui-thead-type';
-        type.textContent = meta.typeName;
-        this._title.appendChild(type);
-      }
-    } else if (meta?.typeName) {
-      this._title.textContent = meta.typeName;
+      header.textContent = meta.header;
     } else {
-      this._title.textContent = `Column ${index + 1}`;
+      header.textContent = `Column ${index}`;
     }
+
+    title.appendChild(header);
+
+    if (meta?.typeName) {
+      const type = document.createElement('span');
+      type.className = 'gui-thead-type';
+      type.textContent = meta.typeName;
+      title.appendChild(type);
+    }
+
+    this._title.replaceChildren(title);
     this._sorter.textContent = this._icons[sort];
   }
 }
