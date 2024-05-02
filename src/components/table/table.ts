@@ -479,7 +479,6 @@ export class GuiTable extends HTMLElement {
 
     this._thead.update(
       meta,
-      ignoreCols,
       this._minColWidth,
       this._sortCol,
       this._tbody.virtualScroller.scrollWidth,
@@ -616,7 +615,6 @@ class GuiTableHead extends HTMLElement {
 
   update(
     meta: TableLikeMeta[],
-    ignoreCols: number[],
     minColWidth: number,
     sortCol: SortCol,
     availableWidth: number,
