@@ -367,6 +367,7 @@ export class GuiTable extends HTMLElement {
     cellProps: CellPropsFactory;
     headers: string[] | undefined;
     columnsWidths: number[];
+    ignoreCols: number[] | undefined;
   } {
     return {
       table: this._table,
@@ -376,6 +377,7 @@ export class GuiTable extends HTMLElement {
       cellProps: this._cellProps,
       headers: this._headers,
       columnsWidths: this._thead.widths,
+      ignoreCols: this._ignoreCols,
     };
   }
 
