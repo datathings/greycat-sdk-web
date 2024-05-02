@@ -1,14 +1,15 @@
 import { type core, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
+import './index.css';
 
 greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const chart = document.createElement('gui-chart');
-
-chart.setConfig({
-  table: await greycat.default.call<core.Table>('project::histogram_table'),
+const chart = document.createElement('gui-chart2');
+const table = await greycat.default.call<core.Table>('project::histogram_table', [10]);
+chart.value = table;
+chart.config = {
   xAxis: {
     scale: 'linear',
   },
@@ -39,20 +40,28 @@ chart.setConfig({
       yCol: 3,
     },
   ],
-});
+};
 
 document.body.appendChild(
   <app-layout title="Chart (bar-histogram)">
-    <a
-      slot="action"
-      href="#"
-      onclick={async () => {
-        chart.config.table = await greycat.default.call<core.Table>('project::histogram_table');
-        chart.setConfig(chart.config);
-      }}
-    >
-      Randomize
-    </a>
+    <>
+      <fieldset slot="action" role="group">
+        <label>Buckets</label>
+        <input
+          type="number"
+          min="1"
+          max="100"
+          value="10"
+          oninput={async (e) => {
+            const val = (e.target as HTMLInputElement).value;
+            chart.value = await greycat.default.call<core.Table>('project::histogram_table', [
+              Number(val),
+            ]);
+          }}
+        />
+      </fieldset>
+    </>
+
     {chart}
   </app-layout>,
 );

@@ -271,7 +271,7 @@ fn hello(name: String): String {
 
 // pages/histogram
 @expose
-fn histogram_table(): Table {
+fn histogram_table(buckets: int): Table {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
@@ -291,7 +291,7 @@ fn histogram_table(): Table {
     histogramWeight.add(weight_kg);
   }
 
-  return histogramHeight.all();
+  return histogramHeight.sample(histogramHeight.min()!!, histogramHeight.max()!!, buckets);
 }
 // pages/histogram end
 

@@ -914,6 +914,37 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
               }
             }
           }
+        } else if (serie.type === 'bar' && serie.spanCol !== undefined) {
+          for (let row = 0; row < (this._table.cols?.[serie.spanCol[0]]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols?.[serie.spanCol[0]]?.[row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMin == null) {
+                xMin = value;
+              } else if (value <= xMin) {
+                xMin = value;
+              }
+              if (xMax == null) {
+                xMax = value;
+              } else if (value >= xMax) {
+                xMax = value;
+              }
+            }
+          }
+          for (let row = 0; row < (this._table.cols?.[serie.spanCol[1]]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols?.[serie.spanCol[1]]?.[row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMin == null) {
+                xMin = value;
+              } else if (value <= xMin) {
+                xMin = value;
+              }
+              if (xMax == null) {
+                xMax = value;
+              } else if (value >= xMax) {
+                xMax = value;
+              }
+            }
+          }
         }
       }
     }

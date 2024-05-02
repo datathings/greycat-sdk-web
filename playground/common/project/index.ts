@@ -142,6 +142,9 @@ export namespace project {
     name!: string;
     next!: project.Link | null;
 
+    static whatever(link: $sdk.std.core.node, $g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<unknown> {
+      return $g.call('project::Link::whatever', [link], $signal);
+    };
     static createFrom({name, next}: {name: string, next: project.Link | null}, $g: $sdk.GreyCat = globalThis.greycat.default): Link {
       return new Link($g.abi.libs_by_name.get(projectlib.name)!.mapped[6], name, next);
     }
@@ -185,8 +188,8 @@ export namespace project {
   export function hello(name: string, $g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<string> {
     return $g.call('project::hello', [name], $signal);
   };
-  export function histogram_table($g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<$sdk.std.core.Table> {
-    return $g.call('project::histogram_table', undefined, $signal);
+  export function histogram_table(buckets: bigint | number, $g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<$sdk.std.core.Table> {
+    return $g.call('project::histogram_table', [buckets], $signal);
   };
   export function table($g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<$sdk.std.core.Table> {
     return $g.call('project::table', undefined, $signal);
@@ -232,6 +235,9 @@ export namespace project {
   };
   export function now($g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<unknown> {
     return $g.call('project::now', undefined, $signal);
+  };
+  export function link_whatever(l: $sdk.std.core.node, $g: $sdk.GreyCat = globalThis.greycat.default, $signal?: AbortSignal): Promise<unknown> {
+    return $g.call('project::link_whatever', [l], $signal);
   };
 }
 
@@ -314,6 +320,9 @@ export const projectlib: $sdk.Library = {
 
 declare module '@greycat/web' {
   interface GreyCat {
+    call(method: 'project::Link::whatever', args: [$sdk.std.core.node, ], signal?: AbortSignal): Promise<unknown>;
+    spawn(method: 'project::Link::whatever', args: [$sdk.std.core.node, ], signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
+    spawnAwait(method: 'project::Link::whatever', args: [$sdk.std.core.node, ], pollEvery?: number, signal?: AbortSignal): Promise<unknown>;
     call(method: 'project::boxplot_float', args?: undefined, signal?: AbortSignal): Promise<unknown>;
     spawn(method: 'project::boxplot_float', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
     spawnAwait(method: 'project::boxplot_float', args?: undefined, pollEvery?: number, signal?: AbortSignal): Promise<unknown>;
@@ -335,9 +344,9 @@ declare module '@greycat/web' {
     call(method: 'project::hello', args: [string, ], signal?: AbortSignal): Promise<string>;
     spawn(method: 'project::hello', args: [string, ], signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
     spawnAwait(method: 'project::hello', args: [string, ], pollEvery?: number, signal?: AbortSignal): Promise<string>;
-    call(method: 'project::histogram_table', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.core.Table>;
-    spawn(method: 'project::histogram_table', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
-    spawnAwait(method: 'project::histogram_table', args?: undefined, pollEvery?: number, signal?: AbortSignal): Promise<$sdk.std.core.Table>;
+    call(method: 'project::histogram_table', args: [bigint | number, ], signal?: AbortSignal): Promise<$sdk.std.core.Table>;
+    spawn(method: 'project::histogram_table', args: [bigint | number, ], signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
+    spawnAwait(method: 'project::histogram_table', args: [bigint | number, ], pollEvery?: number, signal?: AbortSignal): Promise<$sdk.std.core.Table>;
     call(method: 'project::table', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.core.Table>;
     spawn(method: 'project::table', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
     spawnAwait(method: 'project::table', args?: undefined, pollEvery?: number, signal?: AbortSignal): Promise<$sdk.std.core.Table>;
@@ -383,5 +392,8 @@ declare module '@greycat/web' {
     call(method: 'project::now', args?: undefined, signal?: AbortSignal): Promise<unknown>;
     spawn(method: 'project::now', args?: undefined, signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
     spawnAwait(method: 'project::now', args?: undefined, pollEvery?: number, signal?: AbortSignal): Promise<unknown>;
+    call(method: 'project::link_whatever', args: [$sdk.std.core.node, ], signal?: AbortSignal): Promise<unknown>;
+    spawn(method: 'project::link_whatever', args: [$sdk.std.core.node, ], signal?: AbortSignal): Promise<$sdk.std.runtime.Task>;
+    spawnAwait(method: 'project::link_whatever', args: [$sdk.std.core.node, ], pollEvery?: number, signal?: AbortSignal): Promise<unknown>;
   }
 }
