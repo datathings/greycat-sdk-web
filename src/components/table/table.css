@@ -137,7 +137,6 @@ gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
 }
 gui-table gui-tbody gui-tbody-row gui-tbody-cell {
   display: inline-flex;
-  padding: 2px 4px;
   align-items: center;
   line-height: 100%;
   height: 100%;
@@ -147,7 +146,7 @@ gui-table gui-tbody gui-tbody-row gui-tbody-cell {
 }
 
 gui-table gui-tbody gui-tbody-row gui-tbody-cell *:first-child {
-  /* display: block; */
+  padding: 2px 4px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;

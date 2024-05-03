@@ -104,7 +104,7 @@ export class GuiTable extends HTMLElement {
     });
 
     this.addEventListener('scroll', () => {
-      if (this._tbody.rowHeight === 0) {
+      if (this._tbody.rowHeight <= 0 && this._rows.length > 0) {
         this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
       }
       const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
@@ -216,6 +216,8 @@ export class GuiTable extends HTMLElement {
 
   set rowHeight(height: number) {
     this._tbody.rowHeight = height;
+    const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+    this._prevFromRowIdx = Math.max(0, fromRowIdx);
     this.update();
   }
 
@@ -370,7 +372,12 @@ export class GuiTable extends HTMLElement {
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
+    
     this._tbody.rowHeight = rowHeight;
+    // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
+    const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+    this._prevFromRowIdx = Math.max(0, fromRowIdx);
+
     this.update();
   }
 
@@ -461,8 +468,10 @@ export class GuiTable extends HTMLElement {
     });
 
     const oResize = new ResizeObserver(() => {
-      // recompute the available space for the rows
-      this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
+      if (this._rows.length > 0) {
+        // recompute the available space for the rows
+        this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
+      }
       // update the whole table
       this.update();
     });
@@ -975,11 +984,17 @@ class GuiTableBody extends HTMLElement {
     updateCallback: RowUpdateCallback,
     tagNames?: Record<number, string>,
   ): void {
+    if (this.rowHeight === -1 && rows.length > 0) {
+      this.computeRowHeight(rows[0], tagNames);
+    }
+
     // Make it one more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
     // actual content without any extra row.
-    this.maxVirtualRows = Math.min(Math.ceil(this.offsetHeight / this.rowHeight) + 1, rows.length);
+    //
+    // We use `(value + 0.5) | 0` to get a speedy `Math.round(...)` equivalent
+    this.maxVirtualRows = (Math.min(this.offsetHeight / this.rowHeight + 1, rows.length) + 0.5) | 0;
 
     /** This is the max bound for rows */
     const maxRowIdx = rows.length - 1;
