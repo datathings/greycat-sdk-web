@@ -145,7 +145,7 @@ gui-table gui-tbody gui-tbody-row gui-tbody-cell {
   overflow: auto;
 }
 
-gui-table gui-tbody gui-tbody-row gui-tbody-cell *:first-child {
+gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
   padding: 2px 4px;
   overflow: hidden;
   white-space: nowrap;
@@ -157,6 +157,7 @@ gui-table
   gui-tbody
   gui-tbody-row
   gui-tbody-cell
-  :has(gui-object.gui-object > article > .gui-object.gui-object-grid) {
+  > *:first-child:has(gui-object.gui-object > article > .gui-object.gui-object-grid) {
   align-self: flex-start;
+  overflow: auto;
 }
