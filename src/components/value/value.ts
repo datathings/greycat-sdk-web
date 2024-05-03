@@ -204,7 +204,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._disposeClickHandler?.();
       const children = document.createDocumentFragment();
       children.appendChild(document.createTextNode('['));
-      for (let i = 0; i < this._value.length; i++) {
+      const len = Math.min(this._value.length, 15);
+      for (let i = 0; i < len; i++) {
         const value = this._value[i];
         const content = utils.stringify({
           value,

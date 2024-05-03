@@ -956,7 +956,7 @@ class GuiTableBody extends HTMLElement {
   }
 
   computeRowHeight(row: Cell[], tagNames: Record<number, string> | undefined) {
-    if (this.rowHeight === -1) {
+    if (this.rowHeight <= 0) {
       // create a ghost row to compute the height
       const tmpRow = document.createElement('gui-tbody-row');
       this.appendChild(tmpRow);
