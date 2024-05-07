@@ -335,8 +335,6 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         serie,
         this._cursor.x,
         this._cursor.y,
-        this._config.xAxis,
-        this._config.yAxes,
         xScale,
         yScales[serie.yAxis],
         v,

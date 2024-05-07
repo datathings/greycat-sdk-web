@@ -324,12 +324,34 @@ export interface ScatterSerie<K> extends CommonSerie<K> {
   type: 'scatter';
   /** This is not used. Use `width` to specify the radius of the plots */
   plotRadius?: never;
+
+  /**
+   * If `true` the serie will use the x/y coordinates for proximity detection on hover.
+   *
+   * This is useful for scatter serie where the x and y values are not ordered.
+   *
+   * **Important: if set to true the xCol has to be defined**
+   *
+   * Defaults to `false`.
+   */
+  useXYForProximityHoover: boolean;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+scatter';
   /** Specifies the radius of the plot in a `'line+scatter'` */
   plotRadius?: number;
+
+  /**
+   * If `true` the serie will use the x/y coordinates for proximity detection on hover.
+   *
+   * This is useful for scatter serie where the x and y values are not ordered.
+   *
+   * **Important: if set to true the xCol has to be defined**
+   *
+   * Defaults to `false`.
+   */
+  useXYForProximityHoover: boolean;
 }
 
 export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {

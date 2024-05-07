@@ -609,8 +609,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-              (style.margin.right + rightAxesIdx * style.margin.right) +
-              padding,
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -648,8 +648,6 @@ export class GuiChart extends HTMLElement {
           serie,
           this._cursor.x,
           this._cursor.y,
-          this._config.xAxis,
-          this._config.yAxes,
           xScale,
           yScales[serie.yAxis],
           v,
@@ -1475,7 +1473,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap { }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {

@@ -1,5 +1,5 @@
 import { core } from '@greycat/sdk';
-import { Axis, Ordinate, Scale, Serie, TableLike } from './components/index.js';
+import { Scale, Serie, TableLike } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
 
 export type Disposable = () => void;
@@ -103,8 +103,6 @@ export function closest(
   serie: Serie<string>,
   x: number,
   y: number,
-  xAxis: Axis,
-  yAxes: Record<string, Ordinate>,
   xScale: Scale,
   yScale: Scale,
   v: number,
@@ -113,10 +111,9 @@ export function closest(
   let res = undefined;
   let distance: number | null = null;
   if (
-    serie.type === 'scatter' &&
+    (serie.type === 'scatter' || serie.type === 'line+scatter') &&
     serie.xCol !== undefined &&
-    xAxis.scale === 'linear' &&
-    yAxes[serie.yAxis].scale === 'linear'
+    serie.useXYForProximityHoover
   ) {
     let minDistance = Infinity;
     for (let i = 0; i < (table.cols?.[0]?.length ?? 0); i++) {
