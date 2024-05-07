@@ -334,7 +334,7 @@ export interface ScatterSerie<K> extends CommonSerie<K> {
    *
    * Defaults to `false`.
    */
-  useXYForProximityHoover: boolean;
+  useXYForProximityHoover?: boolean;
 }
 
 export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
@@ -351,7 +351,7 @@ export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
    *
    * Defaults to `false`.
    */
-  useXYForProximityHoover: boolean;
+  useXYForProximityHoover?: boolean;
 }
 
 export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {
