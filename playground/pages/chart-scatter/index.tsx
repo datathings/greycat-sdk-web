@@ -35,6 +35,7 @@ chart.setConfig({
       width: 3,
       markerWidth: 5,
       markerColor: 'orange',
+      useXYForProximityHoover: true,
     },
   ],
   xAxis: {
