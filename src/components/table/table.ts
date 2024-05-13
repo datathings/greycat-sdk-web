@@ -235,13 +235,15 @@ export class GuiTable extends HTMLElement {
       return;
     }
     this._thead.querySelectorAll('gui-thead-cell').forEach((el, i) => {
-      const titleEl = el.querySelector<HTMLElement>('.gui-thead-title')!;
-      const titleFitWidth =
-        titleEl.scrollWidth +
-        48 /* the minimum for the icons */ +
-        6; /* spacing (arguably this should be tied to var(--spacing)) */
-      if (titleFitWidth > el.scrollWidth) {
-        this._thead.widths[i] = titleFitWidth + 1; // +1 to prevent ellipsis from happening
+      const titleEl = el.querySelector<HTMLElement>('.gui-thead-title');
+      if (titleEl) {
+        const titleFitWidth =
+          titleEl.scrollWidth +
+          48 /* the minimum for the icons */ +
+          6; /* spacing (arguably this should be tied to var(--spacing)) */
+        if (titleFitWidth > el.scrollWidth) {
+          this._thead.widths[i] = titleFitWidth + 1; // +1 to prevent ellipsis from happening
+        }
       }
     });
     this.update();
@@ -372,7 +374,7 @@ export class GuiTable extends HTMLElement {
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
-    
+
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
     const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
