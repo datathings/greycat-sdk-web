@@ -11,6 +11,7 @@ let dateFmt = new Intl.DateTimeFormat(navigator.language, {
   minute: '2-digit',
   second: '2-digit',
   timeZoneName: 'longOffset',
+  timeZone: 'UTC',
 });
 
 export function getGlobalDateTimeFormat(): Intl.DateTimeFormat {
