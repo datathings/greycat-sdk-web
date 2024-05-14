@@ -89,9 +89,17 @@ export function createFormatter(axis: Axis, scale: Scale, useCursorFormat = fals
           timeZone: timeZone?.key.replace('_', '/'),
         });
         return (d) => fmt.format(d);
-      } else if (span < DAYS_IN_MS * 30) {
+      } else if (span < DAYS_IN_MS * 50) {
         const fmt = new Intl.DateTimeFormat(navigator.language, {
           weekday: 'short',
+          day: '2-digit',
+          month: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else if (span < DAYS_IN_MS * 365) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          month: 'short',
           day: '2-digit',
           timeZone: timeZone?.key.replace('_', '/'),
         });
