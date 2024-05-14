@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { Axis, Scale } from './types.js';
+import { getGlobalDateTimeFormat, getGlobalDateTimeFormatTimezone } from '../../globals.js';
 
 const SECONDS_IN_MS = 1000;
 const MINUTES_IN_MS = SECONDS_IN_MS * 60;
@@ -53,8 +54,56 @@ export function createFormatter(axis: Axis, scale: Scale, useCursorFormat = fals
     const [from, to] = scale.range();
     const span = Math.abs(+scale.invert(to) - +scale.invert(from));
     if (axis.scale === 'time') {
-      const specifier = smartTimeFormatSpecifier(span);
-      return d3.utcFormat(specifier);
+      const timeZone = getGlobalDateTimeFormatTimezone();
+      if (useCursorFormat) {
+        const fmt = getGlobalDateTimeFormat();
+        return (d) => fmt.format(d);
+      }
+
+      if (span < MINUTES_IN_MS) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else if (span < HOURS_IN_MS) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else if (span < DAYS_IN_MS) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else if (span < DAYS_IN_MS * 7) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else if (span < DAYS_IN_MS * 30) {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          weekday: 'short',
+          day: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      } else {
+        const fmt = new Intl.DateTimeFormat(navigator.language, {
+          month: 'short',
+          year: 'numeric',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
     } else {
       return d3.format(smartNumericalFormatSpecifier(span));
     }
