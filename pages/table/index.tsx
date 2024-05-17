@@ -14,15 +14,17 @@ app
   })
   .addSimpleAction('Add column', () => {
     if (tableEl.value) {
-      const newCol = Array.from({ length: tableEl.value.cols[0].length }).map(d3.randomInt(1000));
-      tableEl.value.cols.push(newCol);
+      const newCol = Array.from({ length: tableEl.value.cols?.[0].length ?? 0 }).map(
+        d3.randomInt(1000),
+      );
+      tableEl.value.cols?.push(newCol);
       tableEl.value.meta?.push(
         new std_n.core.NativeTableColumnMeta(
           greycat.default.abi,
           PrimitiveType.int,
           greycat.default.abi.type_by_fqn.get('core::int')!.mapped_type_off,
           false,
-          `Column ${tableEl.value.cols.length}`,
+          `Column ${tableEl.value.cols?.length}`,
         ),
       );
       tableEl.computeTable();
@@ -33,9 +35,10 @@ app
   .addSimpleAction('Reset columns', () => tableEl.resetColumnsWidth());
 
 const tableEl = document.createElement('gui-table');
-const table = await greycat.default.call<core.Table>('project::table');
-
-tableEl.value = table;
+tableEl.value = await greycat.default.call<core.Table>('project::table');
+tableEl.cellProps = {
+  numFmt: new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }),
+};
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
   switch (klass) {
@@ -50,8 +53,6 @@ tableEl.onrowupdate = (el, row) => {
       break;
   }
 };
-// tableEl.filter = "low";
-// tableEl.filterColumn = 2;
 
 tableEl.addEventListener('table-dblclick', (ev) => {
   window.alert(
@@ -67,7 +68,7 @@ app.main.appendChild(
       project::table
       <div>
         <gui-searchable-select
-          placeholder="Search a timezone"
+          placeholder="Change timezone"
           value="UTC"
           options={core.TimeZone.$fields().map((en) => ({
             text: en.value as string,

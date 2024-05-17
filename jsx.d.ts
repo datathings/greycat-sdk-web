@@ -10,7 +10,14 @@ declare namespace GreyCat {
     style?: Partial<CSSStyleDeclaration> | string;
   }
 
-  type Element<T> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties;
+  type Element<T, EventMap = {}> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties & {
+    [EVENT in keyof EventMap as `on${EVENT}`]?: (
+      this: GlobalEventHandlers,
+      ev: EventMap[EVENT],
+      options?: boolean | AddEventListenerOptions,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => any;
+  };
 }
 
 declare namespace JSX {

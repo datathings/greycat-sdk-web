@@ -36,6 +36,7 @@ app.main.replaceChildren(
           <li><a href="./table/">Table</a></li>
           <li><a href="./tabs/">Tabs</a></li>
           <li><a href="./tasks/">Tasks</a></li>
+          <li><a href="./tasks2/">Tasks2</a></li>
           <li><a href="./users/">Users</a></li>
         </ul>
       </nav>

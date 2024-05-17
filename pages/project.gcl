@@ -61,7 +61,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -83,7 +83,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -495,9 +495,9 @@ fn obj1() {
 @expose
 fn obj2() {
   var prop3 = Map::new();
-  prop3.set("entry1", Runtime::info());
-  prop3.set("entry2", Runtime::info());
-  prop3.set("entry3", Runtime::info());
+  for (var i = 0; i < 100; i++) {
+    prop3.set("entry-${i}", Runtime::info());
+  }
 
   return {
     prop1: "Hello",
