@@ -4,7 +4,7 @@ import { debounce } from '../../internals.js';
 import { getColors } from '../../utils.js';
 import { CanvasContext } from '../chart/ctx.js';
 import { Cursor } from '../chart/types.js';
-import { Disposer, TableLike } from '../common.js';
+import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
 import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
 import './tooltip.js';
 
@@ -28,6 +28,7 @@ type ComputedState = {
 
 export class GuiHeatmap extends HTMLElement {
   private _disposer: Disposer;
+  private _table: TableLikeColumnBased;
   private _config: HeatmapConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -60,7 +61,8 @@ export class GuiHeatmap extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._config = { table: { cols: [] }, xAxis: {}, yAxis: {} };
+    this._table = {};
+    this._config = { xAxis: {}, yAxis: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -193,6 +195,9 @@ export class GuiHeatmap extends HTMLElement {
 
   set config(config: HeatmapConfig) {
     this._config = config;
+    if (config.table) {
+      this._table = toColumnBasedTable(config.table);
+    }
     this.compute();
     this.update();
   }
@@ -202,23 +207,23 @@ export class GuiHeatmap extends HTMLElement {
   }
 
   set value(table: TableLike) {
-    this._config.table = table;
+    this._table = toColumnBasedTable(table);
     this.compute();
     this.update();
   }
 
-  get value(): TableLike {
-    return this._config.table;
+  get value(): TableLike | undefined {
+    return this._table;
   }
 
   setAttrs({
     config = this._config,
-    value = this._config.table,
-  }: {
+    value = this._table,
+  }: Partial<{
     config: HeatmapConfig;
     value: TableLike;
-  }) {
-    this._config.table = value;
+  }>) {
+    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
     this._config = config;
     this.compute();
     this.update();
@@ -230,7 +235,7 @@ export class GuiHeatmap extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (!this._computed) {
+    if (!this._computed || !this._table || !this._table.cols) {
       return;
     }
     this._clearUX();
@@ -263,7 +268,7 @@ export class GuiHeatmap extends HTMLElement {
       const cursor: Cursor = { ...this._cursor };
       // call tooltip render if defined
       const data: HeatmapData = {
-        value: this.config.table.cols?.[colIndex]?.[rowIndex] as number,
+        value: this._table.cols[colIndex]?.[rowIndex] as number,
         xValue: xLabels[colIndex],
         yValue: yLabels[rowIndex],
         title: this.config.colorScale?.title,
@@ -338,9 +343,9 @@ export class GuiHeatmap extends HTMLElement {
       this._computed;
 
     // Draw the heatmap
-    for (let col = 0; col < (this.config.table.cols?.length ?? 0); col++) {
-      for (let row = 0; row < (this.config.table.cols?.[col]?.length ?? 0); row++) {
-        const value = this.config.table.cols?.[col]?.[row];
+    for (let col = 0; col < (this._table.cols?.length ?? 0); col++) {
+      for (let row = 0; row < (this._table.cols?.[col]?.length ?? 0); row++) {
+        const value = this._table.cols?.[col]?.[row];
 
         if (!isNaN(Number(value))) {
           const color = colorScale(Number(value));
@@ -479,9 +484,9 @@ export class GuiHeatmap extends HTMLElement {
     ];
 
     if (colorScaleMin === null || colorScaleMax === null) {
-      for (let col = 0; col < (this.config.table.cols?.length ?? 0); col++) {
-        for (let row = 0; row < (this.config.table.cols?.[col]?.length ?? 0); row++) {
-          const value = this.config.table.cols?.[col]?.[row];
+      for (let col = 0; col < (this._table.cols?.length ?? 0); col++) {
+        for (let row = 0; row < (this._table.cols?.[col]?.length ?? 0); row++) {
+          const value = this._table.cols?.[col]?.[row];
           if (typeof value === 'number') {
             if (colorScaleMin === null || value < colorScaleMin) {
               colorScaleMin = value;
@@ -505,13 +510,13 @@ export class GuiHeatmap extends HTMLElement {
     const yLabels = this.config.yAxis.labels ?? [];
 
     if (xLabels.length === 0) {
-      for (let colIdx = 0; colIdx < (this.config.table.cols?.length ?? 0); colIdx++) {
+      for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
         xLabels.push(`${colIdx}`);
       }
     }
 
-    if (yLabels.length === 0 && this.config.table.cols?.[0] !== undefined) {
-      for (let rowIdx = 0; rowIdx < this.config.table.cols?.[0].length; rowIdx++) {
+    if (yLabels.length === 0 && this._table.cols?.[0] !== undefined) {
+      for (let rowIdx = 0; rowIdx < this._table.cols?.[0].length; rowIdx++) {
         yLabels.push(`${rowIdx}`);
       }
     }

@@ -1,4 +1,4 @@
-import { runtime } from '@greycat/sdk';
+import { Value, runtime } from '@greycat/sdk';
 import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
 import { TaskInfoLike } from '../task-info/task-info.js';
@@ -41,8 +41,8 @@ export class GuiTasks extends HTMLElement {
     const tmp: CellProps = { value: null }; // re-use the same object for each cell rendering to ease gc
     this.table.setAttrs({
       value: {
-        cols: GuiTasks.HEADERS.map(() => []),
-        meta: GuiTasks.HEADERS.map((header) => ({ header })),
+        rows: [],
+        meta: GuiTasks.HEADERS as unknown as string[],
       },
       sortBy: [0, 'desc'],
       columnsWidths: [100, 150, 350, NaN, NaN, NaN, NaN, 110, NaN],
@@ -161,30 +161,13 @@ export class GuiTasks extends HTMLElement {
       const history = await runtime.Task.history(0, 1);
       const maxHistory = history.length > 0 ? Number(history[0].task_id) : 0;
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      let cols: any[][];
-      if (this.table.value!.cols) {
-        cols = this.table.value!.cols;
-        cols.length = GuiTasks.HEADERS.length;
-      } else {
-        cols = new Array(GuiTasks.HEADERS.length);
-      }
-
-      for (let i = 0; i < cols.length; i++) {
-        if (cols[i] === undefined) {
-          cols[i] = [];
-        }
-      }
-
       this._tasks = await runtime.Task.history(0, maxHistory);
       const running = await runtime.Task.running();
       for (const t of running) {
         this._tasks.push(t);
       }
 
-      for (const col of cols) {
-        col.length = this._tasks.length;
-      }
+      const rows: Array<Value[]> = new Array(this._tasks.length);
 
       for (let i = 0; i < this._tasks.length; i++) {
         const task = this._tasks[i];
@@ -194,29 +177,33 @@ export class GuiTasks extends HTMLElement {
           name_or_id = user_id;
         }
 
-        cols[0][i] = task.task_id; // Id
-        cols[1][i] = name_or_id; // User
-        cols[2][i] = `${task.mod}::${task.fun}`; // Name
-        cols[3][i] = task.creation; // Created
-        cols[4][i] = task.start ?? ''; // Started
-        cols[5][i] = task.duration ?? ''; // Duration
-        cols[6][i] = task.remaining ?? ''; // Remaining
-        cols[7][i] = task.status.key; // Status
+        const row = new Array(GuiTasks.HEADERS.length);
+
+        row[0] = task.task_id; // Id
+        row[1] = name_or_id; // User
+        row[2] = `${task.mod}::${task.fun}`; // Name
+        row[3] = task.creation; // Created
+        row[4] = task.start ?? ''; // Started
+        row[5] = task.duration ?? ''; // Duration
+        row[6] = task.remaining ?? ''; // Remaining
+        row[7] = task.status.key; // Status
         if (task.progress == null) {
           if (task.status.key === 'running') {
-            cols[8][i] = '<unknown>'; // Progress
+            row[8] = '<unknown>'; // Progress
           } else {
-            cols[8][i] = ''; // Progress
+            row[8] = ''; // Progress
           }
         } else if (isNaN(task.progress)) {
-          cols[8][i] = ''; // Progress
+          row[8] = ''; // Progress
         } else {
-          cols[8][i] = `${(task.progress * 100).toFixed(1)}%`; // Progress
+          row[8] = `${(task.progress * 100).toFixed(1)}%`; // Progress
         }
+
+        rows[i] = row;
       }
 
-      this.table.computeTable();
-      this.table.update();
+      // update table
+      this.table.value = { rows };
     } catch {
       // ignore errors (for now?)
     }

@@ -356,7 +356,8 @@ export type Serie<K extends string = string> =
   | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
-  table: TableLike;
+  /** @deprecated use `chart.value` instead */
+  table?: TableLike;
   series: Serie<Extract<keyof K, string>>[];
   /**
    * The x-axis definition

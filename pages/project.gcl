@@ -13,6 +13,21 @@ fn main() {
   }
 }
 
+type Person2 {
+  name: String;
+  age: int;
+  children: int;
+}
+
+@expose
+fn persons() {
+  return [
+    Person2 { name: "John", age: 42, children: 2 },
+    Person2 { name: "Bob", age: 64, children: 4 },
+    Person2 { name: "Max", age: 35, children: 0 },
+  ];
+}
+
 // pages/chart start
 enum Confidence {
   High;

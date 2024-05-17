@@ -1,5 +1,6 @@
 import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
+import { GuiUpdateEvent } from '../../events.js';
 
 export interface TaskInfoLike extends runtime.Task {
   start?: core.time | null;
@@ -158,11 +159,19 @@ export class GuiTaskInfo extends HTMLElement {
     if (this._isAlive(t.status)) {
       this._btn.textContent = 'Cancel';
       this._btn.classList.add('outline');
-      this._btn.onclick = () => this.cancel();
+      this._btn.onclick = () => {
+        this.cancel().then(() => {
+          this.dispatchEvent(new GuiUpdateEvent(undefined));
+        });
+      };
     } else {
       this._btn.textContent = 'Re-run';
       this._btn.classList.remove('outline');
-      this._btn.onclick = () => this.run();
+      this._btn.onclick = () => {
+        this.run().then(() => {
+          this.dispatchEvent(new GuiUpdateEvent(undefined));
+        });
+      };
     }
 
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}/`;
@@ -232,11 +241,13 @@ export class GuiTaskInfo extends HTMLElement {
     ) {
       this._btn.textContent = 'Cancel';
       this._btn.classList.add('outline');
-      this._btn.onclick = () => this.cancel();
+      this._btn.onclick = () =>
+        this.cancel().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     } else {
       this._btn.textContent = 'Re-run';
       this._btn.classList.remove('outline');
-      this._btn.onclick = () => this.run();
+      this._btn.onclick = () =>
+        this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
   }
 
@@ -329,25 +340,19 @@ declare global {
     'gui-task-info': GuiTaskInfo;
   }
 
-  interface HTMLElementEventMap {
-    'gui-files-click': GuiFilesClickEvent;
+  interface GuiTaskInfoEventMap {
+    [GuiFilesClickEvent.NAME]: GuiFilesClickEvent;
+    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
   }
+
+  interface HTMLElementEventMap extends GuiTaskInfoEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-task-info': GreyCat.Element<
-        GuiTaskInfo & {
-          'ongui-files-click': (
-            this: GlobalEventHandlers,
-            ev: GuiFilesClickEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-task-info': GreyCat.Element<GuiTaskInfo, GuiTaskInfoEventMap>;
     }
   }
 }

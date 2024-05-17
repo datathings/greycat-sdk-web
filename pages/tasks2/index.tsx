@@ -13,7 +13,19 @@ const taskList = (
     style={{ height: '500px' }}
     ongui-click={(ev) => {
       // display the clicked task id
-      modal.info(<gui-task-info value={ev.detail} />, { title: 'Task info', confirm: 'Close' });
+      modal.info(
+        <gui-task-info
+          value={ev.detail}
+          ongui-update={() => {
+            console.log('task info update');
+            taskList.reload();
+          }}
+        />,
+        {
+          title: 'Task info',
+          confirm: 'Close',
+        },
+      );
     }}
   />
 ) as GuiTasks;
