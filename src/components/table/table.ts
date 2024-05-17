@@ -176,7 +176,7 @@ export class GuiTable extends HTMLElement {
           }
           this._rows[rowIdx][virtColIdx] = {
             // SAFETY: same argument as above, we won't be iterating if `this._table.rows` was not defined
-            value: this._table.rows![colIdx][rowIdx],
+            value: this._table.rows![rowIdx][colIdx],
             originalIndex: rowIdx,
             originalColIndex: colIdx,
           };

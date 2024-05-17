@@ -41,8 +41,8 @@ export class GuiTasks extends HTMLElement {
     const tmp: CellProps = { value: null }; // re-use the same object for each cell rendering to ease gc
     this.table.setAttrs({
       value: {
-        cols: GuiTasks.HEADERS.map(() => []),
-        meta: GuiTasks.HEADERS.map((header) => ({ header })),
+        rows: [],
+        meta: GuiTasks.HEADERS as unknown as string[],
       },
       sortBy: [0, 'desc'],
       columnsWidths: [100, 150, 350, NaN, NaN, NaN, NaN, 110, NaN],
@@ -199,7 +199,7 @@ export class GuiTasks extends HTMLElement {
           row[8] = `${(task.progress * 100).toFixed(1)}%`; // Progress
         }
 
-        rows[i] = rows;
+        rows[i] = row;
       }
 
       // update table
