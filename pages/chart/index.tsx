@@ -6,7 +6,7 @@ const app = document.createElement('app-layout');
 app.title = 'Chart';
 await app.init();
 
-document.body.prepend(app);
+document.body.appendChild(app);
 
 const nbRows = (
   <input

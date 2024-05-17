@@ -10,7 +10,7 @@ import type {
   LineScatterSerie,
   SerieStyle,
 } from './types.js';
-import type { TableLike } from '../common.js';
+import type { TableLikeColumnBased } from '../common.js';
 import { BoxPlotCanvas, BoxPlotOptions } from '../../../src/chart-utils/model.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
@@ -42,9 +42,9 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) {}
+  constructor(public ctx: Ctx) { }
 
-  line(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+  line(table: TableLikeColumnBased, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
@@ -159,7 +159,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  step(table: TableLike, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  step(table: TableLikeColumnBased, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
@@ -236,7 +236,7 @@ export class CanvasContext {
   }
 
   bar(
-    table: TableLike,
+    table: TableLikeColumnBased,
     serie: BarSerie<string> & SerieOptions,
     xScale: Scale,
     yScale: Scale,
@@ -314,7 +314,7 @@ export class CanvasContext {
   }
 
   scatter(
-    table: TableLike,
+    table: TableLikeColumnBased,
     serie: (ScatterSerie<unknown> | LineScatterSerie<unknown>) & SerieOptions,
     xScale: Scale,
     yScale: Scale,
@@ -372,7 +372,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  area(table: TableLike, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+  area(table: TableLikeColumnBased, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }

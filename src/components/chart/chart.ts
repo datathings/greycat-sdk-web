@@ -18,7 +18,7 @@ import {
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
-import { Disposer, TableLike } from '../common.js';
+import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
 
 type ComputedState = {
   leftAxes: number;
@@ -48,6 +48,7 @@ type ComputedState = {
 
 export class GuiChart extends HTMLElement {
   private _disposer: Disposer;
+  private _table: TableLikeColumnBased;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -88,7 +89,8 @@ export class GuiChart extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._config = { table: { cols: [] }, series: [], xAxis: {}, yAxes: {} };
+    this._table = {};
+    this._config = { series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -424,13 +426,13 @@ export class GuiChart extends HTMLElement {
   }
 
   set value(table: TableLike) {
-    this._config.table = table;
+    this._table = toColumnBasedTable(table);
     this.compute();
     this.update();
   }
 
   get value() {
-    return this._config.table;
+    return this._table;
   }
 
   /**
@@ -442,6 +444,9 @@ export class GuiChart extends HTMLElement {
 
   set config(config: ChartConfig) {
     this._config = config;
+    if (config.table) {
+      this._table = toColumnBasedTable(config.table);
+    }
     // update local user X min/max with the configuration values
     this._userXAxisMin = config.xAxis.min;
     this._userXAxisMax = config.xAxis.max;
@@ -458,6 +463,20 @@ export class GuiChart extends HTMLElement {
     return this._config;
   }
 
+  setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
+    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+    this._config = config;
+    this.compute();
+    this.update();
+  }
+
+  getAttrs() {
+    return {
+      config: this._config,
+      value: this._table,
+    };
+  }
+
   /**
    * This is all about cursor interactions.
    *
@@ -466,8 +485,8 @@ export class GuiChart extends HTMLElement {
   private _updateUX() {
     if (
       !this._computed ||
-      this._config.table.cols === undefined ||
-      this._config.table.cols.length === 0
+      this._table.cols === undefined ||
+      this._table.cols.length === 0
     ) {
       return;
     }
@@ -609,8 +628,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-                (style.margin.right + rightAxesIdx * style.margin.right) +
-                padding,
+              (style.margin.right + rightAxesIdx * style.margin.right) +
+              padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -644,6 +663,7 @@ export class GuiChart extends HTMLElement {
         const v = +xScale.invert(this._cursor.x);
 
         const { xValue, rowIdx } = closest(
+          this._table.cols,
           this._config,
           serie,
           this._cursor,
@@ -653,15 +673,15 @@ export class GuiChart extends HTMLElement {
         );
 
         const yValue =
-          typeof this._config.table.cols[serie.yCol][rowIdx] === 'bigint'
-            ? Number(this._config.table.cols[serie.yCol][rowIdx])
-            : this._config.table.cols[serie.yCol][rowIdx];
+          typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
+            ? Number(this._table.cols[serie.yCol][rowIdx])
+            : this._table.cols[serie.yCol][rowIdx];
         const x = xScale(vMap(xValue));
         let y = yScales[serie.yAxis](vMap(yValue));
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
-          yValue2 = this._config.table.cols[serie.yCol2][rowIdx];
+          yValue2 = this._table.cols[serie.yCol2][rowIdx];
         }
 
         if (serie.markerThreshold) {
@@ -704,8 +724,8 @@ export class GuiChart extends HTMLElement {
             let h: number;
             let rectY: number;
             if (s.spanCol) {
-              const x0 = xScale(vMap(this._config.table.cols[s.spanCol[0]][rowIdx]));
-              const x1 = xScale(vMap(this._config.table.cols[s.spanCol[1]][rowIdx]));
+              const x0 = xScale(vMap(this._table.cols[s.spanCol[0]][rowIdx]));
+              const x1 = xScale(vMap(this._table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
 
@@ -746,11 +766,11 @@ export class GuiChart extends HTMLElement {
         let color = serie.color;
         if (serie.colorCol) {
           color = serie.colorMapping
-            ? serie.colorMapping(this._config.table.cols[serie.colorCol][rowIdx])
-            : this._config.table.cols[serie.colorCol][rowIdx];
+            ? serie.colorMapping(this._table.cols[serie.colorCol][rowIdx])
+            : this._table.cols[serie.colorCol][rowIdx];
         } else if (serie.styleCol && serie.styleMapping) {
           color =
-            serie.styleMapping(this._config.table.cols[serie.styleCol][rowIdx]).color?.toString() ??
+            serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ??
             color;
         }
         if (!color) {
@@ -778,7 +798,7 @@ export class GuiChart extends HTMLElement {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent =
-            serie.title ?? this._config.table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+            serie.title ?? this._table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -795,7 +815,7 @@ export class GuiChart extends HTMLElement {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
             nameEl.textContent =
-              serie.title ?? this._config.table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+              serie.title ?? this._table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (
@@ -1086,28 +1106,28 @@ export class GuiChart extends HTMLElement {
 
       switch (serie.type) {
         case 'line':
-          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'step':
-          this._ctx.step(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.step(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+scatter':
-          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
-          this._ctx.scatter(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+area':
           // draw area "under" (before) line
-          this._ctx.area(this._config.table, serie, xScale, yScales[serie.yAxis]);
-          this._ctx.line(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'area':
-          this._ctx.area(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'bar':
-          this._ctx.bar(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.bar(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'scatter':
-          this._ctx.scatter(this._config.table, serie, xScale, yScales[serie.yAxis]);
+          this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'custom':
           serie.draw(this._ctx, serie, xScale, yScales[serie.yAxis]);
@@ -1271,8 +1291,8 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._config.table.cols?.[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._config.table.cols?.[serie.xCol]?.[row]);
+          for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1295,7 +1315,7 @@ export class GuiChart extends HTMLElement {
     }
 
     if (xMax === null) {
-      xMax = Math.max(0, (this._config.table.cols?.[0]?.length ?? 0) - 1);
+      xMax = Math.max(0, (this._table.cols?.[0]?.length ?? 0) - 1);
     }
 
     // TODO handle the case where no yAxes have been defined at all
@@ -1320,8 +1340,8 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._config.table.cols?.[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._config.table.cols?.[serie.yCol]?.[row]);
+            for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
+              const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1336,7 +1356,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._config.table.cols?.[serie.yCol2]?.[row]);
+                const value = vMap(this._table.cols?.[serie.yCol2]?.[row]);
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
@@ -1470,7 +1490,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap {}
+  interface HTMLElementEventMap extends GuiChartEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {

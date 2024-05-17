@@ -75,7 +75,8 @@ export type HeatmapTooltip = {
 };
 
 export type HeatmapConfig = {
-  table: TableLike;
+  /** @deprecated use `heatmap.value` instead */
+  table?: TableLike;
   markerColor?: Color;
   /**
    * Displays the value centered in each square. Defaults to `false`.

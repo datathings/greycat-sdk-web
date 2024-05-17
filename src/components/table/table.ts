@@ -1,22 +1,25 @@
 import { utils } from '@greycat/sdk';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta } from '../common.js';
+import {
+  Disposer,
+  GuiRenderEvent,
+  TableLike,
+  TableLikeMeta,
+  toColumnBasedTable,
+} from '../common.js';
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
 /**
  * A function called to compute the cell properties
  * that will be passed to the underlying `<gui-value />` component.
- * 
+ *
  * Or an object containing the cell properties.
  */
-export type CellPropsFactory = ((
-  row: Cell[],
-  value: unknown,
-  rowIdx: number,
-  colIdx: number,
-) => CellProps) | CellAttrs;
+export type CellPropsFactory =
+  | ((row: Cell[], value: unknown, rowIdx: number, colIdx: number) => CellProps)
+  | CellAttrs;
 
 /**
  * An internal wrapper type for the table cells.
@@ -121,22 +124,8 @@ export class GuiTable extends HTMLElement {
     });
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  get table() {
+  get value(): TableLike | undefined {
     return this._table;
-  }
-
-  get value() {
-    return this._table;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set table(table: TableLike | undefined) {
-    this.value = table;
   }
 
   set value(table: TableLike | undefined) {
@@ -150,30 +139,99 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  /**
+   * @deprecated use `value` instead
+   */
+  get table(): TableLike | undefined {
+    return this._table;
+  }
+
+  /**
+   * @deprecated use `value` instead
+   */
+  set table(table: TableLike | undefined) {
+    this.value = table;
+  }
+
   computeTable() {
     if (!this._table) {
       return;
     }
-    this._rows.length = this._table.cols?.[0]?.length ?? 0;
-    for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
-      // initialize an empty col of the proper length
-      const nbCols = this._table.cols?.length ?? 0;
-      const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
-      this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
 
-      let virtColIdx = 0;
-      for (let colIdx = 0; colIdx < nbCols; colIdx++) {
-        if (ignoreCols.includes(colIdx)) {
-          // skip ignored columns
-          continue;
+    const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
+
+    if ('rows' in this._table) {
+      // we are being given a TableLikeRowBased
+      this._rows.length = this._table.rows?.length ?? 0;
+      const nbCols = this._table.rows?.[0].length ?? 0;
+
+      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
+        this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
+
+        let virtColIdx = 0;
+        for (let colIdx = 0; colIdx < nbCols; colIdx++) {
+          if (ignoreCols.includes(colIdx)) {
+            // skip ignored columns
+            continue;
+          }
+          this._rows[rowIdx][virtColIdx] = {
+            // SAFETY: same argument as above, we won't be iterating if `this._table.rows` was not defined
+            value: this._table.rows![colIdx][rowIdx],
+            originalIndex: rowIdx,
+            originalColIndex: colIdx,
+          };
+          virtColIdx++;
         }
-        this._rows[rowIdx][virtColIdx] = {
-          value: this._table.cols?.[colIdx][rowIdx],
-          originalIndex: rowIdx,
-          originalColIndex: colIdx,
-        };
-        virtColIdx++;
       }
+    } else if ('cols' in this._table) {
+      // we are being given a TableLikeColumnBased
+      this._rows.length = this._table.cols?.[0]?.length ?? 0;
+      const nbCols = this._table.cols?.length ?? 0;
+
+      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
+        this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
+
+        let virtColIdx = 0;
+        for (let colIdx = 0; colIdx < nbCols; colIdx++) {
+          if (ignoreCols.includes(colIdx)) {
+            // skip ignored columns
+            continue;
+          }
+          this._rows[rowIdx][virtColIdx] = {
+            // SAFETY: same argument as above, we won't be iterating if `this._table.cols` was not defined
+            value: this._table.cols![colIdx][rowIdx],
+            originalIndex: rowIdx,
+            originalColIndex: colIdx,
+          };
+          virtColIdx++;
+        }
+      }
+    } else if (Array.isArray(this._table)) {
+      // we are being given a TableLikeObjectBased
+      this._rows.length = this._table.length;
+      const headers = this._table.length === 0 ? [] : Object.keys(this._table[0]);
+
+      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
+        this._rows[rowIdx] = new Array(headers.length - ignoreCols.length);
+
+        let virtColIdx = 0;
+        for (let colIdx = 0; colIdx < headers.length; colIdx++) {
+          if (ignoreCols.includes(colIdx)) {
+            // skip ignored columns
+            continue;
+          }
+          this._rows[rowIdx][virtColIdx] = {
+            value: this._table[rowIdx][headers[colIdx]],
+            originalIndex: rowIdx,
+            originalColIndex: colIdx,
+          };
+          virtColIdx++;
+        }
+      }
+    } else {
+      // something unexpected was given as table
+      // reset the rows
+      this._rows.length = 0;
     }
   }
 
@@ -202,9 +260,9 @@ export class GuiTable extends HTMLElement {
 
   /**
    * Associates column index to user-defined HTMLElement `'tagName'`.
-   * 
+   *
    * By default, all columns are associated with `'gui-value'`.
-   * 
+   *
    * **The associated `tagName` should be at least compliant with `GuiTableCellElement`**
    */
   set cellTagNames(cellTagNames: Record<number, string> | undefined) {
@@ -292,10 +350,10 @@ export class GuiTable extends HTMLElement {
 
   /**
    * The properties to pass to each cells (when they are of type `gui-value`).
-   * 
+   *
    * *Note that the properties are only given to instances of `gui-value`, which
    * implies that this is a noop for overridden columns with `cellTagNames`.*
-   * 
+   *
    * If `props` is a function, it will be called to compute the properties, and then be passed to the
    * cell.
    */
@@ -320,9 +378,9 @@ export class GuiTable extends HTMLElement {
 
   /**
    * Called everytime a row is rendered in the virtual list.
-   * 
+   *
    * *This can be used to dynamically change styling for instance.*
-   * 
+   *
    * ```ts
    *  // eg. change column 1 color based on column 2 value
    *  tableEl.onrowupdate = (el, row) => {
@@ -375,7 +433,7 @@ export class GuiTable extends HTMLElement {
     cellTagNames: Record<number, string>;
     rowHeight: number;
   }>) {
-    this._table = table ?? value;
+    this._table = table ? toColumnBasedTable(table) : value ? toColumnBasedTable(value) : undefined;
     this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;
@@ -501,22 +559,37 @@ export class GuiTable extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
+  get tableMeta() {
+    if (!this._table) {
+      return [];
+    }
+
+    const meta: TableLikeMeta[] = [];
+    if ('meta' in this._table && this._table.meta) {
+      const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
+
+      for (let i = 0; i < this._table.meta.length; i++) {
+        if (ignoreCols.includes(i)) {
+          continue;
+        }
+        const header = this._table.meta[i];
+        if (typeof header === 'string') {
+          meta.push({ header });
+        } else {
+          meta.push(header);
+        }
+      }
+    }
+    return meta;
+  }
+
   update() {
     if (!this._initialized || !this._table) {
       return;
     }
     const start = Date.now();
 
-    const ignoreCols = Array.from(this._ignoreCols ?? []);
-    const meta: TableLikeMeta[] = [];
-    if (this._table.meta) {
-      for (let i = 0; i < this._table.meta.length; i++) {
-        if (ignoreCols.includes(i)) {
-          continue;
-        }
-        meta.push(this._table.meta[i]);
-      }
-    }
+    const meta = this.tableMeta;
 
     this._thead.update(
       meta,
@@ -591,8 +664,8 @@ export class GuiTable extends HTMLElement {
     }
 
     const header =
-      this._table.meta
-        ?.map((m, i) => {
+      this.tableMeta
+        .map((m, i) => {
           if (m.header) {
             return m.header;
           }
@@ -628,7 +701,6 @@ export class GuiTable extends HTMLElement {
         })
         .join('\n');
     }
-
 
     return header + '\n' + body;
   }
@@ -683,7 +755,9 @@ export class GuiTable extends HTMLElement {
     return false;
   }
 
-  private _sanitizeCellTagNames(cellTagNames: Record<number, string> | undefined): Record<number, string> | undefined {
+  private _sanitizeCellTagNames(
+    cellTagNames: Record<number, string> | undefined,
+  ): Record<number, string> | undefined {
     if (this._cellTagNames === cellTagNames) {
       // untouched
       return this._cellTagNames;
@@ -720,10 +794,7 @@ class GuiTableHead extends HTMLElement {
       if (this.widths[colIdx]) {
         colWidth = this.widths[colIdx];
       } else {
-        colWidth = Math.max(
-          (availableWidth - takenWidth) / (meta.length - colIdx),
-          minColWidth,
-        );
+        colWidth = Math.max((availableWidth - takenWidth) / (meta.length - colIdx), minColWidth);
       }
       takenWidth += colWidth;
       const header = this._getOrCreateHeader(colIdx, colWidth);
@@ -1070,7 +1141,15 @@ class GuiTableBody extends HTMLElement {
       }
       const row = this._getOrCreateRow(rowIdx);
       // update the DOM row to reflect the new row's data
-      row.update(realIdx, colWidths, minColWidth, availableWidth, rows[realIdx], cellProps, tagNames);
+      row.update(
+        realIdx,
+        colWidths,
+        minColWidth,
+        availableWidth,
+        rows[realIdx],
+        cellProps,
+        tagNames,
+      );
       // at the right position
       row.style.height = `${this.rowHeight}px`;
       row.style.top = `${realIdx * this.rowHeight}px`;
@@ -1144,7 +1223,14 @@ class GuiTableBodyRow extends HTMLElement {
       // SAFETY:
       // `originalColIndex` is optional for backward-compatibility reason, which means
       // it is safe to assert it as a 'number' here
-      cell.update(tagNames?.[row[colIdx].originalColIndex as number], index, colIdx, row, cellProps, colWidth);
+      cell.update(
+        tagNames?.[row[colIdx].originalColIndex as number],
+        index,
+        colIdx,
+        row,
+        cellProps,
+        colWidth,
+      );
       takenWidth += colWidth;
     }
 
@@ -1213,7 +1299,6 @@ class GuiTableBodyCell extends HTMLElement {
       } else {
         (this.value as GuiValue).setAttrs({ ...cellProps, value: row[colIdx].value });
       }
-
     } else {
       this.value.value = row[colIdx].value;
     }
