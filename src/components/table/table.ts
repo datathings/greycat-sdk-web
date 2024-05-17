@@ -3,18 +3,20 @@ import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta } from '../common.js';
 
+export type CellProps = Partial<GuiValueProps> & { value: unknown };
+export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
 /**
  * A function called to compute the cell properties
  * that will be passed to the underlying `<gui-value />` component.
+ * 
+ * Or an object containing the cell properties.
  */
-export type CellPropsFactory = (
+export type CellPropsFactory = ((
   row: Cell[],
   value: unknown,
   rowIdx: number,
   colIdx: number,
-) => CellProps;
-
-export type CellProps = Partial<GuiValueProps> & { value: unknown };
+) => CellProps) | CellAttrs;
 
 /**
  * An internal wrapper type for the table cells.
@@ -39,13 +41,13 @@ export type Cell = {
   originalColIndex?: number;
 };
 
-// reusing the same object for every render to ease gc
-const cellProps: CellProps = {
+/** reusing the same object for every render to ease gc */
+const REUSABLE_CELL_PROPS: CellProps = {
   value: null,
 };
 const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
-  cellProps.value = value;
-  return cellProps;
+  REUSABLE_CELL_PROPS.value = value;
+  return REUSABLE_CELL_PROPS;
 };
 
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
@@ -288,6 +290,15 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  /**
+   * The properties to pass to each cells (when they are of type `gui-value`).
+   * 
+   * *Note that the properties are only given to instances of `gui-value`, which
+   * implies that this is a noop for overridden columns with `cellTagNames`.*
+   * 
+   * If `props` is a function, it will be called to compute the properties, and then be passed to the
+   * cell.
+   */
   set cellProps(props: CellPropsFactory) {
     this._cellProps = props;
     this.update();
@@ -592,15 +603,32 @@ export class GuiTable extends HTMLElement {
         })
         .join(sep) ?? '';
 
-    const body = this._rows
-      .map((row, rowIdx) => {
-        return row
-          .map((cell, colIdx) => {
-            return utils.stringify(this._cellProps(row, cell.value, rowIdx, colIdx));
-          })
-          .join(sep);
-      })
-      .join('\n');
+    let body: string;
+    if (typeof this._cellProps === 'function') {
+      const cellProps = this._cellProps;
+      body = this._rows
+        .map((row, rowIdx) => {
+          return row
+            .map((cell, colIdx) => {
+              return utils.stringify(cellProps(row, cell.value, rowIdx, colIdx));
+            })
+            .join(sep);
+        })
+        .join('\n');
+    } else {
+      const props: utils.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
+      body = this._rows
+        .map((row) => {
+          return row
+            .map((cell) => {
+              props.value = cell.value;
+              return utils.stringify(props);
+            })
+            .join(sep);
+        })
+        .join('\n');
+    }
+
 
     return header + '\n' + body;
   }
@@ -615,13 +643,28 @@ export class GuiTable extends HTMLElement {
     // cache stringified cells
     const cells: string[] = [];
 
-    for (let i = 0; i < row.length; i++) {
-      const colFilter = colFilters[i];
-      cells[i] = utils.stringify(cellProps(row, row[i].value, rowIdx, i)).toLowerCase();
-      if (colFilter && colFilter.length > 0) {
-        // check column filter
-        if (!cells[i].includes(colFilter)) {
-          return false;
+    if (typeof cellProps === 'function') {
+      for (let i = 0; i < row.length; i++) {
+        const colFilter = colFilters[i];
+        cells[i] = utils.stringify(cellProps(row, row[i].value, rowIdx, i)).toLowerCase();
+        if (colFilter && colFilter.length > 0) {
+          // check column filter
+          if (!cells[i].includes(colFilter)) {
+            return false;
+          }
+        }
+      }
+    } else {
+      const props: utils.StringifyProps = Object.assign({ value: undefined }, cellProps);
+      for (let i = 0; i < row.length; i++) {
+        const colFilter = colFilters[i];
+        props.value = row[i].value;
+        cells[i] = utils.stringify(props).toLowerCase();
+        if (colFilter && colFilter.length > 0) {
+          // check column filter
+          if (!cells[i].includes(colFilter)) {
+            return false;
+          }
         }
       }
     }
@@ -940,21 +983,23 @@ class GuiTableHeadCell extends HTMLElement {
   }
 }
 
+// TODO shouldn't we provide this as a standalone component?
 class GuiTableBody extends HTMLElement {
   rowHeight = -1;
   maxVirtualRows = 0;
-  virtualScroller = document.createElement('div');
+  virtualScroller: HTMLDivElement;
 
-  connectedCallback() {
-    // create the virtualScroller
+  constructor() {
+    super();
+
+    this.virtualScroller = document.createElement('div');
     this.virtualScroller.style.position = 'absolute';
     this.virtualScroller.style.visibility = 'hidden';
     this.virtualScroller.style.width = '100%';
-    this.appendChild(this.virtualScroller);
   }
 
-  disconnectedCallback() {
-    this.replaceChildren(); // cleanup
+  connectedCallback() {
+    this.replaceChildren(this.virtualScroller);
   }
 
   computeRowHeight(row: Cell[], tagNames: Record<number, string> | undefined) {
@@ -1163,7 +1208,12 @@ class GuiTableBodyCell extends HTMLElement {
       this.replaceChildren(this.value);
     }
     if (this.value.tagName === 'GUI-VALUE') {
-      (this.value as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+      if (typeof cellProps === 'function') {
+        (this.value as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+      } else {
+        (this.value as GuiValue).setAttrs({ ...cellProps, value: row[colIdx].value });
+      }
+
     } else {
       this.value.value = row[colIdx].value;
     }

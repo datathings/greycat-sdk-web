@@ -36,6 +36,9 @@ app
 
 const tableEl = document.createElement('gui-table');
 tableEl.value = await greycat.default.call<core.Table>('project::table');
+tableEl.cellProps = {
+  numFmt: new Intl.NumberFormat('fr-FR', { maximumFractionDigits: 1 }),
+};
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
   switch (klass) {
