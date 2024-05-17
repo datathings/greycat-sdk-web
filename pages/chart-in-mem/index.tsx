@@ -1,3 +1,4 @@
+import { toColumnBasedTable } from '../../src';
 import '../layout';
 
 const app = document.createElement('app-layout');
@@ -9,16 +10,16 @@ document.body.prepend(app);
 
 app.main.appendChild(
   <gui-chart
-    value={{
-      rows: [
-        [new Date('2019-01-01T15:15:00Z'), -2.5],
-        [new Date('2019-01-02T15:15:00Z'), 1.458],
-        [new Date('2020-01-03T15:15:00Z'), 0.009],
-        [new Date('2021-01-04T15:15:00Z'), 5.64],
-      ],
-      meta: ['Time', 'Value'],
-    }}
     config={{
+      table: toColumnBasedTable({
+        rows: [
+          [new Date('2019-01-01T15:15:00Z'), -2.5],
+          [new Date('2019-01-02T15:15:00Z'), 1.458],
+          [new Date('2020-01-03T15:15:00Z'), 0.009],
+          [new Date('2021-01-04T15:15:00Z'), 5.64],
+        ],
+        meta: ['Time', 'Value'],
+      }),
       cursor: true,
       xAxis: { scale: 'time' },
       yAxes: {

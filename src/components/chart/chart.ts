@@ -90,7 +90,7 @@ export class GuiChart extends HTMLElement {
 
     this._disposer = new Disposer();
     this._table = {};
-    this._config = { series: [], xAxis: {}, yAxes: {} };
+    this._config = { table: {}, series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');

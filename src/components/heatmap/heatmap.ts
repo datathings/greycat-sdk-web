@@ -62,7 +62,7 @@ export class GuiHeatmap extends HTMLElement {
 
     this._disposer = new Disposer();
     this._table = {};
-    this._config = { xAxis: {}, yAxis: {} };
+    this._config = { table: {}, xAxis: {}, yAxis: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
