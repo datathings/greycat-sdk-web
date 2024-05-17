@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { core } from '@greycat/sdk';
 import '../layout';
-import { TableLike } from '../../src';
+import { TableLikeColumnBased } from '../../src';
 
 const app = document.createElement('app-layout');
 app.title = 'Chart (scatter)';
@@ -10,7 +10,7 @@ await app.init();
 document.body.prepend(app);
 
 let nbPoints = 100;
-const randomTable = (): TableLike => {
+const randomTable = (): TableLikeColumnBased => {
   return {
     cols: [
       Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
@@ -25,7 +25,7 @@ app.actions.prepend(
       <a
         href="#"
         onclick={() => {
-          chart.config.table = randomTable();
+          chart.value = randomTable();
           chart.compute();
           chart.update();
         }}
@@ -38,7 +38,7 @@ app.actions.prepend(
         href="#"
         onclick={() => {
           nbPoints += 10;
-          chart.config.table = randomTable();
+          chart.value = randomTable();
           chart.compute();
           chart.update();
         }}
