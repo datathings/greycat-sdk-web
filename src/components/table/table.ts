@@ -168,7 +168,7 @@ export class GuiTable extends HTMLElement {
     if ('rows' in this._table) {
       // we are being given a TableLikeRowBased
       this._rows.length = this._table.rows?.length ?? 0;
-      const nbCols = this._table.rows?.[0].length ?? 0;
+      const nbCols = this._table.rows?.[0]?.length ?? 0;
 
       for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
         this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
