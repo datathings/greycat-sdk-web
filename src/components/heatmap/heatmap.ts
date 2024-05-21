@@ -585,15 +585,17 @@ export class GuiHeatmap extends HTMLElement {
   }
 }
 
-const CURSOR_EVENT_TYPE = 'heatmap-cursor';
-
 /**
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
+ * 
+ * TODO rename to `GuiHeatmapCursorEvent` in v7
  */
 export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
+  static readonly NAME = 'heatmap-cursor'; // TODO rename to `gui-heatmap-cursor` in v7
+
   constructor(data: HeatmapData, cursor: Cursor) {
-    super(CURSOR_EVENT_TYPE, { detail: { data, cursor }, bubbles: true });
+    super(HeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
 }
 
@@ -602,16 +604,18 @@ declare global {
     'gui-heatmap': GuiHeatmap;
   }
 
-  interface HTMLElementEventMap {
-    [CURSOR_EVENT_TYPE]: HeatmapCursorEvent;
+  interface GuiHeatmapEventMap {
+    [HeatmapCursorEvent.NAME]: HeatmapCursorEvent;
   }
+
+  interface HTMLElementEventMap extends GuiHeatmapEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-heatmap': GreyCat.Element<GuiHeatmap>;
+      'gui-heatmap': GreyCat.Element<GuiHeatmap, GuiHeatmapEventMap>;
     }
   }
 }

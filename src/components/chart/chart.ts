@@ -1497,16 +1497,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-chart': GreyCat.Element<
-        GuiChart & {
-          [EVENT in keyof GuiChartEventMap as `on${EVENT}`]: (
-            this: GlobalEventHandlers,
-            ev: GuiChartEventMap[EVENT],
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
     }
   }
 }

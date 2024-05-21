@@ -1386,11 +1386,14 @@ declare global {
     'gui-tbody-cell': GuiTableBodyCell;
   }
 
-  interface GuiTableEventMap {
+  interface GuiTableHeadCellEventMap {
     'table-sort': TableSortEvent;
-    'table-filter': TableFilterEvent;
-    'table-filter-column': TableFilterColumnEvent;
     'table-resize-col': TableResizeColEvent;
+    'table-filter-column': TableFilterColumnEvent;
+  }
+
+  interface GuiTableEventMap extends GuiTableHeadCellEventMap {
+    'table-filter': TableFilterEvent;
     'table-click': TableClickEvent;
     'table-dblclick': TableDblClickEvent;
   }
@@ -1409,7 +1412,7 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-thead-cell': GreyCat.Element<GuiTableHeadCell>;
+      'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */

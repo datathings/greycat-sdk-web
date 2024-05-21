@@ -338,8 +338,10 @@ export class GuiTaskList extends HTMLElement {
 }
 
 export class GuiTaskListClickEvent extends CustomEvent<TaskInfoLike> {
+  static readonly NAME = 'task-list-click'; // TODO use 'gui-click' in v7
+
   constructor(task: TaskInfoLike) {
-    super('task-list-click', { detail: task, bubbles: true });
+    super(GuiTaskListClickEvent.NAME, { detail: task, bubbles: true });
   }
 }
 
@@ -348,13 +350,15 @@ declare global {
     'gui-task-list': GuiTaskList;
   }
 
-  namespace JSX {
-    interface GuiTaskListEvents {
-      ['ontask-list-click']?: (ev: GuiTaskListClickEvent) => void;
-    }
+  interface GuiTaskListEventMap {
+    [GuiTaskListClickEvent.NAME]: GuiTaskListClickEvent;
+  }
 
+  interface HTMLElementEventMap extends GuiTasksEventMap {}
+
+  namespace JSX {
     interface IntrinsicElements {
-      'gui-task-list': GreyCat.Element<GuiTaskList> & GuiTaskListEvents;
+      'gui-task-list': GreyCat.Element<GuiTaskList, GuiTaskListEventMap>;
     }
   }
 }

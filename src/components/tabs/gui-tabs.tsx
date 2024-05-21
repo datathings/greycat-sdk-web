@@ -100,12 +100,11 @@ export class GuiPanel extends HTMLElement {
   }
 }
 
-const GUI_TAB_CHANGE_EVENT = 'gui-tab-change';
-const ONGUI_TAB_CHANGE_EVENT = `on${GUI_TAB_CHANGE_EVENT}`;
-
 export class GuiTabChangeEvent extends CustomEvent<GuiTab> {
+  static readonly NAME = 'gui-tab-change'; // TODO rename to 'gui-change' in v7
+
   constructor(eventInitDict: CustomEventInit<GuiTab>) {
-    super(GUI_TAB_CHANGE_EVENT, eventInitDict);
+    super(GuiTabChangeEvent.NAME, eventInitDict);
   }
 }
 
@@ -116,15 +115,15 @@ declare global {
     'gui-panel': GuiPanel;
   }
 
-  interface HTMLElementEventMap {
-    [GUI_TAB_CHANGE_EVENT]: GuiTabChangeEvent;
+  interface GuiTabsEventMap {
+    [GuiTabChangeEvent.NAME]: GuiTabChangeEvent;
   }
+
+  interface HTMLElementEventMap extends GuiTabsEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
-      'gui-tabs': GreyCat.Element<
-        GuiTabs & { [ONGUI_TAB_CHANGE_EVENT]: (ev: GuiTabChangeEvent) => void }
-      >;
+      'gui-tabs': GreyCat.Element<GuiTabs, GuiTabsEventMap>;
       'gui-tab': GreyCat.Element<GuiTab>;
       'gui-panel': GreyCat.Element<GuiPanel>;
     }
