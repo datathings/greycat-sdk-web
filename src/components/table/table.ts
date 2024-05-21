@@ -569,6 +569,10 @@ export class GuiTable extends HTMLElement {
   }
 
   get tableMeta(): TableLikeMeta[] {
+    if (this._headers) {
+      return this._headers.map((header) => ({ header }));
+    }
+
     if (!this._table) {
       return [];
     }
