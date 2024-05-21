@@ -40,10 +40,8 @@ export class GuiTasks extends HTMLElement {
     this.table = document.createElement('gui-table');
     const tmp: CellProps = { value: null }; // re-use the same object for each cell rendering to ease gc
     this.table.setAttrs({
-      value: {
-        rows: [],
-        meta: GuiTasks.HEADERS as unknown as string[],
-      },
+      headers: GuiTasks.HEADERS as unknown as string[],
+      value: { rows: [] },
       sortBy: [0, 'desc'],
       columnsWidths: [100, 150, 350, NaN, NaN, NaN, NaN, 110, NaN],
       cellProps: (_row, value, _r, c) => {
