@@ -243,12 +243,11 @@ export class GuiSearchableSelect extends HTMLElement {
   }
 }
 
-const SEARCHABLE_CHANGE = 'searchable-select-change';
-const ONSEARCHABLE_CHANGE = `on${SEARCHABLE_CHANGE}`;
-
 export class GuiSearchableSelectChangeEvent extends CustomEvent<unknown> {
+  static readonly NAME = 'searchable-select-change';
+
   constructor(value: unknown) {
-    super(SEARCHABLE_CHANGE, { detail: value, bubbles: true });
+    super(GuiSearchableSelectChangeEvent.NAME, { detail: value, bubbles: true });
   }
 }
 
@@ -275,25 +274,18 @@ declare global {
     'gui-searchable-select': GuiSearchableSelect;
   }
 
-  interface HTMLElementEventMap {
-    [SEARCHABLE_CHANGE]: GuiSearchableSelectChangeEvent;
+  interface GuiSearchableSelectEventMap {
+    [GuiSearchableSelectChangeEvent.NAME]: GuiSearchableSelectChangeEvent;
   }
+
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-searchable-select': GreyCat.Element<
-        GuiSearchableSelect & {
-          [ONSEARCHABLE_CHANGE]: (
-            this: GlobalEventHandlers,
-            ev: GuiSearchableSelectChangeEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
     }
   }
 }

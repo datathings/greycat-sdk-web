@@ -206,12 +206,11 @@ export class GuiEnumSelect extends HTMLElement implements GuiEnumSelectProps {
   }
 }
 
-const ENUM_CHANGE = 'enum-change';
-const ONENUM_CHANGE = `on${ENUM_CHANGE}`;
-
 export class GuiEnumSelectEvent extends CustomEvent<GCEnum | null> {
+  static readonly NAME = 'enum-change';
+
   constructor(value: GCEnum | null) {
-    super(ENUM_CHANGE, { detail: value, bubbles: true });
+    super(GuiEnumSelectEvent.NAME, { detail: value, bubbles: true });
   }
 }
 
@@ -220,25 +219,18 @@ declare global {
     'gui-enum-select': GuiEnumSelect;
   }
 
-  interface HTMLElementEventMap {
-    [ENUM_CHANGE]: GuiEnumSelectEvent;
+  interface GuiEnumSelectEventMap {
+    [GuiEnumSelectEvent.NAME]: GuiEnumSelectEvent;
   }
+
+  interface HTMLElementEventMap extends GuiEnumSelectEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-enum-select': GreyCat.Element<
-        GuiEnumSelect & {
-          [ONENUM_CHANGE]: (
-            this: GlobalEventHandlers,
-            ev: GuiEnumSelectEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
+      'gui-enum-select': GreyCat.Element<GuiEnumSelect, GuiEnumSelectEventMap>;
     }
   }
 }
