@@ -8,16 +8,37 @@ declare namespace GreyCat {
   type ExtendedHTMLProperties = {
     className?: string | string[];
     style?: Partial<CSSStyleDeclaration> | string;
-  }
-
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties & {
-    [EVENT in keyof EventMap as `on${EVENT}`]?: (
-      this: GlobalEventHandlers,
-      ev: EventMap[EVENT],
-      options?: boolean | AddEventListenerOptions,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ) => any;
   };
+
+  // --- utilities to clean up extented types (like EventTarget, HTMLElement, Node, etc)
+  // because the JSX runtime will only deal with mutable properties anyways
+  type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+  // Extract readonly keys from the given T type
+  type ReadonlyKeys<T> = {
+    [K in keyof T]: IfEquals<{ [Q in K]: T[K] }, { -readonly [Q in K]: T[K] }, never, K>;
+  }[keyof T];
+  // Extract function keys from the given T type
+  type FunctionKeys<T> = {
+    [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never
+  }[keyof T];
+  // Extract only mutable keys from the given T type
+  type MutableKeys<T> = Exclude<keyof T, ReadonlyKeys<T>>;
+  // Extract only method keys from the given T type
+  type NonMethodKeys<T> = Exclude<keyof T, FunctionKeys<T>>;
+  // Extract only the mutable & non methods keys from the given T type
+  // plus exclude some manually extended HTML properties
+  type AllowedKeys<T> = Exclude<MutableKeys<T> & NonMethodKeys<T>, 'style' | 'className' | 'children'>;
+  // --- utilities
+
+  type Element<T, EventMap = {}> = Partial<Pick<T, AllowedKeys<T>>> &
+    ExtendedHTMLProperties & {
+      [EVENT in keyof EventMap as `on${EVENT}`]?: (
+        this: GlobalEventHandlers,
+        ev: EventMap[EVENT],
+        options?: boolean | AddEventListenerOptions,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) => any;
+    };
 }
 
 declare namespace JSX {

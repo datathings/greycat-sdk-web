@@ -5,6 +5,7 @@ import {
   Disposer,
   GuiRenderEvent,
   TableLike,
+  TableLikeColumnBased,
   TableLikeMeta,
   toColumnBasedTable,
 } from '../common.js';
@@ -124,8 +125,10 @@ export class GuiTable extends HTMLElement {
     });
   }
 
-  get value(): TableLike | undefined {
-    return this._table;
+  // returning a `TableLikeColumnBased` rather than a `TableLike` to be backward-compatible
+  // with the old `TableLike` structure.
+  get value(): TableLikeColumnBased | undefined {
+    return this._table ? toColumnBasedTable(this._table) : undefined;
   }
 
   set value(table: TableLike | undefined) {
@@ -142,8 +145,10 @@ export class GuiTable extends HTMLElement {
   /**
    * @deprecated use `value` instead
    */
-  get table(): TableLike | undefined {
-    return this._table;
+  // returning a `TableLikeColumnBased` rather than a `TableLike` to be backward-compatible
+  // with the old `TableLike` structure.
+  get table(): TableLikeColumnBased | undefined {
+    return this.value;
   }
 
   /**
@@ -362,6 +367,10 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  get headers() {
+    return this._headers;
+  }
+
   set headers(headers: string[] | undefined) {
     this._headers = headers;
     this.update();
@@ -433,7 +442,7 @@ export class GuiTable extends HTMLElement {
     cellTagNames: Record<number, string>;
     rowHeight: number;
   }>) {
-    this._table = table ? toColumnBasedTable(table) : value ? toColumnBasedTable(value) : undefined;
+    this._table = table ?? value;
     this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;
@@ -559,14 +568,14 @@ export class GuiTable extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  get tableMeta() {
+  get tableMeta(): TableLikeMeta[] {
     if (!this._table) {
       return [];
     }
 
-    const meta: TableLikeMeta[] = [];
     if ('meta' in this._table && this._table.meta) {
       const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
+      const meta: TableLikeMeta[] = [];
 
       for (let i = 0; i < this._table.meta.length; i++) {
         if (ignoreCols.includes(i)) {
@@ -579,8 +588,14 @@ export class GuiTable extends HTMLElement {
           meta.push(header);
         }
       }
+      return meta;
     }
-    return meta;
+
+    if (Array.isArray(this._table) && typeof this._table[0] === 'object') {
+      return Object.keys(this._table[0]).map((header) => ({ header }));
+    }
+
+    return [];
   }
 
   update() {
