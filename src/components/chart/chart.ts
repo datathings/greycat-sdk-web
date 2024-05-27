@@ -447,6 +447,16 @@ export class GuiChart extends HTMLElement {
     if (config.table) {
       this._table = toColumnBasedTable(config.table);
     }
+
+    // update local user X min/max with the configuration values
+    this._userXAxisMin = this._config.xAxis.min;
+    this._userXAxisMax = this._config.xAxis.max;
+    // update local user Y min/max with configuration values
+    this._userYAxes = {};
+    for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
+      this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
+    }
+
     this.compute();
     this.update();
   }
@@ -458,6 +468,16 @@ export class GuiChart extends HTMLElement {
   setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
     this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
     this._config = config;
+
+    // update local user X min/max with the configuration values
+    this._userXAxisMin = this._config.xAxis.min;
+    this._userXAxisMax = this._config.xAxis.max;
+    // update local user Y min/max with configuration values
+    this._userYAxes = {};
+    for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
+      this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
+    }
+
     this.compute();
     this.update();
   }
@@ -1228,15 +1248,6 @@ export class GuiChart extends HTMLElement {
    * Try to use it only when the table changes or when the component needs to resize.
    */
   compute(): void {
-    // update local user X min/max with the configuration values
-    this._userXAxisMin = this._config.xAxis.min;
-    this._userXAxisMax = this._config.xAxis.max;
-    // update local user Y min/max with configuration values
-    this._userYAxes = {};
-    for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
-      this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
-    }
-
     let leftAxes = 0;
     let rightAxes = 0;
     for (const yAxisName in this._config.yAxes) {
