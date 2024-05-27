@@ -42,7 +42,7 @@ const SEGMENTS: Record<number, number[]> = {
 };
 
 export class CanvasContext {
-  constructor(public ctx: Ctx) { }
+  constructor(public ctx: Ctx) {}
 
   line(table: TableLikeColumnBased, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
@@ -291,7 +291,7 @@ export class CanvasContext {
         y = yMax;
       }
 
-      if (serie.styleCol) {
+      if (serie.styleCol !== undefined) {
         const style = styleMap(table.cols[serie.styleCol]?.[i]);
         this.ctx.fillStyle = style.fill ?? serie.color;
         this.ctx.strokeStyle = style.color ?? serie.color;
@@ -342,7 +342,7 @@ export class CanvasContext {
       let fill = serie.color;
       let width = serie.width;
 
-      if (serie.styleCol) {
+      if (serie.styleCol !== undefined) {
         const style = styleMap(table.cols[serie.styleCol][i]);
         fill = style.fill ?? serie.color;
         color = style.color ?? serie.color;
