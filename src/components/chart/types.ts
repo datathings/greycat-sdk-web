@@ -21,7 +21,7 @@ export type SerieStyle = {
   dash?: number[];
   width?: number;
   color?: Color | null;
-  /**Only used for area series */
+  /**Only used for area, scatter and bar series */
   fill?: Color | null;
   /**Only used for area series */
   fillTransparency?: number;
