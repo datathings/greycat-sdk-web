@@ -204,6 +204,7 @@ export class GuiObject extends HTMLElement {
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
+          tableEl.cellTagNames = { 1: 'gui-object' };
           tableEl.value = {
             cols: [indexes, values],
             meta: [
@@ -241,6 +242,7 @@ export class GuiObject extends HTMLElement {
           const tableEl = document.createElement(
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
+          tableEl.cellTagNames = { 1: 'gui-object' };
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.value = {
             cols: [keys, values],
@@ -337,6 +339,12 @@ export class GuiObject extends HTMLElement {
             return;
           }
 
+          // Important note:
+          // ---------------
+          // if the structure changes here, remember to update the selector in gui-table.css too:
+          //  eg. gui-table gui-tbody gui-tbody-row gui-tbody-cell :has(gui-object.gui-object > article > .gui-object.gui-object-grid)
+          //
+          // the above selectors rely on the below structure to work properly
           this.replaceChildren(
             <article>
               {this._withHeader ? <header>{this._typeName(this._value)}</header> : undefined}

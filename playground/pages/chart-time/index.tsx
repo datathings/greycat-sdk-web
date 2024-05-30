@@ -29,16 +29,6 @@ const colors = {
   high: 'red',
 };
 
-const dtFormat = new Intl.DateTimeFormat('en-GB', {
-  year: '2-digit',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  timeZoneName: 'longOffset',
-});
-
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -49,8 +39,6 @@ chart.setConfig({
   cursor: true,
   xAxis: {
     scale: 'time',
-    // display cursor time on xAxis in locale time with a DateTimeFormat
-    cursorFormat: (x) => dtFormat.format(new Date(x)),
   },
   yAxes: {
     temp: {

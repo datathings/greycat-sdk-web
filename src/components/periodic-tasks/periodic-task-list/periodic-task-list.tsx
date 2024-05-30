@@ -33,11 +33,11 @@ export class GuiPeriodicTaskList extends HTMLElement {
     });
 
     this._dialog = (
-      <dialog>
+      <dialog className="gui-periodic-task-dialog">
         <article>
           <header>Periodic Task</header>
           {this._dialogContent}
-          <footer className="grid">
+          <footer>
             <button
               className="outline"
               onclick={() => {
@@ -218,8 +218,10 @@ export class GuiPeriodicTaskList extends HTMLElement {
 }
 
 export class GuiPeriodicTaskListClickEvent extends CustomEvent<runtime.PeriodicTask> {
+  static readonly NAME = 'periodic-task-list-click'; // TODO use 'gui-click' in v7
+
   constructor(task: runtime.PeriodicTask) {
-    super('periodic-task-list-click', { detail: task, bubbles: true });
+    super(GuiPeriodicTaskListClickEvent.NAME, { detail: task, bubbles: true });
   }
 }
 
@@ -228,13 +230,15 @@ declare global {
     'gui-periodic-task-list': GuiPeriodicTaskList;
   }
 
-  namespace JSX {
-    interface GuiTaskListEvents {
-      ['onperiodic-task-list-click']?: (ev: GuiPeriodicTaskListClickEvent) => void;
-    }
+  interface GuiPeriodicTaskListEventMap {
+    [GuiPeriodicTaskListClickEvent.NAME]: GuiPeriodicTaskListClickEvent;
+  }
 
+  interface HTMLElementEventMap extends GuiPeriodicTaskListEventMap {}
+
+  namespace JSX {
     interface IntrinsicElements {
-      'gui-periodic-task-list': GreyCat.Element<GuiPeriodicTaskList> & GuiTaskListEvents;
+      'gui-periodic-task-list': GreyCat.Element<GuiPeriodicTaskList, GuiPeriodicTaskListEventMap>;
     }
   }
 }

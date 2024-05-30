@@ -26,16 +26,21 @@ gui-table gui-thead.gui-table-resizing > * {
   background-color: rgb(var(--base-0)) !important;
 }
 gui-table gui-thead .gui-thead-type {
-  padding-left: var(--spacing);
   color: var(--muted-color);
 }
 gui-table gui-thead gui-thead-cell {
+  --resizer-width: 3px;
+  position: relative;
+}
+gui-table gui-thead gui-thead-cell .gui-thead {
   display: flex;
   align-items: center;
   gap: var(--spacing);
   cursor: pointer;
   user-select: none;
-  position: relative;
+  width: calc(100% - var(--resizer-width));
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
 }
 gui-table gui-thead gui-thead-cell:hover {
   background-color: rgba(var(--base-1), 0.8);
@@ -45,14 +50,26 @@ gui-table gui-thead gui-thead-cell.active .gui-thead-title {
   color: rgb(var(--accent-0));
 }
 gui-table gui-thead gui-thead-cell .gui-thead-title {
-  display: inline-block;
+  display: inline-flex;
+  width: 100%;
+  gap: var(--spacing);
+  overflow: hidden;
+  flex: 1;
+}
+gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header {
+  flex-shrink: 1; /* we want the header to ellipse but as last resort */
+}
+gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
+  flex-shrink: 10000; /* we really want the type to ellipse prior to the header */
+}
+gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header,
+gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  flex: 1;
-  padding-left: var(--spacing);
 }
 gui-table gui-thead gui-thead-cell .gui-thead-sorter {
+  display: block;
   height: 26px;
   font-size: 26px;
   line-height: 20px;
@@ -61,12 +78,18 @@ gui-table gui-thead gui-thead-cell .gui-thead-sorter:hover {
   color: var(--primary-hover);
 }
 gui-table gui-thead gui-thead-cell .gui-thead-resizer {
-  width: 3px;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  display: block;
+  width: var(--resizer-width);
   background-color: rgba(var(--accent-0));
   height: 100%;
   cursor: ew-resize;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-filter {
+  display: block;
   width: 20px;
   height: 20px;
   background-position: 1px 50%;
@@ -81,24 +104,19 @@ gui-table gui-thead gui-thead-cell .gui-thead-filter.open:hover {
   background-color: unset;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
-  display: block;
-  position: absolute;
-  padding: calc(var(--spacing) * 0.5);
-  top: 100%;
-  left: 0;
-  z-index: 100;
-  background-color: var(--bg-2);
+  display: none;
+  /* padding: calc(var(--spacing) * 0.5); */
+  z-index: 10;
   width: 100%;
-  transform-origin: top;
-  transform: scaleY(0);
-  transition: transform 0.2s ease-in-out;
 }
 gui-table gui-thead gui-thead-cell .gui-thead-dropdown.open {
-  transform: scaleY(1);
+  /* transform: scaleY(1); */
+  display: block;
 }
 
 gui-table gui-thead gui-thead-cell .gui-thead-dropdown > input {
   margin-bottom: 0;
+  --border-radius: 0;
 }
 
 gui-table gui-tbody {
@@ -108,10 +126,12 @@ gui-table gui-tbody {
   flex: 1;
 }
 gui-table gui-tbody gui-tbody-row {
-  display: flex;
+  flex: 1;
+  position: absolute;
+  align-items: center;
   width: 100%;
   min-width: fit-content;
-  position: absolute;
+  display: flex;
 }
 gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.8);
@@ -120,11 +140,28 @@ gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.3);
 }
 gui-table gui-tbody gui-tbody-row gui-tbody-cell {
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  line-height: 100%;
+  height: 100%;
+  width: 100%;
+  border-bottom: 1px solid rgb(var(--base-1));
+  overflow: auto;
+}
+
+gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
+  padding: 2px 4px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  padding: 2px 4px;
-  line-height: 100%;
-  border-bottom: 1px solid rgb(var(--base-1));
+}
+
+/* Special-case for gui-object within gui-table cells */
+gui-table
+  gui-tbody
+  gui-tbody-row
+  gui-tbody-cell
+  > *:first-child:has(gui-object.gui-object > article > .gui-object.gui-object-grid) {
+  align-self: flex-start;
+  overflow: auto;
 }

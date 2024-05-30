@@ -1,5 +1,5 @@
 import type { core } from '@greycat/sdk';
-import type { TableLike } from '../common.js';
+import type { TableLikeColumnBased } from '../common.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
@@ -356,7 +356,8 @@ export type Serie<K extends string = string> =
   | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
-  table: TableLike;
+  /** @deprecated will be removed in v7 in favor of `el.value` pattern */
+  table: TableLikeColumnBased;
   series: Serie<Extract<keyof K, string>>[];
   /**
    * The x-axis definition

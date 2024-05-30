@@ -7,6 +7,7 @@
 @import '../components/csv/csv-column-input/csv-column-input.css';
 @import '../components/tasks/task-info/task-info.css';
 @import '../components/tasks/task-list/task-list.css';
+@import '../components/tasks/tasks/tasks.css';
 @import '../components/users/user-roles/user-roles.css';
 @import '../components/users/user-table/user-table.css';
 @import '../components/multi-select-checkbox/multi-select-checkbox.css';

@@ -1,5 +1,106 @@
+<<<<<<< HEAD:playground/pages/chart/index.tsx
 import { GreyCat, type GuiChart, type SerieStyle, IndexedDbCache, type core } from '@greycat/web';
 import '@/common';
+=======
+import { core } from '@greycat/sdk';
+import '../layout';
+import { SerieStyle } from '../../src';
+
+const app = document.createElement('app-layout');
+app.title = 'Chart';
+await app.init();
+
+document.body.appendChild(app);
+
+const nbRows = (
+  <input
+    name="nb-rows"
+    id="nb-rows"
+    type="number"
+    min="1"
+    max="10000"
+    value="150"
+    oninput={randomize}
+  />
+) as HTMLInputElement;
+app.actions.prepend(
+  <>
+    <li>{nbRows}</li>
+    <li>
+      <a href="#" onclick={randomize}>
+        Randomize
+      </a>
+    </li>
+    <li>
+      <a
+        href="#"
+        onclick={() => {
+          if (chart.config.tooltip === undefined) {
+            chart.config.tooltip = {};
+          }
+          chart.config.tooltip.position = 'top-left';
+        }}
+      >
+        Top-left
+      </a>
+    </li>
+    <li>
+      <a
+        href="#"
+        onclick={() => {
+          if (chart.config.tooltip === undefined) {
+            chart.config.tooltip = {};
+          }
+          chart.config.tooltip.position = 'top-right';
+        }}
+      >
+        Top-right
+      </a>
+    </li>
+    <li>
+      <a
+        href="#"
+        onclick={() => {
+          if (chart.config.tooltip === undefined) {
+            chart.config.tooltip = {};
+          }
+          chart.config.tooltip.position = 'bottom-left';
+        }}
+      >
+        Bottom-left
+      </a>
+    </li>
+    <li>
+      <a
+        href="#"
+        onclick={() => {
+          if (chart.config.tooltip === undefined) {
+            chart.config.tooltip = {};
+          }
+          chart.config.tooltip.position = 'bottom-right';
+        }}
+      >
+        Bottom-right
+      </a>
+    </li>
+    <li>
+      <a
+        href="#"
+        onclick={() => {
+          chart.config.cursor = !chart.config.cursor;
+        }}
+      >
+        Toggle cursor
+      </a>
+    </li>
+  </>,
+);
+
+const table = await greycat.default.call<core.Table>('project::chart', [150]);
+
+const chart = document.createElement('gui-chart');
+app.main.replaceChildren(chart);
+>>>>>>> testing:pages/chart/index.tsx
 
 const LINE_COL = 0;
 const SCATTER_COL = 1;

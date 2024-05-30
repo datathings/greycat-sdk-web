@@ -1,0 +1,35 @@
+gui-tasks {
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-1);
+
+  > input[type='search'].gui-tasks-search {
+    margin-bottom: 0;
+    border-radius: 0;
+  }
+
+  > gui-table gui-tbody-cell[data-col='7'] > gui-value.error {
+    color: var(--color-error);
+  }
+
+  > gui-table gui-tbody-cell[data-col='7'] > gui-value.cancelled {
+    color: var(--color-8);
+  }
+
+  > gui-table gui-tbody-cell[data-col='7'] > gui-value.running {
+    /* color: var(--primary); */
+    animation: blink 2s ease-in-out infinite;
+  }
+}
+
+@keyframes blink {
+  0% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+  100% {
+    opacity: 1;
+  }
+}

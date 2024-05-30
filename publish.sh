@@ -24,4 +24,5 @@ curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.css                
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.base.css            "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.base.css"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.min.js              "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.min.js"
+curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.iife.min.js         "${ROOT_URL}/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.iife.min.js"
 curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/${BRANCH}/latest"

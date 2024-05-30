@@ -279,6 +279,14 @@ export class GuiSearchableSelect extends HTMLElement {
   }
 }
 
+export class GuiSearchableSelectChangeEvent extends CustomEvent<unknown> {
+  static readonly NAME = 'searchable-select-change';
+
+  constructor(value: unknown) {
+    super(GuiSearchableSelectChangeEvent.NAME, { detail: value, bubbles: true });
+  }
+}
+
 function isElementOutOfView(element: Element): boolean {
   const parentContainer = element.parentElement;
 
@@ -303,6 +311,8 @@ declare global {
     [GuiInputEvent.NAME]: GuiInputEvent;
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
+
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {
