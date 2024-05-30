@@ -242,8 +242,13 @@ export class GuiHeatmap extends HTMLElement {
 
     const { xRange, yRange, style, xScale, yScale, xLabels, yLabels, colorScale } = this._computed;
 
-    const paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
-    const paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
+    let paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
+    let paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
+
+    paddingX +=
+      (xScale.range()[1] - xScale.range()[0] - xScale.bandwidth() * xScale.domain().length) / 2;
+    paddingY +=
+      (yScale.range()[0] - yScale.range()[1] - yScale.bandwidth() * yScale.domain().length) / 2;
 
     const updateUX =
       this._cursor.x !== -1 &&
