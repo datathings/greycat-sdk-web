@@ -70,7 +70,7 @@ export class GuiTable extends HTMLElement {
   private _cellProps = DEFAULT_CELL_PROPS;
   private _prevFromRowIdx = 0;
   private _filterText = '';
-  private _filterColumns: Array<string | undefined> = [];
+  private _filterColumns: Array<string | undefined | null> = [];
   private _headers: string[] | undefined;
   /** a flag that is switched to `true` when the component is actually added to the DOM */
   private _initialized = false;
@@ -88,6 +88,7 @@ export class GuiTable extends HTMLElement {
 
     this._thead.addEventListener('table-filter-column', (ev) => {
       this._filterColumns[ev.detail.index] = ev.detail.text;
+      // this._thead.showColumnFilters();
       this.update();
     });
 
@@ -334,8 +335,12 @@ export class GuiTable extends HTMLElement {
     return this._filterText;
   }
 
-  set filter(text: string) {
-    this._filterText = text.toLowerCase();
+  set filter(text: string | undefined | null) {
+    if (typeof text === 'string') {
+      this._filterText = text.toLowerCase();
+    } else {
+      this._filterText = '';
+    }
     this.update();
   }
 
@@ -348,8 +353,11 @@ export class GuiTable extends HTMLElement {
     return this._filterColumns;
   }
 
-  set filterColumns(filters: Array<string | undefined>) {
+  set filterColumns(filters: Array<string | undefined | null>) {
     this._filterColumns = filters;
+    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
+      header.filter = filters[i];
+    });
     this.update();
   }
 
@@ -433,7 +441,7 @@ export class GuiTable extends HTMLElement {
     table: TableLike;
     value: TableLike;
     filter: string;
-    filterColumns: Array<string | undefined>;
+    filterColumns: Array<string | undefined | null>;
     sortBy: readonly [number] | readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[];
@@ -464,7 +472,7 @@ export class GuiTable extends HTMLElement {
   getAttrs(): {
     table: TableLike | undefined;
     filter: string;
-    filterColumns: Array<string | undefined>;
+    filterColumns: Array<string | undefined | null>;
     sortBy: readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[] | undefined;
@@ -726,7 +734,7 @@ export class GuiTable extends HTMLElement {
 
   private _filterRow(
     globalFilter: string,
-    colFilters: Array<string | undefined>,
+    colFilters: Array<string | undefined | null>,
     row: Cell[],
     rowIdx: number,
     cellProps: CellPropsFactory,
@@ -932,6 +940,7 @@ export class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
 class GuiTableHeadCell extends HTMLElement {
   private _index = 0;
   private _width = 0;
+  private _container = document.createElement('div');
   private _title = document.createElement('div');
   private _sorter = document.createElement('div');
   private _resizer = document.createElement('div');
@@ -942,6 +951,8 @@ class GuiTableHeadCell extends HTMLElement {
 
   constructor() {
     super();
+
+    this._container.className = 'gui-thead';
 
     // make the filter focusable so we can catch it on the input blur event
     this._filter.tabIndex = 0;
@@ -959,6 +970,11 @@ class GuiTableHeadCell extends HTMLElement {
     });
 
     this._filter.classList.add('gui-thead-filter');
+    this._filter.addEventListener('keypress', (ev) => {
+      if (ev.key === 'Enter') {
+        this.openDropdown();
+      }
+    });
 
     this._dropdown.classList.add('gui-thead-dropdown');
     this._input.type = 'search';
@@ -967,7 +983,8 @@ class GuiTableHeadCell extends HTMLElement {
 
     this._input.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
-      this.dispatchEvent(new TableFilterColumnEvent(this._index, target.value));
+      const text = target.value;
+      this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
     });
 
     this._input.addEventListener('blur', (e) => {
@@ -977,7 +994,7 @@ class GuiTableHeadCell extends HTMLElement {
       }
     });
 
-    this._input.addEventListener('keydown', (ev) => {
+    this._input.addEventListener('keypress', (ev) => {
       if (ev.key === 'Escape' || ev.key === 'Enter') {
         this.closeDropdown();
         ev.preventDefault();
@@ -1001,6 +1018,17 @@ class GuiTableHeadCell extends HTMLElement {
     this.style.width = `${width}px`;
   }
 
+  set filter(text: string | undefined | null) {
+    if (typeof text === 'string' && text.length > 0) {
+      this._input.value = text;
+      this.openDropdown();
+      this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
+    } else {
+      this._input.value = '';
+      this.closeDropdown();
+    }
+  }
+
   connectedCallback() {
     const styles = getComputedStyle(this);
     this._icons.default = styles.getPropertyValue('--icon-sort-default');
@@ -1009,38 +1037,59 @@ class GuiTableHeadCell extends HTMLElement {
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
 
-    const fragment = document.createDocumentFragment();
 
     this._title.classList.add('gui-thead-title');
-    fragment.appendChild(this._title);
+    this._container.appendChild(this._title);
 
     this._sorter.classList.add('gui-thead-sorter');
     this._sorter.textContent = this._icons.default;
-    fragment.appendChild(this._sorter);
+    this._container.appendChild(this._sorter);
 
-    fragment.appendChild(this._filter);
+    this._container.appendChild(this._filter);
 
     this._resizer.classList.add('gui-thead-resizer');
 
-    fragment.appendChild(this._resizer);
-    fragment.appendChild(this._dropdown);
-
-    this.appendChild(fragment);
+    this.appendChild(this._container);
+    this.appendChild(this._dropdown);
+    this.appendChild(this._resizer);
   }
 
   disconnectedCallback() {
     this.replaceChildren();
   }
 
+  /**
+   * Closes all siblings if they are all empty, otherwise does nothing
+   */
   closeDropdown() {
-    this._dropdown.classList.remove('open');
-    this._filter.classList.remove('open');
-    this._filter.style.backgroundImage = this._icons.search;
+    const parent = this.closest('gui-thead');
+    if (parent) {
+      let allEmpty = true;
+      const headers = parent.querySelectorAll('gui-thead-cell');
+      headers.forEach((header) => {
+        if (header._input.value.length > 0) {
+          allEmpty = false;
+        }
+      });
+      if (allEmpty) {
+        headers.forEach((header) => {
+          header._dropdown.classList.remove('open');
+          header._filter.style.backgroundImage = this._icons.search;
+        });
+      }
+    }
   }
 
+  /**
+   * Opens all siblings and focuses the current inner input
+   */
   openDropdown() {
-    this._dropdown.classList.add('open');
-    this._filter.classList.add('open');
+    const parent = this.closest('gui-thead');
+    if (parent) {
+      parent.querySelectorAll('gui-thead-cell').forEach((header) => {
+        header._dropdown.classList.add('open');
+      });
+    }
     this._input.focus();
   }
 
