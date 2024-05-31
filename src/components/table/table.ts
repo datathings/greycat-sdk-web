@@ -1023,7 +1023,6 @@ class GuiTableHeadCell extends HTMLElement {
     if (typeof text === 'string' && text.length > 0) {
       this._input.value = text;
       this.openDropdown();
-      this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
     } else {
       this._input.value = '';
       this.closeDropdown();
