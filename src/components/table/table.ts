@@ -355,9 +355,6 @@ export class GuiTable extends HTMLElement {
 
   set filterColumns(filters: Array<string | undefined | null>) {
     this._filterColumns = filters;
-    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
-      header.filter = filters[i];
-    });
     this.update();
   }
 
@@ -625,6 +622,10 @@ export class GuiTable extends HTMLElement {
       this._tbody.virtualScroller.scrollWidth,
       this._headers,
     );
+
+    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
+      header.filter = this._filterColumns[i]?.toLowerCase();
+    });
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= meta.length) {
