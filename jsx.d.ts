@@ -4,16 +4,6 @@ declare namespace GreyCat {
     style?: Partial<CSSStyleDeclaration> | string;
   };
 
-<<<<<<< HEAD
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties & {
-    [EVENT in keyof EventMap as `on${EVENT}`]?: (
-      this: GlobalEventHandlers,
-      ev: EventMap[EVENT],
-      options?: boolean | AddEventListenerOptions,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ) => any;
-  };
-=======
   // --- utilities to clean up extented types (like EventTarget, HTMLElement, Node, etc)
   // because the JSX runtime will only deal with mutable properties anyways
   type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
@@ -43,7 +33,6 @@ declare namespace GreyCat {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ) => any;
     };
->>>>>>> testing
 }
 
 declare namespace JSX {
