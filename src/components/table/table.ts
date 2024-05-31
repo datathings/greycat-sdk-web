@@ -620,12 +620,9 @@ export class GuiTable extends HTMLElement {
       this._minColWidth,
       this._sortCol,
       this._tbody.virtualScroller.scrollWidth,
+      this._filterColumns,
       this._headers,
     );
-
-    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
-      header.filter = this._filterColumns[i]?.toLowerCase();
-    });
 
     // sort table if needed
     if (this._sortCol.index === -1 || this._sortCol.index >= meta.length) {
@@ -814,6 +811,7 @@ class GuiTableHead extends HTMLElement {
     minColWidth: number,
     sortCol: SortCol,
     availableWidth: number,
+    filterColumns: (string | undefined | null)[],
     headers?: string[],
   ): void {
     let takenWidth = 0;
@@ -830,6 +828,7 @@ class GuiTableHead extends HTMLElement {
         colIdx,
         meta?.[colIdx],
         sortCol.index === colIdx ? sortCol.ord : 'default',
+        filterColumns[colIdx],
         headers?.[colIdx],
       );
     }
@@ -995,11 +994,11 @@ class GuiTableHeadCell extends HTMLElement {
       }
     });
 
-    this._input.addEventListener('keypress', (ev) => {
+    this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape' || ev.key === 'Enter') {
-        this.closeDropdown();
-        ev.preventDefault();
-        ev.stopPropagation();
+        this.closeDropdown(true);
+        // ev.preventDefault();
+        // ev.stopPropagation();
       }
     });
 
@@ -1061,13 +1060,13 @@ class GuiTableHeadCell extends HTMLElement {
   /**
    * Closes all siblings if they are all empty, otherwise does nothing
    */
-  closeDropdown() {
+  closeDropdown(force = false) {
     const parent = this.closest('gui-thead');
     if (parent) {
       let allEmpty = true;
       const headers = parent.querySelectorAll('gui-thead-cell');
       headers.forEach((header) => {
-        if (header._input.value.length > 0) {
+        if (header._input.value.length > 0 || (!force && header._input === document.activeElement)) {
           allEmpty = false;
         }
       });
@@ -1093,7 +1092,7 @@ class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, customHeader?: string) {
+  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, filter?: string | null, customHeader?: string) {
     this._index = index;
     const title = document.createDocumentFragment();
 
@@ -1119,6 +1118,7 @@ class GuiTableHeadCell extends HTMLElement {
 
     this._title.replaceChildren(title);
     this._sorter.textContent = this._icons[sort];
+    this.filter = filter;
   }
 }
 
