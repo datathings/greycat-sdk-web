@@ -17,14 +17,19 @@ export type SerieWithOptions = Serie & SerieOptions;
 export type CurveStyle = 'linear' | 'step-after';
 
 export type SerieStyle = {
+  /**@deprecated use `opacity` */
   transparency?: number;
+  opacity?: number;
   dash?: number[];
   width?: number;
   color?: Color | null;
   /**Only used for area, scatter and bar series */
   fill?: Color | null;
-  /**Only used for area series */
+  /**Only used for area series
+   * @deprecated use `fillOpacity` instead
+   */
   fillTransparency?: number;
+  fillOpacity?: number;
 };
 
 // we don't care about the type here, it is user-defined

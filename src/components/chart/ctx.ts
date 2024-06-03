@@ -249,7 +249,7 @@ export class CanvasContext {
     this.ctx.fillStyle = serie.color;
     this.ctx.globalAlpha = serie.opacity;
     const colorMap = serie.colorMapping ?? ((v) => v);
-    const styleMap = serie.styleMapping;
+    const styleMap = serie.styleMapping ?? ((v?: SerieStyle) => v);
 
     const [yMin, yMax] = yScale.range();
     const [xMin, xMax] = xScale.range();
@@ -291,11 +291,11 @@ export class CanvasContext {
         y = yMax;
       }
 
-      if (serie.styleCol !== undefined && styleMap) {
+      if (serie.styleCol !== undefined) {
         const style = styleMap(table.cols[serie.styleCol]?.[i]);
-        this.ctx.fillStyle = style.fill ?? serie.color;
-        this.ctx.strokeStyle = style.color ?? serie.color;
-        this.ctx.globalAlpha = style.transparency ?? serie.opacity;
+        this.ctx.fillStyle = style?.fill ?? serie.color;
+        this.ctx.strokeStyle = style?.color ?? serie.color;
+        this.ctx.globalAlpha = style?.opacity ?? style?.transparency ?? serie.opacity;
       } else if (serie.colorCol) {
         this.ctx.fillStyle = colorMap(table.cols[serie.colorCol][i]) ?? serie.color;
         this.ctx.fillStyle = serie.color;
@@ -517,7 +517,7 @@ export class CanvasContext {
         x,
         y,
         fill: style?.fill ?? color,
-        fillTransparency: style?.fillTransparency ?? serie.fillOpacity,
+        fillTransparency: style?.fillOpacity ?? style?.fillTransparency ?? serie.fillOpacity,
       };
     }
   }
