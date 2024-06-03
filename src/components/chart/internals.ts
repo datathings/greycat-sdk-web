@@ -13,7 +13,7 @@ export function vMap(x: unknown): number {
       if (x instanceof core.time) {
         return Math.round(x.epochMs);
       } else if (x instanceof core.Date) {
-        return x.toDate().getTime();
+        return new Date(x.toString()).getTime();
       }
       return +x;
     }

@@ -46,6 +46,12 @@ export type TableLikeRowBased = {
 }
 export type TableLikeObjectBased = Array<Record<string, unknown>>;
 
+/**
+ * Converts the given `table` to a `TableLikeColumnBased`.
+ * 
+ * If the given `table` is already a `TableLikeColumnBased`, this is a noop.
+ * For the other shape of table, a conversion is applied and a new table is created.
+ */
 export function toColumnBasedTable(table: TableLike): TableLikeColumnBased {
   if ('cols' in table) {
     return table;
@@ -59,6 +65,12 @@ export function toColumnBasedTable(table: TableLike): TableLikeColumnBased {
   return {};
 }
 
+/**
+ * Converts the given `table` to a `TableLikeRowBased`.
+ * 
+ * If the given `table` is already a `TableLikeRowBased`, this is a noop.
+ * For the other shape of table, a conversion is applied and a new table is created.
+ */
 export function toRowBasedTable(table: TableLike): TableLikeRowBased {
   if ('rows' in table) {
     return table;

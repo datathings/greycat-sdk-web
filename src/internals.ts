@@ -1,5 +1,5 @@
 import { core } from '@greycat/sdk';
-import { Axis, ChartConfig, Ordinate, Scale, Serie, TableLike } from './components/index.js';
+import { Axis, Ordinate, Scale, Serie } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
 
 export type Disposable = () => void;

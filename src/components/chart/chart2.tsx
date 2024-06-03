@@ -13,7 +13,7 @@ import type {
   SerieOptions,
 } from './types.js';
 import { VerticalAxisPos, type ShapeOptions } from './ctx.js';
-import { type TableLike } from '../common.js';
+import { TableLikeColumnBased, toColumnBasedTable, type TableLike } from '../common.js';
 import { Resizable } from '../mixins.js';
 import { vMap } from './internals.js';
 import { closest } from '../../internals.js';
@@ -56,7 +56,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   cursorCrosshairOpts: ShapeOptions = {
     color: 'gray',
   };
-  private _table: TableLike;
+  private _table: TableLikeColumnBased;
   private _config: ChartConfig2;
   private _cache: CachedState;
   private _colors: string[] = [];
@@ -331,7 +331,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       const v = +xScale.invert(this._cursor.x);
 
       const { xValue, rowIdx } = closest(
-        this._table,
+        this._table.cols,
         serie,
         this._cursor.x,
         this._cursor.y,
@@ -689,8 +689,12 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     }
   }
 
+  get value(): TableLikeColumnBased {
+    return this._table;
+  }
+
   set value(value: TableLike) {
-    this._table = value;
+    this._table = toColumnBasedTable(value);
     this.compute();
     this.update();
   }
@@ -1040,7 +1044,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         max: this._config.yAxes[name].max,
       };
     }
-    this._table = value;
+    this._table = toColumnBasedTable(value);
     this.compute();
     this.update();
   }

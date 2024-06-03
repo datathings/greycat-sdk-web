@@ -6,21 +6,11 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-<<<<<<< HEAD
-    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.38-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.38-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.40-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.40-dev.tgz'
   '@shoelace-style/shoelace':
     specifier: 2.14.0
-    version: 2.14.0(@types/react@18.2.66)
-=======
-<<<<<<< HEAD
-    specifier: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz
-    version: '@get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz'
-=======
-    specifier: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz
-    version: '@get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz'
->>>>>>> stable
->>>>>>> testing
+    version: 2.14.0(@types/react@18.3.3)
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -33,13 +23,8 @@ devDependencies:
     specifier: 0.8.4
     version: 0.8.4
   '@greycat/lang':
-<<<<<<< HEAD
     specifier: https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz
     version: '@get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz'
-=======
-    specifier: https://get.greycat.io/files/lang/stable/6.10/6.10.45-stable.tgz
-    version: '@get.greycat.io/files/lang/stable/6.10/6.10.45-stable.tgz'
->>>>>>> testing
   '@picocss/pico':
     specifier: 1.5.10
     version: 1.5.10
@@ -81,7 +66,7 @@ devDependencies:
     version: 4.4.8(@types/node@20.4.5)(lightningcss@1.24.1)
   vitepress:
     specifier: 1.0.0-rc.22
-    version: 1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.2.66)(lightningcss@1.24.1)(search-insights@2.13.0)(typescript@5.4.2)
+    version: 1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.3.3)(lightningcss@1.24.1)(search-insights@2.13.0)(typescript@5.4.2)
 
 packages:
 
@@ -251,8 +236,8 @@ packages:
       to-fast-properties: 2.0.0
     dev: true
 
-  /@ctrl/tinycolor@4.0.3:
-    resolution: {integrity: sha512-e9nEVehVJwkymQpkGhdSNzLT2Lr9UTTby+JePq4Z2SxBbOQjY7pLgSouAaXvfaGQVSAaY0U4eJdwfSDmCbItcw==}
+  /@ctrl/tinycolor@4.1.0:
+    resolution: {integrity: sha512-WyOx8cJQ+FQus4Mm4uPIZA64gbk3Wxh0so5Lcii0aJifqwoVOlfFtorjLE0Hen4OYyHZMXDWqMmaQemBhgxFRQ==}
     engines: {node: '>=14'}
     dev: false
 
@@ -282,10 +267,10 @@ packages:
     resolution: {integrity: sha512-SPiDHaWKQZpwR2siD0KQUwlStvIAnEyK6tAE2h2Wuoq8ue9skzhlyVQ1ddzOxX6khULnAALDiR/isSF3bnuciA==}
     dev: true
 
-  /@docsearch/js@3.5.2(@algolia/client-search@4.22.1)(@types/react@18.2.66)(search-insights@2.13.0):
+  /@docsearch/js@3.5.2(@algolia/client-search@4.22.1)(@types/react@18.3.3)(search-insights@2.13.0):
     resolution: {integrity: sha512-p1YFTCDflk8ieHgFJYfmyHBki1D61+U9idwrLh+GQQMrBSP3DLGKpy0XUJtPjAOPltcVbqsTjiPFfH7JImjUNg==}
     dependencies:
-      '@docsearch/react': 3.5.2(@algolia/client-search@4.22.1)(@types/react@18.2.66)(search-insights@2.13.0)
+      '@docsearch/react': 3.5.2(@algolia/client-search@4.22.1)(@types/react@18.3.3)(search-insights@2.13.0)
       preact: 10.19.3
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -295,7 +280,7 @@ packages:
       - search-insights
     dev: true
 
-  /@docsearch/react@3.5.2(@algolia/client-search@4.22.1)(@types/react@18.2.66)(search-insights@2.13.0):
+  /@docsearch/react@3.5.2(@algolia/client-search@4.22.1)(@types/react@18.3.3)(search-insights@2.13.0):
     resolution: {integrity: sha512-9Ahcrs5z2jq/DcAvYtvlqEBHImbm4YJI8M9y0x6Tqg598P40HTEkX7hsMcIuThI+hTFxRGZ9hll0Wygm2yEjng==}
     peerDependencies:
       '@types/react': '>= 16.8.0 < 19.0.0'
@@ -315,7 +300,7 @@ packages:
       '@algolia/autocomplete-core': 1.9.3(@algolia/client-search@4.22.1)(algoliasearch@4.22.1)(search-insights@2.13.0)
       '@algolia/autocomplete-preset-algolia': 1.9.3(@algolia/client-search@4.22.1)(algoliasearch@4.22.1)
       '@docsearch/css': 3.5.2
-      '@types/react': 18.2.66
+      '@types/react': 18.3.3
       algoliasearch: 4.22.1
       search-insights: 2.13.0
     transitivePeerDependencies:
@@ -557,21 +542,21 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: true
 
-  /@floating-ui/core@1.6.0:
-    resolution: {integrity: sha512-PcF++MykgmTj3CIyOQbKA/hDzOAiqI3mhuoN44WRCopIs1sgoDoU4oty4Jtqaj/y3oDU6fnVSm4QG0a3t5i0+g==}
+  /@floating-ui/core@1.6.2:
+    resolution: {integrity: sha512-+2XpQV9LLZeanU4ZevzRnGFg2neDeKHgFLjP6YLW+tly0IvrhqT4u8enLGjLH3qeh85g19xY5rsAusfwTdn5lg==}
     dependencies:
-      '@floating-ui/utils': 0.2.1
+      '@floating-ui/utils': 0.2.2
     dev: false
 
-  /@floating-ui/dom@1.6.3:
-    resolution: {integrity: sha512-RnDthu3mzPlQ31Ss/BTwQ1zjzIhr3lk1gZB1OC56h/1vEtaXkESrOqL5fQVMfXpwGtRwX+YsZBdyHtJMQnkArw==}
+  /@floating-ui/dom@1.6.5:
+    resolution: {integrity: sha512-Nsdud2X65Dz+1RHjAIP0t8z5e2ff/IRbei6BqFrl1urT8sDVzM1HMQ+R0XcU5ceRfyO3I6ayeqIfh+6Wb8LGTw==}
     dependencies:
-      '@floating-ui/core': 1.6.0
-      '@floating-ui/utils': 0.2.1
+      '@floating-ui/core': 1.6.2
+      '@floating-ui/utils': 0.2.2
     dev: false
 
-  /@floating-ui/utils@0.2.1:
-    resolution: {integrity: sha512-9TANp6GPoMtYzQdt54kfAyMmz1+osLlXdg2ENroU7zzrtflTLrrC/lgrIfaSe+Wu0b89GKccT7vxXA0MoAIO+Q==}
+  /@floating-ui/utils@0.2.2:
+    resolution: {integrity: sha512-J4yDIIthosAsRZ5CPYP/jQvUAQtlZTTD/4suA08/FEnlxqW3sKS9iAhgsa9VYLZ6vDHn/ixJgIqRQPotoBjxIw==}
     dev: false
 
   /@github/catalyst@1.6.0:
@@ -606,12 +591,12 @@ packages:
     resolution: {integrity: sha512-yWJKmpGE6lUURKAaIltoPIE/wrbY3TEkqQt+X0m+7fQNnAv0keydnYvbiJFP1PnMhizmIWRWOG5KLhYyc/xl+g==}
     dev: false
 
-  /@lit/react@1.0.4(@types/react@18.2.66):
-    resolution: {integrity: sha512-6HBvk3AwF46z17fTkZp5F7/EdCJW9xqqQgYKr3sQGgoEJv0TKV1voWydG4UQQA2RWkoD4SHjy08snSpzyoyd0w==}
+  /@lit/react@1.0.5(@types/react@18.3.3):
+    resolution: {integrity: sha512-RSHhrcuSMa4vzhqiTenzXvtQ6QDq3hSPsnHHO3jaPmmvVFeoNNm4DHoQ0zLdKAUvY3wP3tTENSUf7xpyVfrDEA==}
     peerDependencies:
       '@types/react': 17 || 18
     dependencies:
-      '@types/react': 18.2.66
+      '@types/react': 18.3.3
     dev: false
 
   /@lit/reactive-element@2.0.4:
@@ -645,7 +630,6 @@ packages:
     resolution: {integrity: sha512-+LafMsrwPxXQMk6sI///TmSInCwwZmq+K7SikyL3N/4GhhwzyPC+TQLUEqmrLyjluR+uIpFFcqjty30Rtr6GxQ==}
     dev: true
 
-<<<<<<< HEAD
   /@shoelace-style/animations@1.1.0:
     resolution: {integrity: sha512-Be+cahtZyI2dPKRm8EZSx3YJQ+jLvEcn3xzRP7tM4tqBnvd/eW/64Xh0iOf0t2w5P8iJKfdBbpVNE9naCaOf2g==}
     dev: false
@@ -654,26 +638,25 @@ packages:
     resolution: {integrity: sha512-Hf45HeO+vdQblabpyZOTxJ4ZeZsmIUYXXPmoYrrR4OJ5OKxL+bhMz5mK8JXgl7HsoEowfz7+e248UGi861de9Q==}
     dev: false
 
-  /@shoelace-style/shoelace@2.14.0(@types/react@18.2.66):
+  /@shoelace-style/shoelace@2.14.0(@types/react@18.3.3):
     resolution: {integrity: sha512-b8HXsSMvKX/9D5yCygnCkAuwZfxYof1+owJx9fYggq/bOAQ8WQcZzMBPTI4amgfwEnFzhRF8ETT+V8w+sptlww==}
     engines: {node: '>=14.17.0'}
     dependencies:
-      '@ctrl/tinycolor': 4.0.3
-      '@floating-ui/dom': 1.6.3
-      '@lit/react': 1.0.4(@types/react@18.2.66)
+      '@ctrl/tinycolor': 4.1.0
+      '@floating-ui/dom': 1.6.5
+      '@lit/react': 1.0.5(@types/react@18.3.3)
       '@shoelace-style/animations': 1.1.0
       '@shoelace-style/localize': 3.1.2
       composed-offset-position: 0.0.4
-      lit: 3.1.2
+      lit: 3.1.3
       qr-creator: 1.0.0
     transitivePeerDependencies:
       - '@types/react'
     dev: false
-=======
+
   /@tabler/icons@2.47.0:
     resolution: {integrity: sha512-4w5evLh+7FUUiA1GucvGj2ReX2TvOjEr4ejXdwL/bsjoSkof6r1gQmzqI+VHrE2CpJpB3al7bCTulOkFa/RcyA==}
     dev: true
->>>>>>> testing
 
   /@types/d3-array@3.2.1:
     resolution: {integrity: sha512-Y2Jn2idRrLzUfAKV2LyRImR+y4oa2AntrgID95SHJxuMUrkNXmanDSed71sRNZysveJVt1hLLemQZIady0FpEg==}
@@ -881,18 +864,14 @@ packages:
     resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
     dev: true
 
-  /@types/prop-types@15.7.11:
-    resolution: {integrity: sha512-ga8y9v9uyeiLdpKddhxYQkxNDrfvuPrlFb0N1qnZZByvcElJaXthF1UhvCh9TLWJBEHeNtdnbysW7Y6Uq8CVng==}
+  /@types/prop-types@15.7.12:
+    resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
 
-  /@types/react@18.2.66:
-    resolution: {integrity: sha512-OYTmMI4UigXeFMF/j4uv0lBBEbongSgptPrHBxqME44h9+yNov+oL6Z3ocJKo0WyXR84sQUNeyIp9MRfckvZpg==}
+  /@types/react@18.3.3:
+    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
     dependencies:
-      '@types/prop-types': 15.7.11
-      '@types/scheduler': 0.16.8
+      '@types/prop-types': 15.7.12
       csstype: 3.1.3
-
-  /@types/scheduler@0.16.8:
-    resolution: {integrity: sha512-WZLiwShhwLRmeV6zH+GkbOFT6Z6VklCItrDioxUnv+u4Ll+8vKeFySoFyK/0ctcRpOmwAicELfmys1sDc/Rw+A==}
 
   /@types/semver@7.5.6:
     resolution: {integrity: sha512-dn1l8LaMea/IjDoHNd9J52uBbInB796CDffS6VdIxvqYCPSG0V0DzHp76GpaWnlhg88uYyPbXCDIowa86ybd5A==}
@@ -2363,26 +2342,26 @@ packages:
       lightningcss-win32-x64-msvc: 1.24.1
     dev: true
 
-  /lit-element@4.0.4:
-    resolution: {integrity: sha512-98CvgulX6eCPs6TyAIQoJZBCQPo80rgXR+dVBs61cstJXqtI+USQZAbA4gFHh6L/mxBx9MrgPLHLsUgDUHAcCQ==}
+  /lit-element@4.0.5:
+    resolution: {integrity: sha512-iTWskWZEtn9SyEf4aBG6rKT8GABZMrTWop1+jopsEOgEcugcXJGKuX5bEbkq9qfzY+XB4MAgCaSPwnNpdsNQ3Q==}
     dependencies:
       '@lit-labs/ssr-dom-shim': 1.2.0
       '@lit/reactive-element': 2.0.4
-      lit-html: 3.1.2
+      lit-html: 3.1.3
     dev: false
 
-  /lit-html@3.1.2:
-    resolution: {integrity: sha512-3OBZSUrPnAHoKJ9AMjRL/m01YJxQMf+TMHanNtTHG68ubjnZxK0RFl102DPzsw4mWnHibfZIBJm3LWCZ/LmMvg==}
+  /lit-html@3.1.3:
+    resolution: {integrity: sha512-FwIbqDD8O/8lM4vUZ4KvQZjPPNx7V1VhT7vmRB8RBAO0AU6wuTVdoXiu2CivVjEGdugvcbPNBLtPE1y0ifplHA==}
     dependencies:
       '@types/trusted-types': 2.0.7
     dev: false
 
-  /lit@3.1.2:
-    resolution: {integrity: sha512-VZx5iAyMtX7CV4K8iTLdCkMaYZ7ipjJZ0JcSdJ0zIdGxxyurjIn7yuuSxNBD7QmjvcNJwr0JS4cAdAtsy7gZ6w==}
+  /lit@3.1.3:
+    resolution: {integrity: sha512-l4slfspEsnCcHVRTvaP7YnkTZEZggNFywLEIhQaGhYDczG+tu/vlgm/KaWIEjIp+ZyV20r2JnZctMb8LeLCG7Q==}
     dependencies:
       '@lit/reactive-element': 2.0.4
-      lit-element: 4.0.4
-      lit-html: 3.1.2
+      lit-element: 4.0.5
+      lit-html: 3.1.3
     dev: false
 
   /locate-path@6.0.0:
@@ -2835,7 +2814,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitepress@1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.2.66)(lightningcss@1.24.1)(search-insights@2.13.0)(typescript@5.4.2):
+  /vitepress@1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.3.3)(lightningcss@1.24.1)(search-insights@2.13.0)(typescript@5.4.2):
     resolution: {integrity: sha512-n7le5iikCFgWMuX7sKfzDGJGlrsYQ5trG3S97BghNz2alOTr4Xp+GrB6ShwogUTX9gNgeNmrACjokhW55LNeBA==}
     hasBin: true
     peerDependencies:
@@ -2848,7 +2827,7 @@ packages:
         optional: true
     dependencies:
       '@docsearch/css': 3.5.2
-      '@docsearch/js': 3.5.2(@algolia/client-search@4.22.1)(@types/react@18.2.66)(search-insights@2.13.0)
+      '@docsearch/js': 3.5.2(@algolia/client-search@4.22.1)(@types/react@18.3.3)(search-insights@2.13.0)
       '@types/markdown-it': 13.0.7
       '@vue/devtools-api': 6.5.1
       '@vueuse/core': 10.7.2(vue@3.4.15)
@@ -2955,41 +2934,20 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-<<<<<<< HEAD
   '@get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz':
-    resolution: {registry: https://hub.datathings.com/api/v4/projects/289/packages/npm/, tarball: https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz}
+    resolution: {tarball: https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz}
     name: '@greycat/lang'
     version: 7.0.52-dev
-=======
-  '@get.greycat.io/files/lang/stable/6.10/6.10.45-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/lang/stable/6.10/6.10.45-stable.tgz}
-    name: '@greycat/lang'
-    version: 6.10.45-stable
->>>>>>> testing
     engines: {node: '>=16.17.0'}
     dependencies:
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
     dev: true
 
-<<<<<<< HEAD
-  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.38-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.38-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.40-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.40-dev.tgz}
     name: '@greycat/sdk'
-    version: 7.0.38-dev
-=======
-<<<<<<< HEAD
-  '@get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz}
-    name: '@greycat/sdk'
-    version: 6.10.21-testing
-=======
-  '@get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz}
-    name: '@greycat/sdk'
-    version: 6.10.18-stable
->>>>>>> stable
->>>>>>> testing
+    version: 7.0.40-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6
