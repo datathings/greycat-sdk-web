@@ -223,7 +223,11 @@ export class GuiHeatmap extends HTMLElement {
     config: HeatmapConfig;
     value: TableLike;
   }>) {
-    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+    this._table = config.table
+      ? toColumnBasedTable(config.table)
+      : value
+      ? toColumnBasedTable(value)
+      : {};
     this._config = config;
     this.compute();
     this.update();
@@ -242,8 +246,14 @@ export class GuiHeatmap extends HTMLElement {
 
     const { xRange, yRange, style, xScale, yScale, xLabels, yLabels, colorScale } = this._computed;
 
-    const paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
-    const paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
+    const [xMin, xMax] = xScale.range();
+    const [yMin, yMax] = yScale.range();
+
+    const paddingX =
+      (xMax - xMin - (xScale.step() * (xScale.domain().length - 1) + xScale.bandwidth())) / 2;
+
+    const paddingY =
+      (yMax - yMin - (yScale.step() * (yScale.domain().length - 1) + yScale.bandwidth())) / 2;
 
     const updateUX =
       this._cursor.x !== -1 &&
@@ -588,7 +598,7 @@ export class GuiHeatmap extends HTMLElement {
 /**
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
- * 
+ *
  * TODO rename to `GuiHeatmapCursorEvent` in v7
  */
 export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
@@ -608,7 +618,7 @@ declare global {
     [HeatmapCursorEvent.NAME]: HeatmapCursorEvent;
   }
 
-  interface HTMLElementEventMap extends GuiHeatmapEventMap { }
+  interface HTMLElementEventMap extends GuiHeatmapEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
