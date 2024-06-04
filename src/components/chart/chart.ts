@@ -90,7 +90,7 @@ export class GuiChart extends HTMLElement {
 
     this._disposer = new Disposer();
     this._table = {};
-    this._config = { table: {}, series: [], xAxis: {}, yAxes: {} };
+    this._config = { series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -444,9 +444,6 @@ export class GuiChart extends HTMLElement {
 
   set config(config: ChartConfig) {
     this._config = config;
-    if (config.table) {
-      this._table = toColumnBasedTable(config.table);
-    }
 
     // update local user X min/max with the configuration values
     this._userXAxisMin = this._config.xAxis.min;
@@ -466,7 +463,7 @@ export class GuiChart extends HTMLElement {
   }
 
   setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
-    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+    this._table = toColumnBasedTable(value);
     this._config = config;
 
     // update local user X min/max with the configuration values
@@ -717,7 +714,6 @@ export class GuiChart extends HTMLElement {
           case 'line+scatter':
           case 'scatter':
           case 'line':
-          case 'step':
           case 'line+area':
           case 'area': {
             // only draw marker if inside the range
@@ -779,11 +775,7 @@ export class GuiChart extends HTMLElement {
 
         // tooltip
         let color = serie.color;
-        if (serie.colorCol) {
-          color = serie.colorMapping
-            ? serie.colorMapping(this._table.cols[serie.colorCol][rowIdx])
-            : this._table.cols[serie.colorCol][rowIdx];
-        } else if (serie.styleCol && serie.styleMapping) {
+        if (serie.styleCol && serie.styleMapping) {
           color =
             serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ??
             color;
@@ -1123,9 +1115,6 @@ export class GuiChart extends HTMLElement {
       switch (serie.type) {
         case 'line':
           this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'step':
-          this._ctx.step(this._table, serie, xScale, yScales[serie.yAxis]);
           break;
         case 'line+scatter':
           this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
