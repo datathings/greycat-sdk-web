@@ -6,11 +6,14 @@ declare namespace GreyCat {
 
   // --- utilities to clean up extented types (like EventTarget, HTMLElement, Node, etc)
   // because the JSX runtime will only deal with mutable properties anyways
-  type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+  type IfEquals<X, Y, XEqY = X, XNotEqY = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? XEqY : XNotEqY;
   // Extract readonly keys from the given T type
   type ReadonlyKeys<T> = {
     [K in keyof T]: IfEquals<{ [Q in K]: T[K] }, { -readonly [Q in K]: T[K] }, never, K>;
   }[keyof T];
+  // type SetterKeys<T> = {
+  //   [K in keyof T]: T[K] extends { [Q in K]: (value: any) => void } ? K : never
+  // }[keyof T];
   // Extract function keys from the given T type
   type FunctionKeys<T> = {
     [K in keyof T]: T[K] extends (...args: any[]) => any ? K : never

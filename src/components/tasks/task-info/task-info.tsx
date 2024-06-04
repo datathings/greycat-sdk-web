@@ -70,36 +70,19 @@ export class GuiTaskInfo extends HTMLElement {
     return this._task;
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set task(t: TaskInfoLike | null) {
-    this.value = t;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  get task() {
-    return this.value;
-  }
-
   set value(value: TaskInfoLike | null) {
     this._task = value;
     this.update();
   }
 
   setAttrs({
-    task = this._task,
     value = this._task,
     greycat = this._greycat,
   }: Partial<{
-    /** @deprecated use `value` instead */
-    task: TaskInfoLike | null;
     value: TaskInfoLike | null;
     greycat: GreyCat;
   }>) {
-    this._task = task ?? value;
+    this._task = value;
     this._greycat = greycat;
     this.update();
   }

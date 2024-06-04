@@ -290,7 +290,7 @@ fn histogram_table(): Table {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
-  var csv = CsvReader::new("pages/chart-bar-histogram/heightweight.csv", csvFormat);
+  var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
 
   var histogramHeight = HistogramFloat {};
   var histogramWeight = HistogramFloat {};
@@ -555,10 +555,10 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 fn now() {
   var now = time::now();
   return {
-    azores: now.toDate(TimeZone::Atlantic_Azores),
-    utc: now.toDateUTC(),
-    paris: now.toDate(TimeZone::Europe_Paris),
-    athens: now.toDate(TimeZone::Europe_Athens),
+    azores: Date::fromTime(now, TimeZone::Atlantic_Azores),
+    utc: Date::fromTime(now, TimeZone::UTC),
+    paris: Date::fromTime(now, TimeZone::Europe_Paris),
+    athens: Date::fromTime(now, TimeZone::Europe_Athens),
   };
 }
 

@@ -9,10 +9,6 @@ const DEFAULT_SIZE = { height: 100, width: 100 };
 const BOX_SIZE = 10;
 
 export interface BoxPlotProps {
-  /**
-   * @deprecated use `value` instead
-   */
-  boxPlot: util.BoxPlotFloat | null;
   value: util.BoxPlotFloat | null;
   columns: number[];
   axisLabel: string[];
@@ -29,7 +25,7 @@ export class GuiBoxPlot extends HTMLElement {
   private _container?: d3.Selection<HTMLDivElement, unknown, null, undefined>;
   private _xAxis: d3.ScaleTime<number, number, never>;
   private _yAxis: d3.ScaleLinear<number, number, never>;
-  private _boxPlot: util.BoxPlotFloat | null = null;
+  private _value: util.BoxPlotFloat | null = null;
   private _outerWidth: number = DEFAULT_SIZE.height;
   private _outerHeight: number = DEFAULT_SIZE.width;
   private _axisLabel = DEFAULT_AXIS_LABEL;
@@ -57,19 +53,12 @@ export class GuiBoxPlot extends HTMLElement {
     this._numberFormatter = (v) => v.toString();
   }
 
-  get boxPlot(): util.BoxPlotFloat | null {
-    return this._boxPlot;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set boxPlot(boxPlot: util.BoxPlotFloat | null) {
-    this.value = boxPlot;
+  get value() {
+    return this._value;
   }
 
   set value(value: util.BoxPlotFloat | null) {
-    this._boxPlot = value;
+    this._value = value;
     this.render();
   }
 
@@ -94,13 +83,12 @@ export class GuiBoxPlot extends HTMLElement {
   }
 
   setAttrs({
-    boxPlot = this._boxPlot,
-    value = this._boxPlot,
+    value = this._value,
     xAxisFormat = this._xAxisFormat,
     numberFormatter = this._numberFormatter,
     axisLabel = this._axisLabel,
   }: Partial<BoxPlotProps>) {
-    this._boxPlot = boxPlot ?? value;
+    this._value = value;
     this._xAxisFormat = xAxisFormat;
     this._numberFormatter = numberFormatter;
     this._axisLabel = axisLabel;
@@ -150,7 +138,7 @@ export class GuiBoxPlot extends HTMLElement {
         return;
       }
 
-      const boxPlot = this._boxPlot;
+      const boxPlot = this._value;
       const canvas = this._canvas;
       if (!boxPlot || !canvas) {
         return requestAnimationFrame(onHover);
@@ -296,7 +284,7 @@ export class GuiBoxPlot extends HTMLElement {
 
   render() {
     const canvas = this._canvas;
-    const boxPlot = this._boxPlot;
+    const boxPlot = this._value;
     if (!canvas || !boxPlot) {
       return;
     }

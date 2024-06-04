@@ -1,13 +1,12 @@
-import '../layout';
+import '@/common';
+import { GreyCat, IndexedDbCache } from '@greycat/web';
 
-const app = document.createElement('app-layout');
-app.title = 'Table - Utils';
-await app.init();
+greycat.default = await GreyCat.init({
+  cache: new IndexedDbCache('sdk-web-playground'),
+});
 
-document.body.appendChild(app);
-app.main.style.rowGap = 'var(--spacing)';
-app.main.replaceChildren(
-  <>
+document.body.appendChild(
+  <app-layout title="Table - utils">
     <gui-table
       style={{ backgroundColor: 'var(--bg-1)' }}
       value={{
@@ -24,5 +23,5 @@ app.main.replaceChildren(
       style={{ backgroundColor: 'var(--bg-1)' }}
       value={await greycat.default.call('project::persons')}
     />
-  </>,
+  </app-layout>,
 );

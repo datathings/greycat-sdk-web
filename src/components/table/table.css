@@ -115,7 +115,7 @@ gui-table gui-thead gui-thead-cell .gui-thead-dropdown.open {
 }
 
 gui-table gui-thead gui-thead-cell .gui-thead-dropdown > input {
-  margin-bottom: 0;
+  width: 100%;
   --border-radius: 0;
 }
 

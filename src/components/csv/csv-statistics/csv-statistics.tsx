@@ -17,11 +17,8 @@ export class GuiCsvStatistics extends HTMLElement {
     this.replaceChildren();
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set statistics(statistics: io.CsvStatistics | null | undefined) {
-    this.value = statistics;
+  get value() {
+    return this._stats;
   }
 
   set value(value: io.CsvStatistics | null | undefined) {

@@ -85,13 +85,6 @@ export class GuiUserTable extends HTMLElement {
     Promise.all([this.updateUsersAndGroups(), this.updateRoles()]).catch(this._handleError);
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set users(users: runtime.User[]) {
-    this.value = users;
-  }
-
   get value() {
     return this._users;
   }
@@ -154,7 +147,7 @@ export class GuiUserTable extends HTMLElement {
           groups.push(entity);
         }
       }
-      this.users = users;
+      this.value = users;
       this.groups = groups;
     } catch (err) {
       this._handleError(err);

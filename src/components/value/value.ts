@@ -98,13 +98,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
-  /**
-   * @deprecated use `dateFmt` instead
-   */
-  set formatter(formatter: Intl.DateTimeFormat) {
-    this.dateFmt = formatter;
-  }
-
   get numFmt() {
     return this._numFmt;
   }

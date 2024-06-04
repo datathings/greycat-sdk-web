@@ -157,20 +157,6 @@ export class GuiSearchableSelect extends HTMLElement {
   }
 
   /**
-   * @deprecated use `value` instead
-   */
-  get selected() {
-    return this.value;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set selected(selected: unknown) {
-    this.value = selected;
-  }
-
-  /**
    * The currently selected value.
    */
   get value() {

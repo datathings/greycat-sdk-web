@@ -1,14 +1,7 @@
 import { utils } from '@greycat/sdk';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import {
-  Disposer,
-  GuiRenderEvent,
-  TableLike,
-  TableLikeColumnBased,
-  TableLikeMeta,
-  toColumnBasedTable,
-} from '../common.js';
+import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta } from '../common.js';
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
@@ -128,8 +121,8 @@ export class GuiTable extends HTMLElement {
 
   // returning a `TableLikeColumnBased` rather than a `TableLike` to be backward-compatible
   // with the old `TableLike` structure.
-  get value(): TableLikeColumnBased | undefined {
-    return this._table ? toColumnBasedTable(this._table) : undefined;
+  get value(): TableLike | undefined {
+    return this._table;
   }
 
   set value(table: TableLike | undefined) {
@@ -141,22 +134,6 @@ export class GuiTable extends HTMLElement {
     this._table = table;
     this.computeTable();
     this.update();
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  // returning a `TableLikeColumnBased` rather than a `TableLike` to be backward-compatible
-  // with the old `TableLike` structure.
-  get table(): TableLikeColumnBased | undefined {
-    return this.value;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set table(table: TableLike | undefined) {
-    this.value = table;
   }
 
   computeTable() {
@@ -425,7 +402,6 @@ export class GuiTable extends HTMLElement {
   }
 
   setAttrs({
-    table = this._table,
     value = this._table,
     filter = this._filterText,
     filterColumns = this._filterColumns,
@@ -437,8 +413,6 @@ export class GuiTable extends HTMLElement {
     cellTagNames = this._cellTagNames,
     rowHeight = this._tbody.rowHeight,
   }: Partial<{
-    /** @deprecated use `value` instead */
-    table: TableLike;
     value: TableLike;
     filter: string;
     filterColumns: Array<string | undefined | null>;
@@ -450,7 +424,7 @@ export class GuiTable extends HTMLElement {
     cellTagNames: Record<number, string>;
     rowHeight: number;
   }>) {
-    this._table = table ?? value;
+    this._table = value;
     this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;

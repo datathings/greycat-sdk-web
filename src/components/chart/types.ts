@@ -1,5 +1,4 @@
 import type { core } from '@greycat/sdk';
-import type { TableLikeColumnBased } from '../common.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
@@ -215,19 +214,6 @@ export type SerieOptions = {
    */
   hideInTooltip: boolean;
   /**
-   * @deprecated use `styleMapping` instead
-   * Maps the col values (from `colorCol`) to a color definition.
-   *
-   * *Returning `null` or `undefined` will make the painting use the default color of the serie*
-   *
-   * *Not defining a `colorMapping` will use the value as-is for coloring, meaning the serie's column can contain color codes directly*
-   *
-   * @param v the current cell value
-   * @returns the color used for canvas painting
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colorMapping?: (v: any) => Color | null | undefined;
-  /**
    * Maps the col values to be used in th styleMapping.
    *
    */
@@ -272,16 +258,6 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: K;
-  /**
-   * @deprecated use `styleMapping` instead
-   * offset of the column in the table to use to read lineType values for each x
-   */
-  lineTypeCol?: number;
-  /**
-   * @deprecated use `styleMapping` instead
-   * offset of the column in the table to use to read the line color values for segment
-   */
-  colorCol?: number;
   /**
    * Optional title used to name the serie.
    */
@@ -340,24 +316,16 @@ export interface LineAreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+area';
 }
 
-export interface StepSerie<K> extends CommonSerie<K> {
-  /**@deprecated type `step` is deprecated, use type `line` with a `curve: 'step-after'` */
-  type: 'step';
-}
-
 export type Serie<K extends string = string> =
   | LineSerie<K>
   | BarSerie<K>
   | ScatterSerie<K>
   | LineScatterSerie<K>
-  | StepSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
   | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
-  /** @deprecated will be removed in v7 in favor of `el.value` pattern */
-  table: TableLikeColumnBased;
   series: Serie<Extract<keyof K, string>>[];
   /**
    * The x-axis definition

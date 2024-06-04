@@ -56,13 +56,6 @@ export class GuiUserRoles extends HTMLElement {
     this.render();
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set roles(roles: runtime.UserRole[]) {
-    this.value = roles;
-  }
-
   get value() {
     return this._roles;
   }
@@ -107,7 +100,7 @@ export class GuiUserRoles extends HTMLElement {
    */
   async updateRoles() {
     try {
-      this.roles = await runtime.UserRole.all(this._greycat);
+      this.value = await runtime.UserRole.all(this._greycat);
     } catch (err) {
       this._handleError(err);
     }

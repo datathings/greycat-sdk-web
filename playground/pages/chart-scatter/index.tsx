@@ -1,12 +1,6 @@
 import * as d3 from 'd3';
-<<<<<<< HEAD:playground/pages/chart-scatter/index.tsx
-import { GreyCat, IndexedDbCache, TableLike, core } from '@greycat/web';
+import { GreyCat, IndexedDbCache, TableLikeColumnBased, core } from '@greycat/web';
 import '@/common';
-=======
-import { core } from '@greycat/sdk';
-import '../layout';
-import { TableLikeColumnBased } from '../../src';
->>>>>>> testing:pages/chart-scatter/index.tsx
 
 greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
@@ -22,49 +16,6 @@ const randomTable = (): TableLikeColumnBased => {
   };
 };
 
-<<<<<<< HEAD:playground/pages/chart-scatter/index.tsx
-=======
-app.actions.prepend(
-  <>
-    <li>
-      <a
-        href="#"
-        onclick={() => {
-          chart.value = randomTable();
-          chart.compute();
-          chart.update();
-        }}
-      >
-        Randomize
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        onclick={() => {
-          nbPoints += 10;
-          chart.value = randomTable();
-          chart.compute();
-          chart.update();
-        }}
-      >
-        Add 10 points
-      </a>
-    </li>
-    <li>
-      <a
-        href="#"
-        onclick={() => {
-          chart.config.cursor = !chart.config.cursor;
-        }}
-      >
-        Toggle cursor
-      </a>
-    </li>
-  </>,
-);
-
->>>>>>> testing:pages/chart-scatter/index.tsx
 const chart = document.createElement('gui-chart');
 
 chart.addEventListener('selection', (e) => {

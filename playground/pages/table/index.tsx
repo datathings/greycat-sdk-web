@@ -101,7 +101,6 @@ document.body.appendChild(
         <div>
           <gui-searchable-select
             placeholder="Search a timezone"
-            value="UTC"
             options={core.TimeZone.$fields().map((en) => ({
               text: en.value as string,
               value: en.value as string,
@@ -133,7 +132,7 @@ document.body.appendChild(
           oninput={(ev) => {
             tableEl.filter = (ev.target as HTMLInputElement).value;
           }}
-          style={{ marginBottom: '0', borderRadius: '0' }}
+          style={{ width: '100%', borderRadius: '0' }}
         />
         {tableEl}
       </div>

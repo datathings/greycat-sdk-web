@@ -1,7 +1,7 @@
 import './reset.js';
-import './shoelace.js';
 import * as greycat from './exports.js';
 
+export * as sl from './shoelace.js';
 export * from './exports.js';
 
 globalThis.greycat = globalThis.greycat ?? {};

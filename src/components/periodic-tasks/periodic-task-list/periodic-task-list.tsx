@@ -195,20 +195,13 @@ export class GuiPeriodicTaskList extends HTMLElement {
     this.render();
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set tasks(tasks: runtime.PeriodicTask[]) {
-    this.value = tasks;
+  get value() {
+    return this._tasks;
   }
 
   set value(value: runtime.PeriodicTask[]) {
     this._tasks = value;
     this.render();
-  }
-
-  get tasks() {
-    return this._tasks;
   }
 
   set greycat(greycat: GreyCat) {
