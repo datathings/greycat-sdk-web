@@ -62,7 +62,7 @@ export class GuiHeatmap extends HTMLElement {
 
     this._disposer = new Disposer();
     this._table = {};
-    this._config = { table: {}, xAxis: {}, yAxis: {} };
+    this._config = { xAxis: {}, yAxis: {} };
 
     // main canvas
     this._canvas = document.createElement('canvas');
@@ -188,9 +188,6 @@ export class GuiHeatmap extends HTMLElement {
 
   set config(config: HeatmapConfig) {
     this._config = config;
-    if (config.table) {
-      this._table = toColumnBasedTable(config.table);
-    }
     this.compute();
     this.update();
   }
@@ -216,7 +213,7 @@ export class GuiHeatmap extends HTMLElement {
     config: HeatmapConfig;
     value: TableLike;
   }>) {
-    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+    this._table = toColumnBasedTable(value);
     this._config = config;
     this.compute();
     this.update();
