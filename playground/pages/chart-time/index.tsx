@@ -48,7 +48,6 @@ chart.setConfig({
       cursorAlign: 'start',
     },
   },
-  table: { cols: [] },
   series: [
     {
       title: 'Value',
@@ -57,14 +56,16 @@ chart.setConfig({
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,
-      styleCol: 2,
       width: 2,
-      styleMapping(v) {
-        return {
-          dash: v === 'high' ? [8, 8] : v === 'low' ? [2, 2] : [],
-          color: colors[v as keyof typeof colors],
-          transparency: v === 'low' ? 0.5 : 1,
-        };
+      styleMapping: {
+        col: 2,
+        mapping: (v) => {
+          return {
+            dash: v === 'high' ? [8, 8] : v === 'low' ? [2, 2] : [],
+            color: colors[v as keyof typeof colors],
+            opacity: v === 'low' ? 0.5 : 1,
+          };
+        },
       },
     },
   ],

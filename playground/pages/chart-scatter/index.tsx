@@ -23,9 +23,8 @@ chart.addEventListener('selection', (e) => {
   const to = core.time.fromMs(e.detail.to as number);
   console.log(`selection from ${from} to ${to}`);
 });
-
+chart.value = randomTable();
 chart.setConfig({
-  table: randomTable(),
   series: [
     {
       type: 'scatter',
@@ -54,7 +53,7 @@ document.body.appendChild(
         slot="action"
         href="#"
         onclick={() => {
-          chart.config.table = randomTable();
+          chart.value = randomTable();
           chart.compute();
           chart.update();
         }}
@@ -66,7 +65,7 @@ document.body.appendChild(
         href="#"
         onclick={() => {
           nbPoints += 10;
-          chart.config.table = randomTable();
+          chart.value = randomTable();
           chart.compute();
           chart.update();
         }}

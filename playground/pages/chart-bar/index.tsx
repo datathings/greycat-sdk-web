@@ -16,8 +16,7 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
-let table = await greycat.default.call<core.Table>('project::chart_time');
-
+chart.value = await greycat.default.call<core.Table>('project::chart_time');
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -33,7 +32,6 @@ chart.setConfig({
   yAxes: {
     temp: {},
   },
-  table,
   series: [
     {
       title: 'Value',
@@ -73,8 +71,7 @@ document.body.appendChild(
 
 // eslint-disable-next-line no-inner-declarations
 async function randomize() {
-  table = await greycat.default.call<core.Table>('project::chart_time');
-  chart.config.table = table;
+  chart.value = await greycat.default.call<core.Table>('project::chart_time');
   chart.compute();
   chart.update();
 }

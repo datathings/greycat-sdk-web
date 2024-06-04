@@ -1,4 +1,4 @@
-import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n, util } from '@greycat/sdk';
+import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n } from '@greycat/sdk';
 import type { GuiValueProps } from '../index.js';
 
 /**
@@ -39,8 +39,8 @@ export class GuiObject extends HTMLElement {
   static {
     // natives
     this.components.set(core.Table._type, 'gui-table');
-    this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
-    this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
+    // this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
+    // this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
     // // primitives
     // this.components.set(core.geo._type, 'gui-value');
     // this.components.set(core.time._type, 'gui-value');

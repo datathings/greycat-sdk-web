@@ -154,6 +154,7 @@ gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  width: 100%;
 }
 
 /* Special-case for gui-object within gui-table cells */

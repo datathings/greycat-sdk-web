@@ -462,7 +462,10 @@ export class GuiChart extends HTMLElement {
     return this._config;
   }
 
-  setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
+  setAttrs({
+    config = this._config,
+    value = this._table,
+  }: Partial<{ config: ChartConfig; value: TableLike }>) {
     this._table = toColumnBasedTable(value);
     this._config = config;
 
@@ -492,11 +495,7 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (
-      !this._computed ||
-      this._table.cols === undefined ||
-      this._table.cols.length === 0
-    ) {
+    if (!this._computed || this._table.cols === undefined || this._table.cols.length === 0) {
       return;
     }
     this._clearUX();
@@ -637,8 +636,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-              (style.margin.right + rightAxesIdx * style.margin.right) +
-              padding,
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -774,14 +773,19 @@ export class GuiChart extends HTMLElement {
         }
 
         // tooltip
-        let color = serie.color;
-        if (serie.styleCol && serie.styleMapping) {
-          color =
-            serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ??
-            color;
-        }
-        if (!color) {
-          color = serie.color;
+        let color: string = serie.color;
+        if (serie.styleMapping) {
+          if (serie.styleMapping.mapping) {
+            const style = serie.styleMapping.mapping(
+              this._table.cols[serie.styleMapping.col]?.[rowIdx],
+            );
+            color = style?.color?.toString() ?? color;
+          } else {
+            const value = this._table.cols[serie.styleMapping.col]?.[rowIdx];
+            if (typeof value === 'string') {
+              color = value;
+            }
+          }
         }
         if (!this._config.tooltip?.render && !serie.hideInTooltip) {
           const createFormatter = (axis: Axis) => {
@@ -1495,7 +1499,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap { }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {

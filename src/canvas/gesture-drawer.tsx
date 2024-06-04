@@ -126,8 +126,8 @@ export class GestureDrawer extends CanvasDrawer {
         }
       }
     };
-    const setMouseUp = (type: GestureState) => {
-      switch (type) {
+    const setMouseUp = (state: GestureState) => {
+      switch (state) {
         case GestureDrawer.SELECTING: {
           if (this._start.x !== -1 && Date.now() - this._lastClickTime > this.clickThreshold) {
             // selection

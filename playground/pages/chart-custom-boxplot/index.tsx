@@ -18,8 +18,8 @@ document.body.appendChild(
       }}
     >
       <gui-chart
+        value={{ cols: [[]] }}
         config={{
-          table: { cols: [[]] },
           series: [
             {
               type: 'custom',
@@ -68,8 +68,8 @@ document.body.appendChild(
       />
 
       <gui-chart
+        value={{ cols: [[]] }}
         config={{
-          table: { cols: [[]] },
           series: [
             {
               type: 'custom',

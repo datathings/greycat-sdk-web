@@ -1,5 +1,7 @@
 /node_modules
 gcdata
+/pages/gcdata
+/playground/gcdata/
 /dist
 /.vitepress/cache
 /.vitepress/dist

@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, GuiCsvStatistics, GuiTable, io, TaskHandler } from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiCsvStatistics, GuiTable, io } from '@greycat/web';
 import '@/common';
 
 greycat.default = await GreyCat.init({
@@ -8,7 +8,7 @@ greycat.default = await GreyCat.init({
 const progress = (<progress value={0} max={100} />) as HTMLProgressElement;
 
 async function runAnalysis(filepath: string) {
-  const task = await io.CsvAnalysis.analyze(
+  const task = await greycat.default.spawn('io::CsvAnalysis::analyze', [
     filepath,
     io.CsvAnalysisConfig.createFrom({
       header_lines: 1,
@@ -21,13 +21,7 @@ async function runAnalysis(filepath: string) {
       string_delimiter: null,
       thousands_separator: null,
     }),
-  );
-  const handler = new TaskHandler(task);
-  await handler.start(500, (info) => (progress.value = (info.progress ?? 0) * 100));
-  const stats = await greycat.default.getFile<io.CsvStatistics>(
-    `${task.user_id}/tasks/${task.task_id}/result.gcb`,
-  );
-  console.log('stats', stats);
+  ]);
 
   sample.value = await io.CsvFormat.sample(
     filepath,
@@ -44,11 +38,12 @@ async function runAnalysis(filepath: string) {
     null,
   );
   sample.fitColumnsToHeaders();
-  return stats;
+
+  return await task.await() as io.CsvStatistics;
 }
 
 const sample = (<gui-table style={{ height: '400px' }} />) as GuiTable;
-const stats = await runAnalysis('./csv-analysis/data/small.csv');
+const stats = await runAnalysis('./pages/csv-analysis/data/small.csv');
 const csvStatistics = (<gui-csv-statistics value={stats} />) as GuiCsvStatistics;
 
 document.body.appendChild(
@@ -70,12 +65,12 @@ document.body.appendChild(
             csvStatistics.value = await runAnalysis(select.value);
           }}
         >
-          <option value="./csv-analysis/data/small.csv" selected>
+          <option value="./pages/csv-analysis/data/small.csv" selected>
             Small Dataset
           </option>
-          <option value="./csv-analysis/data/large.csv">Large Dataset</option>
-          <option value="./csv-analysis/data/people-100.csv">People 100</option>
-          <option value="./csv-analysis/data/people-10000.csv">People 10k</option>
+          <option value="./pages/csv-analysis/data/large.csv">Large Dataset</option>
+          <option value="./pages/csv-analysis/data/people-100.csv">People 100</option>
+          <option value="./pages/csv-analysis/data/people-10000.csv">People 10k</option>
         </select>
       </fieldset>
       <fieldset>

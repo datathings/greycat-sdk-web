@@ -8,6 +8,12 @@ greycat.default = await GreyCat.init({
 document.body.appendChild(
   <app-layout title="Chart (line+scatter)">
     <gui-chart
+      value={{
+        cols: [
+          [0, 5, 10, 15, 20, 25, 30],
+          [null, 2, null, 5, null, null, null],
+        ],
+      }}
       config={{
         cursor: true,
         xAxis: {
@@ -20,12 +26,6 @@ document.body.appendChild(
             max: 10,
             format: '',
           },
-        },
-        table: {
-          cols: [
-            [0, 5, 10, 15, 20, 25, 30],
-            [null, 2, null, 5, null, null, null],
-          ],
         },
         series: [
           {

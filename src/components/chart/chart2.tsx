@@ -18,8 +18,6 @@ import { Resizable } from '../mixins.js';
 import { vMap } from './internals.js';
 import { closest } from '../../internals.js';
 
-type ChartConfig2 = Omit<ChartConfig, 'table'>;
-
 type CachedState = {
   leftAxes: number;
   rightAxes: number;
@@ -57,7 +55,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     color: 'gray',
   };
   private _table: TableLikeColumnBased;
-  private _config: ChartConfig2;
+  private _config: ChartConfig;
   private _cache: CachedState;
   private _colors: string[] = [];
   /** this is used by the draggingLogic to know the dragging offsetting to apply at every frame */
@@ -373,7 +371,6 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         case 'line+scatter':
         case 'scatter':
         case 'line':
-        case 'step':
         case 'line+area':
         case 'area': {
           // only draw marker if inside the range
@@ -434,17 +431,19 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       }
 
       // tooltip
-      let color = serie.color;
-      if (serie.colorCol) {
-        color = serie.colorMapping
-          ? serie.colorMapping(this._table.cols[serie.colorCol][rowIdx])
-          : this._table.cols[serie.colorCol][rowIdx];
-      } else if (serie.styleCol && serie.styleMapping) {
-        color =
-          serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ?? color;
-      }
-      if (!color) {
-        color = serie.color;
+      let color: string = serie.color;
+      if (serie.styleMapping) {
+        if (serie.styleMapping.mapping) {
+          const style = serie.styleMapping.mapping(
+            this._table.cols[serie.styleMapping.col]?.[rowIdx],
+          );
+          color = style?.color?.toString() ?? color;
+        } else {
+          const value = this._table.cols[serie.styleMapping.col]?.[rowIdx];
+          if (typeof value === 'string') {
+            color = value;
+          }
+        }
       }
       if (!this._config.tooltip?.render && !serie.hideInTooltip) {
         const createFormatter = (axis: Axis) => {
@@ -703,7 +702,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     return this._config;
   }
 
-  set config(config: ChartConfig2) {
+  set config(config: ChartConfig) {
     this._config = config;
     this._userDefined.xAxis = { min: this._config.xAxis.min, max: this._config.xAxis.max };
     for (const name in this._config.yAxes) {
@@ -799,9 +798,6 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     switch (serie.type) {
       case 'line':
         this.main.line(this._table, serie, xScale, yScales[serie.yAxis]);
-        break;
-      case 'step':
-        this.main.step(this._table, serie, xScale, yScales[serie.yAxis]);
         break;
       case 'line+scatter':
         this.main.line(this._table, serie, xScale, yScales[serie.yAxis]);
@@ -1035,7 +1031,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   setAttrs({
     value = this._table,
     config = this._config,
-  }: Partial<{ value: TableLike; config: ChartConfig2 }>): void {
+  }: Partial<{ value: TableLike; config: ChartConfig }>): void {
     this._config = config;
     this._userDefined.xAxis = { min: this._config.xAxis.min, max: this._config.xAxis.max };
     for (const name in this._config.yAxes) {
