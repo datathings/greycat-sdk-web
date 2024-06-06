@@ -6,13 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-<<<<<<< HEAD
-    specifier: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz
-    version: '@get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz'
-=======
-    specifier: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz
-    version: '@get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz'
->>>>>>> stable
+    specifier: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.23-testing.tgz
+    version: '@get.greycat.io/files/sdk/js/testing/6.10/6.10.23-testing.tgz'
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -2839,17 +2834,10 @@ packages:
       vscode-languageserver-types: 3.17.5
     dev: true
 
-<<<<<<< HEAD
-  '@get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.21-testing.tgz}
+  '@get.greycat.io/files/sdk/js/testing/6.10/6.10.23-testing.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/testing/6.10/6.10.23-testing.tgz}
     name: '@greycat/sdk'
-    version: 6.10.21-testing
-=======
-  '@get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.18-stable.tgz}
-    name: '@greycat/sdk'
-    version: 6.10.18-stable
->>>>>>> stable
+    version: 6.10.23-testing
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6
