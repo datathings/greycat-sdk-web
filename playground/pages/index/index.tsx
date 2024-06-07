@@ -1,6 +1,5 @@
 import '@greycat/web';
 import '@greycat/web/css/greycat.css';
-import '@shoelace-style/shoelace/dist/components/card/card.js';
 import '@/common';
 import s from './index.module.css';
 
@@ -10,58 +9,54 @@ document.body.appendChild(
       <sl-card>
         <div slot="header">Colors</div>
         <div className={s.paletteContainer}>
-          {generateColorPalette('primary')}
-          {generateColorPalette('success')}
-          {generateColorPalette('warning')}
-          {generateColorPalette('danger')}
-          {generateColorPalette('neutral')}
+          {colorPalette('primary')}
+          {colorPalette('success')}
+          {colorPalette('warning')}
+          {colorPalette('danger')}
+          {colorPalette('neutral')}
         </div>
       </sl-card>
-      <sl-card>
-        <div slot="header">Typography</div>
-        <div className={s.list}>
-          <h1>Header h1</h1>
-          <h2>Header h2</h2>
-          <h3>Header h3</h3>
-          <h4>Header h4</h4>
-          <h5>Header h5</h5>
-          <h6>Header h6</h6>
-          <p>Paragraph</p>
-          <span>Span</span>
-          <em>Emphasized</em>
-          <b>Bold</b>
-          <s>Strikthrough</s>
+      {Array.from({ length: 6 }).map((_, i) => {
+        const heading = document.createElement(`h${i + 1}`);
+        heading.textContent = `Heading h${i + 1}`;
+        return (
+          <sl-card className={s.noPadding}>
+            <div slot="header">
+              Heading <code>&lt;h{i + 1}&gt;</code>
+            </div>
+            <div className={s.list}>{heading}</div>
+          </sl-card>
+        );
+      })}
+      <sl-card className={s.noPadding}>
+        <div slot="header">
+          Paragraph <code>&lt;p&gt;</code>
         </div>
+        <p>
+          This is a paragraph, that contains a <span>span</span>, an <em>emphasized</em> word. But
+          also a <b>bold</b> one, and a <s>strikethrough</s>. All this <small>small</small> things
+          just to:
+          <blockquote>Validate each stylings.</blockquote>
+        </p>
       </sl-card>
     </div>
   </app-layout>,
 );
 
-function generateColorPalette(name: string) {
+function colorPalette(name: string) {
   return (
     <div className={s.palette}>
-      <div>--sl-color-{name}-50</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-50)` }}></div>
-      <div>--sl-color-{name}-100</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-100)` }}></div>
-      <div>--sl-color-{name}-200</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-200)` }}></div>
-      <div>--sl-color-{name}-300</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-300)` }}></div>
-      <div>--sl-color-{name}-400</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-400)` }}></div>
-      <div>--sl-color-{name}-500</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-500)` }}></div>
-      <div>--sl-color-{name}-600</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-600)` }}></div>
-      <div>--sl-color-{name}-700</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-700)` }}></div>
-      <div>--sl-color-{name}-800</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-800)` }}></div>
-      <div>--sl-color-{name}-900</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-900)` }}></div>
-      <div>--sl-color-{name}-950</div>
-      <div style={{ backgroundColor: `var(--sl-color-${name}-950)` }}></div>
+      {[50, 100, 200, 300, 400, 500, 600, 700, 800, 900, 950].map((value) => (
+        <div>
+          <div className={s.colorName}>
+            --sl-color-{name}-{value}
+          </div>
+          <div
+            className={s.colorSquare}
+            style={{ backgroundColor: `var(--sl-color-${name}-${value})` }}
+          ></div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -245,6 +245,14 @@ export class GuiInputString extends GuiInputElement<string | null> {
     this.replaceChildren();
   }
 
+  get placeholder() {
+    return this._input.placeholder;
+  }
+
+  set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
   get value() {
     if (this._input.value.length === 0) {
       return null;

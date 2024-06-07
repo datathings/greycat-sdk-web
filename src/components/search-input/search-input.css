@@ -1,0 +1,7 @@
+gui-search-input {
+  sl-icon[slot='prefix'] {
+    background-size: contain;
+    background-image: var(--icon-search);
+  }
+}
+

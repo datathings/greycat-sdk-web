@@ -1,0 +1,4 @@
+sl-details::part(header) {
+  background-color: var(--bg-0);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+}

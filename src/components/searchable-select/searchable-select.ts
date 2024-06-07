@@ -13,7 +13,8 @@ export interface GuiSearchableInputConfig {
   nullable?: boolean;
 }
 
-export class GuiSearchableSelect extends HTMLElement {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class GuiSearchableSelect<T = any> extends HTMLElement {
   private _input: SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
@@ -148,8 +149,16 @@ export class GuiSearchableSelect extends HTMLElement {
     this.replaceChildren();
   }
 
+  get placeholder() {
+    return this._input.placeholder;
+  }
+
   set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
+  }
+
+  get disabled() {
+    return this._input.disabled;
   }
 
   set disabled(disabled: boolean) {
@@ -175,8 +184,7 @@ export class GuiSearchableSelect extends HTMLElement {
    *
    * *If `undefined`, it empties the input.*
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  set value(value: any) {
+  set value(value: T | undefined) {
     if (value === undefined) {
       this._input.value = '';
       return;
@@ -194,9 +202,17 @@ export class GuiSearchableSelect extends HTMLElement {
     }
   }
 
+  get options() {
+    return this._options;
+  }
+
   set options(options: SearchableOption[]) {
     this._options = options;
     this._renderList(options);
+  }
+
+  get config() {
+    return this._config;
   }
 
   set config(config: GuiSearchableInputConfig) {
@@ -262,14 +278,6 @@ export class GuiSearchableSelect extends HTMLElement {
       fragment.appendChild(itemEl);
     }
     this._list.replaceChildren(fragment);
-  }
-}
-
-export class GuiSearchableSelectChangeEvent extends CustomEvent<unknown> {
-  static readonly NAME = 'searchable-select-change';
-
-  constructor(value: unknown) {
-    super(GuiSearchableSelectChangeEvent.NAME, { detail: value, bubbles: true });
   }
 }
 

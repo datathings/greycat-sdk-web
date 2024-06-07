@@ -24,10 +24,10 @@ gui-csv-statistics {
 
   > dialog {
     > article {
-      min-width: 700px;
 
       > gui-tabs {
-        height: 400px;
+        min-height: 400px;
+        overflow: hidden;
 
         > gui-panel[data-tab='Word List'] {
           display: flex;

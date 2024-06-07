@@ -25,11 +25,11 @@ document.body.appendChild(
       <gui-tab>Tab C</gui-tab>
       <gui-panel data-tab="Tab C">
         <gui-chart
+          value={{ cols: [[1, 4, 2, 7, 5, 8, 3]] }}
           config={{
             cursor: true,
             xAxis: { scale: 'linear' },
             yAxes: { y: {} },
-            table: { cols: [[1, 4, 2, 7, 5, 8, 3]] },
             series: [
               {
                 type: 'bar',

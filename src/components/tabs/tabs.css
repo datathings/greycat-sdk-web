@@ -45,6 +45,7 @@ gui-tabs {
   }
 
   gui-panel {
+    display: block;
     background-color: var(--bg-1);
   }
 }

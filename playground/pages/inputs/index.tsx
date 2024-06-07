@@ -166,7 +166,8 @@ function EnumViewer() {
         selected: ty.name === 'project::SensorKind',
       };
     });
-  const typeSelector = (
+
+    const typeSelector = (
     <gui-searchable-select
       placeholder="Search an enum..."
       options={options}

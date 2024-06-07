@@ -1,0 +1,10 @@
+fieldset {
+  border-width: var(--border-width);
+  border-color: var(--border-color);
+  border-style: solid;
+
+  legend {
+    padding: calc(var(--spacing) * 0.5) var(--spacing);
+    background-color: var(--bg-1);
+  }
+}

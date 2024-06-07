@@ -1,7 +1,8 @@
 import { utils } from '@greycat/sdk';
 import '../value/index.js'; // makes sure we already have GuiValue defined
+import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta } from '../common.js';
+import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta, TableView } from '../common.js';
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
@@ -52,8 +53,10 @@ export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
 export class GuiTable extends HTMLElement {
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
-  private _table: TableLike | undefined;
+  private _table = new TableView();
   private _rows: Array<Cell[]> = [];
+  private _filter = document.createElement('gui-search-input');
+  private _tableContainer = document.createElement('div');
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
   private _minColWidth = 100;
@@ -73,6 +76,15 @@ export class GuiTable extends HTMLElement {
 
   constructor() {
     super();
+
+    this._filter.className = 'gui-table-filter';
+    this._filter.clearable = true;
+    this._filter.placeholder = 'Filter the table';
+    this._filter.oninput = () => (this.filter = this._filter.value);
+
+    this._tableContainer = document.createElement('div');
+    this._tableContainer.className = 'gui-table';
+    this._tableContainer.append(this._thead, this._tbody);
 
     this._thead.addEventListener('table-sort', (ev) => {
       this._sortCol.sortBy(ev.detail);
@@ -103,11 +115,11 @@ export class GuiTable extends HTMLElement {
       }
     });
 
-    this.addEventListener('scroll', () => {
+    this._tableContainer.addEventListener('scroll', () => {
       if (this._tbody.rowHeight <= 0 && this._rows.length > 0) {
         this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
       }
-      const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+      const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
 
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
@@ -119,102 +131,69 @@ export class GuiTable extends HTMLElement {
     });
   }
 
-  // returning a `TableLikeColumnBased` rather than a `TableLike` to be backward-compatible
-  // with the old `TableLike` structure.
+  /**
+   * The underlying view into the table
+   */
+  get table() {
+    return this._table;
+  }
+
   get value(): TableLike | undefined {
     return this._table;
   }
 
   set value(table: TableLike | undefined) {
     if (table === undefined) {
-      this._table = undefined;
+      this._table.table = undefined;
       this.update();
       return;
     }
-    this._table = table;
+    this._table.table = table;
     this.computeTable();
     this.update();
   }
 
   computeTable() {
-    if (!this._table) {
+    if (!this._table.table) {
       return;
     }
 
     const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
 
-    if ('rows' in this._table) {
-      // we are being given a TableLikeRowBased
-      this._rows.length = this._table.rows?.length ?? 0;
-      const nbCols = this._table.rows?.[0]?.length ?? 0;
+    this._rows.length = this._table.rows.length;
+    const nb_cols = this._table.meta.length;
 
-      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
-        this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
+    for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
+      this._rows[rowIdx] = new Array(nb_cols - ignoreCols.length);
 
-        let virtColIdx = 0;
-        for (let colIdx = 0; colIdx < nbCols; colIdx++) {
-          if (ignoreCols.includes(colIdx)) {
-            // skip ignored columns
-            continue;
-          }
-          this._rows[rowIdx][virtColIdx] = {
-            // SAFETY: same argument as above, we won't be iterating if `this._table.rows` was not defined
-            value: this._table.rows![rowIdx][colIdx],
-            originalIndex: rowIdx,
-            originalColIndex: colIdx,
-          };
-          virtColIdx++;
+      let virtColIdx = 0;
+      for (let colIdx = 0; colIdx < nb_cols; colIdx++) {
+        if (ignoreCols.includes(colIdx)) {
+          // skip ignored columns
+          continue;
         }
+        this._rows[rowIdx][virtColIdx] = {
+          value: this._table.rows[rowIdx][colIdx],
+          originalIndex: rowIdx,
+          originalColIndex: colIdx,
+        };
+        virtColIdx++;
       }
-    } else if ('cols' in this._table) {
-      // we are being given a TableLikeColumnBased
-      this._rows.length = this._table.cols?.[0]?.length ?? 0;
-      const nbCols = this._table.cols?.length ?? 0;
+    }
+  }
 
-      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
-        this._rows[rowIdx] = new Array(nbCols - ignoreCols.length);
+  /**
+   * Whether or not to display a global input filter above the table
+   */
+  get globalFilter() {
+    return this._filter.classList.contains('visible');
+  }
 
-        let virtColIdx = 0;
-        for (let colIdx = 0; colIdx < nbCols; colIdx++) {
-          if (ignoreCols.includes(colIdx)) {
-            // skip ignored columns
-            continue;
-          }
-          this._rows[rowIdx][virtColIdx] = {
-            // SAFETY: same argument as above, we won't be iterating if `this._table.cols` was not defined
-            value: this._table.cols![colIdx][rowIdx],
-            originalIndex: rowIdx,
-            originalColIndex: colIdx,
-          };
-          virtColIdx++;
-        }
-      }
-    } else if (Array.isArray(this._table)) {
-      // we are being given a TableLikeObjectBased
-      this._rows.length = this._table.length;
-      const headers = this._table.length === 0 ? [] : Object.keys(this._table[0]);
-
-      for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
-        this._rows[rowIdx] = new Array(headers.length - ignoreCols.length);
-
-        let virtColIdx = 0;
-        for (let colIdx = 0; colIdx < headers.length; colIdx++) {
-          if (ignoreCols.includes(colIdx)) {
-            // skip ignored columns
-            continue;
-          }
-          this._rows[rowIdx][virtColIdx] = {
-            value: this._table[rowIdx][headers[colIdx]],
-            originalIndex: rowIdx,
-            originalColIndex: colIdx,
-          };
-          virtColIdx++;
-        }
-      }
+  set globalFilter(b: boolean) {
+    if (b) {
+      this._filter.classList.add('visible');
     } else {
-      // something unexpected was given as table
-      // reset the rows
-      this._rows.length = 0;
+      this._filter.classList.remove('visible');
     }
   }
 
@@ -259,13 +238,13 @@ export class GuiTable extends HTMLElement {
 
   set rowHeight(height: number) {
     this._tbody.rowHeight = height;
-    const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+    const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
     this._prevFromRowIdx = Math.max(0, fromRowIdx);
     this.update();
   }
 
   scrollToRow(rowIdx: number, behavior?: ScrollBehavior): void {
-    this.scrollTo({ top: rowIdx * this._tbody.rowHeight, behavior });
+    this._tableContainer.scrollTo({ top: rowIdx * this._tbody.rowHeight, behavior });
   }
 
   resetColumnsWidth(): void {
@@ -402,7 +381,7 @@ export class GuiTable extends HTMLElement {
   }
 
   setAttrs({
-    value = this._table,
+    value = this._table.table,
     filter = this._filterText,
     filterColumns = this._filterColumns,
     sortBy = [this._sortCol.index, this._sortCol.ord],
@@ -424,7 +403,7 @@ export class GuiTable extends HTMLElement {
     cellTagNames: Record<number, string>;
     rowHeight: number;
   }>) {
-    this._table = value;
+    this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;
@@ -437,7 +416,7 @@ export class GuiTable extends HTMLElement {
 
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
-    const fromRowIdx = Math.floor(this.scrollTop / this._tbody.rowHeight);
+    const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
     this._prevFromRowIdx = Math.max(0, fromRowIdx);
 
     this.update();
@@ -470,10 +449,7 @@ export class GuiTable extends HTMLElement {
   }
 
   connectedCallback() {
-    const fragment = document.createDocumentFragment();
-    fragment.appendChild(this._thead);
-    fragment.appendChild(this._tbody);
-    this.appendChild(fragment);
+    this.append(this._filter, this._tableContainer);
 
     let px = 0;
     let cx = 0;
@@ -550,58 +526,14 @@ export class GuiTable extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  get tableMeta(): TableLikeMeta[] {
-    if (this._headers) {
-      return this._headers.map((header) => ({ header }));
-    }
-
-    if (!this._table) {
-      return [];
-    }
-
-    if ('meta' in this._table && this._table.meta) {
-      const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
-      const meta: TableLikeMeta[] = [];
-
-      for (let i = 0; i < this._table.meta.length; i++) {
-        if (ignoreCols.includes(i)) {
-          continue;
-        }
-        const header = this._table.meta[i];
-        if (typeof header === 'string') {
-          meta.push({ header });
-        } else {
-          meta.push(header);
-        }
-      }
-      return meta;
-    }
-
-    if (Array.isArray(this._table) && typeof this._table[0] === 'object') {
-      return Object.keys(this._table[0]).map((header) => ({ header }));
-    }
-
-    return [];
-  }
-
   update() {
     if (!this._initialized || !this._table) {
       return;
     }
     const start = Date.now();
 
-    const meta = this.tableMeta;
-
-    this._thead.update(
-      meta,
-      this._minColWidth,
-      this._sortCol,
-      this._tbody.virtualScroller.scrollWidth,
-      this._headers,
-    );
-
     // sort table if needed
-    if (this._sortCol.index === -1 || this._sortCol.index >= meta.length) {
+    if (this._sortCol.index === -1 || this._sortCol.index >= this._table.meta.length) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
       this._sortCol.reset();
     } else {
@@ -656,6 +588,16 @@ export class GuiTable extends HTMLElement {
       this._cellTagNames,
     );
 
+    const widths = this._thead.update(
+      this._table.meta,
+      this._minColWidth,
+      this._sortCol,
+      this._tbody.virtualScroller.scrollWidth,
+      this._headers,
+    );
+
+    this._tbody.updateWidths(widths);
+
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
@@ -665,7 +607,7 @@ export class GuiTable extends HTMLElement {
     }
 
     const header =
-      this.tableMeta
+      this._table.meta
         .map((m, i) => {
           if (m.header) {
             return m.header;
@@ -788,7 +730,8 @@ class GuiTableHead extends HTMLElement {
     sortCol: SortCol,
     availableWidth: number,
     headers?: string[],
-  ): void {
+  ): number[] {
+    const widths: number[] = [];
     let takenWidth = 0;
     for (let colIdx = 0; colIdx < meta.length; colIdx++) {
       let colWidth: number;
@@ -805,6 +748,7 @@ class GuiTableHead extends HTMLElement {
         sortCol.index === colIdx ? sortCol.ord : 'default',
         headers?.[colIdx],
       );
+      widths[colIdx] = colWidth;
     }
 
     this._removeExceedingColumns(meta.length - 1);
@@ -817,6 +761,8 @@ class GuiTableHead extends HTMLElement {
         header.classList.remove('active');
       }
     }
+
+    return widths;
   }
 
   private _getOrCreateHeader(index: number, colWidth: number): GuiTableHeadCell {
@@ -920,7 +866,7 @@ export class GuiTableHeadCell extends HTMLElement {
   private _resizer = document.createElement('div');
   private _filter = document.createElement('div');
   private _dropdown = document.createElement('div');
-  private _input = document.createElement('input');
+  private _input = document.createElement('gui-search-input');
   private _icons = { asc: '↓', desc: '↑', default: '↕', search: '', close: '' };
 
   constructor() {
@@ -951,7 +897,7 @@ export class GuiTableHeadCell extends HTMLElement {
     });
 
     this._dropdown.classList.add('gui-thead-dropdown');
-    this._input.type = 'search';
+    this._input.clearable = true;
     this._input.placeholder = 'Filter column';
     this._dropdown.appendChild(this._input);
 
@@ -1010,7 +956,6 @@ export class GuiTableHeadCell extends HTMLElement {
     this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
-
 
     this._title.classList.add('gui-thead-title');
     this._container.appendChild(this._title);
@@ -1106,6 +1051,7 @@ class GuiTableBody extends HTMLElement {
     super();
 
     this.virtualScroller = document.createElement('div');
+    this.virtualScroller.className = 'gui-tbody-scroller';
     this.virtualScroller.style.position = 'absolute';
     this.virtualScroller.style.visibility = 'hidden';
     this.virtualScroller.style.width = '100%';
@@ -1205,6 +1151,14 @@ class GuiTableBody extends HTMLElement {
     this.virtualScroller.style.height = `${this.rowHeight * rows.length}px`;
     // and add it back to the DOM
     this.appendChild(this.virtualScroller);
+  }
+
+  updateWidths(widths: number[]) {
+    this.childNodes.forEach((row) => {
+      row.childNodes.forEach((cell, i) => {
+        (cell as HTMLElement).style.width = `${widths[i]}px`;
+      });
+    });
   }
 
   resizeColumn(colIdx: number, width: number): void {

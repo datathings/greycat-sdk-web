@@ -1,0 +1,4 @@
+sl-card::part(header) {
+  background-color: var(--bg-0);
+  font-weight: bold;
+}

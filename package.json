@@ -52,7 +52,7 @@
     "build:css": "pnpm build:css:base && pnpm build:css:full",
     "build:css:base": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.base.css -o dist/css/greycat.base.css",
     "build:css:full": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/css/greycat.css",
-    "build:playground": "vite build -c playground/vite.config.ts",
+    "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "build:docs": "vitepress build",
     "dev": "vite -c playground/vite.config.ts",
     "dev:docs": "vitepress dev",
@@ -60,15 +60,14 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.44-dev.tgz",
-    "@shoelace-style/shoelace": "2.14.0",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.47-dev.tgz",
+    "@shoelace-style/shoelace": "2.15.1",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"
   },
   "devDependencies": {
     "@custom-elements-manifest/analyzer": "0.8.4",
     "@greycat/lang": "https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz",
-    "@picocss/pico": "1.5.10",
     "@types/d3": "7.4.0",
     "@types/node": "20.4.5",
     "@typescript-eslint/eslint-plugin": "6.2.1",

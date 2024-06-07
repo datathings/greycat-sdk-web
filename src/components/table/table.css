@@ -2,7 +2,31 @@ gui-table {
   --icon-sort-default: ↕;
   --icon-sort-asc: ↓;
   --icon-sort-desc: ↑;
+  --table-background-color: var(--bg-1);
 
+  display: grid;
+  grid-template-rows: min-content 1fr;
+  overflow: hidden;
+  height: 100%;
+  width: 100%;
+}
+
+gui-table .gui-table-filter {
+  visibility: hidden;
+  height: 0;
+
+  &::part(base) {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+  }
+}
+
+gui-table .gui-table-filter.visible {
+  visibility: visible;
+  height: fit-content;
+}
+
+gui-table .gui-table {
   position: relative;
   display: grid;
   grid-template-rows: min-content 1fr;
@@ -10,7 +34,8 @@ gui-table {
   height: 100%;
   width: 100%;
 }
-gui-table gui-thead {
+
+.gui-table gui-thead {
   position: sticky;
   top: 0;
   display: flex;
@@ -21,18 +46,18 @@ gui-table gui-thead {
   background-color: rgb(var(--base-0));
   border-bottom: 1px solid rgb(var(--base-2));
 }
-gui-table gui-thead.gui-table-resizing > * {
+.gui-table gui-thead.gui-table-resizing > * {
   cursor: ew-resize !important;
   background-color: rgb(var(--base-0)) !important;
 }
-gui-table gui-thead .gui-thead-type {
+.gui-table gui-thead .gui-thead-type {
   color: var(--muted-color);
 }
-gui-table gui-thead gui-thead-cell {
+.gui-table gui-thead gui-thead-cell {
   --resizer-width: 3px;
   position: relative;
 }
-gui-table gui-thead gui-thead-cell .gui-thead {
+.gui-table gui-thead gui-thead-cell .gui-thead {
   display: flex;
   align-items: center;
   gap: var(--spacing);
@@ -42,42 +67,42 @@ gui-table gui-thead gui-thead-cell .gui-thead {
   padding-left: var(--spacing);
   padding-right: var(--spacing);
 }
-gui-table gui-thead gui-thead-cell:hover {
+.gui-table gui-thead gui-thead-cell:hover {
   background-color: rgba(var(--base-1), 0.8);
 }
-gui-table gui-thead gui-thead-cell.active .gui-thead-sorter,
-gui-table gui-thead gui-thead-cell.active .gui-thead-title {
+.gui-table gui-thead gui-thead-cell.active .gui-thead-sorter,
+.gui-table gui-thead gui-thead-cell.active .gui-thead-title {
   color: rgb(var(--accent-0));
 }
-gui-table gui-thead gui-thead-cell .gui-thead-title {
+.gui-table gui-thead gui-thead-cell .gui-thead-title {
   display: inline-flex;
   width: 100%;
   gap: var(--spacing);
   overflow: hidden;
   flex: 1;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header {
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header {
   flex-shrink: 1; /* we want the header to ellipse but as last resort */
 }
-gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
   flex-shrink: 10000; /* we really want the type to ellipse prior to the header */
 }
-gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header,
-gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header,
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-sorter {
+.gui-table gui-thead gui-thead-cell .gui-thead-sorter {
   display: block;
   height: 26px;
   font-size: 26px;
   line-height: 20px;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-sorter:hover {
+.gui-table gui-thead gui-thead-cell .gui-thead-sorter:hover {
   color: var(--primary-hover);
 }
-gui-table gui-thead gui-thead-cell .gui-thead-resizer {
+.gui-table gui-thead gui-thead-cell .gui-thead-resizer {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -88,7 +113,7 @@ gui-table gui-thead gui-thead-cell .gui-thead-resizer {
   height: 100%;
   cursor: ew-resize;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-filter {
+.gui-table gui-thead gui-thead-cell .gui-thead-filter {
   display: block;
   width: 20px;
   height: 20px;
@@ -97,49 +122,51 @@ gui-table gui-thead gui-thead-cell .gui-thead-filter {
   background-size: 18px;
   background-image: var(--icon-search);
 }
-gui-table gui-thead gui-thead-cell .gui-thead-filter:hover {
+.gui-table gui-thead gui-thead-cell .gui-thead-filter:hover {
   background-color: var(--primary-focus);
 }
-gui-table gui-thead gui-thead-cell .gui-thead-filter.open:hover {
+.gui-table gui-thead gui-thead-cell .gui-thead-filter.open:hover {
   background-color: unset;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
+.gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
   display: none;
   /* padding: calc(var(--spacing) * 0.5); */
   z-index: 10;
   width: 100%;
 }
-gui-table gui-thead gui-thead-cell .gui-thead-dropdown.open {
+.gui-table gui-thead gui-thead-cell .gui-thead-dropdown.open {
   /* transform: scaleY(1); */
   display: block;
 }
 
-gui-table gui-thead gui-thead-cell .gui-thead-dropdown > input {
-  width: 100%;
-  --border-radius: 0;
+.gui-table gui-thead gui-thead-cell .gui-thead-dropdown > gui-search-input {
+  --sl-focus-ring-width: 0;
+  &::part(base) {
+    border-radius: 0;
+  }
 }
 
-gui-table gui-tbody {
+.gui-table gui-tbody {
   position: relative;
   display: flex;
   flex-direction: column;
-  flex: 1;
 }
-gui-table gui-tbody gui-tbody-row {
+.gui-table gui-tbody gui-tbody-row {
   flex: 1;
   position: absolute;
   align-items: center;
   width: 100%;
   min-width: fit-content;
   display: flex;
+  background-color: var(--table-background-color);
 }
-gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
+.gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.8);
 }
-gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
+.gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.3);
 }
-gui-table gui-tbody gui-tbody-row gui-tbody-cell {
+.gui-table gui-tbody gui-tbody-row gui-tbody-cell {
   display: inline-flex;
   align-items: center;
   line-height: 100%;
@@ -149,7 +176,7 @@ gui-table gui-tbody gui-tbody-row gui-tbody-cell {
   overflow: auto;
 }
 
-gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
+.gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
   padding: 2px 4px;
   overflow: hidden;
   white-space: nowrap;
@@ -158,11 +185,11 @@ gui-table gui-tbody gui-tbody-row gui-tbody-cell > *:first-child {
 }
 
 /* Special-case for gui-object within gui-table cells */
-gui-table
+.gui-table
   gui-tbody
   gui-tbody-row
   gui-tbody-cell
-  > *:first-child:has(gui-object.gui-object > article > .gui-object.gui-object-grid) {
+  > *:first-child:has(gui-object.gui-object > sl-card > .gui-object.gui-object-grid) {
   align-self: flex-start;
   overflow: auto;
 }

@@ -1,1 +1,1 @@
-export * from './gui-tabs.js';
+export * from './tabs.js';

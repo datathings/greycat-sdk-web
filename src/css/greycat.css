@@ -1,3 +1,6 @@
-@import '../../node_modules/@picocss/pico/css/pico.css';
-@import './greycat.base.css';
-@import './_custom.css';
+@import './_base.css';
+@import './_utils.css';
+@import './_shoelace.css';
+
+@import './_elements.css';
+@import './_components.css';

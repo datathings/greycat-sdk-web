@@ -18,7 +18,7 @@ import {
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
-import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
+import { Disposer, TableLike, TableView } from '../common.js';
 
 type ComputedState = {
   leftAxes: number;
@@ -48,7 +48,7 @@ type ComputedState = {
 
 export class GuiChart extends HTMLElement {
   private _disposer: Disposer;
-  private _table: TableLikeColumnBased;
+  private _table: TableView;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -89,7 +89,7 @@ export class GuiChart extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._table = {};
+    this._table = new TableView();
     this._config = { series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
@@ -426,12 +426,19 @@ export class GuiChart extends HTMLElement {
   }
 
   set value(table: TableLike) {
-    this._table = toColumnBasedTable(table);
+    this._table.table = table;
     this.compute();
     this.update();
   }
 
   get value() {
+    return this._table;
+  }
+
+  /**
+   * The underlying view into the table
+   */
+  get table() {
     return this._table;
   }
 
@@ -464,9 +471,9 @@ export class GuiChart extends HTMLElement {
 
   setAttrs({
     config = this._config,
-    value = this._table,
+    value = this._table.table,
   }: Partial<{ config: ChartConfig; value: TableLike }>) {
-    this._table = toColumnBasedTable(value);
+    this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._config = config;
 
     // update local user X min/max with the configuration values
@@ -636,8 +643,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-                (style.margin.right + rightAxesIdx * style.margin.right) +
-                padding,
+              (style.margin.right + rightAxesIdx * style.margin.right) +
+              padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -1499,7 +1506,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap {}
+  interface HTMLElementEventMap extends GuiChartEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {

@@ -5,7 +5,7 @@ greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const progress = (<progress value={0} max={100} />) as HTMLProgressElement;
+const progress = (<progress value={25} max={100} />) as HTMLProgressElement;
 
 async function runAnalysis(filepath: string) {
   const task = await greycat.default.spawn('io::CsvAnalysis::analyze', [
@@ -39,7 +39,7 @@ async function runAnalysis(filepath: string) {
   );
   sample.fitColumnsToHeaders();
 
-  return await task.await() as io.CsvStatistics;
+  return (await task.await()) as io.CsvStatistics;
 }
 
 const sample = (<gui-table style={{ height: '400px' }} />) as GuiTable;
@@ -48,17 +48,13 @@ const csvStatistics = (<gui-csv-statistics value={stats} />) as GuiCsvStatistics
 
 document.body.appendChild(
   <app-layout title="Csv Analysis">
-    <div>
+    <div role="list">
       <fieldset>
-        <label>
-          <strong>Analysis progress</strong>
-        </label>
+        <legend>Analysis progress</legend>
         {progress}
       </fieldset>
       <fieldset>
-        <label>
-          <strong>Dataset</strong>
-        </label>
+        <legend>Dataset</legend>
         <select
           onchange={async (ev) => {
             const select = ev.target as HTMLSelectElement;
@@ -74,15 +70,11 @@ document.body.appendChild(
         </select>
       </fieldset>
       <fieldset>
-        <label>
-          <strong>Statistics</strong>
-        </label>
+        <legend>Statistics</legend>
         {csvStatistics}
       </fieldset>
       <fieldset>
-        <label>
-          <strong>Sample</strong>
-        </label>
+        <legend>Sample</legend>
         {sample}
       </fieldset>
     </div>

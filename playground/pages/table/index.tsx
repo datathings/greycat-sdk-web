@@ -8,7 +8,7 @@ greycat.default = await GreyCat.init({
 
 const tableEl = document.createElement('gui-table');
 const table = await greycat.default.call<core.Table>('project::table');
-
+tableEl.globalFilter = true;
 tableEl.value = table;
 tableEl.onrowupdate = (el, row) => {
   const klass = row[2].value as string;
@@ -53,23 +53,21 @@ document.body.appendChild(
         href=""
         onclick={(ev) => {
           ev.preventDefault();
-          if (tableEl.value) {
-            const newCol = Array.from({ length: tableEl.value.cols?.[0].length ?? 0 }).map(
-              d3.randomInt(1000),
-            );
-            tableEl.value.cols?.push(newCol);
-            tableEl.value.meta?.push(
-              new std_n.core.NativeTableColumnMeta(
-                greycat.default.abi,
-                PrimitiveType.int,
-                greycat.default.abi.type_by_fqn.get('core::int')!.mapped_type_off,
-                false,
-                `Column ${tableEl.value.cols?.length}`,
-              ),
-            );
-            tableEl.computeTable();
-            tableEl.update();
-          }
+          const newCol = Array.from({ length: tableEl.table.cols[0].length ?? 0 }).map(
+            d3.randomInt(1000),
+          );
+          tableEl.table.cols.push(newCol);
+          tableEl.table.meta.push(
+            new std_n.core.NativeTableColumnMeta(
+              PrimitiveType.int,
+              greycat.default.abi.type_by_fqn.get('core::int')!.mapped_type_off,
+              'core::int',
+              false,
+              `Column ${tableEl.table.cols.length}`,
+            ),
+          );
+          tableEl.computeTable();
+          tableEl.update();
         }}
       >
         Add column
@@ -125,17 +123,7 @@ document.body.appendChild(
           />
         </div>
       </header>
-      <div style={{ display: 'grid', gridTemplateRows: 'auto 1fr' }}>
-        <input
-          type="search"
-          placeholder="Filter on every column"
-          oninput={(ev) => {
-            tableEl.filter = (ev.target as HTMLInputElement).value;
-          }}
-          style={{ width: '100%', borderRadius: '0' }}
-        />
-        {tableEl}
-      </div>
+      {tableEl}
     </article>
   </app-layout>,
 );
