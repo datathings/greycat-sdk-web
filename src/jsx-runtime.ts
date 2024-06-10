@@ -33,8 +33,16 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
       } else if (key === 'className') {
         if (Array.isArray(value)) {
           element.classList.add(...value);
+        } else if (typeof value === 'string') {
+          element.classList.add(value);
         } else {
-          element.classList.add(value as string);
+          for (const className in value) {
+            if (value[className]) {
+              element.classList.add(className);
+            } else {
+              element.classList.remove(className);
+            }
+          }
         }
       } else if (key === 'style') {
         if (typeof value === 'string') {
@@ -61,8 +69,16 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
       case 'className':
         if (Array.isArray(value)) {
           element.classList.add(...value);
+        } else if (typeof value === 'string') {
+          element.classList.add(value);
         } else {
-          element.classList.add(value as string);
+          for (const className in value) {
+            if (value[className]) {
+              element.classList.add(className);
+            } else {
+              element.classList.remove(className);
+            }
+          }
         }
         break;
 
