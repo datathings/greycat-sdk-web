@@ -36,7 +36,7 @@ export type TableLikeColumnBased = {
   /** Specify either `rows` **OR** `cols` not both. If both are specified, `cols` will be used. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols?: any[][];
-  meta?: TableLikeMeta[];
+  meta?: (string | TableLikeMeta)[];
 };
 export type TableLikeRowBased = {
   /** Specify either `rows` **OR** `cols` not both. If both are specified, `cols` will be used. */
@@ -138,6 +138,41 @@ function rowsToCols(rows?: unknown[][]): any[][] | undefined {
   for (let row = 0; row < rows.length; row++) {
     for (let col = 0; col < colCount; col++) {
       cols[col][row] = rows[row][col];
+    }
+  }
+
+  return cols;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function objectsToCols(arr?: unknown[]): any[][] | undefined {
+  if (!arr || arr.length === 0) {
+    return undefined;
+  }
+
+  const firstElem = arr[0];
+  if (typeof firstElem !== 'object' || firstElem === null || firstElem === undefined) {
+    // elements must be non-optional 'object' values
+    return undefined;
+  }
+  const keys = Object.keys(firstElem);
+
+  const cols = new Array(keys.length);
+  for (let i = 0; i < keys.length; i++) {
+    cols[i] = new Array(arr.length);
+  }
+
+  for (let row = 0; row < arr.length; row++) {
+    const obj = arr[row];
+    if (typeof obj === 'object' && obj) {
+      for (let col = 0; col < cols.length; col++) {
+        const key = keys[col];
+        cols[col][row] = (obj as { [n: string]: unknown })[key];
+      }
+    } else {
+      for (let col = 0; col < cols.length; col++) {
+        cols[col][row] = null;
+      }
     }
   }
 
@@ -348,9 +383,7 @@ export class TableView {
     }
 
     if (Array.isArray(this._table)) {
-      const { cols, meta } = tableFromObjects(this._table);
-      this._cols = cols ?? [];
-      this._meta = meta ?? [];
+      this._cols = objectsToCols(this._table);
       return this._cols;
     }
 
@@ -386,10 +419,16 @@ export class TableView {
 
   private _createMetaFromColumns(
     cols?: unknown[][],
-    meta?: TableLikeMeta[],
+    meta?: (TableLikeMeta | string)[],
   ): TableLikeMeta[] {
     if (meta) {
-      return meta;
+      for (let i = 0; i < meta.length; i++) {
+        const m = meta[i];
+        if (typeof m === 'string') {
+          meta[i] = { header: m };
+        }
+      }
+      return meta as TableLikeMeta[];
     }
     if (!cols) {
       return [];

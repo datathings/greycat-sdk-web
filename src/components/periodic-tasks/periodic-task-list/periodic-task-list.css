@@ -15,6 +15,7 @@ gui-periodic-task-list {
   }
 
   .gui-periodic-task-dialog {
+    --width: 95vw;
     --fieldset-label-width: 150px;
 
     > article {
@@ -25,6 +26,14 @@ gui-periodic-task-list {
           width: var(--fieldset-label-width);
         }
       }
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  gui-periodic-task-list {
+    .gui-periodic-task-dialog {
+      --width: 650px;
     }
   }
 }

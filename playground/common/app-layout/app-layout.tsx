@@ -31,6 +31,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Searchable Select',       href: 'searchable-select/' },
     { title: 'Table',                   href: 'table/' },
+    { title: 'Table (custom)',          href: 'table-custom/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
     { title: 'Users',                   href: 'users/' },
@@ -38,6 +39,7 @@ export class AppLayout extends HTMLElement {
 
   private _title: SlBreadcrumbItem;
   private _actions: HTMLElement;
+  private _main: HTMLElement;
 
   constructor() {
     super();
@@ -58,10 +60,16 @@ export class AppLayout extends HTMLElement {
         Light / Dark
       </a>,
     );
+
+    this._main = document.createElement('main');
   }
 
   override set title(title: string) {
     this._title.textContent = title;
+  }
+
+  set mainStyle(style: Partial<CSSStyleDeclaration>) {
+    Object.assign(this._main.style, style);
   }
 
   connectedCallback() {
@@ -71,10 +79,10 @@ export class AppLayout extends HTMLElement {
 
     const buttons: HTMLElement[] = [];
 
-    const main = document.createElement('main');
     const actions = Array.from(this.querySelectorAll('[slot="action"]'));
     this._actions.prepend(...actions);
-    main.append(...Array.from(this.childNodes));
+
+    this._main.replaceChildren(...Array.from(this.childNodes));
 
     this.appendChild(
       <>
@@ -108,7 +116,7 @@ export class AppLayout extends HTMLElement {
               return button;
             })}
           </sl-drawer>
-          {main}
+          {this._main}
         </div>
       </>,
     );

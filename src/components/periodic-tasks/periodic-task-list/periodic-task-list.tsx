@@ -1,13 +1,15 @@
 import { GreyCat, prettyError, runtime } from '@greycat/sdk';
 import '../../object/index.js'; // ensures gui-object is loaded
-import { TypedInput } from '../../index.js';
+import '../../inputs/index.js'; // ensures gui-input (and the likes) are loaded
+import { GuiInput } from '../../inputs/index.js';
+import type { SlDialog } from '@shoelace-style/shoelace';
 
 export class GuiPeriodicTaskList extends HTMLElement {
   private static NOOP = () => void 0;
 
   private _tasks: runtime.PeriodicTask[] = [];
   private _tbody = document.createElement('tbody');
-  private _dialog: HTMLDialogElement;
+  private _dialog: SlDialog;
   private _dialogContent = document.createElement('div');
   private _dialogUpdateTask = GuiPeriodicTaskList.NOOP;
   private _greycat = greycat.default;
@@ -33,25 +35,23 @@ export class GuiPeriodicTaskList extends HTMLElement {
     });
 
     this._dialog = (
-      <dialog className="gui-periodic-task-dialog">
-        <article>
-          <header>Periodic Task</header>
-          {this._dialogContent}
-          <footer>
-            <button
-              className="outline"
-              onclick={() => {
-                this._dialogUpdateTask = GuiPeriodicTaskList.NOOP;
-                this._dialog.close();
-              }}
-            >
-              Close
-            </button>
-            <button onclick={() => this._dialogUpdateTask()}>Update</button>
-          </footer>
-        </article>
-      </dialog>
-    ) as HTMLDialogElement;
+      <sl-dialog label="Periodic Task" className="gui-periodic-task-dialog">
+        {this._dialogContent}
+        <sl-button
+          slot="footer"
+          className="outline"
+          onclick={() => {
+            this._dialogUpdateTask = GuiPeriodicTaskList.NOOP;
+            this._dialog.hide();
+          }}
+        >
+          Close
+        </sl-button>
+        <sl-button slot="footer" onclick={() => this._dialogUpdateTask()}>
+          Update
+        </sl-button>
+      </sl-dialog>
+    ) as SlDialog;
   }
 
   connectedCallback() {
@@ -112,13 +112,12 @@ export class GuiPeriodicTaskList extends HTMLElement {
     const task = this._tasks[index];
     if (task) {
       let tmpTask = task;
-      const input = new TypedInput(
-        `periodic-task-input-${index}`,
-        greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type)!,
-        (newTask) => {
-          tmpTask = newTask;
-        },
-      );
+      const input = new GuiInput();
+      input.id = `periodic-task-input-${index}`;
+      // input.type = greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type);
+      input.addEventListener('gui-change', () => {
+        tmpTask = input.value as runtime.PeriodicTask;
+      });
       input.value = task;
       this._dialogUpdateTask = () => {
         if (tmpTask) {
@@ -126,10 +125,10 @@ export class GuiPeriodicTaskList extends HTMLElement {
           this.updateTasks(this._tasks);
         }
         this._dialogUpdateTask = GuiPeriodicTaskList.NOOP;
-        this._dialog.close();
+        this._dialog.hide();
       };
-      this._dialogContent.replaceChildren(input.element);
-      this._dialog.showModal();
+      this._dialogContent.replaceChildren(input);
+      this._dialog.show();
     }
   }
 
@@ -142,7 +141,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
           <td>{task.user_id}</td>
           <td>{task.function?.fqn}</td>
           <td>
-            <gui-object value={task.arguments} />
+            <gui-value value={task.arguments} />
           </td>
           <td>{task.start}</td>
           <td>{task.every}</td>

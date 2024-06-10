@@ -81,6 +81,7 @@ export class GuiTable extends HTMLElement {
     this._filter.clearable = true;
     this._filter.placeholder = 'Filter the table';
     this._filter.oninput = () => (this.filter = this._filter.value);
+    this._filter.addEventListener('sl-clear', () => (this.filter = ''));
 
     this._tableContainer = document.createElement('div');
     this._tableContainer.className = 'gui-table';
@@ -195,6 +196,14 @@ export class GuiTable extends HTMLElement {
     } else {
       this._filter.classList.remove('visible');
     }
+  }
+
+  get globalFilterPlaceholder() {
+    return this._filter.placeholder;
+  }
+
+  set globalFilterPlaceholder(placeholder: string) {
+    this._filter.placeholder = placeholder;
   }
 
   get scrollToRowIndex() {
@@ -391,6 +400,8 @@ export class GuiTable extends HTMLElement {
     ignoreCols = this._ignoreCols,
     cellTagNames = this._cellTagNames,
     rowHeight = this._tbody.rowHeight,
+    globalFilter = this.globalFilter,
+    globalFilterPlaceholder = this.globalFilterPlaceholder,
   }: Partial<{
     value: TableLike;
     filter: string;
@@ -402,6 +413,8 @@ export class GuiTable extends HTMLElement {
     ignoreCols: number[];
     cellTagNames: Record<number, string>;
     rowHeight: number;
+    globalFilter: boolean;
+    globalFilterPlaceholder: string;
   }>) {
     this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._ignoreCols = ignoreCols;
@@ -413,6 +426,8 @@ export class GuiTable extends HTMLElement {
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
+    this.globalFilter = globalFilter;
+    this.globalFilterPlaceholder = globalFilterPlaceholder;
 
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
@@ -433,6 +448,8 @@ export class GuiTable extends HTMLElement {
     ignoreCols: number[] | undefined;
     cellTagNames: Record<number, string> | undefined;
     rowHeight: number;
+    globalFilter: boolean;
+    globalFilterPlaceholder: string;
   } {
     return {
       table: this._table,
@@ -445,6 +462,8 @@ export class GuiTable extends HTMLElement {
       ignoreCols: this._ignoreCols,
       cellTagNames: this._cellTagNames,
       rowHeight: this._tbody.rowHeight,
+      globalFilter: this.globalFilter,
+      globalFilterPlaceholder: this.globalFilterPlaceholder,
     };
   }
 
@@ -1094,13 +1113,14 @@ class GuiTableBody extends HTMLElement {
       this.computeRowHeight(rows[0], tagNames);
     }
 
-    // Make it one more than the total height space divided by row height, so that we are sure that even
+    const extraRows = 5;
+    // Make it `extraRows` more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
     // actual content without any extra row.
     //
     // We use `(value + 0.5) | 0` to get a speedy `Math.round(...)` equivalent
-    this.maxVirtualRows = (Math.min(this.offsetHeight / this.rowHeight + 1, rows.length) + 0.5) | 0;
+    this.maxVirtualRows = (Math.min(this.offsetHeight / this.rowHeight + extraRows, rows.length) + 0.5) | 0;
 
     /** This is the max bound for rows */
     const maxRowIdx = rows.length - 1;

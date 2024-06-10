@@ -2,6 +2,8 @@ gui-object {
   --gui-object-font-size: var(--font-size);
   --gui-object-font-family: var(--font-family);
   --gui-object-table-min-height: 400px;
+  --gui-object-column-gap: 12px;
+  --gui-object-row-gap: 2px;
 }
 
 .gui-object {
@@ -11,15 +13,20 @@ gui-object {
 .gui-object.gui-object-grid {
   align-content: start;
   grid-template-columns: auto 1fr;
-  column-gap: calc(var(--spacing) * 2);
+  column-gap: var(--gui-object-column-gap);
+  row-gap: var(--gui-object-row-gap);
 }
 
-gui-object > article {
+gui-object > sl-card {
   display: grid;
   grid-template-rows: auto 1fr;
 }
 
-gui-object > article > .gui-object {
+gui-object > sl-card::part(body) {
+  padding: 0;
+}
+
+gui-object > sl-card > .gui-object {
   padding: var(--spacing);
 }
 
@@ -27,7 +34,7 @@ gui-object > article > .gui-object {
   min-height: 250px;
 }
 
-gui-object .gui-object-value > details {
+gui-object .gui-object-value > sl-details {
   margin: 0;
   border: none;
   padding: 0;
@@ -37,15 +44,19 @@ gui-object > code {
   width: fit-content;
 }
 
-gui-object .gui-object-value > details > summary {
+gui-object .gui-object-value > sl-details::part(header) {
+  transition: all 0.3s ease;
+  line-height: 1rem;
+}
+
+gui-object .gui-object-value > sl-details:not([open])::part(header) {
   color: var(--muted-color);
-  line-height: normal;
 }
 
-gui-object .gui-object-value > details[open] > summary {
-  margin-bottom: 0;
+gui-object .gui-object-value > sl-details::part(content) {
+  padding: 0;
 }
 
-gui-object .gui-object-value > details[open] > summary::before {
-  margin-bottom: 0;
+gui-object .gui-object-value > sl-details > gui-object > sl-card::part(base) {
+  border-width: 0;
 }

@@ -1,7 +1,9 @@
-@import '../../node_modules/@shoelace-style/shoelace/dist/themes/light.css';
-@import '../../node_modules/@shoelace-style/shoelace/dist/themes/dark.css';
-
-@import './shoelace/_base.css';
+/* Schemes */
+@import './shoelace/_dark.css';
+@import './shoelace/_light.css';
+/* Theme */
+@import './shoelace/_theme.css';
+/* Components */
 @import './shoelace/_card.css';
 @import './shoelace/_input.css';
 @import './shoelace/_details.css';

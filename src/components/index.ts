@@ -1,7 +1,6 @@
 export * from './common.js';
 export * from './events.js';
 
-// export * from './boxplot/index.js';
 export * from './csv/csv-statistics/index.js';
 export * from './csv/csv-column-input/index.js';
 export * from './enum-select/index.js';
@@ -24,3 +23,4 @@ export * from './periodic-tasks/periodic-task-list/index.js';
 export * from './tabs/index.js';
 export * from './dashboard/index.js';
 export * from './events.js';
+export * from './fn-select/index.js';

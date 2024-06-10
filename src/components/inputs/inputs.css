@@ -12,7 +12,7 @@ gui-input-fn {
   align-items: start;
   gap: var(--spacing);
 
-  >label {
+  > label {
     display: flex;
     flex-direction: column;
     align-items: end;
@@ -26,7 +26,7 @@ gui-input-geo {
   align-items: start;
   gap: var(--spacing);
 
-  >label {
+  > label {
     align-self: center;
   }
 }
@@ -34,19 +34,19 @@ gui-input-geo {
 gui-input-object {
   display: flex;
 
-  /*Remove button*/
-  >a {
+  /* Remove button */
+  > sl-button {
     padding: 0 var(--spacing);
     align-self: center;
   }
 
-  >div {
+  > div {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: start;
     gap: var(--spacing);
 
-    >label {
+    > label {
       display: flex;
       flex-direction: column;
       align-items: end;
@@ -54,7 +54,7 @@ gui-input-object {
     }
   }
 
-  >a+div {
+  > a + div {
     padding-left: var(--spacing);
     border-left: var(--sl-color-primary-100) solid var(--spacing);
   }
@@ -66,23 +66,24 @@ gui-input-array {
   gap: var(--spacing);
 
   /* Add button */
-  >a {
+  > sl-button {
+    width: fit-content;
     padding: 0 var(--spacing);
-
-    &:only-child {
-      margin: auto;
-    }
   }
 
-  >div {
-    margin-left: var(--spacing);
-    display: flex;
-    gap: var(--spacing);
+  > .gui-input-array-entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--spacing);
     align-items: baseline;
 
-    /* remove button */
-    >a {
+    /* Remove button */
+    > sl-button {
       padding: 0 var(--spacing);
+    }
+
+    > :last-child {
+      width: 100%;
     }
   }
 }
@@ -93,7 +94,7 @@ gui-input-map {
   gap: var(--spacing);
 
   /* Add button */
-  >a {
+  > a {
     padding: 0 var(--spacing);
 
     &:only-child {
@@ -101,7 +102,7 @@ gui-input-map {
     }
   }
 
-  >div {
+  > div {
     margin-left: var(--spacing);
     display: flex;
     align-items: center;
@@ -109,7 +110,7 @@ gui-input-map {
     align-items: baseline;
 
     /* remove button */
-    >a {
+    > a {
       padding: 0 var(--spacing);
     }
   }
@@ -130,18 +131,18 @@ gui-input-duration {
   }
 }
 
-
 /* TODO Simplify selector conditions **/
 gui-input-any {
   display: flex;
   gap: 0;
 
-  >gui-searchable-select:first-child sl-input::part(base) {
+  > gui-searchable-select:first-child sl-input::part(base) {
     background-color: var(--sl-color-neutral-100);
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
-  gui-searchable-select+gui-input {
+  gui-searchable-select + gui-input {
     &:not(:has(gui-input-array, gui-input-map, gui-input-object, gui-input-geo)) {
       sl-input::part(base) {
         border-left: none;
@@ -169,20 +170,20 @@ gui-input-any {
     }
   }
 
-  gui-searchable-select+gui-input {
+  gui-searchable-select + gui-input {
     margin-left: var(--spacing);
 
     gui-input-map,
     gui-input-array {
       margin-left: var(--spacing);
-      border-left: var(--sl-color-primary-100) solid var(--spacing);
+      border-left: var(--sl-color-neutral-100) solid var(--border-width);
     }
 
     gui-input-object,
     gui-input-geo {
       margin-left: var(--spacing);
       padding-left: var(--spacing);
-      border-left: var(--sl-color-primary-100) solid var(--spacing);
+      border-left: var(--sl-color-neutral-100) solid var(--border-width);
     }
   }
 }

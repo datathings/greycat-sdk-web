@@ -160,7 +160,7 @@ class ModalManager {
     ) as HTMLInputElement;
     this.body.replaceChildren(
       <fieldset>
-        <label>{label}</label>
+        <legend>{label}</legend>
         {input}
         {description ? <small>{description}</small> : undefined}
       </fieldset>,

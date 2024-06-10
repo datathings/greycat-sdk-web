@@ -366,7 +366,6 @@ export class GuiObject extends HTMLElement {
                 <div>{key}</div>
                 <div className="gui-object-value">
                   <sl-details summary={this._typeName(val)}>
-                    <summary>{}</summary>
                     <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
                   </sl-details>
                 </div>

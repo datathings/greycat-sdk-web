@@ -8,14 +8,15 @@ gui-searchable-select {
   position: relative;
   display: block;
 
-  .gui-searchable-select-input {
-    width: 100%;
-    margin-bottom: 0;
-  }
-
   sl-icon {
     background-size: contain;
     background-image: var(--icon-search);
+  }
+
+  &.open {
+    > sl-input::part(base) {
+      border-bottom-left-radius: 0;
+    }
   }
 
   .gui-searchable-select-list {
@@ -24,17 +25,21 @@ gui-searchable-select {
     width: 100%;
     max-height: 400px;
     padding: var(--spacing);
-    margin-bottom: 0;
     overflow-x: hidden;
     overflow-y: auto;
     background-color: var(--gui-searchable-select-list-bg);
     display: flex;
     flex-direction: column;
     pointer-events: auto;
+    border: var(--border-width) solid var(--border-color);
 
-    & div {
-      margin-bottom: 0;
+    > div {
+      font-weight: normal;
+      line-height: normal;
       pointer-events: auto;
+      border-bottom: 1px solid var(--border-color);
+      padding: 2px 4px;
+      width: 100%;
 
       &:hover {
         background-color: var(--gui-searchable-select-list-item-hover);
@@ -48,6 +53,10 @@ gui-searchable-select {
       &.selected {
         color: var(--gui-searchable-select-list-item-selected-color);
         background-color: var(--gui-searchable-select-list-item-selected-bg);
+      }
+
+      &:last-child {
+        border-bottom: none;
       }
     }
   }

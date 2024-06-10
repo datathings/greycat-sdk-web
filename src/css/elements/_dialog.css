@@ -1,5 +1,5 @@
 dialog {
-  --dialog-border-width: 10px;
+  --dialog-border-width: 0;
   --dialog-border-color: var(--bg-2);
   --dialog-padding: 0;
   --dialog-backdrop-filter: none;

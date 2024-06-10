@@ -31,12 +31,15 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
     // this._input.classList.add('gui-searchable-select-input');
     this._input.type = 'search';
     this._input.placeholder = 'Search...';
+    this._input.autocomplete = 'off';
+    this._input.clearable = true;
     const icon = document.createElement('sl-icon');
     icon.setAttribute('slot', 'prefix');
     this._input.appendChild(icon);
     // Handle input events for filtering options
-    this._input.addEventListener('input', () => {
+    this._input.addEventListener('sl-input', () => {
       const query = this._input.value.toLowerCase();
+
       this._list.querySelectorAll('div').forEach((item) => {
         const text = item.textContent?.toLowerCase() ?? '';
         if (text.includes(query)) {
@@ -47,6 +50,10 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
       });
 
       this.showDropdown();
+    });
+
+    this._input.addEventListener('sl-clear', () => {
+      this.dispatchEvent(new GuiChangeEvent(undefined));
     });
 
     this._input.addEventListener('blur', () => {
@@ -224,10 +231,12 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
 
   showDropdown(): void {
     this._list.style.visibility = 'visible';
+    this.classList.add('open');
   }
 
   hideDropdown(): void {
     this._list.style.visibility = 'hidden';
+    this.classList.remove('open');
   }
 
   private _emptyList(): void {

@@ -57,3 +57,30 @@
   padding-top: calc(var(--spacing) * 2);
   padding-bottom: calc(var(--spacing) * 2);
 }
+
+div[role='list'],
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+}
+
+div[role='row'],
+.row {
+  display: flex;
+  gap: var(--spacing);
+}
+
+div[role='row-fluid'],
+.row-fluid {
+  display: flex;
+  gap: var(--spacing);
+
+  > * {
+    flex: 1;
+  }
+}
+
+.flex-1 {
+  flex: 1;
+}

@@ -17,27 +17,18 @@ export class GuiTasks extends HTMLElement {
     'Status',
     'Progress',
   ] as const;
-  /** The input used to filter the task list */
-  readonly search: HTMLInputElement;
   /** The table used to display the task list */
   readonly table: GuiTable;
   private _updateId: number;
   private _updateDelay: number;
-  private _filterable: boolean;
   private _tasks: TaskInfoLike[];
 
   constructor() {
     super();
 
-    this.search = document.createElement('input');
-    this.search.className = 'gui-tasks-search';
-    this.search.type = 'search';
-    this.search.placeholder = 'Filter the task list';
-    this.search.addEventListener('input', () => {
-      this.table.filter = this.search.value;
-    });
-
     this.table = document.createElement('gui-table');
+    this.table.globalFilter = true;
+    this.table.globalFilterPlaceholder = 'Filter the tasks';
     const tmp: CellProps = { value: null }; // re-use the same object for each cell rendering to ease gc
     this.table.setAttrs({
       headers: GuiTasks.HEADERS as unknown as string[],
@@ -80,14 +71,10 @@ export class GuiTasks extends HTMLElement {
     this._updateId = -1;
     this._updateDelay = 5000;
 
-    this._filterable = true;
     this._tasks = [];
   }
 
   connectedCallback() {
-    if (this._filterable) {
-      this.appendChild(this.search);
-    }
     this.appendChild(this.table);
     this.reload();
     this._updateId = setInterval(() => this.reload(), this._updateDelay);
@@ -116,30 +103,11 @@ export class GuiTasks extends HTMLElement {
   }
 
   get filter() {
-    return this.search.value;
+    return this.table.filter;
   }
 
   set filter(filter: string) {
-    this.search.value = filter;
     this.table.filter = filter;
-  }
-
-  get filterable() {
-    return this._filterable;
-  }
-
-  set filterable(activated: boolean) {
-    if (activated) {
-      if (!this._filterable) {
-        this.prepend(this.search);
-      }
-    } else {
-      if (this._filterable) {
-        this.search.remove();
-        this.filter = ''; // reset filter when remove it
-      }
-    }
-    this._filterable = activated;
   }
 
   async reload(): Promise<void> {

@@ -1,22 +1,12 @@
-:root,
-:host,
-.sl-theme-dark {
-  --sl-color-primary-50: var(--sl-color-lime-50);
-  --sl-color-primary-100: var(--sl-color-lime-100);
-  --sl-color-primary-200: var(--sl-color-lime-200);
-  --sl-color-primary-300: var(--sl-color-lime-300);
-  --sl-color-primary-400: var(--sl-color-lime-400);
-  --sl-color-primary-500: var(--sl-color-lime-500);
-  --sl-color-primary-600: rgb(192, 248, 95);
-  --sl-color-primary-700: var(--sl-color-lime-800);
-  --sl-color-primary-800: var(--sl-color-lime-900);
-  --sl-color-primary-900: var(--sl-color-lime-950);
-  --sl-color-primary-950: rgb(243 252 239);
-}
+/**
+ * The theme is a shared set of variables used by both 'dark' AND 'light' schemes.
+ */
 
 :root,
 :host,
-.sl-theme-light {
+.sl-theme-light,
+.sl-theme-dark {
+  /* Primary */
   --sl-color-primary-50: var(--sl-color-lime-50);
   --sl-color-primary-100: var(--sl-color-lime-100);
   --sl-color-primary-200: var(--sl-color-lime-200);
@@ -28,14 +18,8 @@
   --sl-color-primary-800: var(--sl-color-lime-800);
   --sl-color-primary-900: var(--sl-color-lime-900);
   --sl-color-primary-950: var(--sl-color-lime-950);
-}
 
-:root,
-:host,
-.sl-theme-dark,
-.sl-theme-light {
-  --form-element-border-color: var(--sl-color-neutral-300);
-
+  /* Success */
   --sl-color-success-50: var(--sl-color-sky-50);
   --sl-color-success-100: var(--sl-color-sky-100);
   --sl-color-success-200: var(--sl-color-sky-200);
@@ -48,13 +32,51 @@
   --sl-color-success-900: var(--sl-color-sky-900);
   --sl-color-success-950: var(--sl-color-sky-950);
 
-  --sl-color-neutral-0: var(--bg-1);
+  /* Warning */
+  --sl-color-warning-50: var(--sl-color-amber-50);
+  --sl-color-warning-100: var(--sl-color-amber-100);
+  --sl-color-warning-200: var(--sl-color-amber-200);
+  --sl-color-warning-300: var(--sl-color-amber-300);
+  --sl-color-warning-400: var(--sl-color-amber-400);
+  --sl-color-warning-500: var(--sl-color-amber-500);
+  --sl-color-warning-600: var(--sl-color-amber-600);
+  --sl-color-warning-700: var(--sl-color-amber-700);
+  --sl-color-warning-800: var(--sl-color-amber-800);
+  --sl-color-warning-900: var(--sl-color-amber-900);
+  --sl-color-warning-950: var(--sl-color-amber-950);
+
+  /* Danger */
+  --sl-color-danger-50: var(--sl-color-red-50);
+  --sl-color-danger-100: var(--sl-color-red-100);
+  --sl-color-danger-200: var(--sl-color-red-200);
+  --sl-color-danger-300: var(--sl-color-red-300);
+  --sl-color-danger-400: var(--sl-color-red-400);
+  --sl-color-danger-500: var(--sl-color-red-500);
+  --sl-color-danger-600: var(--sl-color-red-600);
+  --sl-color-danger-700: var(--sl-color-red-700);
+  --sl-color-danger-800: var(--sl-color-red-800);
+  --sl-color-danger-900: var(--sl-color-red-900);
+  --sl-color-danger-950: var(--sl-color-red-950);
+
+  /* Neutral */
+  --sl-color-neutral-50: var(--sl-color-gray-50);
+  --sl-color-neutral-100: var(--sl-color-gray-100);
+  --sl-color-neutral-200: var(--sl-color-gray-200);
+  --sl-color-neutral-300: var(--sl-color-gray-300);
+  --sl-color-neutral-400: var(--sl-color-gray-400);
+  --sl-color-neutral-500: var(--sl-color-gray-500);
+  --sl-color-neutral-600: var(--sl-color-gray-600);
+  --sl-color-neutral-700: var(--sl-color-gray-700);
+  --sl-color-neutral-800: var(--sl-color-gray-800);
+  --sl-color-neutral-900: var(--sl-color-gray-900);
+  --sl-color-neutral-950: var(--sl-color-gray-950);
 
   /* Border radii */
   --sl-border-radius-small: 0.1875rem; /* 3px */
   --sl-border-radius-medium: 0.25rem; /* 4px */
   --sl-border-radius-large: 0.5rem; /* 8px */
   --sl-border-radius-x-large: 1rem; /* 16px */
+
   --sl-border-radius-circle: 50%;
   --sl-border-radius-pill: 9999px;
 
@@ -129,9 +151,9 @@
   --sl-focus-ring-offset: 1px;
 
   /* Buttons */
-  --sl-button-font-size-small: var(--sl-font-size-x-small);
-  --sl-button-font-size-medium: var(--sl-font-size-small);
-  --sl-button-font-size-large: var(--sl-font-size-medium);
+  --sl-button-font-size-small: var(--sl-font-size-small);
+  --sl-button-font-size-medium: var(--sl-font-size-medium);
+  --sl-button-font-size-large: var(--sl-font-size-large);
 
   /* Inputs */
   --sl-input-height-small: 24px;
@@ -175,7 +197,6 @@
   --sl-input-spacing-medium: var(--sl-spacing-medium);
   --sl-input-spacing-large: var(--sl-spacing-large);
 
-  --sl-input-focus-ring-color: rgb(192, 248, 95, 0.4);
   --sl-focus-ring-width: 1px;
   --sl-input-focus-ring-offset: 0;
 
@@ -206,7 +227,7 @@
   --sl-toggle-size-large: 1.375rem; /* 22px */
 
   /* Overlays */
-  --sl-overlay-background-color: hsl(240 3.8% 46.1% / 33%);
+  
 
   /* Panels */
   --sl-panel-background-color: var(--sl-color-neutral-0);
