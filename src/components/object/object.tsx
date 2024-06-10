@@ -451,7 +451,11 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-object': GreyCat.Element<GuiObject>;
+      'gui-object': GreyCat.Element<GuiObject & {
+        // gui-object accept any properties that the underlying component
+        // would accept, therefore we have to loosen its type
+        [key: string]: unknown;
+      }>;
     }
   }
 }
