@@ -137,7 +137,6 @@ gui-input-any {
   gap: 0;
 
   > gui-searchable-select:first-child sl-input::part(base) {
-    background-color: var(--sl-color-neutral-100);
     border-top-right-radius: 0;
     border-bottom-right-radius: 0;
   }
