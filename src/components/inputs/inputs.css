@@ -54,15 +54,15 @@ gui-input-object {
     }
   }
 
-  > a + div {
+  > sl-input + div {
     padding-left: var(--spacing);
     border-left: var(--sl-color-primary-100) solid var(--spacing);
   }
 }
 
 gui-input-array {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--spacing);
 
   /* Add button */
@@ -89,37 +89,32 @@ gui-input-array {
 }
 
 gui-input-map {
-  display: flex;
-  flex-direction: column;
+  display: grid;
+  grid-template-columns: 1fr;
   gap: var(--spacing);
 
   /* Add button */
-  > a {
+  > sl-button {
+    width: fit-content;
     padding: 0 var(--spacing);
-
-    &:only-child {
-      margin: auto;
-    }
   }
 
   > div {
-    margin-left: var(--spacing);
-    display: flex;
-    align-items: center;
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
     gap: var(--spacing);
     align-items: baseline;
 
     /* remove button */
-    > a {
+    > sl-button {
       padding: 0 var(--spacing);
     }
   }
 }
 
 gui-input-duration {
-  display: flex;
-  align-items: center;
-  gap: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 
   gui-input-number sl-input::part(base) {
     border-radius: var(--border-radius) 0 0 var(--border-radius);
@@ -133,8 +128,8 @@ gui-input-duration {
 
 /* TODO Simplify selector conditions **/
 gui-input-any {
-  display: flex;
-  gap: 0;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
 
   > gui-searchable-select:first-child sl-input::part(base) {
     border-top-right-radius: 0;

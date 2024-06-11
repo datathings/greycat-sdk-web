@@ -1330,7 +1330,9 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   private _createMapInput(keyInput: GuiInputAny, valInput: GuiInputElement<unknown>) {
     const elem = (
       <div>
-        <a
+        <sl-button
+          variant="text"
+          size="small"
           onclick={() => {
             this._inputs.delete(keyInput);
             this.removeChild(elem);
@@ -1338,7 +1340,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
           }}
         >
           &#10005;
-        </a>
+        </sl-button>
         {keyInput}
         {valInput}
       </div>
@@ -1349,7 +1351,9 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   override render() {
     this.replaceChildren();
     this.appendChild(
-      <a
+      <sl-button
+        variant="text"
+        size="small"
         onclick={() => {
           const elems = this.addEntry();
           this.appendChild(this._createMapInput(elems[0], elems[1]));
@@ -1357,7 +1361,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
         }}
       >
         Add
-      </a>,
+      </sl-button>,
     );
     this._inputs.forEach((valInput, keyInput) => {
       this.appendChild(this._createMapInput(keyInput, valInput));
