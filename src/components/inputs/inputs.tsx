@@ -431,7 +431,7 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
     this._input = document.createElement('sl-input');
     this._input.type = 'datetime-local';
-    this._input.step = 1;
+
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -464,7 +464,10 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
     if (value === null) {
       this._input.value = '';
     } else {
-      this._input.valueAsNumber = value.epochMs;
+      this._input.updateComplete.then(() => {
+        this._input.input.valueAsNumber = value.epochMs;
+        this._input.value = this._input.input.value;
+      });
     }
   }
 
