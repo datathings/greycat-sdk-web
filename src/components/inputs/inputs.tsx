@@ -1194,7 +1194,6 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     this._inputs.forEach((input) => {
       const elem = (
         <div className="gui-input-array-entry">
-          {input}
           <sl-button
             size="small"
             variant="text"
@@ -1206,6 +1205,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
           >
             &#10005;
           </sl-button>
+          {input}
         </div>
       );
       this.appendChild(elem);
