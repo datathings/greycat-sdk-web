@@ -53,6 +53,10 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
     });
 
     this._input.addEventListener('sl-clear', () => {
+      this._input.value = '';
+      this._list.querySelectorAll('div').forEach((item) => {
+        item.classList.remove('hidden', 'selected');
+      });
       this.dispatchEvent(new GuiChangeEvent(undefined));
     });
 
