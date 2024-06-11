@@ -797,7 +797,11 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     return this._fn;
   }
 
-  set type(fn: AbiFunction | undefined) {
+  set type(fn: AbiFunction | string | undefined) {
+    if (typeof fn === 'string') {
+      fn = greycat.default.findFn(fn);
+    }
+
     if (this._fn) {
       // we already have an AbiFunction defined, lets compare
       if (this._fn === fn) {
