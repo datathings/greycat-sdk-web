@@ -789,6 +789,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
   static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
     if (value === null && nullable) return true;
+    else if (ty.name === 'core::any') return true;
     else if (typeof value === 'string' && ty.name === core.String._type) return true;
     else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
     else if (
@@ -798,6 +799,8 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
       return true;
     else if (typeof value === 'object') {
       if (Array.isArray(value) && ty.name === core.Array._type) {
+        return true;
+      } else if (value instanceof Map && ty.name === core.Map._type) {
         return true;
       } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
         return true;
