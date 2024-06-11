@@ -7,7 +7,7 @@ declare namespace GreyCat {
   type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children'>> &
     ExtendedHTMLProperties & {
       [EVENT in keyof EventMap as `on${EVENT}`]?: (
-        this: GlobalEventHandlers,
+        this: T,
         ev: EventMap[EVENT],
         options?: boolean | AddEventListenerOptions,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
