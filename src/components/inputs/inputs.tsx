@@ -787,6 +787,25 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   private _fn: AbiFunction | undefined;
   private _params: Map<string, GuiInput> = new Map();
 
+  static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
+    if (value === null && nullable) return true;
+    else if (typeof value === 'string' && ty.name === core.String._type) return true;
+    else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
+    else if (
+      (typeof value === 'number' || typeof value === 'bigint') &&
+      (ty.name === core.int._type || ty.name === core.float._type)
+    )
+      return true;
+    else if (typeof value === 'object') {
+      if (Array.isArray(value) && ty.name === core.Array._type) {
+        return true;
+      } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   override connectedCallback() {
     super.connectedCallback();
     this.render();
@@ -796,7 +815,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     this.replaceChildren();
   }
 
-  get type() {
+  get type(): AbiFunction | undefined {
     return this._fn;
   }
 
@@ -877,8 +896,24 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     return args;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  set value(_args: any[]) {}
+  set value(args: unknown[]) {
+    //if no function set we skip
+    if (this.type === undefined) {
+      return;
+    }
+    //Validate that arguments length match
+    if (args.length !== this.type.params.length) {
+      throw `Function params required (${this.type.params.length}), arguments provided (${args.length})`;
+    }
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      const param = this.type.params[i];
+      if (!GuiInputFn.checkAbiType(arg, param.type, param.nullable)) {
+        throw `Type for param ${param.name} doesn't match, ${param.type.name} required`;
+      }
+      this._params.get(param.name)!.value = arg;
+    }
+  }
 
   override render(): void {
     const params = document.createDocumentFragment();
@@ -892,7 +927,10 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
       const label = (
         <label>
           <span className="gui-input-param-name">{name}</span>
-          <span className="gui-input-param-type">{typeName}</span>
+          <span className="gui-input-param-type">
+            {typeName}
+            {param.nullable ? '?' : ''}
+          </span>
         </label>
       );
 
