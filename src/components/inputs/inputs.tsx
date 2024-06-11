@@ -788,7 +788,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   private _params: Map<string, GuiInput> = new Map();
 
   static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
-    if (value === null && nullable) return true;
+    if (value === null) return nullable;
     else if (ty.name === 'core::any') return true;
     else if (typeof value === 'string' && ty.name === core.String._type) return true;
     else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
