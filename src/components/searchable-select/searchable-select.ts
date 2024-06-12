@@ -17,7 +17,7 @@ export interface GuiSearchableInputConfig {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GuiSearchableSelect<T = any> extends GuiInputElement<T> {
+export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined> {
   private _input: SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
