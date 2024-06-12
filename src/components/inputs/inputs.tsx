@@ -22,6 +22,7 @@ import inputObjectStyle from './input-object.css?inline';
 import inputAnyStyle from './input-any.css?inline';
 import inputDurationStyle from './input-duration.css?inline';
 import inputStyle from './inputs.css?inline';
+import inputGeoStyle from './input-geo.css?inline';
 
 export interface GuiInputConfig {
   nullable?: boolean;
@@ -530,6 +531,7 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   override connectedCallback() {
     super.connectedCallback();
     this._shadowRoot.replaceChildren(this._input);
+    this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
@@ -1338,6 +1340,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   override connectedCallback() {
     super.connectedCallback();
     this.render();
+    this.setAttribute('part', 'input-map');
   }
 
   disconnectedCallback() {
@@ -1719,6 +1722,10 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
 
   constructor() {
     super();
+
+    const sheet = new CSSStyleSheet();
+    sheet.replaceSync(inputGeoStyle);
+    this.shadowRoot!.adoptedStyleSheets.push(sheet);
 
     this._latInput = document.createElement('gui-input-number');
     this._latInput.addEventListener('gui-change', (ev) => {
