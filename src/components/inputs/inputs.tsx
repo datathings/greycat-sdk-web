@@ -512,7 +512,11 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     this.replaceChildren();
   }
 
-  set type(type: AbiType | undefined) {
+  set type(type: AbiType | string | undefined) {
+    if (typeof type === 'string') {
+      type = greycat.default.findType(type);
+    }
+
     if (type) {
       if (type.name === this._type?.name) {
         return;
