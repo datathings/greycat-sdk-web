@@ -4,9 +4,14 @@
   align-items: start;
   gap: var(--spacing);
   /* Remove button */
-  > sl-button {
+  .gui-input-remove {
     padding: 0 var(--spacing);
     align-self: center;
+  }
+
+  .gui-input-add {
+    width: fit-content;
+    padding: 0 var(--spacing);
   }
 
   .gui-input-label {

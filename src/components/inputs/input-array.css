@@ -4,24 +4,19 @@
   gap: var(--spacing);
 
   /* Add button */
-  > sl-button {
+  .gui-input-add {
     width: fit-content;
     padding: 0 var(--spacing);
   }
 
-  > .gui-input-array-entry {
+  .gui-input-array-entry {
     display: grid;
     grid-template-columns: auto 1fr;
     column-gap: var(--spacing);
     align-items: baseline;
+  }
 
-    /* Remove button */
-    > sl-button {
-      padding: 0 var(--spacing);
-    }
-
-    > :last-child {
-      width: 100%;
-    }
+  .gui-input-remove {
+    padding: 0 var(--spacing);
   }
 }

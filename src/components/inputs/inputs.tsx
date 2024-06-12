@@ -708,6 +708,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       } else {
         this._shadowRoot.replaceChildren(
           <sl-button
+            className={'gui-input-add'}
             variant="text"
             onclick={() => {
               if (this._type) {
@@ -797,6 +798,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
     const del = (
       <sl-button
+        className={'gui-input-remove'}
         variant="text"
         onclick={() => {
           this.value = null;
@@ -811,7 +813,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     if (this.config.nullable) {
       frag.appendChild(del);
     }
-    frag.appendChild(<div> {attrs} </div>);
+    frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
 
     this._shadowRoot.replaceChildren(frag);
   }
@@ -1216,6 +1218,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     const elem = (
       <div className="gui-input-array-entry">
         <sl-button
+          className={'gui-input-remove'}
           size="small"
           variant="text"
           onclick={() => {
@@ -1238,6 +1241,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
       <sl-button
         size="small"
         variant="text"
+        className={'gui-input-add'}
         onclick={() => {
           this._addInput();
           this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1252,6 +1256,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
           <sl-button
             size="small"
             variant="text"
+            className={'gui-input-remove'}
             onclick={() => {
               this._inputs = this._inputs.filter((i) => i !== input);
               this._shadowRoot.removeChild(elem);
@@ -1389,10 +1394,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
   private _createMapInput(keyInput: GuiInputAny, valInput: GuiInputElement<unknown>) {
     const elem = (
-      <div>
+      <div className={'gui-input-map-entry'}>
         <sl-button
           variant="text"
           size="small"
+          className={'gui-input-remove'}
           onclick={() => {
             this._inputs.delete(keyInput);
             this._shadowRoot.removeChild(elem);
@@ -1414,6 +1420,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
       <sl-button
         variant="text"
         size="small"
+        className={'gui-input-add'}
         onclick={() => {
           const elems = this.addEntry();
           this._shadowRoot.appendChild(this._createMapInput(elems[0], elems[1]));
