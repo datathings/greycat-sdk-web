@@ -402,6 +402,7 @@ export class GuiTable extends HTMLElement {
     rowHeight = this._tbody.rowHeight,
     globalFilter = this.globalFilter,
     globalFilterPlaceholder = this.globalFilterPlaceholder,
+    onrowupdate = this._rowUpdateCallback,
   }: Partial<{
     value: TableLike;
     filter: string;
@@ -415,6 +416,7 @@ export class GuiTable extends HTMLElement {
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
+    onrowupdate: RowUpdateCallback;
   }>) {
     this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._ignoreCols = ignoreCols;
@@ -428,6 +430,7 @@ export class GuiTable extends HTMLElement {
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
+    this._rowUpdateCallback = onrowupdate;
 
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
@@ -450,6 +453,7 @@ export class GuiTable extends HTMLElement {
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
+    onrowupdate: RowUpdateCallback;
   } {
     return {
       table: this._table,
@@ -464,6 +468,7 @@ export class GuiTable extends HTMLElement {
       rowHeight: this._tbody.rowHeight,
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
+      onrowupdate: this._rowUpdateCallback,
     };
   }
 

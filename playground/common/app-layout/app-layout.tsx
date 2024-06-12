@@ -13,7 +13,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
-    { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
+    // { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
     { title: 'Chart (custom)',          href: 'chart-custom/' },
     { title: 'Chart (in-mem)',          href: 'chart-in-mem/' },
     { title: 'Chart (scatter)',         href: 'chart-scatter/' },

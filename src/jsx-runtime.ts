@@ -5,7 +5,7 @@ export const Fragment = '<></>';
 
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }>,
+  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties<E>,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();
@@ -16,6 +16,9 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
   }
 
   const element = document.createElement(tagName);
+  // if (props.$ref) {
+  //   props.$ref(element as E);
+  // }
 
   if ('setAttrs' in element && typeof element.setAttrs === 'function') {
     // this is an internal optimisation for component that do define a one-off

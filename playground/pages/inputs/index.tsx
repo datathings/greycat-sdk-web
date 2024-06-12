@@ -1,7 +1,6 @@
 import {
   GreyCat,
   GuiInput,
-  GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
   SearchableOption,
@@ -37,6 +36,10 @@ document.body.appendChild(
         gap: 'var(--spacing)',
       }}
     >
+      <input-viewer header="Disabled input">
+        <sl-input placeholder="This input is disabled" disabled />
+      </input-viewer>
+
       <input-viewer header="core::geo">
         <gui-input-geo />
       </input-viewer>
@@ -98,14 +101,10 @@ type InputViewerAttrs = {
 export class InputViewer extends HTMLElement {
   connectedCallback() {
     this.style.display = 'contents';
-    if (!(this.children[0] instanceof GuiInputElement)) {
-      this.appendChild(<b>Child node must be a GuiInputElement</b>);
-      return;
-    }
     const header = this.getAttribute('header');
 
     const display = document.createElement('gui-value');
-    const input = this.children[0];
+    const input = this.children[0] as GuiInput;
     display.value = input.value;
     input.addEventListener('gui-input', () => {
       console.log(`[gui-input][${header}]`, input.value);
@@ -167,7 +166,7 @@ function EnumViewer() {
       };
     });
 
-    const typeSelector = (
+  const typeSelector = (
     <gui-searchable-select
       placeholder="Search an enum..."
       options={options}
