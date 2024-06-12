@@ -901,16 +901,16 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
   set value(args: unknown[]) {
     //if no function set we skip
-    if (this.type === undefined) {
+    if (this._fn === undefined) {
       return;
     }
     //Validate that arguments length match
-    if (args.length !== this.type.params.length) {
-      throw `Function params required (${this.type.params.length}), arguments provided (${args.length})`;
+    if (args.length !== this._fn.params.length) {
+      throw `Function params required (${this._fn.params.length}), arguments provided (${args.length})`;
     }
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      const param = this.type.params[i];
+      const param = this._fn.params[i];
       if (!GuiInputFn.checkAbiType(arg, param.type, param.nullable)) {
         throw `Type for param ${param.name} doesn't match, ${param.type.name} required`;
       }
