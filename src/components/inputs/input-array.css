@@ -1,0 +1,27 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing);
+
+  /* Add button */
+  > sl-button {
+    width: fit-content;
+    padding: 0 var(--spacing);
+  }
+
+  > .gui-input-array-entry {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    column-gap: var(--spacing);
+    align-items: baseline;
+
+    /* Remove button */
+    > sl-button {
+      padding: 0 var(--spacing);
+    }
+
+    > :last-child {
+      width: 100%;
+    }
+  }
+}

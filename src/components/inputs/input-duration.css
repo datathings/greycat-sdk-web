@@ -1,0 +1,13 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gui-input-number sl-input::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  gui-searchable-select sl-input::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-left: none;
+  }
+}

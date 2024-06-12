@@ -1,6 +1,9 @@
 import type { SlInput } from '@shoelace-style/shoelace';
 import { getIndexInParent } from '../../utils.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
+import { GuiInputElement } from '../inputs/index.js';
+
+import style from './searchable-select.css';
 
 export interface SearchableOption {
   text: string;
@@ -14,15 +17,18 @@ export interface GuiSearchableInputConfig {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GuiSearchableSelect<T = any> extends HTMLElement {
+export class GuiSearchableSelect<T = any> extends GuiInputElement<T> {
   private _input: SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
 
-  protected _config: GuiSearchableInputConfig = {};
-
   constructor() {
     super();
+
+    const styleSheet = new CSSStyleSheet();
+    styleSheet.replaceSync(style);
+
+    this.shadowRoot!.adoptedStyleSheets = [styleSheet];
 
     this._options = [];
 
@@ -140,9 +146,9 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
     this.hideDropdown();
   }
 
-  connectedCallback() {
-    this.appendChild(this._input);
-    this.appendChild(this._list);
+  override connectedCallback() {
+    this.shadowRoot?.appendChild(this._input);
+    this.shadowRoot?.appendChild(this._list);
 
     if (this._options.length === 0) {
       this._emptyList();
@@ -160,11 +166,11 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
     this.replaceChildren();
   }
 
-  get placeholder() {
+  override get placeholder() {
     return this._input.placeholder;
   }
 
-  set placeholder(placeholder: string) {
+  override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
   }
 
@@ -179,7 +185,7 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
   /**
    * The currently selected value.
    */
-  get value() {
+  get value(): T | undefined {
     const items = this._list.getElementsByClassName('selected');
     if (items.length > 0) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -219,17 +225,13 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
 
   set options(options: SearchableOption[]) {
     this._options = options;
-    this._renderList(options);
+    this.render();
   }
 
-  get config() {
-    return this._config;
-  }
-
-  set config(config: GuiSearchableInputConfig) {
+  override set config(config: GuiSearchableInputConfig) {
     this._config = config;
     const tmpValue = this.value;
-    this._renderList(this._options);
+    this.render();
     this.value = tmpValue;
   }
 
@@ -250,7 +252,8 @@ export class GuiSearchableSelect<T = any> extends HTMLElement {
     this._list.replaceChildren(empty);
   }
 
-  private _renderList(options: SearchableOption[]): void {
+  override render(): void {
+    const options = this.options;
     if (options.length === 0) {
       this._emptyList();
       return;
@@ -319,7 +322,7 @@ declare global {
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 
-  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
