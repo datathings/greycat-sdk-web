@@ -774,6 +774,8 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 
     let index = 0;
     this._attrs.forEach((input, name) => {
+      const slot = document.createElement('slot');
+      slot.name = name;
       const attr = this._type!.attrs[index];
       const attrTy = greycat.default.abi.types[attr.abi_type];
       let typeName = attrTy.name;
@@ -781,13 +783,14 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         typeName = typeName.slice(6);
       }
       const label = (
-        <label>
+        <label className={'gui-input-label'}>
           <span className="gui-input-attr-name">{name}</span>
           <span className="gui-input-attr-type">{typeName}</span>
         </label>
       );
 
-      attrs.append(label, input);
+      slot.append(label, input);
+      attrs.append(<div className={'gui-input-arg'}>{slot}</div>);
 
       index++;
     });

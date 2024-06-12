@@ -1,29 +1,25 @@
 :host {
-  display: flex;
-
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--spacing);
   /* Remove button */
   > sl-button {
     padding: 0 var(--spacing);
     align-self: center;
   }
 
-  > div {
+  .gui-input-label {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 2px;
+  }
+  .gui-input-arg {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: start;
     gap: var(--spacing);
-
-    > label {
-      display: flex;
-      flex-direction: column;
-      align-items: end;
-      gap: 2px;
-    }
-  }
-
-  > sl-input + div {
-    padding-left: var(--spacing);
-    border-left: var(--sl-color-primary-100) solid var(--spacing);
   }
 
   .gui-input-attr-name,
