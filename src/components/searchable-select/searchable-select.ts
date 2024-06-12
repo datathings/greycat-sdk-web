@@ -3,7 +3,7 @@ import { getIndexInParent } from '../../utils.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 import { GuiInputElement } from '../inputs/index.js';
 
-import style from './searchable-select.css';
+import style from './searchable-select.css?inline';
 
 export interface SearchableOption {
   text: string;
@@ -27,9 +27,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
 
     const styleSheet = new CSSStyleSheet();
     styleSheet.replaceSync(style);
-
     this.shadowRoot!.adoptedStyleSheets = [styleSheet];
-
     this._options = [];
 
     // Create an input element for searching

@@ -15,12 +15,13 @@ import '../searchable-select/index.js';
 import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
-import inputFnStyle from './input-fn.css';
-import inputArrayStyle from './input-array.css';
-import inputMapStyle from './input-map.css';
-import inputObjectStyle from './input-object.css';
-import inputAnyStyle from './input-any.css';
-import inputDurationStyle from './input-duration.css';
+import inputFnStyle from './input-fn.css?inline';
+import inputArrayStyle from './input-array.css?inline';
+import inputMapStyle from './input-map.css?inline';
+import inputObjectStyle from './input-object.css?inline';
+import inputAnyStyle from './input-any.css?inline';
+import inputDurationStyle from './input-duration.css?inline';
+import inputStyle from './inputs.css?inline';
 
 export interface GuiInputConfig {
   nullable?: boolean;
@@ -34,6 +35,10 @@ export abstract class GuiInputElement<T> extends HTMLElement {
   constructor() {
     super();
     this._shadowRoot = this.attachShadow({ mode: 'open' });
+
+    const styleSheet = new CSSStyleSheet();
+    styleSheet.replaceSync(inputStyle);
+    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
   }
 
   connectedCallback() {
@@ -105,6 +110,10 @@ export class GuiInput extends GuiInputElement<unknown> {
   private _type: AbiFunction | AbiType | undefined;
   private _value: unknown;
   private _inner: GuiInputElement<unknown> | undefined;
+
+  constructor() {
+    super();
+  }
 
   /**
    * - `type` always has priority over `value`
