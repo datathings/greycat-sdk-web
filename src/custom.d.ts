@@ -9,3 +9,8 @@ declare namespace Intl {
    */
   function supportedValuesOf(key: Key): string[];
 }
+
+declare module '*.css' {
+  const content: string;
+  export default content;
+}
