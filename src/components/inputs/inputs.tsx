@@ -271,6 +271,7 @@ export class GuiInputString extends GuiInputElement<string | null> {
     super();
 
     this._input = document.createElement('sl-input');
+    this._input.setAttribute('exportparts', 'base');
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -284,6 +285,8 @@ export class GuiInputString extends GuiInputElement<string | null> {
   override connectedCallback() {
     super.connectedCallback();
     this._shadowRoot.replaceChildren(this._input);
+
+    this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
@@ -330,6 +333,8 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
     this._input = document.createElement('sl-input');
     this._input.type = 'number';
+    this._input.setAttribute('exportparts', 'base');
+
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -343,6 +348,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   override connectedCallback() {
     super.connectedCallback();
     this._shadowRoot.replaceChildren(this._input);
+    this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
@@ -1181,6 +1187,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   override connectedCallback() {
     super.connectedCallback();
     this._render();
+    this.setAttribute('part', 'input-array');
   }
 
   disconnectedCallback() {
@@ -1736,6 +1743,7 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
 
   override connectedCallback() {
     super.connectedCallback();
+    this.setAttribute('part', 'input-geo');
     this._shadowRoot.appendChild(
       <>
         <label>Latitude</label>

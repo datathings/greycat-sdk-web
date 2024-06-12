@@ -2,9 +2,25 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
 
-  gui-searchable-select:first-child sl-input::part(base) {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
+  gui-searchable-select::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  gui-input::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  gui-input::part(input-geo) {
+    display: inline-block;
+    margin-left: var(--spacing);
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+  }
+  gui-input::part(input-array) {
+    display: inline-block;
+    margin-left: var(--spacing);
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
   }
 
   gui-searchable-select + gui-input {

@@ -148,6 +148,8 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this.shadowRoot?.appendChild(this._input);
     this.shadowRoot?.appendChild(this._list);
 
+    this._input.setAttribute('exportparts', 'base');
+
     if (this._options.length === 0) {
       this._emptyList();
     }
