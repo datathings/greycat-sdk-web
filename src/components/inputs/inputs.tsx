@@ -946,6 +946,22 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
       slot.append(label, input);
       params.append(<div className={'gui-input-arg'}>{slot}</div>);
 
+      slot.addEventListener('slotchange', (e) => {
+        const a = e.target as HTMLSlotElement;
+
+        const assignedElements = a.assignedElements();
+
+        assignedElements.forEach((elem) => {
+          if (elem instanceof GuiInputElement) {
+            return;
+          }
+          const input = elem.querySelector('.gui-input');
+          if (!input || !(input instanceof GuiInputElement)) {
+            throw `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`;
+          }
+        });
+      });
+
       index++;
     });
     this._shadowRoot.replaceChildren(params);

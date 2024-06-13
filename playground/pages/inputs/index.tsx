@@ -351,11 +351,7 @@ function Composition() {
   const slot = (
     <slot slot="name">
       <label htmlFor="">Custom input</label>
-      <gui-searchable-select
-        style={{ width: '300px' }}
-        placeholder="Search a fn..."
-        options={[{ text: 'one' }, { text: 'two' }]}
-      />
+      <gui-searchable-select placeholder="Select" options={[{ text: 'one' }, { text: 'two' }]} />
     </slot>
   );
 
