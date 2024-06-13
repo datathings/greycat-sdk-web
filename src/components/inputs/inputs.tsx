@@ -823,7 +823,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuiInputFn extends GuiInputElement<any[] | null> {
   private _fn: AbiFunction | undefined;
-  private _params: Map<string, GuiInput> = new Map();
+  private _params: Map<string, GuiInputElement<unknown>> = new Map();
 
   constructor() {
     super();
@@ -953,12 +953,14 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
         assignedElements.forEach((elem) => {
           if (elem instanceof GuiInputElement) {
+            this._params.set(name, elem);
             return;
           }
-          const input = elem.querySelector('.gui-input');
-          if (!input || !(input instanceof GuiInputElement)) {
+          const slotInput = elem.querySelector('.gui-input');
+          if (!slotInput || !(slotInput instanceof GuiInputElement)) {
             throw `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`;
           }
+          this._params.set(name, slotInput);
         });
       });
 
