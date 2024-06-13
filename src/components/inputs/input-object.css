@@ -3,7 +3,14 @@
   grid-template-columns: auto 1fr;
   align-items: start;
   gap: var(--spacing);
-  /* Remove button */
+
+  .gui-input-object-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: var(--spacing);
+  }
+
   .gui-input-remove {
     padding: 0 var(--spacing);
     align-self: center;
@@ -25,6 +32,10 @@
     grid-template-columns: auto 1fr;
     align-items: start;
     gap: var(--spacing);
+  }
+
+  gui-input::part(input-object) {
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
   }
 
   .gui-input-attr-name,

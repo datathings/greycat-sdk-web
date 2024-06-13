@@ -601,6 +601,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   override connectedCallback() {
     super.connectedCallback();
     this.render();
+    this.setAttribute('part', 'input-object');
   }
 
   disconnectedCallback() {
