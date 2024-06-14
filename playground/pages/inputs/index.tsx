@@ -57,7 +57,7 @@ document.body.appendChild(
       </input-viewer>
 
       <input-viewer header="Map">
-        <gui-input-map value={new Map([['one', 1]])} />
+        <gui-input-map />
       </input-viewer>
       <input-viewer header="String">
         <gui-input value="Hello world!" />
@@ -83,7 +83,10 @@ document.body.appendChild(
         <gui-input value={{ name: 'John', age: 42 }} />
       </input-viewer>
       <input-viewer header="Object (instance + manual override)">
-        <gui-input value={{ name: 'John', age: 42 }}></gui-input>
+        <gui-input-object value={{ name: 'John', age: 42 }}>
+          <gui-input-string slot="name" />
+          <gui-input-number slot="age" />
+        </gui-input-object>
       </input-viewer>
       <input-viewer header="Custom Form">
         <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />

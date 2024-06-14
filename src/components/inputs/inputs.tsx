@@ -571,10 +571,10 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 }
 
 export class GuiInputObject extends GuiInputElement<
-  GCObject | null | Record<string | number, unknown> | Map<unknown, unknown>
+  GCObject | null | Record<string | number, unknown>
 > {
   private _type: AbiType | undefined;
-  private _attrs: Map<string | GuiInput, GuiInput> = new Map();
+  private _attrs: Map<string, GuiInputElement<unknown>> = new Map();
   /**
    * whether or not we've initialized this input's form already
    */
@@ -774,32 +774,46 @@ export class GuiInputObject extends GuiInputElement<
     const attrs = document.createDocumentFragment();
 
     let index = 0;
-    let isMap = false;
     this._attrs.forEach((input, key) => {
       const slot = document.createElement('slot');
 
-      if (typeof key === 'string') {
-        slot.name = key;
-        const label = (
-          <label className={'gui-input-label'}>
-            <span className="gui-input-attr-name">{key}</span>
-          </label>
-        );
+      slot.name = key;
+      const label = (
+        <label className={'gui-input-label'}>
+          <span className="gui-input-attr-name">{key}</span>
+        </label>
+      );
 
-        if (this._type) {
-          const attr = this._type.attrs[index];
-          const attrTy = greycat.default.abi.types[attr.abi_type];
-          let typeName = attrTy.name;
-          if (typeName.startsWith('core::')) {
-            typeName = typeName.slice(6);
-          }
-          label.appendChild(<span className="gui-input-attr-type">{typeName}</span>);
+      if (this._type) {
+        const attr = this._type.attrs[index];
+        const attrTy = greycat.default.abi.types[attr.abi_type];
+        let typeName = attrTy.name;
+        if (typeName.startsWith('core::')) {
+          typeName = typeName.slice(6);
         }
-        slot.append(label, input);
-      } else {
-        isMap = true;
-        slot.append(key, input);
+        label.appendChild(<span className="gui-input-attr-type">{typeName}</span>);
       }
+      slot.append(label, input);
+
+      slot.addEventListener('slotchange', (e) => {
+        const a = e.target as HTMLSlotElement;
+
+        const assignedElements = a.assignedElements();
+
+        assignedElements.forEach((elem) => {
+          if (elem instanceof GuiInputElement) {
+            this._attrs.set(key, elem);
+            elem.value = input.value;
+            return;
+          }
+          const slotInput = elem.querySelector('.gui-input');
+          if (!slotInput || !(slotInput instanceof GuiInputElement)) {
+            throw `Element provided to gui-input-fn slot "${key}" has to be an instanceof GuiInputElement`;
+          }
+          slotInput.value = input.value;
+          this._attrs.set(key, slotInput);
+        });
+      });
 
       attrs.append(<div className={'gui-input-arg'}>{slot}</div>);
 
@@ -822,20 +836,6 @@ export class GuiInputObject extends GuiInputElement<
         </sl-button>
       );
       frag.appendChild(del);
-    } else if (isMap) {
-      const add = (
-        <sl-button
-          className={'gui-input-add'}
-          variant="text"
-          size="small"
-          onclick={() => {
-            this.dispatchEvent(new GuiChangeEvent(this.value));
-          }}
-        >
-          Add
-        </sl-button>
-      );
-      frag.prepend(add);
     }
     frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
 
