@@ -778,6 +778,28 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   private _fn: AbiFunction | undefined;
   private _params: Map<string, GuiInputElement<unknown>> = new Map();
 
+  static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
+    if (value === null) return nullable;
+    else if (ty.name === 'core::any') return true;
+    else if (typeof value === 'string' && ty.name === core.String._type) return true;
+    else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
+    else if (
+      (typeof value === 'number' || typeof value === 'bigint') &&
+      (ty.name === core.int._type || ty.name === core.float._type)
+    )
+      return true;
+    else if (typeof value === 'object') {
+      if (Array.isArray(value) && ty.name === core.Array._type) {
+        return true;
+      } else if (value instanceof Map && ty.name === core.Map._type) {
+        return true;
+      } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
+        return true;
+      }
+    }
+    return false;
+  }
+
   constructor() {
     super();
     const sheet = new CSSStyleSheet();
@@ -869,8 +891,24 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     return args;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  set value(_args: any[]) {}
+  set value(args: unknown[]) {
+    //if no function set we skip
+    if (this._fn === undefined) {
+      return;
+    }
+    //Validate that arguments length match
+    if (args.length !== this._fn.params.length) {
+      throw `Function params required (${this._fn.params.length}), arguments provided (${args.length})`;
+    }
+    for (let i = 0; i < args.length; i++) {
+      const arg = args[i];
+      const param = this._fn.params[i];
+      if (!GuiInputFn.checkAbiType(arg, param.type, param.nullable)) {
+        throw `Type for param ${param.name} doesn't match, ${param.type.name} required`;
+      }
+      this._params.get(param.name)!.value = arg;
+    }
+  }
 
   override render(): void {
     const params = document.createDocumentFragment();
@@ -886,7 +924,10 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
       const label = (
         <label className="gui-input-label">
           <span className="gui-input-param-name">{name}</span>
-          <span className="gui-input-param-type">{typeName}</span>
+          <span className="gui-input-param-type">
+            {typeName}
+            {param.nullable ? '?' : ''}
+          </span>
         </label>
       );
       slot.append(label, input);
