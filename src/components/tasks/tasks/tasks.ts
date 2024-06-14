@@ -1,9 +1,10 @@
 import { Value, runtime } from '@greycat/sdk';
 import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
-import { TaskInfoLike } from '../task-info/task-info.js';
+import { TaskInfoLike } from '../task-info/common.js';
 import { GuiClickEvent } from '../../events.js';
 import { getGlobalDateTimeFormat } from '../../../globals.js';
+import { GuiTaskInfoDialog } from '../task-info/task-info-dialog.js';
 
 export class GuiTasks extends HTMLElement {
   static readonly HEADERS = [
@@ -22,6 +23,7 @@ export class GuiTasks extends HTMLElement {
   private _updateId: number;
   private _updateDelay: number;
   private _tasks: TaskInfoLike[];
+  private _dialog: GuiTaskInfoDialog;
 
   constructor() {
     super();
@@ -65,17 +67,26 @@ export class GuiTasks extends HTMLElement {
     });
     this.table.addEventListener('table-click', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(this._tasks[ev.detail.row[0].originalIndex]));
+      const task = this._tasks[ev.detail.row[0].originalIndex];
+      if (this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(task))) {
+        this._dialog.value = task;
+        this._dialog.show();
+      }
     });
 
     this._updateId = -1;
     this._updateDelay = 5000;
 
     this._tasks = [];
+
+    this._dialog = document.createElement('gui-task-info-dialog');
+    this._dialog.addEventListener('gui-update', () => {
+      this.reload();
+    });
   }
 
   connectedCallback() {
-    this.appendChild(this.table);
+    this.append(this.table, this._dialog);
     this.reload();
     this._updateId = setInterval(() => this.reload(), this._updateDelay);
   }

@@ -1,7 +1,6 @@
 import {
   GreyCat,
   GuiInput,
-  GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
   SearchableOption,
@@ -37,6 +36,10 @@ document.body.appendChild(
         gap: 'var(--spacing)',
       }}
     >
+      <input-viewer header="Disabled input">
+        <sl-input placeholder="This input is disabled" disabled />
+      </input-viewer>
+
       <input-viewer header="core::geo">
         <gui-input-geo />
       </input-viewer>
@@ -79,6 +82,12 @@ document.body.appendChild(
       <input-viewer header="Object (instance)">
         <gui-input value={{ name: 'John', age: 42 }} />
       </input-viewer>
+      <input-viewer header="Object (instance + manual override)">
+        <gui-input-map value={{ name: 'John', age: 42 }}>
+          <gui-input-string slot="name" />
+          <gui-input-number slot="age" />
+        </gui-input-map>
+      </input-viewer>
       <input-viewer header="Custom Form">
         <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />
       </input-viewer>
@@ -87,6 +96,7 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
+      {Composition()}
     </div>
   </app-layout>,
 );
@@ -98,14 +108,10 @@ type InputViewerAttrs = {
 export class InputViewer extends HTMLElement {
   connectedCallback() {
     this.style.display = 'contents';
-    if (!(this.children[0] instanceof GuiInputElement)) {
-      this.appendChild(<b>Child node must be a GuiInputElement</b>);
-      return;
-    }
     const header = this.getAttribute('header');
 
     const display = document.createElement('gui-value');
-    const input = this.children[0];
+    const input = this.children[0] as GuiInput;
     display.value = input.value;
     input.addEventListener('gui-input', () => {
       console.log(`[gui-input][${header}]`, input.value);
@@ -167,7 +173,7 @@ function EnumViewer() {
       };
     });
 
-    const typeSelector = (
+  const typeSelector = (
     <gui-searchable-select
       placeholder="Search an enum..."
       options={options}
@@ -325,6 +331,44 @@ function FnViewer() {
       >
         <h6 style={{ margin: '0' }}>Function</h6>
         {typeSelector}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
+        {input}
+        {display}
+      </div>
+    </sl-card>
+  );
+}
+
+function Composition() {
+  const display = document.createElement('gui-value');
+  const input = document.createElement('gui-input-fn');
+  input.type = 'project::goodFnForTestingFnCallInput';
+  input.addEventListener('gui-update', () => {
+    console.log(`[gui-update][gui-input-fn]`, input.value);
+    display.value = input.value;
+  });
+  input.addEventListener('gui-change', () => {
+    console.log(`[gui-change][gui-input-fn]`, input.value);
+    display.value = input.value;
+  });
+
+  const slot = (
+    <slot slot="name">
+      <label htmlFor="">Custom input</label>
+      <gui-searchable-select placeholder="Select" options={[{ text: 'one' }, { text: 'two' }]} />
+    </slot>
+  );
+
+  input.append(slot);
+
+  return (
+    <sl-card>
+      <div
+        slot="header"
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <h6 style={{ margin: '0' }}>Composition</h6>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
         {input}

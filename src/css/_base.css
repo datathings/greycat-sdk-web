@@ -62,9 +62,12 @@
   --gui-fieldset-border-color: var(--border-color);
   --gui-fieldset-background-color: var(--bg-2);
   --gui-fieldset-legend-background-color: var(--bg-0);
+
+  --gui-users-table-min-height: 400px;
 }
 
 /* Dark colors (default) */
+:host,
 :root,
 :root[data-theme='dark'] {
   color-scheme: dark;
@@ -132,7 +135,7 @@
 }
 
 /* Light colors */
-:root,
+:host[data-theme='light'],
 :root[data-theme='light'] {
   color-scheme: light;
 

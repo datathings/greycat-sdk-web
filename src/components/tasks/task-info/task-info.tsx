@@ -1,18 +1,7 @@
-import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
+import { GreyCat, runtime, Value, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
 import { GuiUpdateEvent } from '../../events.js';
-
-// export type TaskInfoLike = runtime.Task & runtime.TaskInfo;
-
-export type TaskInfoLike = Omit<
-  runtime.TaskInfo,
-  'progress' | 'remaining' | 'sub_waiting' | 'sub_tasks_all'
-> & {
-  progress?: number | null;
-  remaining?: core.duration | null;
-  sub_waiting?: number | bigint | null;
-  sub_tasks_all?: number | bigint | null;
-};
+import { GuiFilesClickEvent, TaskInfoLike } from './common.js';
 
 export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
@@ -32,25 +21,25 @@ export class GuiTaskInfo extends HTMLElement {
 
   connectedCallback() {
     this.appendChild(
-      <article>
-        <header>
+      <sl-card>
+        <header slot="header">
           {this._title}
           <div className="header-actions">{this._btn}</div>
         </header>
         <table role="grid">{this._details}</table>
-        <footer>
-          <a
-            href="#"
-            onclick={(ev) => {
-              (ev.target as HTMLElement).blur();
-              this.updateInfo();
-            }}
-          >
-            Reload info
-          </a>
-          {this._lastUpdate}
-        </footer>
-      </article>,
+        <sl-button
+          variant="text"
+          size="small"
+          slot="footer"
+          onclick={(ev) => {
+            (ev.target as HTMLElement).blur();
+            this.updateInfo();
+          }}
+        >
+          Reload info
+        </sl-button>
+        {this._lastUpdate}
+      </sl-card>,
     );
 
     if (this._task) {
@@ -311,35 +300,6 @@ export class GuiTaskInfo extends HTMLElement {
   private _handleError(error: unknown) {
     // TODO: Replace with user notification for any specific error
     console.error('An error occured: ', error);
-  }
-}
-
-export class GuiFilesClickEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-files-click';
-  constructor() {
-    super(GuiFilesClickEvent.NAME, { cancelable: true });
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'gui-task-info': GuiTaskInfo;
-  }
-
-  interface GuiTaskInfoEventMap {
-    [GuiFilesClickEvent.NAME]: GuiFilesClickEvent;
-    [GuiUpdateEvent.NAME]: GuiUpdateEvent;
-  }
-
-  interface HTMLElementEventMap extends GuiTaskInfoEventMap {}
-
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-task-info': GreyCat.Element<GuiTaskInfo, GuiTaskInfoEventMap>;
-    }
   }
 }
 

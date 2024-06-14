@@ -1,13 +1,19 @@
 declare namespace GreyCat {
-  type ExtendedHTMLProperties = {
+  type ExtendedHTMLProperties<T, S = any, K extends keyof S = any> = {
     className?: string | string[] | { [className: string]: boolean };
     style?: Partial<CSSStyleDeclaration> | string;
+    // /**
+    //  * Called after creating the HTML element.
+    //  *
+    //  * *Useful to keep a reference around.*
+    //  */
+    // $ref?: (element: T) => void;
   };
 
   type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children'>> &
-    ExtendedHTMLProperties & {
+    ExtendedHTMLProperties<T> & {
       [EVENT in keyof EventMap as `on${EVENT}`]?: (
-        this: GlobalEventHandlers,
+        this: T,
         ev: EventMap[EVENT],
         options?: boolean | AddEventListenerOptions,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any

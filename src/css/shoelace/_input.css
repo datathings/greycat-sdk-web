@@ -1,5 +1,0 @@
-sl-input::part(base),
-sl-select::part(combobox),
-sl-select::part(listbox) {
-  background-color: var(--bg-2);
-}

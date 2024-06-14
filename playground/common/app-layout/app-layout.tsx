@@ -1,6 +1,8 @@
 import type { SlBreadcrumbItem } from '@shoelace-style/shoelace';
 import { registerCustomElement } from '@greycat/web';
-import './app-layout.css';
+import './main.css';
+
+import style from './app-layout.css?inline';
 
 export class AppLayout extends HTMLElement {
   // prettier-ignore
@@ -11,7 +13,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
-    { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
+    // { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
     { title: 'Chart (custom)',          href: 'chart-custom/' },
     { title: 'Chart (in-mem)',          href: 'chart-in-mem/' },
     { title: 'Chart (scatter)',         href: 'chart-scatter/' },
@@ -38,7 +40,6 @@ export class AppLayout extends HTMLElement {
   ];
 
   private _title: SlBreadcrumbItem;
-  private _actions: HTMLElement;
   private _main: HTMLElement;
 
   constructor() {
@@ -47,44 +48,21 @@ export class AppLayout extends HTMLElement {
     this._title = document.createElement('sl-breadcrumb-item');
     this._title.textContent = 'Index';
 
-    this._actions = document.createElement('div');
-    this._actions.className = 'actions';
-    this._actions.appendChild(
-      <a
-        href=""
-        onclick={(ev) => {
-          ev.preventDefault();
-          this._toggleTheme();
-        }}
-      >
-        Light / Dark
-      </a>,
-    );
+    this._main = (
+      <main>
+        <slot />
+      </main>
+    ) as HTMLElement;
 
-    this._main = document.createElement('main');
-  }
-
-  override set title(title: string) {
-    this._title.textContent = title;
-  }
-
-  set mainStyle(style: Partial<CSSStyleDeclaration>) {
-    Object.assign(this._main.style, style);
-  }
-
-  connectedCallback() {
     const nb_pathname_parts = window.location.pathname
       .split('/')
       .filter((s) => s.length != 0).length;
 
     const buttons: HTMLElement[] = [];
 
-    const actions = Array.from(this.querySelectorAll('[slot="action"]'));
-    this._actions.prepend(...actions);
-
-    this._main.replaceChildren(...Array.from(this.childNodes));
-
-    this.appendChild(
+    const root = this.attachShadow({ mode: 'open' });
+    root.appendChild(<style>{style}</style>);
+    root.appendChild(
       <>
         <header className="layout-header">
           <sl-breadcrumb>
@@ -93,7 +71,18 @@ export class AppLayout extends HTMLElement {
             </sl-breadcrumb-item>
             {this._title}
           </sl-breadcrumb>
-          {this._actions}
+          <div className="actions">
+            <slot name="action" />
+            <a
+              href=""
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._toggleTheme();
+              }}
+            >
+              Light / Dark
+            </a>
+          </div>
         </header>
         <div className="layout-main">
           <sl-drawer contained open placement="start" noHeader>
@@ -122,11 +111,17 @@ export class AppLayout extends HTMLElement {
     );
   }
 
-  disconnectedCallback() {
-    this.replaceChildren();
+  override set title(title: string) {
+    this._title.textContent = title;
+  }
+
+  set mainStyle(style: Partial<CSSStyleDeclaration>) {
+    Object.assign(this._main.style, style);
   }
 
   private _toggleTheme(): void {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    console.log('prefers-color-scheme: dark', prefersDark);
     const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
     document.body.classList.toggle(`sl-theme-${theme}`);

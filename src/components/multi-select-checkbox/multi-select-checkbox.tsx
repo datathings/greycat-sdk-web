@@ -1,37 +1,15 @@
+import type { SlCheckbox } from '@shoelace-style/shoelace';
+
 /**
  * Custom component for options with checkboxes in 2 columns.
  */
 export class GuiMultiSelectCheckbox extends HTMLElement {
-  private _checkboxes: HTMLLabelElement[] = [];
-
-  constructor() {
-    super();
-
-    this.onItemClick = this.onItemClick.bind(this);
-  }
-
-  connectedCallback() {
-    this.addEventListener('click', this.onItemClick);
-  }
-
-  disconnectedCallback() {
-    this.removeEventListener('click', this.onItemClick);
-    this.replaceChildren(); // cleanup
-  }
-
-  onItemClick(event: MouseEvent) {
-    const label = this._checkboxes.find((el) => event.target === el);
-    if (label) {
-      // safety: the first element appended to `label` is the `input` element (see l.38)
-      const cb = label.children[0] as HTMLInputElement;
-      cb.checked = !cb.checked;
-    }
-  }
+  private _checkboxes: SlCheckbox[] = [];
 
   set selected(values: Array<string>) {
     for (let i = 0; i < this._checkboxes.length; i++) {
       // safety: the first element appended to `label` is the `input` element (see l.38)
-      const cb = this._checkboxes[i].children[0] as HTMLInputElement;
+      const cb = this._checkboxes[i] as SlCheckbox;
       cb.checked = values.includes(cb.value);
     }
   }
@@ -54,21 +32,7 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
     options.sort((a, b) => a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' }));
 
     for (let i = 0; i < options.length; i++) {
-      const option = options[i];
-      const name = `option-${i}`;
-
-      const label = document.createElement('label');
-      label.htmlFor = name;
-
-      const checkbox = document.createElement('input');
-      checkbox.type = 'checkbox';
-      checkbox.value = option;
-      checkbox.name = name;
-
-      label.appendChild(checkbox);
-      label.appendChild(document.createTextNode(option));
-
-      this._checkboxes.push(label);
+      this._checkboxes.push((<sl-checkbox>{options[i]}</sl-checkbox>) as SlCheckbox);
     }
 
     this.replaceChildren(...this._checkboxes);
@@ -78,7 +42,7 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
     const selected = [];
     for (let i = 0; i < this._checkboxes.length; i++) {
       // safety: the first element appended to `label` is the `input` element (see l.38)
-      const cb = this._checkboxes[i].children[0] as HTMLInputElement;
+      const cb = this._checkboxes[i] as SlCheckbox;
       if (cb.checked) {
         selected.push(cb.value);
       }

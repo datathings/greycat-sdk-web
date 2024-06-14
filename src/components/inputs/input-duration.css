@@ -1,0 +1,13 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gui-input-number::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  gui-input-enum::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    border-left: none;
+  }
+}

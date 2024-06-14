@@ -24,7 +24,7 @@ container.appendChild(
       ongui-change={(ev) => {
         container.children[1].remove();
         container.appendChild(
-          <div>You have selected: {greycat.default.abi.types[ev.detail as number].name}</div>,
+          <div>You have selected: {greycat.default.abi.types[ev.detail as number]?.name}</div>,
         );
       }}
     />

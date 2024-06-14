@@ -383,7 +383,7 @@ export class TableView {
     }
 
     if (Array.isArray(this._table)) {
-      this._cols = objectsToCols(this._table);
+      this._cols = objectsToCols(this._table) ?? [];
       return this._cols;
     }
 

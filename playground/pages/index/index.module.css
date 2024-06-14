@@ -23,7 +23,7 @@ sl-card.noPadding::part(body) {
     width: 250px;
     display: flex;
     flex-direction: column;
-    background-color: var(--bg-0);
+    background-color: var(--sl-color-neutral-200);
     gap: var(--spacing);
     border: var(--border-width) solid var(--border-color);
     padding: var(--spacing);
@@ -39,6 +39,7 @@ sl-card.noPadding::part(body) {
       }
       .colorSquare {
         width: 40px;
+        border: var(--border-width) solid var(--border-color);
       }
     }
   }

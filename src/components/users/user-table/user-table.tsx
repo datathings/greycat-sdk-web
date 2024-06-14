@@ -1,24 +1,27 @@
 import { GreyCat, runtime, sha256hex } from '@greycat/sdk';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
+import type { SlButton, SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
 
 export class GuiUserTable extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
-  private _dialog = document.createElement('dialog');
-  private _roleSelect = document.createElement('select');
+  private _dialog = document.createElement('sl-dialog');
+  private _roleSelect: SlSelect;
   private _groupsSelect = document.createElement('gui-multi-select-checkbox');
   private _users: Array<runtime.User> = [];
   private _groups: Array<runtime.UserGroup> = [];
   private _roles: Array<runtime.UserRole> = [];
   private _currentState: 'create' | runtime.User = 'create';
   private _dialogHeader = document.createElement('header');
-  private _dialogSubmitBtn = (
-    <button type="button" onclick={() => this._handleSubmit()}>
-      Create
-    </button>
-  );
+  private _dialogSubmitBtn: SlButton;
+
+  private _nameInput: SlInput;
+  private _fullnameInput: SlInput;
+  private _passwordInput: SlInput;
+  private _emailInput: SlInput;
+  private _activatedInput: SlCheckbox;
 
   private _reset = (ev: Event) => {
     if (ev.target instanceof HTMLInputElement) {
@@ -26,16 +29,39 @@ export class GuiUserTable extends HTMLElement {
     }
   };
 
-  // prettier-ignore
-  private nameInput = (<input type="text" name="name" placeholder="eg. jdoe" oninput={this._reset} required />) as HTMLInputElement;
-  // prettier-ignore
-  private passwordInput = (<input type="password" name="password" oninput={this._reset} autocomplete="current-password" />) as HTMLInputElement;
-  // prettier-ignore
-  private fullnameInput = (<input type="text" name="fullname" placeholder="eg. John Doe" />) as HTMLInputElement;
-  // prettier-ignore
-  private emailInput = (<input type="email" name="email" placeholder="eg. jdoe@example.com" />) as HTMLInputElement;
-  // prettier-ignore
-  private activatedInput = (<input type="checkbox" name="activated" id="activated" />) as HTMLInputElement;
+  constructor() {
+    super();
+
+    this._dialogHeader.slot = 'label';
+
+    this._nameInput = (
+      <sl-input label="Name" placeholder="eg. jdoe" oninput={this._reset} required />
+    ) as SlInput;
+
+    (<sl-input label="Username*" placeholder="" />) as SlInput;
+
+    this._fullnameInput = (<sl-input label="Full Name" placeholder="eg. John Doe" />) as SlInput;
+    this._passwordInput = (
+      <sl-input
+        type="password"
+        label="Password*"
+        oninput={this._reset}
+        autocomplete="current-password"
+      />
+    ) as SlInput;
+    this._emailInput = (
+      <sl-input type="email" label="E-mail" placeholder="eg. jdoe@example.com" />
+    ) as SlInput;
+    this._activatedInput = (<sl-checkbox>Activated</sl-checkbox>) as SlCheckbox;
+
+    this._roleSelect = (<sl-select label="Role" />) as SlSelect;
+
+    this._dialogSubmitBtn = (
+      <sl-button slot="footer" type="button" onclick={() => this._handleSubmit()}>
+        Create
+      </sl-button>
+    ) as SlButton;
+  }
 
   connectedCallback() {
     const createBtn = document.createElement('button');
@@ -164,69 +190,41 @@ export class GuiUserTable extends HTMLElement {
 
   private async _initDialog(): Promise<void> {
     this._dialog.appendChild(
-      <article>
+      <>
         {this._dialogHeader}
 
-        <div className="container">
-          <label htmlFor="name">
-            Username*
-            {this.nameInput}
-          </label>
-
-          <label htmlFor="password">
-            Password*
-            {this.passwordInput}
-          </label>
-
-          <label htmlFor="fullname">
-            Full Name
-            {this.fullnameInput}
-          </label>
-
-          <label htmlFor="email">
-            E-mail
-            {this.emailInput}
-          </label>
-
-          <label htmlFor="activated">
-            {this.activatedInput}
-            Activated
-          </label>
-
-          <label htmlFor="role">
-            Role
-            {this._roleSelect}
-          </label>
+        <div className="list">
+          {this._nameInput}
+          {this._passwordInput}
+          {this._fullnameInput}
+          {this._emailInput}
+          {this._activatedInput}
+          {this._roleSelect}
 
           <label htmlFor="group">Group</label>
           {this._groupsSelect}
 
-          <hr />
+          <sl-divider />
           <small>(*) Mandatory fields</small>
         </div>
 
-        <footer>
-          <button className="outline" onclick={() => this._dialog.close()}>
-            Close
-          </button>
-          {this._dialogSubmitBtn}
-        </footer>
-      </article>,
+        {this._dialogSubmitBtn}
+      </>,
     );
   }
 
   private _editUser(user: runtime.User): void {
     this._currentState = user;
 
-    this.nameInput.value = user.name;
-    this.nameInput.removeAttribute('aria-invalid');
-    this.passwordInput.removeAttribute('aria-invalid');
-    this.activatedInput.checked = user.activated;
-    this.fullnameInput.value = user.full_name ?? '';
-    this.emailInput.value = user.email ?? '';
+    this._nameInput.value = user.name;
+    this._nameInput.removeAttribute('aria-invalid');
+    this._passwordInput.removeAttribute('aria-invalid');
+    this._activatedInput.checked = user.activated;
+    this._fullnameInput.value = user.full_name ?? '';
+    this._emailInput.value = user.email ?? '';
     if (user.role) {
       const userRole = user.role;
-      this._roleSelect.selectedIndex = this._roles.findIndex((role) => role.name === userRole);
+      this._roleSelect.value = '' + this._roles.findIndex((role) => role.name === userRole);
     }
     if (user.groups) {
       this._groupsSelect.selected = user.groups.map((g) => {
@@ -238,38 +236,38 @@ export class GuiUserTable extends HTMLElement {
     this._dialogHeader.textContent = 'Edit a user';
     this._dialogSubmitBtn.textContent = 'Update';
 
-    this._dialog.showModal();
+    this._dialog.show();
   }
 
   private _createUser(): void {
     this._currentState = 'create';
 
-    this.nameInput.value = '';
-    this.passwordInput.value = '';
-    this.fullnameInput.value = '';
-    this.activatedInput.checked = false;
+    this._nameInput.value = '';
+    this._passwordInput.value = '';
+    this._fullnameInput.value = '';
+    this._activatedInput.checked = false;
 
-    this.nameInput.removeAttribute('aria-invalid');
-    this.passwordInput.removeAttribute('aria-invalid');
+    this._nameInput.removeAttribute('aria-invalid');
+    this._passwordInput.removeAttribute('aria-invalid');
 
     this._dialogHeader.textContent = 'Create a new user';
     this._dialogSubmitBtn.textContent = 'Create';
 
-    this._dialog.showModal();
+    this._dialog.show();
   }
 
   private async _handleSubmit() {
-    const name = this.nameInput.value.trim();
+    const name = this._nameInput.value.trim();
     if (name.length === 0) {
-      this.nameInput.setAttribute('aria-invalid', 'true');
+      this._nameInput.setAttribute('aria-invalid', 'true');
       return;
     }
 
-    let full_name: string | null = this.fullnameInput.value.trim();
+    let full_name: string | null = this._fullnameInput.value.trim();
     if (full_name.length === 0) {
       full_name = null;
     }
-    let email: string | null = this.emailInput.value.trim();
+    let email: string | null = this._emailInput.value.trim();
     if (email.length === 0) {
       email = null;
     }
@@ -285,10 +283,10 @@ export class GuiUserTable extends HTMLElement {
     const newOrUpdatedUser = runtime.User.create(
       0,
       name,
-      this.activatedInput.checked,
+      this._activatedInput.checked,
       full_name,
       email,
-      this._roles[this._roleSelect.selectedIndex]?.name ?? null,
+      this._roles[parseInt(this._roleSelect.value as string)]?.name ?? null,
       null,
       groups,
       null,
@@ -298,9 +296,9 @@ export class GuiUserTable extends HTMLElement {
 
     if (this._currentState === 'create') {
       // create user
-      const password = this.passwordInput.value;
+      const password = this._passwordInput.value;
       if (password.length === 0) {
-        this.passwordInput.setAttribute('aria-invalid', 'true');
+        this._passwordInput.setAttribute('aria-invalid', 'true');
         return;
       }
 
@@ -317,7 +315,7 @@ export class GuiUserTable extends HTMLElement {
         newOrUpdatedUser.id = this._currentState.id;
 
         await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
-        const password = this.passwordInput.value;
+        const password = this._passwordInput.value;
         if (password.length !== 0) {
           await runtime.User.setPassword(name, sha256hex(password));
         }
@@ -328,7 +326,7 @@ export class GuiUserTable extends HTMLElement {
 
     this.updateUsersAndGroups();
 
-    this._dialog.close();
+    this._dialog.hide();
   }
 
   render() {

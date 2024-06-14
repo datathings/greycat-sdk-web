@@ -586,5 +586,3 @@ type Link {
 fn link_whatever(l: node<Link>) {
   // 
 }
-
-

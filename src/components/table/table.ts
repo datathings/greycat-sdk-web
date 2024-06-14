@@ -402,6 +402,7 @@ export class GuiTable extends HTMLElement {
     rowHeight = this._tbody.rowHeight,
     globalFilter = this.globalFilter,
     globalFilterPlaceholder = this.globalFilterPlaceholder,
+    onrowupdate = this._rowUpdateCallback,
   }: Partial<{
     value: TableLike;
     filter: string;
@@ -415,19 +416,21 @@ export class GuiTable extends HTMLElement {
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
+    onrowupdate: RowUpdateCallback;
   }>) {
     this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._ignoreCols = ignoreCols;
     this.computeTable();
     this._filterText = filter;
     this._filterColumns = filterColumns;
-    this._sortCol.sortBy(sortBy[0], sortBy[1]);
     this._cellProps = cellProps;
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
+    this._sortCol.sortBy(sortBy[0], sortBy[1]);
+    this._rowUpdateCallback = onrowupdate;
 
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
@@ -450,6 +453,7 @@ export class GuiTable extends HTMLElement {
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
+    onrowupdate: RowUpdateCallback;
   } {
     return {
       table: this._table,
@@ -464,6 +468,7 @@ export class GuiTable extends HTMLElement {
       rowHeight: this._tbody.rowHeight,
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
+      onrowupdate: this._rowUpdateCallback,
     };
   }
 
@@ -552,10 +557,10 @@ export class GuiTable extends HTMLElement {
     const start = Date.now();
 
     // sort table if needed
-    if (this._sortCol.index === -1 || this._sortCol.index >= this._table.meta.length) {
+    if (this._sortCol.index === -1) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
       this._sortCol.reset();
-    } else {
+    } else if (this._sortCol.index < this._table.meta.length) {
       const ord = this._sortCol.ord;
 
       this._rows.sort((rowA, rowB) => {
@@ -628,7 +633,7 @@ export class GuiTable extends HTMLElement {
     const header =
       this._table.meta
         .map((m, i) => {
-          if (m.header) {
+          if (typeof m.header === 'string') {
             return m.header;
           }
           if (m.typeName) {
@@ -1040,7 +1045,7 @@ export class GuiTableHeadCell extends HTMLElement {
 
     if (customHeader) {
       header.textContent = customHeader;
-    } else if (meta?.header) {
+    } else if (typeof meta?.header === 'string') {
       header.textContent = meta.header;
     } else {
       header.textContent = `Column ${index}`;

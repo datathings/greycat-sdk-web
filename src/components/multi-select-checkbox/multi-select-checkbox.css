@@ -4,11 +4,7 @@ gui-multi-select-checkbox {
   column-gap: var(--spacing);
 }
 
-gui-multi-select-checkbox .checkbox-item {
+gui-multi-select-checkbox sl-checkbox {
   display: flex;
   align-items: center;
-}
-
-gui-multi-select-checkbox label:has(> input[type='checkbox']) {
-  margin-bottom: 0.2rem;
 }

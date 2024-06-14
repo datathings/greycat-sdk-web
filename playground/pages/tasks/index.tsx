@@ -16,6 +16,8 @@ const fnSelector = (
   />
 ) as GuiSearchableSelect;
 
+const tasks = document.createElement('gui-tasks');
+
 document.body.appendChild(
   <app-layout
     title="Tasks"
@@ -27,14 +29,15 @@ document.body.appendChild(
         {fnSelector}
         {fnInput}
         <sl-button
-          onclick={() => {
-            greycat.default.spawn(fnSelector.value.fqn, fnInput.value);
+          onclick={async () => {
+            await greycat.default.spawn(fnSelector.value.fqn, fnInput.value);
+            tasks.reload();
           }}
         >
           Spawn
         </sl-button>
       </div>
     </fieldset>
-    <gui-tasks />
+    {tasks}
   </app-layout>,
 );

@@ -24,3 +24,4 @@ export * from './tabs/index.js';
 export * from './dashboard/index.js';
 export * from './events.js';
 export * from './fn-select/index.js';
+export * from './users/index.js';

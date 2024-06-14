@@ -1,14 +1,14 @@
-gui-searchable-select {
+:host {
   --gui-searchable-select-list-z-index: 1000;
-  --gui-searchable-select-list-bg: var(--bg-2);
+  --gui-searchable-select-list-bg: var(--bg-1);
   --gui-searchable-select-list-item-hover: var(--bg-2);
   --gui-searchable-select-list-item-selected-color: var(--primary);
-  --gui-searchable-select-list-item-selected-bg: var(--bg-2);
+  --gui-searchable-select-list-item-selected-bg: var(--bg-0);
 
   position: relative;
   display: block;
 
-  sl-icon {
+  :is(sl-icon) {
     background-size: contain;
     background-image: var(--icon-search);
   }
