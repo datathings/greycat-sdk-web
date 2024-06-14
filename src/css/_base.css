@@ -9,7 +9,7 @@
   --font-weight: normal;
 
   --spacing: 6px; /* keep 'spacing' an even value */
-  --line-height: 19px;
+  --line-height: 20px;
   --outline-width: 2px;
 
   --form-element-active-border-color: var(--primary);

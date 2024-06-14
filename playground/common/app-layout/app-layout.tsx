@@ -1,8 +1,10 @@
 import type { SlBreadcrumbItem } from '@shoelace-style/shoelace';
-import { registerCustomElement } from '@greycat/web';
+import { registerCustomElement, registerDebugLogger } from '@greycat/web';
 import './main.css';
 
 import style from './app-layout.css?inline';
+
+registerDebugLogger();
 
 export class AppLayout extends HTMLElement {
   // prettier-ignore

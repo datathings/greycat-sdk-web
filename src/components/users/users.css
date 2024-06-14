@@ -1,8 +1,19 @@
 gui-users {
   display: contents;
 
+  sl-card::part(body) {
+    padding: 0;
+  }
+
   gui-table {
     min-height: var(--gui-users-table-min-height);
+
+    > gui-search-input::part(base) {
+      border-left-width: 0;
+      border-top-width: 0;
+      border-right-width: 0;
+      border-radius: 0;
+    }
   }
 
   gui-tbody-row:hover {
