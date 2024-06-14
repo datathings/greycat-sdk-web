@@ -6,7 +6,7 @@ export class GuiInputEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-input';
 
   constructor(value: T) {
-    super(GuiInputEvent.NAME, { detail: value, bubbles: true });
+    super(GuiInputEvent.NAME, { detail: value, bubbles: true, composed: true });
   }
 }
 
@@ -18,7 +18,7 @@ export class GuiChangeEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-change';
 
   constructor(value: T) {
-    super(GuiChangeEvent.NAME, { detail: value, bubbles: true });
+    super(GuiChangeEvent.NAME, { detail: value, bubbles: true, composed: true });
   }
 }
 
@@ -27,7 +27,7 @@ export class GuiClickEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-click';
 
   constructor(value: T) {
-    super(GuiClickEvent.NAME, { detail: value, bubbles: true });
+    super(GuiClickEvent.NAME, { detail: value, bubbles: true, composed: true });
   }
 }
 
@@ -36,7 +36,7 @@ export class GuiUpdateEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-update';
 
   constructor(value: T) {
-    super(GuiUpdateEvent.NAME, { detail: value, bubbles: true });
+    super(GuiUpdateEvent.NAME, { detail: value, bubbles: true, composed: true });
   }
 }
 

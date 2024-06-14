@@ -90,6 +90,7 @@ document.body.appendChild(
         <gui-input type="project::Link" />
       </input-viewer>
       {FnViewer()}
+      {Composition()}
     </div>
   </app-layout>,
 );
@@ -324,6 +325,44 @@ function FnViewer() {
       >
         <h6 style={{ margin: '0' }}>Function</h6>
         {typeSelector}
+      </div>
+      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
+        {input}
+        {display}
+      </div>
+    </sl-card>
+  );
+}
+
+function Composition() {
+  const display = document.createElement('gui-value');
+  const input = document.createElement('gui-input-fn');
+  input.type = 'project::goodFnForTestingFnCallInput';
+  input.addEventListener('gui-update', () => {
+    console.log(`[gui-update][gui-input-fn]`, input.value);
+    display.value = input.value;
+  });
+  input.addEventListener('gui-change', () => {
+    console.log(`[gui-change][gui-input-fn]`, input.value);
+    display.value = input.value;
+  });
+
+  const slot = (
+    <slot slot="name">
+      <label htmlFor="">Custom input</label>
+      <gui-searchable-select placeholder="Select" options={[{ text: 'one' }, { text: 'two' }]} />
+    </slot>
+  );
+
+  input.append(slot);
+
+  return (
+    <sl-card>
+      <div
+        slot="header"
+        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
+      >
+        <h6 style={{ margin: '0' }}>Composition</h6>
       </div>
       <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
         {input}

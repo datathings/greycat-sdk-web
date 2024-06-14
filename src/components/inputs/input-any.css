@@ -1,0 +1,71 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+
+  gui-searchable-select::part(base) {
+    border-radius: var(--border-radius) 0 0 var(--border-radius);
+  }
+
+  gui-input::part(base) {
+    border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  }
+
+  gui-input::part(input-geo) {
+    margin-left: var(--spacing);
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+  }
+  gui-input::part(input-array) {
+    margin-left: var(--spacing);
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+  }
+  gui-input::part(input-map) {
+    margin-left: var(--spacing);
+    padding-left: var(--spacing);
+    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+  }
+
+  gui-searchable-select + gui-input {
+    &:not(:has(gui-input-array, gui-input-map, gui-input-object, gui-input-geo)) {
+      sl-input::part(base) {
+        border-left: none;
+      }
+
+      sl-select::part(combobox) {
+        border-left: none;
+      }
+    }
+
+    &:not(:has(gui-input-duration)) {
+      sl-input::part(base) {
+        border-radius: 0 var(--border-radius) var(--border-radius) 0;
+      }
+    }
+
+    &:has(gui-input-duration) {
+      gui-input-duration sl-input::part(base) {
+        border-radius: 0 0 0 0;
+      }
+    }
+
+    sl-select::part(combobox) {
+      border-radius: 0 var(--border-radius) var(--border-radius) 0;
+    }
+  }
+
+  gui-searchable-select + gui-input {
+    gui-input-map,
+    gui-input-array {
+      margin-left: var(--spacing);
+      border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    }
+
+    gui-input-object,
+    gui-input-geo {
+      margin-left: var(--spacing);
+      padding-left: var(--spacing);
+      border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    }
+  }
+}

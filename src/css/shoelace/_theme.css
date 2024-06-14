@@ -227,7 +227,6 @@
   --sl-toggle-size-large: 1.375rem; /* 22px */
 
   /* Overlays */
-  
 
   /* Panels */
   --sl-panel-background-color: var(--sl-color-neutral-0);
@@ -251,4 +250,8 @@
   --sl-z-index-dropdown: 900;
   --sl-z-index-toast: 950;
   --sl-z-index-tooltip: 1000;
+
+  /* Dialog */
+  --sl-dialog-header-background-color: var(--bg-0);
+  --sl-dialog-footer-background-color: var(--bg-0);
 }

@@ -1,4 +1,4 @@
-gui-searchable-select {
+:host {
   --gui-searchable-select-list-z-index: 1000;
   --gui-searchable-select-list-bg: var(--bg-1);
   --gui-searchable-select-list-item-hover: var(--bg-2);

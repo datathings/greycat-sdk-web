@@ -120,6 +120,8 @@ export class AppLayout extends HTMLElement {
   }
 
   private _toggleTheme(): void {
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    console.log('prefers-color-scheme: dark', prefersDark);
     const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
     document.body.classList.toggle(`sl-theme-${theme}`);
