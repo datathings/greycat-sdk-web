@@ -1011,6 +1011,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
         assignedElements.forEach((elem) => {
           if (elem instanceof GuiInputElement) {
             this._params.set(name, elem);
+            elem.value = input.value;
             return;
           }
           const slotInput = elem.querySelector('.gui-input');
@@ -1018,6 +1019,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
             throw `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`;
           }
           this._params.set(name, slotInput);
+          slotInput.value = input.value;
         });
       });
 
