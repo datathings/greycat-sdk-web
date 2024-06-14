@@ -423,13 +423,13 @@ export class GuiTable extends HTMLElement {
     this.computeTable();
     this._filterText = filter;
     this._filterColumns = filterColumns;
-    this._sortCol.sortBy(sortBy[0], sortBy[1]);
     this._cellProps = cellProps;
     this._headers = headers;
     this._thead.widths = columnsWidths;
     this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
+    this._sortCol.sortBy(sortBy[0], sortBy[1]);
     this._rowUpdateCallback = onrowupdate;
 
     this._tbody.rowHeight = rowHeight;
@@ -556,11 +556,17 @@ export class GuiTable extends HTMLElement {
     }
     const start = Date.now();
 
+    console.log('WESH?', {
+      sort_index: this._sortCol.index,
+      sort_ord: this._sortCol.ord,
+      meta_len: this._table.meta.length,
+    });
+
     // sort table if needed
-    if (this._sortCol.index === -1 || this._sortCol.index >= this._table.meta.length) {
+    if (this._sortCol.index === -1) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
       this._sortCol.reset();
-    } else {
+    } else if (this._sortCol.index < this._table.meta.length) {
       const ord = this._sortCol.ord;
 
       this._rows.sort((rowA, rowB) => {
