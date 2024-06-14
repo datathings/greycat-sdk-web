@@ -1,21 +1,23 @@
+import { runtime } from '@greycat/sdk';
+
 export class GuiUserForm extends HTMLElement {
   connectedCallback() {
-    this.textContent = 'Hello, world';
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
+    this.replaceChildren(
+      <gui-input-object
+        value={runtime.User.create(0, '', false, null, null, null, null, null, null, false)}
+      />,
+    );
   }
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'my-component': GuiUserForm;
+    'gui-user-form': GuiUserForm;
   }
 
   namespace JSX {
     interface IntrinsicElements {
-      'my-component': GreyCat.Element<GuiUserForm>;
+      'gui-input-user': GreyCat.Element<GuiUserForm>;
     }
   }
 }
