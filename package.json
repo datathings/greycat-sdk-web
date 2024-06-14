@@ -60,7 +60,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/stable/6.10/6.10.19-stable.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/stable/6.10/6.10.20-stable.tgz",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"
   },
