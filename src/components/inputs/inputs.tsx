@@ -15,14 +15,13 @@ import '../searchable-select/index.js';
 import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
-import inputFnStyle from './input-fn.css?inline';
-import inputArrayStyle from './input-array.css?inline';
-import inputMapStyle from './input-map.css?inline';
-import inputObjectStyle from './input-object.css?inline';
-import inputAnyStyle from './input-any.css?inline';
-import inputDurationStyle from './input-duration.css?inline';
-import inputStyle from './inputs.css?inline';
-import inputGeoStyle from './input-geo.css?inline';
+import FnStyle from './input-fn.css?inline';
+import ArrayStyle from './input-array.css?inline';
+import MapStyle from './input-map.css?inline';
+import ObjectStyle from './input-object.css?inline';
+import AnyStyle from './input-any.css?inline';
+import DurationStyle from './input-duration.css?inline';
+import GeoStyle from './input-geo.css?inline';
 
 export interface GuiInputConfig {
   nullable?: boolean;
@@ -31,15 +30,11 @@ export interface GuiInputConfig {
 
 export abstract class GuiInputElement<T> extends HTMLElement {
   protected _config: GuiInputConfig = {};
-  protected _shadowRoot: ShadowRoot;
+  override shadowRoot: ShadowRoot;
 
   constructor() {
     super();
-    this._shadowRoot = this.attachShadow({ mode: 'open' });
-
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(inputStyle);
-    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
+    this.shadowRoot = this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
@@ -261,7 +256,7 @@ export class GuiInput extends GuiInputElement<unknown> {
 
     this._inner.config = this._config;
 
-    this._shadowRoot.replaceChildren(this._inner);
+    this.shadowRoot.replaceChildren(this._inner);
   }
 }
 
@@ -285,13 +280,13 @@ export class GuiInputString extends GuiInputElement<string | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
 
     this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   override get autocomplete(): string {
@@ -348,12 +343,12 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
     this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -410,11 +405,11 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -469,11 +464,11 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -530,12 +525,12 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
     this.setAttribute('exportparts', 'base');
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   set type(type: AbiType | string | undefined) {
@@ -598,8 +593,8 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   constructor() {
     super();
     const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(inputObjectStyle);
-    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
+    styleSheet.replaceSync(ObjectStyle);
+    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
   }
 
   override connectedCallback() {
@@ -609,7 +604,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get type() {
@@ -711,7 +706,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       if (this._initialized) {
         this._renderAttrs();
       } else {
-        this._shadowRoot.replaceChildren(
+        this.shadowRoot.replaceChildren(
           <sl-button
             className={'gui-input-add'}
             variant="text"
@@ -820,7 +815,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     }
     frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
 
-    this._shadowRoot.replaceChildren(frag);
+    this.shadowRoot.replaceChildren(frag);
   }
 }
 
@@ -832,7 +827,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   constructor() {
     super();
     const sheet = new CSSStyleSheet();
-    sheet.replaceSync(inputFnStyle);
+    sheet.replaceSync(FnStyle);
 
     this.shadowRoot!.adoptedStyleSheets.push(sheet);
   }
@@ -843,7 +838,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get type() {
@@ -970,7 +965,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
       index++;
     });
-    this._shadowRoot.replaceChildren(params);
+    this.shadowRoot.replaceChildren(params);
   }
 }
 
@@ -982,8 +977,8 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     super();
 
     const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(inputDurationStyle);
-    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
+    styleSheet.replaceSync(DurationStyle);
+    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
 
     this._input = document.createElement('gui-input-number');
     this._input.addEventListener('gui-input', (ev) => {
@@ -1005,11 +1000,11 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input, this._select);
+    this.shadowRoot.replaceChildren(this._input, this._select);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1066,8 +1061,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   constructor() {
     super();
     const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(inputAnyStyle);
-    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
+    styleSheet.replaceSync(AnyStyle);
+    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
 
     this._select = document.createElement('gui-searchable-select');
     this._select.addEventListener('gui-change', (ev) => {
@@ -1169,7 +1164,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(
+    this.shadowRoot.replaceChildren(
       <>
         {this._select}
         {this._input}
@@ -1178,7 +1173,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   override render(): void {
@@ -1193,8 +1188,8 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   constructor() {
     super();
     const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(inputArrayStyle);
-    this._shadowRoot.adoptedStyleSheets.push(styleSheet);
+    styleSheet.replaceSync(ArrayStyle);
+    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
   }
 
   get value() {
@@ -1221,7 +1216,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   _addInput(val?: unknown) {
@@ -1246,7 +1241,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
           variant="text"
           onclick={() => {
             this._inputs = this._inputs.filter((i) => i !== input);
-            this._shadowRoot.removeChild(elem);
+            this.shadowRoot.removeChild(elem);
             this.dispatchEvent(new GuiChangeEvent(this.value));
           }}
         >
@@ -1255,12 +1250,12 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
         {input}
       </div>
     );
-    this._shadowRoot.appendChild(elem);
+    this.shadowRoot.appendChild(elem);
   }
 
   _render() {
-    this._shadowRoot.replaceChildren();
-    this._shadowRoot.appendChild(
+    this.shadowRoot.replaceChildren();
+    this.shadowRoot.appendChild(
       <sl-button
         size="small"
         variant="text"
@@ -1282,7 +1277,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
             className={'gui-input-remove'}
             onclick={() => {
               this._inputs = this._inputs.filter((i) => i !== input);
-              this._shadowRoot.removeChild(elem);
+              this.shadowRoot.removeChild(elem);
               this.dispatchEvent(new GuiChangeEvent(this.value));
             }}
           >
@@ -1291,7 +1286,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
           {input}
         </div>
       );
-      this._shadowRoot.appendChild(elem);
+      this.shadowRoot.appendChild(elem);
     });
   }
 }
@@ -1306,7 +1301,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     super();
 
     const sheet = new CSSStyleSheet();
-    sheet.replaceSync(inputMapStyle);
+    sheet.replaceSync(MapStyle);
     this.shadowRoot!.adoptedStyleSheets.push(sheet);
 
     if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
@@ -1375,7 +1370,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   addEntry(key?: unknown, val?: unknown): [GuiInputAny, GuiInputElement<unknown>] {
@@ -1424,7 +1419,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
           className={'gui-input-remove'}
           onclick={() => {
             this._inputs.delete(keyInput);
-            this._shadowRoot.removeChild(elem);
+            this.shadowRoot.removeChild(elem);
             this.dispatchEvent(new GuiChangeEvent(this.value));
           }}
         >
@@ -1438,15 +1433,15 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   }
 
   override render() {
-    this._shadowRoot.replaceChildren();
-    this._shadowRoot.appendChild(
+    this.shadowRoot.replaceChildren();
+    this.shadowRoot.appendChild(
       <sl-button
         variant="text"
         size="small"
         className={'gui-input-add'}
         onclick={() => {
           const elems = this.addEntry();
-          this._shadowRoot.appendChild(this._createMapInput(elems[0], elems[1]));
+          this.shadowRoot.appendChild(this._createMapInput(elems[0], elems[1]));
           this.dispatchEvent(new GuiChangeEvent(this.value));
         }}
       >
@@ -1454,7 +1449,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
       </sl-button>,
     );
     this._inputs.forEach((valInput, keyInput) => {
-      this._shadowRoot.appendChild(this._createMapInput(keyInput, valInput));
+      this.shadowRoot.appendChild(this._createMapInput(keyInput, valInput));
     });
   }
 }
@@ -1484,11 +1479,11 @@ export class GuiInputNull extends GuiInputElement<unknown> {
 
   override render(): void {
     if (this.type === undefined) {
-      this._shadowRoot.replaceChildren();
+      this.shadowRoot.replaceChildren();
       return;
     }
     if (this._inner) {
-      this._shadowRoot.replaceChildren(
+      this.shadowRoot.replaceChildren(
         <>
           <a
             onclick={() => {
@@ -1504,7 +1499,7 @@ export class GuiInputNull extends GuiInputElement<unknown> {
       );
       return;
     }
-    this._shadowRoot.replaceChildren(
+    this.shadowRoot.replaceChildren(
       <a
         onclick={() => {
           this._inner = document.createElement('gui-input');
@@ -1538,11 +1533,11 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.appendChild(this._input);
+    this.shadowRoot.appendChild(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1584,11 +1579,11 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.appendChild(this._input);
+    this.shadowRoot.appendChild(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1630,11 +1625,11 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.appendChild(this._input);
+    this.shadowRoot.appendChild(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1676,11 +1671,11 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.appendChild(this._input);
+    this.shadowRoot.appendChild(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1722,11 +1717,11 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
 
   override connectedCallback() {
     super.connectedCallback();
-    this._shadowRoot.appendChild(this._input);
+    this.shadowRoot.appendChild(this._input);
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1757,7 +1752,7 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
     super();
 
     const sheet = new CSSStyleSheet();
-    sheet.replaceSync(inputGeoStyle);
+    sheet.replaceSync(GeoStyle);
     this.shadowRoot!.adoptedStyleSheets.push(sheet);
 
     this._latInput = document.createElement('gui-input-number');
@@ -1784,7 +1779,7 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
   override connectedCallback() {
     super.connectedCallback();
     this.setAttribute('part', 'input-geo');
-    this._shadowRoot.appendChild(
+    this.shadowRoot.appendChild(
       <>
         <label>Latitude</label>
         {this._latInput}
@@ -1795,7 +1790,7 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
   }
 
   disconnectedCallback() {
-    this._shadowRoot.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   get value() {
@@ -1837,7 +1832,7 @@ export class GuiInputFnPtr extends GuiInputElement<core.function_ | null> {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this._shadowRoot.replaceChildren(this._input);
+    this.shadowRoot.replaceChildren(this._input);
   }
 
   get value() {

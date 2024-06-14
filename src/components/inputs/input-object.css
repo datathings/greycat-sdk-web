@@ -32,7 +32,7 @@
   }
 
   gui-input::part(input-object) {
-    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    border-left: var(--border-width) solid var(--border-color);
   }
 
   .gui-input-attr-name,

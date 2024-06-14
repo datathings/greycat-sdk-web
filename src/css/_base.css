@@ -62,6 +62,8 @@
   --gui-fieldset-border-color: var(--border-color);
   --gui-fieldset-background-color: var(--bg-2);
   --gui-fieldset-legend-background-color: var(--bg-0);
+
+  --gui-users-table-min-height: 400px;
 }
 
 /* Dark colors (default) */

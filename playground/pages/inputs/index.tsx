@@ -82,6 +82,12 @@ document.body.appendChild(
       <input-viewer header="Object (instance)">
         <gui-input value={{ name: 'John', age: 42 }} />
       </input-viewer>
+      <input-viewer header="Object (instance + manual override)">
+        <gui-input-map value={{ name: 'John', age: 42 }}>
+          <gui-input-string slot="name" />
+          <gui-input-number slot="age" />
+        </gui-input-map>
+      </input-viewer>
       <input-viewer header="Custom Form">
         <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />
       </input-viewer>

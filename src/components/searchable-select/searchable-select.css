@@ -8,7 +8,7 @@
   position: relative;
   display: block;
 
-  sl-icon {
+  :is(sl-icon) {
     background-size: contain;
     background-image: var(--icon-search);
   }

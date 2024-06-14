@@ -1,11 +1,10 @@
 import { io } from '@greycat/sdk';
-import type { GuiTable } from '../../index.js';
-
+import '../../table/index.js'; // ensures table is defined
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;
   private _stats: io.CsvStatistics | null | undefined;
   private _main = document.createElement('div');
-  private _dialog = document.createElement('dialog');
+  private _dialog = document.createElement('sl-dialog');
 
   connectedCallback() {
     this.appendChild(this._main);
@@ -280,42 +279,29 @@ export class GuiCsvStatistics extends HTMLElement {
       cTotal += BigInt(count);
     }
 
-    const table = (
-      <gui-table
-        value={{
-          cols: [words, counts],
-          meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
-        }}
-      />
-    ) as GuiTable;
-
     this._dialog.replaceChildren(
-      <article>
-        <header>{column.name}</header>
+      <>
+        <header slot="label">{column.name}</header>
         <gui-tabs>
           <gui-tab className="activeTab">Enumerable Count</gui-tab>
           <gui-tab>Enumerable Count (Donut)</gui-tab>
 
           <gui-panel data-tab="Enumerable Count">
-            <input
-              type="search"
-              placeholder="Filter"
-              oninput={(ev) => (table.filter = (ev.target as HTMLInputElement).value)}
+            <gui-table
+              globalFilter
+              value={{
+                cols: [words, counts],
+                meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
+              }}
             />
-            {table}
           </gui-panel>
           <gui-panel data-tab="Enumerable Count (Donut)">
             <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
           </gui-panel>
         </gui-tabs>
-        <footer>
-          <button className="outline" onclick={() => this._dialog.close()}>
-            Close
-          </button>
-        </footer>
-      </article>,
+      </>,
     );
-    this._dialog.showModal();
+    this._dialog.show();
   }
 
   private _countValues(col: io.CsvColumnStatistics): number {

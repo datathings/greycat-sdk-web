@@ -1,0 +1,11 @@
+gui-users {
+  display: contents;
+
+  gui-table {
+    min-height: var(--gui-users-table-min-height);
+  }
+
+  gui-tbody-row:hover {
+    cursor: pointer;
+  }
+}

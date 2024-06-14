@@ -13,17 +13,17 @@
   gui-input::part(input-geo) {
     margin-left: var(--spacing);
     padding-left: var(--spacing);
-    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    border-left: var(--border-width) solid var(--border-color);
   }
   gui-input::part(input-array) {
     margin-left: var(--spacing);
     padding-left: var(--spacing);
-    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    border-left: var(--border-width) solid var(--border-color);
   }
   gui-input::part(input-map) {
     margin-left: var(--spacing);
     padding-left: var(--spacing);
-    border-left: var(--sl-color-neutral-100) solid var(--border-width);
+    border-left: var(--border-width) solid var(--border-color);
   }
 
   gui-searchable-select + gui-input {
@@ -58,14 +58,14 @@
     gui-input-map,
     gui-input-array {
       margin-left: var(--spacing);
-      border-left: var(--sl-color-neutral-100) solid var(--border-width);
+      border-left: var(--border-width) solid var(--border-color);
     }
 
     gui-input-object,
     gui-input-geo {
       margin-left: var(--spacing);
       padding-left: var(--spacing);
-      border-left: var(--sl-color-neutral-100) solid var(--border-width);
+      border-left: var(--border-width) solid var(--border-color);
     }
   }
 }

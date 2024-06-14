@@ -556,12 +556,6 @@ export class GuiTable extends HTMLElement {
     }
     const start = Date.now();
 
-    console.log('WESH?', {
-      sort_index: this._sortCol.index,
-      sort_ord: this._sortCol.ord,
-      meta_len: this._table.meta.length,
-    });
-
     // sort table if needed
     if (this._sortCol.index === -1) {
       // no need to sort or sort out of bound (can happen if previous table had more columns)
@@ -639,7 +633,7 @@ export class GuiTable extends HTMLElement {
     const header =
       this._table.meta
         .map((m, i) => {
-          if (m.header) {
+          if (typeof m.header === 'string') {
             return m.header;
           }
           if (m.typeName) {
@@ -1051,7 +1045,7 @@ export class GuiTableHeadCell extends HTMLElement {
 
     if (customHeader) {
       header.textContent = customHeader;
-    } else if (meta?.header) {
+    } else if (typeof meta?.header === 'string') {
       header.textContent = meta.header;
     } else {
       header.textContent = `Column ${index}`;
