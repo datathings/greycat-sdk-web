@@ -1,0 +1,21 @@
+sl-dialog::part(panel),
+gui-task-info-dialog::part(panel) {
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+
+sl-dialog::part(header),
+gui-task-info-dialog::part(header) {
+  background-color: var(--sl-dialog-header-background-color);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+
+sl-dialog::part(footer),
+gui-task-info-dialog::part(footer) {
+  background-color: var(--sl-dialog-footer-background-color);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  border-top: var(--border-width) solid var(--border-color);
+}

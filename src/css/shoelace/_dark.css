@@ -244,5 +244,5 @@
 
   --sl-input-focus-ring-color: rgb(192, 248, 95, 0.4);
 
-  --sl-overlay-background-color: hsl(240 3.8% 46.1% / 33%);
+  --sl-overlay-background-color: hsl(120, 3.8%, 0%, 50%);
 }

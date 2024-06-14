@@ -1,8 +1,5 @@
 :host {
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: start;
-  gap: var(--spacing);
+  display: block;
 
   .gui-input-object-wrapper {
     display: grid;

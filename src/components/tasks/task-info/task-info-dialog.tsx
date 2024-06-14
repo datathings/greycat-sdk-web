@@ -1,14 +1,15 @@
 import { GreyCat, runtime, Value, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
 import { GuiUpdateEvent } from '../../events.js';
+import { SlDialog } from '@shoelace-style/shoelace';
 import { GuiFilesClickEvent, TaskInfoLike } from './common.js';
 
-export class GuiTaskInfo extends HTMLElement {
+export class GuiTaskInfoDialog extends SlDialog {
   private _greycat: GreyCat = window.greycat.default;
   private _task: TaskInfoLike | null = null;
-  private _params: Value[] = [];
+  private _args: Value[] = [];
   private _title = document.createTextNode('');
-  private _btn = document.createElement('button');
+  private _btn = document.createElement('sl-button');
   private _details = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
   private _handler: TaskHandler | null = null;
@@ -19,36 +20,35 @@ export class GuiTaskInfo extends HTMLElement {
     this._lastUpdate.textContent = new Date().toISOString();
   }
 
-  connectedCallback() {
-    this.appendChild(
-      <sl-card>
-        <header slot="header">
-          {this._title}
-          <div className="header-actions">{this._btn}</div>
-        </header>
+  override connectedCallback() {
+    super.connectedCallback();
+
+    this.replaceChildren(
+      <>
+        <header slot="label">{this._title}</header>
         <table role="grid">{this._details}</table>
-        <sl-button
-          variant="text"
-          size="small"
-          slot="footer"
-          onclick={(ev) => {
-            (ev.target as HTMLElement).blur();
-            this.updateInfo();
-          }}
-        >
-          Reload info
-        </sl-button>
-        {this._lastUpdate}
-      </sl-card>,
+        <footer slot="footer">
+          <div className="gui-task-info-reload">
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={(ev) => {
+                (ev.target as HTMLElement).blur();
+                this.updateInfo();
+              }}
+            >
+              Reload info
+            </sl-button>
+            {this._lastUpdate}
+          </div>
+          {this._btn}
+        </footer>
+      </>,
     );
 
     if (this._task) {
-      this.update();
+      this.updateInfo();
     }
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
   }
 
   set greycat(g: GreyCat) {
@@ -61,7 +61,7 @@ export class GuiTaskInfo extends HTMLElement {
 
   set value(value: TaskInfoLike | null) {
     this._task = value;
-    this.update();
+    this.updateInfo();
   }
 
   setAttrs({
@@ -73,7 +73,7 @@ export class GuiTaskInfo extends HTMLElement {
   }>) {
     this._task = value;
     this._greycat = greycat;
-    this.update();
+    this.updateInfo();
   }
 
   getAttrs(): {
@@ -88,7 +88,7 @@ export class GuiTaskInfo extends HTMLElement {
     };
   }
 
-  async update(): Promise<void> {
+  async updateInfo(): Promise<void> {
     if (!this._task || this._handler) {
       return;
     }
@@ -110,7 +110,7 @@ export class GuiTaskInfo extends HTMLElement {
     this._handler?.stop();
   }
 
-  async updateInfo(): Promise<void> {
+  async fetchInfo(): Promise<void> {
     if (!this._task) {
       return;
     }
@@ -133,7 +133,6 @@ export class GuiTaskInfo extends HTMLElement {
 
     if (this._isAlive(t.status)) {
       this._btn.textContent = 'Cancel';
-      this._btn.classList.add('outline');
       this._btn.onclick = () => {
         this.cancel().then(() => {
           this.dispatchEvent(new GuiUpdateEvent(undefined));
@@ -141,7 +140,6 @@ export class GuiTaskInfo extends HTMLElement {
       };
     } else {
       this._btn.textContent = 'Re-run';
-      this._btn.classList.remove('outline');
       this._btn.onclick = () => {
         this.run().then(() => {
           this.dispatchEvent(new GuiUpdateEvent(undefined));
@@ -215,12 +213,10 @@ export class GuiTaskInfo extends HTMLElement {
       this._task.status === runtime.TaskStatus.waiting(this._greycat)
     ) {
       this._btn.textContent = 'Cancel';
-      this._btn.classList.add('outline');
       this._btn.onclick = () =>
         this.cancel().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     } else {
       this._btn.textContent = 'Re-run';
-      this._btn.classList.remove('outline');
       this._btn.onclick = () =>
         this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
@@ -252,13 +248,10 @@ export class GuiTaskInfo extends HTMLElement {
       if (!this._task || !taskStatus || this._isAlive(taskStatus)) {
         return;
       }
-      this._params = (await parseTaskArgs(this._greycat, this._task)) as Value[];
-      const newTask = await this._greycat.call<runtime.Task>(
-        `${this._task.mod}::${this._task.fun}`,
-        this._params,
-      );
+      this._args = (await parseTaskArgs(this._greycat, this._task)) as Value[];
+      const newTask = await this._greycat.spawn(`${this._task.mod}::${this._task.fun}`, this._args);
       this._task = newTask;
-      this.update();
+      this.hide();
     } catch (error) {
       this._handleError(error as Error);
     }
@@ -272,7 +265,7 @@ export class GuiTaskInfo extends HTMLElement {
       this._handler = new TaskHandler(this._task);
     }
     try {
-      this._btn.ariaBusy = 'true';
+      this._btn.loading = true;
       const info = await this._handler.cancel();
       if (info) {
         this._updateTaskInfo(info);
@@ -280,7 +273,7 @@ export class GuiTaskInfo extends HTMLElement {
     } catch (err) {
       this._handleError(err);
     } finally {
-      this._btn.ariaBusy = null;
+      this._btn.loading = false;
     }
   }
 
@@ -303,6 +296,6 @@ export class GuiTaskInfo extends HTMLElement {
   }
 }
 
-if (!globalThis.customElements.get('gui-task-info')) {
-  globalThis.customElements.define('gui-task-info', GuiTaskInfo);
+if (!globalThis.customElements.get('gui-task-info-dialog')) {
+  globalThis.customElements.define('gui-task-info-dialog', GuiTaskInfoDialog);
 }

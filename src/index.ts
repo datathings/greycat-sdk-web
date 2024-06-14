@@ -1,4 +1,3 @@
-import './reset.js';
 import * as greycat from './exports.js';
 
 export * from './exports.js';
