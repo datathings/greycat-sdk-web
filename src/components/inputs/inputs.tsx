@@ -231,7 +231,7 @@ export class GuiInput extends GuiInputElement<unknown> {
             return;
           } else {
             // we have an '{ ... }' here
-            this._inner = document.createElement('gui-input-map');
+            this._inner = document.createElement('gui-input-object');
             this._inner.value = this._value;
           }
           break;
@@ -570,9 +570,11 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 }
 
-export class GuiInputObject extends GuiInputElement<GCObject | null> {
+export class GuiInputObject extends GuiInputElement<
+  GCObject | null | Record<string | number, unknown> | Map<unknown, unknown>
+> {
   private _type: AbiType | undefined;
-  private _attrs: Map<string, GuiInput> = new Map();
+  private _attrs: Map<string | GuiInput, GuiInput> = new Map();
   /**
    * whether or not we've initialized this input's form already
    */
@@ -655,28 +657,30 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     return greycat.default.create(this._type.name, attrs) ?? null;
   }
 
-  set value(value: GCObject | null) {
+  set value(value: GCObject | Record<string | number, unknown> | null) {
     if (value === null) {
       this._clearAttrs();
       this.render();
       return;
     }
 
-    if (this._type?.name === value.$type.name && this._initialized) {
-      // the value is of the same type and we are already initialized
-      // therefore we can just update the value of the inputs
-      this._attrs.forEach((input, name) => {
-        // SAFETY:
-        // we are dealing with the attribute of the type of that 'value'
-        // therefore, we have to have the properties defined on 'value'
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        input.value = (value as any)[name];
-      });
-      return;
-    }
+    if (value instanceof GCObject) {
+      if (this._type?.name === value.$type.name && this._initialized) {
+        // the value is of the same type and we are already initialized
+        // therefore we can just update the value of the inputs
+        this._attrs.forEach((input, name) => {
+          // SAFETY:
+          // we are dealing with the attribute of the type of that 'value'
+          // therefore, we have to have the properties defined on 'value'
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          input.value = (value as any)[name as string];
+        });
+        return;
+      }
 
-    // the value is of another type
-    this._type = value.$type;
+      // the value is of another type
+      this._type = value.$type;
+    }
     this._initializeAttrs(value);
     this.render();
   }
@@ -716,13 +720,15 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     this._initialized = false;
   }
 
-  private _initializeAttrs(valueOrType: GCObject | AbiType): void {
+  private _initializeAttrs(
+    valueOrType: GCObject | AbiType | Record<string | number, unknown>,
+  ): void {
     if (valueOrType instanceof AbiType) {
       for (const attr of valueOrType.attrs) {
         const input = this._initializeAttr(attr);
         this._attrs.set(attr.name, input);
       }
-    } else {
+    } else if (valueOrType instanceof GCObject) {
       for (const attr of valueOrType.$type.attrs) {
         const input = this._initializeAttr(attr);
         if (valueOrType) {
@@ -734,14 +740,21 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         }
         this._attrs.set(attr.name, input);
       }
+    } else {
+      for (const key in valueOrType) {
+        const input = this._initializeAttr();
+        input.value = valueOrType[key];
+        this._attrs.set(key, input);
+      }
     }
 
     // and we flip the switch
     this._initialized = true;
   }
 
-  private _initializeAttr(attr: AbiAttribute): GuiInput {
+  private _initializeAttr(attr?: AbiAttribute): GuiInput {
     const input = document.createElement('gui-input');
+
     input.addEventListener('gui-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -750,8 +763,10 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    input.config = { nullable: attr.nullable };
-    input.type = greycat.default.abi.types[attr.abi_type];
+    if (attr instanceof AbiAttribute) {
+      input.config = { nullable: attr.nullable };
+      input.type = greycat.default.abi.types[attr.abi_type];
+    }
     return input;
   }
 
@@ -759,44 +774,68 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     const attrs = document.createDocumentFragment();
 
     let index = 0;
-    this._attrs.forEach((input, name) => {
+    let isMap = false;
+    this._attrs.forEach((input, key) => {
       const slot = document.createElement('slot');
-      slot.name = name;
-      const attr = this._type!.attrs[index];
-      const attrTy = greycat.default.abi.types[attr.abi_type];
-      let typeName = attrTy.name;
-      if (typeName.startsWith('core::')) {
-        typeName = typeName.slice(6);
-      }
-      const label = (
-        <label className={'gui-input-label'}>
-          <span className="gui-input-attr-name">{name}</span>
-          <span className="gui-input-attr-type">{typeName}</span>
-        </label>
-      );
 
-      slot.append(label, input);
+      if (typeof key === 'string') {
+        slot.name = key;
+        const label = (
+          <label className={'gui-input-label'}>
+            <span className="gui-input-attr-name">{key}</span>
+          </label>
+        );
+
+        if (this._type) {
+          const attr = this._type.attrs[index];
+          const attrTy = greycat.default.abi.types[attr.abi_type];
+          let typeName = attrTy.name;
+          if (typeName.startsWith('core::')) {
+            typeName = typeName.slice(6);
+          }
+          label.appendChild(<span className="gui-input-attr-type">{typeName}</span>);
+        }
+        slot.append(label, input);
+      } else {
+        isMap = true;
+        slot.append(key, input);
+      }
+
       attrs.append(<div className={'gui-input-arg'}>{slot}</div>);
 
       index++;
     });
 
-    const del = (
-      <sl-button
-        className={'gui-input-remove'}
-        variant="text"
-        onclick={() => {
-          this.value = null;
-          this.dispatchEvent(new GuiChangeEvent(this.value));
-        }}
-      >
-        &#10005;
-      </sl-button>
-    );
     const frag = document.createDocumentFragment();
 
     if (this.config.nullable) {
+      const del = (
+        <sl-button
+          className={'gui-input-remove'}
+          variant="text"
+          onclick={() => {
+            this.value = null;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          &#10005;
+        </sl-button>
+      );
       frag.appendChild(del);
+    } else if (isMap) {
+      const add = (
+        <sl-button
+          className={'gui-input-add'}
+          variant="text"
+          size="small"
+          onclick={() => {
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Add
+        </sl-button>
+      );
+      frag.prepend(add);
     }
     frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
 
