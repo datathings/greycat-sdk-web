@@ -310,6 +310,11 @@ export class GuiInputString extends GuiInputElement<string | null> {
       this._input.value = value;
     }
   }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
 }
 
 export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
@@ -364,6 +369,11 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
   }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
 }
 
 export class GuiInputBool extends GuiInputElement<boolean | null> {
@@ -374,6 +384,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
     this._input = document.createElement('sl-select');
     this._input.value = 'false';
+    this._input.setAttribute('exportparts', 'combobox');
     this._input.appendChild(<sl-option value="true">true</sl-option>);
     this._input.appendChild(<sl-option value="false">false</sl-option>);
     this._input.addEventListener('sl-input', (ev) => {
@@ -401,6 +412,11 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
   set value(value: boolean | null) {
     this._input.value = `${value}`;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'combobox');
   }
 
   override render(): void {
@@ -474,6 +490,11 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
   }
 }
 
@@ -653,6 +674,11 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     this._type = value.$type;
     this._initializeAttrs(value);
     this.render();
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-object');
   }
 
   override render(): void {
@@ -1185,6 +1211,11 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     this._render();
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-array');
+  }
+
   _addInput(val?: unknown) {
     const input = document.createElement('gui-input-any') as GuiInputAny;
 
@@ -1329,6 +1360,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     }
 
     this.render();
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-map');
   }
 
   addEntry(key?: unknown, val?: unknown): [GuiInputAny, GuiInputElement<unknown>] {
@@ -1700,12 +1736,17 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
 
     this.shadowRoot.appendChild(
       <>
-        <label>Latitude</label>
+        <label className="gui-input-label">Latitude</label>
         {this._latInput}
-        <label>Longitude</label>
+        <label className="gui-input-label">Longitude</label>
         {this._lngInput}
       </>,
     );
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-geo');
   }
 
   get value() {

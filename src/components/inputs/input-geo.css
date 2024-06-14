@@ -4,7 +4,7 @@
   align-items: start;
   gap: var(--spacing);
 
-  > label {
+  .gui-input-label {
     align-self: center;
   }
 }
