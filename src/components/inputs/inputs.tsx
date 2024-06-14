@@ -180,7 +180,7 @@ export class GuiInput extends GuiInputElement<unknown> {
           const input = document.createElement('gui-input-object');
           input.config = this._config;
           input.type = this._type;
-          if (this._value instanceof GCObject || this._value === null) {
+          if (this._value instanceof GCObject) {
             input.value = this._value;
           }
           this._inner = input;
@@ -558,6 +558,11 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
     this.type = value.$type;
     this._input.value = value.offset;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
   }
 
   override render(): void {
