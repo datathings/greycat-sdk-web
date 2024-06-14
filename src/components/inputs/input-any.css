@@ -25,4 +25,10 @@
     padding-left: var(--spacing);
     border-left: var(--border-width) solid var(--border-color);
   }
+  gui-input::part(input-object) {
+    padding-left: var(--spacing);
+    border-left: var(--border-width) solid var(--border-color);
+    display: grid;
+    grid-template-columns: auto 1fr;
+  }
 }
