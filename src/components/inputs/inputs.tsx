@@ -619,42 +619,50 @@ export class GuiInputObject extends GuiInputElement<
   }
 
   get value() {
-    if (!this._type) {
-      return null;
-    }
-
     if (this._attrs.size === 0) {
       // TODO is that valid?
       return null;
     }
 
-    const attrs: unknown[] = [];
     let allNull = true;
-    let index = 0;
-    this._attrs.forEach((input) => {
-      const attr = this._type!.attrs[index];
-      let value: unknown;
-      if (attr.nullable) {
-        if (input instanceof GuiInputElement) {
-          value = input.value;
+    if (this._type) {
+      let index = 0;
+      const attrs: unknown[] = [];
+      this._attrs.forEach((input) => {
+        const attr = this._type!.attrs[index];
+        let value: unknown;
+        if (attr.nullable) {
+          if (input instanceof GuiInputElement) {
+            value = input.value;
+          } else {
+            value = null;
+          }
         } else {
-          value = null;
+          value = input.value;
         }
-      } else {
-        value = input.value;
-      }
-      if (value !== null) {
-        allNull = false;
-      }
-      attrs.push(value);
-      index++;
-    });
+        if (value !== null) {
+          allNull = false;
+        }
+        attrs.push(value);
+        index++;
+      });
 
-    if (this.config.nullable && allNull) {
-      return null;
+      if (this.config.nullable && allNull) {
+        return null;
+      }
+
+      return greycat.default.create(this._type.name, attrs) ?? null;
+    } else {
+      const obj = {} as Record<string, unknown>;
+      this._attrs.forEach((input, key) => {
+        const value = input.value;
+        if (value !== null) {
+          allNull = false;
+        }
+        obj[key] = value;
+      });
+      return obj;
     }
-
-    return greycat.default.create(this._type.name, attrs) ?? null;
   }
 
   set value(value: GCObject | Record<string | number, unknown> | null) {
@@ -675,11 +683,10 @@ export class GuiInputObject extends GuiInputElement<
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           input.value = (value as any)[name as string];
         });
-        return;
+      } else {
+        // the value is of another type
+        this._type = value.$type;
       }
-
-      // the value is of another type
-      this._type = value.$type;
     }
     this._initializeAttrs(value);
     this.render();
