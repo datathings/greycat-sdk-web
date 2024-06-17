@@ -37,6 +37,17 @@
     grid-template-columns: auto 1fr;
   }
 
+  gui-input::part(input-array) {
+    border-left: var(--border-width) solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+  gui-input::part(input-map) {
+    border-left: var(--border-width) solid var(--border-color);
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
   .gui-input-attr-name,
   .gui-input-param-name {
     font-size: var(--sl-font-size-medium);
