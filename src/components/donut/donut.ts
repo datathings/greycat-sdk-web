@@ -12,8 +12,6 @@ const LABELTEXTMULT = 0.05;
 type DonutTable = core.Table | Map<string, number | bigint>;
 
 interface GuiDoughnutProps {
-  /** @deprecated use `value` instead */
-  table: DonutTable | null;
   value: DonutTable | null;
   dataColumn: number;
   labelColumn?: number;
@@ -69,15 +67,8 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _breakArc = d3.arc<any>();
 
-  get table(): DonutTable | null {
+  get value() {
     return this._table;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set table(table: DonutTable | null) {
-    this.value = table;
   }
 
   set value(value: DonutTable | null) {
@@ -189,7 +180,6 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   }
 
   setAttrs({
-    table = this._table,
     value = this._table,
     colors = this._colors,
     dataColumn = this._dataColumn,
@@ -203,7 +193,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     withLabelInfo = this._withLabelInfo,
     name = this._name,
   }: Partial<GuiDoughnutProps>): void {
-    this._table = table ?? value;
+    this._table = value;
     this._colors = colors;
     this._dataColumn = dataColumn;
     this._labelColumn = labelColumn;
@@ -477,8 +467,8 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
         ? arcRadius - this._thickness
         : arcRadius * 0.7
       : this._thickness != null
-      ? radius - this._thickness
-      : radius * 0.7;
+        ? radius - this._thickness
+        : radius * 0.7;
     this._arc.innerRadius(innerRadius).outerRadius(this._withLabels ? arcRadius : radius);
     if (this._rotation != null) {
       const radian = this._rotation * (Math.PI / 180);

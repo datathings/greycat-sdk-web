@@ -1,4 +1,3 @@
-import { TableLike } from '../common.js';
 import { Color, Cursor } from '../index.js';
 
 export type HeatmapStyle = {
@@ -75,7 +74,6 @@ export type HeatmapTooltip = {
 };
 
 export type HeatmapConfig = {
-  table: TableLike;
   markerColor?: Color;
   /**
    * Displays the value centered in each square. Defaults to `false`.

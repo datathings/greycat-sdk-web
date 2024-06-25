@@ -12,6 +12,21 @@ fn main() {
   }
 }
 
+type Person2 {
+  name: String;
+  age: int;
+  children: int;
+}
+
+@expose
+fn persons() {
+  return [
+    Person2 { name: "John", age: 42, children: 2 },
+    Person2 { name: "Bob", age: 64, children: 4 },
+    Person2 { name: "Max", age: 35, children: 0 },
+  ];
+}
+
 // pages/chart start
 enum Confidence {
   High;
@@ -60,7 +75,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set(rowIdx, LINE_TYPE_COL, 1);
@@ -82,7 +97,7 @@ fn chart(nbRows: int) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -275,7 +290,7 @@ fn histogram_table(buckets: int): Table {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
-  var csv = CsvReader::new("pages/chart-bar-histogram/heightweight.csv", csvFormat);
+  var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
 
   var histogramHeight = HistogramFloat {};
   var histogramWeight = HistogramFloat {};
@@ -494,9 +509,9 @@ fn obj1() {
 @expose
 fn obj2() {
   var prop3 = Map::new();
-  prop3.set("entry1", Runtime::info());
-  prop3.set("entry2", Runtime::info());
-  prop3.set("entry3", Runtime::info());
+  for (var i = 0; i < 100; i++) {
+    prop3.set("entry-${i}", Runtime::info());
+  }
 
   return {
     prop1: "Hello",
@@ -540,10 +555,10 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 fn now() {
   var now = time::now();
   return {
-    azores: now.toDate(TimeZone::Atlantic_Azores),
-    utc: now.toDateUTC(),
-    paris: now.toDate(TimeZone::Europe_Paris),
-    athens: now.toDate(TimeZone::Europe_Athens),
+    azores: Date::fromTime(now, TimeZone::Atlantic_Azores),
+    utc: Date::fromTime(now, TimeZone::UTC),
+    paris: Date::fromTime(now, TimeZone::Europe_Paris),
+    athens: Date::fromTime(now, TimeZone::Europe_Athens),
   };
 }
 
@@ -571,5 +586,3 @@ type Link {
 fn link_whatever(l: node<Link>) {
   // 
 }
-
-

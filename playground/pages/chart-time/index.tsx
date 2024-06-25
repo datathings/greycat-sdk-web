@@ -29,16 +29,6 @@ const colors = {
   high: 'red',
 };
 
-const dtFormat = new Intl.DateTimeFormat('en-GB', {
-  year: '2-digit',
-  month: '2-digit',
-  day: '2-digit',
-  hour: '2-digit',
-  minute: '2-digit',
-  second: '2-digit',
-  timeZoneName: 'longOffset',
-});
-
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -49,8 +39,6 @@ chart.setConfig({
   cursor: true,
   xAxis: {
     scale: 'time',
-    // display cursor time on xAxis in locale time with a DateTimeFormat
-    cursorFormat: (x) => dtFormat.format(new Date(x)),
   },
   yAxes: {
     temp: {
@@ -60,7 +48,6 @@ chart.setConfig({
       cursorAlign: 'start',
     },
   },
-  table: { cols: [] },
   series: [
     {
       title: 'Value',
@@ -69,14 +56,16 @@ chart.setConfig({
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,
-      styleCol: 2,
       width: 2,
-      styleMapping(v) {
-        return {
-          dash: v === 'high' ? [8, 8] : v === 'low' ? [2, 2] : [],
-          color: colors[v as keyof typeof colors],
-          transparency: v === 'low' ? 0.5 : 1,
-        };
+      styleMapping: {
+        col: 2,
+        mapping: (v) => {
+          return {
+            dash: v === 'high' ? [8, 8] : v === 'low' ? [2, 2] : [],
+            color: colors[v as keyof typeof colors],
+            opacity: v === 'low' ? 0.5 : 1,
+          };
+        },
       },
     },
   ],

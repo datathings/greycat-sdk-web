@@ -1,0 +1,23 @@
+details {
+  --border-color: var(--border-color);
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+details > summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  line-height: normal;
+  margin-bottom: 0;
+  padding: calc(var(--spacing) * 0.5);
+  background-color: var(--bg-1);
+}
+
+details[open] {
+  border: var(--border-width) solid var(--border-color);
+}
+
+details summary[role='button']::after {
+  background-image: var(--icon-chevron-button-inverse);
+}

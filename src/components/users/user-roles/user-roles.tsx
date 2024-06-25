@@ -2,18 +2,30 @@ import * as sdk from '@greycat/sdk';
 import { runtime } from '@greycat/sdk';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
+import type { SlButton } from '@shoelace-style/shoelace';
 
 export class GuiUserRoles extends HTMLElement {
   private _greycat: sdk.GreyCat = window.greycat.default;
   private _roles: runtime.UserRole[] = [];
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
-  private _dialog = document.createElement('dialog');
+  private _dialog = document.createElement('sl-dialog');
   private _permissionsSelect = document.createElement('gui-multi-select-checkbox');
   private _nameInput = document.createElement('input');
   private _dialogHeader = document.createElement('header');
-  private _dialogSubmitBtn = (<button onclick={() => this._handleSubmit()}>Create</button>);
+  private _dialogSubmitBtn: SlButton;
   private _currentState: 'create' | runtime.UserRole = 'create';
+
+  constructor() {
+    super();
+
+    this._dialogHeader.slot = 'label';
+    this._dialogSubmitBtn = (
+      <sl-button slot="footer" onclick={() => this._handleSubmit()}>
+        Create
+      </sl-button>
+    ) as SlButton;
+  }
 
   connectedCallback() {
     this._table.appendChild(
@@ -54,13 +66,6 @@ export class GuiUserRoles extends HTMLElement {
     this.updateRoles();
     this.updatePermissions();
     this.render();
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  set roles(roles: runtime.UserRole[]) {
-    this.value = roles;
   }
 
   get value() {
@@ -107,7 +112,7 @@ export class GuiUserRoles extends HTMLElement {
    */
   async updateRoles() {
     try {
-      this.roles = await runtime.UserRole.all(this._greycat);
+      this.value = await runtime.UserRole.all(this._greycat);
     } catch (err) {
       this._handleError(err);
     }
@@ -126,7 +131,7 @@ export class GuiUserRoles extends HTMLElement {
 
   private _initDialog(): void {
     this._dialog.appendChild(
-      <article>
+      <>
         {this._dialogHeader}
 
         <div className="container">
@@ -143,13 +148,8 @@ export class GuiUserRoles extends HTMLElement {
           <small>(*) Mandatory fields</small>
         </div>
 
-        <footer>
-          <button className="outline" onclick={() => this._dialog.close()}>
-            Close
-          </button>
-          {this._dialogSubmitBtn}
-        </footer>
-      </article>,
+        {this._dialogSubmitBtn}
+      </>,
     );
   }
 
@@ -163,7 +163,7 @@ export class GuiUserRoles extends HTMLElement {
     this._dialogHeader.textContent = 'Edit a role';
     this._dialogSubmitBtn.textContent = 'Update';
 
-    this._dialog.showModal();
+    this._dialog.show();
   }
 
   private _createRole(): void {
@@ -176,7 +176,7 @@ export class GuiUserRoles extends HTMLElement {
     this._dialogHeader.textContent = 'Create a new role';
     this._dialogSubmitBtn.textContent = 'Create';
 
-    this._dialog.showModal();
+    this._dialog.show();
   }
 
   private async _handleSubmit() {
@@ -200,7 +200,7 @@ export class GuiUserRoles extends HTMLElement {
       this._handleError(err);
     }
 
-    this._dialog.close();
+    this._dialog.hide();
 
     await this.updateRoles();
     this.render();

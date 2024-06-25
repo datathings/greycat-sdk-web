@@ -1,5 +1,3 @@
-import './reset.js';
-import './shoelace.js';
 import * as greycat from './exports.js';
 
 export * from './exports.js';

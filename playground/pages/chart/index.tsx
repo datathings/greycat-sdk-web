@@ -26,8 +26,8 @@ greycat.default = await GreyCat.init({
 
 const chart = (
   <gui-chart
+    value={await greycat.default.call<core.Table>('project::chart', [150])}
     config={{
-      table: await greycat.default.call<core.Table>('project::chart', [150]),
       cursor: true,
       selection: {
         orientation: 'both',
@@ -54,8 +54,10 @@ const chart = (
           yAxis: 'left',
           yCol: LINE_COL,
           width: 4,
-          styleCol: STYLE_COL,
-          styleMapping: (v) => styleMapping[v.key],
+          styleMapping: {
+            col: STYLE_COL,
+            mapping: (v) => styleMapping[v.key],
+          },
         },
         {
           type: 'line+scatter',
@@ -172,7 +174,7 @@ document.body.appendChild(
 async function randomize() {
   const table = await greycat.default.call<core.Table>('project::chart', [+nbRows.value]);
   console.log({ table });
-  chart.config.table = table;
+  chart.value = table;
   chart.compute();
   chart.update();
 }

@@ -1,0 +1,7 @@
+a:hover, a:focus {
+  color: var(--primary-hover);
+}
+
+a:visited {
+  color: var(--primary);
+}

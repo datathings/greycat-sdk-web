@@ -62,6 +62,15 @@ document.body.appendChild(
       </fieldset>
     </>
 
+    <a
+      slot="action"
+      href="#"
+      onclick={async () => {
+        chart.value = await greycat.default.call<core.Table>('project::histogram_table');
+      }}
+    >
+      Randomize
+    </a>
     {chart}
   </app-layout>,
 );

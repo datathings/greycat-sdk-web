@@ -12,8 +12,8 @@ export interface Resizable {
  * Adds a resize observer to this HTMLElement that calls `onResize()` everytime
  * this element resizes. The call is debounced for performance reasons (default 200ms)
  *
- * @param superClass 
- * @param debounceDelay 
+ * @param superClass the class to decorate
+ * @param debounceDelay debounce delay to apply to each resize event. Defaults to 200ms.
  * @returns 
  */
 export function Resizable<T extends Constructor<GuiElement>>(superClass: T, debounceDelay = 200) {

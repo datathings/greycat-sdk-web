@@ -16,6 +16,6 @@
       "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"],
     },
   },
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": ["./**/*.ts", "./**/*.tsx"],
   "exclude": ["./gcdata", "./files", "./public"]
 }

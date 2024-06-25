@@ -13,4 +13,27 @@ gui-periodic-task-list {
       background-color: rgba(var(--base-1), 0.8);
     }
   }
+
+  .gui-periodic-task-dialog {
+    --width: 95vw;
+    --fieldset-label-width: 150px;
+
+    > article {
+      > div {
+        padding: var(--spacing);
+
+        .gui-input-labelled-fieldset > label {
+          width: var(--fieldset-label-width);
+        }
+      }
+    }
+  }
+}
+
+@media (min-width: 992px) {
+  gui-periodic-task-list {
+    .gui-periodic-task-dialog {
+      --width: 650px;
+    }
+  }
 }

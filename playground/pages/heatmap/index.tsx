@@ -11,8 +11,8 @@ console.log('heatmap table', table);
 
 const heatmap = (
   <gui-heatmap
+    value={table}
     config={{
-      table,
       displayValue: true,
       markerColor: 'white',
 

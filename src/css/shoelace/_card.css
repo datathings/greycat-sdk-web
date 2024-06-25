@@ -1,0 +1,15 @@
+sl-card::part(header),
+sl-card::part(footer) {
+  --sl-input-height-medium: var(--line-height);
+
+  background-color: var(--bg-0);
+  font-weight: bold;
+}
+
+sl-card > header,
+sl-card > footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing);
+}

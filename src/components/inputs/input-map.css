@@ -1,0 +1,21 @@
+:host {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--spacing);
+
+  /* Add button */
+  .gui-input-add {
+    width: fit-content;
+    padding: 0 var(--spacing);
+  }
+
+  .gui-input-map-entry {
+    display: grid;
+    grid-template-columns: auto 1fr 1fr;
+    gap: var(--spacing);
+    align-items: baseline;
+  }
+  .gui-input-remove {
+    padding: 0 var(--spacing);
+  }
+}

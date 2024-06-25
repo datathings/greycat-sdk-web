@@ -1,0 +1,50 @@
+:host {
+  display: block;
+
+  .gui-input-object-wrapper {
+    display: grid;
+    grid-template-columns: 1fr;
+    align-items: start;
+    gap: var(--spacing);
+  }
+
+  .gui-input-remove {
+    padding: 0 var(--spacing);
+    align-self: center;
+  }
+
+  .gui-input-add {
+    width: fit-content;
+    padding: 0 var(--spacing);
+  }
+
+  .gui-input-label {
+    display: flex;
+    flex-direction: column;
+    align-items: end;
+    gap: 2px;
+  }
+  .gui-input-arg {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: start;
+    gap: var(--spacing);
+  }
+
+  gui-input::part(input-object) {
+    border-left: var(--border-width) solid var(--border-color);
+  }
+
+  .gui-input-attr-name,
+  .gui-input-param-name {
+    font-size: var(--sl-font-size-medium);
+    line-height: var(--sl-font-size-medium);
+  }
+
+  .gui-input-attr-type,
+  .gui-input-param-type {
+    font-size: var(--sl-font-size-small);
+    line-height: var(--sl-font-size-small);
+    color: var(--sl-color-gray-500);
+  }
+}
