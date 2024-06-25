@@ -19,6 +19,7 @@ export interface GuiValueProps {
   numFmt?: Intl.NumberFormat;
   /** optional user-defined data */
   data?: unknown;
+  className?: string;
   /** callback used when `linkify` is `true` */
   onClick: ClickHandler<unknown>;
 }
@@ -97,13 +98,6 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.render();
   }
 
-  /**
-   * @deprecated use `dateFmt` instead
-   */
-  set formatter(formatter: Intl.DateTimeFormat) {
-    this.dateFmt = formatter;
-  }
-
   get numFmt() {
     return this._numFmt;
   }
@@ -137,6 +131,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     numFmt = this._numFmt,
     text = this._text,
     data = this._data,
+    className = this.className,
   }: Partial<GuiValueProps>) {
     if (
       this._value === value &&
@@ -147,7 +142,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._dateFmt === dateFmt &&
       this._numFmt === numFmt &&
       this._text === text &&
-      this._data === data
+      this._data === data &&
+      this.className === className
     ) {
       // prevent unecessary re-renders
       return;
@@ -161,6 +157,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._numFmt = numFmt;
     this._text = text;
     this._data = data;
+    this.className = className;
     this.render();
   }
 
@@ -200,7 +197,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._disposeClickHandler?.();
       const children = document.createDocumentFragment();
       children.appendChild(document.createTextNode('['));
-      for (let i = 0; i < this._value.length; i++) {
+      const len = Math.min(this._value.length, 15);
+      for (let i = 0; i < len; i++) {
         const value = this._value[i];
         const content = utils.stringify({
           value,

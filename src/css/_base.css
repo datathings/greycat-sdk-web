@@ -1,4 +1,5 @@
-:root {
+:root,
+:host {
   --font-family: 'Open Sans', sans-serif;
   --font-size: 14px;
   --font-size-sm: 14px;
@@ -7,8 +8,8 @@
   --font-size-xl: 14px;
   --font-weight: normal;
 
-  /* keep 'spacing' an even value */
-  --spacing: 6px;
+  --spacing: 6px; /* keep 'spacing' an even value */
+  --line-height: 20px;
   --outline-width: 2px;
 
   --form-element-active-border-color: var(--primary);
@@ -36,8 +37,6 @@
 
   --table-border-color: rgba(var(--text-2), 0.2);
 
-  --border-width: 1px;
-
   --block-spacing-vertical: var(--spacing);
   --block-spacing-horizontal: var(--spacing);
 
@@ -57,13 +56,20 @@
   --range-thumb-hover-color: var(--primary-hover);
 
   --border-width: 1px;
-  --border-color: var(--bg-1);
+  --border-radius: 4px;
+
+  --gui-fieldset-border-width: var(--border-width);
+  --gui-fieldset-border-color: var(--border-color);
+  --gui-fieldset-background-color: var(--bg-2);
+  --gui-fieldset-legend-background-color: var(--bg-0);
+
+  --gui-users-table-min-height: 400px;
 }
 
 /* Dark colors (default) */
+:host,
 :root,
-:root:not([data-theme]),
-:root:not([data-theme='light']) {
+:root[data-theme='dark'] {
   color-scheme: dark;
 
   --primary: rgb(var(--accent-0));
@@ -87,6 +93,8 @@
   --text-1: 215, 215, 215;
   --text-2: 156, 160, 164;
   --text-inverse: 0, 0, 0;
+
+  --muted-color: var(--sl-color-neutral-500);
 
   --base-0: 20, 20, 20;
   --base-1: 40, 40, 40;
@@ -116,17 +124,18 @@
 
   --color-error: #f74318;
 
-  --border-radius: 4px;
   --shadow: 0px 1px 1px 0px rgb(var(--base-1));
 
   --icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(0,0,0)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
   --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(234,234,234)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
 
   --fieldset-group-label-color: var(--color);
-  --fieldset-group-label-background: #303030;
+
+  --border-color: #404040;
 }
 
 /* Light colors */
+:host[data-theme='light'],
 :root[data-theme='light'] {
   color-scheme: light;
 
@@ -174,7 +183,8 @@
   --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(15,15,15)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
 
   --fieldset-group-label-background: #f3f3f3;
-  --form-element-border-color: #a2afb9;
+
+  --border-color: #a2afb9;
 }
 
 *,
@@ -317,191 +327,126 @@ table > tbody > tr:last-child td {
   border-bottom: 0;
 }
 
-.p-1 {
-  padding: var(--spacing);
-}
+dialog > article,
+article {
+  --block-spacing-horizontal: 0;
+  --block-spacing-vertical: 0;
 
-.pt-1 {
-  padding-top: var(--spacing);
-}
-
-.pr-1 {
-  padding-right: var(--spacing);
-}
-
-.pl-1 {
-  padding-left: var(--spacing);
-}
-
-.pb-1 {
-  padding-bottom: var(--spacing);
-}
-
-.px-1 {
-  padding-left: var(--spacing);
-  padding-right: var(--spacing);
-}
-
-.py-1 {
-  padding-top: var(--spacing);
-  padding-bottom: var(--spacing);
-}
-
-.p-2 {
-  padding: calc(var(--spacing) * 2);
-}
-
-.pt-2 {
-  padding-top: calc(var(--spacing) * 2);
-}
-
-.pr-2 {
-  padding-right: calc(var(--spacing) * 2);
-}
-
-.pl-2 {
-  padding-left: calc(var(--spacing) * 2);
-}
-
-.pb-2 {
-  padding-bottom: calc(var(--spacing) * 2);
-}
-
-.px-2 {
-  padding-left: calc(var(--spacing) * 2);
-  padding-right: calc(var(--spacing) * 2);
-}
-
-.py-2 {
-  padding-top: calc(var(--spacing) * 2);
-  padding-bottom: calc(var(--spacing) * 2);
-}
-
-fieldset[role='group'] {
-  display: inline-flex;
-  width: 100%;
-  border-radius: var(--border-radius);
-  box-shadow: var(--box-shadow);
-  margin-bottom: 0;
-  transition: all 0.3s;
-
-  > label,
-  > input,
-  > select,
-  > gui-searchable-select,
-  > gui-searchable-select > input,
-  > gui-input {
-    box-shadow: 0 0 0 transparent;
-    margin-bottom: 0;
-    transition: all 0.3s;
-  }
-
-  > .gui-input-bool {
+  > header {
     display: flex;
-    align-items: center;
-    padding: var(--spacing);
-    border: var(--border-width) solid var(--form-element-border-color);
-    background-color: #202020;
-    transition: all 0.3s;
+    justify-content: space-between;
+    gap: var(--spacing);
+    font-weight: bold;
 
-    > input[type='checkbox'] {
-      margin: 0;
-      box-shadow: 0 0 0 transparent;
+    a {
+      font-weight: normal;
+    }
+
+    button {
+      width: fit-content;
+      margin-bottom: 0;
     }
   }
 
-  > :not(label, input, select, gui-searchable-select, gui-searchable-select > input, gui-input) {
-    display: flex;
+  > :is(header, footer) {
     padding: var(--spacing);
-    border: var(--border-width) solid var(--form-element-border-color);
   }
+}
 
-  > input[type='submit'],
-  > input[type='button'],
+sub,
+sup {
+  font-size: 11px;
+}
+
+small {
+  --font-size: 12px;
+}
+
+:where(dl, ol, ul) li {
+  margin-bottom: 0;
+}
+
+:not(thead, tfoot) > * > td {
+  --font-size: 12px;
+}
+
+input:not([type='submit'], [type='button'], [type='reset'])[disabled],
+select[disabled],
+textarea[disabled],
+:where(fieldset[disabled])
+  :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
+  pointer-events: initial;
+}
+
+code,
+kbd {
+  padding: 0.25rem 0.35rem;
+}
+
+pre,
+pre > code {
+  color: var(--text-0);
+}
+
+thead th,
+thead td,
+tfoot th,
+tfoot td {
+  --border-width: 2px;
+}
+
+[type='file']::file-selector-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::file-selector-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-webkit-file-upload-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-webkit-file-upload-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-ms-browse {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-ms-browse:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+
+dialog {
+  > article {
+    > footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--spacing);
+
+      button {
+        width: fit-content;
+        margin-bottom: 0;
+      }
+    }
+  }
+}
+
+.text-muted {
+  color: var(--muted-color);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing);
+
   > button {
     width: fit-content;
   }
-
-  > label:has(+ .gui-input-bool),
-  > .gui-input-bool + label {
-    flex: 1;
-  }
-
-  > label {
-    display: inline-flex;
-    align-items: center;
-    flex-shrink: 0;
-    background-color: var(--fieldset-group-label-background);
-    color: var(--fieldset-group-label-color);
-    border: var(--border-width) solid var(--form-element-border-color);
-    padding: 0 var(--spacing);
-  }
-
-  /* First element in the group */
-  > *:first-child,
-  > gui-searchable-select:first-child > input {
-    border-top-left-radius: var(--border-radius);
-    border-bottom-left-radius: var(--border-radius);
-
-    border-right: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  /* For middle elements in groups of more than 2 elements */
-  > *:not(:first-child, :last-child),
-  > gui-searchable-select:not(:first-child, :last-child) > input {
-    border-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-
-    border-right: 0;
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-  }
-
-  /* Last element in the group */
-  > *:last-child,
-  > gui-searchable-select:last-child > input {
-    border-top-right-radius: var(--border-radius);
-    border-bottom-right-radius: var(--border-radius);
-
-    border-left: 0;
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-  }
-
-  /* Where the fieldset is comprised of 2 inputs make sure the two are separated with a border */
-  > input:has(+ :is(gui-searchable-select, input, select)),
-  > select:has(+ :is(gui-searchable-select, input, select)),
-  > gui-searchable-select:has(+ :is(gui-searchable-select, input, select)) {
-    border-right: var(--border-width) solid var(--form-element-border-color);
-  }
-
-  /** Selects every focused input */
-  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)),
-  /* and every other non-focused elements when one of the input is focused */
-  &:has(> :is(input:focus, select:focus, gui-searchable-select > input:focus)) > :not(:focus) {
-    --form-element-border-color: var(--form-element-active-border-color);
-    --box-shadow: 0 0 0 var(--outline-width) var(--form-element-focus-color);
-  }
-}
-
-input:not(:is([type='checkbox'], [type='radio'])),
-select,
-textarea,
-input:not(:-webkit-any([type='checkbox'], [type='radio'])),
-button {
-  width: fit-content;
-  margin-bottom: 0;
-}
-
-button {
-  --form-element-spacing-vertical: 2px;
-  --form-element-spacing-horizontal: 4px;
-}
-
-label,
-fieldset legend {
-  margin-bottom: 0;
 }

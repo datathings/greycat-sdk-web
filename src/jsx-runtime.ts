@@ -5,7 +5,7 @@ export const Fragment = '<></>';
 
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }>,
+  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties<E>,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();
@@ -16,6 +16,9 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
   }
 
   const element = document.createElement(tagName);
+  // if (props.$ref) {
+  //   props.$ref(element as E);
+  // }
 
   if ('setAttrs' in element && typeof element.setAttrs === 'function') {
     // this is an internal optimisation for component that do define a one-off
@@ -33,8 +36,16 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
       } else if (key === 'className') {
         if (Array.isArray(value)) {
           element.classList.add(...value);
+        } else if (typeof value === 'string') {
+          element.classList.add(value);
         } else {
-          element.classList.add(value as string);
+          for (const className in value) {
+            if (value[className]) {
+              element.classList.add(className);
+            } else {
+              element.classList.remove(className);
+            }
+          }
         }
       } else if (key === 'style') {
         if (typeof value === 'string') {
@@ -61,8 +72,16 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
       case 'className':
         if (Array.isArray(value)) {
           element.classList.add(...value);
+        } else if (typeof value === 'string') {
+          element.classList.add(value);
         } else {
-          element.classList.add(value as string);
+          for (const className in value) {
+            if (value[className]) {
+              element.classList.add(className);
+            } else {
+              element.classList.remove(className);
+            }
+          }
         }
         break;
 

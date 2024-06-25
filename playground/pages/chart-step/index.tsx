@@ -16,6 +16,9 @@ const timepoints = [
 document.body.appendChild(
   <app-layout title="Chart (step)">
     <gui-chart
+      value={{
+        cols: [timepoints, [2000, 25000, 100000, 170, 3200]],
+      }}
       config={{
         cursor: true,
         xAxis: {
@@ -24,9 +27,6 @@ document.body.appendChild(
         },
         yAxes: {
           balance: {},
-        },
-        table: {
-          cols: [timepoints, [2000, 25000, 100000, 170, 3200]],
         },
         series: [
           {

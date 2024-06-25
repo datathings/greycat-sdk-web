@@ -21,10 +21,10 @@ container.appendChild(
     <gui-searchable-select
       options={options}
       placeholder="Search for a type, eg. core::String, core::int..."
-      onsearchable-select-change={(ev) => {
+      ongui-change={(ev) => {
         container.children[1].remove();
         container.appendChild(
-          <div>You have selected: {greycat.default.abi.types[ev.detail as number].name}</div>,
+          <div>You have selected: {greycat.default.abi.types[ev.detail as number]?.name}</div>,
         );
       }}
     />

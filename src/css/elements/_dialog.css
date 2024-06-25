@@ -1,0 +1,18 @@
+dialog {
+  --dialog-border-width: 0;
+  --dialog-border-color: var(--bg-2);
+  --dialog-padding: 0;
+  --dialog-backdrop-filter: none;
+  --dialog-backdrop-background: rgba(0, 0, 0, 0.7);
+}
+
+dialog {
+  border-width: var(--dialog-border-width);
+  border-color: var(--dialog-border-color);
+  padding: var(--dialog-padding);
+}
+
+dialog::backdrop {
+  backdrop-filter: var(--dialog-backdrop-filter);
+  background: var(--dialog-backdrop-background);
+}

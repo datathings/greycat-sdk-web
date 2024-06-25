@@ -1,5 +1,5 @@
 import { GreyCat, runtime } from '@greycat/sdk';
-import { TaskInfoLike } from '../task-info/task-info.js';
+import { TaskInfoLike } from '../task-info/common.js';
 
 export type TaskKind = 'running' | 'history';
 
@@ -250,20 +250,6 @@ export class GuiTaskList extends HTMLElement {
     this.render();
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set tasks(tasks: TaskInfoLike[]) {
-    this.value = tasks;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  get tasks() {
-    return this.value;
-  }
-
   get value() {
     return this._tasks;
   }
@@ -338,8 +324,10 @@ export class GuiTaskList extends HTMLElement {
 }
 
 export class GuiTaskListClickEvent extends CustomEvent<TaskInfoLike> {
+  static readonly NAME = 'task-list-click'; // TODO use 'gui-click' in v7
+
   constructor(task: TaskInfoLike) {
-    super('task-list-click', { detail: task, bubbles: true });
+    super(GuiTaskListClickEvent.NAME, { detail: task, bubbles: true });
   }
 }
 
@@ -348,13 +336,15 @@ declare global {
     'gui-task-list': GuiTaskList;
   }
 
-  namespace JSX {
-    interface GuiTaskListEvents {
-      ['ontask-list-click']?: (ev: GuiTaskListClickEvent) => void;
-    }
+  interface GuiTaskListEventMap {
+    [GuiTaskListClickEvent.NAME]: GuiTaskListClickEvent;
+  }
 
+  interface HTMLElementEventMap extends GuiTasksEventMap {}
+
+  namespace JSX {
     interface IntrinsicElements {
-      'gui-task-list': GreyCat.Element<GuiTaskList> & GuiTaskListEvents;
+      'gui-task-list': GreyCat.Element<GuiTaskList, GuiTaskListEventMap>;
     }
   }
 }

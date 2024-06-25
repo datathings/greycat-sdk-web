@@ -11,6 +11,7 @@ let dateFmt = new Intl.DateTimeFormat(navigator.language, {
   minute: '2-digit',
   second: '2-digit',
   timeZoneName: 'longOffset',
+  timeZone: 'UTC',
 });
 
 export function getGlobalDateTimeFormat(): Intl.DateTimeFormat {
@@ -27,6 +28,17 @@ export function setGlobalDateTimeFormatTimezone(tz: core.TimeZone) {
     ...(opts as Intl.DateTimeFormatOptions),
     timeZone: tz.key.replace('_', '/'),
   });
+}
+
+export function getGlobalDateTimeFormatTimezone($g = greycat.default): core.TimeZone | undefined {
+  const opts = dateFmt.resolvedOptions();
+  if (opts.timeZone.length > 0) {
+    const tz = core.TimeZone[opts.timeZone.replace('/', '_') as core.TimeZone.Field];
+    if (tz) {
+      return tz($g);
+    }
+  }
+  return;
 }
 
 export function getGlobalNumberFormat(): Intl.NumberFormat {

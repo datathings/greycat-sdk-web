@@ -1,0 +1,10 @@
+:host {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  align-items: start;
+  gap: var(--spacing);
+
+  > label {
+    align-self: center;
+  }
+}

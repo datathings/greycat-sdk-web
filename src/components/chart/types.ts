@@ -1,5 +1,4 @@
 import type { core } from '@greycat/sdk';
-import type { TableLike } from '../common.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
@@ -17,14 +16,14 @@ export type SerieWithOptions = Serie & SerieOptions;
 export type CurveStyle = 'linear' | 'step-after';
 
 export type SerieStyle = {
-  transparency?: number;
+  opacity?: number;
   dash?: number[];
   width?: number;
   color?: Color | null;
-  /**Only used for area series */
+  /** Only used for area series */
   fill?: Color | null;
-  /**Only used for area series */
-  fillTransparency?: number;
+  /** Only used for area series */
+  fillOpacity?: number;
 };
 
 // we don't care about the type here, it is user-defined
@@ -215,36 +214,26 @@ export type SerieOptions = {
    */
   hideInTooltip: boolean;
   /**
-   * @deprecated use `styleMapping` instead
-   * Maps the col values (from `colorCol`) to a color definition.
+   * Maps the `col` values to a style definition.
    *
-   * *Returning `null` or `undefined` will make the painting use the default color of the serie*
+   * *Returning `null` will make the painting use the default style of the serie*
    *
-   * *Not defining a `colorMapping` will use the value as-is for coloring, meaning the serie's column can contain color codes directly*
-   *
-   * @param v the current cell value
-   * @returns the color used for canvas painting
+   * *Not defining a `styleMapping` will use the actual column value as-is for styling,
+   * meaning the serie's column can contain style codes directly*
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  colorMapping?: (v: any) => Color | null | undefined;
-  /**
-   * Maps the col values to be used in th styleMapping.
-   *
-   */
-  styleCol?: number;
-  /**
-   * Maps the col values (from `styleCol`) to a style definition.
-   *
-   * *Returning `null` or `undefined` will make the painting use the default style of the serie*
-   *
-   * *Not defining a `styleMapping` will use the value as-is for styling, meaning the serie's column can contain style codes directly*
-   *
-   * @param v the current cell value
-   * @returns the style used for canvas painting
-   *
-   */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  styleMapping?: (v: any) => SerieStyle;
+  styleMapping?: {
+    /**
+     * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
+     * be the cells of that `col`.
+     */
+    col: number,
+    /**
+     * @param v the column (`col`) value
+     * @returns the style used for canvas painting, or `null` to get the default style of the serie
+     */
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    mapping?: (v: any) => SerieStyle | null,
+  };
 };
 
 export type LineOptions = {
@@ -272,16 +261,6 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: K;
-  /**
-   * @deprecated use `styleMapping` instead
-   * offset of the column in the table to use to read lineType values for each x
-   */
-  lineTypeCol?: number;
-  /**
-   * @deprecated use `styleMapping` instead
-   * offset of the column in the table to use to read the line color values for segment
-   */
-  colorCol?: number;
   /**
    * Optional title used to name the serie.
    */
@@ -362,23 +341,16 @@ export interface LineAreaSerie<K> extends CommonSerie<K>, LineOptions {
   type: 'line+area';
 }
 
-export interface StepSerie<K> extends CommonSerie<K> {
-  /**@deprecated type `step` is deprecated, use type `line` with a `curve: 'step-after'` */
-  type: 'step';
-}
-
 export type Serie<K extends string = string> =
   | LineSerie<K>
   | BarSerie<K>
   | ScatterSerie<K>
   | LineScatterSerie<K>
-  | StepSerie<K>
   | AreaSerie<K>
   | LineAreaSerie<K>
   | CustomSerie<K>;
 
 export interface ChartConfig<K = { [keys: string]: never }> {
-  table: TableLike;
   series: Serie<Extract<keyof K, string>>[];
   /**
    * The x-axis definition
@@ -409,4 +381,21 @@ export interface ChartConfig<K = { [keys: string]: never }> {
    * Defaults: `500`
    */
   dblTapThreshold?: number;
+}
+
+export interface BoxPlotData {
+  median: number;
+  q1: number;
+  q3: number;
+  min: number;
+  max: number;
+  crossValue: number;
+}
+
+export interface BoxPlotOptions {
+  width: number;
+  medianColor: string;
+  whiskerColor: string;
+  iqrColor: string;
+  orientation: 'vertical' | 'horizontal';
 }

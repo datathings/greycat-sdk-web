@@ -1,17 +1,24 @@
 declare namespace GreyCat {
-  type ExtendedHTMLProperties = {
-    className?: string | string[];
+  type ExtendedHTMLProperties<T, S = any, K extends keyof S = any> = {
+    className?: string | string[] | { [className: string]: boolean };
     style?: Partial<CSSStyleDeclaration> | string;
-  }
-
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'children' | 'style' | 'className'>> & ExtendedHTMLProperties & {
-    [EVENT in keyof EventMap as `on${EVENT}`]?: (
-      this: GlobalEventHandlers,
-      ev: EventMap[EVENT],
-      options?: boolean | AddEventListenerOptions,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    ) => any;
+    // /**
+    //  * Called after creating the HTML element.
+    //  *
+    //  * *Useful to keep a reference around.*
+    //  */
+    // $ref?: (element: T) => void;
   };
+
+  type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children'>> &
+    ExtendedHTMLProperties<T> & {
+      [EVENT in keyof EventMap as `on${EVENT}`]?: (
+        this: T,
+        ev: EventMap[EVENT],
+        options?: boolean | AddEventListenerOptions,
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ) => any;
+    };
 }
 
 declare namespace JSX {

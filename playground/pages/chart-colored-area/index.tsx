@@ -20,9 +20,8 @@ const colors = {
   normal: 'orange', //'#2ecc71',
   high: 'green', //'#e74c3c',
 };
-
+chart.value = await greycat.default.call<core.Table>('project::chart_colored_area');
 chart.setConfig({
-  table: await greycat.default.call<core.Table>('project::chart_colored_area'),
   tooltip: {
     // Override default tooltip
     render: (data) => {
@@ -48,8 +47,12 @@ chart.setConfig({
       yCol2: 'min',
       xCol: 0,
       yCol: 1,
-      colorCol: 2,
-      colorMapping: (v: keyof typeof colors) => colors[v],
+      styleMapping: {
+        col: 2,
+        mapping(v: keyof typeof colors) {
+          return { color: colors[v] };
+        },
+      },
     },
     // {
     //   title: 'Warmth',
@@ -67,8 +70,12 @@ chart.setConfig({
       yAxis: 'temp',
       xCol: 0,
       yCol: 1,
-      colorCol: 2,
-      colorMapping: (v: keyof typeof colors) => colors[v],
+      styleMapping: {
+        col: 2,
+        mapping(v: keyof typeof colors) {
+          return { color: colors[v] };
+        },
+      },
     },
   ],
 });

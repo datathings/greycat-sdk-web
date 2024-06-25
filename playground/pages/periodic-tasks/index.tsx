@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, runtime, ObjectInput } from '@greycat/web';
+import { GreyCat, IndexedDbCache, runtime } from '@greycat/web';
 import '@/common';
 
 greycat.default = await GreyCat.init({
@@ -11,9 +11,15 @@ if (!periodicTaskType) {
 }
 
 let pTask: runtime.PeriodicTask | null = null;
-const periodicTaskInput = new ObjectInput('periodic-task', periodicTaskType, (v) => {
-  pTask = v;
-});
+const periodicTaskInput = (
+  <gui-input-object
+    type="runtime::PeriodicTask"
+    ongui-change={(ev) => {
+      pTask = ev.detail;
+      console.log('onchange', ev.detail);
+    }}
+  />
+);
 
 const periodicTaskList = document.createElement('gui-periodic-task-list');
 periodicTaskList.reloadTasks();
@@ -21,7 +27,7 @@ periodicTaskList.reloadTasks();
 const createTask = async () => {
   try {
     if (pTask !== null) {
-      await periodicTaskList.updateTasks([...periodicTaskList.tasks, pTask]);
+      await periodicTaskList.updateTasks([...periodicTaskList.value, pTask]);
     }
   } catch (err) {
     // TODO proper error handling
@@ -32,15 +38,15 @@ const createTask = async () => {
 document.body.appendChild(
   <app-layout title="Periodic Tasks">
     <div role="list">
-      <article>
-        <header style={{ display: 'flex', justifyContent: 'space-between' }}>
+      <sl-card>
+        <header slot="header">
           Create a periodic task
-          <a href="#" onclick={createTask} style={{ fontWeight: 'normal' }}>
+          <sl-button variant="text" onclick={createTask}>
             Create
-          </a>
+          </sl-button>
         </header>
-        <div style={{ padding: 'var(--spacing)' }}>{periodicTaskInput.element}</div>
-      </article>
+        <div style={{ padding: 'var(--spacing)' }}>{periodicTaskInput}</div>
+      </sl-card>
       <article>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Periodic Task List

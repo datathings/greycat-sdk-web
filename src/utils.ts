@@ -1,5 +1,24 @@
 import { core, getDebuggerLogger } from '@greycat/sdk';
 
+export function ref<S, K extends keyof S>(state: S, key: K): [S, K] {
+  return [state, key];
+}
+
+export class Ref<T> {
+  value!: T;
+}
+
+type MutableRef<T> = {
+  ref: [{ value: T }, 'value'];
+  value: T;
+}
+
+export function createRef<T>() {
+  const state = {} as unknown as MutableRef<T>;
+  state.ref = [state, 'value'];
+  return state;
+}
+
 export function getScrollBarWidth() {
   const inner = document.createElement('p');
   inner.style.width = '100%';

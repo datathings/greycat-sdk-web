@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import { Axis, Scale } from './types.js';
+import { getGlobalDateTimeFormat, getGlobalDateTimeFormatTimezone } from '../../globals.js';
 
 const SECONDS_IN_MS = 1000;
 const MINUTES_IN_MS = SECONDS_IN_MS * 60;
@@ -53,8 +54,80 @@ export function createFormatter(axis: Axis, scale: Scale, useCursorFormat = fals
     const [from, to] = scale.range();
     const span = Math.abs(+scale.invert(to) - +scale.invert(from));
     if (axis.scale === 'time') {
-      const specifier = smartTimeFormatSpecifier(span);
-      return d3.utcFormat(specifier);
+      const timeZone = getGlobalDateTimeFormatTimezone();
+      const gFmt = getGlobalDateTimeFormat();
+      const locale = gFmt.resolvedOptions().locale;
+      if (useCursorFormat) {
+        return (d) => gFmt.format(d);
+      }
+      if (span < SECONDS_IN_MS * 30) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          fractionalSecondDigits: 3,
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < MINUTES_IN_MS * 5) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < HOURS_IN_MS) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < DAYS_IN_MS * 7) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          weekday: 'short',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < DAYS_IN_MS * 50) {
+        // TODO We could add logic to show 'year' only when the months are 'dec' and 'jan'
+        const fmt = new Intl.DateTimeFormat(locale, {
+          // weekday: 'short',
+          day: '2-digit',
+          month: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < DAYS_IN_MS * 365) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          year: '2-digit',
+          month: '2-digit',
+          day: '2-digit',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      if (span < DAYS_IN_MS * 365 * 10) {
+        const fmt = new Intl.DateTimeFormat(locale, {
+          year: 'numeric',
+          month: 'short',
+          timeZone: timeZone?.key.replace('_', '/'),
+        });
+        return (d) => fmt.format(d);
+      }
+      const fmt = new Intl.DateTimeFormat(locale, {
+        year: 'numeric',
+        timeZone: timeZone?.key.replace('_', '/'),
+      });
+      return (d) => fmt.format(d);
     } else {
       return d3.format(smartNumericalFormatSpecifier(span));
     }

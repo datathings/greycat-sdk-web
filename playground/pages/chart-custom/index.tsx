@@ -11,8 +11,8 @@ const chart = document.createElement('gui-chart');
 chart.style.height = '80vh';
 chart.style.width = '50%';
 chart.style.margin = 'auto';
+chart.value = { cols: [[]] };
 chart.config = {
-  table: { cols: [[]] },
   series: [
     {
       type: 'custom',

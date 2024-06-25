@@ -22,22 +22,17 @@ gui-csv-statistics {
     border-left: var(--border-width) solid var(--table-border-color);
   }
 
-  > dialog {
-    > article {
-      min-width: 700px;
+  gui-tabs {
+    min-height: 400px;
+    overflow: hidden;
 
-      > gui-tabs {
-        height: 400px;
+    > gui-panel[data-tab='Word List'] {
+      display: flex;
+      flex-direction: column;
 
-        > gui-panel[data-tab='Word List'] {
-          display: flex;
-          flex-direction: column;
-
-          > input {
-            margin-bottom: 0;
-            border-radius: 0 !important;
-          }
-        }
+      > input {
+        margin-bottom: 0;
+        border-radius: 0 !important;
       }
     }
   }

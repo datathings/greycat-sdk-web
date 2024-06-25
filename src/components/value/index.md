@@ -23,8 +23,6 @@ export interface GuiValueProps {
   name: string | undefined;
   dateFmt: Intl.DateTimeFormat | undefined;
   numFmt: Intl.NumberFormat | undefined;
-  /** @deprecated don't use this */
-  raw: boolean;
   /** optional user-defined data */
   data?: unknown;
   /** callback used when `linkify` is `true` */

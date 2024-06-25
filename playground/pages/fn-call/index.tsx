@@ -1,11 +1,4 @@
-import {
-  type AbiFunction,
-  type Value,
-  FnCallInput,
-  GreyCat,
-  IndexedDbCache,
-  prettyError,
-} from '@greycat/web';
+import { GreyCat, IndexedDbCache, prettyError, GuiFnSelect, GuiInputFn } from '@greycat/web';
 import '@/common';
 import './index.css';
 
@@ -13,22 +6,27 @@ greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const argumentsEl = document.createElement('gui-object');
+const argumentsEl = document.createElement('gui-table');
+argumentsEl.value = { cols: [[]], meta: [{ header: 'Arguments' }] };
+// argumentsEl.cellTagNames = { 0: 'gui-object' };
+argumentsEl.style.height = '200px';
 const resultEl = document.createElement('gui-object');
 resultEl.value = `Click on 'Call' to see the result`;
 
-const input = new FnCallInput(
-  'some-name',
-  greycat.default.abi.fn_by_fqn.get('project::add')!,
-  (args) => {
-    console.log(args);
-    argumentsEl.value = args;
-  },
-);
+const input = (
+  <gui-input-fn
+    ongui-input={(ev) => {
+      console.log('input-args-change', ev.detail);
+      argumentsEl.value = { cols: [input.value], meta: [{ header: 'Arguments' }] };
+    }}
+  />
+) as GuiInputFn;
 
 const handleFnCall = async () => {
   try {
-    resultEl.value = await greycat.default.call(input.fn.fqn, argumentsEl.value as Value[]);
+    if (input.type) {
+      resultEl.value = await greycat.default.call(input.type.fqn, input.value);
+    }
   } catch (err) {
     resultEl.value = prettyError(err, 'Something went wrong with the function call');
   }
@@ -36,36 +34,35 @@ const handleFnCall = async () => {
 
 document.body.appendChild(
   <app-layout title="Fn Call">
-    <fieldset>
-      <label>Pick a function:</label>
-      <gui-searchable-select
-        options={greycat.default.abi.functions.map((fn) => ({
-          text: fn.fqn,
-          value: fn,
-          selected: input.fn === fn,
-        }))}
-        onsearchable-select-change={(ev) => {
-          input.fn = ev.detail as AbiFunction;
-          resultEl.value = undefined;
-        }}
-      />
-    </fieldset>
-    <fieldset>
-      <label>Set the arguments of that function:</label>
-      {input.element}
-    </fieldset>
-    <details>
-      <summary>Show arguments</summary>
+    <div className="list">
+      <div className="row">
+        <fieldset>
+          <legend>Pick a function:</legend>
+          <gui-fn-select
+            onsl-change={function (this: GuiFnSelect) {
+              const fn = greycat.default.abi.fn_by_fqn.get(this.value as string);
+              if (fn) {
+                resultEl.value = undefined;
+                input.type = fn;
+              }
+              console.log('fn-select', fn);
+            }}
+          />
+        </fieldset>
+        <fieldset className="flex-1">
+          <legend>Set the arguments of that function:</legend>
+          {input}
+        </fieldset>
+      </div>
       {argumentsEl}
-    </details>
-    <article>
-      <header>
-        Call the function
-        <a href="#" onclick={handleFnCall}>
-          Call
-        </a>
-      </header>
-      <div className="p-1">{resultEl}</div>
-    </article>
+      <fieldset>
+        <legend>
+          <a href="#" onclick={handleFnCall}>
+            Call
+          </a>
+        </legend>
+        <div className="p-1">{resultEl}</div>
+      </fieldset>
+    </div>
   </app-layout>,
 );

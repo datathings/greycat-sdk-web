@@ -6,9 +6,8 @@ greycat.default = await GreyCat.init({
 });
 
 const chart = document.createElement('gui-chart');
-
+chart.value = await greycat.default.call<core.Table>('project::histogram_table');
 chart.setConfig({
-  table: await greycat.default.call<core.Table>('project::histogram_table'),
   xAxis: {
     scale: 'linear',
   },
@@ -47,7 +46,7 @@ document.body.appendChild(
       slot="action"
       href="#"
       onclick={async () => {
-        chart.config.table = await greycat.default.call<core.Table>('project::histogram_table');
+        chart.value = await greycat.default.call<core.Table>('project::histogram_table');
         chart.setConfig(chart.config);
       }}
     >

@@ -1,17 +1,7 @@
-import { GreyCat, runtime, Value, core, TaskHandler } from '@greycat/sdk';
+import { GreyCat, runtime, Value, TaskHandler } from '@greycat/sdk';
 import { parseTaskArgs } from '../utils.js';
-
-// export type TaskInfoLike = runtime.Task & runtime.TaskInfo;
-
-export type TaskInfoLike = Omit<
-  runtime.TaskInfo,
-  'progress' | 'remaining' | 'sub_waiting' | 'sub_tasks_all'
-> & {
-  progress?: number | null;
-  remaining?: core.duration | null;
-  sub_waiting?: number | bigint | null;
-  sub_tasks_all?: number | bigint | null;
-};
+import { GuiUpdateEvent } from '../../events.js';
+import { GuiFilesClickEvent, TaskInfoLike } from './common.js';
 
 export class GuiTaskInfo extends HTMLElement {
   private _greycat: GreyCat = window.greycat.default;
@@ -31,25 +21,25 @@ export class GuiTaskInfo extends HTMLElement {
 
   connectedCallback() {
     this.appendChild(
-      <article>
-        <header>
+      <sl-card>
+        <header slot="header">
           {this._title}
           <div className="header-actions">{this._btn}</div>
         </header>
         <table role="grid">{this._details}</table>
-        <footer>
-          <a
-            href="#"
-            onclick={(ev) => {
-              (ev.target as HTMLElement).blur();
-              this.updateInfo();
-            }}
-          >
-            Reload info
-          </a>
-          {this._lastUpdate}
-        </footer>
-      </article>,
+        <sl-button
+          variant="text"
+          size="small"
+          slot="footer"
+          onclick={(ev) => {
+            (ev.target as HTMLElement).blur();
+            this.updateInfo();
+          }}
+        >
+          Reload info
+        </sl-button>
+        {this._lastUpdate}
+      </sl-card>,
     );
 
     if (this._task) {
@@ -69,36 +59,19 @@ export class GuiTaskInfo extends HTMLElement {
     return this._task;
   }
 
-  /**
-   * @deprecated use `value` instead
-   */
-  set task(t: TaskInfoLike | null) {
-    this.value = t;
-  }
-
-  /**
-   * @deprecated use `value` instead
-   */
-  get task() {
-    return this.value;
-  }
-
   set value(value: TaskInfoLike | null) {
     this._task = value;
     this.update();
   }
 
   setAttrs({
-    task = this._task,
     value = this._task,
     greycat = this._greycat,
   }: Partial<{
-    /** @deprecated use `value` instead */
-    task: TaskInfoLike | null;
     value: TaskInfoLike | null;
     greycat: GreyCat;
   }>) {
-    this._task = task ?? value;
+    this._task = value;
     this._greycat = greycat;
     this.update();
   }
@@ -161,11 +134,19 @@ export class GuiTaskInfo extends HTMLElement {
     if (this._isAlive(t.status)) {
       this._btn.textContent = 'Cancel';
       this._btn.classList.add('outline');
-      this._btn.onclick = () => this.cancel();
+      this._btn.onclick = () => {
+        this.cancel().then(() => {
+          this.dispatchEvent(new GuiUpdateEvent(undefined));
+        });
+      };
     } else {
       this._btn.textContent = 'Re-run';
       this._btn.classList.remove('outline');
-      this._btn.onclick = () => this.run();
+      this._btn.onclick = () => {
+        this.run().then(() => {
+          this.dispatchEvent(new GuiUpdateEvent(undefined));
+        });
+      };
     }
 
     const prefixURI = `${this._greycat.api}/files/${t.user_id}/tasks/${t.task_id}/`;
@@ -235,11 +216,13 @@ export class GuiTaskInfo extends HTMLElement {
     ) {
       this._btn.textContent = 'Cancel';
       this._btn.classList.add('outline');
-      this._btn.onclick = () => this.cancel();
+      this._btn.onclick = () =>
+        this.cancel().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     } else {
       this._btn.textContent = 'Re-run';
       this._btn.classList.remove('outline');
-      this._btn.onclick = () => this.run();
+      this._btn.onclick = () =>
+        this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
   }
 
@@ -317,41 +300,6 @@ export class GuiTaskInfo extends HTMLElement {
   private _handleError(error: unknown) {
     // TODO: Replace with user notification for any specific error
     console.error('An error occured: ', error);
-  }
-}
-
-export class GuiFilesClickEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-files-click';
-  constructor() {
-    super(GuiFilesClickEvent.NAME, { cancelable: true });
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'gui-task-info': GuiTaskInfo;
-  }
-
-  interface HTMLElementEventMap {
-    'gui-files-click': GuiFilesClickEvent;
-  }
-
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-task-info': GreyCat.Element<
-        GuiTaskInfo & {
-          'ongui-files-click': (
-            this: GlobalEventHandlers,
-            ev: GuiFilesClickEvent,
-            options?: boolean | AddEventListenerOptions,
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          ) => any;
-        }
-      >;
-    }
   }
 }
 

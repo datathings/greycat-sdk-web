@@ -1,4 +1,4 @@
-import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n, util } from '@greycat/sdk';
+import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n } from '@greycat/sdk';
 import type { GuiValueProps } from '../index.js';
 
 /**
@@ -39,8 +39,8 @@ export class GuiObject extends HTMLElement {
   static {
     // natives
     this.components.set(core.Table._type, 'gui-table');
-    this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
-    this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
+    // this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
+    // this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
     // // primitives
     // this.components.set(core.geo._type, 'gui-value');
     // this.components.set(core.time._type, 'gui-value');
@@ -204,6 +204,7 @@ export class GuiObject extends HTMLElement {
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
+          tableEl.cellTagNames = { 1: 'gui-object' };
           tableEl.value = {
             cols: [indexes, values],
             meta: [
@@ -241,6 +242,7 @@ export class GuiObject extends HTMLElement {
           const tableEl = document.createElement(
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
+          tableEl.cellTagNames = { 1: 'gui-object' };
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.value = {
             cols: [keys, values],
@@ -295,24 +297,24 @@ export class GuiObject extends HTMLElement {
 
             // nested object
             if (this._shouldNest(attrVal)) {
-              const content = document.createElement('details');
-              const summary = document.createElement('summary');
-              summary.textContent = this._typeName(attrVal);
-              content.appendChild(summary);
-              summary.onclick = () => {
-                content.appendChild(
+              const details = document.createElement('sl-details');
+              details.summary = this._typeName(attrVal) ?? '';
+              const onshow = () => {
+                details.appendChild(
                   <gui-object
                     value={attrVal}
                     {...Object.assign({}, this._props, { data: attr.name })}
                   />,
                 );
-                summary.onclick = null;
+                // remove it once loaded
+                details.removeEventListener('sl-show', onshow);
               };
+              details.addEventListener('sl-show', onshow);
 
               fragment.appendChild(
                 <>
                   <div>{attr.name}</div>
-                  <div className="gui-object-value">{content}</div>
+                  <div className="gui-object-value">{details}</div>
                 </>,
               );
             } else {
@@ -337,11 +339,19 @@ export class GuiObject extends HTMLElement {
             return;
           }
 
+          // Important note:
+          // ---------------
+          // if the structure changes here, remember to update the selector in components/table/table.css too:
+          //  eg. gui-table gui-tbody gui-tbody-row gui-tbody-cell :has(gui-object.gui-object > article > .gui-object.gui-object-grid)
+          //
+          // the above selectors rely on the below structure to work properly
           this.replaceChildren(
-            <article>
-              {this._withHeader ? <header>{this._typeName(this._value)}</header> : undefined}
+            <sl-card>
+              {this._withHeader ? (
+                <header slot="header">{this._typeName(this._value)}</header>
+              ) : undefined}
               <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-            </article>,
+            </sl-card>,
           );
           return;
         }
@@ -355,10 +365,9 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div className="gui-object-value">
-                  <details>
-                    <summary>{this._typeName(val)}</summary>
+                  <sl-details summary={this._typeName(val)}>
                     <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
-                  </details>
+                  </sl-details>
                 </div>
               </>,
             );
@@ -376,10 +385,10 @@ export class GuiObject extends HTMLElement {
 
         if (this._withHeader) {
           this.replaceChildren(
-            <article>
-              <header>{this._typeName(this._value)}</header>
+            <sl-card>
+              <header slot="header">{this._typeName(this._value)}</header>
               <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-            </article>,
+            </sl-card>,
           );
           return;
         }
@@ -402,7 +411,7 @@ export class GuiObject extends HTMLElement {
     );
   }
 
-  private _typeName(val: unknown): string | null {
+  private _typeName(val: unknown): string | undefined {
     if (val instanceof GCObject) {
       if (val.$type.name.startsWith('::')) {
         return '<anonymous>';
@@ -414,7 +423,7 @@ export class GuiObject extends HTMLElement {
         return val.constructor.name;
       }
     }
-    return null;
+    return undefined;
   }
 }
 
@@ -442,7 +451,11 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-object': GreyCat.Element<GuiObject & { [key: string]: unknown }>;
+      'gui-object': GreyCat.Element<GuiObject & {
+        // gui-object accept any properties that the underlying component
+        // would accept, therefore we have to loosen its type
+        [key: string]: unknown;
+      }>;
     }
   }
 }
