@@ -220,8 +220,9 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     for (const yAxisName in this._cache.yScales) {
       const yAxis = this._config.yAxes[yAxisName];
       const yScale = this._cache.yScales[yAxisName];
-      yAxis.min = yScale.invert(start[1]);
-      yAxis.max = yScale.invert(end[1]);
+
+      yAxis.max = yScale.invert(start[1]);
+      yAxis.min = yScale.invert(end[1]);
     }
     this.compute();
     this.update();
