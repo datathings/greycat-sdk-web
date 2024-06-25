@@ -26,20 +26,12 @@ chart.config = {
       type: 'bar',
       yAxis: 'bars',
       spanCol: [0, 1],
-      color: 'orange',
       yCol: 2,
     },
-    {
-      type: 'line',
-      yAxis: 'acc',
-      width: 2,
-      markerShape: 'square',
-      markerWidth: 10,
-      color: 'red',
-      xCol: 0,
-      yCol: 3,
-    },
   ],
+  selection: {
+    orientation: 'horizontal',
+  },
 };
 
 document.body.appendChild(
@@ -61,16 +53,6 @@ document.body.appendChild(
         />
       </fieldset>
     </>
-
-    <a
-      slot="action"
-      href="#"
-      onclick={async () => {
-        chart.value = await greycat.default.call<core.Table>('project::histogram_table');
-      }}
-    >
-      Randomize
-    </a>
     {chart}
   </app-layout>,
 );
