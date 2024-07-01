@@ -24,7 +24,6 @@
     position: absolute;
     width: 100%;
     max-height: 400px;
-    padding: var(--spacing);
     overflow-x: hidden;
     overflow-y: auto;
     background-color: var(--gui-searchable-select-list-bg);
@@ -38,7 +37,7 @@
       line-height: normal;
       pointer-events: auto;
       border-bottom: 1px solid var(--border-color);
-      padding: 2px 4px;
+      padding: calc(var(--spacing) / 2) var(--spacing);
       width: 100%;
 
       &:hover {
