@@ -60,7 +60,7 @@ export abstract class CanvasDrawer extends HTMLElement {
 
     const callback = (now: number) => {
       const delta = now - lastFrameTime;
-      const fps = 1000 / delta;
+      const fps = Math.round(1000 / delta);
 
       this.draw(fps);
 
