@@ -17,9 +17,7 @@ export class ProjectSensorForm extends GuiInputElement<project.Sensor> {
 
     this._id = document.createElement('gui-input-number');
     this._id.value = 0;
-    this._id.addEventListener('gui-input', () =>
-      this.dispatchEvent(new GuiInputEvent(this.value)),
-    );
+    this._id.addEventListener('gui-input', () => this.dispatchEvent(new GuiInputEvent(this.value)));
     this._id.addEventListener('gui-change', () =>
       this.dispatchEvent(new GuiChangeEvent(this.value)),
     );
@@ -31,15 +29,8 @@ export class ProjectSensorForm extends GuiInputElement<project.Sensor> {
     this._kind.addEventListener('gui-change', () =>
       this.dispatchEvent(new GuiChangeEvent(this.value)),
     );
-  }
 
-  connectedCallback() {
-    this.appendChild(this._id);
-    this.appendChild(this._kind);
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
+    this.shadowRoot.replaceChildren(this._id, this._kind);
   }
 
   set value(sensor: project.Sensor) {
@@ -48,7 +39,7 @@ export class ProjectSensorForm extends GuiInputElement<project.Sensor> {
   }
 
   get value() {
-    return project.Sensor.create(this._id.value, this._kind.value as project.SensorKind);
+    return project.Sensor.create(this._id.value!, this._kind.value as project.SensorKind);
   }
 }
 
