@@ -3,7 +3,6 @@ export * from './events.js';
 
 export * from './csv/csv-statistics/index.js';
 export * from './csv/csv-column-input/index.js';
-export * from './enum-select/index.js';
 export * from './gauge/index.js';
 export * from './heatmap/index.js';
 export * from './table/index.js';
