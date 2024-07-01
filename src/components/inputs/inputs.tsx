@@ -180,7 +180,7 @@ export class GuiInput extends GuiInputElement<unknown> {
           const input = document.createElement('gui-input-object');
           input.config = this._config;
           input.type = this._type;
-          if (this._value instanceof GCObject || this._value === null) {
+          if (this._value instanceof GCObject) {
             input.value = this._value;
           }
           this._inner = input;
@@ -231,7 +231,7 @@ export class GuiInput extends GuiInputElement<unknown> {
             return;
           } else {
             // we have an '{ ... }' here
-            this._inner = document.createElement('gui-input-map');
+            this._inner = document.createElement('gui-input-object');
             this._inner.value = this._value;
           }
           break;
@@ -310,6 +310,11 @@ export class GuiInputString extends GuiInputElement<string | null> {
       this._input.value = value;
     }
   }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
 }
 
 export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
@@ -364,6 +369,11 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
   }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
 }
 
 export class GuiInputBool extends GuiInputElement<boolean | null> {
@@ -374,6 +384,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
     this._input = document.createElement('sl-select');
     this._input.value = 'false';
+    this._input.setAttribute('exportparts', 'combobox');
     this._input.appendChild(<sl-option value="true">true</sl-option>);
     this._input.appendChild(<sl-option value="false">false</sl-option>);
     this._input.addEventListener('sl-input', (ev) => {
@@ -401,6 +412,11 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
   set value(value: boolean | null) {
     this._input.value = `${value}`;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'combobox');
   }
 
   override render(): void {
@@ -475,6 +491,11 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
   }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
 }
 
 export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
@@ -539,14 +560,21 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     this._input.value = value.offset;
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
+
   override render(): void {
     this._input.config = this._config;
   }
 }
 
-export class GuiInputObject extends GuiInputElement<GCObject | null> {
+export class GuiInputObject extends GuiInputElement<
+  GCObject | null | Record<string | number, unknown>
+> {
   private _type: AbiType | undefined;
-  private _attrs: Map<string, GuiInput> = new Map();
+  private _attrs: Map<string, GuiInputElement<unknown>> = new Map();
   /**
    * whether or not we've initialized this input's form already
    */
@@ -591,68 +619,82 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
   }
 
   get value() {
-    if (!this._type) {
-      return null;
-    }
-
     if (this._attrs.size === 0) {
       // TODO is that valid?
       return null;
     }
 
-    const attrs: unknown[] = [];
     let allNull = true;
-    let index = 0;
-    this._attrs.forEach((input) => {
-      const attr = this._type!.attrs[index];
-      let value: unknown;
-      if (attr.nullable) {
-        if (input instanceof GuiInputElement) {
-          value = input.value;
+    if (this._type) {
+      let index = 0;
+      const attrs: unknown[] = [];
+      this._attrs.forEach((input) => {
+        const attr = this._type!.attrs[index];
+        let value: unknown;
+        if (attr.nullable) {
+          if (input instanceof GuiInputElement) {
+            value = input.value;
+          } else {
+            value = null;
+          }
         } else {
-          value = null;
+          value = input.value;
         }
-      } else {
-        value = input.value;
-      }
-      if (value !== null) {
-        allNull = false;
-      }
-      attrs.push(value);
-      index++;
-    });
+        if (value !== null) {
+          allNull = false;
+        }
+        attrs.push(value);
+        index++;
+      });
 
-    if (this.config.nullable && allNull) {
-      return null;
+      if (this.config.nullable && allNull) {
+        return null;
+      }
+
+      return greycat.default.create(this._type.name, attrs) ?? null;
+    } else {
+      const obj = {} as Record<string, unknown>;
+      this._attrs.forEach((input, key) => {
+        const value = input.value;
+        if (value !== null) {
+          allNull = false;
+        }
+        obj[key] = value;
+      });
+      return obj;
     }
-
-    return greycat.default.create(this._type.name, attrs) ?? null;
   }
 
-  set value(value: GCObject | null) {
+  set value(value: GCObject | Record<string | number, unknown> | null) {
     if (value === null) {
       this._clearAttrs();
       this.render();
       return;
     }
 
-    if (this._type?.name === value.$type.name && this._initialized) {
-      // the value is of the same type and we are already initialized
-      // therefore we can just update the value of the inputs
-      this._attrs.forEach((input, name) => {
-        // SAFETY:
-        // we are dealing with the attribute of the type of that 'value'
-        // therefore, we have to have the properties defined on 'value'
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        input.value = (value as any)[name];
-      });
-      return;
+    if (value instanceof GCObject) {
+      if (this._type?.name === value.$type.name && this._initialized) {
+        // the value is of the same type and we are already initialized
+        // therefore we can just update the value of the inputs
+        this._attrs.forEach((input, name) => {
+          // SAFETY:
+          // we are dealing with the attribute of the type of that 'value'
+          // therefore, we have to have the properties defined on 'value'
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          input.value = (value as any)[name as string];
+        });
+      } else {
+        // the value is of another type
+        this._type = value.$type;
+      }
     }
-
-    // the value is of another type
-    this._type = value.$type;
     this._initializeAttrs(value);
     this.render();
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-object');
   }
 
   override render(): void {
@@ -685,13 +727,15 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     this._initialized = false;
   }
 
-  private _initializeAttrs(valueOrType: GCObject | AbiType): void {
+  private _initializeAttrs(
+    valueOrType: GCObject | AbiType | Record<string | number, unknown>,
+  ): void {
     if (valueOrType instanceof AbiType) {
       for (const attr of valueOrType.attrs) {
         const input = this._initializeAttr(attr);
         this._attrs.set(attr.name, input);
       }
-    } else {
+    } else if (valueOrType instanceof GCObject) {
       for (const attr of valueOrType.$type.attrs) {
         const input = this._initializeAttr(attr);
         if (valueOrType) {
@@ -703,14 +747,21 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
         }
         this._attrs.set(attr.name, input);
       }
+    } else {
+      for (const key in valueOrType) {
+        const input = this._initializeAttr();
+        input.value = valueOrType[key];
+        this._attrs.set(key, input);
+      }
     }
 
     // and we flip the switch
     this._initialized = true;
   }
 
-  private _initializeAttr(attr: AbiAttribute): GuiInput {
+  private _initializeAttr(attr?: AbiAttribute): GuiInput {
     const input = document.createElement('gui-input');
+
     input.addEventListener('gui-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -719,8 +770,10 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    input.config = { nullable: attr.nullable };
-    input.type = greycat.default.abi.types[attr.abi_type];
+    if (attr instanceof AbiAttribute) {
+      input.config = { nullable: attr.nullable };
+      input.type = greycat.default.abi.types[attr.abi_type];
+    }
     return input;
   }
 
@@ -728,43 +781,67 @@ export class GuiInputObject extends GuiInputElement<GCObject | null> {
     const attrs = document.createDocumentFragment();
 
     let index = 0;
-    this._attrs.forEach((input, name) => {
+    this._attrs.forEach((input, key) => {
       const slot = document.createElement('slot');
-      slot.name = name;
-      const attr = this._type!.attrs[index];
-      const attrTy = greycat.default.abi.types[attr.abi_type];
-      let typeName = attrTy.name;
-      if (typeName.startsWith('core::')) {
-        typeName = typeName.slice(6);
-      }
+
+      slot.name = key;
       const label = (
         <label className={'gui-input-label'}>
-          <span className="gui-input-attr-name">{name}</span>
-          <span className="gui-input-attr-type">{typeName}</span>
+          <span className="gui-input-attr-name">{key}</span>
         </label>
       );
 
+      if (this._type) {
+        const attr = this._type.attrs[index];
+        const attrTy = greycat.default.abi.types[attr.abi_type];
+        let typeName = attrTy.name;
+        if (typeName.startsWith('core::')) {
+          typeName = typeName.slice(6);
+        }
+        label.appendChild(<span className="gui-input-attr-type">{typeName}</span>);
+      }
       slot.append(label, input);
+
+      slot.addEventListener('slotchange', (e) => {
+        const a = e.target as HTMLSlotElement;
+
+        const assignedElements = a.assignedElements();
+
+        assignedElements.forEach((elem) => {
+          if (elem instanceof GuiInputElement) {
+            this._attrs.set(key, elem);
+            elem.value = input.value;
+            return;
+          }
+          const slotInput = elem.querySelector('.gui-input');
+          if (!slotInput || !(slotInput instanceof GuiInputElement)) {
+            throw `Element provided to gui-input-fn slot "${key}" has to be an instanceof GuiInputElement`;
+          }
+          slotInput.value = input.value;
+          this._attrs.set(key, slotInput);
+        });
+      });
+
       attrs.append(<div className={'gui-input-arg'}>{slot}</div>);
 
       index++;
     });
 
-    const del = (
-      <sl-button
-        className={'gui-input-remove'}
-        variant="text"
-        onclick={() => {
-          this.value = null;
-          this.dispatchEvent(new GuiChangeEvent(this.value));
-        }}
-      >
-        &#10005;
-      </sl-button>
-    );
     const frag = document.createDocumentFragment();
 
     if (this.config.nullable) {
+      const del = (
+        <sl-button
+          className={'gui-input-remove'}
+          variant="text"
+          onclick={() => {
+            this.value = null;
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          &#10005;
+        </sl-button>
+      );
       frag.appendChild(del);
     }
     frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
@@ -941,6 +1018,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
         assignedElements.forEach((elem) => {
           if (elem instanceof GuiInputElement) {
             this._params.set(name, elem);
+            elem.value = input.value;
             return;
           }
           const slotInput = elem.querySelector('.gui-input');
@@ -948,6 +1026,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
             throw `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`;
           }
           this._params.set(name, slotInput);
+          slotInput.value = input.value;
         });
       });
 
@@ -1185,6 +1264,11 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     this._render();
   }
 
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-array');
+  }
+
   _addInput(val?: unknown) {
     const input = document.createElement('gui-input-any') as GuiInputAny;
 
@@ -1329,6 +1413,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
     }
 
     this.render();
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-map');
   }
 
   addEntry(key?: unknown, val?: unknown): [GuiInputAny, GuiInputElement<unknown>] {
@@ -1700,12 +1789,17 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
 
     this.shadowRoot.appendChild(
       <>
-        <label>Latitude</label>
+        <label className="gui-input-label">Latitude</label>
         {this._latInput}
-        <label>Longitude</label>
+        <label className="gui-input-label">Longitude</label>
         {this._lngInput}
       </>,
     );
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('part', 'input-geo');
   }
 
   get value() {
