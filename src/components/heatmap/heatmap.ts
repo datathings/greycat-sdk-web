@@ -514,15 +514,22 @@ export class GuiHeatmap extends HTMLElement {
     const xScale = d3
       .scaleBand()
       .domain(xLabels)
-      .rangeRound(xRange)
+      .range(xRange)
       .paddingInner(this.config.xAxis.innerPadding ?? 0)
       .paddingOuter(this.config.xAxis.outerPadding ?? 0);
     const yScale = d3
       .scaleBand()
       .domain(yLabels)
-      .rangeRound(yRange)
+      .range(yRange)
       .paddingInner(this.config.yAxis.innerPadding ?? 0)
       .paddingOuter(this.config.yAxis.outerPadding ?? 0);
+
+    if (xRange[1] - xRange[0] > xLabels.length) {
+      xScale.round();
+    }
+    if (yRange[0] - yRange[1] > yLabels.length) {
+      yScale.round();
+    }
 
     const colorXScale = d3.scaleBand().domain(['0']).range(colorScaleXRange);
 
@@ -578,7 +585,7 @@ export class GuiHeatmap extends HTMLElement {
 /**
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
- * 
+ *
  * TODO rename to `GuiHeatmapCursorEvent` in v7
  */
 export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
@@ -598,7 +605,7 @@ declare global {
     [HeatmapCursorEvent.NAME]: HeatmapCursorEvent;
   }
 
-  interface HTMLElementEventMap extends GuiHeatmapEventMap { }
+  interface HTMLElementEventMap extends GuiHeatmapEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
