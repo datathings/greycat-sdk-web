@@ -6,7 +6,6 @@ import { CanvasContext } from '../exports.js';
  *  - `anim` (above) is supposed to be used to draw "animations" or "user-interactions"
  *
  * The abstract method `draw()` will be called on the `requestAnimationFrame` handler
- * once every 16.6ms or 60 times per seconds.
  *
  * When this component is connected to the DOM it starts the raf handler drawing loop.
  *
@@ -49,38 +48,23 @@ export abstract class CanvasDrawer extends HTMLElement {
   }
 
   /**
-   * Called for every frame (60FPS)
+   * Called for every frame (matching screen refresh rate)
    */
   abstract draw(fps: number): void;
 
   /**
-   * Registers a raf handler to call `draw()` once every 16.6ms (60FPS)
+   * Registers a raf handler to call `draw()`
    */
   connectedCallback() {
-    let then = 0;
-    let thenFrames = 0;
-    let frames = 0;
-    let fps = 0;
+    let lastFrameTime = 0;
 
     const callback = (now: number) => {
-      // time since last frame
-      const deltaTime = now - then;
-      const deltaFrames = now - thenFrames;
-      then = now;
+      const delta = now - lastFrameTime;
+      const fps = 1000 / delta;
 
-      frames++;
+      this.draw(fps);
 
-      if (deltaFrames >= 1000) {
-        fps = frames;
-        thenFrames = now;
-        frames = 0;
-      }
-
-      // draw every 16.6ms to reach ~60FPS
-      if (deltaTime >= 16.6) {
-        this.draw(fps);
-      }
-
+      lastFrameTime = now;
       // next frame
       requestAnimationFrame(callback);
     };
