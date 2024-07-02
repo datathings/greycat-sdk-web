@@ -587,11 +587,11 @@ export class GuiHeatmap extends HTMLElement {
  * - `detail.cursor` contains the current cursor info
  *
  */
-export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
+export class GuiHeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
   static readonly NAME = 'gui-heatmap-cursor';
 
   constructor(data: HeatmapData, cursor: Cursor) {
-    super(HeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
+    super(GuiHeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
 }
 
@@ -601,7 +601,7 @@ declare global {
   }
 
   interface GuiHeatmapEventMap {
-    [HeatmapCursorEvent.NAME]: HeatmapCursorEvent;
+    [GuiHeatmapCursorEvent.NAME]: GuiHeatmapCursorEvent;
   }
 
   interface HTMLElementEventMap extends GuiHeatmapEventMap {}
