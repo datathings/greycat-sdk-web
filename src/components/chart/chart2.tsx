@@ -137,8 +137,9 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
 
     this._mutationObs.observe(document.documentElement, { attributes: true });
 
-    const styles = this.computedStyleMap();
-    const accentColor = styles.get('--primary');
+    const styles = window.getComputedStyle(this);
+    const accentColor = styles.getPropertyValue('--primary');
+
     if (accentColor) {
       this.cursorCrosshairOpts.color = accentColor.toString();
     }
@@ -719,8 +720,8 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   update(): void {
     this.main.clear();
 
-    const styles = this.computedStyleMap();
-    const fill = styles.get('--bg-1')?.toString() ?? 'transparent';
+    const styles = window.getComputedStyle(this);
+    const fill = styles.getPropertyValue('--bg-1')?.toString() ?? 'transparent';
     // main background
     this.main.rectangle(0, 0, this.main.ctx.canvas.width, this.main.ctx.canvas.height, { fill });
 
