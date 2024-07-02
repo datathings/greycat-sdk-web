@@ -44,7 +44,7 @@ export type TableLikeRowBased = {
   rows?: any[][];
   meta?: (string | TableLikeMeta)[];
 };
-export type TableLikeObjectBased = Array<Record<string, unknown>>;
+export type TableLikeObjectBased = Array<object>;
 
 /**
  * Converts the given `table` to a `TableLikeColumnBased`.
@@ -89,7 +89,9 @@ export function toRowBasedTable(table: TableLike): TableLikeRowBased {
     for (let row = 0; row < rows.length; row++) {
       rows[row] = new Array(headers.length);
       for (let col = 0; col < headers.length; col++) {
-        rows[row][col] = table[row][headers[col]];
+        const key = headers[col];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rows[row][col] = (table[row] as any)[key];
       }
     }
 
@@ -231,7 +233,7 @@ export function tableFromRows(
  *
  * The keys of that first object will be used as the meta headers.
  */
-export function tableFromObjects(rows: Array<Record<string, unknown>>): TableLikeColumnBased {
+export function tableFromObjects(rows: Array<object>): TableLikeColumnBased {
   if (rows.length === 0) {
     return { cols: undefined };
   }
@@ -248,7 +250,9 @@ export function tableFromObjects(rows: Array<Record<string, unknown>>): TableLik
 
   for (let row = 0; row < rowCount; row++) {
     for (let col = 0; col < colCount; col++) {
-      cols[col][row] = rows[row][headers[col]];
+      const key = headers[col];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cols[col][row] = (rows[row] as any)[key];
     }
   }
 
@@ -258,7 +262,7 @@ export function tableFromObjects(rows: Array<Record<string, unknown>>): TableLik
   };
 }
 
-export function tableRowsFromObjects(arr: Array<Record<string, unknown>>): {
+export function tableRowsFromObjects(arr: Array<object>): {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: any[][] | undefined;
   meta: TableLikeMeta[] | undefined;
@@ -273,7 +277,9 @@ export function tableRowsFromObjects(arr: Array<Record<string, unknown>>): {
   for (let row = 0; row < arr.length; row++) {
     rows[row] = new Array(headers.length);
     for (let col = 0; col < headers.length; col++) {
-      rows[row][col] = arr[row][headers[col]];
+      const key = headers[col];
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      rows[row][col] = (arr[row] as any)[key];
     }
   }
 
@@ -464,7 +470,7 @@ export class TableView {
   }
 
   private _createMetaFromObjects(
-    rows: Array<Record<string, unknown>>,
+    rows: Array<object>,
   ): TableLikeMeta[] {
     if (rows.length === 0 || typeof rows[0] !== 'object') {
       return [];

@@ -900,8 +900,10 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
+          const col = this._table.cols?.[serie.xCol];
+          const nb_rows = col?.length ?? 0;
+          for (let row = 0; row < nb_rows; row++) {
+            const value = vMap(col[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;

@@ -39,6 +39,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
     { title: 'Users',                   href: 'users/' },
+    { title: 'Roles',                   href: 'roles/' },
   ];
 
   private _title: SlBreadcrumbItem;
@@ -122,7 +123,7 @@ export class AppLayout extends HTMLElement {
   }
 
   private _toggleTheme(): void {
-    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
     console.log('prefers-color-scheme: dark', prefersDark);
     const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');

@@ -1,4 +1,4 @@
-gui-users {
+gui-roles {
   display: contents;
 
   sl-card::part(header) {
@@ -20,4 +20,18 @@ gui-users {
   gui-tbody-row:hover {
     cursor: pointer;
   }
+
+  gui-tbody-cell sl-tag {
+    padding-right: var(--spacing);
+  }
+
+  gui-tbody-cell sl-tag:last-child {
+    padding-right: 0;
+  }
+}
+
+gui-role-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
 }
