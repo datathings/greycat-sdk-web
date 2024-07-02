@@ -42,6 +42,16 @@ export class GuiUserForm extends HTMLElement {
       <sl-divider />,
       <small>(*) Mandatory fields</small>,
     );
+
+    this.updateRoles();
+  }
+
+  /**
+   * Fetches the roles from the server and updates the select list
+   */
+  async updateRoles(): Promise<void> {
+    const roles = await runtime.UserRole.all();
+    this.roles = roles.map((r) => r.name);
   }
 
   set roles(roles: string[]) {

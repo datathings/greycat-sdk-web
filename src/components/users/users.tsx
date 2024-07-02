@@ -93,7 +93,6 @@ export class GuiUsers extends HTMLElement {
   async reload(): Promise<void> {
     try {
       const entities = await runtime.SecurityEntity.all();
-      const roles = await runtime.UserRole.all();
       const groups: runtime.UserGroup[] = [];
       const users: runtime.User[] = [];
       for (const entity of entities) {
@@ -104,7 +103,7 @@ export class GuiUsers extends HTMLElement {
         }
       }
 
-      this._userForm.roles = roles.map((r) => r.name);
+      await this._userForm.updateRoles();
       this._userForm.groups = groups;
 
       if (this._rows.rows) {
