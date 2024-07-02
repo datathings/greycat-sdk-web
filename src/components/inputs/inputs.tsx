@@ -1090,6 +1090,22 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     }
   }
 
+  get durationValue() {
+    return this._input.value;
+  }
+
+  set durationValue(value: number | bigint | null) {
+    this._input.value = value;
+  }
+
+  get durationUnit() {
+    return this._select.value as core.DurationUnit | null;
+  }
+
+  set durationUnit(value: core.DurationUnit | null) {
+    this._select.value = value;
+  }
+
   override render(): void {
     this._input.config = this.config;
     this._select.config = this.config;
