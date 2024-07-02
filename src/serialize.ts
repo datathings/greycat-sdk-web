@@ -1,12 +1,11 @@
 import { AbiWriter, AbiReader, PrimitiveType, Value } from '@greycat/sdk';
-// import { IndexedDbWrapper } from './db.js';
 
 const JS_OBJECT = 254 as PrimitiveType;
 const JS_UNDEFINED = 253 as PrimitiveType;
 
 export class BinaryWriter extends AbiWriter {
-  constructor() {
-    super(greycat.default.abi);
+  constructor(abi = greycat.default.abi) {
+    super(abi);
   }
 
   override undefined(): void {
@@ -35,8 +34,8 @@ export class BinaryWriter extends AbiWriter {
 }
 
 export class BinaryReader extends AbiReader {
-  constructor(buf: ArrayBuffer) {
-    super(greycat.default.abi, buf);
+  constructor(buf: ArrayBuffer, abi = greycat.default.abi) {
+    super(abi, buf);
     this.deserializers[JS_OBJECT] = (r) => {
       const len = r.read_vu32();
       const object: { [key: string]: Value } = {};
