@@ -508,7 +508,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     this._input = document.createElement('gui-searchable-select');
     this._input.setAttribute('exportparts', 'base');
     this._input.addEventListener('gui-change', (ev) => {
-      console.log('enum change', ev.detail, this.value);
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
