@@ -586,10 +586,9 @@ export class GuiHeatmap extends HTMLElement {
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
  *
- * TODO rename to `GuiHeatmapCursorEvent` in v7
  */
 export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
-  static readonly NAME = 'heatmap-cursor'; // TODO rename to `gui-heatmap-cursor` in v7
+  static readonly NAME = 'gui-heatmap-cursor';
 
   constructor(data: HeatmapData, cursor: Cursor) {
     super(HeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
