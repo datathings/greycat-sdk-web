@@ -306,7 +306,7 @@ export class GuiHeatmap extends HTMLElement {
         this._tooltip.update(this._config, data, colorScale, style);
       }
 
-      this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
+      this.dispatchEvent(new GuiHeatmapCursorEvent(data, cursor));
     }
   }
 
