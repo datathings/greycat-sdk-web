@@ -306,7 +306,7 @@ export class GuiHeatmap extends HTMLElement {
         this._tooltip.update(this._config, data, colorScale, style);
       }
 
-      this.dispatchEvent(new HeatmapCursorEvent(data, cursor));
+      this.dispatchEvent(new GuiHeatmapCursorEvent(data, cursor));
     }
   }
 
@@ -514,15 +514,22 @@ export class GuiHeatmap extends HTMLElement {
     const xScale = d3
       .scaleBand()
       .domain(xLabels)
-      .rangeRound(xRange)
+      .range(xRange)
       .paddingInner(this.config.xAxis.innerPadding ?? 0)
       .paddingOuter(this.config.xAxis.outerPadding ?? 0);
     const yScale = d3
       .scaleBand()
       .domain(yLabels)
-      .rangeRound(yRange)
+      .range(yRange)
       .paddingInner(this.config.yAxis.innerPadding ?? 0)
       .paddingOuter(this.config.yAxis.outerPadding ?? 0);
+
+    if (xRange[1] - xRange[0] > xLabels.length) {
+      xScale.round();
+    }
+    if (yRange[0] - yRange[1] > yLabels.length) {
+      yScale.round();
+    }
 
     const colorXScale = d3.scaleBand().domain(['0']).range(colorScaleXRange);
 
@@ -578,14 +585,13 @@ export class GuiHeatmap extends HTMLElement {
 /**
  * - `detail.data` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
  * - `detail.cursor` contains the current cursor info
- * 
- * TODO rename to `GuiHeatmapCursorEvent` in v7
+ *
  */
-export class HeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
-  static readonly NAME = 'heatmap-cursor'; // TODO rename to `gui-heatmap-cursor` in v7
+export class GuiHeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; cursor: Cursor }> {
+  static readonly NAME = 'gui-heatmap-cursor';
 
   constructor(data: HeatmapData, cursor: Cursor) {
-    super(HeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
+    super(GuiHeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
 }
 
@@ -595,10 +601,10 @@ declare global {
   }
 
   interface GuiHeatmapEventMap {
-    [HeatmapCursorEvent.NAME]: HeatmapCursorEvent;
+    [GuiHeatmapCursorEvent.NAME]: GuiHeatmapCursorEvent;
   }
 
-  interface HTMLElementEventMap extends GuiHeatmapEventMap { }
+  interface HTMLElementEventMap extends GuiHeatmapEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
