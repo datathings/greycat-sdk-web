@@ -213,4 +213,4 @@ class ModalManager {
   }
 }
 
-export default new ModalManager();
+export const modal = new ModalManager();

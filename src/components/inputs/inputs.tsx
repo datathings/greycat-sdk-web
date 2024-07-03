@@ -490,6 +490,7 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
     this._input = document.createElement('sl-input');
     this._input.type = 'datetime-local';
+    this._input.step = 0.1;
 
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
