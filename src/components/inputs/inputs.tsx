@@ -63,6 +63,10 @@ export abstract class GuiInputElement<T> extends HTMLElement {
     return '';
   }
   set placeholder(_value: string) {}
+  get label() {
+    return '';
+  }
+  set label(_label: string) {}
 }
 
 type PickGuiInputElement<T> = {
@@ -152,6 +156,33 @@ export class GuiInput extends GuiInputElement<unknown> {
 
   override get config() {
     return this._config;
+  }
+
+  override get label() {
+    if (this._inner) {
+      return this._inner.label;
+    }
+    return '';
+  }
+
+  override set label(label: string) {
+    if (this._inner) {
+      this._inner.label = label;
+    }
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  setAttrs(attrs: any) {
+    if (attrs.type) {
+      this.type = attrs.type;
+    }
+    if (attrs.config) {
+      this.config = attrs.config;
+    }
+    this.value = attrs.value;
+    if (this._inner) {
+      Object.assign(this._inner, attrs);
+    }
   }
 
   override render(): void {
@@ -296,9 +327,17 @@ export class GuiInputString extends GuiInputElement<string | null> {
     this._input.placeholder = placeholder;
   }
 
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
+  }
+
   get value() {
     if (this._input.value.length === 0) {
-      return null;
+      return this._config.nullable ? null : '';
     }
     return this._input.value;
   }
@@ -341,7 +380,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
   get value() {
     if (this._input.value.length === 0) {
-      return null;
+      return this._config.nullable ? null : 0;
     }
     return this._input.valueAsNumber;
   }
@@ -368,6 +407,14 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override connectedCallback(): void {
@@ -557,6 +604,14 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
     this.type = value.$type;
     this._input.value = value.offset;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override connectedCallback(): void {
@@ -1047,6 +1102,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     this.shadowRoot.adoptedStyleSheets.push(styleSheet);
 
     this._input = document.createElement('gui-input-number');
+    this._input.part.add('value');
     this._input.addEventListener('gui-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -1057,6 +1113,7 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
     });
 
     this._select = document.createElement('gui-input-enum');
+    this._select.part.add('unit');
     this._select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1597,7 +1654,11 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
 
   get value() {
     if (this._input.value !== null) {
-      return core.node.fromRef(this._input.value);
+      try {
+        return core.node.fromRef(this._input.value);
+      } catch {
+        return null;
+      }
     }
     return null;
   }
@@ -1608,6 +1669,30 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
     } else {
       this._input.value = value.ref;
     }
+  }
+
+  override get autocomplete() {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(autocomplete: string) {
+    this._input.autocomplete = autocomplete;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override render(): void {
@@ -1636,7 +1721,11 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
 
   get value() {
     if (this._input.value !== null) {
-      return core.nodeIndex.fromRef(this._input.value);
+      try {
+        return core.nodeIndex.fromRef(this._input.value);
+      } catch {
+        return null;
+      }
     }
     return null;
   }
@@ -1647,6 +1736,30 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
     } else {
       this._input.value = value.ref;
     }
+  }
+
+  override get autocomplete() {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(autocomplete: string) {
+    this._input.autocomplete = autocomplete;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override render(): void {
@@ -1675,7 +1788,11 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
 
   get value() {
     if (this._input.value !== null) {
-      return core.nodeTime.fromRef(this._input.value);
+      try {
+        return core.nodeTime.fromRef(this._input.value);
+      } catch {
+        return null;
+      }
     }
     return null;
   }
@@ -1686,6 +1803,30 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
     } else {
       this._input.value = value.ref;
     }
+  }
+
+  override get autocomplete() {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(autocomplete: string) {
+    this._input.autocomplete = autocomplete;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override render(): void {
@@ -1714,7 +1855,11 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
 
   get value() {
     if (this._input.value !== null) {
-      return core.nodeList.fromRef(this._input.value);
+      try {
+        return core.nodeList.fromRef(this._input.value);
+      } catch {
+        return null;
+      }
     }
     return null;
   }
@@ -1725,6 +1870,30 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
     } else {
       this._input.value = value.ref;
     }
+  }
+
+  override get autocomplete() {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(autocomplete: string) {
+    this._input.autocomplete = autocomplete;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override render(): void {
@@ -1753,7 +1922,11 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
 
   get value() {
     if (this._input.value !== null) {
-      return core.nodeGeo.fromRef(this._input.value);
+      try {
+        return core.nodeGeo.fromRef(this._input.value);
+      } catch {
+        return null;
+      }
     }
     return null;
   }
@@ -1764,6 +1937,30 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
     } else {
       this._input.value = value.ref;
     }
+  }
+
+  override get autocomplete() {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(autocomplete: string) {
+    this._input.autocomplete = autocomplete;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override render(): void {

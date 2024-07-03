@@ -1,6 +1,6 @@
 :host {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: auto 1fr;
   align-items: start;
   gap: var(--spacing);
 
@@ -11,10 +11,7 @@
     gap: 2px;
   }
   .gui-input-arg {
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: start;
-    gap: var(--spacing);
+    display: contents;
   }
 
   .gui-input-attr-name,

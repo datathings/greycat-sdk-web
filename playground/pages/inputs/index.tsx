@@ -60,7 +60,7 @@ document.body.appendChild(
         <gui-input-map />
       </input-viewer>
       <input-viewer header="String">
-        <gui-input value="Hello world!" />
+        <gui-input label="This is a string" value="Hello world!" />
       </input-viewer>
       <input-viewer header="int | float">
         <gui-input value={42} />
@@ -72,11 +72,11 @@ document.body.appendChild(
         <gui-input type="core::time" />
       </input-viewer>
       <input-viewer header="core::duration">
-        <gui-input type="core::duration" />
+        <gui-input value={core.duration.from_mins(42)} />
       </input-viewer>
       {EnumViewer()}
       <input-viewer header="Enum (value)">
-        <gui-input type={core.TimeZone._type} />
+        <gui-input-enum label="This is a label" type={core.TimeZone._type} />
       </input-viewer>
       {ObjectViewer()}
       <input-viewer header="Object (instance)">

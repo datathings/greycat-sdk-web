@@ -1,13 +1,23 @@
 :host {
+  width: 100%;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr 2fr;
+
+  gui-input-number, gui-input-enum {
+    min-width: 0;
+  }
 
   gui-input-number::part(base) {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
+    border-top-left-radius: var(--border-radius);
+    border-bottom-left-radius: var(--border-radius);
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
   }
 
   gui-input-enum::part(base) {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-    border-left: none;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    border-top-right-radius: var(--border-radius);
+    border-bottom-right-radius: var(--border-radius);
   }
 }

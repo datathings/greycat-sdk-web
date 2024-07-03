@@ -1,7 +1,16 @@
 fieldset {
+  border-style: solid;
+  margin-inline-start: 0;
+  margin-inline-end: 0;
+  padding-block-start: var(--spacing);
+  padding-inline-start: var(--spacing);
+  padding-inline-end: var(--spacing);
+  padding-block-end: var(--spacing);
+  margin-inline-start: 0;
+  min-inline-size: 0;
+
   border-width: var(--gui-fieldset-border-width);
   border-color: var(--gui-fieldset-border-color);
-  border-style: solid;
   background-color: var(--gui-fieldset-background-color);
 
   legend {

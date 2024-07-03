@@ -27,12 +27,12 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
 
     const styleSheet = new CSSStyleSheet();
     styleSheet.replaceSync(style);
-    this.shadowRoot!.adoptedStyleSheets = [styleSheet];
+    this.shadowRoot.adoptedStyleSheets = [styleSheet];
     this._options = [];
 
     // Create an input element for searching
     this._input = document.createElement('sl-input');
-    // this._input.classList.add('gui-searchable-select-input');
+    this._input.setAttribute('exportparts', 'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix');
     this._input.type = 'search';
     this._input.placeholder = 'Search...';
     this._input.autocomplete = 'off';
@@ -142,15 +142,12 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this._list = document.createElement('div');
     this._list.classList.add('gui-searchable-select-list');
     this.hideDropdown();
+
+    this.shadowRoot.append(this._input, this._list);
   }
 
   override connectedCallback() {
-    this.shadowRoot?.appendChild(this._input);
-    this.shadowRoot?.appendChild(this._list);
-
     this.classList.add('gui-input');
-    this._input.setAttribute('exportparts', 'base');
-    this.setAttribute('exportparts', 'base');
 
     if (this._options.length === 0) {
       this._emptyList();
@@ -164,16 +161,20 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     }
   }
 
-  disconnectedCallback() {
-    this.replaceChildren();
-  }
-
   override get placeholder() {
     return this._input.placeholder;
   }
 
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   get disabled() {
@@ -324,7 +325,7 @@ declare global {
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 
-  interface HTMLElementEventMap extends GuiSearchableSelectEventMap {}
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
 
   namespace JSX {
     interface IntrinsicElements {
