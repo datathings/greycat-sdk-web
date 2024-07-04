@@ -177,6 +177,14 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   get disabled() {
     return this._input.disabled;
   }

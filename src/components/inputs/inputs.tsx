@@ -67,6 +67,11 @@ export abstract class GuiInputElement<T> extends HTMLElement {
     return '';
   }
   set label(_label: string) {}
+  get helpText() {
+    return '';
+  }
+
+  set helpText(_helpText: string) {}
 }
 
 type PickGuiInputElement<T> = {
@@ -335,6 +340,14 @@ export class GuiInputString extends GuiInputElement<string | null> {
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   get value() {
     if (this._input.value.length === 0) {
       return this._config.nullable ? null : '';
@@ -417,6 +430,14 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   override connectedCallback(): void {
     super.connectedCallback();
     this.setAttribute('exportparts', 'base');
@@ -459,6 +480,30 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
   set value(value: boolean | null) {
     this._input.value = `${value}`;
+  }
+
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
   }
 
   override connectedCallback(): void {
@@ -538,6 +583,22 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
 
   override set placeholder(placeholder: string) {
     this._input.placeholder = placeholder;
+  }
+
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   override connectedCallback(): void {
@@ -1696,6 +1757,14 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   override render(): void {
     this._input.config = this.config;
   }
@@ -1761,6 +1830,14 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
 
   override set label(label: string) {
     this._input.label = label;
+  }
+
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
   }
 
   override render(): void {
@@ -1830,6 +1907,14 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   override render(): void {
     this._input.config = this.config;
   }
@@ -1897,6 +1982,14 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
     this._input.label = label;
   }
 
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
   override render(): void {
     this._input.config = this.config;
   }
@@ -1962,6 +2055,14 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
 
   override set label(label: string) {
     this._input.label = label;
+  }
+
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
   }
 
   override render(): void {
@@ -2063,6 +2164,38 @@ export class GuiInputFnPtr extends GuiInputElement<core.function_ | null> {
     } catch {
       return null;
     }
+  }
+
+  override get autocomplete(): string {
+    return this._input.autocomplete;
+  }
+
+  override set autocomplete(value: string) {
+    this._input.autocomplete = value;
+  }
+
+  override get placeholder() {
+    return this._input.placeholder;
+  }
+
+  override set placeholder(placeholder: string) {
+    this._input.placeholder = placeholder;
+  }
+
+  override get helpText() {
+    return this._input.helpText;
+  }
+
+  override set helpText(helpText: string) {
+    this._input.helpText = helpText;
+  }
+
+  override get label() {
+    return this._input.label;
+  }
+
+  override set label(label: string) {
+    this._input.label = label;
   }
 
   set value(fn: core.function_ | null) {
