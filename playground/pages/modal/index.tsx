@@ -10,14 +10,18 @@ document.body.appendChild(
     <div className="row">
       <sl-button
         onclick={() => {
-          modal.info('This is an info modal');
+          modal.info({ message: 'This is an info modal' });
         }}
       >
         Open info modal
       </sl-button>
       <sl-button
         onclick={async () => {
-          const res = await modal.confirm('Do you agree?', { confirm: 'Got it', cancel: 'Nope' });
+          const res = await modal.confirm({
+            message: 'Do you agree?',
+            confirm: 'Got it',
+            cancel: 'Nope',
+          });
           window.alert(`Result: ${res}`);
         }}
       >
@@ -25,10 +29,14 @@ document.body.appendChild(
       </sl-button>
       <sl-button
         onclick={async () => {
-          const res = await modal.input('Type your name', {
-            value: 'Hello world',
-            placeholder: 'eg. john',
-            helpText: 'This is going to be your pseudonym throughout the application',
+          const res = await modal.input({
+            title: 'Type your name',
+            confirm: 'Save',
+            inputProps: {
+              value: 'Hello world',
+              placeholder: 'eg. john',
+              helpText: 'This is going to be your pseudonym throughout the application',
+            },
           });
           window.alert(`Result: ${res}`);
         }}
@@ -37,8 +45,10 @@ document.body.appendChild(
       </sl-button>
       <sl-button
         onclick={async () => {
-          const res = await modal.select('Select a size', ['small', 'medium', 'large'], {
-            value: 'medium',
+          const res = await modal.select({
+            title: 'Select a size',
+            options: ['small', 'medium', 'large'],
+            selectProps: { value: 'medium' },
           });
           window.alert(`Result: ${res}`);
         }}

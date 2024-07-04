@@ -1,11 +1,13 @@
 import type { SlDialog, SlInput, SlSelect } from '@shoelace-style/shoelace';
 
 export type ModalInfoProps = {
+  message: string | Node;
   /** The modal title label */
   title?: string;
 };
 
 export type ModalConfirmProps = {
+  message: string | Node;
   /** The modal title label */
   title?: string;
   /** The confirm button text */
@@ -14,11 +16,27 @@ export type ModalConfirmProps = {
   cancel?: string;
 };
 
+export type ModalInputProps = {
+  /** The modal title label */
+  title?: string;
+  /** The confirm button text */
+  confirm?: string;
+  /** Properties to pass to the underlying sl-input */
+  inputProps?: SlInputProps;
+};
+
+export type ModalSelectProps = {
+  options: string[];
+  /** The modal title label */
+  title?: string;
+  /** The confirm button text */
+  confirm?: string;
+  /** Properties to pass to the underlying sl-input */
+  selectProps?: SlSelectProps;
+};
+
 export const modal = {
-  info(
-    message: string | Node,
-    { title = 'Information' }: ModalInfoProps = { title: 'Information' },
-  ): void {
+  info({ message, title = 'Information' }: ModalInfoProps): void {
     const dialog = (
       <sl-dialog>
         <header slot="label">{title}</header>
@@ -35,14 +53,12 @@ export const modal = {
     });
   },
 
-  confirm(
-    message: string | Node,
-    { title = 'Confirm', confirm = 'Yes', cancel = 'No' }: ModalConfirmProps = {
-      title: 'Confirm',
-      confirm: 'Yes',
-      cancel: 'No',
-    },
-  ): Promise<boolean> {
+  confirm({
+    message,
+    title = 'Confirm',
+    confirm = 'Yes',
+    cancel = 'No',
+  }: ModalConfirmProps): Promise<boolean> {
     let resolved = false;
     const promise = new Promise<boolean>((resolve) => {
       const dialog = (
@@ -91,15 +107,17 @@ export const modal = {
 
   /**
    * Shows a simple modal with an input field. Returns the content on succes or `undefined` if empty or closed.
-   * @param title
-   * @param props
    * @returns if `undefined` the input has not been given or is empty
    */
-  input(title = 'Input', props?: SlInputProps): Promise<string | undefined> {
+  input({
+    title = 'Input',
+    confirm = 'Ok',
+    inputProps,
+  }: ModalInputProps): Promise<string | undefined> {
     let resolved = false;
 
     const promise = new Promise<string | undefined>((resolve) => {
-      const input = (<sl-input autofocus {...props} />) as SlInput;
+      const input = (<sl-input autofocus {...inputProps} />) as SlInput;
 
       const dialog = (
         <sl-dialog label={title}>
@@ -119,7 +137,7 @@ export const modal = {
               });
             }}
           >
-            Ok
+            {confirm}
           </sl-button>
         </sl-dialog>
       ) as SlDialog;
@@ -154,20 +172,18 @@ export const modal = {
 
   /**
    * Shows a simple modal with a select field. Returns the selected value(s) on succes or `undefined` if none or closed.
-   * @param title
-   * @param options
-   * @param props
    * @returns if `undefined` the input has not been given or is empty
    */
-  select(
+  select({
+    options,
     title = 'Select',
-    options: string[],
-    props?: SlSelectProps,
-  ): Promise<string | string[] | undefined> {
+    confirm = 'Ok',
+    selectProps,
+  }: ModalSelectProps): Promise<string | string[] | undefined> {
     let resolved = false;
 
     const promise = new Promise<string | string[] | undefined>((resolve) => {
-      const select = (<sl-select placement="bottom" {...props} hoist />) as SlSelect;
+      const select = (<sl-select placement="bottom" {...selectProps} hoist />) as SlSelect;
       for (const opt of options) {
         select.appendChild(<sl-option value={opt}>{opt}</sl-option>);
       }
@@ -190,13 +206,14 @@ export const modal = {
               });
             }}
           >
-            Ok
+            {confirm}
           </sl-button>
         </sl-dialog>
       ) as SlDialog;
 
       dialog.addEventListener('sl-after-hide', (ev) => {
-        if (ev.target === dialog) { // sl-select bubbles the same events, so we need to check
+        if (ev.target === dialog) {
+          // sl-select bubbles the same events, so we need to check
           dialog.remove();
           if (!resolved) {
             resolve(undefined);
@@ -205,7 +222,8 @@ export const modal = {
       });
 
       dialog.addEventListener('sl-after-show', (ev) => {
-        if (ev.target === dialog) { // sl-select bubbles the same events, so we need to check
+        if (ev.target === dialog) {
+          // sl-select bubbles the same events, so we need to check
           select.focus();
         }
       });
