@@ -1,216 +1,282 @@
-class ModalManager {
-  readonly element: HTMLDialogElement;
-  readonly icon = document.createElement('span');
-  readonly title = document.createTextNode('');
-  readonly body = document.createElement('div');
-  readonly footer = document.createElement('footer');
-  readonly closeBtn = document.createElement('button');
-  readonly confirmBtn = document.createElement('button');
-  triggerConfirm: () => void = () => void 0;
-  triggerClose: () => void = () => void 0;
+import type { SlDialog, SlInput, SlSelect } from '@shoelace-style/shoelace';
 
-  constructor() {
-    // this.body.className = 'p-1';
-    this.icon.className = 'pr-1';
+export type ModalInfoProps = {
+  /** The modal title label */
+  title?: string;
+};
 
-    this.closeBtn.className = 'outline';
-    this.closeBtn.textContent = 'Close';
-    this.closeBtn.onclick = () => this.element.close();
+export type ModalConfirmProps = {
+  /** The modal title label */
+  title?: string;
+  /** The confirm button text */
+  confirm?: string;
+  /** The cancel button text */
+  cancel?: string;
+};
 
-    this.confirmBtn.textContent = 'Yes';
-    this.confirmBtn.onclick = () => this.element.close();
-
-    this.footer.appendChild(this.closeBtn);
-
-    this.element = (
-      <dialog className="gui-dialog">
-        <article>
-          <header>
-            <div>
-              {this.icon}
-              {this.title}
-            </div>
-          </header>
-          {this.body}
-          {this.footer}
-        </article>
-      </dialog>
-    ) as HTMLDialogElement;
-  }
-
+export const modal = {
   info(
-    message: string | JSX.Element,
-    {
-      icon,
-      title = 'Information',
-      confirm = 'Got it',
-    }: { icon?: Node; title?: string; confirm?: string; cancel?: string } = {
-      title: 'Information',
-      confirm: 'Got it',
-    },
-  ) {
-    if (icon) {
-      this.icon.replaceChildren(icon);
-    } else {
-      this.icon.replaceChildren();
-    }
-    this.title.textContent = title;
-    this.body.replaceChildren(
-      typeof message === 'string' ? document.createTextNode(message) : message,
-    );
-    this.closeBtn.textContent = confirm;
-    this.footer.replaceChildren(this.closeBtn);
-    if (!this.element.isConnected) {
-      document.body.appendChild(this.element);
-    }
-    this.element.showModal();
-  }
+    message: string | Node,
+    { title = 'Information' }: ModalInfoProps = { title: 'Information' },
+  ): void {
+    const dialog = (
+      <sl-dialog>
+        <header slot="label">{title}</header>
+        {message}
+      </sl-dialog>
+    ) as SlDialog;
+
+    document.body.appendChild(dialog);
+    setTimeout(() => {
+      dialog.show();
+    });
+    dialog.addEventListener('sl-after-hide', () => {
+      dialog.remove();
+    });
+  },
 
   confirm(
-    message: string | JSX.Element,
-    {
-      icon,
-      title = 'Confirm',
-      confirm = 'Got it',
-      cancel = 'Cancel',
-    }: { icon?: Node; title?: string; confirm?: string; cancel?: string } = {
+    message: string | Node,
+    { title = 'Confirm', confirm = 'Yes', cancel = 'No' }: ModalConfirmProps = {
       title: 'Confirm',
-      confirm: 'Got it',
-      cancel: 'Cancel',
+      confirm: 'Yes',
+      cancel: 'No',
     },
   ): Promise<boolean> {
-    if (icon) {
-      this.icon.replaceChildren(icon);
-    } else {
-      this.icon.replaceChildren();
-    }
-    this.title.textContent = title;
-    this.body.replaceChildren(
-      typeof message === 'string' ? document.createTextNode(message) : message,
-    );
-    this.closeBtn.textContent = cancel;
-    this.confirmBtn.textContent = confirm;
-    this.footer.replaceChildren(this.closeBtn, this.confirmBtn);
-    if (!this.element.isConnected) {
-      document.body.appendChild(this.element);
-    }
-    this.element.showModal();
-    return new Promise((resolve) => {
-      this.triggerConfirm = () => {
-        this.close();
-        resolve(true);
-      };
-      this.triggerClose = () => {
-        this.close();
-        resolve(false);
-      };
+    let resolved = false;
+    const promise = new Promise<boolean>((resolve) => {
+      const dialog = (
+        <sl-dialog label={title}>
+          {message}
+          <sl-button
+            slot="footer"
+            onclick={() => {
+              resolved = true;
+              dialog.hide().then(() => {
+                resolve(false);
+              });
+            }}
+          >
+            {cancel}
+          </sl-button>
+          <sl-button
+            slot="footer"
+            variant="primary"
+            onclick={() => {
+              resolved = true;
+              dialog.hide().then(() => {
+                resolve(true);
+              });
+            }}
+          >
+            {confirm}
+          </sl-button>
+        </sl-dialog>
+      ) as SlDialog;
 
-      this.closeBtn.onclick = () => {
-        this.close();
-        resolve(false);
-      };
-      this.confirmBtn.onclick = () => {
-        this.close();
-        resolve(true);
-      };
-    });
-  }
-
-  input(
-    {
-      icon,
-      label,
-      defaultValue,
-      description,
-      title = 'Input',
-      confirm = 'Ok',
-      cancel = 'Cancel',
-    }: {
-      icon?: Node;
-      label: string;
-      defaultValue: string;
-      description?: string;
-      title?: string;
-      confirm?: string;
-      cancel?: string;
-    } = {
-      label: 'Value',
-      defaultValue: '',
-      title: 'Input',
-      confirm: 'Ok',
-      cancel: 'Cancel',
-    },
-  ): Promise<string | undefined> {
-    if (icon) {
-      this.icon.replaceChildren(icon);
-    } else {
-      this.icon.replaceChildren();
-    }
-    this.title.textContent = title;
-    let value = defaultValue;
-    const input = (
-      <input
-        type="text"
-        defaultValue={defaultValue}
-        onchange={(ev) => {
-          const input = ev.target as HTMLInputElement;
-          value = input.value;
-        }}
-      />
-    ) as HTMLInputElement;
-    this.body.replaceChildren(
-      <fieldset>
-        <legend>{label}</legend>
-        {input}
-        {description ? <small>{description}</small> : undefined}
-      </fieldset>,
-    );
-    this.closeBtn.textContent = cancel;
-    this.confirmBtn.textContent = confirm;
-    this.footer.replaceChildren(this.closeBtn, this.confirmBtn);
-    if (!this.element.isConnected) {
-      document.body.appendChild(this.element);
-    }
-    this.element.showModal();
-    return new Promise((resolve) => {
-      this.triggerConfirm = () => {
-        this.close();
-        resolve(value);
-      };
-      this.triggerClose = () => {
-        this.close();
-        resolve(value);
-      };
-
-      this.closeBtn.onclick = () => {
-        this.close();
-        resolve(undefined);
-      };
-      input.onkeyup = (ev) => {
-        if (ev.key === 'Enter') {
-          this.close();
-          resolve(value);
+      document.body.appendChild(dialog);
+      setTimeout(() => {
+        dialog.show();
+      });
+      dialog.addEventListener('sl-after-hide', () => {
+        dialog.remove();
+        if (!resolved) {
+          resolve(false);
         }
-      };
-      this.confirmBtn.onclick = () => {
-        this.close();
-        resolve(value);
-      };
+      });
     });
-  }
 
-  close() {
-    this.element.close();
-    this.closeBtn.onclick = () => this.element.close();
-    this.confirmBtn.onclick = () => this.element.close();
-  }
+    return promise;
+  },
 
   /**
-   * Whether or not a dialog is currently open
+   * Shows a simple modal with an input field. Returns the content on succes or `undefined` if empty or closed.
+   * @param title
+   * @param props
+   * @returns if `undefined` the input has not been given or is empty
    */
-  open(): boolean {
-    return this.element.open;
-  }
-}
+  input(title = 'Input', props?: SlInputProps): Promise<string | undefined> {
+    let resolved = false;
 
-export const modal = new ModalManager();
+    const promise = new Promise<string | undefined>((resolve) => {
+      const input = (<sl-input autofocus {...props} />) as SlInput;
+
+      const dialog = (
+        <sl-dialog label={title}>
+          {input}
+          <sl-button
+            slot="footer"
+            variant="primary"
+            onclick={() => {
+              resolved = true;
+              dialog.hide().then(() => {
+                const value = input.value;
+                if (value.length === 0) {
+                  resolve(undefined);
+                } else {
+                  resolve(value);
+                }
+              });
+            }}
+          >
+            Ok
+          </sl-button>
+        </sl-dialog>
+      ) as SlDialog;
+
+      dialog.addEventListener('sl-after-hide', () => {
+        dialog.remove();
+        if (!resolved) {
+          resolve(undefined);
+        }
+      });
+
+      dialog.addEventListener('sl-after-show', () => {
+        input.focus();
+        input.addEventListener('keydown', (ev) => {
+          if (ev.key === 'Enter' && input.value.length > 0) {
+            resolved = true;
+            dialog.hide().then(() => {
+              resolve(input.value);
+            });
+          }
+        });
+      });
+
+      document.body.appendChild(dialog);
+      setTimeout(() => {
+        dialog.show();
+      }, 0);
+    });
+
+    return promise;
+  },
+
+  /**
+   * Shows a simple modal with a select field. Returns the selected value(s) on succes or `undefined` if none or closed.
+   * @param title
+   * @param options
+   * @param props
+   * @returns if `undefined` the input has not been given or is empty
+   */
+  select(
+    title = 'Select',
+    options: string[],
+    props?: SlSelectProps,
+  ): Promise<string | string[] | undefined> {
+    let resolved = false;
+
+    const promise = new Promise<string | string[] | undefined>((resolve) => {
+      const select = (<sl-select placement="bottom" {...props} hoist />) as SlSelect;
+      for (const opt of options) {
+        select.appendChild(<sl-option value={opt}>{opt}</sl-option>);
+      }
+
+      const dialog = (
+        <sl-dialog label={title}>
+          {select}
+          <sl-button
+            slot="footer"
+            variant="primary"
+            onclick={() => {
+              resolved = true;
+              dialog.hide().then(() => {
+                const value = select.value;
+                if (value.length === 0) {
+                  resolve(undefined);
+                } else {
+                  resolve(value);
+                }
+              });
+            }}
+          >
+            Ok
+          </sl-button>
+        </sl-dialog>
+      ) as SlDialog;
+
+      dialog.addEventListener('sl-after-hide', (ev) => {
+        if (ev.target === dialog) { // sl-select bubbles the same events, so we need to check
+          dialog.remove();
+          if (!resolved) {
+            resolve(undefined);
+          }
+        }
+      });
+
+      dialog.addEventListener('sl-after-show', (ev) => {
+        if (ev.target === dialog) { // sl-select bubbles the same events, so we need to check
+          select.focus();
+        }
+      });
+
+      document.body.appendChild(dialog);
+
+      setTimeout(() => {
+        dialog.show();
+      }, 0);
+    });
+
+    return promise;
+  },
+};
+
+export type SlInputProps = {
+  value?: string;
+  type?:
+    | 'date'
+    | 'datetime-local'
+    | 'email'
+    | 'number'
+    | 'password'
+    | 'search'
+    | 'tel'
+    | 'text'
+    | 'time'
+    | 'url';
+  label?: string;
+  size?: 'small' | 'medium' | 'large';
+  filled?: boolean;
+  pill?: boolean;
+  placeholder?: string;
+  defaultValue?: string;
+  helpText?: string;
+  disabled?: boolean;
+  readonly?: boolean;
+  passwordToggle?: boolean;
+  passwordVisible?: boolean;
+  noSpinButtons?: boolean;
+  required?: boolean;
+  pattern?: string;
+  minlength?: number;
+  maxlength?: number;
+  min?: number | string;
+  max?: number | string;
+  step?: number | 'any';
+  autocapitalize?: 'off' | 'none' | 'on' | 'sentences' | 'words' | 'characters';
+  autocorrect?: 'on' | 'off';
+  autocomplete?: string;
+  autofocus?: boolean;
+  enterkeyhint?: 'enter' | 'done' | 'go' | 'next' | 'previous' | 'search' | 'send';
+  spellcheck?: boolean;
+  inputmode?: 'none' | 'text' | 'decimal' | 'numeric' | 'tel' | 'search' | 'email' | 'url';
+};
+
+export type SlSelectProps = {
+  value?: string | string[];
+  defaultValue?: string | string[];
+  size?: 'small' | 'medium' | 'large';
+  placeholder?: string;
+  multiple?: boolean;
+  /** Maximum number of selected options. Set to 0 to remove the limit. */
+  maxOptionsVisible?: number;
+  disabled?: boolean;
+  clearable?: boolean;
+  open?: boolean;
+  filled?: boolean;
+  pill?: boolean;
+  label?: string;
+  placement?: 'top' | 'bottom';
+  helpText?: string;
+  required?: boolean;
+};
