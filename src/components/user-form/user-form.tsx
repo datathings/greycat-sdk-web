@@ -26,10 +26,9 @@ export class GuiUserForm extends HTMLElement {
     this._groups = (
       <sl-select name="groups" label="Groups" placeholder="Define the user groups" multiple />
     ) as SlSelect;
-  }
 
-  connectedCallback() {
-    this.replaceChildren(
+    const root = this.attachShadow({ mode: 'open' });
+    root.replaceChildren(
       this._user_id,
       this._username,
       this._password,
@@ -42,7 +41,9 @@ export class GuiUserForm extends HTMLElement {
       <sl-divider />,
       <small>(*) Mandatory fields</small>,
     );
+  }
 
+  connectedCallback() {
     this.updateRoles();
   }
 
@@ -60,7 +61,6 @@ export class GuiUserForm extends HTMLElement {
       options.appendChild(<sl-option value={name}>{name}</sl-option>);
     }
     this._role.replaceChildren(options);
-    this._role.value = [];
   }
 
   set groups(groups: runtime.UserGroup[]) {
@@ -122,7 +122,8 @@ export class GuiUserForm extends HTMLElement {
   }
 
   set user_role(role: string | null) {
-    this._role.value = role ? [role] : [];
+    console.log(`set user_role=${role}`);
+    this._role.value = role ? role : [];
   }
 
   get user_groups() {
