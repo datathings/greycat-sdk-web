@@ -254,7 +254,9 @@ export class GuiTaskInfo extends HTMLElement {
       }
       this._params = (await parseTaskArgs(this._greycat, this._task)) as Value[];
       const newTask = await this._greycat.call<runtime.Task>(
-        `${this._task.mod}::${this._task.fun}`,
+        this._task.type
+          ? `${this._task.mod}::${this._task.type}::${this._task.fun}`
+          : `${this._task.mod}::${this._task.fun}`,
         this._params,
       );
       this._task = newTask;

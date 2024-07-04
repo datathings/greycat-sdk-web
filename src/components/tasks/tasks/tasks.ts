@@ -158,7 +158,7 @@ export class GuiTasks extends HTMLElement {
 
         row[0] = task.task_id; // Id
         row[1] = name_or_id; // User
-        row[2] = `${task.mod}::${task.fun}`; // Name
+        row[2] = task.type ? `${task.mod}::${task.type}::${task.fun}` : `${task.mod}::${task.fun}`; // Name
         row[3] = task.creation; // Created
         row[4] = task.start ?? ''; // Started
         row[5] = task.duration ?? ''; // Duration

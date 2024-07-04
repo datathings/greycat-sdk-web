@@ -249,7 +249,10 @@ export class GuiTaskInfoDialog extends SlDialog {
         return;
       }
       this._args = (await parseTaskArgs(this._greycat, this._task)) as Value[];
-      const newTask = await this._greycat.spawn(`${this._task.mod}::${this._task.fun}`, this._args);
+      const method = this._task.type
+        ? `${this._task.mod}::${this._task.type}::${this._task.fun}`
+        : `${this._task.mod}::${this._task.fun}`;
+      const newTask = await this._greycat.spawn(method, this._args);
       this._task = newTask;
       this.hide();
     } catch (error) {
