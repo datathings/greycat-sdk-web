@@ -22,17 +22,26 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
   private _list: HTMLElement;
   private _options: SearchableOption[];
 
+  static STYLE: CSSStyleSheet;
+
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(style);
+  }
+
   constructor() {
     super();
 
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(style);
-    this.shadowRoot.adoptedStyleSheets = [styleSheet];
+    this.shadowRoot.adoptedStyleSheets.push(GuiSearchableSelect.STYLE);
+
     this._options = [];
 
     // Create an input element for searching
     this._input = document.createElement('sl-input');
-    this._input.setAttribute('exportparts', 'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix');
+    this._input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this._input.type = 'search';
     this._input.placeholder = 'Search...';
     this._input.autocomplete = 'off';
@@ -333,7 +342,7 @@ declare global {
     [GuiChangeEvent.NAME]: GuiChangeEvent;
   }
 
-  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {

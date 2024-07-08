@@ -696,11 +696,16 @@ export class GuiInputObject extends GuiInputElement<
    */
   private _initialized = false;
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(ObjectStyle);
+  }
+
   constructor() {
     super();
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(ObjectStyle);
-    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
+
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputObject.STYLE);
 
     this.render();
   }
@@ -993,12 +998,16 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     return false;
   }
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(FnStyle);
+  }
+
   constructor() {
     super();
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(FnStyle);
 
-    this.shadowRoot.adoptedStyleSheets.push(sheet);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputFn.STYLE);
 
     this.render();
   }
@@ -1156,12 +1165,16 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
   private _input: GuiInputNumber;
   private _select: GuiInputEnum;
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(DurationStyle);
+  }
+
   constructor() {
     super();
 
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(DurationStyle);
-    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputDuration.STYLE);
 
     this._input = document.createElement('gui-input-number');
     this._input.part.add('value');
@@ -1252,11 +1265,16 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   private _select: GuiSearchableSelect;
   private _input: GuiInput;
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(AnyStyle);
+  }
+
   constructor() {
     super();
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(AnyStyle);
-    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
+
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputAny.STYLE);
 
     this._select = document.createElement('gui-searchable-select');
     this._select.addEventListener('gui-change', (ev) => {
@@ -1372,11 +1390,15 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   private _inputs: GuiInputAny[] = [];
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(ArrayStyle);
+  }
+
   constructor() {
     super();
-    const styleSheet = new CSSStyleSheet();
-    styleSheet.replaceSync(ArrayStyle);
-    this.shadowRoot.adoptedStyleSheets.push(styleSheet);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputArray.STYLE);
 
     this._render();
   }
@@ -1481,12 +1503,16 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
   static ALLOWED_KEY_OPTIONS: Array<{ text: string; value: number }> = [];
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(MapStyle);
+  }
+
   constructor() {
     super();
 
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(MapStyle);
-    this.shadowRoot!.adoptedStyleSheets.push(sheet);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputMap.STYLE);
 
     if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
       GuiInputMap.ALLOWED_KEY_OPTIONS = [
@@ -2074,12 +2100,16 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
   private _latInput: GuiInputNumber;
   private _lngInput: GuiInputNumber;
 
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(GeoStyle);
+  }
+
   constructor() {
     super();
 
-    const sheet = new CSSStyleSheet();
-    sheet.replaceSync(GeoStyle);
-    this.shadowRoot!.adoptedStyleSheets.push(sheet);
+    this.shadowRoot!.adoptedStyleSheets.push(GuiInputGeo.STYLE);
 
     this._latInput = document.createElement('gui-input-number');
     this._latInput.addEventListener('gui-change', (ev) => {
