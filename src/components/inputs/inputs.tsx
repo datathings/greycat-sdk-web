@@ -1512,7 +1512,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   constructor() {
     super();
 
-    this.shadowRoot!.adoptedStyleSheets.push(GuiInputMap.STYLE);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputMap.STYLE);
 
     if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
       GuiInputMap.ALLOWED_KEY_OPTIONS = [
