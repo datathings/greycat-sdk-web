@@ -219,12 +219,11 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
    *
    * *The equality check on the value is made using `===`.*
    *
-   * *If `undefined`, it empties the input.*
+   * *If `undefined` or `null`, it empties the input.*
    */
   set value(value: T | undefined) {
-    if (value === undefined) {
+    if (value === undefined || value === null) {
       this._input.value = '';
-      return;
     }
 
     for (let i = 0; i < this._list.children.length; i++) {
