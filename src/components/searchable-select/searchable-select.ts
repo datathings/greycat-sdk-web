@@ -224,7 +224,6 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
   set value(value: T | undefined) {
     if (value === undefined) {
       this._input.value = '';
-      return;
     }
 
     for (let i = 0; i < this._list.children.length; i++) {
