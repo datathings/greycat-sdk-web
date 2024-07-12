@@ -25,3 +25,23 @@ export function vMap(x: unknown): number {
 export function vMapRound(x: unknown): number {
   return Math.round(vMap(x));
 }
+
+export function handleBounds(
+  value: number,
+  min: number | null,
+  max: number | null,
+): [number | null, number | null] {
+  if (value !== null && value !== undefined && !isNaN(value)) {
+    if (min == null) {
+      min = value;
+    } else if (value <= min) {
+      min = value;
+    }
+    if (max == null) {
+      max = value;
+    } else if (value >= max) {
+      max = value;
+    }
+  }
+  return [min, max];
+}

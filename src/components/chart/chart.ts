@@ -16,7 +16,7 @@ import {
   Axis,
 } from './types.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
-import { vMap } from './internals.js';
+import { handleBounds, vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
 
@@ -457,6 +457,13 @@ export class GuiChart extends HTMLElement {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
 
+    // check for custom series
+    for (const serie of this._config.series) {
+      if (serie.type === 'custom' && serie.table !== undefined) {
+        serie.table = toColumnBasedTable(serie.table);
+      }
+    }
+
     this.compute();
     this.update();
   }
@@ -465,8 +472,15 @@ export class GuiChart extends HTMLElement {
     return this._config;
   }
 
-  setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
-    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+  setAttrs({
+    config = this._config,
+    value = this._table,
+  }: Partial<{ config: ChartConfig; value: TableLike }>) {
+    this._table = config.table
+      ? toColumnBasedTable(config.table)
+      : value
+      ? toColumnBasedTable(value)
+      : {};
     this._config = config;
 
     // update local user X min/max with the configuration values
@@ -495,11 +509,7 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (
-      !this._computed ||
-      this._table.cols === undefined ||
-      this._table.cols.length === 0
-    ) {
+    if (!this._computed || this._table.cols === undefined || this._table.cols.length === 0) {
       return;
     }
     this._clearUX();
@@ -640,8 +650,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-              (style.margin.right + rightAxesIdx * style.margin.right) +
-              padding,
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -674,8 +684,17 @@ export class GuiChart extends HTMLElement {
 
         const v = +xScale.invert(this._cursor.x);
 
+        let table = this._table;
+        if (serie.type === 'custom' && serie.table !== undefined) {
+          table = serie.table as TableLikeColumnBased;
+        }
+
+        if (!table.cols) {
+          return;
+        }
+
         const { xValue, rowIdx } = closest(
-          this._table.cols,
+          table.cols,
           this._config,
           serie,
           this._cursor,
@@ -685,15 +704,15 @@ export class GuiChart extends HTMLElement {
         );
 
         const yValue =
-          typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
-            ? Number(this._table.cols[serie.yCol][rowIdx])
-            : this._table.cols[serie.yCol][rowIdx];
+          typeof table.cols[serie.yCol][rowIdx] === 'bigint'
+            ? Number(table.cols[serie.yCol][rowIdx])
+            : table.cols[serie.yCol][rowIdx];
         const x = xScale(vMap(xValue));
         let y = yScales[serie.yAxis](vMap(yValue));
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
-          yValue2 = this._table.cols[serie.yCol2][rowIdx];
+          yValue2 = table.cols[serie.yCol2][rowIdx];
         }
 
         if (serie.markerThreshold) {
@@ -711,7 +730,7 @@ export class GuiChart extends HTMLElement {
         }
 
         // marker
-        switch (serie.type ?? 'line') {
+        switch (serie.type) {
           case 'line+scatter':
           case 'scatter':
           case 'line':
@@ -736,8 +755,8 @@ export class GuiChart extends HTMLElement {
             let h: number;
             let rectY: number;
             if (s.spanCol) {
-              const x0 = xScale(vMap(this._table.cols[s.spanCol[0]][rowIdx]));
-              const x1 = xScale(vMap(this._table.cols[s.spanCol[1]][rowIdx]));
+              const x0 = xScale(vMap(table.cols[s.spanCol[0]][rowIdx]));
+              const x1 = xScale(vMap(table.cols[s.spanCol[1]][rowIdx]));
               w = Math.abs(x1 - x0);
             }
 
@@ -778,12 +797,10 @@ export class GuiChart extends HTMLElement {
         let color = serie.color;
         if (serie.colorCol) {
           color = serie.colorMapping
-            ? serie.colorMapping(this._table.cols[serie.colorCol][rowIdx])
-            : this._table.cols[serie.colorCol][rowIdx];
+            ? serie.colorMapping(table.cols[serie.colorCol][rowIdx])
+            : table.cols[serie.colorCol][rowIdx];
         } else if (serie.styleCol && serie.styleMapping) {
-          color =
-            serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ??
-            color;
+          color = serie.styleMapping(table.cols[serie.styleCol][rowIdx]).color?.toString() ?? color;
         }
         if (!color) {
           color = serie.color;
@@ -810,7 +827,7 @@ export class GuiChart extends HTMLElement {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent =
-            serie.title ?? this._table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+            serie.title ?? table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -827,7 +844,7 @@ export class GuiChart extends HTMLElement {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
             nameEl.textContent =
-              serie.title ?? this._table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+              serie.title ?? table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (
@@ -1303,19 +1320,20 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
-            if (value !== null && value !== undefined && !isNaN(value)) {
-              if (xMin == null) {
-                xMin = value;
-              } else if (value <= xMin) {
-                xMin = value;
-              }
-              if (xMax == null) {
-                xMax = value;
-              } else if (value >= xMax) {
-                xMax = value;
-              }
+          //Compute the custom serie x domain with the main table if the user hasn't provided another table
+          if (serie.type !== 'custom' || (serie.type === 'custom' && serie.table === undefined)) {
+            for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
+              const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
+              [xMin, xMax] = handleBounds(value, xMin, xMax);
+            }
+          } else if (serie.type === 'custom' && serie.table) {
+            for (
+              let row = 0;
+              row < ((serie.table as TableLikeColumnBased).cols?.[serie.xCol]?.length ?? 0);
+              row++
+            ) {
+              const value = vMap((serie.table as TableLikeColumnBased).cols?.[serie.xCol]?.[row]);
+              [xMin, xMax] = handleBounds(value, xMin, xMax);
             }
           }
         }
@@ -1352,35 +1370,24 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
-              if (value !== null && value !== undefined && !isNaN(value)) {
-                if (min == null) {
-                  min = value;
-                } else if (value <= min) {
-                  min = value;
-                }
-                if (max == null) {
-                  max = value;
-                } else if (value >= max) {
-                  max = value;
+            if (serie.type !== 'custom' || (serie.type === 'custom' && serie.table === undefined)) {
+              for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
+                const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
+                [min, max] = handleBounds(value, min, max);
+                // make sure to account for 'yCol2' if used
+                if (typeof serie.yCol2 === 'number') {
+                  const value = vMap(this._table.cols?.[serie.yCol2]?.[row]);
+                  [min, max] = handleBounds(value, min, max);
                 }
               }
-              // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols?.[serie.yCol2]?.[row]);
-                if (value !== null && value !== undefined && !isNaN(value)) {
-                  if (min == null) {
-                    min = value;
-                  } else if (value <= min) {
-                    min = value;
-                  }
-                  if (max == null) {
-                    max = value;
-                  } else if (value >= max) {
-                    max = value;
-                  }
-                }
+            } else if (serie.type === 'custom' && serie.table) {
+              for (
+                let row = 0;
+                row < ((serie.table as TableLikeColumnBased).cols?.[serie.yCol]?.length ?? 0);
+                row++
+              ) {
+                const value = vMap((serie.table as TableLikeColumnBased).cols?.[serie.yCol]?.[row]);
+                [min, max] = handleBounds(value, min, max);
               }
             }
           }
@@ -1502,7 +1509,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap { }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {
