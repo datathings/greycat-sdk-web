@@ -491,6 +491,12 @@ export class GuiChart extends HTMLElement {
     for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
+    // check for custom series
+    for (const serie of this._config.series) {
+      if (serie.type === 'custom' && serie.table !== undefined) {
+        serie.table = toColumnBasedTable(serie.table);
+      }
+    }
 
     this.compute();
     this.update();
@@ -736,6 +742,7 @@ export class GuiChart extends HTMLElement {
           case 'line':
           case 'step':
           case 'line+area':
+          case 'custom':
           case 'area': {
             // only draw marker if inside the range
             if (y <= yRange[0] && y >= yRange[1] && x <= xRange[1] && x >= xRange[0]) {
