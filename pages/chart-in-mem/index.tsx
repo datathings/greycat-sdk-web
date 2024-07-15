@@ -13,15 +13,14 @@ const startDate = new Date(2023, 0, 1); // January 1, 2023
 const endDate = new Date(2023, 11, 31); // December 31, 2023
 
 // Generate an array of dates with daily intervals
-const timeRange = d3.timeDays(startDate, endDate);
+const timeRange = d3.timeDays(startDate, endDate, 10);
 const data = Array.from({ length: timeRange.length }, d3.randomUniform(2));
 
-const other = d3.timeDays(startDate, new Date(2024, 11, 31), 2);
-const data2 = Array.from({ length: other.length }, d3.randomUniform(5));
+const timeRange2 = d3.timeDays(endDate, new Date(2024, 11, 31), 10);
+const data2 = Array.from({ length: timeRange2.length }, d3.randomUniform(5));
 const table2 = toColumnBasedTable({
-  cols: [data2, other],
+  cols: [data2, timeRange2],
 });
-console.log(table2);
 
 const chart = (
   <gui-chart
@@ -58,3 +57,5 @@ const chart = (
 ) as GuiChart;
 
 app.main.appendChild(chart);
+
+console.log(chart.config);
