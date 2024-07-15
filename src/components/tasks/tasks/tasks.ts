@@ -74,7 +74,9 @@ export class GuiTasks extends HTMLElement {
     });
     this.table.addEventListener('table-click', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(this._tasks[ev.detail.row[0].originalIndex]));
+      this.dispatchEvent(
+        new GuiClickEvent<TaskInfoLike>(this._tasks[ev.detail.row[0].originalIndex]),
+      );
     });
 
     this._updateId = -1;
@@ -104,7 +106,7 @@ export class GuiTasks extends HTMLElement {
 
   /**
    * Modifies the frequency in milliseconds of the reload of the task list from the server.
-   * 
+   *
    * *If the `delay` is less than or equal to `0` it deactivates the auto-reload*
    */
   set updateDelay(delay: number) {
@@ -179,7 +181,7 @@ export class GuiTasks extends HTMLElement {
 
         row[0] = task.task_id; // Id
         row[1] = name_or_id; // User
-        row[2] = `${task.mod}::${task.fun}`; // Name
+        row[2] = task.type ? `${task.mod}::${task.type}::${task.fun}` : `${task.mod}::${task.fun}`; // Name
         row[3] = task.creation; // Created
         row[4] = task.start ?? ''; // Started
         row[5] = task.duration ?? ''; // Duration
