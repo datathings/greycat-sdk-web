@@ -1,5 +1,5 @@
 import type { core } from '@greycat/sdk';
-import type { TableLike, TableLikeColumnBased } from '../common.js';
+import type { TableLikeColumnBased } from '../common.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
@@ -299,7 +299,7 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
 export interface CustomSerie<K> extends CommonSerie<K> {
   type: 'custom';
   draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
-  table?: TableLike;
+  table?: TableLikeColumnBased;
 }
 
 export interface LineSerie<K> extends CommonSerie<K>, LineOptions {

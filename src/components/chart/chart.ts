@@ -16,7 +16,7 @@ import {
   Axis,
 } from './types.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
-import { handleBounds, vMap } from './internals.js';
+import { vMap } from './internals.js';
 import { core } from '@greycat/sdk';
 import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
 
@@ -457,13 +457,6 @@ export class GuiChart extends HTMLElement {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
 
-    // check for custom series
-    for (const serie of this._config.series) {
-      if (serie.type === 'custom' && serie.table !== undefined) {
-        serie.table = toColumnBasedTable(serie.table);
-      }
-    }
-
     this.compute();
     this.update();
   }
@@ -490,12 +483,6 @@ export class GuiChart extends HTMLElement {
     this._userYAxes = {};
     for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
-    }
-    // check for custom series
-    for (const serie of this._config.series) {
-      if (serie.type === 'custom' && serie.table !== undefined) {
-        serie.table = toColumnBasedTable(serie.table);
-      }
     }
 
     this.compute();
@@ -692,7 +679,7 @@ export class GuiChart extends HTMLElement {
 
         let table = this._table;
         if (serie.type === 'custom' && serie.table !== undefined) {
-          table = serie.table as TableLikeColumnBased;
+          table = serie.table;
         }
 
         if (!table.cols) {
@@ -1327,20 +1314,33 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          //Compute the custom serie x domain with the main table if the user hasn't provided another table
-          if (serie.type !== 'custom' || (serie.type === 'custom' && serie.table === undefined)) {
-            for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
-              [xMin, xMax] = handleBounds(value, xMin, xMax);
-            }
-          } else if (serie.type === 'custom' && serie.table) {
-            for (
-              let row = 0;
-              row < ((serie.table as TableLikeColumnBased).cols?.[serie.xCol]?.length ?? 0);
-              row++
-            ) {
-              const value = vMap((serie.table as TableLikeColumnBased).cols?.[serie.xCol]?.[row]);
-              [xMin, xMax] = handleBounds(value, xMin, xMax);
+          let col: unknown[][];
+          if (
+            serie.type === 'custom' &&
+            serie.table?.cols &&
+            Array.isArray(serie.table.cols[serie.xCol])
+          ) {
+            col = serie.table.cols[serie.xCol];
+          }
+          if (this._table.cols && Array.isArray(this._table.cols[serie.xCol])) {
+            col = this._table.cols[serie.xCol];
+          } else {
+            col = [];
+          }
+
+          for (let row = 0; row < col.length; row++) {
+            const value = vMap(col[serie.xCol]?.[row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMin == null) {
+                xMin = value;
+              } else if (value <= xMin) {
+                xMin = value;
+              }
+              if (xMax == null) {
+                xMax = value;
+              } else if (value >= xMax) {
+                xMax = value;
+              }
             }
           }
         }
@@ -1377,24 +1377,48 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            if (serie.type !== 'custom' || (serie.type === 'custom' && serie.table === undefined)) {
-              for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
-                const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
-                [min, max] = handleBounds(value, min, max);
-                // make sure to account for 'yCol2' if used
-                if (typeof serie.yCol2 === 'number') {
-                  const value = vMap(this._table.cols?.[serie.yCol2]?.[row]);
-                  [min, max] = handleBounds(value, min, max);
+            let col: unknown[][];
+            if (
+              serie.type === 'custom' &&
+              serie.table?.cols &&
+              Array.isArray(serie.table.cols[serie.yCol])
+            ) {
+              col = serie.table.cols[serie.yCol];
+            }
+            if (this._table.cols && Array.isArray(this._table.cols[serie.yCol])) {
+              col = this._table.cols[serie.yCol];
+            } else {
+              col = [];
+            }
+
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(col[serie.yCol]?.[row]);
+              if (value !== null && value !== undefined && !isNaN(value)) {
+                if (min == null) {
+                  min = value;
+                } else if (value <= min) {
+                  min = value;
                 }
-              }
-            } else if (serie.type === 'custom' && serie.table) {
-              for (
-                let row = 0;
-                row < ((serie.table as TableLikeColumnBased).cols?.[serie.yCol]?.length ?? 0);
-                row++
-              ) {
-                const value = vMap((serie.table as TableLikeColumnBased).cols?.[serie.yCol]?.[row]);
-                [min, max] = handleBounds(value, min, max);
+                if (max == null) {
+                  max = value;
+                } else if (value >= max) {
+                  max = value;
+                }
+              } // make sure to account for 'yCol2' if used
+              if (typeof serie.yCol2 === 'number') {
+                const value = vMap(col[serie.yCol2]?.[row]);
+                if (value !== null && value !== undefined && !isNaN(value)) {
+                  if (min == null) {
+                    min = value;
+                  } else if (value <= min) {
+                    min = value;
+                  }
+                  if (max == null) {
+                    max = value;
+                  } else if (value >= max) {
+                    max = value;
+                  }
+                }
               }
             }
           }
