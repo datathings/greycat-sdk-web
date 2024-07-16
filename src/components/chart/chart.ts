@@ -1314,22 +1314,21 @@ export class GuiChart extends HTMLElement {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          let col: unknown[][];
+          let col: unknown[];
           if (
             serie.type === 'custom' &&
             serie.table?.cols &&
             Array.isArray(serie.table.cols[serie.xCol])
           ) {
             col = serie.table.cols[serie.xCol];
-          }
-          if (this._table.cols && Array.isArray(this._table.cols[serie.xCol])) {
+          } else if (this._table.cols && Array.isArray(this._table.cols[serie.xCol])) {
             col = this._table.cols[serie.xCol];
           } else {
             col = [];
           }
 
           for (let row = 0; row < col.length; row++) {
-            const value = vMap(col[serie.xCol]?.[row]);
+            const value = vMap(col[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1377,22 +1376,21 @@ export class GuiChart extends HTMLElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            let col: unknown[][];
+            let col: unknown[];
             if (
               serie.type === 'custom' &&
               serie.table?.cols &&
               Array.isArray(serie.table.cols[serie.yCol])
             ) {
               col = serie.table.cols[serie.yCol];
-            }
-            if (this._table.cols && Array.isArray(this._table.cols[serie.yCol])) {
+            } else if (this._table.cols && Array.isArray(this._table.cols[serie.yCol])) {
               col = this._table.cols[serie.yCol];
             } else {
               col = [];
             }
 
             for (let row = 0; row < col.length; row++) {
-              const value = vMap(col[serie.yCol]?.[row]);
+              const value = vMap(col[row]);
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1406,7 +1404,7 @@ export class GuiChart extends HTMLElement {
                 }
               } // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = vMap(col[serie.yCol2]?.[row]);
+                const value = vMap(col[row]);
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
