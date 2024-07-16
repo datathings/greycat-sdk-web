@@ -20,6 +20,7 @@ export interface GuiValueProps {
   /** optional user-defined data */
   data?: unknown;
   className?: string;
+  title?: string;
   /** callback used when `linkify` is `true` */
   onClick: ClickHandler<unknown>;
 }
@@ -132,6 +133,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     text = this._text,
     data = this._data,
     className = this.className,
+    title = this.title,
   }: Partial<GuiValueProps>) {
     if (
       this._value === value &&
@@ -143,7 +145,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       this._numFmt === numFmt &&
       this._text === text &&
       this._data === data &&
-      this.className === className
+      this.className === className &&
+      this.title === title
     ) {
       // prevent unecessary re-renders
       return;
@@ -158,6 +161,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._text = text;
     this._data = data;
     this.className = className;
+    this.title = title;
     this.render();
   }
 
@@ -171,6 +175,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     numFmt: Intl.NumberFormat | undefined;
     text: string | undefined;
     data: unknown;
+    className: string;
+    title: string;
   } {
     return {
       value: this._value,
@@ -182,6 +188,8 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
       numFmt: this._numFmt,
       text: this._text,
       data: this._data,
+      className: this.className,
+      title: this.title,
     };
   }
 
@@ -286,12 +294,14 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     }
 
     el.textContent = content;
-    el.title = utils.stringify({
-      value: this._value,
-      dateFmt: this._dateFmt,
-      numFmt,
-      pretty: true,
-    });
+    if (el.title.length === 0) {
+      el.title = utils.stringify({
+        value: this._value,
+        dateFmt: this._dateFmt,
+        numFmt,
+        pretty: true,
+      });
+    }
   }
 }
 

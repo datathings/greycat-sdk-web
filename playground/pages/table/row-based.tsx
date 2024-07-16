@@ -1,14 +1,15 @@
 import '@/common';
 import { GreyCat, IndexedDbCache } from '@greycat/web';
+import { actions } from './actions';
 
 greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
 document.body.appendChild(
-  <app-layout title="Table - utils">
+  <app-layout title="Table (row-based)" mainStyle={{ display: 'flex', gap: 'var(--spacing)' }}>
+    {actions}
     <gui-table
-      style={{ backgroundColor: 'var(--bg-1)' }}
       value={{
         rows: [
           ['John', 42, 2],
@@ -17,11 +18,6 @@ document.body.appendChild(
         ],
         meta: ['Name', { header: 'Age' }, 'Children'],
       }}
-    />
-
-    <gui-table
-      style={{ backgroundColor: 'var(--bg-1)' }}
-      value={await greycat.default.call('project::persons')}
     />
   </app-layout>,
 );

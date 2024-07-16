@@ -1,4 +1,4 @@
-import { AbiType, core } from '@greycat/sdk';
+import { AbiType, core, GCObject } from '@greycat/sdk';
 
 declare global {
   interface HTMLElementEventMap {
@@ -31,9 +31,10 @@ export type TableLikeMeta = {
  *
  * *This is mainly useful for in-mem usage of the components in JavaScript*
  */
-export type TableLike = core.Table | TableLikeColumnBased | TableLikeRowBased | TableLikeObjectBased;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type TableLike = Map<any, any> | core.Map | core.Table | TableLikeColumnBased | TableLikeRowBased | TableLikeObjectBased;
 export type TableLikeColumnBased = {
-  /** Specify either `rows` **OR** `cols` not both. If both are specified, `cols` will be used. */
+  /** Specify either `rows` **OR** `cols` not both. Isf both are specified, `cols` will be used. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols?: any[][];
   meta?: (string | TableLikeMeta)[];
@@ -144,6 +145,14 @@ function rowsToCols(rows?: unknown[][]): any[][] | undefined {
   }
 
   return cols;
+}
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function mapToCols(map: Map<unknown, unknown>): any[][] | undefined {
+  const keys = Array.from(map.keys());
+  const values = Array.from(map.values());
+  return [keys, values];
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -262,7 +271,12 @@ export function tableFromObjects(rows: Array<object>): TableLikeColumnBased {
   };
 }
 
-export function tableRowsFromObjects(arr: Array<object>): {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function rowsFromMap(map: Map<unknown, unknown>): any[][] | undefined {
+  return Array.from(map.entries());
+}
+
+export function tableRowsFromArray(arr: Array<unknown>): {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: any[][] | undefined;
   meta: TableLikeMeta[] | undefined;
@@ -270,16 +284,28 @@ export function tableRowsFromObjects(arr: Array<object>): {
   if (arr.length === 0) {
     return { rows: undefined, meta: undefined };
   }
-  const headers = Object.keys(arr[0]);
+  let headers: string[];
+  let containsObjects = false;
+  if (typeof arr[0] === 'object' && arr[0]) {
+    headers = Object.keys(arr[0]);
+    containsObjects = true;
+  } else {
+    headers = ['Element'];
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const rows: any[][] = new Array(arr.length);
 
   for (let row = 0; row < arr.length; row++) {
     rows[row] = new Array(headers.length);
     for (let col = 0; col < headers.length; col++) {
-      const key = headers[col];
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      rows[row][col] = (arr[row] as any)[key];
+      if (containsObjects) {
+        const key = headers[col];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        rows[row][col] = (arr[row] as any)[key];
+      } else {
+        rows[row][col] = arr[row];
+      }
     }
   }
 
@@ -327,6 +353,14 @@ export class TableView {
       this._cols = this._table.cols;
       this._rows = undefined;
       this._meta = this._table.meta;
+    } else if (this._table instanceof core.Map) {
+      this._cols = undefined;
+      this._rows = undefined;
+      this._meta = this._createMetaFromMap(this._table.map);
+    } else if (this._table instanceof Map) {
+      this._cols = undefined;
+      this._rows = undefined;
+      this._meta = this._createMetaFromMap(this._table);
     } else if ('cols' in this._table) {
       this._cols = this._table.cols;
       this._rows = undefined;
@@ -338,18 +372,21 @@ export class TableView {
     } else if (Array.isArray(this._table)) {
       this._cols = undefined;
       this._rows = undefined;
-      this._meta = this._createMetaFromObjects(this._table);
+      this._meta = this._createMetaFromArray(this._table);
     } else {
       this._meta = [];
     }
   }
 
-  get kind(): 'column' | 'row' | 'objects' {
+  get kind(): 'column' | 'row' | 'objects' | 'map' {
     if ('cols' in this._table) {
       return 'column';
     }
     if ('rows' in this._table) {
       return 'row';
+    }
+    if (this._table instanceof core.Map || this._table instanceof Map) {
+      return 'map';
     }
     return 'objects';
   }
@@ -388,6 +425,16 @@ export class TableView {
       return this._cols;
     }
 
+    if (this._table instanceof core.Map) {
+      this._cols = mapToCols(this._table.map) ?? [];
+      return this._cols;
+    }
+
+    if (this._table instanceof Map) {
+      this._cols = mapToCols(this._table) ?? [];
+      return this._cols;
+    }
+
     if (Array.isArray(this._table)) {
       this._cols = objectsToCols(this._table) ?? [];
       return this._cols;
@@ -412,8 +459,18 @@ export class TableView {
       return this._rows;
     }
 
+    if (this._table instanceof core.Map) {
+      this._rows = rowsFromMap(this._table.map) ?? [];
+      return this._rows;
+    }
+
+    if (this._table instanceof Map) {
+      this._rows = rowsFromMap(this._table) ?? [];
+      return this._rows;
+    }
+
     if (Array.isArray(this._table)) {
-      const { rows, meta } = tableRowsFromObjects(this._table);
+      const { rows, meta } = tableRowsFromArray(this._table);
       this._rows = rows ?? [];
       this._meta = meta ?? [];
       return this._rows;
@@ -469,13 +526,38 @@ export class TableView {
     return res;
   }
 
-  private _createMetaFromObjects(
-    rows: Array<object>,
+  private _createMetaFromArray(
+    rows: Array<unknown>,
   ): TableLikeMeta[] {
-    if (rows.length === 0 || typeof rows[0] !== 'object') {
+    if (rows.length === 0) {
       return [];
     }
-    return Object.keys(rows[0]).map((header) => ({ header }));
+    if (typeof rows[0] === 'object' && rows[0]) {
+      return Object.keys(rows[0]).map((header) => ({ header }));
+    } else {
+      return [{ header: 'Column 0' }];
+    }
+  }
+
+  private _createMetaFromMap(map: Map<unknown, unknown>): TableLikeMeta[] {
+    let keyType: string | undefined;
+    let valueType: string | undefined;
+    map.forEach((value, key) => {
+      const kType = key instanceof GCObject ? key.$type.name : typeof key;
+      if (keyType === undefined) {
+        keyType = kType;
+      } else if (keyType !== kType) {
+        keyType = 'core::undefined';
+      }
+
+      const vType = value instanceof GCObject ? value.$type.name : typeof value;
+      if (valueType === undefined) {
+        valueType = vType;
+      } else if (valueType !== vType) {
+        valueType = 'core::undefined';
+      }
+    });
+    return [{ header: 'Key', typeName: keyType }, { header: 'Value', typeName: valueType }];
   }
 }
 

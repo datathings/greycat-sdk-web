@@ -1,4 +1,4 @@
-import { GCEnum, GCObject, PrimitiveType, core, runtime, std_n } from '@greycat/sdk';
+import { GCEnum, GCObject, core, runtime } from '@greycat/sdk';
 import type { GuiValueProps } from '../index.js';
 
 /**
@@ -65,7 +65,7 @@ export class GuiObject extends HTMLElement {
 
   connectedCallback() {
     this.className = 'gui-object';
-    this.update();
+    setTimeout(() => this.update(), 0);
   }
 
   disconnectedCallback() {
@@ -169,17 +169,6 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
-        if (this._value instanceof GCObject) {
-          const customElement = GuiObject.components.get(this._value.$type.name);
-          if (customElement) {
-            const element = document.createElement(customElement) as GuiObject;
-            element.value = this._value;
-            Object.assign(element, this._props);
-            this.replaceChildren(element);
-            return;
-          }
-        }
-
         // Enum
         if (this._value instanceof GCEnum) {
           let text: string;
@@ -192,38 +181,25 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
+        if (this._value instanceof GCObject) {
+          const customElement = GuiObject.components.get(this._value.$type.name);
+          if (customElement) {
+            const element = document.createElement(customElement) as GuiObject;
+            element.value = this._value;
+            Object.assign(element, this._props);
+            this.replaceChildren(element);
+            return;
+          }
+        }
+
         // Array
         if (Array.isArray(this._value)) {
-          const indexes: number[] = [];
-          const values: unknown[] = [];
-          for (let i = 0; i < this._value.length; i++) {
-            indexes.push(i);
-            values.push(this._value[i]);
-          }
           const tableEl = document.createElement(
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.cellTagNames = { 1: 'gui-object' };
-          tableEl.value = {
-            cols: [indexes, values],
-            meta: [
-              new std_n.core.NativeTableColumnMeta(
-                PrimitiveType.int,
-                greycat.default.abi.type_by_fqn.get(core.int._type)?.mapped_type_off ?? 0,
-                core.int._type,
-                true,
-                'Index',
-              ),
-              new std_n.core.NativeTableColumnMeta(
-                PrimitiveType.undefined,
-                0,
-                undefined,
-                false,
-                'Value',
-              ),
-            ],
-          } as core.Table;
+          tableEl.columnFactories = { 0: 'gui-object' };
+          tableEl.value = this._value;
           tableEl.columnsWidths = [135];
           tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
           this.replaceChildren(tableEl);
@@ -232,22 +208,12 @@ export class GuiObject extends HTMLElement {
 
         // Map
         if (this._value instanceof Map) {
-          const keys: number[] = [];
-          const values: unknown[] = [];
-          this._value.forEach((value, key) => {
-            keys.push(key);
-            values.push(value);
-          });
-
           const tableEl = document.createElement(
             GuiObject.components.get(core.Table._type) ?? 'gui-table',
           ) as GuiObject;
-          tableEl.cellTagNames = { 1: 'gui-object' };
+          tableEl.columnFactories = { 1: 'gui-object' };
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.value = {
-            cols: [keys, values],
-            meta: [{ header: 'Key' }, { header: 'Value' }],
-          };
+          tableEl.value = this._value;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.columnsWidths = [135];
           tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
@@ -346,7 +312,7 @@ export class GuiObject extends HTMLElement {
           //
           // the above selectors rely on the below structure to work properly
           this.replaceChildren(
-            <sl-card>
+            <sl-card className="gui-object-card">
               {this._withHeader ? (
                 <header slot="header">{this._typeName(this._value)}</header>
               ) : undefined}
@@ -385,7 +351,7 @@ export class GuiObject extends HTMLElement {
 
         if (this._withHeader) {
           this.replaceChildren(
-            <sl-card>
+            <sl-card className="gui-object-card">
               <header slot="header">{this._typeName(this._value)}</header>
               <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
             </sl-card>,
@@ -451,11 +417,13 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-object': GreyCat.Element<GuiObject & {
-        // gui-object accept any properties that the underlying component
-        // would accept, therefore we have to loosen its type
-        [key: string]: unknown;
-      }>;
+      'gui-object': GreyCat.Element<
+        GuiObject & {
+          // gui-object accept any properties that the underlying component
+          // would accept, therefore we have to loosen its type
+          [key: string]: unknown;
+        }
+      >;
     }
   }
 }

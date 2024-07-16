@@ -1,6 +1,6 @@
-import type { GuiTableCellElement } from '../table/table.js';
+import type { GuiValueElement } from '../table/table.js';
 
-export class GuiRolePermissions extends HTMLElement implements GuiTableCellElement {
+export class GuiRolePermissions extends HTMLElement implements GuiValueElement {
   set value(value: string[]) {
     if (value.length > 0) {
       value.sort();

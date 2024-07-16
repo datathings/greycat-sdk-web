@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.56-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.56-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.57-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.57-dev.tgz'
   '@shoelace-style/shoelace':
     specifier: 2.15.1
     version: 2.15.1(@types/react@18.3.3)
@@ -31,9 +31,6 @@ devDependencies:
   '@types/d3':
     specifier: 7.4.0
     version: 7.4.0
-  '@types/node':
-    specifier: 20.4.5
-    version: 20.4.5
   '@typescript-eslint/eslint-plugin':
     specifier: 6.2.1
     version: 6.2.1(@typescript-eslint/parser@6.20.0)(eslint@8.46.0)(typescript@5.4.2)
@@ -60,10 +57,10 @@ devDependencies:
     version: 5.4.2
   vite:
     specifier: 4.4.8
-    version: 4.4.8(@types/node@20.4.5)(lightningcss@1.25.1)
+    version: 4.4.8(lightningcss@1.25.1)
   vitepress:
     specifier: 1.0.0-rc.22
-    version: 1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.3.3)(lightningcss@1.25.1)(search-insights@2.13.0)(typescript@5.4.2)
+    version: 1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/react@18.3.3)(lightningcss@1.25.1)(search-insights@2.13.0)(typescript@5.4.2)
 
 packages:
 
@@ -851,10 +848,6 @@ packages:
 
   /@types/mdurl@1.0.5:
     resolution: {integrity: sha512-6L6VymKTzYSrEf4Nev4Xa1LCHKrlTlYCBMTlQKFuddo1CvQcE52I0mwfOJayueUC7MJuXOeHTcIU683lzd0cUA==}
-    dev: true
-
-  /@types/node@20.4.5:
-    resolution: {integrity: sha512-rt40Nk13II9JwQBdeYqmbn2Q6IVTA5uPhvSO+JVqdXw/6/4glI6oR9ezty/A9Hg5u7JH4OmYmuQ+XvjKm0Datg==}
     dev: true
 
   /@types/prop-types@15.7.12:
@@ -2733,7 +2726,7 @@ packages:
       punycode: 2.3.1
     dev: true
 
-  /vite@4.4.8(@types/node@20.4.5)(lightningcss@1.25.1):
+  /vite@4.4.8(lightningcss@1.25.1):
     resolution: {integrity: sha512-LONawOUUjxQridNWGQlNizfKH89qPigK36XhMI7COMGztz8KNY0JHim7/xDd71CZwGT4HtSRgI7Hy+RlhG0Gvg==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2761,7 +2754,6 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.5
       esbuild: 0.18.17
       lightningcss: 1.25.1
       postcss: 8.4.33
@@ -2770,7 +2762,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vite@4.5.2(@types/node@20.4.5)(lightningcss@1.25.1):
+  /vite@4.5.2(lightningcss@1.25.1):
     resolution: {integrity: sha512-tBCZBNSBbHQkaGyhGCDUGqeo2ph8Fstyp6FMSvTtsXeZSPpSMGlviAOav2hxVTqFcx8Hj/twtWKsMJXNY0xI8w==}
     engines: {node: ^14.18.0 || >=16.0.0}
     hasBin: true
@@ -2798,7 +2790,6 @@ packages:
       terser:
         optional: true
     dependencies:
-      '@types/node': 20.4.5
       esbuild: 0.18.17
       lightningcss: 1.25.1
       postcss: 8.4.33
@@ -2807,7 +2798,7 @@ packages:
       fsevents: 2.3.3
     dev: true
 
-  /vitepress@1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/node@20.4.5)(@types/react@18.3.3)(lightningcss@1.25.1)(search-insights@2.13.0)(typescript@5.4.2):
+  /vitepress@1.0.0-rc.22(@algolia/client-search@4.22.1)(@types/react@18.3.3)(lightningcss@1.25.1)(search-insights@2.13.0)(typescript@5.4.2):
     resolution: {integrity: sha512-n7le5iikCFgWMuX7sKfzDGJGlrsYQ5trG3S97BghNz2alOTr4Xp+GrB6ShwogUTX9gNgeNmrACjokhW55LNeBA==}
     hasBin: true
     peerDependencies:
@@ -2829,7 +2820,7 @@ packages:
       mark.js: 8.11.1
       minisearch: 6.3.0
       shiki: 0.14.7
-      vite: 4.5.2(@types/node@20.4.5)(lightningcss@1.25.1)
+      vite: 4.5.2(lightningcss@1.25.1)
       vue: 3.4.15(typescript@5.4.2)
     transitivePeerDependencies:
       - '@algolia/client-search'
@@ -2937,10 +2928,10 @@ packages:
       vscode-languageserver-types: 3.17.5
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.56-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.56-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.57-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.57-dev.tgz}
     name: '@greycat/sdk'
-    version: 7.0.56-dev
+    version: 7.0.57-dev
     engines: {node: '>=18'}
     dependencies:
       slugify: 1.6.6

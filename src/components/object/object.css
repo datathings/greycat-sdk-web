@@ -17,16 +17,16 @@ gui-object {
   row-gap: var(--gui-object-row-gap);
 }
 
-gui-object > sl-card {
+.gui-object-card {
   display: grid;
   grid-template-rows: auto 1fr;
 }
 
-gui-object > sl-card::part(body) {
+.gui-object-card::part(body) {
   padding: 0;
 }
 
-gui-object > sl-card > .gui-object {
+.gui-object-card > .gui-object {
   padding: var(--spacing);
 }
 
@@ -57,6 +57,6 @@ gui-object .gui-object-value > sl-details::part(content) {
   padding: 0;
 }
 
-gui-object .gui-object-value > sl-details > gui-object > sl-card::part(base) {
+gui-object .gui-object-value > sl-details > .gui-object-card::part(base) {
   border-width: 0;
 }

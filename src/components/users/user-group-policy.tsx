@@ -1,6 +1,6 @@
-import { GuiTableCellElement } from '../table/table.js';
+import { GuiValueElement } from '../table/table.js';
 
-export class GuiUserGroupPolicy extends HTMLElement implements GuiTableCellElement {
+export class GuiUserGroupPolicy extends HTMLElement implements GuiValueElement {
   connectedCallback() {
     this.style.display = 'contents';
   }

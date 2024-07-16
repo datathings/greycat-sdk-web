@@ -1012,6 +1012,10 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     this.render();
   }
 
+  get fqn() {
+    return this._fn?.fqn;
+  }
+
   get type() {
     return this._fn;
   }

@@ -6,6 +6,7 @@ import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta, TableView } from '.
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
+
 /**
  * A function called to compute the cell properties
  * that will be passed to the underlying `<gui-value />` component.
@@ -38,6 +39,13 @@ export type Cell = {
    */
   originalColIndex?: number;
 };
+
+export type ColumnFactory = {
+  tag: string;
+  props?: { [key: string | number | symbol]: unknown };
+};
+export type ColumnFactories = Record<number, string | ColumnFactory>;
+export type CleanColumnFactories = Record<number, ColumnFactory>;
 
 /** reusing the same object for every render to ease gc */
 const REUSABLE_CELL_PROPS: CellProps = {
@@ -72,7 +80,7 @@ export class GuiTable extends HTMLElement {
   private _initialized = false;
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   private _disposer = new Disposer();
-  private _cellTagNames: Record<number, string> | undefined;
+  private _columnFactories: CleanColumnFactories | undefined;
 
   constructor() {
     super();
@@ -111,14 +119,14 @@ export class GuiTable extends HTMLElement {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new TableClickEvent(cell.rowIdx, cell.colIdx, cell.data));
+          this.dispatchEvent(new TableDblClickEvent(cell.rowIdx, cell.colIdx, cell.data));
         }
       }
     });
 
-    this._tableContainer.addEventListener('scroll', () => {
+    this._tableContainer.addEventListener('scroll', async () => {
       if (this._tbody.rowHeight <= 0 && this._rows.length > 0) {
-        this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
+        await this._tbody.computeRowHeight(this._rows[0], this._columnFactories);
       }
       const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
 
@@ -225,19 +233,22 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
-  get cellTagNames() {
-    return this._cellTagNames;
+  get columnFactories() {
+    return this._columnFactories;
   }
 
   /**
    * Associates column index to user-defined HTMLElement `'tagName'`.
    *
    * By default, all columns are associated with `'gui-value'`.
+   * 
+   * Any properties can be given to the underlying elements by specifying a `ColumnFactory` rather than
+   * a string `tagName` (eg. `{ tag: 'my-component', props: { color: 'blue' } }`)
    *
-   * **The associated `tagName` should be at least compliant with `GuiTableCellElement`**
+   * **The given element should be at least compliant with `GuiValueElement`**
    */
-  set cellTagNames(cellTagNames: Record<number, string> | undefined) {
-    this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
+  set columnFactories(factories: ColumnFactories | undefined) {
+    this._columnFactories = this._sanitizeColumnFactories(factories);
     this.update();
   }
 
@@ -398,7 +409,7 @@ export class GuiTable extends HTMLElement {
     headers = this._headers,
     columnsWidths = this._thead.widths,
     ignoreCols = this._ignoreCols,
-    cellTagNames = this._cellTagNames,
+    columnFactories = this._columnFactories,
     rowHeight = this._tbody.rowHeight,
     globalFilter = this.globalFilter,
     globalFilterPlaceholder = this.globalFilterPlaceholder,
@@ -412,7 +423,7 @@ export class GuiTable extends HTMLElement {
     headers: string[];
     columnsWidths: number[];
     ignoreCols: number[];
-    cellTagNames: Record<number, string>;
+    columnFactories: ColumnFactories;
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
@@ -426,7 +437,7 @@ export class GuiTable extends HTMLElement {
     this._cellProps = cellProps;
     this._headers = headers;
     this._thead.widths = columnsWidths;
-    this._cellTagNames = this._sanitizeCellTagNames(cellTagNames);
+    this._columnFactories = this._sanitizeColumnFactories(columnFactories);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
     this._sortCol.sortBy(sortBy[0], sortBy[1]);
@@ -449,7 +460,7 @@ export class GuiTable extends HTMLElement {
     headers: string[] | undefined;
     columnsWidths: number[];
     ignoreCols: number[] | undefined;
-    cellTagNames: Record<number, string> | undefined;
+    columnFactories: CleanColumnFactories | undefined;
     rowHeight: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
@@ -464,7 +475,7 @@ export class GuiTable extends HTMLElement {
       headers: this._headers,
       columnsWidths: this._thead.widths,
       ignoreCols: this._ignoreCols,
-      cellTagNames: this._cellTagNames,
+      columnFactories: this._columnFactories,
       rowHeight: this._tbody.rowHeight,
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
@@ -529,10 +540,10 @@ export class GuiTable extends HTMLElement {
       signal: this._disposer.signal,
     });
 
-    const oResize = new ResizeObserver(() => {
+    const oResize = new ResizeObserver(async () => {
       if (this._rows.length > 0) {
         // recompute the available space for the rows
-        this._tbody.computeRowHeight(this._rows[0], this._cellTagNames);
+        await this._tbody.computeRowHeight(this._rows[0], this._columnFactories);
       }
       // update the whole table
       this.update();
@@ -550,7 +561,7 @@ export class GuiTable extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  update() {
+  async update(): Promise<void> {
     if (!this._initialized || !this._table) {
       return;
     }
@@ -602,18 +613,20 @@ export class GuiTable extends HTMLElement {
       this.dispatchEvent(new TableFilterEvent(rows));
     }
 
-    this._tbody.update(
+    await this._tbody.update(
       this._prevFromRowIdx,
       this._thead.widths,
       rows,
       this._minColWidth,
       this._cellProps,
       this._rowUpdateCallback,
-      this._cellTagNames,
+      this._columnFactories,
     );
 
+    const meta = this._table.meta.filter((_, i) => !this._ignoreCols?.includes(i));
+
     const widths = this._thead.update(
-      this._table.meta,
+      meta,
       this._minColWidth,
       this._sortCol,
       this._tbody.virtualScroller.scrollWidth,
@@ -722,26 +735,28 @@ export class GuiTable extends HTMLElement {
     return false;
   }
 
-  private _sanitizeCellTagNames(
-    cellTagNames: Record<number, string> | undefined,
-  ): Record<number, string> | undefined {
-    if (this._cellTagNames === cellTagNames) {
+  private _sanitizeColumnFactories(
+    factories: CleanColumnFactories | ColumnFactories | undefined,
+  ): CleanColumnFactories | undefined {
+    if (factories === undefined) {
+      return undefined;
+    }
+    if (factories === this._columnFactories) {
       // untouched
-      return this._cellTagNames;
+      return this._columnFactories;
     }
-    if (cellTagNames === undefined) {
-      this._cellTagNames = undefined;
-      return this._cellTagNames;
-    }
-    this._cellTagNames = structuredClone(cellTagNames);
-    if (this._cellTagNames) {
-      for (const index in this._cellTagNames) {
-        // HTMLElement.tagName property returns the uppercase tag name
-        // eg. `const el = <gui-value />` will yield `el.tagName === 'GUI-VALUE'`
-        this._cellTagNames[index] = this._cellTagNames[index].toUpperCase();
+
+    const clone = structuredClone(factories);
+    for (const index in clone) {
+      const factory = clone[index];
+      if (typeof factory === 'string') {
+        clone[index] = { tag: factory } as ColumnFactory;
+      } else {
+        clone[index] = { tag: factory.tag, props: factory.props };
       }
     }
-    return this._cellTagNames;
+
+    return clone as CleanColumnFactories;
   }
 }
 
@@ -1085,19 +1100,19 @@ class GuiTableBody extends HTMLElement {
     this.replaceChildren(this.virtualScroller);
   }
 
-  computeRowHeight(row: Cell[], tagNames: Record<number, string> | undefined) {
+  async computeRowHeight(row: Cell[], factories: CleanColumnFactories | undefined) {
     if (this.rowHeight <= 0) {
       // create a ghost row to compute the height
       const tmpRow = document.createElement('gui-tbody-row');
       this.appendChild(tmpRow);
-      tmpRow.update(
+      await tmpRow.update(
         0,
         [150],
         150,
         this.virtualScroller.scrollWidth,
         row,
         DEFAULT_CELL_PROPS,
-        tagNames,
+        factories,
       );
       this.rowHeight = tmpRow.offsetHeight;
       tmpRow.remove();
@@ -1105,17 +1120,17 @@ class GuiTableBody extends HTMLElement {
     // console.log('Computed row height', this.rowHeight);
   }
 
-  update(
+  async update(
     fromRowIdx: number,
     colWidths: number[],
     rows: Cell[][],
     minColWidth: number,
     cellProps: CellPropsFactory,
     updateCallback: RowUpdateCallback,
-    tagNames?: Record<number, string>,
-  ): void {
+    factories?: CleanColumnFactories,
+  ): Promise<void> {
     if (this.rowHeight === -1 && rows.length > 0) {
-      this.computeRowHeight(rows[0], tagNames);
+      await this.computeRowHeight(rows[0], factories);
     }
 
     const extraRows = 5;
@@ -1154,14 +1169,14 @@ class GuiTableBody extends HTMLElement {
       }
       const row = this._getOrCreateRow(rowIdx);
       // update the DOM row to reflect the new row's data
-      row.update(
+      await row.update(
         realIdx,
         colWidths,
         minColWidth,
         availableWidth,
         rows[realIdx],
         cellProps,
-        tagNames,
+        factories,
       );
       // at the right position
       row.style.height = `${this.rowHeight}px`;
@@ -1219,15 +1234,15 @@ class GuiTableBody extends HTMLElement {
 export class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
-  update(
+  async update(
     index: number,
     colWidths: number[],
     minColWidth: number,
     availableWidth: number,
     row: Cell[],
     cellProps: CellPropsFactory,
-    tagNames?: Record<number, string>,
-  ): void {
+    factories?: CleanColumnFactories,
+  ): Promise<void> {
     this.idx = index;
     // this.setAttribute('data-col', `${col}`);
     this.setAttribute('data-row', `${index}`);
@@ -1244,8 +1259,8 @@ export class GuiTableBodyRow extends HTMLElement {
       // SAFETY:
       // `originalColIndex` is optional for backward-compatibility reason, which means
       // it is safe to assert it as a 'number' here
-      cell.update(
-        tagNames?.[row[colIdx].originalColIndex as number],
+      await cell.update(
+        factories?.[row[colIdx].originalColIndex as number],
         index,
         colIdx,
         row,
@@ -1285,7 +1300,7 @@ export class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
   data: Cell[] = [];
-  value: GuiTableCellElement;
+  value: GuiValueElement;
 
   constructor() {
     super();
@@ -1297,40 +1312,67 @@ export class GuiTableBodyCell extends HTMLElement {
     this.appendChild(this.value);
   }
 
-  update(
-    tagName = 'GUI-VALUE',
+  /**
+   * NOTE: Some cell-rendered elements might be shoelace elements (eg. gui-object might rely on sl-card)
+   * What this implies is that some of the elements are lit-powered and therefore they are asynchronously
+   * updated. So we have to make this a promise, so that the underlying elements get a chance to actually
+   * render and we get proper height reporting post-update.
+   * 
+   * @param factory 
+   * @param index 
+   * @param colIdx 
+   * @param row 
+   * @param cellProps 
+   * @param colWidth 
+   * @returns 
+   */
+  async update(
+    factory: ColumnFactory | undefined,
     index: number,
     colIdx: number,
     row: Cell[],
     cellProps: CellPropsFactory,
     colWidth: number,
-  ) {
+  ): Promise<void> {
     this.rowIdx = index;
     this.colIdx = colIdx;
     this.data = row;
     this.setAttribute('data-col', `${colIdx}`);
-    if (this.value.tagName !== tagName) {
-      // different component, replace
-      this.value = document.createElement(tagName) as GuiTableCellElement;
-      this.replaceChildren(this.value);
-    }
-    if (this.value.tagName === 'GUI-VALUE') {
-      if (typeof cellProps === 'function') {
-        (this.value as GuiValue).setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+    if (factory) {
+      if (this.value.tagName !== factory.tag.toUpperCase()) {
+        // different tag: create+replace
+        this.value = document.createElement(factory.tag) as GuiValueElement;
+        this.replaceChildren(this.value);
+      }
+      if (this.value instanceof GuiValue) {
+        if (typeof cellProps === 'function') {
+          this.value.setAttrs({ ...cellProps(row, row[colIdx].value, index, colIdx), ...factory.props });
+        } else {
+          this.value.setAttrs({ ...cellProps, ...factory.props, value: row[colIdx].value });
+        }
+      } else if ('setAttrs' in this.value && typeof this.value.setAttrs === 'function') {
+        this.value.setAttrs({ ...factory.props, value: row[colIdx].value });
       } else {
-        (this.value as GuiValue).setAttrs({ ...cellProps, value: row[colIdx].value });
+        Object.assign(this.value, { ...factory.props, value: row[colIdx].value });
       }
     } else {
-      this.value.value = row[colIdx].value;
+      if (this.value instanceof GuiValue) {
+        if (typeof cellProps === 'function') {
+          this.value.setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+        } else {
+          this.value.setAttrs({ ...cellProps, value: row[colIdx].value });
+        }
+      }
     }
     this.style.width = `${colWidth}px`;
+    return Promise.resolve();
   }
 }
 
 /**
- * Minimal interface to implement when defining `cellTagNames`
+ * Minimal interface to implement when defining `columnFactories`
  */
-export interface GuiTableCellElement<T = unknown> extends HTMLElement {
+export interface GuiValueElement<T = unknown> extends HTMLElement {
   value: T;
 }
 

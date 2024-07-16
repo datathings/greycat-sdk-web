@@ -2,16 +2,15 @@ import HighIcon from '@tabler/icons/temperature-sun.svg?raw';
 import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
-import { GCEnum, GuiTableCellElement } from '../../src';
-import '../layout';
+import { GCEnum, GreyCat, GuiValueElement, IndexedDbCache, TableLike } from '@greycat/web';
+import '@/common';
+import { actions } from './actions';
 
-const app = document.createElement('app-layout');
-app.title = 'Table - Ignore columns';
-await app.init();
+greycat.default = await GreyCat.init({
+  cache: new IndexedDbCache('sdk-web-playground'),
+});
 
-document.body.prepend(app);
-
-export class AppConfidence extends HTMLElement implements GuiTableCellElement<GCEnum> {
+export class AppConfidence extends HTMLElement implements GuiValueElement<GCEnum> {
   private static HIGH: SVGSVGElement;
   private static MEDIUM: SVGSVGElement;
   private static LOW: SVGSVGElement;
@@ -24,8 +23,13 @@ export class AppConfidence extends HTMLElement implements GuiTableCellElement<GC
   }
 
   connectedCallback() {
-    this.style.display = 'block';
-    this.style.height = '25px';
+    this.style.display = 'flex';
+    this.style.alignItems = 'center';
+    this.style.gap = 'var(--spacing)';
+  }
+
+  set color(color: string) {
+    this.style.color = color;
   }
 
   set value(value: GCEnum) {
@@ -83,18 +87,20 @@ if (!customElements.get('app-confidence')) {
   customElements.define('app-confidence', AppConfidence);
 }
 
-app.main.appendChild(
-  <gui-table
-    value={await greycat.default.call('project::chart', [100])}
-    ignoreCols={[3, 4]}
-    cellTagNames={{
-      2: 'gui-object',
-      5: 'app-confidence',
-    }}
-    rowHeight={40}
-    style={{ backgroundColor: 'var(--bg-1)' }}
-    ontable-click={(ev) => {
-      console.log(ev.detail);
-    }}
-  />,
+document.body.appendChild(
+  <app-layout title="Table (ignore columns)">
+    {actions}
+    <gui-table
+      value={await greycat.default.call<TableLike>('project::chart', [100])}
+      ignoreCols={[3, 4]}
+      columnFactories={{
+        5: 'app-confidence',
+      }}
+      rowHeight={30}
+      style={{ backgroundColor: 'var(--bg-1)' }}
+      ontable-click={(ev) => {
+        console.log(ev.detail);
+      }}
+    />
+  </app-layout>,
 );

@@ -24,8 +24,8 @@ const input = (
 
 const handleFnCall = async () => {
   try {
-    if (input.type) {
-      resultEl.value = await greycat.default.call(input.type.fqn, input.value);
+    if (input.fqn) {
+      resultEl.value = await greycat.default.call(input.fqn, input.value);
     }
   } catch (err) {
     resultEl.value = prettyError(err, 'Something went wrong with the function call');

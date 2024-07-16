@@ -184,6 +184,15 @@ gui-tbody-cell > *:first-child {
 }
 
 /* Special-case for gui-object within gui-table cells */
+gui-tbody-cell > gui-object  {
+  align-self: flex-start;
+}
+
 gui-tbody-cell > gui-object.gui-object-grid:first-child {
   padding: var(--spacing);
+}
+
+/* Special-case for gui-object-card within gui-table cells */
+gui-tbody-cell > gui-object > .gui-object-card::part(base) {
+  background-color: transparent;
 }

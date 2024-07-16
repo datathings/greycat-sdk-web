@@ -35,7 +35,6 @@ export class AppLayout extends HTMLElement {
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Roles',                   href: 'roles/' },
     { title: 'Searchable Select',       href: 'searchable-select/' },
-    { title: 'Table (custom)',          href: 'table-custom/' },
     { title: 'Table',                   href: 'table/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
@@ -77,15 +76,15 @@ export class AppLayout extends HTMLElement {
           </sl-breadcrumb>
           <div className="actions">
             <slot name="action" />
-            <a
-              href=""
+            <sl-button
+              variant="text"
               onclick={(ev) => {
                 ev.preventDefault();
                 this._toggleTheme();
               }}
             >
               Light / Dark
-            </a>
+            </sl-button>
           </div>
         </header>
         <div className="layout-main">

@@ -5,7 +5,6 @@ greycat.default = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const anonymousObj = await greycat.default.call('project::complex_object');
 
 const sharedProps: Omit<ObjectProps, 'value'> = {
   linkify: isNode,
@@ -14,6 +13,7 @@ const sharedProps: Omit<ObjectProps, 'value'> = {
   },
 };
 
+const anonymousObj = await greycat.default.call('project::complex_object');
 const obj1 = await greycat.default.call('project::obj1');
 const obj2 = await greycat.default.call('project::obj2');
 
@@ -29,7 +29,7 @@ document.body.appendChild(
       <gui-object value={anonymousObj} withHeader {...sharedProps} />
       <gui-object value={obj1} withHeader {...sharedProps} />
       <gui-object value={obj2} {...sharedProps} />
-      <gui-object value={core.DurationUnit.years()} withHeader {...sharedProps} />
+      <gui-object value={core.DurationUnit.hours()} withHeader {...sharedProps} />
     </div>
   </app-layout>,
 );

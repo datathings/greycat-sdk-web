@@ -11,6 +11,7 @@ const chart = defineComp({
   title: 'Chart',
   position: { direction: 'right' },
   attrs: {
+    value: { cols: [] },
     config: {
       cursor: true,
       xAxis: {
@@ -19,7 +20,6 @@ const chart = defineComp({
       yAxes: {
         temp: {},
       },
-      table: { cols: [] },
       series: [
         {
           title: 'Value',
