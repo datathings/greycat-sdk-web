@@ -28,7 +28,7 @@ export class GuiRoles extends HTMLElement {
       columnsWidths: [200],
       globalFilter: true,
       globalFilterPlaceholder: 'Filter by name or permissions',
-      cellTagNames: {
+      columnFactories: {
         1: 'gui-role-permissions',
       },
     });
