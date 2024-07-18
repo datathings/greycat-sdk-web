@@ -1,4 +1,4 @@
-import { AbiFunction } from '@greycat/sdk';
+import type { AbiFunction } from '../../exports.js';
 import { SlSelect } from '@shoelace-style/shoelace';
 
 /**

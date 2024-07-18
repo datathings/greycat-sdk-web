@@ -1,5 +1,5 @@
-import { GCEnum, GCObject, core, runtime } from '@greycat/sdk';
-import type { GuiValueProps } from '../index.js';
+import { GCEnum, GCObject, core, runtime } from '../../exports.js';
+import type { GuiValueProps } from '../../exports.js';
 
 /**
  * A subset of `GuiValueProps` used to type `GuiObject.props` field
@@ -88,7 +88,7 @@ export class GuiObject extends HTMLElement {
     this.update();
   }
 
-  getAttrs() {
+  getAttrs(): Partial<GuiObjectProps> {
     return {
       value: this._value,
       withHeader: this._withHeader,

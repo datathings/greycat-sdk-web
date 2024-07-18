@@ -2,7 +2,7 @@ import { debounce } from '../internals.js';
 import { GuiElement } from './common.js';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
-export type Constructor<T = {}> = new (...args: any[]) => T;
+type Constructor<T = {}> = new (...args: any[]) => T;
 
 export interface Resizable {
   onResize(entriy: ResizeObserverEntry): void;

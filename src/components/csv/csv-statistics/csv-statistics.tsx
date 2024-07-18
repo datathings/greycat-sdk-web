@@ -1,4 +1,4 @@
-import { io } from '@greycat/sdk';
+import { io } from '../../../exports.js';
 import '../../table/index.js'; // ensures table is defined
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;

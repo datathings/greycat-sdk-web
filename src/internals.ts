@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import type { core } from './exports.js';
 import { Axis, Ordinate, Scale, Serie } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
 

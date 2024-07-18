@@ -1,4 +1,4 @@
-import { Value, runtime } from '@greycat/sdk';
+import { Value, runtime } from '../../../exports.js';
 import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
 import { TaskInfoLike } from '../task-info/common.js';

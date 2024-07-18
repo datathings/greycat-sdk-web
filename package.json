@@ -27,6 +27,7 @@
     "dist/docs",
     "dist/esm",
     "dist/greycat.js",
+    "dist/greycat.d.ts",
     "dist/greycat.min.js",
     "dist/greycat.iife.min.js",
     "jsx.d.ts",
@@ -43,9 +44,10 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm build:jsx && pnpm build:bundle && pnpm build:css",
+    "build": "pnpm build:jsx && pnpm build:bundle && pnpm build:decl && pnpm build:css",
     "build:jsx": "tsc -p tsconfig.jsx.json",
     "build:bundle": "tsc && node scripts/build.js",
+    "build:decl": "rollup -c",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/css/greycat.css",
     "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "build:docs": "vitepress build",
@@ -55,7 +57,7 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.58-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.61-dev.tgz",
     "@shoelace-style/shoelace": "2.15.1",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"
@@ -72,6 +74,8 @@
     "lightningcss": "1.25.1",
     "lightningcss-cli": "1.25.1",
     "prettier": "3.0.0",
+    "rollup": "4.18.1",
+    "rollup-plugin-dts": "6.1.1",
     "typescript": "5.4.2",
     "vite": "4.4.8",
     "vitepress": "1.0.0-rc.22"

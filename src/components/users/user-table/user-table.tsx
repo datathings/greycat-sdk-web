@@ -1,4 +1,4 @@
-import { GreyCat, runtime, sha256hex } from '@greycat/sdk';
+import { type GreyCat, runtime, sha256hex } from '../../../exports.js';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 import type { SlButton, SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';

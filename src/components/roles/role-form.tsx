@@ -1,4 +1,4 @@
-import { runtime } from '@greycat/sdk';
+import { runtime } from '../../exports.js';
 import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 
 export class GuiRoleForm extends HTMLElement {

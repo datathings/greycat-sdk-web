@@ -1,5 +1,5 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
-import { runtime } from '@greycat/sdk';
+import { runtime } from '../../exports.js';
 import type { TableLikeRowBased } from '../common.js';
 import '../table/index.js'; // makes sure gui-table is available
 import type { GuiTable } from '../table/table.js';

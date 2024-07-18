@@ -6,7 +6,7 @@ import {
   GCObject,
   core,
   decomposeDuration,
-} from '@greycat/sdk';
+} from '../../exports.js';
 import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';

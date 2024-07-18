@@ -1,4 +1,4 @@
-import { GreyCat, runtime, Value, TaskHandler } from '@greycat/sdk';
+import { GreyCat, runtime, Value, TaskHandler } from '../../../exports.js';
 import { parseTaskArgs } from '../utils.js';
 import { GuiUpdateEvent } from '../../events.js';
 import { GuiFilesClickEvent, TaskInfoLike } from './common.js';

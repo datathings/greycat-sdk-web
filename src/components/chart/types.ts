@@ -1,4 +1,4 @@
-import type { core } from '@greycat/sdk';
+import type { core } from '../../exports.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =

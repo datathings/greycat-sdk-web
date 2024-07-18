@@ -1,5 +1,4 @@
-import { AbiType, utils } from '@greycat/sdk';
-import { getGlobalNumberFormat } from '../../globals.js';
+import { AbiType, utils, getGlobalNumberFormat } from '../../exports.js';
 import { Disposable } from '../../internals.js';
 
 export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;

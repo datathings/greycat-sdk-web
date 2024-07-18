@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import type { core } from '../../exports.js';
 import * as d3 from 'd3';
 import { getColors } from '../../utils.js';
 

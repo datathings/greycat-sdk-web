@@ -1,4 +1,4 @@
-import { core, runtime } from '@greycat/sdk';
+import { core, runtime } from '../../../exports.js';
 import type { GuiTaskInfoDialog } from './task-info-dialog.js';
 import type { GuiUpdateEvent } from '../../events.js';
 import { GuiTaskInfo } from './task-info.js';

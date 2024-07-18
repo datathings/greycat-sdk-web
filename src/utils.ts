@@ -1,4 +1,4 @@
-import { core, getDebuggerLogger } from '@greycat/sdk';
+import { core, getDebuggerLogger, type GreyCat } from './exports.js';
 
 export function ref<S, K extends keyof S>(state: S, key: K): [S, K] {
   return [state, key];
@@ -223,7 +223,7 @@ export function putFileProgress(
   file: File,
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
-  g = greycat.default,
+  g: GreyCat = greycat.default,
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 

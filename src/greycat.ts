@@ -4,7 +4,7 @@ import {
   Cache,
   CacheData,
   CacheKey,
-} from '@greycat/sdk';
+} from './exports.js';
 
 let DEFAULT_URL: URL;
 try {

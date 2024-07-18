@@ -1,4 +1,4 @@
-import { runtime } from '@greycat/sdk';
+import { runtime } from '../../exports.js';
 import { TableLikeRowBased, registerCustomElement } from '../common.js';
 import '../table/table.js'; // ensure gui-table is defined
 import type { GuiTable } from '../table/table.js';

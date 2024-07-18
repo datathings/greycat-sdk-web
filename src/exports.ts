@@ -1,6 +1,7 @@
 // importing @greycat/gui will import all the components
 // this is necessary as WebComponents need to be registered
 // in order to be used
+export * from '@greycat/sdk';
 
 // ESM exports
 export * from './components/index.js';
@@ -11,5 +12,3 @@ export * from './serialize.js';
 export * from './canvas/index.js';
 export * from './modal.js';
 export * from './shoelace.js';
-
-export * from '@greycat/sdk';

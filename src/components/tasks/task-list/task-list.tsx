@@ -1,4 +1,4 @@
-import { GreyCat, runtime } from '@greycat/sdk';
+import { GreyCat, runtime } from '../../../exports.js';
 import { TaskInfoLike } from '../task-info/common.js';
 
 export type TaskKind = 'running' | 'history';

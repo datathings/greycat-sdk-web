@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import { core } from '../../exports.js';
 
 export function vMap(x: unknown): number {
   switch (typeof x) {

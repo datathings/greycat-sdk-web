@@ -1,4 +1,4 @@
-import { GreyCat, Value, AbiReader } from '@greycat/sdk';
+import { GreyCat, Value, AbiReader } from '../../exports.js';
 import { TaskInfoLike } from './task-info/common.js';
 
 export enum TaskStatusEnum {

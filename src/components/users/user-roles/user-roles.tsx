@@ -1,11 +1,10 @@
-import * as sdk from '@greycat/sdk';
-import { runtime } from '@greycat/sdk';
+import { runtime, type GreyCat } from '../../../exports.js';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 import type { SlButton } from '@shoelace-style/shoelace';
 
 export class GuiUserRoles extends HTMLElement {
-  private _greycat: sdk.GreyCat = window.greycat.default;
+  private _greycat: GreyCat = window.greycat.default;
   private _roles: runtime.UserRole[] = [];
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
@@ -61,7 +60,7 @@ export class GuiUserRoles extends HTMLElement {
     this.replaceChildren(); // cleanup
   }
 
-  set greycat(greycat: sdk.GreyCat) {
+  set greycat(greycat: GreyCat) {
     this._greycat = greycat;
     this.updateRoles();
     this.updatePermissions();

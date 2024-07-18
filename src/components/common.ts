@@ -1,4 +1,4 @@
-import { AbiType, core, GCObject } from '@greycat/sdk';
+import { AbiType, core, GCObject } from '../exports.js';
 
 declare global {
   interface HTMLElementEventMap {

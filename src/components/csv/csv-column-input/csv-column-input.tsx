@@ -1,4 +1,4 @@
-import { core, io } from '@greycat/sdk';
+import { core, io } from '../../../exports.js';
 
 interface CsvColumnInput {
   element: HTMLElement;

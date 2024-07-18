@@ -1,5 +1,5 @@
 import type { SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
-import { runtime, sha256hex } from '@greycat/sdk';
+import { runtime, sha256hex } from '../../exports.js';
 
 export class GuiUserForm extends HTMLElement {
   private readonly _user_id: SlInput;

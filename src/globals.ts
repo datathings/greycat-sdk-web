@@ -1,4 +1,4 @@
-import { core } from '@greycat/sdk';
+import { core, type GreyCat } from './exports.js';
 
 // default number format
 let numFmt = new Intl.NumberFormat(navigator.language);
@@ -30,7 +30,7 @@ export function setGlobalDateTimeFormatTimezone(tz: core.TimeZone) {
   });
 }
 
-export function getGlobalDateTimeFormatTimezone($g = greycat.default): core.TimeZone | undefined {
+export function getGlobalDateTimeFormatTimezone($g: GreyCat = greycat.default): core.TimeZone | undefined {
   const opts = dateFmt.resolvedOptions();
   if (opts.timeZone.length > 0) {
     const tz = core.TimeZone[opts.timeZone.replace('/', '_') as core.TimeZone.Field];

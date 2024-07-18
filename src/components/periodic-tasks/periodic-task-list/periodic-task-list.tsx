@@ -1,4 +1,4 @@
-import { GreyCat, prettyError, runtime } from '@greycat/sdk';
+import { GreyCat, prettyError, runtime } from '../../../exports.js';
 import '../../object/index.js'; // ensures gui-object is loaded
 import '../../inputs/index.js'; // ensures gui-input (and the likes) are loaded
 import { GuiInput } from '../../inputs/index.js';

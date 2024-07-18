@@ -17,7 +17,7 @@ import {
 } from './types.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
-import { core } from '@greycat/sdk';
+import type { core } from '../../exports.js';
 import { Disposer, TableLike, TableView } from '../common.js';
 
 type ComputedState = {

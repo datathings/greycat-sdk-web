@@ -1,4 +1,4 @@
-import { utils } from '@greycat/sdk';
+import { utils } from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
