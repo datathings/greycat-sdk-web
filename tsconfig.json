@@ -1,36 +1,24 @@
 {
   "compilerOptions": {
-    "outDir": "dist/esm",
     "rootDir": "src",
-    "target": "ESNext",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
-    "lib": ["DOM", "ES2022"],
-    "types": [],
-    "moduleDetection": "force",
 
-    "sourceMap": false,
-    "declaration": true,
-    "declarationMap": false,
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "useDefineForClassFields": false,
 
     "strict": true,
-    "esModuleInterop": true,
-    "forceConsistentCasingInFileNames": true,
-    "skipLibCheck": true,
-
     "noFallthroughCasesInSwitch": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitOverride": true,
 
-    "allowSyntheticDefaultImports": true,
-    "allowUnreachableCode": false,
-    "allowUnusedLabels": false,
-
+    "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@greycat/web"
+    "jsxImportSource": "@greycat/web",
+    "types": []
   },
-  "include": ["src", "jsx.d.ts"],
-  "exclude": ["./src/jsx-runtime.ts", "src/jsx-dev-runtime.ts"]
+  "include": ["src"],
+  "exclude": ["node_modules"]
 }

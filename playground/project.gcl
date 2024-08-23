@@ -34,21 +34,21 @@ enum Confidence {
   Low;
 }
 
-@expose
-fn boxplot_float() {
-  var histogram = HistogramFloat {};
+// @expose
+// fn boxplot_float() {
+//   var histogram = HistogramFloat {};
 
-  var random = Random::new();
-  random.setSeed(12345);
-  var testSize = 10;
+//   var random = Random::new();
+//   random.setSeed(12345);
+//   var testSize = 10;
 
-  for (var i = 0; i < testSize; i++) {
-    var v = random.uniformf(-100.0, 100.0);
-    histogram.add(v);
-  }
+//   for (var i = 0; i < testSize; i++) {
+//     var v = random.uniformf(-100.0, 100.0);
+//     histogram.add(v);
+//   }
 
-  return histogram.toBoxPlot();
-}
+//   return histogram.toBoxPlot();
+// }
 
 @expose
 fn chart(nbRows: int) {
@@ -66,47 +66,47 @@ fn chart(nbRows: int) {
   var prev1 = 100_f;
   var prev2 = 80_f;
 
-  var table = Table::new(6);
+  var table = Table {};
 
-  var rand = Random::new();
+  var rand = Random {};
 
   for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
     prev1 = prev1 + 5 - rand.uniformf(0_f, 1_f) * 10;
     prev1 = maxf(0_f, prev1);
 
-    table.set(rowIdx, LINE_COL, prev1);
-    table.set(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set_cell(rowIdx, LINE_COL, prev1);
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
-      table.set(rowIdx, LINE_TYPE_COL, 1);
-      table.set(rowIdx, LINE_COLOR_COL, Confidence::Low);
+      table.set_cell(rowIdx, LINE_TYPE_COL, 1);
+      table.set_cell(rowIdx, LINE_COLOR_COL, Confidence::Low);
     } else if (rowIdx >= 80 && rowIdx <= 100) {
-      table.set(rowIdx, LINE_COLOR_COL, Confidence::Medium);
+      table.set_cell(rowIdx, LINE_COLOR_COL, Confidence::Medium);
     } else {
       // solid
-      table.set(rowIdx, LINE_TYPE_COL, 0);
-      table.set(rowIdx, LINE_COLOR_COL, Confidence::High);
+      table.set_cell(rowIdx, LINE_TYPE_COL, 0);
+      table.set_cell(rowIdx, LINE_COLOR_COL, Confidence::High);
     }
 
     prev2 = prev2 + 5 - rand.uniformf(0_f, 1_f) * 10;
     prev2 = maxf(0_f, prev2);
 
-    table.set(rowIdx, SCATTER_COL, prev2);
+    table.set_cell(rowIdx, SCATTER_COL, prev2);
 
     if (rowIdx >= 0 && rowIdx < 5) {
-      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+      table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
-      table.set(rowIdx, BAR_COL, rand.uniform(1, 40));
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+      table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
     if (rowIdx == 10) {
-      table.set(rowIdx, LINE_COL, null);
+      table.set_cell(rowIdx, LINE_COL, null);
     }
 
     if (rowIdx == 75) {
-      table.set(rowIdx, LINE_COL, null);
+      table.set_cell(rowIdx, LINE_COL, null);
     }
   }
 
@@ -117,12 +117,9 @@ fn chart(nbRows: int) {
 // pages/chart-time start
 @expose
 fn chart_time(): Table {
-  var rand = Random::new();
+  var rand = Random {};
 
-  var table = Table::new(3);
-  table.setHeader(0, "Timestamp");
-  table.setHeader(1, "Temperature");
-  table.setHeader(2, "Class");
+  var table = Table {};
 
   var min = -10.0;
   var max = 40.0;
@@ -130,32 +127,32 @@ fn chart_time(): Table {
   var prevTemp = rand.uniformf(min, max);
 
   // purposedly start with null values to test out the behavior
-  table.set(0, 0, prevTime);
-  table.set(0, 1, null);
-  table.set(0, 2, null);
+  table.set_cell(0, 0, prevTime);
+  table.set_cell(0, 1, null);
+  table.set_cell(0, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(1, 0, prevTime);
-  table.set(1, 1, null);
-  table.set(1, 2, null);
+  table.set_cell(1, 0, prevTime);
+  table.set_cell(1, 1, null);
+  table.set_cell(1, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(2, 0, prevTime);
-  table.set(2, 1, null);
-  table.set(2, 2, null);
+  table.set_cell(2, 0, prevTime);
+  table.set_cell(2, 1, null);
+  table.set_cell(2, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(3, 0, prevTime);
-  table.set(3, 1, null);
-  table.set(3, 2, null);
+  table.set_cell(3, 0, prevTime);
+  table.set_cell(3, 1, null);
+  table.set_cell(3, 2, null);
   prevTime = prevTime + 1_hour;
 
   for (var i = 4; i < 500; i++) {
-    table.set(i, 0, prevTime);
-    table.set(i, 1, prevTemp);
+    table.set_cell(i, 0, prevTime);
+    table.set_cell(i, 1, prevTemp);
     if (prevTemp < 10) {
-      table.set(i, 2, "low");
+      table.set_cell(i, 2, "low");
     } else if (prevTemp >= 10 && prevTemp <= 25) {
-      table.set(i, 2, "normal");
+      table.set_cell(i, 2, "normal");
     } else {
-      table.set(i, 2, "high");
+      table.set_cell(i, 2, "high");
     }
 
     prevTime = prevTime + 1_hour;
@@ -170,17 +167,17 @@ fn chart_time(): Table {
 
   // put some null at the end also for tests
   var row = table.rows();
-  table.set(row, 0, prevTime);
-  table.set(row, 1, null);
-  table.set(row, 2, null);
+  table.set_cell(row, 0, prevTime);
+  table.set_cell(row, 1, null);
+  table.set_cell(row, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(row + 1, 0, prevTime);
-  table.set(row + 1, 1, null);
-  table.set(row + 1, 2, null);
+  table.set_cell(row + 1, 0, prevTime);
+  table.set_cell(row + 1, 1, null);
+  table.set_cell(row + 1, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(row + 2, 0, prevTime);
-  table.set(row + 2, 1, null);
-  table.set(row + 2, 2, null);
+  table.set_cell(row + 2, 0, prevTime);
+  table.set_cell(row + 2, 1, null);
+  table.set_cell(row + 2, 2, null);
 
   return table;
 }
@@ -190,37 +187,37 @@ fn chart_time(): Table {
 @expose
 fn chart_colored_area(): Table {
   var firstTime = time::now();
-  var rand = Random::new();
+  var rand = Random {};
 
-  var table = Table::new(3);
+  var table = Table {};
   // 0
-  table.set(0, 0, firstTime - 6_day);
-  table.set(0, 1, -10.5);
-  table.set(0, 2, "low");
+  table.set_cell(0, 0, firstTime - 6_day);
+  table.set_cell(0, 1, -10.5);
+  table.set_cell(0, 2, "low");
   // 1
-  table.set(1, 0, firstTime - 5_day);
-  table.set(1, 1, -8.5);
-  table.set(1, 2, "low");
+  table.set_cell(1, 0, firstTime - 5_day);
+  table.set_cell(1, 1, -8.5);
+  table.set_cell(1, 2, "low");
   // 2
-  table.set(2, 0, firstTime - 4_day);
-  table.set(2, 1, 3.1);
-  table.set(2, 2, "low");
+  table.set_cell(2, 0, firstTime - 4_day);
+  table.set_cell(2, 1, 3.1);
+  table.set_cell(2, 2, "low");
   // 3
-  table.set(3, 0, firstTime - 3_day);
-  table.set(3, 1, 33.7);
-  table.set(3, 2, "high");
+  table.set_cell(3, 0, firstTime - 3_day);
+  table.set_cell(3, 1, 33.7);
+  table.set_cell(3, 2, "high");
   // 4
-  table.set(4, 0, firstTime - 2_day);
-  table.set(4, 1, 22.0);
-  table.set(4, 2, "normal");
+  table.set_cell(4, 0, firstTime - 2_day);
+  table.set_cell(4, 1, 22.0);
+  table.set_cell(4, 2, "normal");
   // 5
-  table.set(5, 0, firstTime - 1_day);
-  table.set(5, 1, 18.9);
-  table.set(5, 2, "normal");
+  table.set_cell(5, 0, firstTime - 1_day);
+  table.set_cell(5, 1, 18.9);
+  table.set_cell(5, 2, "normal");
   // 6
-  table.set(6, 0, firstTime);
-  table.set(6, 1, 6.4);
-  table.set(6, 2, "low");
+  table.set_cell(6, 0, firstTime);
+  table.set_cell(6, 1, 6.4);
+  table.set_cell(6, 2, "low");
 
   return table;
 }
@@ -230,14 +227,14 @@ fn chart_colored_area(): Table {
 @expose
 fn donut(): Table {
   var nbRows = 5;
-  var table = Table::new(2);
+  var table = Table {};
 
   var continents = ["Africa", "Antartica", "Asia", "Europe", "North America", "South America", "Oceania"];
   var countries = [54, 0, 49, 44, 23, 12, 14];
 
   for (row, continent in continents) {
-    table.set(row, 0, continent);
-    table.set(row, 1, countries[row]);
+    table.set_cell(row, 0, continent);
+    table.set_cell(row, 1, countries[row]);
   }
 
   return table;
@@ -255,21 +252,21 @@ enum TrafficLight {
 // pages/heatmap start
 @expose
 fn heatmap() {
-  var table = Table::new(12);
+  var table = Table {};
 
   //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-  var paris = [4.9, 5.6, 8.8, 11.4, 15.1, 18.2, 20.4, 20.2, 16.9, 12.9, 8.1, 5.4];
-  var london = [5.2, 5.3, 7.6, 9.9, 13.3, 16.5, 18.7, 18.5, 15.7, 12.0, 8.0, 5.5];
-  var newyork = [0.6, 2.1, 6.1, 11.9, 17.1, 22.1, 24.9, 24.3, 20.2, 14.1, 8.9, 3.3];
-  var beijing = [-3.1, 0.3, 6.7, 14.8, 20.8, 24.9, 26.7, 25.5, 20.8, 13.7, 5.0, -0.9];
-  var perth = [24.5, 24.9, 23.1, 19.7, 16.5, 14.0, 13.0, 13.5, 14.8, 17.3, 20.3, 22.7];
-  var oslo = [-4.3, -4.0, -0.2, 4.5, 10.8, 15.2, 16.4, 15.2, 10.8, 6.3, 0.7, -3.1];
+  var paris = Array<float> {4.9, 5.6, 8.8, 11.4, 15.1, 18.2, 20.4, 20.2, 16.9, 12.9, 8.1, 5.4};
+  var london = Array<float> {5.2, 5.3, 7.6, 9.9, 13.3, 16.5, 18.7, 18.5, 15.7, 12.0, 8.0, 5.5};
+  var newyork = Array<float> {0.6, 2.1, 6.1, 11.9, 17.1, 22.1, 24.9, 24.3, 20.2, 14.1, 8.9, 3.3};
+  var beijing = Array<float> {-3.1, 0.3, 6.7, 14.8, 20.8, 24.9, 26.7, 25.5, 20.8, 13.7, 5.0, -0.9};
+  var perth = Array<float> {24.5, 24.9, 23.1, 19.7, 16.5, 14.0, 13.0, 13.5, 14.8, 17.3, 20.3, 22.7};
+  var oslo = Array<float> {-4.3, -4.0, -0.2, 4.5, 10.8, 15.2, 16.4, 15.2, 10.8, 6.3, 0.7, -3.1};
 
-  var cities = [paris, london, newyork, beijing, perth, oslo];
+  var cities = Array<Array<float>> { paris, london, newyork, beijing, perth, oslo };
 
   for (row, city in cities) {
     for (col, temp in city) {
-      table.set(row, col, temp);
+      table.set_cell(row, col, temp);
     }
   }
 
@@ -284,40 +281,37 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// pages/histogram
-@expose
-fn histogram_table(): Table {
-  var csvFormat = CsvFormat {};
-  csvFormat.separator = ',';
-  csvFormat.header_lines = 1;
-  var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
+// // pages/histogram
+// @expose
+// fn histogram_table(): Table {
+//   var csvFormat = CsvFormat {};
+//   csvFormat.separator = ',';
+//   csvFormat.header_lines = 1;
+//   var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
 
-  var histogramHeight = HistogramFloat {};
-  var histogramWeight = HistogramFloat {};
-  while (csv.available() > 0) {
-    var res = csv.read();
-    var height_inch = res?[1] as float;
-    var weight_pound = res?[2] as float; 
+//   var histogramHeight = HistogramFloat {};
+//   var histogramWeight = HistogramFloat {};
+//   while (csv.available() > 0) {
+//     var res = csv.read();
+//     var height_inch = res?[1] as float;
+//     var weight_pound = res?[2] as float; 
 
-    var height_cm = height_inch * 2.54;
-    var weight_kg = weight_pound * 0.453592;
+//     var height_cm = height_inch * 2.54;
+//     var weight_kg = weight_pound * 0.453592;
 
-    histogramHeight.add(height_cm);
-    histogramWeight.add(weight_kg);
-  }
+//     histogramHeight.add(height_cm);
+//     histogramWeight.add(weight_kg);
+//   }
 
-  return histogramHeight.all();
-}
-// pages/histogram end
+//   return histogramHeight.all();
+// }
+// // pages/histogram end
 
 @expose
 fn table(): Table {
-  var rand = Random::new();
+  var rand = Random {};
 
-  var table = Table::new(3);
-  table.setHeader(0, "Timestamp");
-  table.setHeader(1, "Temperature");
-  table.setHeader(2, "Class");
+  var table = Table {};
 
   var min = -10.0;
   var max = 40.0;
@@ -325,32 +319,32 @@ fn table(): Table {
   var prevTemp = rand.uniformf(min, max);
 
   // purposedly start with null values to test out the behavior
-  table.set(0, 0, prevTime);
-  table.set(0, 1, null);
-  table.set(0, 2, null);
+  table.set_cell(0, 0, prevTime);
+  table.set_cell(0, 1, null);
+  table.set_cell(0, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(1, 0, prevTime);
-  table.set(1, 1, null);
-  table.set(0, 2, null);
+  table.set_cell(1, 0, prevTime);
+  table.set_cell(1, 1, null);
+  table.set_cell(0, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(2, 0, prevTime);
-  table.set(2, 1, null);
-  table.set(0, 2, null);
+  table.set_cell(2, 0, prevTime);
+  table.set_cell(2, 1, null);
+  table.set_cell(0, 2, null);
   prevTime = prevTime + 1_hour;
-  table.set(3, 0, prevTime);
-  table.set(3, 1, null);
-  table.set(0, 2, null);
+  table.set_cell(3, 0, prevTime);
+  table.set_cell(3, 1, null);
+  table.set_cell(0, 2, null);
   prevTime = prevTime + 1_hour;
 
   for (var i = 4; i < 500; i++) {
-    table.set(i, 0, prevTime);
-    table.set(i, 1, prevTemp);
+    table.set_cell(i, 0, prevTime);
+    table.set_cell(i, 1, prevTemp);
     if (prevTemp < 10) {
-      table.set(i, 2, "low");
+      table.set_cell(i, 2, "low");
     } else if (prevTemp >= 10 && prevTemp <= 25) {
-      table.set(i, 2, "normal");
+      table.set_cell(i, 2, "normal");
     } else {
-      table.set(i, 2, "high");
+      table.set_cell(i, 2, "high");
     }
 
     prevTime = prevTime + 1_hour;
@@ -396,8 +390,8 @@ fn task_long_running() {
 
 @expose
 fn mainTask() {
-  Task::spawn(TaskRequest { function: project::subTask, arguments: [0] });
-  Task::spawn(TaskRequest { function: project::subTask, arguments: [1] });
+  Task::spawn(TaskRequest { function: project::subTask, arguments: Array<any?> {0} });
+  Task::spawn(TaskRequest { function: project::subTask, arguments: Array<any?> {1} });
 }
 
 fn subTask(id: int) {
@@ -454,7 +448,7 @@ fn complex_object() {
     float: 3.14,
     bool: false,
     char: 'd',
-    geo: geo::new(1.4, -0.85),
+    geo: geo { 1.4, -0.85 },
     null: null,
     enum: TimeZone::Europe_Paris,
     array: array,
@@ -462,15 +456,15 @@ fn complex_object() {
     nodeIndex: nodeIndex {},
     nodeList: nodeList {},
     nodeGeo: nodeGeo {},
-    tuple: ("This is", "a tuple"),
+    tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
     nested: {
       string: "Hello, world!",
       int: 42,
       float: 3.14,
       bool: false,
       char: 'd',
-      geo: geo::new(1.4, -0.85),
-      tuple: (1337, 42),
+      geo: geo { 1.4, -0.85 },
+      tuple: Tuple<int, int> { x: 1337, y: 42 },
       null: null,
       array: [42, 3.14, "hello world"],
       nodeTime: nodeTime {},
@@ -479,24 +473,7 @@ fn complex_object() {
       nodeGeo: nodeGeo {},
       enum: TimeZone::Europe_Luxembourg,
     },
-    nodeNested: node<ComplexObject>::new(ComplexObject {
-        string: "Nested Hello, world!",
-        int: 1337,
-        float: 3.1415,
-        bool: true,
-        char: 'g',
-        geo: geo::max,
-        null: null,
-        enum: TimeZone::Asia_Tokyo,
-        array: [1337, 3.1415, "GreyCat"],
-        nodeTime: nodeTime {},
-        nodeIndex: nodeIndex {},
-        nodeList: nodeList {},
-        nodeGeo: nodeGeo {},
-        nested: [],
-        map: Map<String, ComplexObject> {},
-        tuple: ("Another tuple", false),
-      }),
+    nodeNested: node<ComplexObject> { ComplexObject { string: "Nested Hello, world!", int: 1337, float: 3.1415, bool: true, char: 'g', geo: geo::max, null: null, enum: TimeZone::Asia_Tokyo, array: Array<any?> {1337, 3.1415, "GreyCat"}, nodeTime: nodeTime {}, nodeIndex: nodeIndex {}, nodeList: nodeList {}, nodeGeo: nodeGeo {}, nested: [], map: Map<String, ComplexObject> {}, tuple: Tuple<String, bool> { x: "Another tuple", y: false } } },
     map: map,
   };
 }
@@ -512,7 +489,7 @@ fn obj1() {
 
 @expose
 fn obj2() {
-  var prop3 = Map {};
+  var prop3 = Map<any, any?> {};
   for (var i = 0; i < 25; i++) {
     prop3.set("entry-${i}", Runtime::info());
   }
@@ -550,9 +527,9 @@ fn anything(v: any?) {
 @expose
 fn mapTest() {
   var map = Map<DurationUnit, Tuple<String, int>> {};
-  map.set(DurationUnit::seconds,("seconds", 1));
-  map.set(DurationUnit::minutes,("minutes", 2));
-  map.set(DurationUnit::hours,("hours", 3));
+  map.set(DurationUnit::seconds, Tuple<String, int> { x: "seconds", y: 1 });
+  map.set(DurationUnit::minutes, Tuple<String, int> { x: "minutes", y: 2 });
+  map.set(DurationUnit::hours, Tuple<String, int> { x: "hours", y: 3 });
   return map;
 }
 
@@ -597,9 +574,9 @@ fn link_whatever(l: node<Link>) {
 
 @expose
 fn big_map(): Map {
-  var map = Map {};
+  var map = Map<any, any?> {};
   for (var i = 0; i < 1000; i++) {
-    map.set("entry-${i}", ("${i}", i * 3.14));
+    map.set("entry-${i}", Tuple<String, float> { x: "${i}", y: i * 3.14 });
   }
   return map;
 }

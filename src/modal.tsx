@@ -1,4 +1,4 @@
-import type { SlDialog, SlInput, SlSelect } from '@shoelace-style/shoelace';
+import type { sl } from './exports.js';
 
 export type ModalInfoProps = {
   message: string | Node;
@@ -42,7 +42,7 @@ export const modal = {
         <header slot="label">{title}</header>
         {message}
       </sl-dialog>
-    ) as SlDialog;
+    ) as sl.SlDialog;
 
     document.body.appendChild(dialog);
     setTimeout(() => {
@@ -88,7 +88,7 @@ export const modal = {
             {confirm}
           </sl-button>
         </sl-dialog>
-      ) as SlDialog;
+      ) as sl.SlDialog;
 
       document.body.appendChild(dialog);
       setTimeout(() => {
@@ -117,7 +117,7 @@ export const modal = {
     let resolved = false;
 
     const promise = new Promise<string | undefined>((resolve) => {
-      const input = (<sl-input autofocus {...inputProps} />) as SlInput;
+      const input = (<sl-input autofocus {...inputProps} />) as sl.SlInput;
 
       const dialog = (
         <sl-dialog label={title}>
@@ -140,7 +140,7 @@ export const modal = {
             {confirm}
           </sl-button>
         </sl-dialog>
-      ) as SlDialog;
+      ) as sl.SlDialog;
 
       dialog.addEventListener('sl-after-hide', () => {
         dialog.remove();
@@ -183,7 +183,7 @@ export const modal = {
     let resolved = false;
 
     const promise = new Promise<string | string[] | undefined>((resolve) => {
-      const select = (<sl-select placement="bottom" {...selectProps} hoist />) as SlSelect;
+      const select = (<sl-select placement="bottom" {...selectProps} hoist />) as sl.SlSelect;
       for (const opt of options) {
         select.appendChild(<sl-option value={opt}>{opt}</sl-option>);
       }
@@ -209,7 +209,7 @@ export const modal = {
             {confirm}
           </sl-button>
         </sl-dialog>
-      ) as SlDialog;
+      ) as sl.SlDialog;
 
       dialog.addEventListener('sl-after-hide', (ev) => {
         if (ev.target === dialog) {

@@ -1,4 +1,4 @@
-import { runtime } from '../../exports.js';
+import { std } from '../../exports.js';
 import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 
 export class GuiRoleForm extends HTMLElement {
@@ -34,7 +34,7 @@ export class GuiRoleForm extends HTMLElement {
     }
   }
 
-  set value(role: runtime.UserRole) {
+  set value(role: std.runtime.UserRole) {
     this._name.value = role.name;
     this._permissions.value = role.permissions;
   }
@@ -45,12 +45,12 @@ export class GuiRoleForm extends HTMLElement {
   }
 
   async delete(): Promise<void> {
-    await runtime.UserRole.remove(this._name.value);
+    await std.runtime.UserRole.remove(this._name.value);
   }
 
   async update(): Promise<void> {
-    const role = runtime.UserRole.create(this._name.value, this._permissions.value as string[]);
-    await runtime.UserRole.set(role);
+    const role = std.runtime.UserRole.create(this._name.value, this._permissions.value as string[]);
+    await std.runtime.UserRole.set(role);
   }
 }
 

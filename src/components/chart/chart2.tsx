@@ -1,7 +1,7 @@
 import * as d3 from 'd3';
 import { GestureDrawer } from '../../canvas/index.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
-import { getColors } from './../../utils.js';
+import { getColors } from '../../utils.js';
 import type {
   Axis,
   BarSerie,

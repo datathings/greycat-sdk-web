@@ -1,4 +1,4 @@
-import { Value, runtime } from '../../../exports.js';
+import { Value, std } from '../../../exports.js';
 import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
 import { TaskInfoLike } from '../task-info/common.js';
@@ -102,7 +102,7 @@ export class GuiTasks extends HTMLElement {
 
   /**
    * Modifies the frequency in milliseconds of the reload of the task list from the server.
-   * 
+   *
    * *If the `delay` is less than or equal to `0` it deactivates the auto-reload*
    */
   set updateDelay(delay: number) {
@@ -124,7 +124,7 @@ export class GuiTasks extends HTMLElement {
   async reload(): Promise<void> {
     const users: Record<number, string> = {};
     try {
-      const entities = await runtime.SecurityEntity.all();
+      const entities = await std.runtime.SecurityEntity.all();
       for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
         users[Number(entity.id)] = entity.name;
@@ -135,11 +135,11 @@ export class GuiTasks extends HTMLElement {
     }
 
     try {
-      const history = await runtime.Task.history(0, 1);
+      const history = await std.runtime.Task.history(0, 1);
       const maxHistory = history.length > 0 ? Number(history[0].task_id) : 0;
 
-      this._tasks = await runtime.Task.history(0, maxHistory);
-      const running = await runtime.Task.running();
+      this._tasks = await std.runtime.Task.history(0, maxHistory);
+      const running = await std.runtime.Task.running();
       for (const t of running) {
         this._tasks.push(t);
       }

@@ -1,87 +1,62 @@
 {
   "name": "@greycat/web",
   "version": "0.0.0",
-  "module": "./dist/esm/index.js",
-  "types": "./dist/esm/index.d.ts",
   "type": "module",
+  "module": "./dist/greycat.esm.js",
+  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/esm/index.d.ts",
-      "import": "./dist/greycat.js"
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/greycat.esm.js"
     },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
       "import": "./dist/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./dist/jsx-dev-runtime.d.ts",
-      "import": "./dist/jsx-dev-runtime.js"
+      "types": "./dist/jsx-runtime.d.ts",
+      "import": "./dist/jsx-runtime.js"
     },
-    "./css/*.css": "./dist/css/*.css",
+    "./css/*.css": "./dist/*.css",
     "./fonts/*.ttf": "./fonts/*.ttf",
     "./fonts/*.woff": "./fonts/*.woff"
   },
   "license": "Apache-2.0",
   "files": [
-    "dist/css",
-    "dist/docs",
-    "dist/esm",
-    "dist/greycat.js",
-    "dist/greycat.d.ts",
-    "dist/greycat.min.js",
-    "dist/greycat.iife.min.js",
     "jsx.d.ts",
-    "dist/jsx-dev-runtime.js",
-    "dist/jsx-dev-runtime.d.ts",
-    "dist/jsx-runtime.js",
-    "dist/jsx-runtime.d.ts",
-    "fonts/OpenSans-Regular.ttf",
-    "fonts/OpenSans-Italic.ttf",
-    "fonts/OpenSans-Bold.ttf",
-    "fonts/OpenSans-Regular.woff",
-    "fonts/OpenSans-Italic.woff",
-    "fonts/OpenSans-Bold.woff"
+    "dist",
+    "fonts"
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm build:jsx && pnpm build:bundle && pnpm build:decl && pnpm build:css",
+    "build": "pnpm build:jsx && pnpm build:types && pnpm build:bundle && pnpm build:css",
     "build:jsx": "tsc -p tsconfig.jsx.json",
-    "build:bundle": "tsc && node scripts/build.js",
-    "build:decl": "rollup -c",
-    "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/css/greycat.css",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build:bundle": "node esbuild.config.js",
+    "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/greycat.css",
     "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
-    "build:docs": "vitepress build",
     "dev": "vite -c playground/vite.config.ts",
-    "dev:docs": "vitepress dev",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.61-dev.tgz",
+    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.68-dev.tgz",
     "@shoelace-style/shoelace": "2.15.1",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"
   },
   "devDependencies": {
-    "@custom-elements-manifest/analyzer": "0.8.4",
-    "@greycat/lang": "https://get.greycat.io/files/lang/dev/7.0/7.0.52-dev.tgz",
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
-    "@typescript-eslint/eslint-plugin": "6.2.1",
-    "esbuild": "0.18.17",
+    "esbuild": "0.20.2",
     "eslint": "8.46.0",
-    "http-proxy": "1.18.1",
+    "@typescript-eslint/eslint-plugin": "6.2.1",
+    "prettier": "3.3.3",
     "lightningcss": "1.25.1",
     "lightningcss-cli": "1.25.1",
-    "prettier": "3.0.0",
-    "rollup": "4.18.1",
-    "rollup-plugin-dts": "6.1.1",
-    "typescript": "5.4.2",
-    "vite": "4.4.8",
-    "vitepress": "1.0.0-rc.22"
-  },
-  "engines": {
-    "node": ">=20"
-  },
-  "packageManager": "pnpm@8.8.0"
+    "tslib": "2.6.3",
+    "typescript": "5.4.3",
+    "vite": "5.3.5",
+    "http-proxy": "1.18.1"
+  }
 }

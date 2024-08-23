@@ -6,14 +6,15 @@
     "target": "es2022",
     "rootDir": "..",
     "noEmit": true,
+    "emitDeclarationOnly": false,
     "jsx": "react-jsx",
     "jsxImportSource": "@greycat/web",
     "useDefineForClassFields": false,
     "types": ["vite/client"],
     "paths": {
       "@/*": ["./*"],
-      "@greycat/web": ["../src"],
-      "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"]
+      "@greycat/web": ["../src"]
+      // "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"]
     }
   },
   "include": ["./**/*.ts", "./**/*.tsx"],

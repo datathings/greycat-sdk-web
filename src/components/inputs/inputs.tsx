@@ -4,8 +4,9 @@ import {
   AbiType,
   GCEnum,
   GCObject,
-  core,
+  std,
   decomposeDuration,
+  $,
 } from '../../exports.js';
 import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
@@ -30,11 +31,11 @@ export interface GuiInputConfig {
 
 export abstract class GuiInputElement<T> extends HTMLElement {
   protected _config: GuiInputConfig = {};
-  override shadowRoot: ShadowRoot;
+  override shadowRoot!: ShadowRoot;
 
   constructor() {
     super();
-    this.shadowRoot = this.attachShadow({ mode: 'open' });
+    this.attachShadow({ mode: 'open' });
   }
 
   connectedCallback() {
@@ -93,23 +94,23 @@ export class GuiInput extends GuiInputElement<unknown> {
    *
    */
   static readonly factory: Record<string, GuiInputElementMap> = {
-    [core.int._type]: 'gui-input-number',
-    [core.float._type]: 'gui-input-number',
+    [std.core.int._type]: 'gui-input-number',
+    [std.core.float._type]: 'gui-input-number',
     ['core::bool']: 'gui-input-bool',
-    [core.String._type]: 'gui-input-string',
+    [std.core.String._type]: 'gui-input-string',
     ['core::char']: 'gui-input-string',
-    [core.time._type]: 'gui-input-time',
-    [core.duration._type]: 'gui-input-duration',
-    [core.Array._type]: 'gui-input-array',
-    [core.Map._type]: 'gui-input-map',
+    [std.core.time._type]: 'gui-input-time',
+    [std.core.duration._type]: 'gui-input-duration',
+    [std.core.Array._type]: 'gui-input-array',
+    [std.core.Map._type]: 'gui-input-map',
     ['core::any']: 'gui-input-any',
-    [core.geo._type]: 'gui-input-geo',
-    [core.node._type]: 'gui-input-node',
-    [core.nodeIndex._type]: 'gui-input-node-index',
-    [core.nodeTime._type]: 'gui-input-node-time',
-    [core.nodeList._type]: 'gui-input-node-list',
-    [core.nodeGeo._type]: 'gui-input-node-geo',
-    [core.function_._type]: 'gui-input-fnptr',
+    [std.core.geo._type]: 'gui-input-geo',
+    [std.core.node._type]: 'gui-input-node',
+    [std.core.nodeIndex._type]: 'gui-input-node-index',
+    [std.core.nodeTime._type]: 'gui-input-node-time',
+    [std.core.nodeList._type]: 'gui-input-node-list',
+    [std.core.nodeGeo._type]: 'gui-input-node-geo',
+    [std.core.function_._type]: 'gui-input-fnptr',
   };
 
   private _type: AbiFunction | AbiType | undefined;
@@ -130,9 +131,9 @@ export class GuiInput extends GuiInputElement<unknown> {
 
   set type(type: string | AbiFunction | AbiType | undefined) {
     if (typeof type === 'string') {
-      this._type = greycat.default.findType(type);
+      this._type = $.default.findType(type);
       if (!this._type) {
-        this._type = greycat.default.findFn(type);
+        this._type = $.default.findFn(type);
       }
     } else {
       this._type = type;
@@ -201,7 +202,7 @@ export class GuiInput extends GuiInputElement<unknown> {
       if (this._type.is_enum) {
         const input = document.createElement('gui-input-enum');
         input.type = this._type;
-        if (this._value instanceof GCEnum || this._value === null) {
+        if (this._value instanceof GCEnum) {
           input.value = this._value;
         }
         this._inner = input;
@@ -527,7 +528,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
   }
 }
 
-export class GuiInputTime extends GuiInputElement<core.time | null> {
+export class GuiInputTime extends GuiInputElement<std.core.time | null> {
   private _input: SlInput;
 
   constructor() {
@@ -555,10 +556,10 @@ export class GuiInputTime extends GuiInputElement<core.time | null> {
     if (isNaN(epochMs)) {
       return null;
     }
-    return core.time.fromMs(this._input.valueAsNumber);
+    return std.core.time.fromMs(this._input.valueAsNumber);
   }
 
-  set value(value: core.time | null) {
+  set value(value: std.core.time | null) {
     if (value === null) {
       this._input.value = '';
     } else {
@@ -626,7 +627,7 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
 
   set type(type: AbiType | string | undefined) {
     if (typeof type === 'string') {
-      type = greycat.default.findType(type);
+      type = $.default.findType(type);
     }
 
     if (type) {
@@ -716,7 +717,7 @@ export class GuiInputObject extends GuiInputElement<
 
   set type(type: AbiType | string | undefined) {
     if (typeof type === 'string') {
-      type = greycat.default.findType(type);
+      type = $.default.findType(type);
     }
     if (type === undefined) {
       // no type, noop
@@ -772,7 +773,7 @@ export class GuiInputObject extends GuiInputElement<
         return null;
       }
 
-      return greycat.default.create(this._type.name, attrs) ?? null;
+      return $.default.create(this._type.name, attrs) ?? null;
     } else {
       const obj = {} as Record<string, unknown>;
       this._attrs.forEach((input, key) => {
@@ -893,7 +894,7 @@ export class GuiInputObject extends GuiInputElement<
     });
     if (attr instanceof AbiAttribute) {
       input.config = { nullable: attr.nullable };
-      input.type = greycat.default.abi.types[attr.abi_type];
+      input.type = $.default.abi.types[attr.abi_type];
     }
     return input;
   }
@@ -914,7 +915,7 @@ export class GuiInputObject extends GuiInputElement<
 
       if (this._type) {
         const attr = this._type.attrs[index];
-        const attrTy = greycat.default.abi.types[attr.abi_type];
+        const attrTy = $.default.abi.types[attr.abi_type];
         let typeName = attrTy.name;
         if (typeName.startsWith('core::')) {
           typeName = typeName.slice(6);
@@ -979,17 +980,17 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
     if (value === null) return nullable;
     else if (ty.name === 'core::any') return true;
-    else if (typeof value === 'string' && ty.name === core.String._type) return true;
+    else if (typeof value === 'string' && ty.name === std.core.String._type) return true;
     else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
     else if (
       (typeof value === 'number' || typeof value === 'bigint') &&
-      (ty.name === core.int._type || ty.name === core.float._type)
+      (ty.name === std.core.int._type || ty.name === std.core.float._type)
     )
       return true;
     else if (typeof value === 'object') {
-      if (Array.isArray(value) && ty.name === core.Array._type) {
+      if (Array.isArray(value) && ty.name === std.core.Array._type) {
         return true;
-      } else if (value instanceof Map && ty.name === core.Map._type) {
+      } else if (value instanceof Map && ty.name === std.core.Map._type) {
         return true;
       } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
         return true;
@@ -1022,7 +1023,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
 
   set type(fn: AbiFunction | string | undefined) {
     if (typeof fn === 'string') {
-      fn = greycat.default.findFn(fn);
+      fn = $.default.findFn(fn);
     }
 
     if (this._fn) {
@@ -1165,7 +1166,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
   }
 }
 
-export class GuiInputDuration extends GuiInputElement<core.duration | null> {
+export class GuiInputDuration extends GuiInputElement<std.core.duration | null> {
   private _input: GuiInputNumber;
   private _select: GuiInputEnum;
 
@@ -1197,23 +1198,23 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this._select.type = greycat.default.findType(core.DurationUnit._type);
+    this._select.type = $.default.findType(std.core.DurationUnit._type);
 
     this.shadowRoot.replaceChildren(this._input, this._select);
   }
 
   get value() {
     const durationValue = Number(this._input.value);
-    const durationUnit = this._select.value as core.DurationUnit | null;
+    const durationUnit = this._select.value as std.core.DurationUnit | null;
 
     if (isNaN(durationValue) || !durationUnit) {
       return null;
     }
 
-    return core.duration.from_unit(durationValue, durationUnit);
+    return std.core.duration.from_unit(durationValue, durationUnit);
   }
 
-  set value(value: core.duration | null) {
+  set value(value: std.core.duration | null) {
     if (value === null) {
       this._input.value = null;
       this._select.value = null;
@@ -1234,10 +1235,10 @@ export class GuiInputDuration extends GuiInputElement<core.duration | null> {
   }
 
   get durationUnit() {
-    return this._select.value as core.DurationUnit | null;
+    return this._select.value as std.core.DurationUnit | null;
   }
 
-  set durationUnit(value: core.DurationUnit | null) {
+  set durationUnit(value: std.core.DurationUnit | null) {
     this._select.value = value;
   }
 
@@ -1287,14 +1288,14 @@ export class GuiInputAny extends GuiInputElement<unknown> {
         this._input.value = null;
         this._input.type = undefined;
       } else {
-        this._input.type = greycat.default.abi.types[ev.detail];
+        this._input.type = $.default.abi.types[ev.detail];
       }
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    const opts: SearchableOption[] = Array.from({ length: greycat.default.abi.types.length - 1 });
-    for (let index = 1; index < greycat.default.abi.types.length; index++) {
-      const t = greycat.default.abi.types[index];
+    const opts: SearchableOption[] = Array.from({ length: $.default.abi.types.length - 1 });
+    for (let index = 1; index < $.default.abi.types.length; index++) {
+      const t = $.default.abi.types[index];
       opts[index - 1] = { text: t.name, value: t.offset };
     }
 
@@ -1321,24 +1322,24 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     switch (typeof val) {
       case 'bigint':
       case 'number':
-        this._select.value = greycat.default.abi.core_int_offset;
+        this._select.value = $.default.abi.core_int_offset;
         break;
       case 'boolean':
-        this._select.value = greycat.default.findType('core::bool')?.offset;
+        this._select.value = $.default.findType('core::bool')?.offset;
         break;
       case 'string':
-        this._select.value = greycat.default.abi.core_string_offset;
+        this._select.value = $.default.abi.core_string_offset;
         break;
       case 'undefined':
         this._select.value = undefined;
         break;
       case 'object': {
         if (Array.isArray(val)) {
-          this._select.value = greycat.default.abi.core_array_offset;
+          this._select.value = $.default.abi.core_array_offset;
         } else if (val instanceof Map) {
-          this._select.value = greycat.default.abi.core_map_offset;
+          this._select.value = $.default.abi.core_map_offset;
         } else if (val instanceof GCObject) {
-          this._select.value = greycat.default.findType(val.$type.name)?.offset;
+          this._select.value = $.default.findType(val.$type.name)?.offset;
         } else {
           this._select.value = undefined;
         }
@@ -1359,7 +1360,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     if (this._select.value === null) {
       return null;
     }
-    return greycat.default.abi.types[this._select.value];
+    return $.default.abi.types[this._select.value];
   }
 
   set type(value: AbiType | null) {
@@ -1520,17 +1521,17 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
 
     if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
       GuiInputMap.ALLOWED_KEY_OPTIONS = [
-        { text: core.String._type, value: greycat.default.abi.core_string_offset },
-        { text: core.int._type, value: greycat.default.abi.core_int_offset },
-        { text: core.float._type, value: greycat.default.abi.core_float_offset },
-        { text: 'core::char', value: greycat.default.abi.core_char_offset },
-        { text: core.duration._type, value: greycat.default.abi.core_duration_offset },
-        { text: core.time._type, value: greycat.default.abi.core_time_offset },
-        { text: core.node._type, value: greycat.default.abi.core_node_offset },
-        { text: core.nodeGeo._type, value: greycat.default.abi.core_node_geo_offset },
-        { text: core.nodeIndex._type, value: greycat.default.abi.core_node_index_offset },
-        { text: core.nodeList._type, value: greycat.default.abi.core_node_list_offset },
-        { text: core.nodeTime._type, value: greycat.default.abi.core_node_time_offset },
+        { text: std.core.String._type, value: $.default.abi.core_string_offset },
+        { text: std.core.int._type, value: $.default.abi.core_int_offset },
+        { text: std.core.float._type, value: $.default.abi.core_float_offset },
+        { text: 'core::char', value: $.default.abi.core_char_offset },
+        { text: std.core.duration._type, value: $.default.abi.core_duration_offset },
+        { text: std.core.time._type, value: $.default.abi.core_time_offset },
+        { text: std.core.node._type, value: $.default.abi.core_node_offset },
+        { text: std.core.nodeGeo._type, value: $.default.abi.core_node_geo_offset },
+        { text: std.core.nodeIndex._type, value: $.default.abi.core_node_index_offset },
+        { text: std.core.nodeList._type, value: $.default.abi.core_node_list_offset },
+        { text: std.core.nodeTime._type, value: $.default.abi.core_node_time_offset },
       ];
     }
 
@@ -1673,7 +1674,7 @@ export class GuiInputNull extends GuiInputElement<unknown> {
     if (this._inner) {
       return this._inner.value;
     } else if (this._type instanceof AbiType) {
-      return greycat.default.create(this._type.name, []);
+      return $.default.create(this._type.name, []);
     }
     return null;
   }
@@ -1725,7 +1726,7 @@ export class GuiInputNull extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputNode extends GuiInputElement<core.node | null> {
+export class GuiInputNode extends GuiInputElement<std.core.node | null> {
   private _input: GuiInputString;
 
   constructor() {
@@ -1747,7 +1748,7 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
   get value() {
     if (this._input.value !== null) {
       try {
-        return core.node.fromRef(this._input.value);
+        return std.core.node.fromRef(this._input.value);
       } catch {
         return null;
       }
@@ -1755,7 +1756,7 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
     return null;
   }
 
-  set value(value: core.node | null) {
+  set value(value: std.core.node | null) {
     if (value === null) {
       this._input.value = null;
     } else {
@@ -1800,7 +1801,7 @@ export class GuiInputNode extends GuiInputElement<core.node | null> {
   }
 }
 
-export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
+export class GuiInputNodeIndex extends GuiInputElement<std.core.nodeIndex | null> {
   private _input: GuiInputString;
 
   constructor() {
@@ -1822,7 +1823,7 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
   get value() {
     if (this._input.value !== null) {
       try {
-        return core.nodeIndex.fromRef(this._input.value);
+        return std.core.nodeIndex.fromRef(this._input.value);
       } catch {
         return null;
       }
@@ -1830,7 +1831,7 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
     return null;
   }
 
-  set value(value: core.nodeIndex | null) {
+  set value(value: std.core.nodeIndex | null) {
     if (value === null) {
       this._input.value = null;
     } else {
@@ -1875,7 +1876,7 @@ export class GuiInputNodeIndex extends GuiInputElement<core.nodeIndex | null> {
   }
 }
 
-export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
+export class GuiInputNodeTime extends GuiInputElement<std.core.nodeTime | null> {
   private _input: GuiInputString;
 
   constructor() {
@@ -1897,7 +1898,7 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
   get value() {
     if (this._input.value !== null) {
       try {
-        return core.nodeTime.fromRef(this._input.value);
+        return std.core.nodeTime.fromRef(this._input.value);
       } catch {
         return null;
       }
@@ -1905,7 +1906,7 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
     return null;
   }
 
-  set value(value: core.nodeTime | null) {
+  set value(value: std.core.nodeTime | null) {
     if (value === null) {
       this._input.value = null;
     } else {
@@ -1950,7 +1951,7 @@ export class GuiInputNodeTime extends GuiInputElement<core.nodeTime | null> {
   }
 }
 
-export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
+export class GuiInputNodeList extends GuiInputElement<std.core.nodeList | null> {
   private _input: GuiInputString;
 
   constructor() {
@@ -1972,7 +1973,7 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
   get value() {
     if (this._input.value !== null) {
       try {
-        return core.nodeList.fromRef(this._input.value);
+        return std.core.nodeList.fromRef(this._input.value);
       } catch {
         return null;
       }
@@ -1980,7 +1981,7 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
     return null;
   }
 
-  set value(value: core.nodeList | null) {
+  set value(value: std.core.nodeList | null) {
     if (value === null) {
       this._input.value = null;
     } else {
@@ -2025,7 +2026,7 @@ export class GuiInputNodeList extends GuiInputElement<core.nodeList | null> {
   }
 }
 
-export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
+export class GuiInputNodeGeo extends GuiInputElement<std.core.nodeGeo | null> {
   private _input: GuiInputString;
 
   constructor() {
@@ -2047,7 +2048,7 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
   get value() {
     if (this._input.value !== null) {
       try {
-        return core.nodeGeo.fromRef(this._input.value);
+        return std.core.nodeGeo.fromRef(this._input.value);
       } catch {
         return null;
       }
@@ -2055,7 +2056,7 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
     return null;
   }
 
-  set value(value: core.nodeGeo | null) {
+  set value(value: std.core.nodeGeo | null) {
     if (value === null) {
       this._input.value = null;
     } else {
@@ -2100,7 +2101,7 @@ export class GuiInputNodeGeo extends GuiInputElement<core.nodeGeo | null> {
   }
 }
 
-export class GuiInputGeo extends GuiInputElement<core.geo | null> {
+export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
   private _latInput: GuiInputNumber;
   private _lngInput: GuiInputNumber;
 
@@ -2154,10 +2155,10 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
     if (this._latInput.value === null || this._lngInput.value === null) {
       return null;
     }
-    return core.geo.fromLatLng(Number(this._latInput.value), Number(this._lngInput.value));
+    return std.core.geo.fromLatLng(Number(this._latInput.value), Number(this._lngInput.value));
   }
 
-  set value(value: core.geo | null) {
+  set value(value: std.core.geo | null) {
     if (value === null) {
       this._latInput.value = null;
       this._lngInput.value = null;
@@ -2168,7 +2169,7 @@ export class GuiInputGeo extends GuiInputElement<core.geo | null> {
   }
 }
 
-export class GuiInputFnPtr extends GuiInputElement<core.function_ | null> {
+export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
   private _input: SlInput;
 
   constructor() {
@@ -2194,7 +2195,7 @@ export class GuiInputFnPtr extends GuiInputElement<core.function_ | null> {
       return null;
     }
     try {
-      return greycat.default.createFunctionByFqn(this._input.value) ?? null;
+      return $.default.createFunctionByFqn(this._input.value) ?? null;
     } catch {
       return null;
     }
@@ -2232,7 +2233,7 @@ export class GuiInputFnPtr extends GuiInputElement<core.function_ | null> {
     this._input.label = label;
   }
 
-  set value(fn: core.function_ | null) {
+  set value(fn: std.core.function_ | null) {
     if (fn) {
       this._input.value = fn.fqn;
     } else {

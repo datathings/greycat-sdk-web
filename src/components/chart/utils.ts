@@ -11,7 +11,7 @@ const DAYS_IN_MS = HOURS_IN_MS * 24;
  * Returns a format specifier based on the size of the span.
  *
  * @param span a span of time in milliseconds
- * @returns 
+ * @returns
  */
 export function smartTimeFormatSpecifier(span: number): string {
   if (span < MINUTES_IN_MS) {
@@ -48,7 +48,11 @@ export function axisSpan(axis: d3.Axis<unknown>): number {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function createFormatter(axis: Axis, scale: Scale, useCursorFormat = false): (...args: any[]) => string {
+export function createFormatter(
+  axis: Axis,
+  scale: Scale,
+  useCursorFormat = false,
+): (...args: any[]) => string {
   const format = axis[useCursorFormat ? 'cursorFormat' : 'format'];
   if (format === undefined) {
     const [from, to] = scale.range();

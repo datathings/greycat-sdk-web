@@ -2,7 +2,7 @@ import { utils } from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { Disposer, GuiRenderEvent, TableLike, TableLikeMeta, TableView } from '../common.js';
+import { Disposer, GuiRenderEvent, TableLike, TableColumnMeta, TableView } from '../common.js';
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
@@ -56,7 +56,18 @@ const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
   return REUSABLE_CELL_PROPS;
 };
 
-export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[]) => void;
+/**
+ * #### `rowEl`:
+ * The DOM element of the row
+ *
+ * #### `row`:
+ * The row cells
+ *
+ * #### `rowIdx`:
+ * The virtual row index.
+ * *This is not the index of the row in the given `value` but the index of the virtual row in the displayed table*
+ */
+export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[], rowIdx: number) => void;
 
 export class GuiTable extends HTMLElement {
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
@@ -67,7 +78,7 @@ export class GuiTable extends HTMLElement {
   private _tableContainer = document.createElement('div');
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
-  private _minColWidth = 100;
+  // private _minColWidth = 100;
   private _scrollToRowIndex = 0;
   private _sortCol: SortCol = new SortCol(-1, 'default');
   private _ignoreCols: number[] | undefined;
@@ -241,7 +252,7 @@ export class GuiTable extends HTMLElement {
    * Associates column index to user-defined HTMLElement `'tagName'`.
    *
    * By default, all columns are associated with `'gui-value'`.
-   * 
+   *
    * Any properties can be given to the underlying elements by specifying a `ColumnFactory` rather than
    * a string `tagName` (eg. `{ tag: 'my-component', props: { color: 'blue' } }`)
    *
@@ -497,15 +508,13 @@ export class GuiTable extends HTMLElement {
       const dx = px - cx;
       const hcell = this._thead.children[index] as GuiTableHeadCell;
       const newWidth = Math.round(hcell.colWidth - dx);
-      if (newWidth >= this._minColWidth) {
-        // record the new manually set width
-        this._thead.widths[index] = newWidth;
-        // update the header cell width
-        hcell.colWidth = newWidth;
-        // update the associated body cells widths
-        this._tbody.resizeColumn(index, newWidth);
-        px = cx;
-      }
+      // record the new manually set width
+      this._thead.widths[index] = newWidth;
+      // update the header cell width
+      hcell.colWidth = newWidth;
+      // update the associated body cells widths
+      this._tbody.resizeColumn(index, newWidth);
+      px = cx;
       requestAnimationFrame(colResizeLoop);
     };
 
@@ -617,7 +626,7 @@ export class GuiTable extends HTMLElement {
       this._prevFromRowIdx,
       this._thead.widths,
       rows,
-      this._minColWidth,
+      5,
       this._cellProps,
       this._rowUpdateCallback,
       this._columnFactories,
@@ -627,7 +636,7 @@ export class GuiTable extends HTMLElement {
 
     const widths = this._thead.update(
       meta,
-      this._minColWidth,
+      5,
       this._sortCol,
       this._tbody.virtualScroller.scrollWidth,
       this._headers,
@@ -764,7 +773,7 @@ class GuiTableHead extends HTMLElement {
   widths: number[] = [];
 
   update(
-    meta: TableLikeMeta[],
+    meta: TableColumnMeta[],
     minColWidth: number,
     sortCol: SortCol,
     availableWidth: number,
@@ -946,6 +955,10 @@ export class GuiTableHeadCell extends HTMLElement {
       this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
     });
 
+    this._input.addEventListener('sl-clear', () => {
+      this.dispatchEvent(new TableFilterColumnEvent(this._index, ''));
+    });
+
     this._input.addEventListener('blur', (e) => {
       // if the user clicked on the search icon, we let the click event handle the dropdown
       if (e.relatedTarget !== this._filter) {
@@ -1051,7 +1064,7 @@ export class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, customHeader?: string) {
+  update(index: number, meta: TableColumnMeta | undefined, sort: SortOrd, customHeader?: string) {
     this._index = index;
     const title = document.createDocumentFragment();
 
@@ -1140,7 +1153,8 @@ class GuiTableBody extends HTMLElement {
     // actual content without any extra row.
     //
     // We use `(value + 0.5) | 0` to get a speedy `Math.round(...)` equivalent
-    this.maxVirtualRows = (Math.min(this.offsetHeight / this.rowHeight + extraRows, rows.length) + 0.5) | 0;
+    this.maxVirtualRows =
+      (Math.min(this.offsetHeight / this.rowHeight + extraRows, rows.length) + 0.5) | 0;
 
     /** This is the max bound for rows */
     const maxRowIdx = rows.length - 1;
@@ -1181,7 +1195,7 @@ class GuiTableBody extends HTMLElement {
       // at the right position
       row.style.height = `${this.rowHeight}px`;
       row.style.top = `${realIdx * this.rowHeight}px`;
-      updateCallback(row, rows[realIdx]);
+      updateCallback(row, rows[realIdx], realIdx);
     }
 
     // remove exceeding rows
@@ -1232,6 +1246,12 @@ class GuiTableBody extends HTMLElement {
 }
 
 export class GuiTableBodyRow extends HTMLElement {
+  /**
+   * the original row index (from the `value` given to `gui-table`)
+   *
+   * *This is set after the creation of the row, and updated by the virtual scrolling.
+   * Therefore, the value might be `-1` while the table is not fully rendered.*
+   */
   idx = -1;
 
   async update(
@@ -1243,8 +1263,7 @@ export class GuiTableBodyRow extends HTMLElement {
     cellProps: CellPropsFactory,
     factories?: CleanColumnFactories,
   ): Promise<void> {
-    this.idx = index;
-    // this.setAttribute('data-col', `${col}`);
+    this.idx = row[0].originalIndex;
     this.setAttribute('data-row', `${index}`);
     let colIdx: number;
     let takenWidth = 0;
@@ -1317,14 +1336,14 @@ export class GuiTableBodyCell extends HTMLElement {
    * What this implies is that some of the elements are lit-powered and therefore they are asynchronously
    * updated. So we have to make this a promise, so that the underlying elements get a chance to actually
    * render and we get proper height reporting post-update.
-   * 
-   * @param factory 
-   * @param index 
-   * @param colIdx 
-   * @param row 
-   * @param cellProps 
-   * @param colWidth 
-   * @returns 
+   *
+   * @param factory
+   * @param index
+   * @param colIdx
+   * @param row
+   * @param cellProps
+   * @param colWidth
+   * @returns
    */
   async update(
     factory: ColumnFactory | undefined,
@@ -1346,7 +1365,10 @@ export class GuiTableBodyCell extends HTMLElement {
       }
       if (this.value instanceof GuiValue) {
         if (typeof cellProps === 'function') {
-          this.value.setAttrs({ ...cellProps(row, row[colIdx].value, index, colIdx), ...factory.props });
+          this.value.setAttrs({
+            ...cellProps(row, row[colIdx].value, index, colIdx),
+            ...factory.props,
+          });
         } else {
           this.value.setAttrs({ ...cellProps, ...factory.props, value: row[colIdx].value });
         }
@@ -1389,7 +1411,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) { }
+  ) {}
 
   reset() {
     this._index = -1;
@@ -1446,7 +1468,7 @@ declare global {
     'table-dblclick': TableDblClickEvent;
   }
 
-  interface HTMLElementEventMap extends GuiTableEventMap { }
+  interface HTMLElementEventMap extends GuiTableEventMap {}
   namespace JSX {
     interface IntrinsicElements {
       /**

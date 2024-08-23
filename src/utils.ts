@@ -1,4 +1,4 @@
-import { core, getDebuggerLogger, type GreyCat } from './exports.js';
+import { getDebuggerLogger, type GreyCat, $ } from './exports.js';
 
 export function ref<S, K extends keyof S>(state: S, key: K): [S, K] {
   return [state, key];
@@ -11,7 +11,7 @@ export class Ref<T> {
 type MutableRef<T> = {
   ref: [{ value: T }, 'value'];
   value: T;
-}
+};
 
 export function createRef<T>() {
   const state = {} as unknown as MutableRef<T>;
@@ -178,21 +178,6 @@ export function getHeatmapColors(el?: HTMLElement): string[] {
   return colors;
 }
 
-export function isNumberColumn(meta: core.TableColumnMeta): boolean {
-  return meta.$type.name === 'core::int' || meta.$type.name === 'core::float';
-}
-
-// // source: https://stackoverflow.com/questions/9453421/how-to-round-float-numbers-in-javascript
-// export function round(value: number, precision: number) {
-//   if (Number.isInteger(precision)) {
-//     const shift = Math.pow(10, precision);
-//     // Limited preventing decimal issue
-//     return Math.round(value * shift + 0.00000000000001) / shift;
-//   } else {
-//     return Math.round(value);
-//   }
-// }
-
 export function emptyDataElement(cssClass: string) {
   const incompleteTableEl = document.createElement('div');
   incompleteTableEl.classList.add(cssClass);
@@ -223,7 +208,7 @@ export function putFileProgress(
   file: File,
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
-  g: GreyCat = greycat.default,
+  g: GreyCat = $.default,
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 

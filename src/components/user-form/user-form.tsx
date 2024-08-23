@@ -1,5 +1,5 @@
 import type { SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
-import { runtime, sha256hex } from '../../exports.js';
+import { std, sha256hex } from '../../exports.js';
 
 export class GuiUserForm extends HTMLElement {
   private readonly _user_id: SlInput;
@@ -51,7 +51,7 @@ export class GuiUserForm extends HTMLElement {
    * Fetches the roles from the server and updates the select list
    */
   async updateRoles(): Promise<void> {
-    const roles = await runtime.UserRole.all();
+    const roles = await std.runtime.UserRole.all();
     this.roles = roles.map((r) => r.name);
   }
 
@@ -63,7 +63,7 @@ export class GuiUserForm extends HTMLElement {
     this._role.replaceChildren(options);
   }
 
-  set groups(groups: runtime.UserGroup[]) {
+  set groups(groups: std.runtime.UserGroup[]) {
     const options = document.createDocumentFragment();
     for (const group of groups) {
       options.appendChild(<sl-option value={`${group.id}`}>{group.name}</sl-option>);
@@ -129,13 +129,13 @@ export class GuiUserForm extends HTMLElement {
   get user_groups() {
     if (Array.isArray(this._groups.value)) {
       return this._groups.value.map((id) =>
-        runtime.UserGroupPolicy.create(+id, runtime.UserGroupPolicyType.execute()),
+        std.runtime.UserGroupPolicy.create(+id, std.runtime.UserGroupPolicyType.execute()),
       );
     }
     return null;
   }
 
-  set user_groups(groups: runtime.UserGroupPolicy[] | null) {
+  set user_groups(groups: std.runtime.UserGroupPolicy[] | null) {
     if (groups === null) {
       this._groups.value = [];
     } else {
@@ -159,7 +159,7 @@ export class GuiUserForm extends HTMLElement {
     this._external.checked = external;
   }
 
-  set value(user: runtime.User) {
+  set value(user: std.runtime.User) {
     this.user_id = user.id;
     this.username = user.name;
     this._username.helpText = '';
@@ -174,7 +174,7 @@ export class GuiUserForm extends HTMLElement {
   }
 
   get value() {
-    return runtime.User.create(
+    return std.runtime.User.create(
       this.user_id,
       this.username,
       this.activated,
@@ -210,9 +210,9 @@ export class GuiUserForm extends HTMLElement {
       throw '';
     }
 
-    await runtime.SecurityEntity.set(user);
+    await std.runtime.SecurityEntity.set(user);
     if (password.length > 0) {
-      await runtime.User.setPassword(user.name, sha256hex(password));
+      await std.runtime.User.setPassword(user.name, sha256hex(password));
     }
   }
 
@@ -221,7 +221,7 @@ export class GuiUserForm extends HTMLElement {
    *
    * *Note that this will only succeed if the currently signed-in users as the relevant permissions.*
    *
-   * **This will actually call `runtime::SecurityEntity.set(...)` and `runtime.User.setPassword(...)`, and cannot be undone**
+   * **This will actually call `runtime::SecurityEntity.set(...)` and `std.runtime.User.setPassword(...)`, and cannot be undone**
    */
   async createUser(): Promise<void> {
     const user = this.value;
@@ -243,8 +243,8 @@ export class GuiUserForm extends HTMLElement {
       throw '';
     }
 
-    await runtime.SecurityEntity.set(user);
-    await runtime.User.setPassword(user.name, sha256hex(password));
+    await std.runtime.SecurityEntity.set(user);
+    await std.runtime.User.setPassword(user.name, sha256hex(password));
   }
 }
 

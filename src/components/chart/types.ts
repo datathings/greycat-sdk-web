@@ -1,4 +1,4 @@
-import type { core } from '../../exports.js';
+import type { std } from '../../exports.js';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
@@ -72,8 +72,8 @@ export type Tooltip = {
 
 export type CommonAxis = {
   title?: string;
-  min?: number | Date | core.time | core.Date;
-  max?: number | Date | core.time | core.Date;
+  min?: number | Date | std.core.time | std.core.Date;
+  max?: number | Date | std.core.time | std.core.Date;
   cursorAlign?: 'start' | 'center' | 'end';
   cursorBaseline?: CanvasTextBaseline;
   cursorPadding?: number;
@@ -155,7 +155,7 @@ export type TimeAxis = {
   /**
    * Time axis can also leverage `d3.TimeInterval` by specifying for instance `d3.utcHour.every(24)`
    */
-  ticks?: d3.TimeInterval | (core.time | core.Date | Date | number)[] | null;
+  ticks?: d3.TimeInterval | (std.core.time | std.core.Date | Date | number)[] | null;
 
   /**
    * Formats the cursor text on the axis depending on the axis type and this parameter type:
@@ -226,13 +226,13 @@ export type SerieOptions = {
      * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
      * be the cells of that `col`.
      */
-    col: number,
+    col: number;
     /**
      * @param v the column (`col`) value
      * @returns the style used for canvas painting, or `null` to get the default style of the serie
      */
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    mapping?: (v: any) => SerieStyle | null,
+    mapping?: (v: any) => SerieStyle | null;
   };
 };
 

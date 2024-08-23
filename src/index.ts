@@ -1,15 +1,9 @@
-import * as web from './exports.js';
+import * as sdk from './exports.js';
 
-export * from './exports.js';
-
-globalThis.greycat = globalThis.greycat ?? {};
-Object.assign(globalThis.greycat, web);
+Object.assign(globalThis, { greycat: sdk });
 
 declare global {
-  type GreyCatWeb = typeof web;
-  interface GreyCatGlobal extends GreyCatWeb { }
-
-  interface Window {
-    greycat: GreyCatGlobal;
-  }
+  let greycat: typeof sdk;
 }
+
+export * from './exports.js';

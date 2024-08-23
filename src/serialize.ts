@@ -1,10 +1,10 @@
-import { AbiWriter, AbiReader, PrimitiveType, type Value, type Abi } from './exports.js';
+import { AbiWriter, AbiReader, PrimitiveType, type Value, type Abi, $ } from './exports.js';
 
 const JS_OBJECT = 254 as PrimitiveType;
 const JS_UNDEFINED = 253 as PrimitiveType;
 
 export class BinaryWriter extends AbiWriter {
-  constructor(abi: Abi = greycat.default.abi) {
+  constructor(abi: Abi = $.default.abi) {
     super(abi);
   }
 
@@ -34,7 +34,7 @@ export class BinaryWriter extends AbiWriter {
 }
 
 export class BinaryReader extends AbiReader {
-  constructor(buf: ArrayBuffer, abi: Abi = greycat.default.abi) {
+  constructor(buf: ArrayBuffer, abi: Abi = $.default.abi) {
     super(abi, buf);
     this.deserializers[JS_OBJECT] = (r) => {
       const len = r.read_vu32();

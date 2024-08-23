@@ -14,7 +14,7 @@ export interface Resizable {
  *
  * @param superClass the class to decorate
  * @param debounceDelay debounce delay to apply to each resize event. Defaults to 200ms.
- * @returns 
+ * @returns
  */
 export function Resizable<T extends Constructor<GuiElement>>(superClass: T, debounceDelay = 200) {
   class ResizableMixin extends superClass implements Resizable {
@@ -24,7 +24,7 @@ export function Resizable<T extends Constructor<GuiElement>>(superClass: T, debo
       }, debounceDelay),
     );
 
-    onResize(_entry: ResizeObserverEntry): void { }
+    onResize(_entry: ResizeObserverEntry): void {}
 
     override connectedCallback() {
       super.connectedCallback?.();

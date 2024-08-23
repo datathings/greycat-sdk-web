@@ -1,4 +1,4 @@
-import { core, io } from '../../../exports.js';
+import { std } from '../../../exports.js';
 
 interface CsvColumnInput {
   element: HTMLElement;
@@ -12,7 +12,7 @@ class CsvColumnIntegerInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnInteger) {
+  constructor(col: std.io.CsvColumnInteger) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -40,14 +40,14 @@ class CsvColumnIntegerInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnInteger.create(
+    return std.io.CsvColumnInteger.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
     );
   }
 
-  set value(value: io.CsvColumnInteger) {
+  set value(value: std.io.CsvColumnInteger) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -60,7 +60,7 @@ class CsvColumnFloatInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnFloat) {
+  constructor(col: std.io.CsvColumnFloat) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -88,14 +88,14 @@ class CsvColumnFloatInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnFloat.create(
+    return std.io.CsvColumnFloat.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
     );
   }
 
-  set value(value: io.CsvColumnFloat) {
+  set value(value: std.io.CsvColumnFloat) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -108,7 +108,7 @@ class CsvColumnBooleanInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnBoolean) {
+  constructor(col: std.io.CsvColumnBoolean) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -136,14 +136,14 @@ class CsvColumnBooleanInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnBoolean.create(
+    return std.io.CsvColumnBoolean.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
     );
   }
 
-  set value(value: io.CsvColumnBoolean) {
+  set value(value: std.io.CsvColumnBoolean) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -157,7 +157,7 @@ class CsvColumnTimeInput {
   private _offset: Text;
   private _unit: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnTime) {
+  constructor(col: std.io.CsvColumnTime) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -168,7 +168,7 @@ class CsvColumnTimeInput {
         <option value="" selected>
           Select a unit
         </option>
-        {core.DurationUnit.$fields().map((u) => (
+        {std.core.DurationUnit.$fields().map((u) => (
           <option value={u.key}>{u.key}</option>
         ))}
       </select>
@@ -199,17 +199,17 @@ class CsvColumnTimeInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnTime.create(
+    return std.io.CsvColumnTime.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
       this._unit.value.length > 0
-        ? core.DurationUnit[this._unit.value as core.DurationUnit.Field]()
+        ? std.core.DurationUnit[this._unit.value as std.core.DurationUnit.Field]()
         : null,
     );
   }
 
-  set value(value: io.CsvColumnTime) {
+  set value(value: std.io.CsvColumnTime) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -224,7 +224,7 @@ class CsvColumnDurationInput {
   private _offset: Text;
   private _unit: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnDuration) {
+  constructor(col: std.io.CsvColumnDuration) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -235,7 +235,7 @@ class CsvColumnDurationInput {
         <option value="" selected>
           Select a unit
         </option>
-        {core.DurationUnit.$fields().map((u) => (
+        {std.core.DurationUnit.$fields().map((u) => (
           <option value={u.key}>{u.key}</option>
         ))}
       </select>
@@ -266,17 +266,17 @@ class CsvColumnDurationInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnDuration.create(
+    return std.io.CsvColumnDuration.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
       this._unit.value.length === 0
         ? null
-        : core.DurationUnit[this._unit.value as core.DurationUnit.Field](),
+        : std.core.DurationUnit[this._unit.value as std.core.DurationUnit.Field](),
     );
   }
 
-  set value(value: io.CsvColumnDuration) {
+  set value(value: std.io.CsvColumnDuration) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -293,7 +293,7 @@ class CsvColumnDateInput {
   private _tz: HTMLSelectElement;
   private _as_time: HTMLInputElement;
 
-  constructor(col: io.CsvColumnDate) {
+  constructor(col: std.io.CsvColumnDate) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -305,7 +305,7 @@ class CsvColumnDateInput {
         <option value="" selected>
           Select a timezone
         </option>
-        {core.TimeZone.$fields().map((u) => (
+        {std.core.TimeZone.$fields().map((u) => (
           <option value={u.key}>{u.key}</option>
         ))}
       </select>
@@ -354,17 +354,19 @@ class CsvColumnDateInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnDate.create(
+    return std.io.CsvColumnDate.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
       this._format.value.length === 0 ? null : this._format.value,
-      this._tz.value.length > 0 ? core.TimeZone[this._tz.value as core.TimeZone.Field]() : null,
+      this._tz.value.length > 0
+        ? std.core.TimeZone[this._tz.value as std.core.TimeZone.Field]()
+        : null,
       this._as_time.checked,
     );
   }
 
-  set value(value: io.CsvColumnDate) {
+  set value(value: std.io.CsvColumnDate) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -380,7 +382,7 @@ class CsvColumnIgnoredInput {
   private _mandatory: HTMLInputElement;
   private _offset: Text;
 
-  constructor(col: io.CsvColumnIgnored) {
+  constructor(col: std.io.CsvColumnIgnored) {
     this._name = (<input type="text" defaultValue={col.name ?? ''} />) as HTMLInputElement;
     this._mandatory = (
       <input type="checkbox" checked={col.mandatory ?? false} />
@@ -408,14 +410,14 @@ class CsvColumnIgnoredInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnIgnored.create(
+    return std.io.CsvColumnIgnored.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
     );
   }
 
-  set value(value: io.CsvColumnIgnored) {
+  set value(value: std.io.CsvColumnIgnored) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -433,7 +435,7 @@ class CsvColumnStringInput {
   private _values: HTMLInputElement;
   private _encoder: HTMLSelectElement;
 
-  constructor(col: io.CsvColumnString, oninput?: () => void) {
+  constructor(col: std.io.CsvColumnString, oninput?: () => void) {
     this._name = (
       <input type="text" defaultValue={col.name ?? ''} oninput={oninput} />
     ) as HTMLInputElement;
@@ -459,7 +461,7 @@ class CsvColumnStringInput {
         <option value="" selected>
           Select an encoder
         </option>
-        {io.TextEncoder.$fields().map((e) => (
+        {std.io.TextEncoder.$fields().map((e) => (
           <option value={e.key}>{e.key}</option>
         ))}
       </select>
@@ -513,7 +515,7 @@ class CsvColumnStringInput {
 
   get value() {
     const offset = +(this._offset.textContent ?? '');
-    return io.CsvColumnString.create(
+    return std.io.CsvColumnString.create(
       this._name.value,
       this._mandatory.checked,
       isNaN(offset) ? null : offset,
@@ -523,11 +525,11 @@ class CsvColumnStringInput {
       this._values.value.split(',').filter((e) => e.length),
       this._encoder.value.length === 0
         ? null
-        : io.TextEncoder[this._encoder.value as io.TextEncoder.Field](),
+        : std.io.TextEncoder[this._encoder.value as std.io.TextEncoder.Field](),
     );
   }
 
-  set value(value: io.CsvColumnString) {
+  set value(value: std.io.CsvColumnString) {
     this._name.value = value.name ?? '';
     this._mandatory.checked = value.mandatory ?? false;
     this._offset.textContent = `${value.offset}`;
@@ -546,50 +548,50 @@ export class GuiCsvColumnInput extends HTMLElement {
     return this._input?.value ?? null;
   }
 
-  set value(col: io.CsvColumn) {
-    if (col instanceof io.CsvColumnString) {
+  set value(col: std.io.CsvColumn) {
+    if (col instanceof std.io.CsvColumnString) {
       this._input = new CsvColumnStringInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnBoolean) {
+    if (col instanceof std.io.CsvColumnBoolean) {
       this._input = new CsvColumnBooleanInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnInteger) {
+    if (col instanceof std.io.CsvColumnInteger) {
       this._input = new CsvColumnIntegerInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnFloat) {
+    if (col instanceof std.io.CsvColumnFloat) {
       this._input = new CsvColumnFloatInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnDate) {
+    if (col instanceof std.io.CsvColumnDate) {
       this._input = new CsvColumnDateInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnDuration) {
+    if (col instanceof std.io.CsvColumnDuration) {
       this._input = new CsvColumnDurationInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnIgnored) {
+    if (col instanceof std.io.CsvColumnIgnored) {
       this._input = new CsvColumnIgnoredInput(col);
       this.replaceChildren(this._input.element);
       return;
     }
 
-    if (col instanceof io.CsvColumnTime) {
+    if (col instanceof std.io.CsvColumnTime) {
       this._input = new CsvColumnTimeInput(col);
       this.replaceChildren(this._input.element);
       return;

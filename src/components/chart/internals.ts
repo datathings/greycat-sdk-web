@@ -1,4 +1,4 @@
-import { core } from '../../exports.js';
+import { std } from '../../exports.js';
 
 export function vMap(x: unknown): number {
   switch (typeof x) {
@@ -10,9 +10,9 @@ export function vMap(x: unknown): number {
       if (x === null) {
         return NaN;
       }
-      if (x instanceof core.time) {
+      if (x instanceof std.core.time) {
         return Math.round(x.epochMs);
-      } else if (x instanceof core.Date) {
+      } else if (x instanceof std.core.Date) {
         return new Date(x.toString()).getTime();
       }
       return +x;

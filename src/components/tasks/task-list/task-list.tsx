@@ -1,4 +1,4 @@
-import { GreyCat, runtime } from '../../../exports.js';
+import { GreyCat, std, $ } from '../../../exports.js';
 import { TaskInfoLike } from '../task-info/common.js';
 
 export type TaskKind = 'running' | 'history';
@@ -14,7 +14,7 @@ export class GuiTaskList extends HTMLElement {
   private _footer: HTMLElement;
   private _tasks: TaskInfoLike[] = [];
   private _tbody = document.createElement('tbody');
-  private _greycat = greycat.default;
+  private _greycat = $.default;
   private _updateDelay = 5000;
   private _updateIntervalId = -1;
 
@@ -225,14 +225,14 @@ export class GuiTaskList extends HTMLElement {
       case 'history': {
         // this is just a way to always get an accurate nbTotal even when not on the first page
         // and the users ask to update the tasks
-        const tasks = await runtime.Task.history(0, 1, this._greycat);
+        const tasks = await std.runtime.Task.history(0, 1, this._greycat);
         if (tasks.length > 0) {
           this._nbTotal = tasks[0].task_id as number;
         }
 
         const offset = (this._currentPageEl.valueAsNumber - 1) * this._tasksPerPageEl.valueAsNumber;
         const max = this._tasksPerPageEl.valueAsNumber;
-        this._tasks = await runtime.Task.history(offset, max, this._greycat);
+        this._tasks = await std.runtime.Task.history(offset, max, this._greycat);
 
         if (offset + max >= this._nbTotal) {
           // we are past the end
@@ -241,7 +241,7 @@ export class GuiTaskList extends HTMLElement {
         break;
       }
       case 'running': {
-        this._tasks = await runtime.Task.running(this._greycat);
+        this._tasks = await std.runtime.Task.running(this._greycat);
         this._nbTotal = -1; // no pagination for running list
         break;
       }

@@ -1,8 +1,8 @@
-import { io } from '../../../exports.js';
+import { std } from '../../../exports.js';
 import '../../table/index.js'; // ensures table is defined
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;
-  private _stats: io.CsvStatistics | null | undefined;
+  private _stats: std.io.CsvStatistics | null | undefined;
   private _main = document.createElement('div');
   private _dialog = document.createElement('sl-dialog');
 
@@ -20,7 +20,7 @@ export class GuiCsvStatistics extends HTMLElement {
     return this._stats;
   }
 
-  set value(value: io.CsvStatistics | null | undefined) {
+  set value(value: std.io.CsvStatistics | null | undefined) {
     this._stats = value;
     this.render();
   }
@@ -232,11 +232,11 @@ export class GuiCsvStatistics extends HTMLElement {
             <tr>
               <td>Standard Deviation</td>
               {this._stats.columns.map((c) => {
-                if (c.profile.count && c.profile.sum && c.profile.sum_sq) {
+                if (c.profile.count && c.profile.sum && c.profile.sumsq) {
                   let std = 0.0;
                   const s = (c.profile.sum * c.profile.sum) / Number(c.profile.count);
-                  if (Number(c.profile.count) > 1 && c.profile.sum_sq > s) {
-                    std = Math.sqrt((c.profile.sum_sq - s) / (Number(c.profile.count) - 1));
+                  if (Number(c.profile.count) > 1 && c.profile.sumsq > s) {
+                    std = Math.sqrt((c.profile.sumsq - s) / (Number(c.profile.count) - 1));
                   }
                   return <td>{std.toFixed(6)}</td>;
                 }
@@ -267,7 +267,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  showWordList(column: io.CsvColumnStatistics): void {
+  showWordList(column: std.io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
     let wTotal = 0;
@@ -304,7 +304,7 @@ export class GuiCsvStatistics extends HTMLElement {
     this._dialog.show();
   }
 
-  private _countValues(col: io.CsvColumnStatistics): number {
+  private _countValues(col: std.io.CsvColumnStatistics): number {
     return (
       Number(col.bool_count) +
       Number(col.date_count) +
@@ -315,7 +315,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleInt(col: io.CsvColumnStatistics): boolean {
+  private _possibleInt(col: std.io.CsvColumnStatistics): boolean {
     return (
       col.int_count > col.bool_count &&
       col.int_count > col.date_count &&
@@ -324,7 +324,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleFloat(col: io.CsvColumnStatistics): boolean {
+  private _possibleFloat(col: std.io.CsvColumnStatistics): boolean {
     return (
       col.float_count > col.bool_count &&
       col.float_count > col.date_count &&
@@ -333,7 +333,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleString(col: io.CsvColumnStatistics): boolean {
+  private _possibleString(col: std.io.CsvColumnStatistics): boolean {
     return (
       col.string_count > col.bool_count &&
       col.string_count > col.date_count &&
@@ -342,7 +342,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleBool(col: io.CsvColumnStatistics): boolean {
+  private _possibleBool(col: std.io.CsvColumnStatistics): boolean {
     return (
       col.bool_count > col.string_count &&
       col.bool_count > col.date_count &&
@@ -351,7 +351,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleDate(col: io.CsvColumnStatistics): boolean {
+  private _possibleDate(col: std.io.CsvColumnStatistics): boolean {
     return (
       col.date_count > col.string_count &&
       col.date_count > col.bool_count &&

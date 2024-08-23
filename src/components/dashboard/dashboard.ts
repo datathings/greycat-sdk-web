@@ -13,7 +13,7 @@ import { createElement } from '@greycat/web/jsx-runtime';
 
 /**
  * A helper function to properly type the given props based on the component tag name.
- * 
+ *
  * *This function is the identity function with some typing sugar on top. Nothing more.*
  */
 export function defineComp<K extends keyof HTMLElementTagNameMap>(
@@ -136,7 +136,7 @@ export class GuiDashboard extends HTMLElement {
 
   /**
    * A dictionnary of fetchers.
-   * 
+   *
    * The fetchers can be associated to components in `associations`.
    */
   get fetchers() {
@@ -160,7 +160,7 @@ export class GuiDashboard extends HTMLElement {
 
   /**
    * This is highly unlikely that someone would like to create a `SerializedDockview` manually.
-   * 
+   *
    * This is intended to allow reloading a previously serialized model.
    */
   get model() {
@@ -183,7 +183,7 @@ export class GuiDashboard extends HTMLElement {
     components: Record<string, GuiDashboardComponent<any>>;
     associations: Record<string, GuiDashboardAssociation>;
     fetchers: Record<string, GuiDashboardFetcher>;
-    model: SerializedDockview,
+    model: SerializedDockview;
     updateEvery: number;
   }>) {
     if (model) {
@@ -234,7 +234,7 @@ export class GuiDashboard extends HTMLElement {
         panel.update({
           params: {
             attrs: props.attrs,
-          }
+          },
         });
         // update the fetchers
         this.updatePanel(panel);
@@ -253,7 +253,7 @@ export class GuiDashboard extends HTMLElement {
         },
       };
 
-      dockview.addPanel(options)
+      dockview.addPanel(options);
     }
 
     // cleanup old panels

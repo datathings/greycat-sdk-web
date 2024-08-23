@@ -1,4 +1,4 @@
-import { GreyCat, prettyError, runtime } from '../../../exports.js';
+import { GreyCat, prettyError, std, $ } from '../../../exports.js';
 import '../../object/index.js'; // ensures gui-object is loaded
 import '../../inputs/index.js'; // ensures gui-input (and the likes) are loaded
 import { GuiInput } from '../../inputs/index.js';
@@ -7,12 +7,12 @@ import type { SlDialog } from '@shoelace-style/shoelace';
 export class GuiPeriodicTaskList extends HTMLElement {
   private static NOOP = () => void 0;
 
-  private _tasks: runtime.PeriodicTask[] = [];
+  private _tasks: std.runtime.PeriodicTask[] = [];
   private _tbody = document.createElement('tbody');
   private _dialog: SlDialog;
   private _dialogContent = document.createElement('div');
   private _dialogUpdateTask = GuiPeriodicTaskList.NOOP;
-  private _greycat = greycat.default;
+  private _greycat = $.default;
 
   constructor() {
     super();
@@ -94,7 +94,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     // deletes all the tasks
     this._tasks.length = 0;
     // update task list
-    await runtime.PeriodicTask.set(this._tasks, this._greycat);
+    await std.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
     this.render();
   }
@@ -103,7 +103,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     // deletes the task by index
     this._tasks.splice(index, 1);
     // update task list
-    await runtime.PeriodicTask.set(this._tasks, this._greycat);
+    await std.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
     this.render();
   }
@@ -114,9 +114,9 @@ export class GuiPeriodicTaskList extends HTMLElement {
       let tmpTask = task;
       const input = new GuiInput();
       input.id = `periodic-task-input-${index}`;
-      // input.type = greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type);
+      // input.type = $.default.abi.type_by_fqn.get(std.runtime.PeriodicTask._type);
       input.addEventListener('gui-change', () => {
-        tmpTask = input.value as runtime.PeriodicTask;
+        tmpTask = input.value as std.runtime.PeriodicTask;
       });
       input.value = task;
       this._dialogUpdateTask = () => {
@@ -179,9 +179,9 @@ export class GuiPeriodicTaskList extends HTMLElement {
     }
   }
 
-  async updateTasks(tasks: runtime.PeriodicTask[]): Promise<void> {
+  async updateTasks(tasks: std.runtime.PeriodicTask[]): Promise<void> {
     try {
-      await runtime.PeriodicTask.set(tasks, this._greycat);
+      await std.runtime.PeriodicTask.set(tasks, this._greycat);
       this._tasks = tasks;
       this.render();
     } catch (err) {
@@ -190,7 +190,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
   }
 
   async reloadTasks(): Promise<void> {
-    this._tasks = await runtime.PeriodicTask.all(this._greycat);
+    this._tasks = await std.runtime.PeriodicTask.all(this._greycat);
     this.render();
   }
 
@@ -198,7 +198,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     return this._tasks;
   }
 
-  set value(value: runtime.PeriodicTask[]) {
+  set value(value: std.runtime.PeriodicTask[]) {
     this._tasks = value;
     this.render();
   }
@@ -209,10 +209,10 @@ export class GuiPeriodicTaskList extends HTMLElement {
   }
 }
 
-export class GuiPeriodicTaskListClickEvent extends CustomEvent<runtime.PeriodicTask> {
+export class GuiPeriodicTaskListClickEvent extends CustomEvent<std.runtime.PeriodicTask> {
   static readonly NAME = 'periodic-task-list-click'; // TODO use 'gui-click' in v7
 
-  constructor(task: runtime.PeriodicTask) {
+  constructor(task: std.runtime.PeriodicTask) {
     super(GuiPeriodicTaskListClickEvent.NAME, { detail: task, bubbles: true });
   }
 }

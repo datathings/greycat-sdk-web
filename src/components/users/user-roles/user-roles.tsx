@@ -1,11 +1,11 @@
-import { runtime, type GreyCat } from '../../../exports.js';
+import { std, type GreyCat, $ } from '../../../exports.js';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 import type { SlButton } from '@shoelace-style/shoelace';
 
 export class GuiUserRoles extends HTMLElement {
-  private _greycat: GreyCat = window.greycat.default;
-  private _roles: runtime.UserRole[] = [];
+  private _greycat: GreyCat = $.default;
+  private _roles: std.runtime.UserRole[] = [];
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('sl-dialog');
@@ -13,7 +13,7 @@ export class GuiUserRoles extends HTMLElement {
   private _nameInput = document.createElement('input');
   private _dialogHeader = document.createElement('header');
   private _dialogSubmitBtn: SlButton;
-  private _currentState: 'create' | runtime.UserRole = 'create';
+  private _currentState: 'create' | std.runtime.UserRole = 'create';
 
   constructor() {
     super();
@@ -71,7 +71,7 @@ export class GuiUserRoles extends HTMLElement {
     return this._roles;
   }
 
-  set value(value: runtime.UserRole[]) {
+  set value(value: std.runtime.UserRole[]) {
     this._roles = Array.from(value).sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
     );
@@ -111,7 +111,7 @@ export class GuiUserRoles extends HTMLElement {
    */
   async updateRoles() {
     try {
-      this.value = await runtime.UserRole.all(this._greycat);
+      this.value = await std.runtime.UserRole.all(this._greycat);
     } catch (err) {
       this._handleError(err);
     }
@@ -122,7 +122,7 @@ export class GuiUserRoles extends HTMLElement {
    */
   async updatePermissions() {
     try {
-      this.permissions = await runtime.SecurityPolicy.permissions(this._greycat);
+      this.permissions = await std.runtime.SecurityPolicy.permissions(this._greycat);
     } catch (err) {
       this._handleError(err);
     }
@@ -152,7 +152,7 @@ export class GuiUserRoles extends HTMLElement {
     );
   }
 
-  private _editRole(role: runtime.UserRole): void {
+  private _editRole(role: std.runtime.UserRole): void {
     this._currentState = role;
 
     this._nameInput.value = role.name;
@@ -185,16 +185,16 @@ export class GuiUserRoles extends HTMLElement {
       return;
     }
 
-    let role: runtime.UserRole;
+    let role: std.runtime.UserRole;
     if (this._currentState === 'create') {
-      role = runtime.UserRole.create(name, this._permissionsSelect.selected);
+      role = std.runtime.UserRole.create(name, this._permissionsSelect.selected);
     } else {
       role = this._currentState;
       role.permissions = this._permissionsSelect.selected;
     }
 
     try {
-      await runtime.UserRole.set(role, this._greycat);
+      await std.runtime.UserRole.set(role, this._greycat);
     } catch (err) {
       this._handleError(err);
     }

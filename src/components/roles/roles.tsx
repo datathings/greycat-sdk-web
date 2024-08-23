@@ -1,5 +1,5 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
-import { runtime } from '../../exports.js';
+import { std } from '../../exports.js';
 import type { TableLikeRowBased } from '../common.js';
 import '../table/index.js'; // makes sure gui-table is available
 import type { GuiTable } from '../table/table.js';
@@ -37,7 +37,7 @@ export class GuiRoles extends HTMLElement {
       const name = ev.detail.row[0].value as string;
       const permissions = ev.detail.row[1].value as string[];
 
-      const role = runtime.UserRole.create(name, permissions);
+      const role = std.runtime.UserRole.create(name, permissions);
       this._onEdit(role);
     });
 
@@ -69,8 +69,8 @@ export class GuiRoles extends HTMLElement {
 
   async reload(): Promise<void> {
     try {
-      const roles = await runtime.UserRole.all();
-      this._form.permissions = await runtime.SecurityPolicy.permissions();
+      const roles = await std.runtime.UserRole.all();
+      this._form.permissions = await std.runtime.SecurityPolicy.permissions();
 
       if (this._rows.rows) {
         this._rows.rows.length = 0;
@@ -90,7 +90,7 @@ export class GuiRoles extends HTMLElement {
     }
   }
 
-  private _onEdit = (role: runtime.UserRole) => {
+  private _onEdit = (role: std.runtime.UserRole) => {
     // update the form value
     this._form.value = role;
     // update the dialog

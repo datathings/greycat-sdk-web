@@ -1,19 +1,19 @@
-import { type GreyCat, runtime, sha256hex } from '../../../exports.js';
+import { type GreyCat, std, sha256hex, $ } from '../../../exports.js';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 import type { SlButton, SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
 
 export class GuiUserTable extends HTMLElement {
-  private _greycat: GreyCat = window.greycat.default;
+  private _greycat: GreyCat = $.default;
   private _table = document.createElement('table');
   private _tbody = document.createElement('tbody');
   private _dialog = document.createElement('sl-dialog');
   private _roleSelect: SlSelect;
   private _groupsSelect = document.createElement('gui-multi-select-checkbox');
-  private _users: Array<runtime.User> = [];
-  private _groups: Array<runtime.UserGroup> = [];
-  private _roles: Array<runtime.UserRole> = [];
-  private _currentState: 'create' | runtime.User = 'create';
+  private _users: Array<std.runtime.User> = [];
+  private _groups: Array<std.runtime.UserGroup> = [];
+  private _roles: Array<std.runtime.UserRole> = [];
+  private _currentState: 'create' | std.runtime.User = 'create';
   private _dialogHeader = document.createElement('header');
   private _dialogSubmitBtn: SlButton;
 
@@ -115,12 +115,12 @@ export class GuiUserTable extends HTMLElement {
     return this._users;
   }
 
-  set value(value: runtime.User[]) {
+  set value(value: std.runtime.User[]) {
     this._users = value;
     this.render();
   }
 
-  set roles(roles: Array<runtime.UserRole>) {
+  set roles(roles: Array<std.runtime.UserRole>) {
     this._roles = roles.sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
     );
@@ -130,7 +130,7 @@ export class GuiUserTable extends HTMLElement {
     this.render();
   }
 
-  set groups(groups: Array<runtime.UserGroup>) {
+  set groups(groups: Array<std.runtime.UserGroup>) {
     this._groups = groups.sort((a, b) =>
       a.name.localeCompare(b.name, undefined, { numeric: true, sensitivity: 'base' }),
     );
@@ -161,15 +161,15 @@ export class GuiUserTable extends HTMLElement {
 
   async updateUsersAndGroups() {
     try {
-      const entities = await runtime.SecurityEntity.all(this._greycat);
-      const users: runtime.User[] = [];
-      const groups: runtime.UserGroup[] = [];
+      const entities = await std.runtime.SecurityEntity.all(this._greycat);
+      const users: std.runtime.User[] = [];
+      const groups: std.runtime.UserGroup[] = [];
 
       for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
-        if (entity instanceof runtime.User) {
+        if (entity instanceof std.runtime.User) {
           users.push(entity);
-        } else if (entity instanceof runtime.UserGroup) {
+        } else if (entity instanceof std.runtime.UserGroup) {
           groups.push(entity);
         }
       }
@@ -182,7 +182,7 @@ export class GuiUserTable extends HTMLElement {
 
   async updateRoles() {
     try {
-      this.roles = await runtime.UserRole.all();
+      this.roles = await std.runtime.UserRole.all();
     } catch (err) {
       this._handleError(err);
     }
@@ -213,7 +213,7 @@ export class GuiUserTable extends HTMLElement {
     );
   }
 
-  private _editUser(user: runtime.User): void {
+  private _editUser(user: std.runtime.User): void {
     this._currentState = user;
 
     this._nameInput.value = user.name;
@@ -274,13 +274,13 @@ export class GuiUserTable extends HTMLElement {
 
     const groups = this._groupsSelect.selected.map((groupName) => {
       const group = this._groups.find((g) => g.name === groupName)!;
-      return runtime.UserGroupPolicy.create(
+      return std.runtime.UserGroupPolicy.create(
         group.id,
-        runtime.UserGroupPolicyType.read(this._greycat),
+        std.runtime.UserGroupPolicyType.read(this._greycat),
       );
     });
 
-    const newOrUpdatedUser = runtime.User.create(
+    const newOrUpdatedUser = std.runtime.User.create(
       0,
       name,
       this._activatedInput.checked,
@@ -303,8 +303,8 @@ export class GuiUserTable extends HTMLElement {
       }
 
       try {
-        await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
-        await runtime.User.setPassword(name, sha256hex(password));
+        await std.runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
+        await std.runtime.User.setPassword(name, sha256hex(password));
       } catch (err) {
         this._handleError(err);
       }
@@ -314,10 +314,10 @@ export class GuiUserTable extends HTMLElement {
         // we are editing a user, let's keep the previous id to notify greycat of the intention
         newOrUpdatedUser.id = this._currentState.id;
 
-        await runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
+        await std.runtime.SecurityEntity.set(newOrUpdatedUser, this._greycat);
         const password = this._passwordInput.value;
         if (password.length !== 0) {
-          await runtime.User.setPassword(name, sha256hex(password));
+          await std.runtime.User.setPassword(name, sha256hex(password));
         }
       } catch (err) {
         this._handleError(err);

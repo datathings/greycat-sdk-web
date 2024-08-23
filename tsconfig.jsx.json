@@ -6,6 +6,7 @@
     "module": "NodeNext",
     "moduleResolution": "NodeNext",
     "lib": ["DOM", "ES2022"],
+    "types": [],
     "moduleDetection": "force",
 
     "sourceMap": false,
@@ -27,5 +28,5 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "files": ["./jsx.d.ts", "./src/jsx-runtime.ts", "./src/jsx-dev-runtime.ts"]
+  "files": ["jsx.d.ts", "src/jsx-runtime.ts"]
 }

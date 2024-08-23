@@ -1,4 +1,4 @@
-import type { AbiFunction } from '../../exports.js';
+import { type AbiFunction, $ } from '../../exports.js';
 import { SlSelect } from '@shoelace-style/shoelace';
 
 /**
@@ -15,8 +15,8 @@ export class GuiFnSelect extends SlSelect {
     super.connectedCallback();
 
     const groups: Map<string, AbiFunction[]> = new Map();
-    for (let i = 0; i < greycat.default.abi.functions.length; i++) {
-      const fn = greycat.default.abi.functions[i];
+    for (let i = 0; i < $.default.abi.functions.length; i++) {
+      const fn = $.default.abi.functions[i];
       const key = `${fn.lib}::${fn.module}`;
       let group = groups.get(key);
       if (!group) {

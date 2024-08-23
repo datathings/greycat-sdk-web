@@ -1,4 +1,4 @@
-import type { core } from '../../exports.js';
+import type { std } from '../../exports.js';
 import * as d3 from 'd3';
 import { getColors } from '../../utils.js';
 
@@ -9,7 +9,7 @@ const BREAKARCMULT = 0.85;
 const AFTERBREAKMULT = 0.05;
 const LABELTEXTMULT = 0.05;
 
-type DonutTable = core.Table | Map<string, number | bigint>;
+type DonutTable = std.core.Table | Map<string, number | bigint>;
 
 interface GuiDoughnutProps {
   value: DonutTable | null;

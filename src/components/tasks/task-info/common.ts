@@ -1,14 +1,14 @@
-import { core, runtime } from '../../../exports.js';
+import { std } from '../../../exports.js';
 import type { GuiTaskInfoDialog } from './task-info-dialog.js';
 import type { GuiUpdateEvent } from '../../events.js';
 import { GuiTaskInfo } from './task-info.js';
 
 export type TaskInfoLike = Omit<
-  runtime.TaskInfo,
+  std.runtime.TaskInfo,
   'progress' | 'remaining' | 'sub_waiting' | 'sub_tasks_all'
 > & {
   progress?: number | null;
-  remaining?: core.duration | null;
+  remaining?: std.core.duration | null;
   sub_waiting?: number | bigint | null;
   sub_tasks_all?: number | bigint | null;
 };
@@ -31,7 +31,7 @@ declare global {
     [GuiUpdateEvent.NAME]: GuiUpdateEvent;
   }
 
-  interface HTMLElementEventMap extends GuiTaskInfoEventMap { }
+  interface HTMLElementEventMap extends GuiTaskInfoEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {

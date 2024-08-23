@@ -1,4 +1,4 @@
-import { AbiType, core, GCObject } from '../exports.js';
+import { AbiType, std, GCObject } from '../exports.js';
 
 declare global {
   interface HTMLElementEventMap {
@@ -7,8 +7,8 @@ declare global {
 }
 
 export class GuiElement extends HTMLElement {
-  connectedCallback(): void | Promise<void> { }
-  disconnectedCallback(): void | Promise<void> { }
+  connectedCallback(): void | Promise<void> {}
+  disconnectedCallback(): void | Promise<void> {}
 }
 
 export class GuiRenderEvent extends CustomEvent<number> {
@@ -17,9 +17,10 @@ export class GuiRenderEvent extends CustomEvent<number> {
   }
 }
 
-// duck-type core.NativeTableColumn
-export type TableLikeMeta = {
+export type TableColumnMeta = {
+  /** An optional column header name */
   header?: string | null;
+  /** An optional column header type */
   typeName?: string | null;
 };
 
@@ -31,19 +32,25 @@ export type TableLikeMeta = {
  *
  * *This is mainly useful for in-mem usage of the components in JavaScript*
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type TableLike = Map<any, any> | core.Map | core.Table | TableLikeColumnBased | TableLikeRowBased | TableLikeObjectBased;
+export type TableLike =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  | Map<any, any>
+  | std.core.Map
+  | std.core.Table
+  | TableLikeColumnBased
+  | TableLikeRowBased
+  | TableLikeObjectBased;
 export type TableLikeColumnBased = {
   /** Specify either `rows` **OR** `cols` not both. Isf both are specified, `cols` will be used. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   cols?: any[][];
-  meta?: (string | TableLikeMeta)[];
+  meta?: (string | TableColumnMeta)[];
 };
 export type TableLikeRowBased = {
   /** Specify either `rows` **OR** `cols` not both. If both are specified, `cols` will be used. */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows?: any[][];
-  meta?: (string | TableLikeMeta)[];
+  meta?: (string | TableColumnMeta)[];
 };
 export type TableLikeObjectBased = Array<object>;
 
@@ -77,7 +84,7 @@ export function toRowBasedTable(table: TableLike): TableLikeRowBased {
     return table;
   }
   if ('cols' in table) {
-    return { rows: colsToRows(table.cols), meta: table.meta };
+    return { rows: colsToRows(table.cols) };
   }
   if (Array.isArray(table)) {
     if (table.length === 0) {
@@ -147,7 +154,6 @@ function rowsToCols(rows?: unknown[][]): any[][] | undefined {
   return cols;
 }
 
-
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 function mapToCols(map: Map<unknown, unknown>): any[][] | undefined {
   const keys = Array.from(map.keys());
@@ -196,16 +202,16 @@ function objectsToCols(arr?: unknown[]): any[][] | undefined {
 export function tableFromRows(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: Array<any[]>,
-  headers?: (string | TableLikeMeta)[],
+  headers?: (string | TableColumnMeta)[],
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-): { cols: any[][] | undefined; meta: TableLikeMeta[] | undefined } {
+): { cols: any[][] | undefined; meta: TableColumnMeta[] | undefined } {
   const meta = headers
     ? headers.map((header) => {
-      if (typeof header === 'string') {
-        return { header };
-      }
-      return header;
-    })
+        if (typeof header === 'string') {
+          return { header };
+        }
+        return header;
+      })
     : undefined;
 
   const rowCount = rows.length;
@@ -279,7 +285,7 @@ export function rowsFromMap(map: Map<unknown, unknown>): any[][] | undefined {
 export function tableRowsFromArray(arr: Array<unknown>): {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   rows: any[][] | undefined;
-  meta: TableLikeMeta[] | undefined;
+  meta: TableColumnMeta[] | undefined;
 } {
   if (arr.length === 0) {
     return { rows: undefined, meta: undefined };
@@ -318,13 +324,13 @@ export function tableRowsFromArray(arr: Array<unknown>): {
 /**
  * A convenience wrapper that allows to manipulate
  * tables either by columns or by rows.
- * 
+ *
  * This wrapper caches the views locally therefore, it is better
  * to use this than to manually compute by rows or columns each time.
  */
 export class TableView {
   private _table!: TableLike;
-  private _meta!: TableLikeMeta[];
+  private _meta!: TableColumnMeta[];
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _cols: any[][] | undefined;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -338,7 +344,7 @@ export class TableView {
 
   /**
    * Updates the underlying table.
-   * 
+   *
    * *This also resets the cached `cols`, `rows` and `meta`.*
    */
   set table(table: TableLike | undefined) {
@@ -349,11 +355,11 @@ export class TableView {
     // and this setter is called by the constructor
     this._table = table ?? { cols: undefined };
 
-    if (this._table instanceof core.Table) {
+    if (this._table instanceof std.core.Table) {
       this._cols = this._table.cols;
       this._rows = undefined;
-      this._meta = this._table.meta;
-    } else if (this._table instanceof core.Map) {
+      this._meta = this._createMetaFromColumns(this._table.cols);
+    } else if (this._table instanceof std.core.Map) {
       this._cols = undefined;
       this._rows = undefined;
       this._meta = this._createMetaFromMap(this._table.map);
@@ -385,7 +391,7 @@ export class TableView {
     if ('rows' in this._table) {
       return 'row';
     }
-    if (this._table instanceof core.Map || this._table instanceof Map) {
+    if (this._table instanceof std.core.Map || this._table instanceof Map) {
       return 'map';
     }
     return 'objects';
@@ -425,7 +431,7 @@ export class TableView {
       return this._cols;
     }
 
-    if (this._table instanceof core.Map) {
+    if (this._table instanceof std.core.Map) {
       this._cols = mapToCols(this._table.map) ?? [];
       return this._cols;
     }
@@ -459,7 +465,7 @@ export class TableView {
       return this._rows;
     }
 
-    if (this._table instanceof core.Map) {
+    if (this._table instanceof std.core.Map) {
       this._rows = rowsFromMap(this._table.map) ?? [];
       return this._rows;
     }
@@ -482,8 +488,8 @@ export class TableView {
 
   private _createMetaFromColumns(
     cols?: unknown[][],
-    meta?: (TableLikeMeta | string)[],
-  ): TableLikeMeta[] {
+    meta?: (TableColumnMeta | string)[],
+  ): TableColumnMeta[] {
     if (meta) {
       for (let i = 0; i < meta.length; i++) {
         const m = meta[i];
@@ -491,7 +497,7 @@ export class TableView {
           meta[i] = { header: m };
         }
       }
-      return meta as TableLikeMeta[];
+      return meta as TableColumnMeta[];
     }
     if (!cols) {
       return [];
@@ -505,8 +511,8 @@ export class TableView {
 
   private _createMetaFromRows(
     rows?: unknown[][],
-    meta?: (TableLikeMeta | string)[],
-  ): TableLikeMeta[] {
+    meta?: (TableColumnMeta | string)[],
+  ): TableColumnMeta[] {
     if (meta) {
       for (let i = 0; i < meta.length; i++) {
         const m = meta[i];
@@ -514,7 +520,7 @@ export class TableView {
           meta[i] = { header: m };
         }
       }
-      return meta as TableLikeMeta[];
+      return meta as TableColumnMeta[];
     }
     if (!rows || rows.length === 0) {
       return [];
@@ -526,9 +532,7 @@ export class TableView {
     return res;
   }
 
-  private _createMetaFromArray(
-    rows: Array<unknown>,
-  ): TableLikeMeta[] {
+  private _createMetaFromArray(rows: Array<unknown>): TableColumnMeta[] {
     if (rows.length === 0) {
       return [];
     }
@@ -539,7 +543,7 @@ export class TableView {
     }
   }
 
-  private _createMetaFromMap(map: Map<unknown, unknown>): TableLikeMeta[] {
+  private _createMetaFromMap(map: Map<unknown, unknown>): TableColumnMeta[] {
     let keyType: string | undefined;
     let valueType: string | undefined;
     map.forEach((value, key) => {
@@ -557,7 +561,10 @@ export class TableView {
         valueType = 'core::undefined';
       }
     });
-    return [{ header: 'Key', typeName: keyType }, { header: 'Value', typeName: valueType }];
+    return [
+      { header: 'Key', typeName: keyType },
+      { header: 'Value', typeName: valueType },
+    ];
   }
 }
 

@@ -1,4 +1,4 @@
-import { GCEnum, GCObject, core, runtime } from '../../exports.js';
+import { GCEnum, GCObject, std } from '../../exports.js';
 import type { GuiValueProps } from '../../exports.js';
 
 /**
@@ -38,23 +38,23 @@ export class GuiObject extends HTMLElement {
   static fallback: keyof HTMLElementTagNameMap;
   static {
     // natives
-    this.components.set(core.Table._type, 'gui-table');
+    this.components.set(std.core.Table._type, 'gui-table');
     // this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
     // this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
     // // primitives
-    // this.components.set(core.geo._type, 'gui-value');
-    // this.components.set(core.time._type, 'gui-value');
-    // this.components.set(core.duration._type, 'gui-value');
-    // this.components.set(core.Date._type, 'gui-value');
+    // this.components.set(std.core.geo._type, 'gui-value');
+    // this.components.set(std.core.time._type, 'gui-value');
+    // this.components.set(std.core.duration._type, 'gui-value');
+    // this.components.set(std.core.Date._type, 'gui-value');
     // // nodes
-    // this.components.set(core.node._type, 'gui-value');
-    // this.components.set(core.nodeTime._type, 'gui-value');
-    // this.components.set(core.nodeList._type, 'gui-value');
-    // this.components.set(core.nodeGeo._type, 'gui-value');
-    // this.components.set(core.nodeIndex._type, 'gui-value');
+    // this.components.set(std.core.node._type, 'gui-value');
+    // this.components.set(std.core.nodeTime._type, 'gui-value');
+    // this.components.set(std.core.nodeList._type, 'gui-value');
+    // this.components.set(std.core.nodeGeo._type, 'gui-value');
+    // this.components.set(std.core.nodeIndex._type, 'gui-value');
     // special
-    this.components.set(runtime.Task._type, 'gui-task-info');
-    this.components.set(runtime.TaskInfo._type, 'gui-task-info');
+    this.components.set(std.runtime.Task._type, 'gui-task-info');
+    this.components.set(std.runtime.TaskInfo._type, 'gui-task-info');
 
     this.fallback = 'gui-object';
   }
@@ -64,7 +64,7 @@ export class GuiObject extends HTMLElement {
   private _props: ObjectProps = {};
 
   connectedCallback() {
-    this.className = 'gui-object';
+    this.classList.add('gui-object');
     setTimeout(() => this.update(), 0);
   }
 
@@ -195,7 +195,7 @@ export class GuiObject extends HTMLElement {
         // Array
         if (Array.isArray(this._value)) {
           const tableEl = document.createElement(
-            GuiObject.components.get(core.Table._type) ?? 'gui-table',
+            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.columnFactories = { 0: 'gui-object' };
@@ -209,7 +209,7 @@ export class GuiObject extends HTMLElement {
         // Map
         if (this._value instanceof Map) {
           const tableEl = document.createElement(
-            GuiObject.components.get(core.Table._type) ?? 'gui-table',
+            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.columnFactories = { 1: 'gui-object' };
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
@@ -221,16 +221,16 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
-        // core.nodeXXX, core.geo, core.Duration, core.time, etc
+        // std.core.nodeXXX, std.core.geo, std.core.Duration, std.core.time, etc
         if (isStd(this._value)) {
           this.replaceChildren(<gui-value value={this._value} {...this._props} />);
           return;
         }
 
-        // core.Table special handling
-        if (this._value instanceof core.Table) {
+        // std.core.Table special handling
+        if (this._value instanceof std.core.Table) {
           const tableEl = document.createElement(
-            GuiObject.components.get(core.Table._type) ?? 'gui-table',
+            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
           ) as GuiObject;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.value = this._value;
@@ -395,15 +395,15 @@ export class GuiObject extends HTMLElement {
 
 function isStd(value: unknown): boolean {
   return (
-    value instanceof core.node ||
-    value instanceof core.nodeTime ||
-    value instanceof core.nodeList ||
-    value instanceof core.nodeIndex ||
-    value instanceof core.nodeGeo ||
-    value instanceof core.geo ||
-    value instanceof core.Date ||
-    value instanceof core.duration ||
-    value instanceof core.time
+    value instanceof std.core.node ||
+    value instanceof std.core.nodeTime ||
+    value instanceof std.core.nodeList ||
+    value instanceof std.core.nodeIndex ||
+    value instanceof std.core.nodeGeo ||
+    value instanceof std.core.geo ||
+    value instanceof std.core.Date ||
+    value instanceof std.core.duration ||
+    value instanceof std.core.time
   );
 }
 

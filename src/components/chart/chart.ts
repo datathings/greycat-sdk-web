@@ -17,7 +17,7 @@ import {
 } from './types.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
-import type { core } from '../../exports.js';
+import type { std } from '../../exports.js';
 import { Disposer, TableLike, TableView } from '../common.js';
 
 type ComputedState = {
@@ -74,13 +74,13 @@ export class GuiChart extends HTMLElement {
 
   private _canvasEntered = false;
 
-  private _userXAxisMin: number | Date | core.time | core.Date | undefined;
-  private _userXAxisMax: number | Date | core.time | core.Date | undefined;
+  private _userXAxisMin: number | Date | std.core.time | std.core.Date | undefined;
+  private _userXAxisMax: number | Date | std.core.time | std.core.Date | undefined;
   private _userYAxes: Record<
     string,
     {
-      min: number | Date | core.time | core.Date | undefined;
-      max: number | Date | core.time | core.Date | undefined;
+      min: number | Date | std.core.time | std.core.Date | undefined;
+      max: number | Date | std.core.time | std.core.Date | undefined;
     }
   > = {};
   private _computed: ComputedState | undefined;
@@ -643,8 +643,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-              (style.margin.right + rightAxesIdx * style.margin.right) +
-              padding,
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -1506,7 +1506,7 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap { }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
   namespace JSX {
     interface IntrinsicElements {

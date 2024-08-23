@@ -1,4 +1,4 @@
-import { GuiDashboardFetcher } from './dashboard.js';
+import { $, GuiDashboardFetcher } from '../../exports.js';
 
 export interface GreycatFetcherState {
   /**
@@ -11,7 +11,7 @@ export interface GreycatFetcherState {
   args?: unknown[];
   /**
    * The property to assign the result of the call to.
-   * 
+   *
    * *If this is `undefined` the result will be assigned to the property `'value'`.*
    */
   prop?: string;
@@ -23,5 +23,5 @@ export interface GreycatFetcherState {
 export const greycatFetcher: GuiDashboardFetcher<GreycatFetcherState> = async (el, state) => {
   const prop = state.prop ?? 'value';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (el as any)[prop] = await greycat.default.call(state.fqn, state.args);
+  (el as any)[prop] = await $.default.call(state.fqn, state.args);
 };

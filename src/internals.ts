@@ -1,4 +1,3 @@
-import type { core } from './exports.js';
 import { Axis, Ordinate, Scale, Serie } from './components/index.js';
 import { vMap } from './components/chart/internals.js';
 
@@ -158,5 +157,3 @@ export function closest(
   }
   return { xValue: res, rowIdx };
 }
-
-export type TableClassColumnMeta = core.TableColumnMeta & { class?: string };

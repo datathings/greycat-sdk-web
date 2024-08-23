@@ -24,7 +24,6 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': resolve(__dirname),
-      '@greycat/web': resolve(__dirname, '..', 'src'),
     },
   },
   build: {

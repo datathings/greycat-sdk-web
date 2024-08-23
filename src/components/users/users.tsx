@@ -1,4 +1,4 @@
-import { runtime } from '../../exports.js';
+import { std } from '../../exports.js';
 import { TableLikeRowBased, registerCustomElement } from '../common.js';
 import '../table/table.js'; // ensure gui-table is defined
 import type { GuiTable } from '../table/table.js';
@@ -10,7 +10,7 @@ import type { SlDialog } from '@shoelace-style/shoelace';
 type GroupItem = {
   id: number | bigint;
   name: string;
-  policy: runtime.UserGroupPolicy;
+  policy: std.runtime.UserGroupPolicy;
 };
 
 export class GuiUsers extends HTMLElement {
@@ -51,7 +51,7 @@ export class GuiUsers extends HTMLElement {
       const external = ev.detail.row[6].value as boolean;
       const groups = ev.detail.row[7].value as GroupItem[];
 
-      const user = runtime.User.create(
+      const user = std.runtime.User.create(
         user_id,
         name,
         activated,
@@ -92,11 +92,11 @@ export class GuiUsers extends HTMLElement {
 
   async reload(): Promise<void> {
     try {
-      const entities = await runtime.SecurityEntity.all();
-      const groups: runtime.UserGroup[] = [];
-      const users: runtime.User[] = [];
+      const entities = await std.runtime.SecurityEntity.all();
+      const groups: std.runtime.UserGroup[] = [];
+      const users: std.runtime.User[] = [];
       for (const entity of entities) {
-        if (entity instanceof runtime.User) {
+        if (entity instanceof std.runtime.User) {
           users.push(entity);
         } else {
           groups.push(entity);
@@ -144,7 +144,7 @@ export class GuiUsers extends HTMLElement {
     }
   }
 
-  private _onEdit = (user: runtime.User) => {
+  private _onEdit = (user: std.runtime.User) => {
     // update the form value
     this._userForm.value = user;
     // update the dialog
@@ -174,7 +174,7 @@ export class GuiUsers extends HTMLElement {
 
   private _onCreate = () => {
     // update the form value
-    this._userForm.value = runtime.User.create(
+    this._userForm.value = std.runtime.User.create(
       -1,
       '',
       false,

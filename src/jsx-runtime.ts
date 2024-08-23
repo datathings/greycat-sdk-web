@@ -5,7 +5,8 @@ export const Fragment = '<></>';
 
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties<E>,
+  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }> &
+    GreyCat.ExtendedHTMLProperties,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();
@@ -49,6 +50,10 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
           element.style.cssText = value;
         } else {
           Object.assign(element.style, value);
+        }
+      } else if (key === 'slot') {
+        if (typeof value === 'string') {
+          element.slot = value;
         }
       }
     }

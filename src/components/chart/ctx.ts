@@ -435,7 +435,7 @@ export class CanvasContext {
       table.cols,
       serie.xCol,
       serie.yCol,
-      table.cols[0]?.length - 1 ?? 0,
+      table.cols[0]?.length - 1 || 0,
     );
 
     this.ctx.save();

@@ -1,4 +1,4 @@
-import { core, type GreyCat } from './exports.js';
+import { std, type GreyCat, $ } from './exports.js';
 
 // default number format
 let numFmt = new Intl.NumberFormat(navigator.language);
@@ -22,7 +22,7 @@ export function setGlobalDateTimeFormat(fmt: Intl.DateTimeFormat) {
   dateFmt = fmt;
 }
 
-export function setGlobalDateTimeFormatTimezone(tz: core.TimeZone) {
+export function setGlobalDateTimeFormatTimezone(tz: std.core.TimeZone) {
   const opts = dateFmt.resolvedOptions();
   dateFmt = new Intl.DateTimeFormat(opts.locale, {
     ...(opts as Intl.DateTimeFormatOptions),
@@ -30,10 +30,12 @@ export function setGlobalDateTimeFormatTimezone(tz: core.TimeZone) {
   });
 }
 
-export function getGlobalDateTimeFormatTimezone($g: GreyCat = greycat.default): core.TimeZone | undefined {
+export function getGlobalDateTimeFormatTimezone(
+  $g: GreyCat = $.default,
+): std.core.TimeZone | undefined {
   const opts = dateFmt.resolvedOptions();
   if (opts.timeZone.length > 0) {
-    const tz = core.TimeZone[opts.timeZone.replace('/', '_') as core.TimeZone.Field];
+    const tz = std.core.TimeZone[opts.timeZone.replace('/', '_') as std.core.TimeZone.Field];
     if (tz) {
       return tz($g);
     }

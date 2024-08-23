@@ -1,11 +1,11 @@
-import { GreyCat, runtime, Value, TaskHandler } from '../../../exports.js';
+import { GreyCat, std, Value, TaskHandler, $ } from '../../../exports.js';
 import { parseTaskArgs } from '../utils.js';
 import { GuiUpdateEvent } from '../../events.js';
 import { SlDialog } from '@shoelace-style/shoelace';
 import { GuiFilesClickEvent, TaskInfoLike } from './common.js';
 
 export class GuiTaskInfoDialog extends SlDialog {
-  private _greycat: GreyCat = window.greycat.default;
+  private _greycat: GreyCat = $.default;
   private _task: TaskInfoLike | null = null;
   private _args: Value[] = [];
   private _title = document.createTextNode('');
@@ -115,7 +115,7 @@ export class GuiTaskInfoDialog extends SlDialog {
       return;
     }
     try {
-      this.value = await runtime.Task.info(this._task.user_id, this._task.task_id);
+      this.value = await std.runtime.Task.info(this._task.user_id, this._task.task_id);
       this._lastUpdate.textContent = new Date().toISOString();
     } catch (err) {
       this._handleError(err);
@@ -209,8 +209,8 @@ export class GuiTaskInfoDialog extends SlDialog {
     );
 
     if (
-      this._task.status === runtime.TaskStatus.running(this._greycat) ||
-      this._task.status === runtime.TaskStatus.waiting(this._greycat)
+      this._task.status === std.runtime.TaskStatus.running(this._greycat) ||
+      this._task.status === std.runtime.TaskStatus.waiting(this._greycat)
     ) {
       this._btn.textContent = 'Cancel';
       this._btn.onclick = () =>
@@ -222,12 +222,12 @@ export class GuiTaskInfoDialog extends SlDialog {
     }
   }
 
-  async status(): Promise<runtime.TaskStatus | null> {
+  async status(): Promise<std.runtime.TaskStatus | null> {
     if (!this._task) {
       return null;
     }
     try {
-      const updatedTaskInfo = await runtime.Task.info(
+      const updatedTaskInfo = await std.runtime.Task.info(
         this._task.user_id,
         this._task.task_id,
         this._greycat,
@@ -283,10 +283,10 @@ export class GuiTaskInfoDialog extends SlDialog {
   /**
    * If the task is 'running' or 'waiting' it is considered 'alive'
    */
-  private _isAlive(status: runtime.TaskStatus): boolean {
+  private _isAlive(status: std.runtime.TaskStatus): boolean {
     if (
-      status === runtime.TaskStatus.running(this._greycat) ||
-      status === runtime.TaskStatus.waiting(this._greycat)
+      status === std.runtime.TaskStatus.running(this._greycat) ||
+      status === std.runtime.TaskStatus.waiting(this._greycat)
     ) {
       return true;
     }

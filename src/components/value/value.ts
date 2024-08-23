@@ -1,7 +1,12 @@
 import { AbiType, utils, getGlobalNumberFormat } from '../../exports.js';
 import { Disposable } from '../../internals.js';
 
-export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
+export type ClickHandler<T = unknown> = (
+  e: MouseEvent,
+  value: T,
+  text: string,
+  data?: unknown,
+) => void;
 
 const NOOP = () => void 0;
 export interface GuiValueProps {

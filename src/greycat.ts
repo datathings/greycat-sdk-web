@@ -1,33 +1,13 @@
-import {
-  GreyCat,
-  WithoutAbiOptions,
-  Cache,
-  CacheData,
-  CacheKey,
-} from './exports.js';
-
-let DEFAULT_URL: URL;
-try {
-  DEFAULT_URL = new URL(globalThis.location?.origin ?? 'http://127.0.0.1:8080');
-} catch {
-  DEFAULT_URL = new URL('http://127.0.0.1:8080');
-}
-
-export async function init(options: WithoutAbiOptions = { url: DEFAULT_URL }): Promise<GreyCat> {
-  if (options.cache === undefined) {
-    options.cache = new IndexedDbCache('greycat.default');
-  }
-  return GreyCat.init(options);
-}
+import { Cache, CacheData, CacheKey } from './exports.js';
 
 export class IndexedDbCache implements Cache {
   private static _STORE_NAME = 'cache';
   private _db: IDBDatabase | undefined;
 
   constructor(
-    readonly dbName = 'greycat.default',
+    readonly dbName = 'greycat.$.default',
     readonly version = 2,
-  ) { }
+  ) {}
 
   db(): Promise<IDBDatabase> {
     return new Promise<IDBDatabase>((resolve, reject) => {
@@ -56,7 +36,9 @@ export class IndexedDbCache implements Cache {
         const req = store.put(data, key);
         req.onsuccess = () => resolve();
         req.onerror = () =>
-          reject(`Failed to write ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
+          reject(
+            `Failed to write ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`,
+          );
       }, reject);
     });
   }
@@ -69,7 +51,9 @@ export class IndexedDbCache implements Cache {
         const req = store.get(key);
         req.onsuccess = () => resolve(req.result);
         req.onerror = () =>
-          reject(`Failed to read ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
+          reject(
+            `Failed to read ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`,
+          );
       });
     });
   }
