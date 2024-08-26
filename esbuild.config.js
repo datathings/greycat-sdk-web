@@ -24,6 +24,7 @@ await Promise.all([
     bundle: true,
     format: 'esm',
     target: 'esnext',
+    sourcemap: true,
     minifySyntax: true,
     minifyWhitespace: true,
     loader: {

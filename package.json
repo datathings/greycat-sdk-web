@@ -25,7 +25,8 @@
   "files": [
     "jsx.d.ts",
     "dist",
-    "fonts"
+    "fonts",
+    "src"
   ],
   "scripts": {
     "clean": "rm -rf dist",
