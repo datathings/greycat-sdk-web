@@ -7,8 +7,6 @@ await GreyCat.init({
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <span>
-      {await $.default.call('project::hello', ['world!'])}
-    </span>
+    <gui-value value={await $.default.call('project::hello', ['world!'])} />
   </app-layout>,
 );

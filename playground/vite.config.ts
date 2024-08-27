@@ -1,9 +1,7 @@
 import { basename, resolve } from 'node:path';
 import { Plugin, defineConfig } from 'vite';
 import httpProxy from 'http-proxy';
-import { readdirSync, statSync } from 'node:fs';
-
-const outDir = resolve(__dirname, '..', 'dist', 'playground');
+import { readdirSync, readFileSync, statSync } from 'node:fs';
 
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),
@@ -24,10 +22,12 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': resolve(__dirname),
+      '@greycat/web/jsx-dev-runtime': resolve(__dirname, '..', 'src', 'jsx-runtime.ts'),
+      '@greycat/web': resolve(__dirname, '..', 'src'),
     },
   },
   build: {
-    outDir,
+    outDir: resolve(__dirname, '..', 'dist', 'playground'),
     emptyOutDir: true,
     target: 'esnext',
     rollupOptions: {

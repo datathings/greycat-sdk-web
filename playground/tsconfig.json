@@ -13,8 +13,9 @@
     "types": ["vite/client"],
     "paths": {
       "@/*": ["./*"],
-      "@greycat/web": ["../src"]
-      // "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"]
+      "@greycat/web": ["../src"],
+      "@greycat/web/jsx-dev-runtime": ["../src/jsx-runtime.ts"],
+      "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"]
     }
   },
   "include": ["./**/*.ts", "./**/*.tsx"],
