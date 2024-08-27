@@ -1,12 +1,12 @@
-import { type GuiHeatmap, type core, GreyCat, IndexedDbCache } from '@greycat/web';
+import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 import './index.css';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const table = await greycat.default.call<core.Table>('project::heatmap');
+const table = await $.default.call<core.Table>('project::heatmap');
 console.log('heatmap table', table);
 
 const heatmap = (

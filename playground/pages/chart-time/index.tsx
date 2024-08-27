@@ -1,7 +1,7 @@
-import { GreyCat, IndexedDbCache, core } from '@greycat/web';
+import { $, GreyCat, IndexedDbCache, core } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -95,6 +95,6 @@ document.body.appendChild(
 randomize();
 
 async function randomize() {
-  chart.value = await greycat.default.call<core.Table>('project::chart_time');
+  chart.value = await $.default.call<core.Table>('project::chart_time');
   console.log({ table: chart.value });
 }

@@ -1,7 +1,7 @@
-import { GreyCat, IndexedDbCache, core, type ObjectProps, isNode } from '@greycat/web';
+import { GreyCat, IndexedDbCache, core, type ObjectProps, isNode, $ } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -13,9 +13,9 @@ const sharedProps: Omit<ObjectProps, 'value'> = {
   },
 };
 
-const anonymousObj = await greycat.default.call('project::complex_object');
-const obj1 = await greycat.default.call('project::obj1');
-const obj2 = await greycat.default.call('project::obj2');
+const anonymousObj = await $.default.call('project::complex_object');
+const obj1 = await $.default.call('project::obj1');
+const obj2 = await $.default.call('project::obj2');
 
 document.body.appendChild(
   <app-layout title="Object">

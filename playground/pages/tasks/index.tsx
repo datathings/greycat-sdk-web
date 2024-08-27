@@ -1,7 +1,7 @@
-import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn } from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $ } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -9,7 +9,7 @@ const fnInput = (<gui-input-fn />) as GuiInputFn;
 const fnSelector = (
   <gui-searchable-select
     placeholder="Select a function to run as a task"
-    options={greycat.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
+    options={$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
       fnInput.type = ev.detail;
     }}
@@ -30,7 +30,7 @@ document.body.appendChild(
         {fnInput}
         <sl-button
           onclick={async () => {
-            await greycat.default.spawn(fnSelector.value.fqn, fnInput.value);
+            await $.default.spawn(fnSelector.value.fqn, fnInput.value);
             tasks.reload();
           }}
         >

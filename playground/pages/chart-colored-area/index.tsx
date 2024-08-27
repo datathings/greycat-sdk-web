@@ -1,7 +1,7 @@
-import { core, GreyCat, IndexedDbCache } from '@greycat/web';
+import { $, core, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -20,7 +20,7 @@ const colors = {
   normal: 'orange', //'#2ecc71',
   high: 'green', //'#e74c3c',
 };
-chart.value = await greycat.default.call<core.Table>('project::chart_colored_area');
+chart.value = await $.default.call<core.Table>('project::chart_colored_area');
 chart.setConfig({
   tooltip: {
     // Override default tooltip

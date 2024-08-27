@@ -1,10 +1,10 @@
-import { core, BarSerie, GreyCat, IndexedDbCache } from '@greycat/web';
+import { core, BarSerie, GreyCat, IndexedDbCache, $ } from '@greycat/web';
 import '@/common';
 
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -16,7 +16,7 @@ chart.addEventListener('selection', (e) => {
   console.log(`selection from ${from} to ${to}`);
 });
 
-chart.value = await greycat.default.call<core.Table>('project::chart_time');
+chart.value = await $.default.call<core.Table>('project::chart_time');
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -71,7 +71,7 @@ document.body.appendChild(
 
 // eslint-disable-next-line no-inner-declarations
 async function randomize() {
-  chart.value = await greycat.default.call<core.Table>('project::chart_time');
+  chart.value = await $.default.call<core.Table>('project::chart_time');
   chart.compute();
   chart.update();
 }

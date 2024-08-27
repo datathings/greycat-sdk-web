@@ -1,12 +1,12 @@
 import './styles.css';
-import { GreyCat, IndexedDbCache, io, core } from '@greycat/web';
+import { GreyCat, IndexedDbCache, io, core, $ } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const map = await greycat.default.call('project::mapTest');
+const map = await $.default.call('project::mapTest');
 console.log({ map });
 
 let offset = 0;

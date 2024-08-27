@@ -1,8 +1,8 @@
-import { GreyCat, IndexedDbCache } from '@greycat/web';
+import { GreyCat, IndexedDbCache, $ } from '@greycat/web';
 import '@/common';
 import { actions } from './actions';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -10,7 +10,7 @@ document.body.appendChild(
   <app-layout title="Table">
     {actions}
     <gui-table
-      value={await greycat.default.call('project::table')}
+      value={await $.default.call('project::table')}
       onrowupdate={(el, row) => {
         const klass = row[2].value as string;
         switch (klass) {

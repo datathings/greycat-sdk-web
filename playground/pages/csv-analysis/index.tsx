@@ -1,14 +1,14 @@
-import { GreyCat, IndexedDbCache, GuiCsvStatistics, GuiTable, io } from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiCsvStatistics, GuiTable, io, $ } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
 const progress = (<progress value={25} max={100} />) as HTMLProgressElement;
 
 async function runAnalysis(filepath: string) {
-  const task = await greycat.default.spawn('io::CsvAnalysis::analyze', [
+  const task = await $.default.spawn('io::CsvAnalysis::analyze', [
     filepath,
     io.CsvAnalysisConfig.createFrom({
       header_lines: 1,
