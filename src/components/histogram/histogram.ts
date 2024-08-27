@@ -1,4 +1,4 @@
-import { ChartConfig, util, core } from '../../exports.js';
+import { ChartConfig, util } from '../../exports.js';
 
 export class GuiHistogram extends HTMLElement {
   private _value?: util.Histogram;
@@ -25,19 +25,19 @@ export class GuiHistogram extends HTMLElement {
       series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
     };
     const chart = document.createElement('gui-chart');
-    const table = core.Table.fromRows(
-      this._value.bins.map((v, i) => {
-        const bounds = this._get_bounds(i, this._value!.quantizer);
-        return [bounds[0], bounds[1], v];
-      }),
-    );
+
+    const data: number[][] = Array.from({ length: this._value.bins.length });
+    for (let index = 0; index < this._value.bins.length; index++) {
+      const bounds = this._get_bounds(index, this._value.quantizer);
+      data[index] = [bounds[0], bounds[1], Number(this._value.bins[index])];
+    }
 
     // Temp Fix to be removed once serie of type bar works with spanCol correctly
-    config.xAxis.min = table.cols[0][0] as number;
-    config.xAxis.max = table.cols[1][table.cols[1].length - 1] as number;
+    config.xAxis.min = data[0][0] as number;
+    config.xAxis.max = data[data.length - 1][1] as number;
 
     chart.config = config;
-    chart.value = table;
+    chart.value = { rows: data };
 
     this.replaceChildren(chart);
   }
