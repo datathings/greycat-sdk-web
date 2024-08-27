@@ -24,7 +24,7 @@ export class GuiHistogram extends HTMLElement {
     const config: ChartConfig = {
       xAxis: {},
       yAxes: { left: {} },
-      series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
+      series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1], title: 'Count' }],
     };
     const chart = document.createElement('gui-chart');
 
