@@ -582,13 +582,29 @@ fn big_map(): Map {
 }
 
 @expose
-fn oned_histo_example(): Histogram {
+fn one_d_histo_example(): Histogram {
   var quant = LinearQuantizer { min: 0.0, max: 10.0, bins: 20 };
   var histo = Histogram { quantizer: quant };
   var rand = Random {};
   for (var i = 0; i < 1000; i++) {
     var val = rand.normal(5.0, 2.0);
     histo.add(val);
+  }
+
+  return histo;
+}
+
+@expose
+fn two_d_histo_example(): Histogram {
+  var quant = MultiQuantizer { dimensions: [LinearQuantizer { min: 5.0, max: 10.0, bins: 10 }, LinearQuantizer { min: 0.0, max: 5.0, bins: 10 }] };
+
+  var histo = Histogram { quantizer: quant };
+
+  var rand = Random {};
+  for (var i = 0; i < 1000; i++) {
+    var val = rand.normal(2.5, 2.0);
+    var val2 = rand.normal(7.5, 2.0);
+    histo.add([val2, val]);
   }
 
   return histo;
