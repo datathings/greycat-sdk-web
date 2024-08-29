@@ -39,6 +39,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
     { title: 'Users',                   href: 'users/' },
+    { title: 'Histogram',               href: 'histogram/' },
     // { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
   ];
 
