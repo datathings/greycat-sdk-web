@@ -22,15 +22,21 @@ export class GuiHistogram extends HTMLElement {
     if (!this._value?.bins) return;
     const quant = this._value.quantizer;
 
-    if (this._is_valid_quantizer(quant)) {
+    if (quant instanceof util.LinearQuantizer || quant instanceof util.LogQuantizer) {
       this._render_histogram(this._value.bins, quant);
     } else if (quant instanceof util.MultiQuantizer) {
-      if (quant.dimensions.length === 1 && this._is_valid_quantizer(quant.dimensions[0])) {
+      if (
+        quant.dimensions.length === 1 &&
+        (quant.dimensions[0] instanceof util.LinearQuantizer ||
+          quant.dimensions[0] instanceof util.LogQuantizer)
+      ) {
         this._render_histogram(this._value.bins, quant.dimensions[0]);
       } else if (
         quant.dimensions.length === 2 &&
-        this._is_valid_quantizer(quant.dimensions[0]) &&
-        this._is_valid_quantizer(quant.dimensions[1])
+        (quant.dimensions[0] instanceof util.LinearQuantizer ||
+          quant.dimensions[0] instanceof util.LogQuantizer) &&
+        (quant.dimensions[1] instanceof util.LinearQuantizer ||
+          quant.dimensions[1] instanceof util.LogQuantizer)
       ) {
         this._render_heatmap(this._value.bins, [quant.dimensions[0], quant.dimensions[1]]);
       } else {
@@ -172,7 +178,7 @@ export class GuiHistogram extends HTMLElement {
     return [0, 1];
   }
 
-  private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
+  /*   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
     const result = Array.from({ length: quantizer.dimensions.length });
     let multiplier = 1;
     let slotId = 0;
@@ -189,9 +195,9 @@ export class GuiHistogram extends HTMLElement {
     }
 
     return result as [number, number][];
-  }
+  } */
 
-  private _get_quantize_size(quantizer: util.Quantizer): number {
+  /*   private _get_quantize_size(quantizer: util.Quantizer): number {
     if (quantizer instanceof util.LinearQuantizer || quantizer instanceof util.LogQuantizer) {
       return Number(quantizer.bins);
     } else if (quantizer instanceof util.MultiQuantizer) {
@@ -207,11 +213,7 @@ export class GuiHistogram extends HTMLElement {
       return slots;
     }
     return -1;
-  }
-
-  private _is_valid_quantizer(quantier: util.Quantizer) {
-    return quantier instanceof util.LogQuantizer || quantier instanceof util.LinearQuantizer;
-  }
+  } */
 }
 
 declare global {
