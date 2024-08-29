@@ -580,3 +580,22 @@ fn big_map(): Map {
   }
   return map;
 }
+
+
+@write
+@expose
+fn geo_table() {
+  var rand = Random {};
+
+  var geo_index = nodeGeo {};
+
+  for (var nb_val = 0.0; nb_val < 100; nb_val++) {
+    var lat = rand.uniformf(-90.0, 90.0);
+    var lng = rand.uniformf(-180.0, 180.0);
+
+    var g = geo {lat, lng};
+    geo_index.set(g, rand.uniformf(-30.0, 30.0));
+  }
+
+  return nodeGeo::sample([geo_index], null, null, 100, SamplingMode::dense);
+}

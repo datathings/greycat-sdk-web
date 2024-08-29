@@ -15,7 +15,8 @@ await Promise.all([
       '.css': 'text',
       '.css?inline': 'text',
     },
-    logLevel: 'info'
+    logLevel: 'info',
+    external: ['maplibre-gl'],
   }),
   // esm bundle
   esbuild.build({
@@ -31,6 +32,7 @@ await Promise.all([
       '.css': 'text',
       '.css?inline': 'text',
     },
-    logLevel: 'info'
-  })
+    logLevel: 'info',
+    external: ['maplibre-gl'],
+  }),
 ]);

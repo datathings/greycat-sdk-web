@@ -25,3 +25,4 @@ export * from './events.js';
 export * from './fn-select/index.js';
 export * from './users/index.js';
 export * from './roles/index.js';
+export * from './geomap/index.js';
