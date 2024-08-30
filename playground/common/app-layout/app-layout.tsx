@@ -9,6 +9,7 @@ registerDebugLogger();
 export class AppLayout extends HTMLElement {
   // prettier-ignore
   private static readonly PAGES: Array<{ href: string; title: string }> = [
+    { title: 'Index',                   href: 'index/' },
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
@@ -28,7 +29,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Fn Call',                 href: 'fn-call/' },
     { title: 'Heatmap',                 href: 'heatmap/' },
     { title: 'Hello',                   href: 'hello/' },
-    { title: 'Index',                   href: 'index/' },
+    { title: 'Histogram',               href: 'histogram/' },
     { title: 'Inputs',                  href: 'inputs/' },
     { title: 'Modal',                   href: 'modal/' },
     { title: 'Object',                  href: 'object/' },

@@ -57,6 +57,19 @@ export class GuiHeatmap extends HTMLElement {
 
   private _computed: ComputedState | undefined;
 
+  static VIRIDIS_COLORS = [
+    '#440154',
+    '#482777',
+    '#3f4a8a',
+    '#31688e',
+    '#26838f',
+    '#1f9d8a',
+    '#6cce5a',
+    '#b6de2b',
+    '#fee825',
+    '#fde725',
+  ];
+
   constructor() {
     super();
 
