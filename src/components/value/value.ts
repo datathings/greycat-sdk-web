@@ -298,14 +298,14 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     }
 
     el.textContent = content;
-    if (el.title.length === 0) {
-      el.title = utils.stringify({
-        value: this._value,
-        dateFmt: this._dateFmt,
-        numFmt,
-        pretty: true,
-      });
-    }
+    // if (el.title.length === 0) {
+    //   el.title = utils.stringify({
+    //     value: this._value,
+    //     dateFmt: this._dateFmt,
+    //     numFmt,
+    //     pretty: true,
+    //   });
+    // }
   }
 }
 

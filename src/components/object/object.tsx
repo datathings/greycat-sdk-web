@@ -1,5 +1,7 @@
+import type { SlDetails } from '@shoelace-style/shoelace';
 import { GCEnum, GCObject, std } from '../../exports.js';
 import type { GuiValueProps } from '../../exports.js';
+import { createElement } from '@greycat/web/jsx-runtime';
 
 /**
  * A subset of `GuiValueProps` used to type `GuiObject.props` field
@@ -15,6 +17,10 @@ export type GuiObjectProps = {
   withHeader: boolean;
   /** Indicates whether or not this gui-object is within another gui-object */
   nested: boolean;
+  /** Whether or not to display the nested field expanded or not. Defaults to `false`. */
+  expanded: boolean;
+  /** Whether or not to automatically resolve nodes. Defaults to `false`. */
+  resolve: boolean;
 } & ObjectProps;
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -60,7 +66,9 @@ export class GuiObject extends HTMLElement {
   }
   private _value: unknown;
   private _withHeader = false;
+  private _expanded = false;
   private _nested = false;
+  private _resolve = false;
   private _props: ObjectProps = {};
 
   connectedCallback() {
@@ -76,6 +84,8 @@ export class GuiObject extends HTMLElement {
     value = this._value,
     withHeader = this._withHeader,
     nested = this._nested,
+    expanded = this._expanded,
+    resolve = this._resolve,
     ...props
   }: Partial<GuiObjectProps>): void {
     for (const key in props) {
@@ -85,6 +95,8 @@ export class GuiObject extends HTMLElement {
     this._value = value;
     this._withHeader = withHeader;
     this._nested = nested;
+    this._expanded = expanded;
+    this._resolve = resolve;
     this.update();
   }
 
@@ -93,6 +105,8 @@ export class GuiObject extends HTMLElement {
       value: this._value,
       withHeader: this._withHeader,
       nested: this._nested,
+      expanded: this._expanded,
+      resolve: this._resolve,
       ...this._props,
     };
   }
@@ -122,6 +136,24 @@ export class GuiObject extends HTMLElement {
 
   set withHeader(withHeader: boolean) {
     this._withHeader = withHeader;
+    this.update();
+  }
+
+  get expanded() {
+    return this._expanded;
+  }
+
+  set expanded(expanded: boolean) {
+    this._expanded = expanded;
+    this.update();
+  }
+
+  get resolve() {
+    return this._resolve;
+  }
+
+  set resolve(resolve: boolean) {
+    this._resolve = resolve;
     this.update();
   }
 
@@ -211,7 +243,7 @@ export class GuiObject extends HTMLElement {
           const tableEl = document.createElement(
             GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
           ) as GuiObject;
-          tableEl.columnFactories = { 1: 'gui-object' };
+          tableEl.columnFactories = { 1: GuiObject.fallback };
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
           tableEl.value = this._value;
           tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
@@ -220,6 +252,14 @@ export class GuiObject extends HTMLElement {
           this.replaceChildren(tableEl);
           return;
         }
+
+        // if (this._value instanceof std.core.node && this._resolve) {
+        //   this._value.resolve().then((resolved) => {
+        //     this.value = resolved;
+        //   });
+        //   this.replaceChildren(<em>Resolving...</em>);
+        //   return;
+        // }
 
         // std.core.nodeXXX, std.core.geo, std.core.Duration, std.core.time, etc
         if (isStd(this._value)) {
@@ -265,13 +305,50 @@ export class GuiObject extends HTMLElement {
             if (this._shouldNest(attrVal)) {
               const details = document.createElement('sl-details');
               details.summary = this._typeName(attrVal) ?? '';
+              details.updateComplete.then(() => {
+                details.open = this._expanded;
+              });
               const onshow = () => {
-                details.appendChild(
-                  <gui-object
-                    value={attrVal}
-                    {...Object.assign({}, this._props, { data: attr.name })}
-                  />,
-                );
+                const child = createElement(GuiObject.fallback, {
+                  ...this.getAttrs(),
+                  withHeader: false, // past level 0 this is no longer needed
+                  value: attrVal,
+                  data: attr.name,
+                  ...this._props,
+                });
+                details.appendChild(child);
+                // remove it once loaded
+                details.removeEventListener('sl-show', onshow);
+              };
+              details.addEventListener('sl-show', onshow);
+
+              fragment.appendChild(
+                <>
+                  <div>{attr.name}</div>
+                  <div className="gui-object-value">{details}</div>
+                </>,
+              );
+            } else if (attrVal instanceof std.core.node && this._resolve) {
+              const details = document.createElement('sl-details');
+              details.summary = `${attrVal}`;
+              details.updateComplete.then(() => {
+                details.open = this._expanded;
+              });
+              const onshow = () => {
+                const child = createElement(GuiObject.fallback, {
+                  ...this.getAttrs(),
+                  withHeader: false, // past level 0 this is no longer needed
+                  value: attrVal,
+                  data: attr.name,
+                  ...this._props,
+                }) as GuiObject;
+                attrVal.resolve().then((resolved) => {
+                  if (resolved instanceof GCObject) {
+                    details.summary = this._typeName(resolved) ?? details.summary;
+                  }
+                  child.value = resolved;
+                });
+                details.appendChild(child);
                 // remove it once loaded
                 details.removeEventListener('sl-show', onshow);
               };
@@ -288,11 +365,13 @@ export class GuiObject extends HTMLElement {
                 <>
                   <div>{attr.name}</div>
                   <div className="gui-object-value">
-                    <gui-object
-                      nested
-                      value={attrVal}
-                      {...Object.assign({}, this._props, { data: attr.name })}
-                    />
+                    {createElement(GuiObject.fallback, {
+                      ...this.getAttrs(),
+                      nested: true,
+                      value: attrVal,
+                      ...this._props,
+                      data: attr.name,
+                    })}
                   </div>
                 </>,
               );
@@ -327,14 +406,23 @@ export class GuiObject extends HTMLElement {
         for (let i = 0; i < entries.length; i++) {
           const [key, val] = entries[i];
           if (this._shouldNest(val)) {
+            const details = (
+              <sl-details summary={this._typeName(val)}>
+                {createElement(GuiObject.fallback, {
+                  ...this.getAttrs(),
+                  value: val,
+                  ...this._props,
+                  data: key,
+                })}
+              </sl-details>
+            ) as SlDetails;
+            details.updateComplete.then(() => {
+              details.open = this._expanded;
+            });
             fragment.appendChild(
               <>
                 <div>{key}</div>
-                <div className="gui-object-value">
-                  <sl-details summary={this._typeName(val)}>
-                    <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
-                  </sl-details>
-                </div>
+                <div className="gui-object-value">{details}</div>
               </>,
             );
           } else {
@@ -342,7 +430,12 @@ export class GuiObject extends HTMLElement {
               <>
                 <div>{key}</div>
                 <div className="gui-object-value">
-                  <gui-object value={val} {...Object.assign({}, this._props, { data: key })} />
+                  {createElement(GuiObject.fallback, {
+                    ...this.getAttrs(),
+                    value: val,
+                    ...this._props,
+                    data: key,
+                  })}
                 </div>
               </>,
             );
