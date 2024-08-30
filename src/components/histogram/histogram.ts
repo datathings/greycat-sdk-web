@@ -1,3 +1,4 @@
+import { format } from 'd3';
 import { ChartConfig, HeatmapConfig, util } from '../../exports.js';
 
 export class GuiHistogram extends HTMLElement {
@@ -51,8 +52,12 @@ export class GuiHistogram extends HTMLElement {
     bins: (number | bigint | null)[],
     quantizer: util.LogQuantizer | util.LinearQuantizer,
   ) {
+    let xAxisScale: 'linear' | 'log' = 'linear';
+    if (quantizer instanceof util.LogQuantizer) {
+      xAxisScale = 'log';
+    }
     const config: ChartConfig = {
-      xAxis: {},
+      xAxis: { scale: xAxisScale },
       yAxes: { left: {} },
       series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1], title: 'Count' }],
     };
@@ -84,18 +89,20 @@ export class GuiHistogram extends HTMLElement {
       Array.from({ length: Number(quantizer[1].bins) }),
     );
 
-    const xLabels = [];
-    const yLabels = [];
+    const xLabels: string[] = [];
+    const yLabels: string[] = [];
+
+    const formatter = format('~s');
 
     const cols = Number(quantizer[0].bins);
     for (let col = 0; col < quantizer[0].bins; col++) {
       const xbounds = this._get_bounds(col, quantizer[0]);
-      xLabels.push(xbounds[0].toString());
+      xLabels.push(formatter(xbounds[0]));
 
       for (let row = 0; row < quantizer[1].bins; row++) {
         if (col === 0) {
           const ybounds = this._get_bounds(row, quantizer[1]);
-          yLabels.push(ybounds[0].toString());
+          yLabels.push(formatter(ybounds[0]));
         }
 
         const idx = row * cols + col;
@@ -103,11 +110,25 @@ export class GuiHistogram extends HTMLElement {
       }
     }
 
-    console.log(data);
-
     const config: HeatmapConfig = {
-      xAxis: { labels: xLabels },
-      yAxis: { labels: yLabels },
+      xAxis: {
+        labels: xLabels,
+        hook: (axis) => {
+          if (xLabels.length * 30 > this.clientWidth) {
+            const a = this.clientWidth / 30;
+            axis.tickValues(xLabels.filter((_, i) => i % Math.ceil(xLabels.length / a) === 0));
+          }
+        },
+      },
+      yAxis: {
+        labels: yLabels,
+        hook: (axis) => {
+          if (yLabels.length * 15 > this.clientHeight) {
+            const a = this.clientHeight / 15;
+            axis.tickValues(yLabels.filter((_, i) => i % Math.ceil(yLabels.length / a) === 0));
+          }
+        },
+      },
       colorScale: { colors: ['red', 'blue'] },
     };
 
