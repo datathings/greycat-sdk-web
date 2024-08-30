@@ -75,7 +75,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -97,7 +97,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -605,6 +605,22 @@ fn two_d_histo_example(): Histogram {
     var val = rand.normal(2.5, 1.0);
     var val2 = rand.normal(7.5, 1.0);
     histo.add([val2, val]);
+  }
+
+  return histo;
+}
+@expose
+fn three_d_histo_example(): Histogram {
+  var quant = MultiQuantizer { dimensions: [LinearQuantizer { min: 0.0, max: 10.0, bins: 100 }, LinearQuantizer { min: 0.0, max: 10.0, bins: 100 }, LinearQuantizer { min: 0.0, max: 10.0, bins: 10 }] };
+
+  var histo = Histogram { quantizer: quant };
+
+  var rand = Random {};
+  for (var i = 0; i < 100000; i++) {
+    var x = rand.normal(2.5, 1.0);
+    var y = rand.normal(8.5, 1.0);
+    var z = rand.normal(5.0, 1.0);
+    histo.add([x, y, z]);
   }
 
   return histo;

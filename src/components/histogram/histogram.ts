@@ -1,6 +1,9 @@
 import { format } from 'd3';
 import { ChartConfig, GuiHeatmap, HeatmapConfig, util } from '../../exports.js';
-
+import * as THREE from 'three';
+import * as d3 from 'd3';
+import './histogram.css';
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
@@ -17,6 +20,10 @@ export class GuiHistogram extends HTMLElement {
 
   get value(): util.Histogram | undefined {
     return this._value;
+  }
+
+  connectedCallback() {
+    this.render();
   }
 
   private render() {
@@ -40,8 +47,20 @@ export class GuiHistogram extends HTMLElement {
           quant.dimensions[1] instanceof util.LogQuantizer)
       ) {
         this._render_heatmap(this._value.bins, [quant.dimensions[0], quant.dimensions[1]]);
-      } else {
-        throw 'Not Supported';
+      } else if (
+        quant.dimensions.length === 3 &&
+        (quant.dimensions[0] instanceof util.LinearQuantizer ||
+          quant.dimensions[0] instanceof util.LogQuantizer) &&
+        (quant.dimensions[1] instanceof util.LinearQuantizer ||
+          quant.dimensions[1] instanceof util.LogQuantizer) &&
+        (quant.dimensions[2] instanceof util.LinearQuantizer ||
+          quant.dimensions[2] instanceof util.LogQuantizer)
+      ) {
+        this._render_3dChart(
+          this._value.bins,
+          [quant.dimensions[0], quant.dimensions[1], quant.dimensions[2]],
+          quant,
+        );
       }
     } else {
       throw 'Not Supported';
@@ -137,33 +156,124 @@ export class GuiHistogram extends HTMLElement {
     this.replaceChildren(heatmap);
   }
 
-  /*   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
+  private _render_3dChart(
+    bins: (number | bigint | null)[],
+    quantizer: (util.LinearQuantizer | util.LogQuantizer)[],
+    a: util.MultiQuantizer,
+  ) {
+    const renderer = new THREE.WebGLRenderer({ antialias: true });
+    renderer.setSize(this.clientWidth, this.clientHeight);
+    this.replaceChildren(renderer.domElement);
+
+    // Scene
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x000000);
+
+    // Camera
+    const camera = new THREE.PerspectiveCamera(75, this.clientWidth / this.clientHeight);
+    camera.position.set(50, 50, 50);
+    camera.lookAt(0, 0, 0);
+
+    // Controls
+    const controls = new OrbitControls(camera, renderer.domElement);
+
+    renderer.render(scene, camera);
+
+    let axes = new THREE.AxesHelper(50);
+    scene.add(axes);
+
+    const data = Array.from({ length: bins.length });
+    const countDomain = [Infinity, -Infinity];
+
+    for (let index = 0; index < bins.length; index++) {
+      const count = bins[index];
+
+      const [x, y, z] = this._get_multi_bounds(index, a);
+
+      countDomain[0] = Math.min(countDomain[0], Number(count));
+      countDomain[1] = Math.max(countDomain[1], Number(count));
+
+      data[index] = [x, y, z, count];
+    }
+
+    const xAxis = d3.scaleLinear().domain([quantizer[0].min, quantizer[0].max]).rangeRound([0, 50]);
+    const yAxis = d3.scaleLinear().domain([quantizer[1].min, quantizer[1].max]).rangeRound([0, 50]);
+    const zAxis = d3.scaleLinear().domain([quantizer[2].min, quantizer[2].max]).rangeRound([0, 50]);
+
+    const colorScale = d3
+      .scaleSequential()
+      .domain([countDomain[0], countDomain[1]])
+      .range([0, 50])
+      .interpolator(d3.interpolateRgbBasis(GuiHeatmap.VIRIDIS_COLORS));
+
+    for (let index = 0; index < data.length; index++) {
+      const val = data[index];
+      if (val[3] === null) continue;
+      const x = xAxis(val[0][0]);
+      const y = yAxis(val[1][0]);
+      const z = zAxis(val[2][0]);
+      const geometry = new THREE.BoxGeometry(
+        xAxis(val[0][1]) - x,
+        yAxis(val[1][1]) - y,
+        zAxis(val[2][1]) - z,
+      );
+      const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(colorScale(val[3])) });
+      material.transparent = true;
+      material.opacity = 0.1;
+      const cube = new THREE.Mesh(geometry, material);
+      cube.position.set(x, y, z);
+      scene.add(cube);
+    }
+
+    controls.update();
+    renderer.render(scene, camera);
+
+    function animate() {
+      controls.update();
+    }
+
+    controls.addEventListener('change', () => renderer.render(scene, camera));
+
+    // Animate
+    /*     function animate(t = 0) {
+      let time = t / 5000;
+      camera.position.set(Math.sin(time) * 60, 60, Math.cos(time) * 60);
+      camera.lookAt(0, 0, 0);
+      renderer.render(scene, camera);
+    }
+    */
+    //renderer.setAnimationLoop(animate);
+  }
+
+  private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
     const result = Array.from({ length: quantizer.dimensions.length });
     let multiplier = 1;
     let slotId = 0;
     let multiSlot = slot;
-    for (let index = 0; index < quantizer.dimensions.length; index++) {
+    for (let index = quantizer.dimensions.length - 1; index >= 0; index--) {
       const qt = quantizer.dimensions[index];
-      const dimSize = this._get_quantize_size(qt);
+      const dimSize = this._get_quantizer_size(qt);
+
       multiplier = multiplier * dimSize;
       slotId = multiSlot % dimSize;
       multiSlot = (multiSlot - slotId) / dimSize;
+      const bounds = new Bounds();
 
-      const bounds = this._get_bounds(slot, qt);
-      result[index] = bounds;
+      bounds.compute(slotId, qt);
+      result[index] = [bounds.min, bounds.max];
     }
 
     return result as [number, number][];
-  } */
+  }
 
-  /*   private _get_quantize_size(quantizer: util.Quantizer): number {
+  private _get_quantizer_size(quantizer: util.Quantizer): number {
     if (quantizer instanceof util.LinearQuantizer || quantizer instanceof util.LogQuantizer) {
       return Number(quantizer.bins);
     } else if (quantizer instanceof util.MultiQuantizer) {
       let slots = 1;
       for (let index = 0; index < quantizer.dimensions.length; index++) {
         const qt = quantizer.dimensions[index];
-        const size = this._get_quantize_size(qt);
+        const size = this._get_quantizer_size(qt);
         if (size === -1) {
           return 0;
         }
@@ -172,7 +282,7 @@ export class GuiHistogram extends HTMLElement {
       return slots;
     }
     return -1;
-  } */
+  }
 }
 
 class Bounds {
