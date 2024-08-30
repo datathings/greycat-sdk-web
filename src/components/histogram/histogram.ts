@@ -63,10 +63,11 @@ export class GuiHistogram extends HTMLElement {
     };
     const chart = document.createElement('gui-chart');
 
+    const bounds = new Bounds();
     const data: number[][] = Array.from({ length: bins.length });
     for (let index = 0; index < bins.length; index++) {
-      const bounds = this._get_bounds(index, quantizer);
-      data[index] = [bounds[0], bounds[1], Number(bins[index])];
+      bounds.compute(index, quantizer);
+      data[index] = [bounds.min, bounds.max, Number(bins[index])];
     }
 
     // Temp Fix to be removed once serie of type bar works with spanCol correctly
@@ -94,15 +95,14 @@ export class GuiHistogram extends HTMLElement {
 
     const formatter = format('~s');
 
+    const bounds = new Bounds();
     const cols = Number(quantizer[0].bins);
     for (let col = 0; col < quantizer[0].bins; col++) {
-      const xbounds = this._get_bounds(col, quantizer[0]);
-      xLabels.push(formatter(xbounds[0]));
+      xLabels.push(formatter(bounds.compute(col, quantizer[0]).min));
 
       for (let row = 0; row < quantizer[1].bins; row++) {
         if (col === 0) {
-          const ybounds = this._get_bounds(row, quantizer[1]);
-          yLabels.push(formatter(ybounds[0]));
+          yLabels.push(formatter(bounds.compute(row, quantizer[1]).max));
         }
 
         const idx = row * cols + col;
@@ -137,11 +137,59 @@ export class GuiHistogram extends HTMLElement {
     this.replaceChildren(heatmap);
   }
 
-  private _get_bounds(slot: number, quantizer: util.Quantizer): [number, number] {
+  /*   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
+    const result = Array.from({ length: quantizer.dimensions.length });
+    let multiplier = 1;
+    let slotId = 0;
+    let multiSlot = slot;
+    for (let index = 0; index < quantizer.dimensions.length; index++) {
+      const qt = quantizer.dimensions[index];
+      const dimSize = this._get_quantize_size(qt);
+      multiplier = multiplier * dimSize;
+      slotId = multiSlot % dimSize;
+      multiSlot = (multiSlot - slotId) / dimSize;
+
+      const bounds = this._get_bounds(slot, qt);
+      result[index] = bounds;
+    }
+
+    return result as [number, number][];
+  } */
+
+  /*   private _get_quantize_size(quantizer: util.Quantizer): number {
+    if (quantizer instanceof util.LinearQuantizer || quantizer instanceof util.LogQuantizer) {
+      return Number(quantizer.bins);
+    } else if (quantizer instanceof util.MultiQuantizer) {
+      let slots = 1;
+      for (let index = 0; index < quantizer.dimensions.length; index++) {
+        const qt = quantizer.dimensions[index];
+        const size = this._get_quantize_size(qt);
+        if (size === -1) {
+          return 0;
+        }
+        slots *= size;
+      }
+      return slots;
+    }
+    return -1;
+  } */
+}
+
+class Bounds {
+  constructor(
+    public min = 0,
+    public max = 1,
+  ) {}
+
+  compute(slot: number, quantizer: util.Quantizer): this {
     if (quantizer instanceof util.LinearQuantizer) {
       const step = (quantizer.max - quantizer.min) / Number(quantizer.bins);
-      return [quantizer.min + slot * step, quantizer.min + (slot + 1) * step];
-    } else if (quantizer instanceof util.LogQuantizer) {
+      this.min = quantizer.min + slot * step;
+      this.max = quantizer.min + (slot + 1) * step;
+      return this;
+    }
+
+    if (quantizer instanceof util.LogQuantizer) {
       const bins = Number(quantizer.bins);
       let min = quantizer.min;
       let max = quantizer.max;
@@ -193,48 +241,16 @@ export class GuiHistogram extends HTMLElement {
           }
         }
       }
-      return [min, max];
+      this.min = min;
+      this.max = max;
+      return this;
     }
 
-    return [0, 1];
+    this.min = 0;
+    this.max = 1;
+
+    return this;
   }
-
-  /*   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
-    const result = Array.from({ length: quantizer.dimensions.length });
-    let multiplier = 1;
-    let slotId = 0;
-    let multiSlot = slot;
-    for (let index = 0; index < quantizer.dimensions.length; index++) {
-      const qt = quantizer.dimensions[index];
-      const dimSize = this._get_quantize_size(qt);
-      multiplier = multiplier * dimSize;
-      slotId = multiSlot % dimSize;
-      multiSlot = (multiSlot - slotId) / dimSize;
-
-      const bounds = this._get_bounds(slot, qt);
-      result[index] = bounds;
-    }
-
-    return result as [number, number][];
-  } */
-
-  /*   private _get_quantize_size(quantizer: util.Quantizer): number {
-    if (quantizer instanceof util.LinearQuantizer || quantizer instanceof util.LogQuantizer) {
-      return Number(quantizer.bins);
-    } else if (quantizer instanceof util.MultiQuantizer) {
-      let slots = 1;
-      for (let index = 0; index < quantizer.dimensions.length; index++) {
-        const qt = quantizer.dimensions[index];
-        const size = this._get_quantize_size(qt);
-        if (size === -1) {
-          return 0;
-        }
-        slots *= size;
-      }
-      return slots;
-    }
-    return -1;
-  } */
 }
 
 declare global {
