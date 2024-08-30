@@ -1,5 +1,5 @@
 import { format } from 'd3';
-import { ChartConfig, HeatmapConfig, util } from '../../exports.js';
+import { ChartConfig, GuiHeatmap, HeatmapConfig, util } from '../../exports.js';
 
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
@@ -129,7 +129,7 @@ export class GuiHistogram extends HTMLElement {
           }
         },
       },
-      colorScale: { colors: ['red', 'blue'] },
+      colorScale: { colors: GuiHeatmap.VIRIDIS_COLORS },
     };
 
     heatmap.config = config;
