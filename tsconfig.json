@@ -19,6 +19,6 @@
     "jsxImportSource": "@greycat/web",
     "types": []
   },
-  "include": ["src"],
+  "include": ["src", "jsx.d.ts"],
   "exclude": ["node_modules"]
 }
