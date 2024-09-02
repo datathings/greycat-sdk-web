@@ -185,7 +185,7 @@ export class GuiHistogram extends HTMLElement {
     xLabelDiv.textContent = 'X';
     const xLabel = new CSS2DObject(xLabelDiv);
     xLabel.position.set(100, 0, 0);
-    xLabel.center.set(0, 1);
+    xLabel.center.set(-1, 0);
 
     const yLabelDiv = document.createElement('div');
     yLabelDiv.textContent = 'Y';
@@ -197,7 +197,7 @@ export class GuiHistogram extends HTMLElement {
     zLabelDiv.textContent = 'Z';
     const zLabel = new CSS2DObject(zLabelDiv);
     zLabel.position.set(0, 0, 100);
-    zLabel.center.set(0, 1);
+    zLabel.center.set(1, 1);
 
     scene.add(xLabel, yLabel, zLabel);
 
@@ -238,24 +238,72 @@ export class GuiHistogram extends HTMLElement {
       .domain([quantizer.dimensions[2].min, quantizer.dimensions[2].max])
       .rangeRound([0, 100]);
 
+    // X Scale lines
+    const xlineMaterial = new THREE.LineBasicMaterial({
+      color: THREE.Color.NAMES.orange,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const xlineGeometry = new THREE.BufferGeometry();
+    const xPoints = [];
+    const xWidth = 100 / Number(quantizer.dimensions[0].bins);
+    for (let index = 1; index <= quantizer.dimensions[0].bins; index++) {
+      xPoints.push(new THREE.Vector3(xWidth * index, 100, 0));
+      xPoints.push(new THREE.Vector3(xWidth * index, 0, 0));
+      xPoints.push(new THREE.Vector3(xWidth * index, 0, 0));
+      xPoints.push(new THREE.Vector3(xWidth * index, 0, 100));
+    }
+    xlineGeometry.setFromPoints(xPoints);
+    const xLine = new THREE.LineSegments(xlineGeometry, xlineMaterial);
+
+    // Y Scale lines
+    const ylineMaterial = new THREE.LineBasicMaterial({
+      color: THREE.Color.NAMES.greenyellow,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const ylineGeometry = new THREE.BufferGeometry();
+    const yPoints = [];
+    const yWidth = 100 / Number(quantizer.dimensions[1].bins);
+    for (let index = 1; index <= quantizer.dimensions[1].bins; index++) {
+      yPoints.push(new THREE.Vector3(0, yWidth * index, 0));
+      yPoints.push(new THREE.Vector3(100, yWidth * index, 0));
+    }
+    ylineGeometry.setFromPoints(yPoints);
+    const yLine = new THREE.LineSegments(ylineGeometry, ylineMaterial);
+
+    // Z Scale lines
+    const zlineMaterial = new THREE.LineBasicMaterial({
+      color: THREE.Color.NAMES.blue,
+      transparent: true,
+      opacity: 0.3,
+    });
+    const zlineGeometry = new THREE.BufferGeometry();
+    const zPoints = [];
+    const zWidth = 100 / Number(quantizer.dimensions[2].bins);
+    for (let index = 1; index <= quantizer.dimensions[2].bins; index++) {
+      zPoints.push(new THREE.Vector3(0, 0, zWidth * index));
+      zPoints.push(new THREE.Vector3(100, 0, zWidth * index));
+    }
+    zlineGeometry.setFromPoints(zPoints);
+    const zLine = new THREE.LineSegments(zlineGeometry, zlineMaterial);
+
+    scene.add(xLine, yLine, zLine);
+
     const colorScale = d3
       .scaleSequential()
       .domain([countDomain[0], countDomain[1]])
-      .range([0, 50])
+      .range([0, 100])
       .interpolator(d3.interpolateRgbBasis(GuiHeatmap.VIRIDIS_COLORS));
 
     const geometry = new THREE.BoxGeometry(1, 1, 1);
     const material = new THREE.MeshBasicMaterial({
       wireframe: false,
       transparent: true,
-      opacity: 0.02,
+      opacity: 0.05,
       depthTest: true,
       depthWrite: false,
     });
-
-    material.blending = THREE.NormalBlending;
-
-    material.forceSinglePass = true;
 
     const count = data.length;
 
