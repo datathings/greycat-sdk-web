@@ -4,6 +4,8 @@ import * as THREE from 'three';
 import * as d3 from 'd3';
 import './histogram.css';
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js';
+import { CSS2DObject, CSS2DRenderer } from 'three/examples/jsm/renderers/CSS2DRenderer.js';
+
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
@@ -47,20 +49,8 @@ export class GuiHistogram extends HTMLElement {
           quant.dimensions[1] instanceof util.LogQuantizer)
       ) {
         this._render_heatmap(this._value.bins, [quant.dimensions[0], quant.dimensions[1]]);
-      } else if (
-        quant.dimensions.length === 3 &&
-        (quant.dimensions[0] instanceof util.LinearQuantizer ||
-          quant.dimensions[0] instanceof util.LogQuantizer) &&
-        (quant.dimensions[1] instanceof util.LinearQuantizer ||
-          quant.dimensions[1] instanceof util.LogQuantizer) &&
-        (quant.dimensions[2] instanceof util.LinearQuantizer ||
-          quant.dimensions[2] instanceof util.LogQuantizer)
-      ) {
-        this._render_3dChart(
-          this._value.bins,
-          [quant.dimensions[0], quant.dimensions[1], quant.dimensions[2]],
-          quant,
-        );
+      } else if (quant.dimensions.length === 3) {
+        this._render_3dChart(this._value.bins, quant);
       }
     } else {
       throw 'Not Supported';
@@ -156,49 +146,97 @@ export class GuiHistogram extends HTMLElement {
     this.replaceChildren(heatmap);
   }
 
-  private _render_3dChart(
-    bins: (number | bigint | null)[],
-    quantizer: (util.LinearQuantizer | util.LogQuantizer)[],
-    a: util.MultiQuantizer,
-  ) {
+  private _render_3dChart(bins: (number | bigint | null)[], quantizer: util.MultiQuantizer) {
+    // Validate quantizer dims
+    if (
+      !(
+        quantizer.dimensions[0] instanceof util.LinearQuantizer ||
+        quantizer.dimensions[0] instanceof util.LogQuantizer
+      ) ||
+      !(
+        quantizer.dimensions[1] instanceof util.LinearQuantizer ||
+        quantizer.dimensions[1] instanceof util.LogQuantizer
+      ) ||
+      !(
+        quantizer.dimensions[2] instanceof util.LinearQuantizer ||
+        quantizer.dimensions[2] instanceof util.LogQuantizer
+      )
+    ) {
+      throw 'Quantizer Dimensions are not valid';
+    }
+
     const renderer = new THREE.WebGLRenderer({ antialias: true });
     renderer.setSize(this.clientWidth, this.clientHeight);
     this.replaceChildren(renderer.domElement);
 
     // Scene
     const scene = new THREE.Scene();
-    scene.background = new THREE.Color(0x000000);
+    scene.background = new THREE.Color(0x444444);
 
     // Camera
-    const camera = new THREE.PerspectiveCamera(75, this.clientWidth / this.clientHeight);
-    camera.position.set(50, 50, 50);
+    const camera = new THREE.PerspectiveCamera(50, this.clientWidth / this.clientHeight, 0.1, 1000);
+    camera.position.set(150, 150, 150);
     camera.lookAt(0, 0, 0);
 
-    // Controls
-    const controls = new OrbitControls(camera, renderer.domElement);
-
-    renderer.render(scene, camera);
-
-    let axes = new THREE.AxesHelper(50);
+    const axes = new THREE.AxesHelper(100);
     scene.add(axes);
 
-    const data = Array.from({ length: bins.length });
+    const xLabelDiv = document.createElement('div');
+    xLabelDiv.textContent = 'X';
+    const xLabel = new CSS2DObject(xLabelDiv);
+    xLabel.position.set(100, 0, 0);
+    xLabel.center.set(0, 1);
+
+    const yLabelDiv = document.createElement('div');
+    yLabelDiv.textContent = 'Y';
+    const yLabel = new CSS2DObject(yLabelDiv);
+    yLabel.position.set(0, 100, 0);
+    yLabel.center.set(0, 1);
+
+    const zLabelDiv = document.createElement('div');
+    zLabelDiv.textContent = 'Z';
+    const zLabel = new CSS2DObject(zLabelDiv);
+    zLabel.position.set(0, 0, 100);
+    zLabel.center.set(0, 1);
+
+    scene.add(xLabel, yLabel, zLabel);
+
+    const labelRenderer = new CSS2DRenderer();
+    labelRenderer.setSize(this.clientWidth, this.clientHeight);
+    labelRenderer.domElement.style.position = 'absolute';
+    labelRenderer.domElement.style.top = '0px';
+    this.appendChild(labelRenderer.domElement);
+
+    const data = [];
     const countDomain = [Infinity, -Infinity];
 
     for (let index = 0; index < bins.length; index++) {
       const count = bins[index];
 
-      const [x, y, z] = this._get_multi_bounds(index, a);
+      if (count === null) {
+        continue;
+      }
+
+      const [x, y, z] = this._get_multi_bounds(index, quantizer);
 
       countDomain[0] = Math.min(countDomain[0], Number(count));
       countDomain[1] = Math.max(countDomain[1], Number(count));
 
-      data[index] = [x, y, z, count];
+      data.push([x, y, z, count]);
     }
 
-    const xAxis = d3.scaleLinear().domain([quantizer[0].min, quantizer[0].max]).rangeRound([0, 50]);
-    const yAxis = d3.scaleLinear().domain([quantizer[1].min, quantizer[1].max]).rangeRound([0, 50]);
-    const zAxis = d3.scaleLinear().domain([quantizer[2].min, quantizer[2].max]).rangeRound([0, 50]);
+    const xAxis = d3
+      .scaleLinear()
+      .domain([quantizer.dimensions[0].min, quantizer.dimensions[0].max])
+      .rangeRound([0, 100]);
+    const yAxis = d3
+      .scaleLinear()
+      .domain([quantizer.dimensions[1].min, quantizer.dimensions[1].max])
+      .rangeRound([0, 100]);
+    const zAxis = d3
+      .scaleLinear()
+      .domain([quantizer.dimensions[2].min, quantizer.dimensions[2].max])
+      .rangeRound([0, 100]);
 
     const colorScale = d3
       .scaleSequential()
@@ -206,42 +244,58 @@ export class GuiHistogram extends HTMLElement {
       .range([0, 50])
       .interpolator(d3.interpolateRgbBasis(GuiHeatmap.VIRIDIS_COLORS));
 
+    const geometry = new THREE.BoxGeometry(1, 1, 1);
+    const material = new THREE.MeshBasicMaterial({
+      wireframe: false,
+      transparent: true,
+      opacity: 0.02,
+      depthTest: true,
+      depthWrite: false,
+    });
+
+    material.blending = THREE.NormalBlending;
+
+    material.forceSinglePass = true;
+
+    const count = data.length;
+
+    const instancedMesh = new THREE.InstancedMesh(geometry, material, count);
+
+    const matrix = new THREE.Matrix4();
+    const color = new THREE.Color();
+
     for (let index = 0; index < data.length; index++) {
       const val = data[index];
       if (val[3] === null) continue;
+
       const x = xAxis(val[0][0]);
       const y = yAxis(val[1][0]);
       const z = zAxis(val[2][0]);
-      const geometry = new THREE.BoxGeometry(
-        xAxis(val[0][1]) - x,
-        yAxis(val[1][1]) - y,
-        zAxis(val[2][1]) - z,
-      );
-      const material = new THREE.MeshBasicMaterial({ color: new THREE.Color(colorScale(val[3])) });
-      material.transparent = true;
-      material.opacity = 0.1;
-      const cube = new THREE.Mesh(geometry, material);
-      cube.position.set(x, y, z);
-      scene.add(cube);
+      const x2 = xAxis(val[0][1]);
+      const y2 = yAxis(val[1][1]);
+      const z2 = zAxis(val[2][1]);
+
+      matrix.makeScale((x2 - x) / 1, (y2 - y) / 1, (z2 - z) / 1);
+      matrix.setPosition(x + (x2 - x) / 2, y + (y2 - y) / 2, z + (z2 - z) / 2);
+
+      color.set(colorScale(val[3]));
+      instancedMesh.setColorAt(index, color);
+      instancedMesh.setMatrixAt(index, matrix);
     }
+    scene.add(instancedMesh);
+
+    // Controls
+    const controls = new OrbitControls(camera, labelRenderer.domElement);
 
     controls.update();
     renderer.render(scene, camera);
+    labelRenderer.render(scene, camera);
 
-    function animate() {
-      controls.update();
-    }
-
-    controls.addEventListener('change', () => renderer.render(scene, camera));
-
-    // Animate
-    /*     function animate(t = 0) {
-      let time = t / 5000;
-      camera.position.set(Math.sin(time) * 60, 60, Math.cos(time) * 60);
-      camera.lookAt(0, 0, 0);
+    controls.addEventListener('change', () => {
       renderer.render(scene, camera);
-    }
-    */
+      labelRenderer.render(scene, camera);
+    });
+
     //renderer.setAnimationLoop(animate);
   }
 
