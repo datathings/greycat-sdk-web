@@ -617,8 +617,8 @@ fn three_d_histo_example(): Histogram {
 
   var rand = Random {};
   for (var i = 0; i < 100000; i++) {
-    var x = rand.normal(2.5, 1.0);
-    var y = rand.normal(8.5, 1.0);
+    var x = rand.normal(4.5, 1.0);
+    var y = rand.normal(5.5, 1.0);
     var z = rand.normal(5.0, 1.0);
     histo.add([x, y, z]);
   }
