@@ -193,13 +193,13 @@ export class GuiHistogram extends HTMLElement {
     xLabelDiv.textContent = 'X';
     const xLabel = new CSS2DObject(xLabelDiv);
     xLabel.position.set(100, 0, 0);
-    xLabel.center.set(-1, 0);
+    xLabel.center.set(2, 2);
 
     const yLabelDiv = document.createElement('div');
     yLabelDiv.textContent = 'Y';
     const yLabel = new CSS2DObject(yLabelDiv);
     yLabel.position.set(0, 100, 0);
-    yLabel.center.set(0, 1);
+    yLabel.center.set(-3, 0);
 
     const zLabelDiv = document.createElement('div');
     zLabelDiv.textContent = 'Z';
@@ -247,6 +247,49 @@ export class GuiHistogram extends HTMLElement {
       .scaleLinear()
       .domain([quantizer.dimensions[2].min, quantizer.dimensions[2].max])
       .rangeRound([0, 100]);
+
+    const formatter = format('~s');
+
+    const b = new Bounds();
+    const obj = [];
+    for (let index = 0; index <= quantizer.dimensions[0].bins; index++) {
+      if (index % (Number(quantizer.dimensions[0].bins) / 10) != 0) {
+        continue;
+      }
+      b.compute(index, quantizer.dimensions[0]);
+      const elem = document.createElement('span');
+      elem.innerText = formatter(b.min);
+      const bj = new CSS2DObject(elem);
+      bj.position.set(xAxis(b.min), 0, 0);
+      bj.center.set(-1, 0);
+      obj.push(bj);
+    }
+    for (let index = 0; index <= quantizer.dimensions[1].bins; index++) {
+      if (index % (Number(quantizer.dimensions[1].bins) / 10) != 0) {
+        continue;
+      }
+      b.compute(index, quantizer.dimensions[1]);
+      const elem = document.createElement('span');
+      elem.innerText = formatter(b.min);
+      const bj = new CSS2DObject(elem);
+      bj.position.set(0, yAxis(b.min), 0);
+      bj.center.set(4, 0);
+      obj.push(bj);
+    }
+
+    for (let index = 0; index <= quantizer.dimensions[2].bins; index++) {
+      if (index % (Number(quantizer.dimensions[2].bins) / 10) != 0) {
+        continue;
+      }
+      b.compute(index, quantizer.dimensions[2]);
+      const elem = document.createElement('span');
+      elem.innerText = formatter(b.min);
+      const bj = new CSS2DObject(elem);
+      bj.position.set(0, 0, zAxis(b.min));
+      bj.center.set(2, 0);
+      obj.push(bj);
+    }
+    scene.add(...obj);
 
     // X Scale lines
     const xlineMaterial = new THREE.LineBasicMaterial({
