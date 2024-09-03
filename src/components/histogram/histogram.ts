@@ -181,6 +181,7 @@ export class GuiHistogram extends HTMLElement {
     const axes = new THREE.AxesHelper(100);
     scene.add(axes);
 
+    // Add axis labels
     const xLabelDiv = document.createElement('div');
     xLabelDiv.textContent = 'X';
     const xLabel = new CSS2DObject(xLabelDiv);
@@ -207,22 +208,24 @@ export class GuiHistogram extends HTMLElement {
     labelRenderer.domElement.style.top = '0px';
     this.appendChild(labelRenderer.domElement);
 
-    const data = [];
-    const countDomain = [Infinity, -Infinity];
-
+    // Compute count domain
+    let [countMin, countMax] = [Infinity, -Infinity];
+    let instancesCount = 0;
     for (let index = 0; index < bins.length; index++) {
-      const count = bins[index];
-
+      let count = bins[index];
       if (count === null) {
         continue;
       }
-
-      const [x, y, z] = this._get_multi_bounds(index, quantizer);
-
-      countDomain[0] = Math.min(countDomain[0], Number(count));
-      countDomain[1] = Math.max(countDomain[1], Number(count));
-
-      data.push([x, y, z, count]);
+      if (typeof count === 'bigint') {
+        count = Number(count);
+      }
+      if (count > countMax) {
+        countMax = count;
+      }
+      if (count < countMin) {
+        countMin = count;
+      }
+      instancesCount++;
     }
 
     const xAxis = d3
@@ -292,7 +295,7 @@ export class GuiHistogram extends HTMLElement {
 
     const colorScale = d3
       .scaleSequential()
-      .domain([countDomain[0], countDomain[1]])
+      .domain([countMin, countMax])
       .range([0, 100])
       .interpolator(d3.interpolateRgbBasis(GuiHeatmap.VIRIDIS_COLORS));
 
@@ -305,30 +308,33 @@ export class GuiHistogram extends HTMLElement {
       depthWrite: false,
     });
 
-    const count = data.length;
-
-    const instancedMesh = new THREE.InstancedMesh(geometry, material, count);
+    const instancedMesh = new THREE.InstancedMesh(geometry, material, instancesCount);
 
     const matrix = new THREE.Matrix4();
     const color = new THREE.Color();
 
-    for (let index = 0; index < data.length; index++) {
-      const val = data[index];
-      if (val[3] === null) continue;
+    let instanceIdx = 0;
+    for (let index = 0; index < bins.length; index++) {
+      const val = bins[index];
+      if (val === null) continue;
 
-      const x = xAxis(val[0][0]);
-      const y = yAxis(val[1][0]);
-      const z = zAxis(val[2][0]);
-      const x2 = xAxis(val[0][1]);
-      const y2 = yAxis(val[1][1]);
-      const z2 = zAxis(val[2][1]);
+      const [xBounds, yBounds, zBounds] = this._get_multi_bounds(index, quantizer);
+
+      const x = xAxis(xBounds[0]);
+      const y = yAxis(yBounds[0]);
+      const z = zAxis(zBounds[0]);
+      const x2 = xAxis(xBounds[1]);
+      const y2 = yAxis(yBounds[1]);
+      const z2 = zAxis(zBounds[1]);
 
       matrix.makeScale((x2 - x) / 1, (y2 - y) / 1, (z2 - z) / 1);
       matrix.setPosition(x + (x2 - x) / 2, y + (y2 - y) / 2, z + (z2 - z) / 2);
 
-      color.set(colorScale(val[3]));
-      instancedMesh.setColorAt(index, color);
-      instancedMesh.setMatrixAt(index, matrix);
+      color.set(colorScale(Number(val)));
+      instancedMesh.setColorAt(instanceIdx, color);
+      instancedMesh.setMatrixAt(instanceIdx, matrix);
+
+      instanceIdx++;
     }
     scene.add(instancedMesh);
 
@@ -339,12 +345,11 @@ export class GuiHistogram extends HTMLElement {
     renderer.render(scene, camera);
     labelRenderer.render(scene, camera);
 
+    // Only rerender when the camera changes
     controls.addEventListener('change', () => {
       renderer.render(scene, camera);
       labelRenderer.render(scene, camera);
     });
-
-    //renderer.setAnimationLoop(animate);
   }
 
   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {
