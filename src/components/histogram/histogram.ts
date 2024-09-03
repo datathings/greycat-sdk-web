@@ -11,8 +11,12 @@ export class GuiHistogram extends HTMLElement {
 
   private _value?: util.Histogram;
 
+  private _resizeObserverCb: () => void;
+
   constructor() {
     super();
+
+    this._resizeObserverCb = () => {};
   }
 
   set value(val: util.Histogram) {
@@ -25,7 +29,10 @@ export class GuiHistogram extends HTMLElement {
   }
 
   connectedCallback() {
-    this.render();
+    // this.render();
+
+    const observer = new ResizeObserver(this._resizeObserverCb);
+    observer.observe(this);
   }
 
   private render() {
@@ -271,6 +278,8 @@ export class GuiHistogram extends HTMLElement {
     for (let index = 1; index <= quantizer.dimensions[1].bins; index++) {
       yPoints.push(new THREE.Vector3(0, yWidth * index, 0));
       yPoints.push(new THREE.Vector3(100, yWidth * index, 0));
+      yPoints.push(new THREE.Vector3(0, yWidth * index, 0));
+      yPoints.push(new THREE.Vector3(0, yWidth * index, 100));
     }
     ylineGeometry.setFromPoints(yPoints);
     const yLine = new THREE.LineSegments(ylineGeometry, ylineMaterial);
@@ -287,6 +296,8 @@ export class GuiHistogram extends HTMLElement {
     for (let index = 1; index <= quantizer.dimensions[2].bins; index++) {
       zPoints.push(new THREE.Vector3(0, 0, zWidth * index));
       zPoints.push(new THREE.Vector3(100, 0, zWidth * index));
+      zPoints.push(new THREE.Vector3(0, 0, zWidth * index));
+      zPoints.push(new THREE.Vector3(0, 100, zWidth * index));
     }
     zlineGeometry.setFromPoints(zPoints);
     const zLine = new THREE.LineSegments(zlineGeometry, zlineMaterial);
@@ -350,6 +361,17 @@ export class GuiHistogram extends HTMLElement {
       renderer.render(scene, camera);
       labelRenderer.render(scene, camera);
     });
+
+    this._resizeObserverCb = () => {
+      camera.aspect = this.clientWidth / this.clientHeight;
+      camera.updateProjectionMatrix();
+
+      labelRenderer.setSize(this.clientWidth, this.clientHeight);
+      renderer.setSize(this.clientWidth, this.clientHeight);
+
+      renderer.render(scene, camera);
+      labelRenderer.render(scene, camera);
+    };
   }
 
   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {

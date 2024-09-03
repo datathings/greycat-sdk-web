@@ -1,5 +1,5 @@
 gui-histogram {
-  width: 100%;
+  max-width: 100%;
   height: 100%;
-  shape-rendering: crispEdges;
+  overflow: hidden;
 }
