@@ -8,25 +8,34 @@
   }
 
   .gui-histogram-heatmap-x-histogram {
-    height: 15%;
+    height: 100px;
     padding-right: 15%;
+
+    gui-chart {
+      --m-left: 60px;
+      --m-right: 100px;
+      --m-bottom: 0px;
+    }
   }
   .gui-histogram-heatmap-y-histogram {
     display: flex;
-    height: 85%;
+    height: calc(100% - 100px);
     width: 100%;
 
     gui-chart {
       position: absolute;
       transform: rotate(90deg) translateX(100%);
       transform-origin: top right;
-      width: 15%;
+      width: 100px;
       height: 100%;
+
+      --m-right: 25px;
+      --m-left: 10px;
     }
 
     gui-heatmap {
       height: 100%;
-      width: 90%;
+      width: calc(100% - 100px);
     }
   }
 }
