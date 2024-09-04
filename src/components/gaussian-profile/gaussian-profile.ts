@@ -63,10 +63,10 @@ export class GuiGaussianProfile extends HTMLElement {
       series: [
         {
           title: this._mode,
-          type: 'line',
+          type: 'bar',
           yAxis: 'left',
           yCol: 2,
-          xCol: 0,
+          spanCol: [0, 1],
         },
       ],
     };
@@ -88,6 +88,9 @@ export class GuiGaussianProfile extends HTMLElement {
       }
       data[index] = [bounds.min, bounds.max, val];
     }
+
+    chart.config.xAxis.min = data[0][0] as number;
+    chart.config.xAxis.max = data[data.length - 1][1] as number;
 
     chart.value = { rows: data };
 
