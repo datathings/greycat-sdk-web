@@ -192,6 +192,7 @@ export class GuiHistogram extends HTMLElement {
         yAxes: { left: {} },
         xAxis: { min: xHisto![0][0], max: xHisto![xHisto!.length - 1][1] },
         series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
+        tooltip: { render() {} },
       };
       xChart.value = { rows: xHisto! };
       const yChart = document.createElement('gui-chart');
@@ -199,6 +200,7 @@ export class GuiHistogram extends HTMLElement {
         yAxes: { left: {} },
         xAxis: { min: yHisto![0][0], max: yHisto![yHisto!.length - 1][1] },
         series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
+        tooltip: { render() {} },
       };
       yChart.value = { rows: yHisto! };
       this.replaceChildren(
