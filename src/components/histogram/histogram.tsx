@@ -1,5 +1,6 @@
 import { format } from 'd3';
 import { ChartConfig, GuiHeatmap, HeatmapConfig, util } from '../../exports.js';
+import './histogram.css';
 
 export type GuiHistogramConfig = {
   histogramCumulative: boolean;
@@ -17,7 +18,7 @@ export class GuiHistogram extends HTMLElement {
 
     this._config = {
       histogramCumulative: true,
-      heatmapHistogram: false,
+      heatmapHistogram: true,
     };
   }
 
@@ -127,16 +128,36 @@ export class GuiHistogram extends HTMLElement {
 
     const bounds = new Bounds();
     const cols = Number(quantizer[0].bins);
+
+    let xHisto: number[][];
+    let yHisto: number[][];
+    if (this._config.heatmapHistogram) {
+      xHisto = Array.from({ length: Number(quantizer[0].bins) }, (_) => [0, 0, 0]);
+      yHisto = Array.from({ length: Number(quantizer[1].bins) }, (_) => [0, 0, 0]);
+    }
+
     for (let col = 0; col < quantizer[0].bins; col++) {
       xLabels.push(formatter(bounds.compute(col, quantizer[0]).min));
-
+      if (this._config.heatmapHistogram) {
+        xHisto![col][0] = bounds.min;
+        xHisto![col][1] = bounds.max;
+      }
       for (let row = 0; row < quantizer[1].bins; row++) {
         if (col === 0) {
           yLabels.push(formatter(bounds.compute(row, quantizer[1]).max));
+          if (this._config.heatmapHistogram) {
+            yHisto![row][0] = bounds.min;
+            yHisto![row][1] = bounds.max;
+          }
         }
 
         const idx = row * cols + col;
         data[col][row] = bins[idx];
+
+        if (this._config.heatmapHistogram) {
+          xHisto![col][2] += Number(bins[idx]);
+          yHisto![row][2] += Number(bins[idx]);
+        }
       }
     }
 
@@ -164,7 +185,35 @@ export class GuiHistogram extends HTMLElement {
 
     heatmap.config = config;
     heatmap.value = { cols: data };
-    this.replaceChildren(heatmap);
+
+    if (this._config.heatmapHistogram) {
+      const xChart = document.createElement('gui-chart');
+      xChart.config = {
+        yAxes: { left: {} },
+        xAxis: { min: xHisto![0][0], max: xHisto![xHisto!.length - 1][1] },
+        series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
+      };
+      xChart.value = { rows: xHisto! };
+      const yChart = document.createElement('gui-chart');
+      yChart.config = {
+        yAxes: { left: {} },
+        xAxis: { min: yHisto![0][0], max: yHisto![yHisto!.length - 1][1] },
+        series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1] }],
+      };
+      yChart.value = { rows: yHisto! };
+      this.replaceChildren(
+        <div className={'gui-histogram-heatmap-container'}>
+          <div className={'gui-histogram-heatmap-x-histogram'}> {xChart}</div>
+          <div className={'gui-histogram-heatmap-y-histogram'}>
+            {' '}
+            {heatmap}
+            {yChart}
+          </div>
+        </div>,
+      );
+    } else {
+      this.replaceChildren(heatmap);
+    }
   }
 
   /*   private _get_multi_bounds(slot: number, quantizer: util.MultiQuantizer): [number, number][] {

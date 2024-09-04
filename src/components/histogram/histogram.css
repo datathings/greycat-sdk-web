@@ -1,0 +1,32 @@
+.gui-histogram-heatmap-container {
+  height: 100%;
+  width: 100%;
+  position: relative;
+
+  gui-chart svg {
+    display: none;
+  }
+
+  .gui-histogram-heatmap-x-histogram {
+    height: 15%;
+    padding-right: 15%;
+  }
+  .gui-histogram-heatmap-y-histogram {
+    display: flex;
+    height: 85%;
+    width: 100%;
+
+    gui-chart {
+      position: absolute;
+      transform: rotate(90deg) translateX(100%);
+      transform-origin: top right;
+      width: 15%;
+      height: 100%;
+    }
+
+    gui-heatmap {
+      height: 100%;
+      width: 90%;
+    }
+  }
+}
