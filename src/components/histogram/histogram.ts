@@ -1,25 +1,41 @@
 import { format } from 'd3';
 import { ChartConfig, GuiHeatmap, HeatmapConfig, util } from '../../exports.js';
 
+export type GuiHistogramConfig = {
+  histogramCumulative: boolean;
+  heatmapHistogram: boolean;
+};
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
   private _value?: util.Histogram;
 
+  private _config: GuiHistogramConfig;
+
   constructor() {
     super();
+
+    this._config = {
+      histogramCumulative: true,
+      heatmapHistogram: false,
+    };
   }
 
   set value(val: util.Histogram) {
     this._value = val;
-    this.render();
+    this._render();
   }
 
   get value(): util.Histogram | undefined {
     return this._value;
   }
 
-  private render() {
+  set config(val: GuiHistogramConfig) {
+    this._config = { ...this._config, ...val };
+    this._render();
+  }
+
+  private _render() {
     if (!this._value?.bins) return;
     const quant = this._value.quantizer;
 
@@ -65,14 +81,27 @@ export class GuiHistogram extends HTMLElement {
 
     const bounds = new Bounds();
     const data: number[][] = Array.from({ length: bins.length });
+    let cumul = 0;
     for (let index = 0; index < bins.length; index++) {
       bounds.compute(index, quantizer);
-      data[index] = [bounds.min, bounds.max, Number(bins[index])];
+      const count = Number(bins[index]);
+      cumul += count;
+      data[index] = [bounds.min, bounds.max, count, bounds.center, cumul];
     }
 
     // Temp Fix to be removed once serie of type bar works with spanCol correctly
     config.xAxis.min = data[0][0] as number;
     config.xAxis.max = data[data.length - 1][1] as number;
+
+    if (this._config.histogramCumulative) {
+      config.yAxes.right = { position: 'right' };
+      config.series.push({
+        type: 'line',
+        xCol: 3,
+        yCol: 4,
+        yAxis: 'right',
+      });
+    }
 
     chart.config = config;
     chart.value = { rows: data };
@@ -179,6 +208,7 @@ class Bounds {
   constructor(
     public min = 0,
     public max = 1,
+    public center = 0.5,
   ) {}
 
   compute(slot: number, quantizer: util.Quantizer): this {
@@ -186,6 +216,7 @@ class Bounds {
       const step = (quantizer.max - quantizer.min) / Number(quantizer.bins);
       this.min = quantizer.min + slot * step;
       this.max = quantizer.min + (slot + 1) * step;
+      this.center = quantizer.min + (slot + 0.5) * step;
       return this;
     }
 
@@ -193,6 +224,7 @@ class Bounds {
       const bins = Number(quantizer.bins);
       let min = quantizer.min;
       let max = quantizer.max;
+      let center;
       if (quantizer.min > 0 && quantizer.max > 0) {
         const logMin = Math.log(quantizer.min);
         const logMax = Math.log(quantizer.max);
@@ -203,6 +235,7 @@ class Bounds {
         if (slot !== bins - 1) {
           max = logMin + (slot + 1) * step;
         }
+        center = logMin + (slot + 0.5) * step;
       } else {
         if (min < 0 && max < 0) {
           const logMin = Math.log(-max);
@@ -211,11 +244,13 @@ class Bounds {
           slot = bins - 1 - slot;
           min = -Math.exp(logMin + (slot + 1) * step);
           max = -Math.exp(logMin + slot * step);
+          center = -Math.exp(logMin + (slot + 0.5) * step);
         } else {
           const thresholdLog = Math.log(GuiHistogram.GC_UTIL_THRESHOLD_LOG);
           if (slot === bins / 2) {
             min = -GuiHistogram.GC_UTIL_THRESHOLD_LOG;
             max = GuiHistogram.GC_UTIL_THRESHOLD_LOG;
+            center = 0;
           } else if (slot > bins / 2) {
             const logMax = Math.log(max);
             const step = logMax - thresholdLog;
@@ -227,6 +262,7 @@ class Bounds {
             if (slot !== bins - 1) {
               max = Math.exp(thresholdLog + (slot - bins / 2) * step);
             }
+            center = Math.exp(thresholdLog + (slot - bins / 2 - 0.5) * step);
           } else {
             const logMin = Math.log(-min);
             const step = (thresholdLog - logMin) / (bins / 2);
@@ -238,16 +274,19 @@ class Bounds {
             } else {
               max = -Math.exp(logMin + (slot + 1) * step);
             }
+            center = -Math.exp(logMin + (slot + 0.5) * step);
           }
         }
       }
       this.min = min;
       this.max = max;
+      this.center = center;
       return this;
     }
 
     this.min = 0;
     this.max = 1;
+    this.center = 0.5;
 
     return this;
   }
