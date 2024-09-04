@@ -26,3 +26,4 @@ export * from './fn-select/index.js';
 export * from './users/index.js';
 export * from './roles/index.js';
 export * from './histogram/index.js';
+export * from './gaussian-profile/index.js';

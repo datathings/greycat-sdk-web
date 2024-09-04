@@ -1,4 +1,4 @@
-import { AbiType, std, GCObject } from '../exports.js';
+import { AbiType, std, GCObject, util } from '../exports.js';
 
 declare global {
   interface HTMLElementEventMap {
@@ -621,5 +621,85 @@ export function registerCustomElement<K extends keyof HTMLElementTagNameMap>(
 ) {
   if (!customElements.get(tagName)) {
     customElements.define(tagName, constructor, options);
+  }
+}
+
+export class Bounds {
+  static GC_UTIL_THRESHOLD_LOG = 1e-4;
+
+  constructor(
+    public min = 0,
+    public max = 1,
+  ) {}
+
+  compute(slot: number, quantizer: util.Quantizer): this {
+    if (quantizer instanceof util.LinearQuantizer) {
+      const step = (quantizer.max - quantizer.min) / Number(quantizer.bins);
+      this.min = quantizer.min + slot * step;
+      this.max = quantizer.min + (slot + 1) * step;
+      return this;
+    }
+
+    if (quantizer instanceof util.LogQuantizer) {
+      const bins = Number(quantizer.bins);
+      let min = quantizer.min;
+      let max = quantizer.max;
+      if (quantizer.min > 0 && quantizer.max > 0) {
+        const logMin = Math.log(quantizer.min);
+        const logMax = Math.log(quantizer.max);
+        const step = (logMax - logMin) / bins;
+        if (slot !== 0) {
+          min = logMin + slot * step;
+        }
+        if (slot !== bins - 1) {
+          max = logMin + (slot + 1) * step;
+        }
+      } else {
+        if (min < 0 && max < 0) {
+          const logMin = Math.log(-max);
+          const logMax = Math.log(-min);
+          const step = (logMax - logMin) / bins;
+          slot = bins - 1 - slot;
+          min = -Math.exp(logMin + (slot + 1) * step);
+          max = -Math.exp(logMin + slot * step);
+        } else {
+          const thresholdLog = Math.log(Bounds.GC_UTIL_THRESHOLD_LOG);
+          if (slot === bins / 2) {
+            min = -Bounds.GC_UTIL_THRESHOLD_LOG;
+            max = Bounds.GC_UTIL_THRESHOLD_LOG;
+          } else if (slot > bins / 2) {
+            const logMax = Math.log(max);
+            const step = logMax - thresholdLog;
+            if (slot == bins / 2 + 1) {
+              min = Bounds.GC_UTIL_THRESHOLD_LOG;
+            } else {
+              min = Math.exp(thresholdLog + (slot - bins / 2 - 1) * step);
+            }
+            if (slot !== bins - 1) {
+              max = Math.exp(thresholdLog + (slot - bins / 2) * step);
+            }
+          } else {
+            const logMin = Math.log(-min);
+            const step = (thresholdLog - logMin) / (bins / 2);
+            if (slot !== 0) {
+              min = -Math.exp(logMin + slot * step);
+            }
+            if (slot === bins / 2 - 1) {
+              max = -Bounds.GC_UTIL_THRESHOLD_LOG;
+            } else {
+              max = -Math.exp(logMin + (slot + 1) * step);
+            }
+          }
+        }
+      }
+      this.min = min;
+      this.max = max;
+      return this;
+    }
+
+    this.min = 0;
+    this.max = 1;
+
+    return this;
   }
 }

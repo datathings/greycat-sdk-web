@@ -609,3 +609,36 @@ fn two_d_histo_example(): Histogram {
 
   return histo;
 }
+
+
+@expose
+fn one_d_gaussian_example() {
+  var qt = LinearQuantizer { min: 0.0, max: 10.0, bins: 10 };
+  var gaussian = GaussianProfile { quantizer: qt, precision: FloatPrecision::p10 };
+  var rand = Random {};
+
+  for (var i = 0; i < 1000; i++) {
+    var val = rand.normal(5.5, 1.0);
+    var key = rand.normal(0.0, 10.0);
+    gaussian.add(key, val);
+  }
+
+  return gaussian;
+}
+
+@expose
+fn two_d_gaussian_example(): GaussianProfile {
+  var quant = MultiQuantizer { dimensions: [LinearQuantizer { min: 0.0, max: 10.0, bins: 10 }, LinearQuantizer { min: 0.0, max: 10.0, bins: 10 }] };
+
+  var gau = GaussianProfile { quantizer: quant, precision: FloatPrecision::p100 };
+
+  var rand = Random {};
+  for (var i = 0; i < 10000; i++) {
+    var keyx = rand.normal(5.0, 3.0);
+    var keyy = rand.normal(5.0, 3.0);
+    var val = rand.normal(5.5, 1.0);
+    gau.add([keyx, keyy], val);
+  }
+
+  return gau;
+}
