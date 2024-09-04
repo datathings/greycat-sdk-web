@@ -9,7 +9,7 @@
 
   .gui-histogram-heatmap-x-histogram {
     height: 100px;
-    padding-right: 15%;
+    padding-right: 100px;
 
     gui-chart {
       --m-left: 60px;
