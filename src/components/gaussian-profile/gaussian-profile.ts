@@ -158,7 +158,7 @@ export class GuiGaussianProfile extends HTMLElement {
     precision: core.FloatPrecision,
   ): number {
     if (count === 0) return count;
-    const sumf = sum / (precision.value as number);
+    const sumf = sum * (precision.value as number);
     let avg = sumf / count;
     if (minValue !== null) {
       avg += minValue;
@@ -180,7 +180,7 @@ export class GuiGaussianProfile extends HTMLElement {
     } else {
       std = 0;
     }
-    return std / (precision.value as number);
+    return std * (precision.value as number);
   }
 }
 
