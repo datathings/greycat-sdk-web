@@ -100,6 +100,7 @@ export class GuiHistogram extends HTMLElement {
         xCol: 3,
         yCol: 4,
         yAxis: 'right',
+        title: 'Cumulative',
       });
     }
 
