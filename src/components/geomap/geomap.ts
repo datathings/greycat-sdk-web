@@ -36,6 +36,10 @@ export class GuiGeoMap extends HTMLElement {
 
   private _layers: Map<string, LayerSpecification> = new Map();
 
+  get map() {
+    return this._map;
+  }
+
   set center(val: [number, number]) {
     this._center = val;
     this._map.setCenter(this._center);
