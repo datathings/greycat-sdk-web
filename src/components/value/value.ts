@@ -2,7 +2,12 @@ import { utils } from '@greycat/sdk';
 import { getGlobalNumberFormat } from '../../globals.js';
 import { Disposable } from '../../internals.js';
 
-export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
+export type ClickHandler<T = unknown> = (
+  e: MouseEvent,
+  value: T,
+  text: string,
+  data?: unknown,
+) => void;
 
 const NOOP = () => void 0;
 export interface GuiValueProps {
@@ -301,12 +306,14 @@ declare global {
     'gui-value': GuiValue;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-value': GreyCat.Element<GuiValue>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-value': GreyCat.Element<GuiValue>;
+      }
     }
   }
 }

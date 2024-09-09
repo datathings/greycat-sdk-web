@@ -219,9 +219,11 @@ declare global {
     [GuiClickEvent.NAME]: GuiClickEvent<TaskInfoLike>;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-tasks': GreyCat.Element<GuiTasks, GuiTasksEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-tasks': GreyCat.Element<GuiTasks, GuiTasksEventMap>;
+      }
     }
   }
 }

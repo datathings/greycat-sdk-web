@@ -72,9 +72,11 @@ declare global {
     'gui-task-select': GuiTaskSelect;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-task-select': GreyCat.Element<GuiTaskSelect>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-task-select': GreyCat.Element<GuiTaskSelect>;
+      }
     }
   }
 }

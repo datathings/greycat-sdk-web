@@ -39,7 +39,7 @@ class ModalManager {
   }
 
   info(
-    message: string | JSX.Element,
+    message: string | Node,
     {
       icon,
       title = 'Information',
@@ -67,7 +67,7 @@ class ModalManager {
   }
 
   confirm(
-    message: string | JSX.Element,
+    message: string | Node,
     {
       icon,
       title = 'Confirm',

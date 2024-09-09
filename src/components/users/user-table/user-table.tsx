@@ -397,12 +397,14 @@ declare global {
     'gui-user-table': GuiUserTable;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-user-table': GreyCat.Element<GuiUserTable>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-user-table': GreyCat.Element<GuiUserTable>;
+      }
     }
   }
 }

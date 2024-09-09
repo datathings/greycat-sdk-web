@@ -142,12 +142,14 @@ declare global {
     'gui-gauge': GuiGauge;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-gauge': GreyCat.Element<GuiGauge>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-gauge': GreyCat.Element<GuiGauge>;
+      }
     }
   }
 }

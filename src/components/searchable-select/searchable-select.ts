@@ -35,17 +35,17 @@ export class GuiSearchableSelect extends HTMLElement {
         }
       });
 
-      this.showDropdown()
+      this.showDropdown();
     });
 
     this._input.addEventListener('blur', () => {
       setTimeout(() => {
-        this.hideDropdown()
+        this.hideDropdown();
       }, 0);
     });
 
     this._input.addEventListener('focus', () => {
-      this.showDropdown()
+      this.showDropdown();
     });
 
     this._input.addEventListener('click', () => {
@@ -54,7 +54,7 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
-        this.hideDropdown()
+        this.hideDropdown();
         ev.preventDefault();
       } else if (ev.key === 'Enter') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -68,10 +68,13 @@ export class GuiSearchableSelect extends HTMLElement {
           ev.preventDefault();
           const item = items[selectedIndex];
           item.classList.add('selected');
-          this.hideDropdown()
+          this.hideDropdown();
           this._input.value = item.textContent!;
           const index = getIndexInParent(item);
-          const value = this._options[index].value === undefined ? this._options[index].text : this._options[index].value;
+          const value =
+            this._options[index].value === undefined
+              ? this._options[index].text
+              : this._options[index].value;
           this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
@@ -109,7 +112,7 @@ export class GuiSearchableSelect extends HTMLElement {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-searchable-select-list');
-    this.hideDropdown()
+    this.hideDropdown();
   }
 
   connectedCallback() {
@@ -217,7 +220,7 @@ export class GuiSearchableSelect extends HTMLElement {
         }
         itemEl.classList.add('selected');
         opt.selected = true;
-        this.hideDropdown()
+        this.hideDropdown();
         this._input.focus();
         this.dispatchEvent(new GuiSearchableSelectChangeEvent(value));
       });
@@ -263,10 +266,7 @@ function isElementOutOfView(element: Element): boolean {
   const containerRect = parentContainer.getBoundingClientRect();
 
   // Check if the element is entirely above or below the container's view.
-  return (
-    elementRect.bottom < containerRect.top ||
-    elementRect.top > containerRect.bottom
-  );
+  return elementRect.bottom < containerRect.top || elementRect.top > containerRect.bottom;
 }
 
 declare global {
@@ -278,14 +278,16 @@ declare global {
     [GuiSearchableSelectChangeEvent.NAME]: GuiSearchableSelectChangeEvent;
   }
 
-  interface HTMLElementEventMap extends GuiSearchableSelectEventMap { }
+  interface HTMLElementEventMap extends GuiSearchableSelectEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
+      }
     }
   }
 }

@@ -390,12 +390,14 @@ declare global {
     'gui-csv-statistics': GuiCsvStatistics;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-csv-statistics': GreyCat.Element<GuiCsvStatistics>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-csv-statistics': GreyCat.Element<GuiCsvStatistics>;
+      }
     }
   }
 }

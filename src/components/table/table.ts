@@ -1036,7 +1036,6 @@ class GuiTableHeadCell extends HTMLElement {
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
 
-
     this._title.classList.add('gui-thead-title');
     this._container.appendChild(this._title);
 
@@ -1066,7 +1065,10 @@ class GuiTableHeadCell extends HTMLElement {
       let allEmpty = true;
       const headers = parent.querySelectorAll('gui-thead-cell');
       headers.forEach((header) => {
-        if (header._input.value.length > 0 || (!force && header._input === document.activeElement)) {
+        if (
+          header._input.value.length > 0 ||
+          (!force && header._input === document.activeElement)
+        ) {
           allEmpty = false;
         }
       });
@@ -1092,7 +1094,13 @@ class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, meta: TableLikeMeta | undefined, sort: SortOrd, filter?: string | null, customHeader?: string) {
+  update(
+    index: number,
+    meta: TableLikeMeta | undefined,
+    sort: SortOrd,
+    filter?: string | null,
+    customHeader?: string,
+  ) {
     this._index = index;
     const title = document.createDocumentFragment();
 
@@ -1394,7 +1402,7 @@ class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
-  ) { }
+  ) {}
 
   reset() {
     this._index = -1;
@@ -1451,33 +1459,35 @@ declare global {
     'table-dblclick': TableDblClickEvent;
   }
 
-  interface HTMLElementEventMap extends GuiTableEventMap { }
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-thead': GreyCat.Element<GuiTableHead>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody': GreyCat.Element<GuiTableBody>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
+  interface HTMLElementEventMap extends GuiTableEventMap {}
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-thead': GreyCat.Element<GuiTableHead>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody': GreyCat.Element<GuiTableBody>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
+      }
     }
   }
 }

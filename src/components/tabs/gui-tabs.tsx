@@ -121,11 +121,13 @@ declare global {
 
   interface HTMLElementEventMap extends GuiTabsEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-tabs': GreyCat.Element<GuiTabs, GuiTabsEventMap>;
-      'gui-tab': GreyCat.Element<GuiTab>;
-      'gui-panel': GreyCat.Element<GuiPanel>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-tabs': GreyCat.Element<GuiTabs, GuiTabsEventMap>;
+        'gui-tab': GreyCat.Element<GuiTab>;
+        'gui-panel': GreyCat.Element<GuiPanel>;
+      }
     }
   }
 }

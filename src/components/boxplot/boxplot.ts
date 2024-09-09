@@ -361,12 +361,14 @@ declare global {
     'gui-boxplot': GuiBoxPlot;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-boxplot': GreyCat.Element<GuiBoxPlot>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-boxplot': GreyCat.Element<GuiBoxPlot>;
+      }
     }
   }
 }

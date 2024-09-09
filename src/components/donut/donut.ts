@@ -477,8 +477,8 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
         ? arcRadius - this._thickness
         : arcRadius * 0.7
       : this._thickness != null
-      ? radius - this._thickness
-      : radius * 0.7;
+        ? radius - this._thickness
+        : radius * 0.7;
     this._arc.innerRadius(innerRadius).outerRadius(this._withLabels ? arcRadius : radius);
     if (this._rotation != null) {
       const radian = this._rotation * (Math.PI / 180);
@@ -544,12 +544,14 @@ declare global {
     'gui-donut': GuiDonut;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-donut': GreyCat.Element<GuiDonut>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-donut': GreyCat.Element<GuiDonut>;
+      }
     }
   }
 }

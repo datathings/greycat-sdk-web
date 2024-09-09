@@ -32,7 +32,12 @@ export class GuiHeatmapTooltip extends HTMLElement {
     this.replaceChildren();
   }
 
-  update(config: HeatmapConfig, data: HeatmapData, colorScale: d3.ScaleSequential<string, string>, style: HeatmapStyle): void {
+  update(
+    config: HeatmapConfig,
+    data: HeatmapData,
+    colorScale: d3.ScaleSequential<string, string>,
+    style: HeatmapStyle,
+  ): void {
     if (data.title) {
       this._name.textContent = data.title;
     }
@@ -64,9 +69,11 @@ declare global {
     'gui-heatmap-tooltip': GuiHeatmapTooltip;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-heatmap-tooltip': GreyCat.Element<GuiHeatmapTooltip>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-heatmap-tooltip': GreyCat.Element<GuiHeatmapTooltip>;
+      }
     }
   }
 }

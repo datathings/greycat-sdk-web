@@ -226,8 +226,13 @@ export class GuiHeatmap extends HTMLElement {
     this._table = config.table
       ? toColumnBasedTable(config.table)
       : value
+<<<<<<< Updated upstream
       ? toColumnBasedTable(value)
       : {};
+=======
+        ? toColumnBasedTable(value)
+        : {};
+>>>>>>> Stashed changes
     this._config = config;
     this.compute();
     this.update();
@@ -620,12 +625,14 @@ declare global {
 
   interface HTMLElementEventMap extends GuiHeatmapEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-heatmap': GreyCat.Element<GuiHeatmap, GuiHeatmapEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-heatmap': GreyCat.Element<GuiHeatmap, GuiHeatmapEventMap>;
+      }
     }
   }
 }

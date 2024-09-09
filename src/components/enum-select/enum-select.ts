@@ -223,14 +223,16 @@ declare global {
     [GuiEnumSelectEvent.NAME]: GuiEnumSelectEvent;
   }
 
-  interface HTMLElementEventMap extends GuiEnumSelectEventMap { }
+  interface HTMLElementEventMap extends GuiEnumSelectEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-enum-select': GreyCat.Element<GuiEnumSelect, GuiEnumSelectEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-enum-select': GreyCat.Element<GuiEnumSelect, GuiEnumSelectEventMap>;
+      }
     }
   }
 }

@@ -609,12 +609,14 @@ declare global {
     'gui-csv-column-input': GuiCsvColumnInput;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-csv-column-input': GreyCat.Element<GuiCsvColumnInput>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-csv-column-input': GreyCat.Element<GuiCsvColumnInput>;
+      }
     }
   }
 }

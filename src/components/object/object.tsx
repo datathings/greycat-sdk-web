@@ -445,12 +445,14 @@ declare global {
     'gui-object': GuiObject;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-object': GreyCat.Element<GuiObject & { [key: string]: unknown }>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-object': GreyCat.Element<GuiObject & { [key: string]: unknown }>;
+      }
     }
   }
 }

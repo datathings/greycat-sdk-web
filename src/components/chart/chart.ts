@@ -465,8 +465,15 @@ export class GuiChart extends HTMLElement {
     return this._config;
   }
 
-  setAttrs({ config = this._config, value = this._table }: Partial<{ config: ChartConfig, value: TableLike }>) {
-    this._table = config.table ? toColumnBasedTable(config.table) : value ? toColumnBasedTable(value) : {};
+  setAttrs({
+    config = this._config,
+    value = this._table,
+  }: Partial<{ config: ChartConfig; value: TableLike }>) {
+    this._table = config.table
+      ? toColumnBasedTable(config.table)
+      : value
+        ? toColumnBasedTable(value)
+        : {};
     this._config = config;
 
     // update local user X min/max with the configuration values
@@ -495,11 +502,7 @@ export class GuiChart extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (
-      !this._computed ||
-      this._table.cols === undefined ||
-      this._table.cols.length === 0
-    ) {
+    if (!this._computed || this._table.cols === undefined || this._table.cols.length === 0) {
       return;
     }
     this._clearUX();
@@ -640,8 +643,8 @@ export class GuiChart extends HTMLElement {
             }
             this._uxCtx.text(
               this._canvas.width -
-              (style.margin.right + rightAxesIdx * style.margin.right) +
-              padding,
+                (style.margin.right + rightAxesIdx * style.margin.right) +
+                padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -782,8 +785,7 @@ export class GuiChart extends HTMLElement {
             : this._table.cols[serie.colorCol][rowIdx];
         } else if (serie.styleCol && serie.styleMapping) {
           color =
-            serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ??
-            color;
+            serie.styleMapping(this._table.cols[serie.styleCol][rowIdx]).color?.toString() ?? color;
         }
         if (!color) {
           color = serie.color;
@@ -1502,14 +1504,16 @@ declare global {
     'gui-chart': GuiChart;
   }
 
-  interface HTMLElementEventMap extends GuiChartEventMap { }
+  interface HTMLElementEventMap extends GuiChartEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
+      }
     }
   }
 }
