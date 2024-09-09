@@ -59,9 +59,11 @@ declare global {
     'gui-role-form': GuiRoleForm;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-role-form': GreyCat.Element<GuiRoleForm>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-role-form': GreyCat.Element<GuiRoleForm>;
+      }
     }
   }
 }

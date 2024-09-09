@@ -314,12 +314,14 @@ declare global {
     'gui-value': GuiValue;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-value': GreyCat.Element<GuiValue>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-value': GreyCat.Element<GuiValue>;
+      }
     }
   }
 }

@@ -20,9 +20,11 @@ declare global {
     'gui-role-permissions': GuiRolePermissions;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-role-permissions': GreyCat.Element<GuiRolePermissions>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-role-permissions': GreyCat.Element<GuiRolePermissions>;
+      }
     }
   }
 }

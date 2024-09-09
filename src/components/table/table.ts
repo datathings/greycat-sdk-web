@@ -1469,32 +1469,35 @@ declare global {
   }
 
   interface HTMLElementEventMap extends GuiTableEventMap {}
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-thead': GreyCat.Element<GuiTableHead>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody': GreyCat.Element<GuiTableBody>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
+
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-thead': GreyCat.Element<GuiTableHead>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody': GreyCat.Element<GuiTableBody>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
+      }
     }
   }
 }

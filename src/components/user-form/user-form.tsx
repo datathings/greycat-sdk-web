@@ -253,9 +253,11 @@ declare global {
     'gui-user-form': GuiUserForm;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-user-form': GreyCat.Element<GuiUserForm>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-user-form': GreyCat.Element<GuiUserForm>;
+      }
     }
   }
 }

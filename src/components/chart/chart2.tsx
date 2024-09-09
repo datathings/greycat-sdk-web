@@ -1068,9 +1068,11 @@ declare global {
     'gui-chart2': GuiChart2;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-chart2': GreyCat.Element<GuiChart2>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-chart2': GreyCat.Element<GuiChart2>;
+      }
     }
   }
 }

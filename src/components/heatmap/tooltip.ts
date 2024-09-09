@@ -69,9 +69,11 @@ declare global {
     'gui-heatmap-tooltip': GuiHeatmapTooltip;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-heatmap-tooltip': GreyCat.Element<GuiHeatmapTooltip>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-heatmap-tooltip': GreyCat.Element<GuiHeatmapTooltip>;
+      }
     }
   }
 }

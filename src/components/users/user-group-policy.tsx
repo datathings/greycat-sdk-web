@@ -27,9 +27,11 @@ declare global {
     'gui-user-group-policy': GuiUserGroupPolicy;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-user-group-policy': GreyCat.Element<GuiUserGroupPolicy>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-user-group-policy': GreyCat.Element<GuiUserGroupPolicy>;
+      }
     }
   }
 }

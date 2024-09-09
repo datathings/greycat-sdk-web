@@ -165,9 +165,11 @@ declare global {
     'gui-roles': GuiRoles;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-roles': GreyCat.Element<GuiRoles>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-roles': GreyCat.Element<GuiRoles>;
+      }
     }
   }
 }

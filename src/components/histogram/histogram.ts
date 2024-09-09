@@ -258,12 +258,14 @@ declare global {
     'gui-histogram': GuiHistogram;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-histogram': GreyCat.Element<GuiHistogram>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-histogram': GreyCat.Element<GuiHistogram>;
+      }
     }
   }
 }

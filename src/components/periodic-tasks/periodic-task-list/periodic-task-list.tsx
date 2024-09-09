@@ -228,9 +228,11 @@ declare global {
 
   interface HTMLElementEventMap extends GuiPeriodicTaskListEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-periodic-task-list': GreyCat.Element<GuiPeriodicTaskList, GuiPeriodicTaskListEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-periodic-task-list': GreyCat.Element<GuiPeriodicTaskList, GuiPeriodicTaskListEventMap>;
+      }
     }
   }
 }

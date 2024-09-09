@@ -2272,27 +2272,29 @@ declare global {
 
   interface HTMLElementEventMap extends GuiInputEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-input': GreyCat.Element<GuiInput, GuiInputEventMap>;
-      'gui-input-string': GreyCat.Element<GuiInputString, GuiInputEventMap>;
-      'gui-input-number': GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
-      'gui-input-bool': GreyCat.Element<GuiInputBool, GuiInputEventMap>;
-      'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;
-      'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
-      'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
-      'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
-      'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
-      'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
-      'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
-      'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
-      'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
-      'gui-input-node-time': GreyCat.Element<GuiInputNodeTime, GuiInputEventMap>;
-      'gui-input-node-index': GreyCat.Element<GuiInputNodeIndex, GuiInputEventMap>;
-      'gui-input-node-list': GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
-      'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
-      'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
-      'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-input': GreyCat.Element<GuiInput, GuiInputEventMap>;
+        'gui-input-string': GreyCat.Element<GuiInputString, GuiInputEventMap>;
+        'gui-input-number': GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
+        'gui-input-bool': GreyCat.Element<GuiInputBool, GuiInputEventMap>;
+        'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;
+        'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
+        'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
+        'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
+        'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
+        'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
+        'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
+        'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
+        'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
+        'gui-input-node-time': GreyCat.Element<GuiInputNodeTime, GuiInputEventMap>;
+        'gui-input-node-index': GreyCat.Element<GuiInputNodeIndex, GuiInputEventMap>;
+        'gui-input-node-list': GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
+        'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
+        'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
+        'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
+      }
     }
   }
 }

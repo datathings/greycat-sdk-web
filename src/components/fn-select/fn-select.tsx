@@ -59,9 +59,11 @@ declare global {
 
   interface HTMLElementEventMap extends GuiFnSelectEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-fn-select': GreyCat.Element<GuiFnSelect, GuiFnSelectEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-fn-select': GreyCat.Element<GuiFnSelect, GuiFnSelectEventMap>;
+      }
     }
   }
 }

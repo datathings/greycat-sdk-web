@@ -1,6 +1,11 @@
 // eslint-disable-next-line @typescript-eslint/triple-slash-reference
 /// <reference path="../jsx.d.ts" />
 
+export namespace JSX {
+  export interface Element extends Node {}
+  export interface IntrinsicElements extends GreyCat.JSX.IntrinsicElements {}
+}
+
 export const Fragment = '<></>';
 
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(

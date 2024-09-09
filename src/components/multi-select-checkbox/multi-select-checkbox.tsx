@@ -56,12 +56,14 @@ declare global {
     'gui-multi-select-checkbox': GuiMultiSelectCheckbox;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-multi-select-checkbox': GreyCat.Element<GuiMultiSelectCheckbox>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-multi-select-checkbox': GreyCat.Element<GuiMultiSelectCheckbox>;
+      }
     }
   }
 }

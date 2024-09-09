@@ -221,9 +221,11 @@ declare global {
 
   interface HTMLElementEventMap extends GuiUsersEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-users': GreyCat.Element<GuiUsers, GuiUsersEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-users': GreyCat.Element<GuiUsers, GuiUsersEventMap>;
+      }
     }
   }
 }

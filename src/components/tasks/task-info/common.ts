@@ -33,16 +33,18 @@ declare global {
 
   interface HTMLElementEventMap extends GuiTaskInfoEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-task-info': GreyCat.Element<GuiTaskInfo, GuiTaskInfoEventMap>;
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-task-info-dialog': GreyCat.Element<GuiTaskInfoDialog, GuiTaskInfoEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-task-info': GreyCat.Element<GuiTaskInfo, GuiTaskInfoEventMap>;
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-task-info-dialog': GreyCat.Element<GuiTaskInfoDialog, GuiTaskInfoEventMap>;
+      }
     }
   }
 }

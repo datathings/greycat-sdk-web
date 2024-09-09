@@ -25,9 +25,11 @@ declare global {
 
   interface HTMLElementEventMap extends GuiSearchInputEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'gui-search-input': GreyCat.Element<GuiSearchInput, GuiSearchInputEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-search-input': GreyCat.Element<GuiSearchInput, GuiSearchInputEventMap>;
+      }
     }
   }
 }

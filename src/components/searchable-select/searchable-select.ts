@@ -343,12 +343,14 @@ declare global {
 
   interface HTMLElementEventMap extends GuiSearchableSelectEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSearchableSelectEventMap>;
+      }
     }
   }
 }

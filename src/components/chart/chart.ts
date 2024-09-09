@@ -1508,12 +1508,14 @@ declare global {
 
   interface HTMLElementEventMap extends GuiChartEventMap {}
 
-  namespace JSX {
-    interface IntrinsicElements {
-      /**
-       * Please, don't use this in a React context. Use `WCWrapper`.
-       */
-      'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         */
+        'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
+      }
     }
   }
 }
