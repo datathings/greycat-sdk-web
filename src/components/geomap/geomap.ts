@@ -4,7 +4,7 @@ import './geomap.css';
 import { TableLike, TableView } from '../common.js';
 import { core } from '../../exports';
 
-export class GeoMap extends HTMLElement {
+export class GuiGeoMap extends HTMLElement {
   static MAP_STYLE: StyleSpecification = {
     version: 8,
     sources: {
@@ -32,7 +32,7 @@ export class GeoMap extends HTMLElement {
 
   private _center: [number, number] = [6.1, 49.6];
   private _zoom: number = 2;
-  private _mapStyle: StyleSpecification = GeoMap.MAP_STYLE;
+  private _mapStyle: StyleSpecification = GuiGeoMap.MAP_STYLE;
 
   private _layers: Map<string, LayerSpecification> = new Map();
 
@@ -133,7 +133,7 @@ export class GeoMap extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
-    'gui-geomap': GeoMap;
+    'gui-geo-map': GuiGeoMap;
   }
 
   namespace JSX {
@@ -141,11 +141,11 @@ declare global {
       /**
        * Please, don't use this in a React context. Use `WCWrapper`.
        */
-      'gui-geomap': GreyCat.Element<GeoMap>;
+      'gui-geo-map': GreyCat.Element<GuiGeoMap>;
     }
   }
 }
 
-if (!globalThis.customElements.get('gui-geomap')) {
-  globalThis.customElements.define('gui-geomap', GeoMap);
+if (!globalThis.customElements.get('gui-geo-map')) {
+  globalThis.customElements.define('gui-geo-map', GuiGeoMap);
 }
