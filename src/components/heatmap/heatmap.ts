@@ -226,13 +226,8 @@ export class GuiHeatmap extends HTMLElement {
     this._table = config.table
       ? toColumnBasedTable(config.table)
       : value
-<<<<<<< Updated upstream
       ? toColumnBasedTable(value)
       : {};
-=======
-        ? toColumnBasedTable(value)
-        : {};
->>>>>>> Stashed changes
     this._config = config;
     this.compute();
     this.update();
