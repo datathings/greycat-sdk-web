@@ -1,23 +1,73 @@
-import { LayerSpecification, Map, type StyleSpecification } from 'maplibre-gl';
+import { LayerSpecification, Map as MaplibreMap, type StyleSpecification } from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
 import './geomap.css';
-import style from './styles.json';
 import { TableLike, TableView } from '../common.js';
 import { core } from '../../exports';
 
 export class GeoMap extends HTMLElement {
-  _container: HTMLDivElement;
-  _table = new TableView();
-  _map: Map;
+  static MAP_STYLE: StyleSpecification = {
+    version: 8,
+    sources: {
+      osm: {
+        type: 'raster',
+        tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+        tileSize: 256,
+        attribution: '&copy; OpenStreetMap Contributors',
+        maxzoom: 19,
+      },
+    },
+    glyphs: 'http://fonts.openmaptiles.org/{fontstack}/{range}.pbf',
+    layers: [
+      {
+        id: 'osm',
+        type: 'raster',
+        source: 'osm',
+      },
+    ],
+  };
+
+  private _container: HTMLDivElement;
+  private _table = new TableView();
+  private _map: MaplibreMap;
+
+  private _center: [number, number] = [6.1, 49.6];
+  private _zoom: number = 2;
+  private _mapStyle: StyleSpecification = GeoMap.MAP_STYLE;
+
+  private _layers: Map<string, LayerSpecification> = new Map();
+
+  set center(val: [number, number]) {
+    this._center = val;
+    this._map.setCenter(this._center);
+  }
+
+  set zoom(val: number) {
+    this._zoom = val;
+    this._map.setZoom(this._zoom);
+  }
+
+  set mapStyle(val: StyleSpecification) {
+    this._mapStyle = val;
+    this._map.setStyle(val);
+  }
+
+  set layers(val: LayerSpecification[]) {
+    for (const element of val) {
+      this._layers.set(element.id, element);
+      if (this._map.loaded()) {
+        this._map.addLayer(element);
+      }
+    }
+  }
 
   constructor() {
     super();
     this._container = document.createElement('div');
-    this._map = new Map({
+    this._map = new MaplibreMap({
       container: this._container,
-      style: style as StyleSpecification,
-      center: [6.1, 49.6],
-      zoom: 2,
+      center: this._center,
+      zoom: this._zoom,
+      style: this._mapStyle,
     });
   }
 
@@ -34,41 +84,48 @@ export class GeoMap extends HTMLElement {
 
     this._map.on('load', async () => {
       this._handleData();
+      this._handleLayers();
     });
   }
 
   private _handleData() {
     if (!this._table.cols) return;
     this._addSource();
-    this._addLayer();
   }
 
   private _addSource() {
-    const data: GeoJSON.GeoJSON = {
-      type: 'FeatureCollection',
-      features: this._table.rows.map((v) => ({
+    const features = Array.from({ length: this._table.cols[0].length });
+
+    for (let index = 0; index < this._table.cols[0].length; index++) {
+      const geo = this._table.cols[0][index] as core.geo;
+      const properties: Record<string, unknown> = {};
+
+      for (let col = 1; col < this._table.cols.length; col++) {
+        const key = `column_${col}`;
+        properties[key] = this._table.cols[col][index];
+      }
+
+      features[index] = {
         type: 'Feature',
         geometry: {
           type: 'Point',
-          coordinates: [(v[0] as core.geo).lat, (v[0] as core.geo).lng],
+          coordinates: [geo.lat, geo.lng],
         },
-        properties: {},
-      })),
+        properties: properties,
+      } satisfies GeoJSON.Feature;
+    }
+    const data: GeoJSON.GeoJSON = {
+      type: 'FeatureCollection',
+      features: features as GeoJSON.Feature[],
     };
 
-    console.log(data);
-
-    this._map.addSource('source', { type: 'geojson', data: data });
+    this._map.addSource('main', { type: 'geojson', data: data });
   }
 
-  private _addLayer() {
-    const layer: LayerSpecification = {
-      id: 'layer',
-      type: 'circle',
-      source: 'source',
-    };
-
-    this._map.addLayer(layer);
+  private _handleLayers() {
+    for (const [_key, layer] of this._layers) {
+      this._map.addLayer(layer);
+    }
   }
 }
 
