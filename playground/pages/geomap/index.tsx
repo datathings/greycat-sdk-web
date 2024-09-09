@@ -8,6 +8,7 @@ await GreyCat.init({
 const table = (await $.default.call('project::geo_table')) as core.Table;
 const map = (
   <gui-geomap
+    value={table}
     layers={[
       {
         id: 'layer',
@@ -30,9 +31,3 @@ const map = (
 ) as GeoMap;
 
 document.body.appendChild(<app-layout title="Hello">{map}</app-layout>);
-
-setTimeout(() => {
-  console.log('ja');
-
-  map.value = table;
-}, 2000);
