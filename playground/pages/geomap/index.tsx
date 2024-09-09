@@ -1,4 +1,4 @@
-import { $, core, GreyCat, IndexedDbCache } from '@greycat/web';
+import { $, core, GeoMap, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -6,29 +6,33 @@ await GreyCat.init({
 });
 
 const table = (await $.default.call('project::geo_table')) as core.Table;
-
-document.body.appendChild(
-  <app-layout title="Hello">
-    <gui-geomap
-      value={table}
-      layers={[
-        {
-          id: 'layer',
-          type: 'circle',
-          source: 'main',
-          paint: {
-            'circle-color': [
-              'interpolate',
-              ['linear'],
-              ['get', 'column_1'],
-              -30,
-              '#e2714b',
-              30,
-              '#eee695',
-            ],
-          },
+const map = (
+  <gui-geomap
+    layers={[
+      {
+        id: 'layer',
+        type: 'circle',
+        source: 'main',
+        paint: {
+          'circle-color': [
+            'interpolate',
+            ['linear'],
+            ['get', 'column_1'],
+            -30,
+            '#e2714b',
+            30,
+            '#eee695',
+          ],
         },
-      ]}
-    />
-  </app-layout>,
-);
+      },
+    ]}
+  />
+) as GeoMap;
+
+document.body.appendChild(<app-layout title="Hello">{map}</app-layout>);
+
+setTimeout(() => {
+  console.log('ja');
+
+  map.value = table;
+}, 2000);

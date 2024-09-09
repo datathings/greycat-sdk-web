@@ -60,6 +60,13 @@ export class GeoMap extends HTMLElement {
     }
   }
 
+  set value(table: TableLike | undefined) {
+    this._table.table = table;
+    if (this._map.loaded()) {
+      this._handleData();
+    }
+  }
+
   constructor() {
     super();
     this._container = document.createElement('div');
@@ -71,26 +78,19 @@ export class GeoMap extends HTMLElement {
     });
   }
 
-  set value(table: TableLike) {
-    this._table.table = table;
-    if (this._map.loaded()) {
-      this._handleData();
-    }
-  }
-
   connectedCallback() {
     this.replaceChildren(this._container);
     this._map.resize();
 
     this._map.on('load', async () => {
       this._handleData();
-      this._handleLayers();
     });
   }
 
   private _handleData() {
-    if (!this._table.cols) return;
+    if (!this._table.cols.length) return;
     this._addSource();
+    this._handleLayers();
   }
 
   private _addSource() {
@@ -124,7 +124,9 @@ export class GeoMap extends HTMLElement {
 
   private _handleLayers() {
     for (const [_key, layer] of this._layers) {
-      this._map.addLayer(layer);
+      if ('source' in layer && this._map.getSource(layer.source)) {
+        this._map.addLayer(layer);
+      }
     }
   }
 }
