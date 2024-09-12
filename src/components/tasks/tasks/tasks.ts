@@ -181,7 +181,8 @@ export class GuiTasks extends HTMLElement {
 
       // update table
       this.table.value = { rows };
-    } catch {
+    } catch (err) {
+      console.error(err);
       // ignore errors (for now?)
     }
   }
