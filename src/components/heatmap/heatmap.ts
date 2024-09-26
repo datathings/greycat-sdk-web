@@ -7,6 +7,7 @@ import { Cursor } from '../chart/types.js';
 import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
 import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
 import './tooltip.js';
+import type { GuiHeatmapTooltip } from './tooltip.js';
 
 type ColorYScale =
   | d3.ScaleLinear<number, number, never>
@@ -53,7 +54,7 @@ export class GuiHeatmap extends HTMLElement {
   private readonly _uxCanvas: HTMLCanvasElement;
   private readonly _uxCtx: CanvasContext;
 
-  private readonly _tooltip = document.createElement('gui-heatmap-tooltip');
+  private readonly _tooltip: GuiHeatmapTooltip;
 
   private _computed: ComputedState | undefined;
 
@@ -89,7 +90,7 @@ export class GuiHeatmap extends HTMLElement {
     this._colorScaleYAxisGroup = this._svg.append('g');
 
     // tooltip
-    this._tooltip.style.position = 'absolute';
+    this._tooltip = document.createElement('gui-heatmap-tooltip')
 
     this.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
@@ -98,7 +99,6 @@ export class GuiHeatmap extends HTMLElement {
         const { left, top } = this._canvas.getBoundingClientRect();
         this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
         this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
-        this._updateUX();
       }
     });
     this.addEventListener('touchcancel', () => {
@@ -124,13 +124,17 @@ export class GuiHeatmap extends HTMLElement {
     document.addEventListener(
       'mousemove',
       (event) => {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        const x = Math.round(event.pageX - (left + window.scrollX));
-        const y = Math.round(event.pageY - (top + window.scrollY));
-        if (this._cursor.x !== x || this._cursor.y !== y) {
+        const container = this._canvas.getBoundingClientRect();
+        const x = Math.round(event.clientX - container.left);
+        const y = Math.round(event.clientY - container.top);
+
+        // check if the cursor is inside the container boundaries
+        if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
           this._cursor.x = x;
           this._cursor.y = y;
-          this._updateUX();
+        } else {
+          this._cursor.x = -1;
+          this._cursor.y = -1;
         }
       },
       { signal: this._disposer.signal },
@@ -246,27 +250,18 @@ export class GuiHeatmap extends HTMLElement {
 
     const { xRange, yRange, style, xScale, yScale, xLabels, yLabels, colorScale } = this._computed;
 
-    const [xMin, xMax] = xScale.range();
-    const [yMin, yMax] = yScale.range();
-
-    const paddingX =
-      (xMax - xMin - (xScale.step() * (xScale.domain().length - 1) + xScale.bandwidth())) / 2;
-
-    const paddingY =
-      (yMax - yMin - (yScale.step() * (yScale.domain().length - 1) + yScale.bandwidth())) / 2;
-
     const updateUX =
       this._cursor.x !== -1 &&
       this._cursor.y !== -1 &&
-      this._cursor.x >= xRange[0] + paddingX &&
-      this._cursor.x <= xRange[1] - paddingX &&
-      this._cursor.y >= yRange[1] + paddingY &&
-      this._cursor.y <= yRange[0] - paddingY;
+      this._cursor.x >= xRange[0] &&
+      this._cursor.x <= xRange[1] &&
+      this._cursor.y >= yRange[1] &&
+      this._cursor.y <= yRange[0];
 
     if (updateUX) {
       // highlight the hovered cell
-      const colIndex = Math.floor((this._cursor.x - style.margin.right - paddingX) / xScale.step());
-      const rowIndex = Math.floor((yRange[0] - this._cursor.y - paddingY) / yScale.step());
+      const colIndex = Math.floor((this._cursor.x - style.margin.right) / xScale.step());
+      const rowIndex = Math.floor((yRange[0] - this._cursor.y) / yScale.step());
 
       // make it pixel-perfect with Math.round
       const x = Math.round(xScale(xLabels[colIndex])!) + 1;

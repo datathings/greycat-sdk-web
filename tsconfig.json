@@ -9,7 +9,7 @@
     "types": [],
     "moduleDetection": "force",
 
-    "sourceMap": false,
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": false,
 

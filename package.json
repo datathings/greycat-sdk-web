@@ -7,7 +7,7 @@
   "exports": {
     ".": {
       "types": "./dist/esm/index.d.ts",
-      "import": "./dist/greycat.js"
+      "import": "./dist/esm/index.js"
     },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
@@ -23,6 +23,7 @@
   },
   "license": "Apache-2.0",
   "files": [
+    "src",
     "dist/css",
     "dist/docs",
     "dist/esm",

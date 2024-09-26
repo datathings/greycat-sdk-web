@@ -207,7 +207,6 @@ export class GuiChart extends HTMLElement {
         const { left, top } = this._canvas.getBoundingClientRect();
         this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
         this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
-        // this._updateUX();
       }
     });
     this.addEventListener('touchcancel', () => {
@@ -367,10 +366,18 @@ export class GuiChart extends HTMLElement {
     document.addEventListener(
       'mousemove',
       (event) => {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
-        this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
-        // this._updateUX();
+        const container = this._canvas.getBoundingClientRect();
+        const x = Math.round(event.clientX - container.left);
+        const y = Math.round(event.clientY - container.top);
+
+        // check if the cursor is inside the container boundaries
+        if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
+          this._cursor.x = x;
+          this._cursor.y = y;
+        } else {
+          this._cursor.x = -1;
+          this._cursor.y = -1;
+        }
       },
       { signal: this._disposer.signal },
     );

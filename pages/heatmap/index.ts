@@ -48,8 +48,5 @@ heatmap.config = {
     labels: ['Paris', 'London', 'New-York', 'Beijing', 'Perth', 'Oslo'],
     innerPadding: 0.05,
   },
-  tooltip: {
-    position: 'in-place',
-  },
 };
 app.main.appendChild(heatmap);
