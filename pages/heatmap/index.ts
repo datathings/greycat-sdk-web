@@ -1,4 +1,4 @@
-import type { core } from '@greycat/sdk';
+// import type { core } from '@greycat/sdk';
 import '../layout';
 import './index.css';
 
@@ -9,7 +9,11 @@ await app.init();
 document.body.appendChild(app);
 
 app.addSimpleAction(`Switch tooltip to 'in-place'`, (_, a) => {
-  const oldpos = heatmap.config.tooltip ? heatmap.config.tooltip.position ? heatmap.config.tooltip.position : 'follow' : 'follow';
+  const oldpos = heatmap.config.tooltip
+    ? heatmap.config.tooltip.position
+      ? heatmap.config.tooltip.position
+      : 'follow'
+    : 'follow';
   const newpos = oldpos === 'in-place' ? 'follow' : 'in-place';
   heatmap.config.tooltip = { position: newpos };
   a.textContent = `Switch tooltip to '${oldpos}'`;

@@ -13,6 +13,7 @@ gui-heatmap {
   user-select: none;
   display: block;
   height: var(--gui-heatmap-height);
+  overflow: hidden;
 }
 
 /* tooltip */

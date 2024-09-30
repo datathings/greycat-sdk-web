@@ -76,7 +76,7 @@ export type HeatmapTooltip = {
 
 export type HeatmapConfig = {
   /** @deprecated will be removed in v7 in favor of `el.value` pattern */
-  table: TableLikeColumnBased;
+  table?: TableLikeColumnBased;
   markerColor?: Color;
   /**
    * Displays the value centered in each square. Defaults to `false`.
