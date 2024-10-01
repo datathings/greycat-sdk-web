@@ -10,7 +10,7 @@ import {
 import './project-sensor-form';
 import { project, projectlib } from '@/common';
 
-greycat.default = await GreyCat.init({
+const greycat = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
   libraries: [projectlib],
 });
@@ -153,9 +153,11 @@ declare global {
     'input-viewer': InputViewer;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'input-viewer': GreyCat.Element<InputViewer & InputViewerAttrs>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'input-viewer': GreyCat.Element<InputViewer & InputViewerAttrs>;
+      }
     }
   }
 }
@@ -163,7 +165,7 @@ declare global {
 registerCustomElement('input-viewer', InputViewer);
 
 function EnumViewer() {
-  const options: SearchableOption[] = greycat.default.abi.types
+  const options: SearchableOption[] = greycat.abi.types
     .filter((ty) => ty.is_enum)
     .map((ty) => {
       return {
@@ -178,23 +180,23 @@ function EnumViewer() {
       placeholder="Search an enum..."
       options={options}
       ongui-change={(ev) => {
-        input.type = greycat.default.abi.types[ev.detail];
+        input.type = greycat.abi.types[ev.detail];
       }}
     />
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-enum');
-  input.type = greycat.default.abi.types[typeSelector.value];
+  input.type = greycat.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(
-      `[gui-update][gui-input-enum][${greycat.default.abi.types[typeSelector.value].name}]`,
+      `[gui-update][gui-input-enum][${greycat.abi.types[typeSelector.value].name}]`,
       input.value,
     );
     display.value = input.value;
   });
   input.addEventListener('gui-change', () => {
     console.log(
-      `[gui-change][gui-input-enum][${greycat.default.abi.types[typeSelector.value].name}]`,
+      `[gui-change][gui-input-enum][${greycat.abi.types[typeSelector.value].name}]`,
       input.value,
     );
     display.value = input.value;
@@ -228,7 +230,7 @@ function EnumViewer() {
 }
 
 function ObjectViewer() {
-  const options: SearchableOption[] = greycat.default.abi.types
+  const options: SearchableOption[] = greycat.abi.types
     .filter((ty) => !ty.is_enum && !ty.is_native && !ty.is_abstract)
     .map((ty) => {
       return {
@@ -242,23 +244,23 @@ function ObjectViewer() {
       placeholder="Search a type..."
       options={options}
       ongui-change={(ev) => {
-        input.type = greycat.default.abi.types[ev.detail];
+        input.type = greycat.abi.types[ev.detail];
       }}
     />
   ) as GuiSearchableSelect;
   const display = document.createElement('gui-value');
   const input = document.createElement('gui-input-object');
-  input.type = greycat.default.abi.types[typeSelector.value];
+  input.type = greycat.abi.types[typeSelector.value];
   input.addEventListener('gui-update', () => {
     console.log(
-      `[gui-update][gui-input-object][${greycat.default.abi.types[typeSelector.value].name}]`,
+      `[gui-update][gui-input-object][${greycat.abi.types[typeSelector.value].name}]`,
       input.value,
     );
     display.value = input.value;
   });
   input.addEventListener('gui-change', () => {
     console.log(
-      `[gui-change][gui-input-object][${greycat.default.abi.types[typeSelector.value].name}]`,
+      `[gui-change][gui-input-object][${greycat.abi.types[typeSelector.value].name}]`,
       input.value,
     );
     display.value = input.value;
@@ -292,7 +294,7 @@ function ObjectViewer() {
 }
 
 function FnViewer() {
-  const options: SearchableOption[] = greycat.default.abi.functions
+  const options: SearchableOption[] = greycat.abi.functions
     .filter((f) => f.params.length > 0)
     .map((fn) => {
       return {

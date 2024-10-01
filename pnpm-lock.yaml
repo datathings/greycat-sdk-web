@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@greycat/sdk':
-    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.73-dev.tgz
-    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.73-dev.tgz'
+    specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.78-dev.tgz
+    version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.78-dev.tgz'
   '@shoelace-style/shoelace':
     specifier: 2.15.1
     version: 2.15.1(@types/react@18.3.4)
@@ -2569,9 +2569,9 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.73-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.73-dev.tgz}
+  '@get.greycat.io/files/sdk/js/dev/7.0/7.0.78-dev.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.78-dev.tgz}
     name: '@greycat/sdk'
-    version: 7.0.73-dev
+    version: 7.0.78-dev
     engines: {node: '>=18'}
     dev: false

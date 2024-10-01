@@ -76,9 +76,11 @@ declare global {
     'app-confidence': AppConfidence;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'app-confidence': GreyCat.Element<AppConfidence>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'app-confidence': GreyCat.Element<AppConfidence>;
+      }
     }
   }
 }

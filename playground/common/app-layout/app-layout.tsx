@@ -138,9 +138,11 @@ declare global {
     'app-layout': AppLayout;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'app-layout': GreyCat.Element<AppLayout>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'app-layout': GreyCat.Element<AppLayout>;
+      }
     }
   }
 }

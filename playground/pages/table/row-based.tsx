@@ -2,7 +2,7 @@ import '@/common';
 import { GreyCat, IndexedDbCache } from '@greycat/web';
 import { actions } from './actions';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

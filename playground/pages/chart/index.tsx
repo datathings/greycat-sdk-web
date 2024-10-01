@@ -20,13 +20,13 @@ const styleMapping: Record<string, SerieStyle> = {
   },
 };
 
-await GreyCat.init({
+const greycat = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
 const chart = (
   <gui-chart
-    value={await $.default.call<core.Table>('project::chart', [150])}
+    value={await greycat.call<core.Table>('project::chart', [150])}
     config={{
       cursor: true,
       selection: {

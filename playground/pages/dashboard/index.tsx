@@ -2,7 +2,7 @@ import { GreyCat, IndexedDbCache, defineComp, greycatFetcher } from '@greycat/we
 import '@/common';
 import './custom-comp';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

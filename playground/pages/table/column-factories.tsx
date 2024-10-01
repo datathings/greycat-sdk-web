@@ -3,7 +3,7 @@ import '@/common';
 import { books } from '@/common/data';
 import { actions } from './actions';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

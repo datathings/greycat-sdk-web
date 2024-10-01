@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { GreyCat, IndexedDbCache, TableLikeColumnBased, core } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

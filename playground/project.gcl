@@ -1,7 +1,3 @@
-use util;
-use runtime;
-use io;
-
 fn main() {
   for (var i = 0; i < 15; i++) {
     SecurityEntity::set(UserGroup {
@@ -75,7 +71,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -97,7 +93,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -424,7 +420,7 @@ type ComplexObject {
   nodeIndex: nodeIndex;
   nodeList: nodeList;
   nodeGeo: nodeGeo;
-  nested: any;
+  nested: any?;
   nodeNested: node<ComplexObject>?;
   map: Map<String, any>;
   tuple: Tuple<any, any>;
@@ -434,7 +430,7 @@ type ComplexObject {
 @write
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first", { foo: "BAR", baz: 42 });
+  map.set("first",("BAR", 42));
   map.set("second", TimeZone::Africa_Abidjan);
 
   var array = [42, 3.14, "hello world"];
@@ -457,13 +453,14 @@ fn complex_object() {
     nodeList: nodeList {},
     nodeGeo: nodeGeo {},
     tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
-    nested: {
+    nested: ComplexObject {
       string: "Hello, world!",
       int: 42,
       float: 3.14,
       bool: false,
       char: 'd',
       geo: geo { 1.4, -0.85 },
+      map: Map<String, any> {},
       tuple: Tuple<int, int> { x: 1337, y: 42 },
       null: null,
       array: [42, 3.14, "hello world"],
@@ -480,7 +477,7 @@ fn complex_object() {
 
 @expose
 fn obj1() {
-  return {
+  return Obj1 {
     prop1: "Hello",
     prop2: User { id: 1000, name: "user1", activated: false, external: false },
     prop3: Runtime::info(),
@@ -494,7 +491,7 @@ fn obj2() {
     prop3.set("entry-${i}", Runtime::info());
   }
 
-  return {
+  return Obj2 {
     prop1: "Hello",
     prop2: [
       User { id: 1000, name: "user1", activated: false, external: false },
@@ -539,7 +536,7 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 @expose
 fn now() {
   var now = time::now();
-  return {
+  return TimeZones {
     azores: Date::fromTime(now, TimeZone::Atlantic_Azores),
     utc: Date::fromTime(now, TimeZone::UTC),
     paris: Date::fromTime(now, TimeZone::Europe_Paris),
@@ -594,18 +591,39 @@ fn one_d_histo_example(): Histogram {
   return histo;
 }
 
-@expose
-fn two_d_histo_example(): Histogram {
-  var quant = MultiQuantizer { dimensions: [LinearQuantizer { min: 5.0, max: 10.0, bins: 100 }, LinearQuantizer { min: 0.0, max: 5.0, bins: 100 }] };
+// @expose
+// fn two_d_histo_example(): Histogram {
+//   var quant = MultiQuantizer {
+//     dimensions: [
+//       LinearQuantizer { min: 5.0, max: 10.0, bins: 100 },
+//       LinearQuantizer { min: 0.0, max: 5.0, bins: 100 },
+//     ]
+//   };
+//   var histo = Histogram { quantizer: quant };
 
-  var histo = Histogram { quantizer: quant };
+//   var rand = Random {};
+//   for (var i = 0; i < 10000; i++) {
+//     var val = rand.normal(2.5, 1.0);
+//     var val2 = rand.normal(7.5, 1.0);
+//     histo.add([val2, val]);
+//   }
 
-  var rand = Random {};
-  for (var i = 0; i < 10000; i++) {
-    var val = rand.normal(2.5, 1.0);
-    var val2 = rand.normal(7.5, 1.0);
-    histo.add([val2, val]);
-  }
-
-  return histo;
+//   return histo;
+// }
+type Obj1 {
+  prop1: String;
+  prop2: User;
+  prop3: RuntimeInfo;
+}
+type TimeZones {
+  azores: Date;
+  utc: Date;
+  paris: Date;
+  athens: Date;
+}
+type Obj2 {
+  prop1: String;
+  prop2: Array<User>;
+  prop3: Map<any, any?>;
+  prop4: any?;
 }

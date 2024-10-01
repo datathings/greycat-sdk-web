@@ -1,14 +1,14 @@
-import { $, GreyCat, IndexedDbCache, type GuiChart2 } from '@greycat/web';
+import { GreyCat, IndexedDbCache, type GuiChart2 } from '@greycat/web';
 import '@/common';
 import './index.css';
 
-await GreyCat.init({
+const greycat = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
 const chart = (
   <gui-chart2
-    value={await $.default.call('project::table')}
+    value={await greycat.call('project::table')}
     config={{
       cursor: true,
       xAxis: {

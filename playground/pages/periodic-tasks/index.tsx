@@ -1,11 +1,11 @@
 import { GreyCat, IndexedDbCache, runtime } from '@greycat/web';
 import '@/common';
 
-greycat.default = await GreyCat.init({
+const greycat = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const periodicTaskType = greycat.default.abi.type_by_fqn.get(runtime.PeriodicTask._type);
+const periodicTaskType = greycat.abi.type_by_fqn.get(runtime.PeriodicTask._type);
 if (!periodicTaskType) {
   throw new Error('missing ABI type runtime::PeriodicTask');
 }
