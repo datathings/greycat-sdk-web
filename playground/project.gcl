@@ -71,7 +71,7 @@ fn chart(nbRows: int) {
     prev1 = maxf(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -93,7 +93,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -430,7 +430,7 @@ type ComplexObject {
 @write
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first",("BAR", 42));
+  map.set("first", ("BAR", 42));
   map.set("second", TimeZone::Africa_Abidjan);
 
   var array = [42, 3.14, "hello world"];

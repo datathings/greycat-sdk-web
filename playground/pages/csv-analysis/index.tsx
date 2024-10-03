@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, GuiCsvStatistics, GuiTable, io, $ } from '@greycat/web';
+import { GreyCat, IndexedDbCache, type GuiCsvStatistics, io, $, type GuiTable } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -12,31 +12,11 @@ async function runAnalysis(filepath: string) {
     filepath,
     io.CsvAnalysisConfig.createFrom({
       header_lines: 1,
-      date_check_limit: null,
-      date_formats: null,
-      decimal_separator: null,
       enumerable_limit: 10_000,
-      row_limit: null,
-      separator: null,
-      string_delimiter: null,
-      thousands_separator: null,
     }),
   ]);
 
-  sample.value = await io.CsvFormat.sample(
-    filepath,
-    io.CsvFormat.createFrom({
-      header_lines: 1,
-      decimal_separator: null,
-      separator: null,
-      string_delimiter: null,
-      thousands_separator: null,
-      columns: null,
-      columns_size: null,
-    }),
-    null,
-    null,
-  );
+  sample.value = await io.CsvFormat.sample(filepath, io.CsvFormat.create(1));
   sample.fitColumnsToHeaders();
 
   return (await task.await()) as io.CsvStatistics;

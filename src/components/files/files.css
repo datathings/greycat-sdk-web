@@ -1,0 +1,9 @@
+gui-files {
+  display: contents;
+
+  > gui-table {
+    gui-tbody-row:hover {
+      cursor: pointer;
+    }
+  }
+}

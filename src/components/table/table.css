@@ -157,8 +157,10 @@ gui-table .gui-table {
   align-items: center;
   width: 100%;
   min-width: fit-content;
-  display: flex;
   background-color: var(--table-background-color);
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(min-content, auto);
 }
 .gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.8);

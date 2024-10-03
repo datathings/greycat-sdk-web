@@ -9,7 +9,6 @@ registerDebugLogger();
 export class AppLayout extends HTMLElement {
   // prettier-ignore
   private static readonly PAGES: Array<{ href: string; title: string }> = [
-    { title: 'Index',                   href: 'index/' },
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
@@ -26,11 +25,14 @@ export class AppLayout extends HTMLElement {
     { title: 'Dashboard',               href: 'dashboard/' },
     { title: 'Donut',                   href: 'donut/' },
     { title: 'Fieldset Group',          href: 'fieldset-group/' },
+    { title: 'Files',                   href: 'files/' },
     { title: 'Fn Call',                 href: 'fn-call/' },
     { title: 'Heatmap',                 href: 'heatmap/' },
     { title: 'Hello',                   href: 'hello/' },
     { title: 'Histogram',               href: 'histogram/' },
+    { title: 'Index',                   href: 'index/' },
     { title: 'Inputs',                  href: 'inputs/' },
+    { title: 'Logs',                    href: 'logs/' },
     { title: 'Modal',                   href: 'modal/' },
     { title: 'Object',                  href: 'object/' },
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
@@ -40,7 +42,6 @@ export class AppLayout extends HTMLElement {
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
     { title: 'Users',                   href: 'users/' },
-    // { title: 'Chart (custom-boxplot)',  href: 'chart-custom-boxplot/' },
   ];
 
   private _title: SlBreadcrumbItem;

@@ -137,7 +137,7 @@ export class GuiUsers extends HTMLElement {
         ];
       }
 
-      this._table.computeTable();
+      this._table.compute();
       this._table.update();
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::SecurityEntity::all'`, err);

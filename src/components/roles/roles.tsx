@@ -1,7 +1,7 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
 import { std } from '../../exports.js';
 import type { TableLikeRowBased } from '../common.js';
-import '../table/index.js'; // makes sure gui-table is available
+import '../table/table.js'; // makes sure gui-table is available
 import type { GuiTable } from '../table/table.js';
 import './role-permissions.js';
 import type { GuiRoleForm } from './role-form.js';
@@ -83,7 +83,7 @@ export class GuiRoles extends HTMLElement {
         this._rows.rows[i] = [role.name, role.permissions];
       }
 
-      this._table.computeTable();
+      this._table.compute();
       this._table.update();
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::UserRole::all'`, err);

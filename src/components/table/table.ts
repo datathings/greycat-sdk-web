@@ -169,11 +169,11 @@ export class GuiTable extends HTMLElement {
       return;
     }
     this._table.table = table;
-    this.computeTable();
+    this.compute();
     this.update();
   }
 
-  computeTable() {
+  compute() {
     if (!this._table.table) {
       return;
     }
@@ -240,7 +240,7 @@ export class GuiTable extends HTMLElement {
 
   set ignoreCols(ignoreCols: number[] | undefined) {
     this._ignoreCols = ignoreCols;
-    this.computeTable();
+    this.compute();
     this.update();
   }
 
@@ -442,7 +442,7 @@ export class GuiTable extends HTMLElement {
   }>) {
     this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
     this._ignoreCols = ignoreCols;
-    this.computeTable();
+    this.compute();
     this._filterText = filter;
     this._filterColumns = filterColumns;
     this._cellProps = cellProps;
@@ -769,7 +769,7 @@ export class GuiTable extends HTMLElement {
   }
 }
 
-class GuiTableHead extends HTMLElement {
+export class GuiTableHead extends HTMLElement {
   widths: number[] = [];
 
   update(
@@ -1094,7 +1094,7 @@ export class GuiTableHeadCell extends HTMLElement {
 }
 
 // TODO shouldn't we provide this as a standalone component?
-class GuiTableBody extends HTMLElement {
+export class GuiTableBody extends HTMLElement {
   rowHeight = -1;
   maxVirtualRows = 0;
   virtualScroller: HTMLDivElement;
@@ -1407,7 +1407,7 @@ export type SortOrd = 'asc' | 'desc' | 'default';
  *
  * To reset to the default "unsorted" state, call `reset()`.
  */
-class SortCol {
+export class SortCol {
   constructor(
     private _index: number,
     private _ord: SortOrd,
