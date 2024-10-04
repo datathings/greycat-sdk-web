@@ -23,6 +23,10 @@ gui-task-info-dialog {
           &:nth-child(2) {
             text-align: right;
           }
+
+          a {
+            color: var(--primary);
+          }
         }
       }
     }
@@ -35,6 +39,7 @@ gui-task-info-dialog {
 
     small {
       color: var(--muted-color);
+      font-weight: var(--sl-font-weight-normal);
     }
   }
 }

@@ -1,6 +1,7 @@
 sl-card::part(header),
 sl-card::part(footer) {
   --sl-input-height-medium: var(--line-height);
+  padding: calc(var(--padding) / 2) var(--padding);
 
   background-color: var(--bg-0);
   font-weight: bold;

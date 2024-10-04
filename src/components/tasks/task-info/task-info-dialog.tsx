@@ -18,6 +18,14 @@ export class GuiTaskInfoDialog extends SlDialog {
     super();
 
     this._lastUpdate.textContent = new Date().toISOString();
+
+    this.addEventListener('sl-hide', () => {
+      if (this._handler) {
+        this._handler.stop().finally(() => {
+          this._handler = null;
+        });
+      }
+    });
   }
 
   override connectedCallback() {
@@ -26,7 +34,7 @@ export class GuiTaskInfoDialog extends SlDialog {
     this.replaceChildren(
       <>
         <header slot="label">{this._title}</header>
-        <table role="grid">{this._details}</table>
+        <table>{this._details}</table>
         <footer slot="footer">
           <div className="gui-task-info-reload">
             <sl-button
@@ -46,9 +54,7 @@ export class GuiTaskInfoDialog extends SlDialog {
       </>,
     );
 
-    if (this._task) {
-      this.updateInfo();
-    }
+    this.updateInfo();
   }
 
   set greycat(g: GreyCat) {
@@ -89,15 +95,19 @@ export class GuiTaskInfoDialog extends SlDialog {
   }
 
   async updateInfo(): Promise<void> {
-    if (!this._task || this._handler) {
+    if (!this.isConnected || !this._task) {
       return;
+    }
+
+    if (this._handler !== null) {
+      // cancel any previous polling
+      // do not wait for it to complete, we don't care we just want it to stop
+      this._handler.stop();
     }
 
     if (this._isAlive(this._task.status)) {
       this._handler = new TaskHandler(this._task);
-      await this._handler.start(2000, (info) => {
-        this._updateTaskInfo(info);
-      });
+      await this._handler.start(2000, this._updateTaskInfo);
       this._handler = null;
     }
     this._updateTaskInfo(this._task);
@@ -122,7 +132,7 @@ export class GuiTaskInfoDialog extends SlDialog {
     }
   }
 
-  private _updateTaskInfo(t: TaskInfoLike) {
+  private _updateTaskInfo = (t: TaskInfoLike) => {
     this._lastUpdate.textContent = new Date().toISOString();
     this._task = t;
     if (t.type) {
@@ -152,7 +162,7 @@ export class GuiTaskInfoDialog extends SlDialog {
     this._details.replaceChildren(
       <tr>
         <td>Status</td>
-        <td>{t.status.key}</td>
+        <td>{t.status?.key}</td>
       </tr>,
       <tr>
         <td>User ID</td>
@@ -220,7 +230,7 @@ export class GuiTaskInfoDialog extends SlDialog {
       this._btn.onclick = () =>
         this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
-  }
+  };
 
   async status(): Promise<std.runtime.TaskStatus | null> {
     if (!this._task) {
@@ -283,7 +293,7 @@ export class GuiTaskInfoDialog extends SlDialog {
   /**
    * If the task is 'running' or 'waiting' it is considered 'alive'
    */
-  private _isAlive(status: std.runtime.TaskStatus): boolean {
+  private _isAlive(status?: std.runtime.TaskStatus): boolean {
     if (
       status === std.runtime.TaskStatus.running(this._greycat) ||
       status === std.runtime.TaskStatus.waiting(this._greycat)

@@ -1,5 +1,6 @@
 import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $ } from '@greycat/web';
 import '@/common';
+import actions from './actions';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
@@ -23,6 +24,7 @@ document.body.appendChild(
     title="Tasks"
     mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}
   >
+    {actions}
     <fieldset>
       <legend>Create a task</legend>
       <div role="list">

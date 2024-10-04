@@ -8,7 +8,7 @@ export class GuiTaskInfo extends HTMLElement {
   private _task: TaskInfoLike | null = null;
   private _params: Value[] = [];
   private _title = document.createTextNode('');
-  private _btn = document.createElement('button');
+  private _btn = document.createElement('sl-button');
   private _details = document.createElement('tbody');
   private _lastUpdate = document.createElement('small');
   private _handler: TaskHandler | null = null;
@@ -22,23 +22,24 @@ export class GuiTaskInfo extends HTMLElement {
   connectedCallback() {
     this.appendChild(
       <sl-card>
-        <header slot="header">
-          {this._title}
-          <div className="header-actions">{this._btn}</div>
-        </header>
+        <header slot="header">{this._title}</header>
         <table role="grid">{this._details}</table>
-        <sl-button
-          variant="text"
-          size="small"
-          slot="footer"
-          onclick={(ev) => {
-            (ev.target as HTMLElement).blur();
-            this.updateInfo();
-          }}
-        >
-          Reload info
-        </sl-button>
-        {this._lastUpdate}
+        <footer slot="footer">
+          <div>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={(ev) => {
+                (ev.target as HTMLElement).blur();
+                this.updateInfo();
+              }}
+            >
+              Reload info
+            </sl-button>
+            {this._lastUpdate}
+          </div>
+          {this._btn}
+        </footer>
       </sl-card>,
     );
 
@@ -48,6 +49,11 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   disconnectedCallback() {
+    if (this._handler) {
+      this._handler.stop().finally(() => {
+        this._handler = null;
+      });
+    }
     this.replaceChildren();
   }
 
@@ -89,15 +95,21 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   async update(): Promise<void> {
-    if (!this._task || this._handler) {
+    if (!this.isConnected || !this._task) {
       return;
     }
 
-    if (this._isAlive(this._task.status)) {
+    if (this._handler !== null) {
+      // cancel any previous polling
+      // do not wait for it to complete, we don't care we just want it to stop
+      this._handler.stop();
+    }
+
+    if (!this._task.status) {
+      await this.updateInfo();
+    } else if (this._isAlive(this._task.status)) {
       this._handler = new TaskHandler(this._task);
-      await this._handler.start(2000, (info) => {
-        this._updateTaskInfo(info);
-      });
+      await this._handler.start(2000, this._updateTaskInfo);
       this._handler = null;
     }
     this._updateTaskInfo(this._task);
@@ -131,7 +143,7 @@ export class GuiTaskInfo extends HTMLElement {
       this._title.textContent = `${t.mod}::${t.fun}`;
     }
 
-    if (this._isAlive(t.status)) {
+    if (t.status && this._isAlive(t.status)) {
       this._btn.textContent = 'Cancel';
       this._btn.classList.add('outline');
       this._btn.onclick = () => {
@@ -154,7 +166,7 @@ export class GuiTaskInfo extends HTMLElement {
     this._details.replaceChildren(
       <tr>
         <td>Status</td>
-        <td>{t.status.key}</td>
+        <td>{t.status?.key}</td>
       </tr>,
       <tr>
         <td>User ID</td>
@@ -274,7 +286,7 @@ export class GuiTaskInfo extends HTMLElement {
       this._handler = new TaskHandler(this._task);
     }
     try {
-      this._btn.ariaBusy = 'true';
+      this._btn.loading = true;
       const info = await this._handler.cancel();
       if (info) {
         this._updateTaskInfo(info);
@@ -282,7 +294,7 @@ export class GuiTaskInfo extends HTMLElement {
     } catch (err) {
       this._handleError(err);
     } finally {
-      this._btn.ariaBusy = null;
+      this._btn.loading = false;
     }
   }
 

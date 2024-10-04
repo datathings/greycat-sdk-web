@@ -3,15 +3,10 @@ import type { GuiTaskInfoDialog } from './task-info-dialog.js';
 import type { GuiUpdateEvent } from '../../events.js';
 import { GuiTaskInfo } from './task-info.js';
 
-export type TaskInfoLike = Omit<
-  std.runtime.TaskInfo,
-  'progress' | 'remaining' | 'sub_waiting' | 'sub_tasks_all'
-> & {
-  progress?: number | null;
-  remaining?: std.core.duration | null;
-  sub_waiting?: number | bigint | null;
-  sub_tasks_all?: number | bigint | null;
-};
+export type TaskInfoLike = {
+  user_id: number | bigint;
+  task_id: number | bigint;
+} & Partial<std.runtime.TaskInfo>;
 
 export class GuiFilesClickEvent extends CustomEvent<void> {
   static readonly NAME = 'gui-files-click';

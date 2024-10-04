@@ -67,10 +67,14 @@ export class GuiTasks extends HTMLElement {
     });
     this.table.addEventListener('table-click', (ev) => {
       ev.stopPropagation();
-      const task = this._tasks[ev.detail.row[0].originalIndex];
-      if (this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(task))) {
-        this._dialog.value = task;
-        this._dialog.show();
+      const task_id = ev.detail.row[0].value as number;
+      console.log('clicked task', task_id);
+      const task = this._tasks.find((t) => t.task_id === task_id);
+      if (task) {
+        if (this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(task))) {
+          this._dialog.value = task;
+          this._dialog.show();
+        }
       }
     });
 
@@ -180,7 +184,7 @@ export class GuiTasks extends HTMLElement {
       }
 
       // update table
-      this.table.value = { rows };
+      this.table.value = rows;
     } catch (err) {
       console.error(err);
       // ignore errors (for now?)
