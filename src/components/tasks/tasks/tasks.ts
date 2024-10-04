@@ -167,9 +167,9 @@ export class GuiTasks extends HTMLElement {
         row[4] = task.start ?? ''; // Started
         row[5] = task.duration ?? ''; // Duration
         row[6] = task.remaining ?? ''; // Remaining
-        row[7] = task.status.key; // Status
+        row[7] = task.status?.key; // Status
         if (task.progress == null) {
-          if (task.status.key === 'running') {
+          if (task.status?.key === 'running') {
             row[8] = '<unknown>'; // Progress
           } else {
             row[8] = ''; // Progress

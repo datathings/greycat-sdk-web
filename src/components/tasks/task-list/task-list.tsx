@@ -189,7 +189,7 @@ export class GuiTaskList extends HTMLElement {
               <td>{task.user_id}</td>
               <td>{fqn}</td>
               <td>{task.creation}</td>
-              <td>{task.status.key}</td>
+              <td>{task.status?.key}</td>
             </tr>
           ) as HTMLTableRowElement;
           break;
