@@ -206,6 +206,14 @@ export class GuiInput extends GuiInputElement<unknown> {
           input.value = this._value;
         }
         this._inner = input;
+      } else if (this._type.generic_abi_type === this._type.abi.core_array_offset) {
+        const input = document.createElement('gui-input-array');
+        input.genericParam = this._type.abi.types[this._type.g1_abi_type_desc >> 1];
+        input.config.nullable = (this._type.g1_abi_type_desc & 0b00000001) === 1;
+        if (this._value instanceof Array) {
+          input.value = this._value;
+        }
+        this._inner = input;
       } else {
         const tagName = GuiInput.factory[this._type.name];
         if (tagName) {
@@ -1013,6 +1021,7 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     this.render();
   }
 
+  /** A getter to directly access the function's fqn. This cannot be used as a setter. */
   get fqn() {
     return this._fn?.fqn;
   }
@@ -1056,16 +1065,20 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
       }
     }
 
-    this.querySelectorAll('gui-input').forEach((input) => {
-      input.removeEventListener('gui-input', this._onInput);
-      input.removeEventListener('gui-change', this._onChange);
+    this.shadowRoot.querySelectorAll('.gui-input').forEach((input) => {
+      if (input instanceof HTMLElement) {
+        input.removeEventListener('gui-input', this._onInput);
+        input.removeEventListener('gui-change', this._onChange);
+      }
     });
 
     this.render();
 
-    this.querySelectorAll('gui-input').forEach((input) => {
-      input.addEventListener('gui-input', this._onInput);
-      input.addEventListener('gui-change', this._onChange);
+    this.shadowRoot.querySelectorAll('.gui-input').forEach((input) => {
+      if (input instanceof HTMLElement) {
+        input.addEventListener('gui-input', this._onInput);
+        input.addEventListener('gui-change', this._onChange);
+      }
     });
   }
 
@@ -1153,7 +1166,9 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
           }
           const slotInput = elem.querySelector('.gui-input');
           if (!slotInput || !(slotInput instanceof GuiInputElement)) {
-            throw `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`;
+            throw new Error(
+              `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`,
+            );
           }
           this._params.set(name, slotInput);
           slotInput.value = input.value;
@@ -1393,7 +1408,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 }
 
 export class GuiInputArray extends GuiInputElement<unknown[] | null> {
-  private _inputs: GuiInputAny[] = [];
+  private _inputs: GuiInputElement<unknown>[] = [];
+  private _generic_param: AbiType | undefined;
 
   static STYLE: CSSStyleSheet;
   static {
@@ -1425,22 +1441,37 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
     this._render();
   }
 
+  get genericParam() {
+    return this._generic_param;
+  }
+
+  set genericParam(type: AbiType | undefined) {
+    this._generic_param = type;
+  }
+
   override connectedCallback(): void {
     super.connectedCallback();
     this.setAttribute('part', 'input-array');
+    this._render();
   }
 
   _addInput(val?: unknown) {
-    const input = document.createElement('gui-input-any') as GuiInputAny;
-
-    input.config = this.config;
-
-    if (val === undefined && this._inputs.length > 0) {
-      const prevInput = this._inputs[this._inputs.length - 1];
-      if (prevInput.type) {
-        input.type = prevInput.type;
+    let input: GuiInputElement<unknown>;
+    if (this._generic_param) {
+      const el = document.createElement('gui-input');
+      el.type = this._generic_param;
+      input = el;
+    } else {
+      const el = document.createElement('gui-input-any');
+      if (val === undefined && this._inputs.length > 0) {
+        const prevInput = this._inputs[this._inputs.length - 1];
+        if (prevInput instanceof GuiInputAny && prevInput.type) {
+          el.type = prevInput.type;
+        }
       }
+      input = el;
     }
+    input.config = this.config;
     input.value = val;
 
     this._inputs.push(input);
@@ -1465,6 +1496,9 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
   }
 
   _render() {
+    if (!this.isConnected) {
+      return;
+    }
     this.shadowRoot.replaceChildren();
     this.shadowRoot.appendChild(
       <sl-button

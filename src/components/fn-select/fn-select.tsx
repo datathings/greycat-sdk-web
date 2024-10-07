@@ -26,8 +26,6 @@ export class GuiFnSelect extends SlSelect {
       group.push(fn);
     }
 
-    console.log(groups);
-
     const headerClasses = ['px-1', 'text-muted'];
     const options = document.createDocumentFragment();
     groups.forEach((functions, name) => {

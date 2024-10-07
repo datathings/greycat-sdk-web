@@ -1,4 +1,11 @@
-import { GreyCat, IndexedDbCache, prettyError, GuiFnSelect, GuiInputFn, $ } from '@greycat/web';
+import {
+  GreyCat,
+  IndexedDbCache,
+  GuiFnSelect,
+  GuiInputFn,
+  $,
+  AbiFunction,
+} from '@greycat/web';
 import '@/common';
 import './index.css';
 
@@ -6,10 +13,7 @@ await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const argumentsEl = document.createElement('gui-table');
-argumentsEl.value = { cols: [[]], meta: [{ header: 'Arguments' }] };
-// argumentsEl.cellTagNames = { 0: 'gui-object' };
-argumentsEl.style.height = '200px';
+const argumentsEl = document.createElement('gui-object');
 const resultEl = document.createElement('gui-object');
 resultEl.value = `Click on 'Call' to see the result`;
 
@@ -17,7 +21,13 @@ const input = (
   <gui-input-fn
     ongui-input={(ev) => {
       console.log('input-args-change', ev.detail);
-      argumentsEl.value = { cols: [input.value], meta: [{ header: 'Arguments' }] };
+      const args: Record<string, unknown> = {};
+      const values = input.value;
+      const fn = input.type as AbiFunction;
+      fn.params.forEach((param, i) => {
+        args[param.name] = values[i];
+      });
+      argumentsEl.value = args;
     }}
   />
 ) as GuiInputFn;
@@ -28,7 +38,7 @@ const handleFnCall = async () => {
       resultEl.value = await $.default.call(input.fqn, input.value);
     }
   } catch (err) {
-    resultEl.value = prettyError(err, 'Something went wrong with the function call');
+    resultEl.value = err;
   }
 };
 
@@ -45,7 +55,7 @@ document.body.appendChild(
                 resultEl.value = undefined;
                 input.type = fn;
               }
-              console.log('fn-select', fn);
+              argumentsEl.value = undefined;
             }}
           />
         </fieldset>

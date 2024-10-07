@@ -1,6 +1,6 @@
 import type { SlDetails } from '@shoelace-style/shoelace';
 import { GCEnum, GCObject, std } from '../../exports.js';
-import type { GuiValueProps } from '../../exports.js';
+import type { GuiValueProps, sl } from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 
 /**
@@ -186,7 +186,7 @@ export class GuiObject extends HTMLElement {
       case 'object': {
         // null
         if (this._value === null) {
-          this.replaceChildren(<code>null</code>);
+          this.replaceChildren(<gui-value value={this._value} {...this._props} />);
           return;
         }
 
@@ -267,6 +267,15 @@ export class GuiObject extends HTMLElement {
           return;
         }
 
+        if (this._value instanceof Error) {
+          this.replaceChildren(
+            <sl-alert variant="danger" open>
+              <pre>{this._value.message}</pre>
+            </sl-alert>,
+          );
+          return;
+        }
+
         // std.core.Table special handling
         if (this._value instanceof std.core.Table) {
           const tableEl = document.createElement(
@@ -302,11 +311,18 @@ export class GuiObject extends HTMLElement {
             }
 
             // nested object
-            if (this._shouldNest(attrVal)) {
+            if (this._needsCollapsible(attrVal)) {
+              const open =
+                (
+                  this.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
+                    | sl.SlDetails
+                    | undefined
+                )?.open ?? false;
               const details = document.createElement('sl-details');
+              details.open = this._expanded || open;
               details.summary = this._typeName(attrVal) ?? '';
               details.updateComplete.then(() => {
-                details.open = this._expanded;
+                details.open = this._expanded || open;
               });
               const onshow = () => {
                 const child = createElement(GuiObject.fallback, {
@@ -320,7 +336,11 @@ export class GuiObject extends HTMLElement {
                 // remove it once loaded
                 details.removeEventListener('sl-show', onshow);
               };
-              details.addEventListener('sl-show', onshow);
+              if (details.open) {
+                onshow();
+              } else {
+                details.addEventListener('sl-show', onshow);
+              }
 
               fragment.appendChild(
                 <>
@@ -402,12 +422,15 @@ export class GuiObject extends HTMLElement {
         }
 
         const fragment = document.createDocumentFragment();
-        const entries = Object.entries(this._value);
-        for (let i = 0; i < entries.length; i++) {
-          const [key, val] = entries[i];
-          if (this._shouldNest(val)) {
+        let index = 0;
+        for (const key in this._value) {
+          const val = (this._value as Record<string, unknown>)[key];
+          if (this._needsCollapsible(val)) {
+            const open =
+              (this.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)?.open ??
+              false;
             const details = (
-              <sl-details summary={this._typeName(val)}>
+              <sl-details summary={this._typeName(val)} open={this._expanded || open}>
                 {createElement(GuiObject.fallback, {
                   ...this.getAttrs(),
                   value: val,
@@ -417,7 +440,7 @@ export class GuiObject extends HTMLElement {
               </sl-details>
             ) as SlDetails;
             details.updateComplete.then(() => {
-              details.open = this._expanded;
+              details.open = this._expanded || open;
             });
             fragment.appendChild(
               <>
@@ -440,6 +463,7 @@ export class GuiObject extends HTMLElement {
               </>,
             );
           }
+          index += 1;
         }
 
         if (this._withHeader) {
@@ -459,7 +483,10 @@ export class GuiObject extends HTMLElement {
     }
   }
 
-  private _shouldNest(val: unknown): boolean {
+  /**
+   * Returns `true` if the given `val` is a "complex" object
+   */
+  private _needsCollapsible(val: unknown): boolean {
     return (
       val !== undefined &&
       val !== null &&

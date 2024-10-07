@@ -627,3 +627,8 @@ type Obj2 {
   prop3: Map<any, any?>;
   prop4: any?;
 }
+
+@expose
+fn array_of_ints(arr: Array<int>): Array<int> {
+  return arr;
+}

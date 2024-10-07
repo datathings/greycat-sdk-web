@@ -1,6 +1,6 @@
 import type { SlInput } from '@shoelace-style/shoelace';
 import { getIndexInParent } from '../../utils.js';
-import { GuiChangeEvent, type GuiInputEvent } from '../events.js';
+import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 import { GuiInputElement } from '../inputs/index.js';
 
 import style from './searchable-select.css?inline';
@@ -71,6 +71,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
         item.classList.remove('hidden', 'selected');
       });
       this.dispatchEvent(new GuiChangeEvent(undefined));
+      this.dispatchEvent(new GuiInputEvent(undefined));
     });
 
     this._input.addEventListener('blur', () => {
@@ -114,6 +115,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
               ? this._options[index].text
               : this._options[index].value;
           this.dispatchEvent(new GuiChangeEvent(value));
+          this.dispatchEvent(new GuiInputEvent(value));
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
@@ -308,6 +310,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
         this.hideDropdown();
         this._input.focus();
         this.dispatchEvent(new GuiChangeEvent(value));
+        this.dispatchEvent(new GuiInputEvent(value));
       });
 
       fragment.appendChild(itemEl);

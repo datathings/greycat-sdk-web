@@ -290,11 +290,47 @@ export function tableRowsFromArray(arr: Array<unknown>): {
   if (arr.length === 0) {
     return { rows: undefined, meta: undefined };
   }
-  let headers: string[];
+
+  let nbFields = -1;
+  for (let i = 0; i < arr.length; i++) {
+    const n = nbFieldsInObject(arr[i]);
+    if (nbFields === -1) {
+      nbFields = n;
+    } else if (n !== nbFields) {
+      return {
+        rows: arr.map((v) => [v]),
+        meta: [{ header: 'Element' }],
+      };
+    }
+  }
+
+  const keysCount: Map<string, number> = new Map();
+  for (let i = 0; i < arr.length; i++) {
+    const v = arr[i];
+    if (typeof v === 'object') {
+      for (const key in v) {
+        if (Object.hasOwn(v, key)) {
+          keysCount.set(key, (keysCount.get(key) ?? 0) + 1);
+        }
+      }
+    }
+  }
+
+  if (keysCount.size == 0 || (keysCount.size > 1 && !keysCountAllEquals(keysCount))) {
+    return {
+      rows: arr.map((v) => [v]),
+      meta: [{ header: 'Element' }],
+    };
+  }
+
+  let headers: string[] = [];
   let containsObjects = false;
-  if (typeof arr[0] === 'object' && arr[0]) {
-    headers = Object.keys(arr[0]);
+  if (
+    (arr[0] instanceof GCObject && !arr[0].$type.is_native) ||
+    (typeof arr[0] === 'object' && arr[0])
+  ) {
     containsObjects = true;
+    headers = Object.keys(arr[0]);
   } else {
     headers = ['Element'];
   }
@@ -303,8 +339,8 @@ export function tableRowsFromArray(arr: Array<unknown>): {
   const rows: any[][] = new Array(arr.length);
 
   for (let row = 0; row < arr.length; row++) {
-    rows[row] = new Array(headers.length);
-    for (let col = 0; col < headers.length; col++) {
+    rows[row] = new Array(nbFields);
+    for (let col = 0; col < nbFields; col++) {
       if (containsObjects) {
         const key = headers[col];
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -319,6 +355,33 @@ export function tableRowsFromArray(arr: Array<unknown>): {
     rows,
     meta: headers.map((header) => ({ header })),
   };
+}
+
+function nbFieldsInObject(o: unknown): number {
+  if (typeof o !== 'object') {
+    return 0;
+  }
+  let count = 0;
+  for (const key in o) {
+    if (Object.hasOwn(o, key)) {
+      count += 1;
+    }
+  }
+  return count;
+}
+
+function keysCountAllEquals(keys: Map<string, number>): boolean {
+  if (keys.size === 1) {
+    return true;
+  }
+  const it = keys.values();
+  const first = it.next();
+  for (let next = it.next(); next.done !== true; next = it.next()) {
+    if (next.value !== first.value) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /**
@@ -476,9 +539,14 @@ export class TableView {
     }
 
     if (Array.isArray(this._table)) {
-      const { rows, meta } = tableRowsFromArray(this._table);
-      this._rows = rows ?? [];
-      this._meta = meta ?? [];
+      try {
+        const { rows, meta } = tableRowsFromArray(this._table);
+        this._rows = rows ?? [];
+        this._meta = meta ?? [];
+      } catch {
+        this._rows = [this._table];
+        this._meta = [];
+      }
       return this._rows;
     }
 
