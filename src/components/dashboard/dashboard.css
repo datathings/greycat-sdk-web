@@ -7,11 +7,6 @@ gui-dashboard {
     display: grid !important;
     position: relative;
     overflow: hidden;
-
-    & > * {
-      /* ie. https://datacadamia.com/web/css/grid/overflow */
-      min-width: 0px;
-    }
   }
 
   .branch-node > .split-view-container > .view-container:empty {

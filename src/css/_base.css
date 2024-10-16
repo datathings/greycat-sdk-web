@@ -192,6 +192,8 @@
 *::after {
   box-sizing: border-box;
   background-repeat: no-repeat;
+  /* see: https://datacadamia.com/web/css/grid/overflow */
+  min-width: 0;
 }
 
 ::before,
