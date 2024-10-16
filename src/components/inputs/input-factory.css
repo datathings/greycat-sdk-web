@@ -34,10 +34,6 @@
   column-gap: var(--spacing);
   align-items: center;
 
-  > * {
-    min-width: 0px;
-  }
-
   > input,
   > select {
     margin-bottom: 0;
@@ -66,10 +62,6 @@
     display: grid;
     grid-template-columns: auto 1fr;
     width: 100%;
-
-    & > * {
-      min-width: 0;
-    }
   }
 }
 
@@ -101,10 +93,6 @@
     column-gap: var(--spacing);
     align-items: center;
 
-    & > * {
-      min-width: 0px;
-    }
-
     & input {
       margin-bottom: 0;
     }
@@ -134,20 +122,12 @@
     column-gap: var(--spacing);
     align-items: center;
 
-    & > * {
-      min-width: 0px;
-    }
-
     .gui-input-map-entry {
       width: 100%;
       display: grid;
       grid-template-columns: 1fr 1fr;
       align-items: center;
       column-gap: var(--spacing);
-
-      & > * {
-        min-width: 0px;
-      }
 
       & > fieldset {
         margin-bottom: 0;

@@ -608,7 +608,7 @@ export class GuiTable extends HTMLElement {
   }
 
   update() {
-    if (!this._initialized || !this._table) {
+    if (!this.isConnected || !this._initialized || !this._table) {
       return;
     }
     const start = Date.now();
