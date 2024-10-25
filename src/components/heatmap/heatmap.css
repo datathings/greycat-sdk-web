@@ -8,10 +8,13 @@ gui-heatmap {
   /* color scale margin variables, can only be pixels */
   --color-scale-m-right: 40px;
 
+  --gui-heatmap-height: 100%;
+
   display: block;
   width: 100%;
-  height: 100%;
+  height: var(--gui-heatmap-height);
   position: relative;
+  overflow: hidden;
 }
 
 /* tooltip */
@@ -26,6 +29,7 @@ gui-heatmap-tooltip {
   grid-auto-flow: row;
   column-gap: var(--spacing);
 
+  position: absolute;
   background-color: rgb(var(--base-1));
   padding: var(--spacing);
   border: var(--border-width) solid var(--border-color);

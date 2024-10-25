@@ -122,7 +122,6 @@ export class GuiUserForm extends HTMLElement {
   }
 
   set user_role(role: string | null) {
-    console.log(`set user_role=${role}`);
     this._role.value = role ? role : [];
   }
 
@@ -197,7 +196,6 @@ export class GuiUserForm extends HTMLElement {
    */
   async updateUser(): Promise<void> {
     const user = this.value;
-    console.log('update user', structuredClone(user));
     const password = this._password.value;
     let errors = false;
 

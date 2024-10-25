@@ -1,9 +1,7 @@
 import * as d3 from 'd3';
 
 import { closest, debounce, throttle } from '../../internals.js';
-import { getColors } from '../../utils.js';
-import { CanvasContext } from './ctx.js';
-import {
+import type {
   Scale,
   ChartConfig,
   Color,
@@ -15,10 +13,17 @@ import {
   Cursor,
   Axis,
 } from './types.js';
-import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { vMap } from './internals.js';
-import type { std } from '../../exports.js';
-import { Disposer, TableLike, TableView } from '../common.js';
+import {
+  core,
+  Disposer,
+  createFormatter,
+  smartTimeFormatSpecifier,
+  CanvasContext,
+  getColors,
+  convertToTable,
+} from '../../exports.js';
+import type { std, TableLike } from '../../exports.js';
 
 type ComputedState = {
   leftAxes: number;
@@ -48,7 +53,7 @@ type ComputedState = {
 
 export class GuiChart extends HTMLElement {
   private _disposer: Disposer;
-  private _table: TableView;
+  private _table: core.Table;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -89,7 +94,7 @@ export class GuiChart extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._table = new TableView();
+    this._table = core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
 
     // main canvas
@@ -426,7 +431,7 @@ export class GuiChart extends HTMLElement {
   }
 
   set value(table: TableLike) {
-    this._table.table = table;
+    this._table = convertToTable(table);
     this.compute();
     this.update();
   }
@@ -471,9 +476,12 @@ export class GuiChart extends HTMLElement {
 
   setAttrs({
     config = this._config,
-    value = this._table.table,
+    value = this._table,
   }: Partial<{ config: ChartConfig; value: TableLike }>) {
-    this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
+    if (this._table !== value) {
+      this._table = convertToTable(value);
+      this.compute();
+    }
     this._config = config;
 
     // update local user X min/max with the configuration values
@@ -816,7 +824,7 @@ export class GuiChart extends HTMLElement {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent =
-            serie.title ?? this._table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+            serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -833,7 +841,7 @@ export class GuiChart extends HTMLElement {
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
             nameEl.textContent =
-              serie.title ?? this._table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+              serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
             valueEl.classList.add('gui-chart-tooltip-value');
             if (

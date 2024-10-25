@@ -461,6 +461,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
     this._input = document.createElement('sl-select');
     this._input.value = 'false';
+    this._input.hoist = true;
     this._input.setAttribute('exportparts', 'combobox');
     this._input.appendChild(<sl-option value="true">true</sl-option>);
     this._input.appendChild(<sl-option value="false">false</sl-option>);
@@ -633,6 +634,10 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     this.shadowRoot.replaceChildren(this._input);
   }
 
+  get type() {
+    return this._type;
+  }
+
   set type(type: AbiType | string | undefined) {
     if (typeof type === 'string') {
       type = $.default.findType(type);
@@ -657,10 +662,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
       this._input.value = undefined;
       this._input.options = [];
     }
-  }
-
-  get type() {
-    return this._type;
   }
 
   get value() {

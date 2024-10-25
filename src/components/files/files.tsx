@@ -17,23 +17,27 @@ export class GuiFiles extends HTMLElement {
         headers={['Path', 'Size', 'Last Modification']}
         columnsWidths={[]}
         onrowupdate={(el, row) => {
-          if (typeof row[1].value === 'number') {
-            const size = row[1].value;
-            (el.children[1].children[0] as GuiValue).value = humanSize(size);
+          if (
+            typeof this._table.table.cols[1][row] === 'number' ||
+            typeof this._table.table.cols[1][row] === 'bigint'
+          ) {
+            const size = this._table.table.cols[1][row];
+            (el.children[1].children[0] as GuiValue).value = humanSize(Number(size));
           } else {
             (el.children[1].children[0] as GuiValue).textContent = '';
           }
         }}
-        ontable-click={async (ev) => {
-          const path = ev.detail.row[0].value as string;
+        ongui-click={async (ev) => {
+          ev.stopPropagation();
+          const path = this._table.table.cols[0][ev.detail.rowIdx] as string;
           if (path !== '..' && !path.endsWith('/')) {
             // clicked on an actual file
             this.dispatchEvent(
               new GuiClickEvent(
                 io.File.create(
                   path,
-                  ev.detail.row[1].value as number | bigint | null,
-                  ev.detail.row[2].value as core.time | null,
+                  this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
+                  this._table.table.cols[2][ev.detail.rowIdx] as core.time | null,
                 ),
               ),
             );
@@ -74,7 +78,6 @@ export class GuiFiles extends HTMLElement {
         return false;
       } else {
         const parts = this._current_dir.split('/');
-        console.log('parts', ...parts);
         parts.pop();
         parts.pop();
         this._current_dir = parts.join('/');
@@ -104,7 +107,7 @@ export class GuiFiles extends HTMLElement {
       files.unshift(io.File.create('..'));
     }
     // update table
-    this._table.value = files;
+    this._table.value = core.Table.fromObjects(files);
   }
 }
 

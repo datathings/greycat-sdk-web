@@ -1,3 +1,5 @@
+var sensor: nodeTime<SensorData>?;
+
 fn main() {
   for (var i = 0; i < 15; i++) {
     SecurityEntity::set(UserGroup {
@@ -6,9 +8,30 @@ fn main() {
         activated: true,
       });
   }
+
+  if (sensor == null) {
+    sensor = nodeTime<SensorData> {};
+    var reader = CsvReader {
+      path: "files/import/sensor.csv",
+      format: CsvFormat {
+        header_lines: 1,
+        separator: ',',
+      },
+    };
+    while (reader.can_read()) {
+      var row = reader.read() as Array<any>;
+      var data = SensorData {
+        temperature: row[1] as float,
+        pression: row[2] as float,
+        humidity: row[3] as float,
+      };
+      sensor.setAt(time::new(row[0] as int, DurationUnit::seconds), data);
+    }
+  }
 }
 
 type Person2 {
+  id: int;
   name: String;
   age: int;
   children: int;
@@ -17,9 +40,26 @@ type Person2 {
 @expose
 fn persons() {
   return [
-    Person2 { name: "John", age: 42, children: 2 },
-    Person2 { name: "Bob", age: 64, children: 4 },
-    Person2 { name: "Max", age: 35, children: 0 },
+    Person2 { id: 0, name: "Alice", age: 28, children: 1 },
+    Person2 { id: 1, name: "Charlie", age: 33, children: 2 },
+    Person2 { id: 2, name: "David", age: 45, children: 3 },
+    Person2 { id: 3, name: "Eve", age: 26, children: 0 },
+    Person2 { id: 4, name: "Frank", age: 52, children: 4 },
+    Person2 { id: 5, name: "Grace", age: 38, children: 2 },
+    Person2 { id: 6, name: "Hannah", age: 49, children: 3 },
+    Person2 { id: 7, name: "Isaac", age: 30, children: 0 },
+    Person2 { id: 8, name: "Jack", age: 60, children: 4 },
+    Person2 { id: 9, name: "Karen", age: 55, children: 1 },
+    Person2 { id: 10, name: "Liam", age: 37, children: 2 },
+    Person2 { id: 11, name: "Mia", age: 31, children: 0 },
+    Person2 { id: 12, name: "Noah", age: 41, children: 3 },
+    Person2 { id: 13, name: "Olivia", age: 34, children: 1 },
+    Person2 { id: 14, name: "Paul", age: 46, children: 2 },
+    Person2 { id: 15, name: "Quinn", age: 29, children: 0 },
+    Person2 { id: 16, name: "Rita", age: 43, children: 3 },
+    Person2 { id: 17, name: "Sam", age: 50, children: 4 },
+    Person2 { id: 18, name: "Tina", age: 36, children: 2 },
+    Person2 { id: 19, name: "Victor", age: 53, children: 1 },
   ];
 }
 
@@ -68,7 +108,7 @@ fn chart(nbRows: int) {
 
   for (var rowIdx = 0; rowIdx < nbRows; rowIdx++) {
     prev1 = prev1 + 5 - rand.uniformf(0_f, 1_f) * 10;
-    prev1 = maxf(0_f, prev1);
+    prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
     table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
@@ -85,7 +125,7 @@ fn chart(nbRows: int) {
     }
 
     prev2 = prev2 + 5 - rand.uniformf(0_f, 1_f) * 10;
-    prev2 = maxf(0_f, prev2);
+    prev2 = max(0_f, prev2);
 
     table.set_cell(rowIdx, SCATTER_COL, prev2);
 
@@ -355,14 +395,27 @@ fn table(): Table {
 
   return table;
 }
+
+type Person {
+  name: String;
+  age: int;
+  activated: bool;
+}
+
+@expose
+fn objects_table(): Table<Person> {
+  var table = Table<Person> {
+    ["John", 42, true],
+    ["Paul", 36, false],
+    ["Maria", 27, true],
+  };
+  return table;
+}
 // pages/table end
 
 // pages/tasks start
 @expose
 fn task_without_params() {
-  for (var i = 0; i < 100; i++) {
-    println("test");
-  }
   return 42;
 }
 
@@ -373,6 +426,19 @@ fn task_with_params(name: String, age: int) {
 
 @expose
 fn task_long_running() {
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: 60,
+  };
+  for (var i = 0; i < 60; i++) {
+    progress.update(i + 1);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(1_s);
+  }
+}
+
+@expose
+fn task_long_running2() {
   var progress = ProgressTracker {
     start: time::now(),
     total: 60,
@@ -421,16 +487,29 @@ type ComplexObject {
   nodeList: nodeList;
   nodeGeo: nodeGeo;
   nested: any?;
-  nodeNested: node<ComplexObject>?;
   map: Map<String, any>;
   tuple: Tuple<any, any>;
 }
 
+type Obj {
+  field: any?;
+  tuple: Tuple<any, any>;
+}
+
 @expose
-@write
+fn obj() {
+  return Obj {
+    tuple: Tuple<String, String> { x: "Hello", y: "world!" },
+    field: Obj {
+      tuple: Tuple<int, int> { x: 40, y: 2 },
+    },
+  };
+}
+
+@expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first", ("BAR", 42));
+  map.set("first",("BAR", 42));
   map.set("second", TimeZone::Africa_Abidjan);
 
   var array = [42, 3.14, "hello world"];
@@ -470,7 +549,6 @@ fn complex_object() {
       nodeGeo: nodeGeo {},
       enum: TimeZone::Europe_Luxembourg,
     },
-    nodeNested: node<ComplexObject> { ComplexObject { string: "Nested Hello, world!", int: 1337, float: 3.1415, bool: true, char: 'g', geo: geo::max, null: null, enum: TimeZone::Asia_Tokyo, array: Array<any?> {1337, 3.1415, "GreyCat"}, nodeTime: nodeTime {}, nodeIndex: nodeIndex {}, nodeList: nodeList {}, nodeGeo: nodeGeo {}, nested: [], map: Map<String, ComplexObject> {}, tuple: Tuple<String, bool> { x: "Another tuple", y: false } } },
     map: map,
   };
 }
@@ -552,6 +630,12 @@ enum SensorKind {
 type Sensor {
   id: int;
   kind: SensorKind;
+}
+
+type SensorData {
+  temperature: float;
+  pression: float;
+  humidity: float;
 }
 
 type Link {

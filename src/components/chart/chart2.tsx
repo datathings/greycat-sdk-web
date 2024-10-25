@@ -13,10 +13,11 @@ import type {
   SerieOptions,
 } from './types.js';
 import { VerticalAxisPos, type ShapeOptions } from './ctx.js';
-import { TableView, type TableLike } from '../common.js';
+import { convertToTable, type TableLike } from '../common.js';
 import { Resizable } from '../mixins.js';
 import { vMap } from './internals.js';
 import { closest } from '../../internals.js';
+import { core } from '@greycat/sdk';
 
 type CachedState = {
   leftAxes: number;
@@ -54,7 +55,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   cursorCrosshairOpts: ShapeOptions = {
     color: 'gray',
   };
-  private _table: TableView;
+  private _table: core.Table;
   private _config: ChartConfig;
   private _cache: CachedState;
   private _colors: string[] = [];
@@ -79,7 +80,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
 
     this.selectionOpts.opacity = 0.06;
 
-    this._table = new TableView();
+    this._table = core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
     this._cache = {
       leftAxes: 0,
@@ -469,7 +470,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         const nameEl = document.createElement('div');
         nameEl.style.color = color;
         nameEl.textContent =
-          serie.title ?? this._table.meta?.[serie.yCol]?.header ?? `Col ${serie.yCol}`;
+          serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
         const valueEl = document.createElement('div');
         valueEl.classList.add('gui-chart-tooltip-value');
         if (
@@ -488,7 +489,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
           nameEl.textContent =
-            serie.title ?? this._table.meta?.[serie.yCol2]?.header ?? `Col ${serie.yCol2}`;
+            serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
           const valueEl = document.createElement('div');
           valueEl.classList.add('gui-chart-tooltip-value');
           if (
@@ -691,11 +692,11 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   }
 
   get value(): TableLike | undefined {
-    return this._table.table;
+    return this._table;
   }
 
   set value(value: TableLike | undefined) {
-    this._table.table = value;
+    this._table = convertToTable(value);
     this.compute();
     this.update();
   }
@@ -1044,8 +1045,10 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         max: this._config.yAxes[name].max,
       };
     }
-    this._table.table = value; // TODO this recomputes the table everytime (sometimes for no reasons, if the references are the same for instance)
-    this.compute();
+    if (this._table !== value) {
+      this._table = convertToTable(value);
+      this.compute();
+    }
     this.update();
   }
 

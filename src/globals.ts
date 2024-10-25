@@ -22,12 +22,13 @@ export function setGlobalDateTimeFormat(fmt: Intl.DateTimeFormat) {
   dateFmt = fmt;
 }
 
-export function setGlobalDateTimeFormatTimezone(tz: std.core.TimeZone) {
+export function setGlobalDateTimeFormatTimezone(tz: std.core.TimeZone): Intl.DateTimeFormat {
   const opts = dateFmt.resolvedOptions();
   dateFmt = new Intl.DateTimeFormat(opts.locale, {
     ...(opts as Intl.DateTimeFormatOptions),
     timeZone: tz.key.replace('_', '/'),
   });
+  return dateFmt;
 }
 
 export function getGlobalDateTimeFormatTimezone(

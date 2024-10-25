@@ -1,5 +1,5 @@
-import type { SlBreadcrumbItem } from '@shoelace-style/shoelace';
 import { registerCustomElement, registerDebugLogger } from '@greycat/web';
+import type { sl } from '@greycat/web';
 import './main.css';
 
 import style from './app-layout.css?inline';
@@ -24,6 +24,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Csv (column-input)',      href: 'csv-column-input/' },
     { title: 'Dashboard',               href: 'dashboard/' },
     { title: 'Donut',                   href: 'donut/' },
+    { title: 'Factory',                 href: 'factory/' },
     { title: 'Fieldset Group',          href: 'fieldset-group/' },
     { title: 'Files',                   href: 'files/' },
     { title: 'Fn Call',                 href: 'fn-call/' },
@@ -34,6 +35,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Inputs',                  href: 'inputs/' },
     { title: 'Logs',                    href: 'logs/' },
     { title: 'Modal',                   href: 'modal/' },
+    { title: 'node-time',               href: 'node-time/' },
     { title: 'Object',                  href: 'object/' },
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Roles',                   href: 'roles/' },
@@ -44,7 +46,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Users',                   href: 'users/' },
   ];
 
-  private _title: SlBreadcrumbItem;
+  private _title: sl.SlBreadcrumbItem;
   private _main: HTMLElement;
 
   constructor() {
@@ -96,7 +98,7 @@ export class AppLayout extends HTMLElement {
                 <sl-button
                   variant="text"
                   href={nb_pathname_parts < 2 ? `./pages/${page.href}` : `../${page.href}`}
-                  className={page.title === this._title.textContent ? 'active' : undefined}
+                  className={{ active: location.pathname.startsWith(`/pages/${page.href}`) }}
                   onclick={() => {
                     buttons.forEach((b) => b.classList.remove('active'));
                     button.classList.add('active');

@@ -1,8 +1,15 @@
-import { utils } from '../../exports.js';
+import {
+  GuiInputEvent,
+  utils,
+  core,
+  GuiClickEvent,
+  GuiDblClickEvent,
+  GuiChangeEvent,
+} from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
-import { Disposer, GuiRenderEvent, TableLike, TableColumnMeta, TableView } from '../common.js';
+import { convertToTable, Disposer, GuiRenderEvent, TableLike } from '../common.js';
 
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
@@ -14,31 +21,8 @@ export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
  * Or an object containing the cell properties.
  */
 export type CellPropsFactory =
-  | ((row: Cell[], value: unknown, rowIdx: number, colIdx: number) => CellProps)
+  | ((value: unknown, rowIdx: number, colIdx: number) => CellProps)
   | CellAttrs;
-
-/**
- * An internal wrapper type for the table cells.
- */
-export type Cell = {
-  /** The actual value for the cell */
-  value: unknown;
-  /**
-   * The original index of the row in the column.
-   *
-   * This is required because sorting/filtering changes indexing.
-   */
-  originalIndex: number;
-  /**
-   * The original index of the column in the table.
-   *
-   * This is required because `ignoreCols` will change indexing if used.
-   *
-   * *This is optional for backward compatible reasons, it is safe to assume that for
-   * versions strictly greater than `> 6.10.36-testing` it is always defined*
-   */
-  originalColIndex?: number;
-};
 
 export type ColumnFactory = {
   tag: string;
@@ -51,34 +35,29 @@ export type CleanColumnFactories = Record<number, ColumnFactory>;
 const REUSABLE_CELL_PROPS: CellProps = {
   value: null,
 };
-const DEFAULT_CELL_PROPS: CellPropsFactory = (_, value) => {
+const DEFAULT_CELL_PROPS: CellPropsFactory = (value) => {
   REUSABLE_CELL_PROPS.value = value;
   return REUSABLE_CELL_PROPS;
 };
 
 /**
- * #### `rowEl`:
+ * #### Param 0 `rowEl`
  * The DOM element of the row
  *
- * #### `row`:
- * The row cells
- *
- * #### `rowIdx`:
- * The virtual row index.
- * *This is not the index of the row in the given `value` but the index of the virtual row in the displayed table*
+ * #### Param 1 `rowIdx`
+ * The row index in the table
  */
-export type RowUpdateCallback = (rowEl: GuiTableBodyRow, row: Cell[], rowIdx: number) => void;
+export type RowUpdateCallback = (rowEl: GuiTableBodyRow, rowIdx: number) => void;
 
 export class GuiTable extends HTMLElement {
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
-  private _table = new TableView();
-  private _rows: Array<Cell[]> = [];
+  private _table = core.Table.create();
   private _filter = document.createElement('gui-search-input');
   private _tableContainer = document.createElement('div');
   private _thead = document.createElement('gui-thead');
   private _tbody = document.createElement('gui-tbody');
-  // private _minColWidth = 100;
+  private _wCalc: WidthCalculator;
   private _scrollToRowIndex = 0;
   private _sortCol: SortCol = new SortCol(-1, 'default');
   private _ignoreCols: number[] | undefined;
@@ -87,14 +66,14 @@ export class GuiTable extends HTMLElement {
   private _filterText = '';
   private _filterColumns: Array<string | undefined | null> = [];
   private _headers: string[] | undefined;
-  /** a flag that is switched to `true` when the component is actually added to the DOM */
-  private _initialized = false;
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   private _disposer = new Disposer();
   private _columnFactories: CleanColumnFactories | undefined;
 
   constructor() {
     super();
+
+    this._wCalc = new WidthCalculator(0, 0, 100);
 
     this._filter.className = 'gui-table-filter';
     this._filter.clearable = true;
@@ -106,12 +85,14 @@ export class GuiTable extends HTMLElement {
     this._tableContainer.className = 'gui-table';
     this._tableContainer.append(this._thead, this._tbody);
 
-    this._thead.addEventListener('table-sort', (ev) => {
-      this._sortCol.sortBy(ev.detail);
+    this._thead.addEventListener('gui-table-sort', (ev) => {
+      if (this._sortCol.sortBy(ev.detail)) {
+        this._sortTable();
+      }
       this.update();
     });
 
-    this._thead.addEventListener('table-filter-column', (ev) => {
+    this._thead.addEventListener('gui-table-filter-column', (ev) => {
       this._filterColumns[ev.detail.index] = ev.detail.text;
       // this._thead.showColumnFilters();
       this.update();
@@ -121,7 +102,7 @@ export class GuiTable extends HTMLElement {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new TableClickEvent(cell.rowIdx, cell.colIdx, cell.data));
+          this.dispatchEvent(new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
         }
       }
     });
@@ -130,22 +111,23 @@ export class GuiTable extends HTMLElement {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new TableDblClickEvent(cell.rowIdx, cell.colIdx, cell.data));
+          this.dispatchEvent(
+            new GuiTableDblClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }),
+          );
         }
       }
     });
 
     this._tableContainer.addEventListener('scroll', async () => {
-      if (this._tbody.rowHeight <= 0 && this._rows.length > 0) {
-        await this._tbody.computeRowHeight(this._rows[0], this._columnFactories);
+      if (this._tbody.rowHeight <= 0 && this._table.nbRows() > 0) {
+        await this._tbody.computeRowHeight(this._table, this._ignoreCols, this._columnFactories);
       }
       const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
-
       if (this._prevFromRowIdx == fromRowIdx) {
         // in buffer, no need to re-render
       } else {
         // out of buffer, re-render
-        this._prevFromRowIdx = Math.max(0, fromRowIdx);
+        this._prevFromRowIdx = fromRowIdx;
         this.update();
       }
     });
@@ -163,43 +145,18 @@ export class GuiTable extends HTMLElement {
   }
 
   set value(table: TableLike | undefined) {
-    if (table === undefined) {
-      this._table.table = undefined;
-      this.update();
-      return;
-    }
-    this._table.table = table;
-    this.compute();
+    this._setValue(table);
     this.update();
   }
 
-  compute() {
-    if (!this._table.table) {
+  private _setValue(table: TableLike | undefined) {
+    if (table === this._table) {
+      // noop: same ref
       return;
     }
-
-    const ignoreCols = this._ignoreCols ? Array.from(new Set(this._ignoreCols)) : [];
-
-    this._rows.length = this._table.rows.length;
-    const nb_cols = this._table.meta.length;
-
-    for (let rowIdx = 0; rowIdx < this._rows.length; rowIdx++) {
-      this._rows[rowIdx] = new Array(nb_cols - ignoreCols.length);
-
-      let virtColIdx = 0;
-      for (let colIdx = 0; colIdx < nb_cols; colIdx++) {
-        if (ignoreCols.includes(colIdx)) {
-          // skip ignored columns
-          continue;
-        }
-        this._rows[rowIdx][virtColIdx] = {
-          value: this._table.rows[rowIdx][colIdx],
-          originalIndex: rowIdx,
-          originalColIndex: colIdx,
-        };
-        virtColIdx++;
-      }
-    }
+    this._table = convertToTable(table);
+    this._wCalc.reset();
+    this._wCalc.setNbCols(this._table.cols.length);
   }
 
   /**
@@ -240,7 +197,6 @@ export class GuiTable extends HTMLElement {
 
   set ignoreCols(ignoreCols: number[] | undefined) {
     this._ignoreCols = ignoreCols;
-    this.compute();
     this.update();
   }
 
@@ -263,14 +219,22 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
+  set columnWidths(columnWidths: Array<number | undefined>) {
+    this._wCalc.setWidths(columnWidths);
+    this.update();
+  }
+
+  get columnWidths() {
+    return this._wCalc.getWidths();
+  }
+
   get rowHeight() {
     return this._tbody.rowHeight;
   }
 
   set rowHeight(height: number) {
     this._tbody.rowHeight = height;
-    const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
-    this._prevFromRowIdx = Math.max(0, fromRowIdx);
+    this._prevFromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
     this.update();
   }
 
@@ -279,7 +243,7 @@ export class GuiTable extends HTMLElement {
   }
 
   resetColumnsWidth(): void {
-    this._thead.widths.length = 0;
+    this._wCalc.reset();
     this.update();
   }
 
@@ -288,30 +252,41 @@ export class GuiTable extends HTMLElement {
       return;
     }
     this._thead.querySelectorAll('gui-thead-cell').forEach((el, i) => {
-      const titleEl = el.querySelector<HTMLElement>('.gui-thead-title');
-      if (titleEl) {
-        const titleFitWidth =
-          titleEl.scrollWidth +
-          48 /* the minimum for the icons */ +
-          6; /* spacing (arguably this should be tied to var(--spacing)) */
-        if (titleFitWidth > el.scrollWidth) {
-          this._thead.widths[i] = titleFitWidth + 1; // +1 to prevent ellipsis from happening
-        }
+      if (i == this._thead.children.length - 1) {
+        // do not try to fit the last child
+        return;
       }
+      const tmp = el.style.width;
+      el.style.width = '';
+      const after = el.scrollWidth + 1;
+      this._wCalc.setWidth(i, after);
+      el.style.width = tmp;
     });
     this.update();
   }
 
-  get columnsWidths() {
-    return this._thead.widths;
+  get minColWidth() {
+    return this._wCalc.getMinWidth();
   }
 
-  set columnsWidths(widths: number[]) {
-    for (let i = 0; i < this._thead.widths.length; i++) {
-      if (!isNaN(widths[i])) {
-        this._thead.widths[i] = widths[i];
-      }
-    }
+  /**
+   * Sets the minimum column width (cannot be less than 6px)
+   */
+  set minColWidth(width: number) {
+    this._wCalc.setMinWidth(Math.max(6, width));
+    this.update();
+  }
+
+  get columnsWidths() {
+    return this._wCalc.getWidths();
+  }
+
+  /**
+   * Manually define the column widths. The index of the array is the index of the colum.
+   * If an element is `undefined`, then the `minColWidth` will be used or more if there is enough space.
+   */
+  set columnsWidths(widths: Array<number | undefined>) {
+    this._wCalc.setWidths(widths);
     this.update();
   }
 
@@ -376,7 +351,9 @@ export class GuiTable extends HTMLElement {
   }
 
   set sortBy([index, ord]: readonly [number] | readonly [number, SortOrd]) {
-    this._sortCol.sortBy(index, ord);
+    if (this._sortCol.sortBy(index, ord)) {
+      this._sortTable();
+    }
     this.update();
   }
 
@@ -412,18 +389,19 @@ export class GuiTable extends HTMLElement {
   }
 
   setAttrs({
-    value = this._table.table,
+    value = this._table,
     filter = this._filterText,
     filterColumns = this._filterColumns,
     sortBy = [this._sortCol.index, this._sortCol.ord],
     cellProps = this._cellProps,
     headers = this._headers,
-    columnsWidths = this._thead.widths,
     ignoreCols = this._ignoreCols,
     columnFactories = this._columnFactories,
     rowHeight = this._tbody.rowHeight,
     globalFilter = this.globalFilter,
     globalFilterPlaceholder = this.globalFilterPlaceholder,
+    columnsWidths = this._wCalc.getWidths(),
+    minColWidth = this._wCalc.getMinWidth(),
     onrowupdate = this._rowUpdateCallback,
   }: Partial<{
     value: TableLike;
@@ -432,7 +410,8 @@ export class GuiTable extends HTMLElement {
     sortBy: readonly [number] | readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[];
-    columnsWidths: number[];
+    columnsWidths: Array<number | undefined>;
+    minColWidth: number;
     ignoreCols: number[];
     columnFactories: ColumnFactories;
     rowHeight: number;
@@ -440,24 +419,25 @@ export class GuiTable extends HTMLElement {
     globalFilterPlaceholder: string;
     onrowupdate: RowUpdateCallback;
   }>) {
-    this._table.table = value; // FIXME this resets the cache everytime, potentially for nothing
+    this._setValue(value);
     this._ignoreCols = ignoreCols;
-    this.compute();
     this._filterText = filter;
     this._filterColumns = filterColumns;
     this._cellProps = cellProps;
     this._headers = headers;
-    this._thead.widths = columnsWidths;
     this._columnFactories = this._sanitizeColumnFactories(columnFactories);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
-    this._sortCol.sortBy(sortBy[0], sortBy[1]);
+    if (this._sortCol.sortBy(sortBy[0], sortBy[1])) {
+      this._sortTable();
+    }
+    this._wCalc.setWidths(columnsWidths);
+    this._wCalc.setMinWidth(minColWidth);
     this._rowUpdateCallback = onrowupdate;
 
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
-    const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
-    this._prevFromRowIdx = Math.max(0, fromRowIdx);
+    this._prevFromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
 
     this.update();
   }
@@ -469,10 +449,11 @@ export class GuiTable extends HTMLElement {
     sortBy: readonly [number, SortOrd];
     cellProps: CellPropsFactory;
     headers: string[] | undefined;
-    columnsWidths: number[];
+    columnsWidths: Array<number | undefined>;
     ignoreCols: number[] | undefined;
     columnFactories: CleanColumnFactories | undefined;
     rowHeight: number;
+    minColWidth: number;
     globalFilter: boolean;
     globalFilterPlaceholder: string;
     onrowupdate: RowUpdateCallback;
@@ -484,12 +465,13 @@ export class GuiTable extends HTMLElement {
       sortBy: [this._sortCol.index, this._sortCol.ord],
       cellProps: this._cellProps,
       headers: this._headers,
-      columnsWidths: this._thead.widths,
+      columnsWidths: this._wCalc.getWidths(),
       ignoreCols: this._ignoreCols,
       columnFactories: this._columnFactories,
       rowHeight: this._tbody.rowHeight,
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
+      minColWidth: this._wCalc.getMinWidth(),
       onrowupdate: this._rowUpdateCallback,
     };
   }
@@ -509,7 +491,7 @@ export class GuiTable extends HTMLElement {
       const hcell = this._thead.children[index] as GuiTableHeadCell;
       const newWidth = Math.round(hcell.colWidth - dx);
       // record the new manually set width
-      this._thead.widths[index] = newWidth;
+      this._wCalc.setWidth(index, newWidth);
       // update the header cell width
       hcell.colWidth = newWidth;
       // update the associated body cells widths
@@ -519,10 +501,10 @@ export class GuiTable extends HTMLElement {
     };
 
     this._thead.addEventListener(
-      'table-resize-col',
+      'gui-table-resize-col',
       (e) => {
         resize = true;
-        index = e.detail.index;
+        index = e.detail.colIdx;
         px = cx = e.detail.x;
         this._thead.classList.add('gui-table-resizing');
         requestAnimationFrame(colResizeLoop);
@@ -550,9 +532,9 @@ export class GuiTable extends HTMLElement {
     });
 
     const oResize = new ResizeObserver(async () => {
-      if (this._rows.length > 0) {
+      if (this._table.nbRows() > 0) {
         // recompute the available space for the rows
-        await this._tbody.computeRowHeight(this._rows[0], this._columnFactories);
+        await this._tbody.computeRowHeight(this._table, this._ignoreCols, this._columnFactories);
       }
       // update the whole table
       this.update();
@@ -560,7 +542,6 @@ export class GuiTable extends HTMLElement {
     oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
 
-    this._initialized = true;
     this.update();
   }
 
@@ -571,177 +552,101 @@ export class GuiTable extends HTMLElement {
   }
 
   async update(): Promise<void> {
-    if (!this._initialized || !this._table) {
+    if (!this.isConnected) {
       return;
     }
     const start = Date.now();
 
-    // sort table if needed
-    if (this._sortCol.index === -1) {
-      // no need to sort or sort out of bound (can happen if previous table had more columns)
-      this._sortCol.reset();
-    } else if (this._sortCol.index < this._table.meta.length) {
-      const ord = this._sortCol.ord;
-
-      this._rows.sort((rowA, rowB) => {
-        if (ord === 'default') {
-          return rowA[this._sortCol.index].originalIndex >= rowB[this._sortCol.index].originalIndex
-            ? 1
-            : -1;
-        }
-
-        // Here "a" and "b", are actually "any", because we type-check at runtime
-        // to know what kind of comparison we have to do for the sort, therefore
-        // "any" is justified.
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const a = rowA[this._sortCol.index].value as any;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const b = rowB[this._sortCol.index].value as any;
-        const aType = typeof a;
-        const bType = typeof b;
-
-        let compare = 0;
-        if (aType === 'string' && bType === 'string') {
-          compare = GuiTable.COLLATOR.compare(a, b);
-        } else {
-          compare = a >= b ? 1 : -1;
-        }
-
-        if (ord === 'asc') {
-          return compare;
-        }
-        return -compare;
-      });
+    let nb_cols = 0;
+    for (let i = 0; i < this._table.cols.length; i++) {
+      if (!this.ignoreCols?.includes(i)) {
+        nb_cols += 1;
+      }
     }
-
-    let rows = this._rows;
-    if (this._filterText.length > 0 || this._filterColumns.find((s) => s && s.length > 0)) {
-      rows = this._rows.filter((row, rowIdx) =>
-        this._filterRow(this._filterText, this._filterColumns, row, rowIdx, this._cellProps),
-      );
-      this.dispatchEvent(new TableFilterEvent(rows));
-    }
+    this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth);
+    this._wCalc.setNbCols(nb_cols);
+    this._wCalc.update();
 
     await this._tbody.update(
       this._prevFromRowIdx,
-      this._thead.widths,
-      rows,
-      5,
+      this._table,
+      this._ignoreCols,
+      this._filterText,
+      this._filterColumns,
+      this._wCalc,
       this._cellProps,
       this._rowUpdateCallback,
       this._columnFactories,
     );
 
-    const meta = this._table.meta.filter((_, i) => !this._ignoreCols?.includes(i));
-
-    const widths = this._thead.update(
-      meta,
-      5,
-      this._sortCol,
-      this._tbody.virtualScroller.scrollWidth,
-      this._headers,
-    );
-
-    this._tbody.updateWidths(widths);
+    this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth);
+    this._wCalc.update();
+    this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol, this._headers);
+    this._tbody.updateWidths(this._wCalc);
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
 
-  asCsv(sep = ','): string {
+  asCsv(sep = ';'): string {
     if (!this._table) {
       return '';
     }
 
-    const header =
-      this._table.meta
-        .map((m, i) => {
-          if (typeof m.header === 'string') {
-            return m.header;
-          }
-          if (m.typeName) {
-            return m.typeName;
-          }
-          return `column-${i}`;
-        })
-        .join(sep) ?? '';
+    let csv = '';
 
-    let body: string;
+    if (this._headers) {
+      csv += this._headers.join(sep);
+      csv += '\n';
+    }
+
+    const nb_cols = this._table.cols.length;
+    const nb_rows = this._table.nbRows();
     if (typeof this._cellProps === 'function') {
       const cellProps = this._cellProps;
-      body = this._rows
-        .map((row, rowIdx) => {
-          return row
-            .map((cell, colIdx) => {
-              return utils.stringify(cellProps(row, cell.value, rowIdx, colIdx));
-            })
-            .join(sep);
-        })
-        .join('\n');
+      for (let r = 0; r < nb_rows; r++) {
+        let needsSep = false;
+        for (let c = 0; c < nb_cols; c++) {
+          if (needsSep) {
+            csv += sep;
+          }
+          if (this._ignoreCols?.includes(c)) {
+            continue;
+          }
+          csv += utils.stringify(cellProps(this._table.cols[c][r], r, c));
+          needsSep = true;
+        }
+        csv += '\n';
+      }
     } else {
       const props: utils.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
-      body = this._rows
-        .map((row) => {
-          return row
-            .map((cell) => {
-              props.value = cell.value;
-              return utils.stringify(props);
-            })
-            .join(sep);
-        })
-        .join('\n');
+      for (let r = 0; r < nb_rows; r++) {
+        let needsSep = false;
+        for (let c = 0; c < nb_cols; c++) {
+          if (needsSep) {
+            csv += sep;
+          }
+          if (this._ignoreCols?.includes(c)) {
+            continue;
+          }
+          props.value = this._table.cols[c][r];
+          csv += utils.stringify(props);
+          needsSep = true;
+        }
+        csv += '\n';
+      }
     }
 
-    return header + '\n' + body;
+    return csv;
   }
 
-  private _filterRow(
-    globalFilter: string,
-    colFilters: Array<string | undefined | null>,
-    row: Cell[],
-    rowIdx: number,
-    cellProps: CellPropsFactory,
-  ): boolean {
-    // cache stringified cells
-    const cells: string[] = [];
-
-    if (typeof cellProps === 'function') {
-      for (let i = 0; i < row.length; i++) {
-        const colFilter = colFilters[i];
-        cells[i] = utils.stringify(cellProps(row, row[i].value, rowIdx, i)).toLowerCase();
-        if (colFilter && colFilter.length > 0) {
-          // check column filter
-          if (!cells[i].includes(colFilter)) {
-            return false;
-          }
-        }
-      }
-    } else {
-      const props: utils.StringifyProps = Object.assign({ value: undefined }, cellProps);
-      for (let i = 0; i < row.length; i++) {
-        const colFilter = colFilters[i];
-        props.value = row[i].value;
-        cells[i] = utils.stringify(props).toLowerCase();
-        if (colFilter && colFilter.length > 0) {
-          // check column filter
-          if (!cells[i].includes(colFilter)) {
-            return false;
-          }
-        }
-      }
+  private _sortTable(): void {
+    if (this._sortCol.index === -1) {
+      // no need to sort or sort out of bound (can happen if previous table had more columns)
+      this._sortCol.reset();
+      return;
     }
-
-    if (globalFilter.length === 0) {
-      // we did not return false already with the column filters, and there is no global filter
-      // so this row is containing usefull data
-      return true;
-    }
-
-    for (let i = 0; i < row.length; i++) {
-      if (cells[i].includes(globalFilter)) {
-        return true;
-      }
-    }
-    return false;
+    const ord = this._sortCol.ord === 'desc' ? utils.SortOrd.desc : utils.SortOrd.asc;
+    this._table.sort(this._sortCol.index, ord);
   }
 
   private _sanitizeColumnFactories(
@@ -770,36 +675,30 @@ export class GuiTable extends HTMLElement {
 }
 
 export class GuiTableHead extends HTMLElement {
-  widths: number[] = [];
-
   update(
-    meta: TableColumnMeta[],
-    minColWidth: number,
+    table: core.Table,
+    ignoreCols: number[] | undefined,
+    calc: WidthCalculator,
     sortCol: SortCol,
-    availableWidth: number,
     headers?: string[],
-  ): number[] {
-    const widths: number[] = [];
-    let takenWidth = 0;
-    for (let colIdx = 0; colIdx < meta.length; colIdx++) {
-      let colWidth: number;
-      if (this.widths[colIdx]) {
-        colWidth = this.widths[colIdx];
-      } else {
-        colWidth = Math.max((availableWidth - takenWidth) / (meta.length - colIdx), minColWidth);
+  ) {
+    let index = 0; // this index does not account for ignored columns
+    for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
+      if (ignoreCols?.includes(colIdx)) {
+        continue;
       }
-      takenWidth += colWidth;
+      const colWidth = calc.getWidth(colIdx);
       const header = this._getOrCreateHeader(colIdx, colWidth);
       header.update(
         colIdx,
-        meta?.[colIdx],
+        headers?.[index] ?? table.headers?.[colIdx],
+        table.subheaders?.[colIdx],
         sortCol.index === colIdx ? sortCol.ord : 'default',
-        headers?.[colIdx],
       );
-      widths[colIdx] = colWidth;
+      index += 1;
     }
 
-    this._removeExceedingColumns(meta.length - 1);
+    this._removeExceedingColumns(table.cols.length - 1);
 
     for (let colIdx = 0; colIdx < this.childNodes.length; colIdx++) {
       const header = this.childNodes[colIdx] as GuiTableHeadCell;
@@ -809,8 +708,6 @@ export class GuiTableHead extends HTMLElement {
         header.classList.remove('active');
       }
     }
-
-    return widths;
   }
 
   private _getOrCreateHeader(index: number, colWidth: number): GuiTableHeadCell {
@@ -839,68 +736,59 @@ export class GuiTableHead extends HTMLElement {
   }
 }
 
+export type GuiTableResizeColDetail = {
+  /** the currently resized column index */
+  colIdx: number;
+  /** the current `event.clientX` */
+  x: number;
+};
+
 /**
  * `detail` contains the target column index and the current `event.clientX`
  */
-export class TableResizeColEvent extends CustomEvent<{ index: number; x: number }> {
-  constructor(index: number, x: number) {
-    super('table-resize-col', { detail: { index, x }, bubbles: true });
+export class GuiTableResizeColEvent extends CustomEvent<GuiTableResizeColDetail> {
+  static readonly NAME = 'gui-table-resize-col';
+
+  constructor(colIdx: number, x: number) {
+    super(GuiTableResizeColEvent.NAME, { detail: { colIdx, x }, bubbles: true });
   }
 }
 
 /**
- * `detail` contains the target column index
+ * `detail` contains the sorted column index
  */
-export class TableSortEvent extends CustomEvent<number> {
-  constructor(index: number) {
-    super('table-sort', { detail: index, bubbles: true });
+export class GuiTableSortEvent extends CustomEvent<number> {
+  static readonly NAME = 'gui-table-sort';
+
+  constructor(colIdx: number) {
+    super(GuiTableSortEvent.NAME, { detail: colIdx, bubbles: true });
   }
 }
 
-export class TableFilterEvent extends CustomEvent<Cell[][]> {
-  constructor(rows: Cell[][]) {
-    super('table-filter', { detail: rows, bubbles: true });
+export class GuiTableFilterEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-table-filter';
+  constructor() {
+    super(GuiTableFilterEvent.NAME, { bubbles: true });
   }
 }
 
 /**
  * `detail` contains the target input of dropdown from filter button
  */
-export class TableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+export class GuiTableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+  static readonly NAME = 'gui-table-filter-column';
+
   constructor(index: number, text: string) {
-    super('table-filter-column', { detail: { index, text }, bubbles: true });
+    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true });
   }
 }
 
-export type TableClickEventDetail = {
-  /**
-   * The current row index. This is not necessarily the "original" row index.
-   * If the table is filtered or sorted, it is the "current" row index.
-   *
-   * To know the "original" index, check the property `originalIndex` in the `row` values.
-   */
+export type GuiTableClickDetail = {
+  /** The clicked row index */
   rowIdx: number;
-  /**
-   * Current column index.
-   */
+  /** The clicked column index */
   colIdx: number;
-  /**
-   * The associated row values.
-   */
-  row: Cell[];
 };
-
-export class TableClickEvent extends CustomEvent<TableClickEventDetail> {
-  constructor(rowIdx: number, colIdx: number, row: Cell[]) {
-    super('table-click', { detail: { rowIdx, colIdx, row }, bubbles: true });
-  }
-}
-
-export class TableDblClickEvent extends CustomEvent<TableClickEventDetail> {
-  constructor(rowIdx: number, colIdx: number, row: Cell[]) {
-    super('table-dblclick', { detail: { rowIdx, colIdx, row }, bubbles: true });
-  }
-}
 
 /**
  * A column header cell.
@@ -915,7 +803,7 @@ export class GuiTableHeadCell extends HTMLElement {
   private _filter = document.createElement('div');
   private _dropdown = document.createElement('div');
   private _input = document.createElement('gui-search-input');
-  private _icons = { asc: '↓', desc: '↑', default: '↕', search: '', close: '' };
+  private _icons = { asc: '↓', desc: '↑', default: ' ', search: '', close: '' };
 
   constructor() {
     super();
@@ -933,7 +821,7 @@ export class GuiTableHeadCell extends HTMLElement {
           this.closeDropdown();
         }
       } else if (e.target !== this._resizer && e.target !== this._input) {
-        this.dispatchEvent(new TableSortEvent(this._index));
+        this.dispatchEvent(new GuiTableSortEvent(this._index));
       }
     });
 
@@ -952,11 +840,11 @@ export class GuiTableHeadCell extends HTMLElement {
     this._input.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
       const text = target.value;
-      this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, text));
     });
 
     this._input.addEventListener('sl-clear', () => {
-      this.dispatchEvent(new TableFilterColumnEvent(this._index, ''));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, ''));
     });
 
     this._input.addEventListener('blur', (e) => {
@@ -977,7 +865,7 @@ export class GuiTableHeadCell extends HTMLElement {
     this._resizer.addEventListener('mousedown', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.dispatchEvent(new TableResizeColEvent(this._index, e.clientX));
+      this.dispatchEvent(new GuiTableResizeColEvent(this._index, e.clientX));
     });
   }
 
@@ -994,7 +882,7 @@ export class GuiTableHeadCell extends HTMLElement {
     if (typeof text === 'string' && text.length > 0) {
       this._input.value = text;
       this.openDropdown();
-      this.dispatchEvent(new TableFilterColumnEvent(this._index, text));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, text));
     } else {
       this._input.value = '';
       this.closeDropdown();
@@ -1064,28 +952,32 @@ export class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, meta: TableColumnMeta | undefined, sort: SortOrd, customHeader?: string) {
+  update(index: number, header: string | undefined, subheader: string | undefined, sort: SortOrd) {
     this._index = index;
     const title = document.createDocumentFragment();
 
-    const header = document.createElement('span');
-    header.className = 'gui-thead-header';
+    const headerContainer = document.createElement('sl-tooltip');
+    const headerEl = document.createElement('span');
+    headerEl.className = 'gui-thead-header';
 
-    if (customHeader) {
-      header.textContent = customHeader;
-    } else if (typeof meta?.header === 'string') {
-      header.textContent = meta.header;
+    if (header !== undefined) {
+      headerEl.textContent = header;
     } else {
-      header.textContent = `Column ${index}`;
+      headerEl.textContent = `Column ${index}`;
     }
+    headerContainer.content = headerEl.textContent;
+    headerContainer.appendChild(headerEl);
 
-    title.appendChild(header);
+    title.appendChild(headerContainer);
 
-    if (meta?.typeName) {
-      const type = document.createElement('span');
-      type.className = 'gui-thead-type';
-      type.textContent = meta.typeName;
-      title.appendChild(type);
+    if (subheader !== undefined) {
+      const subheaderContainer = document.createElement('sl-tooltip');
+      const subheaderEl = document.createElement('span');
+      subheaderEl.className = 'gui-thead-subheader';
+      subheaderEl.textContent = subheader;
+      subheaderContainer.content = subheaderEl.textContent;
+      subheaderContainer.appendChild(subheaderEl);
+      title.appendChild(subheaderContainer);
     }
 
     this._title.replaceChildren(title);
@@ -1097,6 +989,8 @@ export class GuiTableHeadCell extends HTMLElement {
 export class GuiTableBody extends HTMLElement {
   rowHeight = -1;
   maxVirtualRows = 0;
+  filtered_rows: number[] = [];
+  virtual_rows: number[] = [];
   virtualScroller: HTMLDivElement;
 
   constructor() {
@@ -1113,20 +1007,17 @@ export class GuiTableBody extends HTMLElement {
     this.replaceChildren(this.virtualScroller);
   }
 
-  async computeRowHeight(row: Cell[], factories: CleanColumnFactories | undefined) {
+  async computeRowHeight(
+    table: core.Table,
+    ignoreCols: number[] | undefined,
+    factories: CleanColumnFactories | undefined,
+  ) {
     if (this.rowHeight <= 0) {
       // create a ghost row to compute the height
       const tmpRow = document.createElement('gui-tbody-row');
       this.appendChild(tmpRow);
-      await tmpRow.update(
-        0,
-        [150],
-        150,
-        this.virtualScroller.scrollWidth,
-        row,
-        DEFAULT_CELL_PROPS,
-        factories,
-      );
+      const calc = new WidthCalculator(1, table.cols.length, 150);
+      await tmpRow.update(table, ignoreCols, 0, calc, DEFAULT_CELL_PROPS, factories);
       this.rowHeight = tmpRow.offsetHeight;
       tmpRow.remove();
     }
@@ -1135,82 +1026,99 @@ export class GuiTableBody extends HTMLElement {
 
   async update(
     fromRowIdx: number,
-    colWidths: number[],
-    rows: Cell[][],
-    minColWidth: number,
+    table: core.Table,
+    ignoreCols: number[] | undefined,
+    filterText: string,
+    filterColumns: Array<string | undefined | null>,
+    wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
     updateCallback: RowUpdateCallback,
     factories?: CleanColumnFactories,
   ): Promise<void> {
-    if (this.rowHeight === -1 && rows.length > 0) {
-      await this.computeRowHeight(rows[0], factories);
+    const nb_rows = table.nbRows();
+    if (this.rowHeight === -1 && nb_rows > 0) {
+      await this.computeRowHeight(table, ignoreCols, factories);
     }
 
-    const extraRows = 5;
     // Make it `extraRows` more than the total height space divided by row height, so that we are sure that even
     // on scrolling up we won't see the background appear as there will always be "more rows" than displayable
     // in the scroll area. And of course, if the table already fits in the scroll area, we only display the
     // actual content without any extra row.
     //
     // We use `(value + 0.5) | 0` to get a speedy `Math.round(...)` equivalent
-    this.maxVirtualRows =
-      (Math.min(this.offsetHeight / this.rowHeight + extraRows, rows.length) + 0.5) | 0;
+    const maxVirtualRows = Math.ceil(this.offsetHeight / this.rowHeight);
+    this.maxVirtualRows = Math.min(maxVirtualRows, nb_rows);
 
     /** This is the max bound for rows */
-    const maxRowIdx = rows.length - 1;
+    const maxRowIdx = nb_rows - 1;
 
-    // If we are "reducing" the size of the table, we need to update those last rows rather than removing them
-    // altogether and recreating them on the next "scroll" update, the following line handles that.
-    // If "fromRowIdx" is greater than "maxRowIdx" it means we are "scrolled" more than we have rows to display
-    // therefore we need to update "fromRowIdx" to the maximum index - the max number of displayable rows
-    fromRowIdx = Math.max(0, Math.min(fromRowIdx, maxRowIdx - this.maxVirtualRows + 1));
-
-    // copy the current scroll width before removing the scroller
-    const availableWidth = this.virtualScroller.scrollWidth;
     // remove virtual scroller while updating
     this.virtualScroller.remove();
+
+    let total_unfiltered = 0;
+    this.virtual_rows.length = 0;
+    this.filtered_rows.length = nb_rows;
+    for (let i = 0; i < nb_rows; i++) {
+      if (total_unfiltered > maxRowIdx) {
+        break;
+      }
+      if (this._rowMatchesFilters(table, filterText, filterColumns, i, cellProps)) {
+        this.filtered_rows[i] = total_unfiltered;
+        total_unfiltered += 1;
+        this.virtual_rows.push(i);
+      } else {
+        this.filtered_rows[i] = -1;
+      }
+    }
+
+    const rowHeight = `${this.rowHeight}px`;
 
     // We want to render as many rows as possible in the "view", but no more than needed
     // Therefore, we iterate from `0` to `maxVirtualRows` so that we stop when going over
     // the maximum height of the virtual "view".
-    let rowIdx: number;
-    for (rowIdx = 0; rowIdx < this.maxVirtualRows; rowIdx++) {
+    let rendered = 0;
+    let filtered = 0;
+    for (let virtIndex = 0; virtIndex < this.maxVirtualRows + filtered; virtIndex++) {
       // Compute the target row index starting from the "first row in view" and adding the iteration step
-      const realIdx = fromRowIdx + rowIdx;
-      // If we are already at the end of the table rows, we should not render "ghost" rows, so we break
-      if (realIdx > maxRowIdx) {
+      const rowIdx = this.virtual_rows[fromRowIdx + virtIndex];
+      // If we are at the end of the table rows, we have nothing more to render, so we break
+      if (rowIdx === undefined || rowIdx > maxRowIdx) {
         break;
       }
-      const row = this._getOrCreateRow(rowIdx);
+      const viewIdx = this.filtered_rows[rowIdx];
+      if (viewIdx === -1) {
+        filtered += 1;
+        continue;
+      }
+      const rowEl = this._getOrCreateRow(rendered);
       // update the DOM row to reflect the new row's data
-      await row.update(
-        realIdx,
-        colWidths,
-        minColWidth,
-        availableWidth,
-        rows[realIdx],
-        cellProps,
-        factories,
-      );
+      await rowEl.update(table, ignoreCols, rowIdx, wCalc, cellProps, factories);
+      rowEl.style.height = rowHeight;
       // at the right position
-      row.style.height = `${this.rowHeight}px`;
-      row.style.top = `${realIdx * this.rowHeight}px`;
-      updateCallback(row, rows[realIdx], realIdx);
+      rowEl.style.top = `${viewIdx * this.rowHeight}px`;
+      if (viewIdx % 2 === 0) {
+        rowEl.classList.add('gui-tbody-row-even');
+      } else {
+        rowEl.classList.remove('gui-tbody-row-even');
+      }
+      updateCallback(rowEl, rowIdx);
+      rendered += 1;
     }
 
     // remove exceeding rows
-    this._removeExceedingRows(rowIdx - 1);
+    this._removeExceedingRows(rendered - 1);
 
-    // update virtual scroller height to reflect the number of rows
-    this.virtualScroller.style.height = `${this.rowHeight * rows.length}px`;
+    // update virtual scroller height to reflect the number of unfiltered rows
+    this.virtualScroller.style.height = `${total_unfiltered * this.rowHeight}px`;
+
     // and add it back to the DOM
     this.appendChild(this.virtualScroller);
   }
 
-  updateWidths(widths: number[]) {
+  updateWidths(wCalc: WidthCalculator) {
     this.childNodes.forEach((row) => {
       row.childNodes.forEach((cell, i) => {
-        (cell as HTMLElement).style.width = `${widths[i]}px`;
+        (cell as HTMLElement).style.width = `${wCalc.getWidth(i)}px`;
       });
     });
   }
@@ -1223,13 +1131,69 @@ export class GuiTableBody extends HTMLElement {
     }
   }
 
-  private _getOrCreateRow(index: number): GuiTableBodyRow {
-    let row = this.children[index] as GuiTableBodyRow | undefined;
-    if (!row) {
-      row = document.createElement('gui-tbody-row');
-      this.appendChild(row);
+  /**
+   * Compares each cells with the given `filterText` and `filterColumns`.
+   * Returns `true` for a match, `false` means no cell match.
+   */
+  private _rowMatchesFilters(
+    table: core.Table,
+    filterText: string,
+    filterColumns: Array<string | undefined | null>,
+    rowIdx: number,
+    cellProps: CellPropsFactory,
+  ): boolean {
+    const cells: string[] = new Array(table.cols.length);
+
+    for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
+      const colFilter = filterColumns[colIdx];
+      if (colFilter && colFilter.length > 0) {
+        if (typeof cellProps === 'function') {
+          cells[colIdx] = utils
+            .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
+            .toLowerCase();
+        } else {
+          cells[colIdx] = utils
+            .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
+            .toLowerCase();
+        }
+        if (!cells[colIdx].includes(colFilter)) {
+          return false;
+        }
+      }
     }
-    return row;
+
+    if (filterText.length === 0) {
+      return true;
+    }
+
+    for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
+      if (cells[colIdx] === undefined) {
+        if (typeof cellProps === 'function') {
+          cells[colIdx] = utils
+            .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
+            .toLowerCase();
+        } else {
+          cells[colIdx] = utils
+            .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
+            .toLowerCase();
+        }
+      }
+      if (cells[colIdx].includes(filterText)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  private _getOrCreateRow(index: number): GuiTableBodyRow {
+    if (this.children[index]) {
+      return this.children[index] as GuiTableBodyRow;
+    }
+
+    const newRow = document.createElement('gui-tbody-row');
+    this.appendChild(newRow);
+    return newRow;
   }
 
   private _removeExceedingRows(fromIndex: number): void {
@@ -1255,50 +1219,58 @@ export class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
   async update(
-    index: number,
-    colWidths: number[],
-    minColWidth: number,
-    availableWidth: number,
-    row: Cell[],
+    table: core.Table,
+    ignoreCols: number[] | undefined,
+    rowIdx: number,
+    wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
     factories?: CleanColumnFactories,
   ): Promise<void> {
-    this.idx = row[0].originalIndex;
-    this.setAttribute('data-row', `${index}`);
+    this.idx = rowIdx;
+    this.setAttribute('data-row', `${rowIdx}`);
     let colIdx: number;
-    let takenWidth = 0;
-    for (colIdx = 0; colIdx < row.length; colIdx++) {
-      const cell = this._getOrCreateCell(colIdx);
-      let colWidth: number;
-      if (colWidths[colIdx]) {
-        colWidth = colWidths[colIdx];
-      } else {
-        colWidth = Math.max((availableWidth - takenWidth) / (row.length - colIdx), minColWidth);
+    for (colIdx = 0; colIdx < table.cols.length; colIdx++) {
+      if (ignoreCols?.includes(colIdx)) {
+        continue;
       }
+      const cell = this._getOrCreateCell(table, colIdx);
       // SAFETY:
       // `originalColIndex` is optional for backward-compatibility reason, which means
       // it is safe to assert it as a 'number' here
       await cell.update(
-        factories?.[row[colIdx].originalColIndex as number],
-        index,
+        table,
+        rowIdx,
         colIdx,
-        row,
         cellProps,
-        colWidth,
+        wCalc.getWidth(rowIdx),
+        factories?.[colIdx],
       );
-      takenWidth += colWidth;
     }
 
     // remove exceeding cells
     this._removeExceedingCells(colIdx - 1);
   }
 
-  private _getOrCreateCell(index: number): GuiTableBodyCell {
-    let cell = this.children[index] as GuiTableBodyCell | undefined;
-    if (!cell) {
-      cell = document.createElement('gui-tbody-cell');
-      this.appendChild(cell);
+  cell(index: number) {
+    return this.children[index] as GuiTableBodyCell;
+  }
+
+  private _getOrCreateCell(table: core.Table, index: number): GuiTableBodyCell {
+    if (this.children[index]) {
+      return this.children[index] as GuiTableBodyCell;
     }
+    const cell = document.createElement('gui-tbody-cell');
+    cell.addEventListener('gui-input', (ev) => {
+      ev.stopPropagation();
+      table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
+      this.dispatchEvent(new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+    });
+    cell.addEventListener('gui-change', (ev) => {
+      ev.stopPropagation();
+      table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
+      this.dispatchEvent(new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+    });
+    this.appendChild(cell);
     return cell;
   }
 
@@ -1313,12 +1285,19 @@ export class GuiTableBodyRow extends HTMLElement {
       cell.nextSibling.remove();
     }
   }
+
+  get value() {
+    const values = new Array(this.children.length);
+    this.childNodes.forEach((child, i) => {
+      values[i] = (child as GuiTableBodyCell).value?.value;
+    });
+    return values;
+  }
 }
 
 export class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
-  data: Cell[] = [];
   value: GuiValueElement;
 
   constructor() {
@@ -1336,26 +1315,17 @@ export class GuiTableBodyCell extends HTMLElement {
    * What this implies is that some of the elements are lit-powered and therefore they are asynchronously
    * updated. So we have to make this a promise, so that the underlying elements get a chance to actually
    * render and we get proper height reporting post-update.
-   *
-   * @param factory
-   * @param index
-   * @param colIdx
-   * @param row
-   * @param cellProps
-   * @param colWidth
-   * @returns
    */
   async update(
-    factory: ColumnFactory | undefined,
-    index: number,
+    table: core.Table,
+    rowIdx: number,
     colIdx: number,
-    row: Cell[],
     cellProps: CellPropsFactory,
     colWidth: number,
+    factory: ColumnFactory | undefined,
   ): Promise<void> {
-    this.rowIdx = index;
+    this.rowIdx = rowIdx;
     this.colIdx = colIdx;
-    this.data = row;
     this.setAttribute('data-col', `${colIdx}`);
     if (factory) {
       if (this.value.tagName !== factory.tag.toUpperCase()) {
@@ -1365,24 +1335,34 @@ export class GuiTableBodyCell extends HTMLElement {
       }
       if (this.value instanceof GuiValue) {
         if (typeof cellProps === 'function') {
-          this.value.setAttrs({
-            ...cellProps(row, row[colIdx].value, index, colIdx),
+          const attrs = {
+            ...cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx),
             ...factory.props,
-          });
+          };
+          this.value.setAttrs(attrs);
         } else {
-          this.value.setAttrs({ ...cellProps, ...factory.props, value: row[colIdx].value });
+          const attrs = {
+            ...cellProps,
+            ...factory.props,
+            value: table.cols[colIdx][rowIdx],
+          };
+          this.value.setAttrs(attrs);
         }
       } else if ('setAttrs' in this.value && typeof this.value.setAttrs === 'function') {
-        this.value.setAttrs({ ...factory.props, value: row[colIdx].value });
+        const attrs = { ...factory.props, value: table.cols[colIdx][rowIdx] };
+        this.value.setAttrs(attrs);
       } else {
-        Object.assign(this.value, { ...factory.props, value: row[colIdx].value });
+        const source = { ...factory.props, value: table.cols[colIdx][rowIdx] };
+        Object.assign(this.value, source);
       }
     } else {
       if (this.value instanceof GuiValue) {
         if (typeof cellProps === 'function') {
-          this.value.setAttrs(cellProps(row, row[colIdx].value, index, colIdx));
+          const attrs = cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx);
+          this.value.setAttrs(attrs);
         } else {
-          this.value.setAttrs({ ...cellProps, value: row[colIdx].value });
+          const attrs = { ...cellProps, value: table.cols[colIdx][rowIdx] };
+          this.value.setAttrs(attrs);
         }
       }
     }
@@ -1398,7 +1378,7 @@ export interface GuiValueElement<T = unknown> extends HTMLElement {
   value: T;
 }
 
-export type SortOrd = 'asc' | 'desc' | 'default';
+type SortOrd = 'asc' | 'desc' | 'default';
 
 /**
  * Sorting state machine.
@@ -1418,23 +1398,32 @@ export class SortCol {
     this._ord = 'default';
   }
 
-  sortBy(index: number, ord?: SortOrd): void {
+  /**
+   * Returns `true` when the table needs to be resorted.
+   */
+  sortBy(index: number, ord?: SortOrd): boolean {
     if (this._index === index) {
       if (ord) {
-        this._ord = ord;
-      } else {
-        if (this._ord === 'default') {
-          this._ord = 'asc';
-        } else if (this._ord === 'asc') {
-          this._ord = 'desc';
-        } else {
-          this._ord = 'default';
+        if (this._ord !== ord) {
+          this._ord = ord;
+          return true;
         }
+        return false;
       }
-    } else {
-      this._index = index;
-      this._ord = ord ?? 'asc';
+      if (this._ord === 'default') {
+        this._ord = 'asc';
+        return true;
+      }
+      if (this._ord === 'asc') {
+        this._ord = 'desc';
+        return true;
+      }
+      this._ord = 'asc';
+      return true;
     }
+    this._index = index;
+    this._ord = ord ?? 'asc';
+    return true;
   }
 
   get index() {
@@ -1445,6 +1434,97 @@ export class SortCol {
     return this._ord;
   }
 }
+
+class WidthCalculator {
+  private _widths: Array<number | undefined>;
+  private _width: number;
+
+  constructor(
+    private _available: number,
+    private _nb_cols: number,
+    private _min_width: number,
+  ) {
+    this._widths = new Array(_nb_cols);
+    this._width = Math.max(_min_width, _available / _nb_cols);
+  }
+
+  reset(): void {
+    this._widths.length = 0;
+    this.update();
+  }
+
+  getMinWidth(): number {
+    return this._min_width;
+  }
+
+  setMinWidth(width: number) {
+    if (this._min_width === width) {
+      return;
+    }
+    this._min_width = width;
+  }
+
+  getWidths(): Array<number | undefined> {
+    return this._widths;
+  }
+
+  setWidths(widths: Array<number | undefined>) {
+    this._widths.length = this._nb_cols;
+    for (let i = 0; i < this._nb_cols; i++) {
+      const w = widths[i];
+      this._widths[i] = w === undefined || isNaN(w) ? undefined : Math.max(this._min_width, w);
+    }
+  }
+
+  setNbCols(n: number) {
+    if (this._nb_cols === n) {
+      return;
+    }
+    this._nb_cols = n;
+  }
+
+  getAvailable(): number {
+    return this._available;
+  }
+
+  setAvailable(width: number) {
+    if (this._available === width) {
+      return;
+    }
+    this._available = width;
+  }
+
+  setWidth(index: number, width: number) {
+    if (index >= this._nb_cols || this._widths[index] === width) {
+      return;
+    }
+    this._widths[index] = Math.max(this._min_width, width);
+  }
+
+  getWidth(index: number): number {
+    return this._widths[index] ?? this._width;
+  }
+
+  update(): void {
+    let incompressible = 0;
+    let nb_cols = 0;
+    for (let i = 0; i < this._nb_cols; i++) {
+      const defined = this._widths[i];
+      if (defined !== undefined) {
+        incompressible += defined;
+      } else {
+        nb_cols += 1;
+      }
+    }
+    const available = this._available - incompressible;
+    this._width = Math.max(this._min_width, Math.floor(available / nb_cols));
+  }
+}
+
+export class GuiTableClickEvent extends GuiClickEvent<GuiTableClickDetail> {}
+export class GuiTableDblClickEvent extends GuiDblClickEvent<GuiTableClickDetail> {}
+export class GuiTableInputEvent extends GuiInputEvent<{ rowIdx: number; colIdx: number }> {}
+export class GuiTableChangeEvent extends GuiChangeEvent<{ rowIdx: number; colIdx: number }> {}
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -1457,15 +1537,20 @@ declare global {
   }
 
   interface GuiTableHeadCellEventMap {
-    'table-sort': TableSortEvent;
-    'table-resize-col': TableResizeColEvent;
-    'table-filter-column': TableFilterColumnEvent;
+    [GuiTableSortEvent.NAME]: GuiTableSortEvent;
+    [GuiTableResizeColEvent.NAME]: GuiTableResizeColEvent;
+    [GuiTableFilterColumnEvent.NAME]: GuiTableFilterColumnEvent;
+  }
+
+  interface GuiTableEventMap {
+    [GuiInputEvent.NAME]: GuiTableInputEvent;
+    [GuiChangeEvent.NAME]: GuiTableChangeEvent;
+    [GuiClickEvent.NAME]: GuiTableClickEvent;
+    [GuiDblClickEvent.NAME]: GuiTableDblClickEvent;
   }
 
   interface GuiTableEventMap extends GuiTableHeadCellEventMap {
-    'table-filter': TableFilterEvent;
-    'table-click': TableClickEvent;
-    'table-dblclick': TableDblClickEvent;
+    'table-filter': GuiTableFilterEvent;
   }
 
   interface HTMLElementEventMap extends GuiTableEventMap {}

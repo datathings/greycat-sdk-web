@@ -1,4 +1,4 @@
-import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache } from '@greycat/web';
+import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache, sl } from '@greycat/web';
 import '@/common';
 import './index.css';
 
@@ -52,19 +52,20 @@ const heatmap = (
 
 document.body.appendChild(
   <app-layout title="Heatmap">
-    <fieldset slot="action" role="group">
-      <label>Tooltip position</label>
-      <select
-        onchange={(ev) => {
-          heatmap.config.tooltip = {
-            position: (ev.target as HTMLSelectElement).value as 'follow' | 'in-place',
-          };
-        }}
-      >
-        <option value="follow">follow</option>
-        <option value="in-place">in-place</option>
-      </select>
-    </fieldset>
+    <sl-select
+      slot="action"
+      className="label-on-left"
+      label="Tooltip position"
+      hoist
+      value={heatmap.config.tooltip?.position}
+      onsl-change={function (this: sl.SlSelect) {
+        heatmap.config.tooltip = { position: this.value as 'follow' | 'in-place' };
+        heatmap.update();
+      }}
+    >
+      <sl-option value="follow">follow</sl-option>
+      <sl-option value="in-place">in-place</sl-option>
+    </sl-select>
     {heatmap}
   </app-layout>,
 );

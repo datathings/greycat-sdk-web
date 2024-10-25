@@ -1,5 +1,5 @@
-import { std } from '../../exports.js';
-import { TableLikeRowBased, registerCustomElement } from '../common.js';
+import { core, std } from '../../exports.js';
+import { registerCustomElement } from '../common.js';
 import '../table/table.js'; // ensure gui-table is defined
 import type { GuiTable } from '../table/table.js';
 import '../user-form/user-form.js'; // ensure gui-user-form is defined
@@ -14,7 +14,6 @@ type GroupItem = {
 };
 
 export class GuiUsers extends HTMLElement {
-  private _rows: TableLikeRowBased;
   private _table: GuiTable;
   private _dialog: SlDialog;
   private _userForm: GuiUserForm;
@@ -22,16 +21,11 @@ export class GuiUsers extends HTMLElement {
   constructor() {
     super();
 
-    this._rows = {
-      rows: [],
-      meta: ['Id', 'Name', 'Full Name', 'Email', 'Role', 'Activated', 'External', 'Groups'],
-    };
-
     this._table = document.createElement('gui-table');
     this._table.setAttrs({
-      value: this._rows,
+      headers: ['Id', 'Name', 'Full Name', 'Email', 'Role', 'Activated', 'External', 'Groups'],
       sortBy: [0, 'asc'],
-      columnsWidths: [80, undefined!, undefined!, undefined!, 150, 130, 120],
+      columnsWidths: [80, undefined, undefined, undefined, 150, 130, 120],
       globalFilter: true,
       globalFilterPlaceholder: 'Filter the users',
       columnFactories: {
@@ -41,15 +35,15 @@ export class GuiUsers extends HTMLElement {
 
     this._userForm = document.createElement('gui-user-form');
 
-    this._table.addEventListener('table-click', (ev) => {
-      const user_id = ev.detail.row[0].value as number | bigint;
-      const name = ev.detail.row[1].value as string;
-      const full_name = ev.detail.row[2].value as string;
-      const email = ev.detail.row[3].value as string;
-      const user_role = ev.detail.row[4].value as string;
-      const activated = ev.detail.row[5].value as boolean;
-      const external = ev.detail.row[6].value as boolean;
-      const groups = ev.detail.row[7].value as GroupItem[];
+    this._table.addEventListener('gui-click', (ev) => {
+      const user_id = this._table.table.cols[0][ev.detail.rowIdx] as number | bigint;
+      const name = this._table.table.cols[1][ev.detail.rowIdx] as string;
+      const full_name = this._table.table.cols[2][ev.detail.rowIdx] as string;
+      const email = this._table.table.cols[3][ev.detail.rowIdx] as string;
+      const user_role = this._table.table.cols[4][ev.detail.rowIdx] as string;
+      const activated = this._table.table.cols[5][ev.detail.rowIdx] as boolean;
+      const external = this._table.table.cols[6][ev.detail.rowIdx] as boolean;
+      const groups = this._table.table.cols[7][ev.detail.rowIdx] as GroupItem[];
 
       const user = std.runtime.User.create(
         user_id,
@@ -106,11 +100,7 @@ export class GuiUsers extends HTMLElement {
       await this._userForm.updateRoles();
       this._userForm.groups = groups;
 
-      if (this._rows.rows) {
-        this._rows.rows.length = 0;
-      } else {
-        this._rows.rows = [];
-      }
+      const rows: Array<Array<unknown>> = new Array(users.length);
 
       for (let i = 0; i < users.length; i++) {
         const user = users[i];
@@ -125,7 +115,8 @@ export class GuiUsers extends HTMLElement {
             }
           }
         }
-        this._rows.rows[i] = [
+
+        rows[i] = [
           user.id,
           user.name,
           user.full_name ?? '',
@@ -137,8 +128,7 @@ export class GuiUsers extends HTMLElement {
         ];
       }
 
-      this._table.compute();
-      this._table.update();
+      this._table.value = core.Table.fromRows(rows);
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::SecurityEntity::all'`, err);
     }

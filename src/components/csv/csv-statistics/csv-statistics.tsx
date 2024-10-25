@@ -1,4 +1,4 @@
-import { std } from '../../../exports.js';
+import { core, std } from '../../../exports.js';
 import '../../table/index.js'; // ensures table is defined
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;
@@ -289,10 +289,8 @@ export class GuiCsvStatistics extends HTMLElement {
           <gui-panel data-tab="Enumerable Count">
             <gui-table
               globalFilter
-              value={{
-                cols: [words, counts],
-                meta: [{ header: `Word (${wTotal})` }, { header: `Count (${cTotal})` }],
-              }}
+              headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
+              value={core.Table.create([words, counts])}
             />
           </gui-panel>
           <gui-panel data-tab="Enumerable Count (Donut)">

@@ -197,7 +197,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     };
   }
 
-  deconnectedCallback() {
+  disconnectedCallback() {
     this._disposeClickHandler?.();
     this.replaceChildren();
   }

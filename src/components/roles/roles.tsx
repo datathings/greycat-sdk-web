@@ -1,6 +1,5 @@
 import type { SlDialog } from '@shoelace-style/shoelace';
-import { std } from '../../exports.js';
-import type { TableLikeRowBased } from '../common.js';
+import { core, std } from '../../exports.js';
 import '../table/table.js'; // makes sure gui-table is available
 import type { GuiTable } from '../table/table.js';
 import './role-permissions.js';
@@ -8,7 +7,6 @@ import type { GuiRoleForm } from './role-form.js';
 import './role-form.js';
 
 export class GuiRoles extends HTMLElement {
-  private _rows: TableLikeRowBased;
   private _table: GuiTable;
   private _dialog: SlDialog;
   private _form: GuiRoleForm;
@@ -16,33 +14,26 @@ export class GuiRoles extends HTMLElement {
   constructor() {
     super();
 
-    this._rows = {
-      rows: [],
-      meta: ['Name', 'Permissions'],
-    };
-
-    this._table = document.createElement('gui-table');
-    this._table.setAttrs({
-      value: this._rows,
-      sortBy: [0, 'asc'],
-      columnsWidths: [200],
-      globalFilter: true,
-      globalFilterPlaceholder: 'Filter by name or permissions',
-      columnFactories: {
-        1: 'gui-role-permissions',
-      },
-    });
-
-    this._table.addEventListener('table-click', (ev) => {
-      const name = ev.detail.row[0].value as string;
-      const permissions = ev.detail.row[1].value as string[];
-
-      const role = std.runtime.UserRole.create(name, permissions);
-      this._onEdit(role);
-    });
+    this._table = (
+      <gui-table
+        headers={['Name', 'Permissions']}
+        sortBy={[0, 'asc']}
+        columnWidths={[200]}
+        globalFilter
+        globalFilterPlaceholder="Filter by name or permissions"
+        columnFactories={{
+          1: 'gui-role-permissions',
+        }}
+        ongui-click={(ev) => {
+          const name = this._table.table.cols[0][ev.detail.rowIdx] as string;
+          const permissions = this._table.table.cols[1][ev.detail.rowIdx] as string[];
+          const role = std.runtime.UserRole.create(name, permissions);
+          this._onEdit(role);
+        }}
+      />
+    ) as GuiTable;
 
     this._dialog = document.createElement('sl-dialog');
-
     this._form = document.createElement('gui-role-form');
   }
 
@@ -72,19 +63,14 @@ export class GuiRoles extends HTMLElement {
       const roles = await std.runtime.UserRole.all();
       this._form.permissions = await std.runtime.SecurityPolicy.permissions();
 
-      if (this._rows.rows) {
-        this._rows.rows.length = 0;
-      } else {
-        this._rows.rows = [];
-      }
+      const rows: Array<[string, string[]]> = new Array(roles.length);
 
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i];
-        this._rows.rows[i] = [role.name, role.permissions];
+        rows[i] = [role.name, role.permissions];
       }
 
-      this._table.compute();
-      this._table.update();
+      this._table.value = core.Table.fromRows(rows);
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::UserRole::all'`, err);
     }

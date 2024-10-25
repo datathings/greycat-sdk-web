@@ -1,10 +1,11 @@
 import '@/common';
 import { GreyCat, IndexedDbCache } from '@greycat/web';
-import { actions } from './actions';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
+
+const { actions } = await import('./actions');
 
 document.body.appendChild(
   <app-layout title="Table (row-based)" mainStyle={{ display: 'flex', gap: 'var(--spacing)' }}>
@@ -16,8 +17,8 @@ document.body.appendChild(
           ['Michel', 42, 4],
           ['Max', 35, 0],
         ],
-        meta: ['Name', { header: 'Age' }, 'Children'],
       }}
+      headers={['Name', 'Age', 'Children']}
     />
   </app-layout>,
 );

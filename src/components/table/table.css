@@ -1,5 +1,5 @@
 gui-table {
-  --icon-sort-default: ↕;
+  --icon-sort-default: unset;
   --icon-sort-asc: ↓;
   --icon-sort-desc: ↑;
   --table-background-color: var(--bg-1);
@@ -9,6 +9,7 @@ gui-table {
   overflow: hidden;
   height: 100%;
   width: 100%;
+  background-color: var(--table-background-color);
 }
 
 gui-table .gui-table-filter {
@@ -39,23 +40,25 @@ gui-table .gui-table {
   position: sticky;
   top: 0;
   display: flex;
-  width: 100%;
-  min-width: fit-content;
   z-index: 1;
   opacity: 1;
-  background-color: rgb(var(--base-0));
-  border-bottom: 1px solid rgb(var(--base-2));
 }
 .gui-table gui-thead.gui-table-resizing > * {
   cursor: ew-resize !important;
   background-color: rgb(var(--base-0)) !important;
 }
-.gui-table gui-thead .gui-thead-type {
+.gui-table gui-thead .gui-thead-subheader {
   color: var(--muted-color);
 }
 .gui-table gui-thead gui-thead-cell {
   --resizer-width: 3px;
   position: relative;
+  flex-shrink: 0;
+  background-color: rgb(var(--base-0));
+  border-bottom: 1px solid rgb(var(--base-2));
+}
+.gui-table gui-thead gui-thead-cell:has(.gui-thead-dropdown.open) {
+  border-bottom: 0;
 }
 .gui-table gui-thead gui-thead-cell .gui-thead {
   display: flex;
@@ -63,12 +66,11 @@ gui-table .gui-table {
   gap: var(--spacing);
   cursor: pointer;
   user-select: none;
-  width: calc(100% - var(--resizer-width));
   padding-left: var(--spacing);
   padding-right: var(--spacing);
 }
 .gui-table gui-thead gui-thead-cell:hover {
-  background-color: rgba(var(--base-1), 0.8);
+  background-color: var(--bg-1);
 }
 .gui-table gui-thead gui-thead-cell.active .gui-thead-sorter,
 .gui-table gui-thead gui-thead-cell.active .gui-thead-title {
@@ -84,11 +86,11 @@ gui-table .gui-table {
 .gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header {
   flex-shrink: 1; /* we want the header to ellipse but as last resort */
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-subheader {
   flex-shrink: 10000; /* we really want the type to ellipse prior to the header */
 }
 .gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header,
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-type {
+.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-subheader {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
@@ -113,6 +115,9 @@ gui-table .gui-table {
   height: 100%;
   cursor: ew-resize;
 }
+.gui-table gui-thead gui-thead-cell:last-child .gui-thead-resizer {
+  visibility: hidden;
+}
 .gui-table gui-thead gui-thead-cell .gui-thead-filter {
   display: block;
   width: 20px;
@@ -130,7 +135,6 @@ gui-table .gui-table {
 }
 .gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
   display: none;
-  /* padding: calc(var(--spacing) * 0.5); */
   z-index: 10;
   width: 100%;
 }
@@ -156,16 +160,12 @@ gui-table .gui-table {
   position: absolute;
   align-items: center;
   width: 100%;
-  min-width: fit-content;
-  background-color: var(--table-background-color);
-  display: grid;
-  grid-auto-flow: column;
-  grid-auto-columns: minmax(min-content, auto);
+  display: flex;
 }
 .gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.8);
 }
-.gui-table gui-tbody gui-tbody-row:nth-child(even):not(:hover) gui-tbody-cell {
+.gui-table gui-tbody gui-tbody-row.gui-tbody-row-even:not(:hover) gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.3);
 }
 .gui-table gui-tbody gui-tbody-row gui-tbody-cell {
@@ -173,6 +173,7 @@ gui-table .gui-table {
   align-items: center;
   height: 100%;
   width: 100%;
+  flex-shrink: 0;
   border-bottom: 1px solid rgb(var(--base-1));
   overflow: auto;
 }
@@ -186,7 +187,7 @@ gui-tbody-cell > *:first-child {
 }
 
 /* Special-case for gui-object within gui-table cells */
-gui-tbody-cell > gui-object  {
+gui-tbody-cell > gui-object {
   align-self: flex-start;
 }
 

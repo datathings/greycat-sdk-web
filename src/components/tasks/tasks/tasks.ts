@@ -34,10 +34,9 @@ export class GuiTasks extends HTMLElement {
     const tmp: CellProps = { value: null }; // re-use the same object for each cell rendering to ease gc
     this.table.setAttrs({
       headers: GuiTasks.HEADERS as unknown as string[],
-      value: { rows: [] },
       sortBy: [0, 'desc'],
       columnsWidths: [100, 150, 350, NaN, NaN, NaN, NaN, 110, NaN],
-      cellProps: (_row, value, _r, c) => {
+      cellProps: (value, _r, c) => {
         tmp.data = undefined;
         tmp.linkify = undefined;
         tmp.name = undefined;
@@ -65,10 +64,9 @@ export class GuiTasks extends HTMLElement {
         return tmp;
       },
     });
-    this.table.addEventListener('table-click', (ev) => {
+    this.table.addEventListener('gui-click', (ev) => {
       ev.stopPropagation();
-      const task_id = ev.detail.row[0].value as number;
-      console.log('clicked task', task_id);
+      const task_id = this.table.table.cols[0][ev.detail.rowIdx];
       const task = this._tasks.find((t) => t.task_id === task_id);
       if (task) {
         if (this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(task))) {

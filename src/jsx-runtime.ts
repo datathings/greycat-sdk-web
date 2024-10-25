@@ -22,92 +22,98 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
   }
 
   const element = document.createElement(tagName);
-
   if ('setAttrs' in element && typeof element.setAttrs === 'function') {
-    // this is an internal optimisation for component that do define a one-off
-    // 'setAttrs' update method. Rather than calling each 'setter' ie. `element[name] = props[name]`
-    // those component can batch update in one method call.
-    element.setAttrs(props);
-    // deal with event handlers separatly
-    const keys = Object.keys(props);
-    for (let i = 0; i < keys.length; i++) {
-      const key = keys[i];
+    // This is an optimisation for components that define a 'setAttrs' method.
+    // Rather than calling every 'setter' sequentially
+    //   ie. `element[prop1] = props[prop1]`
+    // we only call `setAttrs(props)` once and the component can batch update itself.
+    setElementAttrs(element as unknown as GuiElement, props);
+  } else {
+    for (const key in props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const value = (props as any)[key];
-      if (key.startsWith('on') && typeof value === 'function') {
-        element.addEventListener(key.substring(2), value as EventListener);
-      } else if (key === 'className') {
-        if (Array.isArray(value)) {
-          element.classList.add(...value);
-        } else if (typeof value === 'string') {
-          element.classList.add(value);
-        } else {
-          for (const className in value) {
-            if (value[className]) {
-              element.classList.add(className);
-            } else {
-              element.classList.remove(className);
-            }
-          }
-        }
-      } else if (key === 'style') {
-        if (typeof value === 'string') {
-          element.style.cssText = value;
-        } else {
-          Object.assign(element.style, value);
-        }
-      } else if (key === 'slot') {
-        if (typeof value === 'string') {
-          element.slot = value;
-        }
-      }
+      applyProp(element as unknown as GuiElement, key, (props as any)[key]);
     }
-    return element;
   }
 
-  const keys = Object.keys(props);
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i];
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const value = (props as any)[key] as any;
+  return element;
+}
 
-    if (value === undefined || value === null) {
-      continue;
-    }
+interface GuiElement extends HTMLElement {
+  setAttrs(props: { [k: string]: unknown }): void;
+  addEventListener(key: string, handler: EventListener): void;
+  setAttribute(key: string, value: unknown): void;
+}
 
-    switch (key) {
-      case 'className':
-        if (Array.isArray(value)) {
-          element.classList.add(...value);
-        } else if (typeof value === 'string') {
+function setElementAttrs(element: GuiElement, props: { [k: string]: unknown }) {
+  element.setAttrs(props);
+  // deal with event handlers separatly
+  for (const key in props) {
+    applyProp(element, key, props[key], true);
+  }
+}
+
+function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly = false) {
+  if (value === undefined || value === null) {
+    return;
+  }
+
+  switch (key) {
+    case 'className': {
+      switch (typeof value) {
+        case 'string': {
           element.classList.add(value);
-        } else {
-          for (const className in value) {
-            if (value[className]) {
-              element.classList.add(className);
-            } else {
-              element.classList.remove(className);
+          break;
+        }
+        case 'object': {
+          if (Array.isArray(value)) {
+            element.classList.add(...value);
+          } else if (value !== null) {
+            for (const className in value) {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              if ((value as any)[className]) {
+                element.classList.add(className);
+              } else {
+                element.classList.remove(className);
+              }
             }
           }
+          break;
         }
-        break;
+        default:
+          // unsupported
+          break;
+      }
+      break;
+    }
 
-      case 'children':
-        appendChild(element, value);
-        break;
+    case 'children': {
+      appendChild(element, value);
+      break;
+    }
 
-      case 'style':
-        if (typeof value === 'string') {
-          element.style.cssText = value;
-        } else {
-          Object.assign(element.style, value);
+    case 'style': {
+      if (typeof value === 'string') {
+        element.style.cssText = value;
+      } else {
+        Object.assign(element.style, value);
+      }
+      break;
+    }
+
+    case 'slot': {
+      if (typeof value === 'string') {
+        element.slot = value;
+      }
+      break;
+    }
+
+    default: {
+      if (key.startsWith('on')) {
+        if (typeof value === 'function') {
+          element.addEventListener(key.substring(2), value as EventListener);
         }
-        break;
-
-      default:
-        if (key.startsWith('on')) {
-          element.addEventListener(key.substring(2), value);
-        } else if (key in element) {
+      } else if (!eventsOnly) {
+        if (key in element) {
           // safety: we just validated that 'key' was a property in 'element'
           // therefore we can, at least, set it
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -115,10 +121,10 @@ export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLEle
         } else {
           element.setAttribute(key, value);
         }
+      }
+      break;
     }
   }
-
-  return element;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

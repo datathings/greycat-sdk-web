@@ -1,18 +1,22 @@
-import { GreyCat, IndexedDbCache, $ } from '@greycat/web';
+import { GreyCat, IndexedDbCache, $, core } from '@greycat/web';
 import '@/common';
-import { actions } from './actions';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
+const { actions } = await import('./actions');
+
+const table = await $.default.call<core.Table>('project::table');
+console.log(table);
+
 document.body.appendChild(
   <app-layout title="Table">
     {actions}
     <gui-table
-      value={await $.default.call('project::table')}
+      value={table}
       onrowupdate={(el, row) => {
-        const klass = row[2].value as string;
+        const klass = table.cols[2][row] as string;
         switch (klass) {
           case 'low':
             (el.children[1] as HTMLElement).style.color = 'cyan';
@@ -23,14 +27,14 @@ document.body.appendChild(
           case 'high':
             (el.children[1] as HTMLElement).style.color = 'orange';
             break;
+          default:
+            (el.children[1] as HTMLElement).style.color = 'unset';
+            break;
         }
       }}
-      ontable-dblclick={(ev) => {
-        window.alert(
-          `Col ${ev.detail.colIdx}, Row ${ev.detail.rowIdx}, Value "${
-            ev.detail.row[ev.detail.colIdx].value
-          }"`,
-        );
+      ongui-dblclick={(ev) => {
+        const { rowIdx, colIdx } = ev.detail;
+        window.alert(`Col ${colIdx}, Row ${rowIdx}, Value "${table.cols[colIdx][rowIdx]}"`);
       }}
       globalFilter
     />

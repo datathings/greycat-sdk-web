@@ -4,11 +4,12 @@ import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
 import { $, GCEnum, GreyCat, GuiValueElement, IndexedDbCache, TableLike } from '@greycat/web';
 import '@/common';
-import { actions } from './actions';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
+
+const { actions } = await import('./actions');
 
 export class AppConfidence extends HTMLElement implements GuiValueElement<GCEnum> {
   private static HIGH: SVGSVGElement;
@@ -100,7 +101,7 @@ document.body.appendChild(
       }}
       rowHeight={30}
       style={{ backgroundColor: 'var(--bg-1)' }}
-      ontable-click={(ev) => {
+      ongui-click={(ev) => {
         console.log(ev.detail);
       }}
     />

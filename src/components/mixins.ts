@@ -1,5 +1,9 @@
 import { debounce } from '../internals.js';
-import { GuiElement } from './common.js';
+
+abstract class WebComponent extends HTMLElement {
+  connectedCallback(): void | Promise<void> {}
+  disconnectedCallback(): void | Promise<void> {}
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
 type Constructor<T = {}> = new (...args: any[]) => T;
@@ -16,7 +20,7 @@ export interface Resizable {
  * @param debounceDelay debounce delay to apply to each resize event. Defaults to 200ms.
  * @returns
  */
-export function Resizable<T extends Constructor<GuiElement>>(superClass: T, debounceDelay = 200) {
+export function Resizable<T extends Constructor<WebComponent>>(superClass: T, debounceDelay = 200) {
   class ResizableMixin extends superClass implements Resizable {
     protected _observer = new ResizeObserver(
       debounce((entries: ResizeObserverEntry[]) => {

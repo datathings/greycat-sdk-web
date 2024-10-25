@@ -1,12 +1,20 @@
 import * as d3 from 'd3';
 
 import { debounce } from '../../internals.js';
-import { getColors } from '../../utils.js';
-import { CanvasContext } from '../chart/ctx.js';
-import { Cursor } from '../chart/types.js';
-import { Disposer, TableLike, TableLikeColumnBased, toColumnBasedTable } from '../common.js';
-import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
+import {
+  core,
+  Disposer,
+  TableLike,
+  Cursor,
+  CanvasContext,
+  getColors,
+  HeatmapConfig,
+  HeatmapData,
+  HeatmapStyle,
+  convertToTable,
+} from '../../exports.js';
 import './tooltip.js';
+import { GuiHeatmapTooltip } from './tooltip.js';
 
 type ColorYScale =
   | d3.ScaleLinear<number, number, never>
@@ -24,11 +32,13 @@ type ComputedState = {
   colorScaleXRange: number[];
   xLabels: string[];
   yLabels: string[];
+  xPadding: number;
+  yPadding: number;
 };
 
 export class GuiHeatmap extends HTMLElement {
   private _disposer: Disposer;
-  private _table: TableLikeColumnBased;
+  private _table: core.Table;
   private _config: HeatmapConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -53,7 +63,7 @@ export class GuiHeatmap extends HTMLElement {
   private readonly _uxCanvas: HTMLCanvasElement;
   private readonly _uxCtx: CanvasContext;
 
-  private readonly _tooltip = document.createElement('gui-heatmap-tooltip');
+  private readonly _tooltip: GuiHeatmapTooltip;
 
   private _computed: ComputedState | undefined;
 
@@ -74,7 +84,7 @@ export class GuiHeatmap extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._table = {};
+    this._table = core.Table.create();
     this._config = { xAxis: {}, yAxis: {} };
 
     // main canvas
@@ -102,7 +112,7 @@ export class GuiHeatmap extends HTMLElement {
     this._colorScaleYAxisGroup = this._svg.append('g');
 
     // tooltip
-    this._tooltip.style.position = 'absolute';
+    this._tooltip = document.createElement('gui-heatmap-tooltip');
 
     this.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
@@ -130,13 +140,20 @@ export class GuiHeatmap extends HTMLElement {
     document.addEventListener(
       'mousemove',
       (event) => {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        const x = Math.round(event.pageX - (left + window.scrollX));
-        const y = Math.round(event.pageY - (top + window.scrollY));
-        if (this._cursor.x !== x || this._cursor.y !== y) {
+        if (event.target !== this._uxCanvas && event.target !== this._tooltip) {
+          return;
+        }
+        const container = this._canvas.getBoundingClientRect();
+        const x = Math.round(event.clientX - container.left);
+        const y = Math.round(event.clientY - container.top);
+
+        // check if the cursor is inside the container boundaries
+        if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
           this._cursor.x = x;
           this._cursor.y = y;
-          this._updateUX();
+        } else {
+          this._cursor.x = -1;
+          this._cursor.y = -1;
         }
       },
       { signal: this._disposer.signal },
@@ -210,7 +227,7 @@ export class GuiHeatmap extends HTMLElement {
   }
 
   set value(table: TableLike) {
-    this._table = toColumnBasedTable(table);
+    this._table = convertToTable(table);
     this.compute();
     this.update();
   }
@@ -226,9 +243,11 @@ export class GuiHeatmap extends HTMLElement {
     config: HeatmapConfig;
     value: TableLike;
   }>) {
-    this._table = toColumnBasedTable(value);
+    if (this._table !== value) {
+      this._table = convertToTable(value);
+      this.compute();
+    }
     this._config = config;
-    this.compute();
     this.update();
   }
 
@@ -238,28 +257,36 @@ export class GuiHeatmap extends HTMLElement {
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (!this._computed || !this._table || !this._table.cols) {
+    if (!this._computed || !this._table) {
       return;
     }
     this._clearUX();
 
-    const { xRange, yRange, style, xScale, yScale, xLabels, yLabels, colorScale } = this._computed;
-
-    const paddingX = xScale.step() * (this._config.xAxis.outerPadding ?? 0);
-    const paddingY = yScale.step() * (this._config.yAxis.outerPadding ?? 0);
+    const {
+      xRange,
+      yRange,
+      xPadding,
+      yPadding,
+      style,
+      xScale,
+      yScale,
+      xLabels,
+      yLabels,
+      colorScale,
+    } = this._computed;
 
     const updateUX =
       this._cursor.x !== -1 &&
       this._cursor.y !== -1 &&
-      this._cursor.x >= xRange[0] + paddingX &&
-      this._cursor.x <= xRange[1] - paddingX &&
-      this._cursor.y >= yRange[1] + paddingY &&
-      this._cursor.y <= yRange[0] - paddingY;
+      this._cursor.x >= xRange[0] - xPadding &&
+      this._cursor.x <= xRange[1] + yPadding &&
+      this._cursor.y >= yRange[1] - yPadding &&
+      this._cursor.y <= yRange[0] + yPadding;
 
     if (updateUX) {
       // highlight the hovered cell
-      const colIndex = Math.floor((this._cursor.x - style.margin.right - paddingX) / xScale.step());
-      const rowIndex = Math.floor((yRange[0] - this._cursor.y - paddingY) / yScale.step());
+      const colIndex = Math.floor((this._cursor.x - style.margin.right - xPadding) / xScale.step());
+      const rowIndex = Math.floor((yRange[0] - this._cursor.y - yPadding) / yScale.step());
 
       // make it pixel-perfect with Math.round
       const x = Math.round(xScale(xLabels[colIndex])!) + 1;
@@ -334,7 +361,7 @@ export class GuiHeatmap extends HTMLElement {
    * Draws the chart to the different canvas & svg elements.
    */
   update(): void {
-    if (!this._computed) {
+    if (!this.isConnected || !this._computed) {
       return;
     }
     // clear the main canvas
@@ -472,6 +499,8 @@ export class GuiHeatmap extends HTMLElement {
         colorScaleMin = this._config.colorScale.range[0];
         colorScaleMax = this._config.colorScale.range[1];
       }
+    } else {
+      this._colors = getColors(this).slice(0, 2);
     }
 
     // compute ranges based on available width, height and margins
@@ -509,8 +538,8 @@ export class GuiHeatmap extends HTMLElement {
       colorScaleMax = 1;
     }
 
-    const xLabels = this.config.xAxis.labels ?? [];
-    const yLabels = this.config.yAxis.labels ?? [];
+    const xLabels = this._config.xAxis.labels ?? [];
+    const yLabels = this._config.yAxis.labels ?? [];
 
     if (xLabels.length === 0) {
       for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
@@ -528,28 +557,23 @@ export class GuiHeatmap extends HTMLElement {
       .scaleBand()
       .domain(xLabels)
       .range(xRange)
-      .paddingInner(this.config.xAxis.innerPadding ?? 0)
-      .paddingOuter(this.config.xAxis.outerPadding ?? 0);
+      .paddingInner(this._config.xAxis.innerPadding ?? 0)
+      .paddingOuter(this._config.xAxis.outerPadding ?? 0);
+    xScale.round(true);
     const yScale = d3
       .scaleBand()
       .domain(yLabels)
       .range(yRange)
-      .paddingInner(this.config.yAxis.innerPadding ?? 0)
-      .paddingOuter(this.config.yAxis.outerPadding ?? 0);
-
-    if (xRange[1] - xRange[0] > xLabels.length) {
-      xScale.round();
-    }
-    if (yRange[0] - yRange[1] > yLabels.length) {
-      yScale.round();
-    }
+      .paddingInner(this._config.yAxis.innerPadding ?? 0)
+      .paddingOuter(this._config.yAxis.outerPadding ?? 0);
+    yScale.round(true);
 
     const colorXScale = d3.scaleBand().domain(['0']).range(colorScaleXRange);
 
     let colorYScale: ColorYScale;
     let colorScale: d3.ScaleSequential<string, string>;
 
-    if (this.config.colorScale?.type === 'log') {
+    if (this._config.colorScale?.type === 'log') {
       colorYScale = d3.scaleLog().domain([colorScaleMin, colorScaleMax]).range(yRange);
       colorScale = d3
         .scaleSequentialLog()
@@ -566,6 +590,14 @@ export class GuiHeatmap extends HTMLElement {
         .interpolator(d3.interpolateRgbBasis(this._colors));
     }
 
+    const [xMin, xMax] = xScale.range();
+    const [yMin, yMax] = yScale.range();
+
+    const width = xMax - xMin;
+    const height = yMin - yMax;
+    const xPadding = (width - xScale.step() * xScale.domain().length) / 2;
+    const yPadding = (height - yScale.step() * yScale.domain().length) / 2;
+
     this._computed = {
       colorScale,
       colorYScale,
@@ -578,6 +610,8 @@ export class GuiHeatmap extends HTMLElement {
       colorXScale,
       xLabels,
       yLabels,
+      xPadding,
+      yPadding,
     };
   }
 
