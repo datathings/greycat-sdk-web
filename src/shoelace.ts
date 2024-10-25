@@ -59,67 +59,223 @@ import '@shoelace-style/shoelace/dist/components/tree-item/tree-item.js';
 import '@shoelace-style/shoelace/dist/components/tree/tree.js';
 import '@shoelace-style/shoelace/dist/components/visually-hidden/visually-hidden.js';
 
+type SlAfterCollapse = { 'sl-after-collapse': sl.SlAfterCollapseEvent };
+type SlAfterExpand = { 'sl-after-expand': sl.SlAfterExpandEvent };
+type SlAfterHide = { 'sl-after-hide': sl.SlAfterHideEvent };
+type SlAfterShow = { 'sl-after-show': sl.SlAfterShowEvent };
+type SlBlur = { 'sl-blur': sl.SlBlurEvent };
+type SlCancel = { 'sl-cancel': sl.SlCancelEvent };
+type SlChange = { 'sl-change': sl.SlChangeEvent };
+type SlClear = { 'sl-clear': sl.SlClearEvent };
+type SlClose = { 'sl-close': sl.SlCloseEvent };
+type SlCollapse = { 'sl-collapse': sl.SlCollapseEvent };
+type SlCopy = { 'sl-copy': sl.SlCopyEvent };
+type SlError = { 'sl-error': sl.SlErrorEvent };
+type SlExpand = { 'sl-expand': sl.SlExpandEvent };
+type SlFinish = { 'sl-finish': sl.SlFinishEvent };
+type SlFocus = { 'sl-focus': sl.SlFocusEvent };
+type SlHide = { 'sl-hide': sl.SlHideEvent };
+type SlHover = { 'sl-hover': sl.SlHoverEvent };
+type SlInitialFocus = { 'sl-initial-focus': sl.SlInitialFocusEvent };
+type SlInput = { 'sl-input': sl.SlInputEvent };
+type SlInvalid = { 'sl-invalid': sl.SlInvalidEvent };
+type SlLazyChange = { 'sl-lazy-change': sl.SlLazyChangeEvent };
+type SlLazyLoad = { 'sl-lazy-load': sl.SlLazyLoadEvent };
+type SlLoad = { 'sl-load': sl.SlLoadEvent };
+type SlMutation = { 'sl-mutation': sl.SlMutationEvent };
+type SlRemove = { 'sl-remove': sl.SlRemoveEvent };
+type SlReposition = { 'sl-reposition': sl.SlRepositionEvent };
+type SlRequestClose = { 'sl-request-close': sl.SlRequestCloseEvent };
+type SlResize = { 'sl-resize': sl.SlResizeEvent };
+type SlSelect = { 'sl-select': sl.SlSelectEvent };
+type SlSelectionChange = { 'sl-selection-change': sl.SlSelectionChangeEvent };
+type SlShow = { 'sl-show': sl.SlShowEvent };
+type SlSlideChange = { 'sl-slide-change': sl.SlSlideChangeEvent };
+type SlStart = { 'sl-start': sl.SlStartEvent };
+type SlTabHide = { 'sl-tab-hide': sl.SlTabHideEvent };
+type SlTabShow = { 'sl-tab-show': sl.SlTabShowEvent };
+
+export type SlAlertEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
+export type SlAnimatedImageEventMap = SlLoad & SlError;
+export type SlAnimationEventMap = SlCancel & SlFinish & SlStart;
+export type SlAvatarEventMap = SlError;
+export type SlButtonEventMap = SlBlur & SlFocus & SlInvalid;
+export type SlCarouselEventMap = SlSlideChange;
+export type SlCheckboxEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
+export type SlColorPickerEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
+export type SlCopyButtonEventMap = SlCopy & SlError;
+export type SlDetailsEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
+export type SlDialogEventMap = SlShow &
+  SlAfterShow &
+  SlHide &
+  SlAfterHide &
+  SlInitialFocus &
+  SlRequestClose;
+export type SlDrawerEventMap = SlShow &
+  SlAfterShow &
+  SlHide &
+  SlAfterHide &
+  SlInitialFocus &
+  SlRequestClose;
+export type SlDropdownEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
+export type SlIconEventMap = SlLoad & SlError;
+export type SlIconButtonEventMap = SlBlur & SlFocus;
+export type SlImageComparerEventMap = SlChange;
+export type SlIncludeEventMap = SlLoad & SlError;
+export type SlInputEventMap = SlBlur & SlChange & SlClear & SlFocus & SlInput & SlInvalid;
+export type SlMenuEventMap = SlSelect;
+export type SlMutationObserverEventMap = SlMutation;
+export type SlPopupEventMap = SlReposition;
+export type SlRadioEventMap = SlBlur & SlFocus;
+export type SlRadioButtonEventMap = SlBlur & SlFocus;
+export type SlRadioGroupEventMap = SlChange & SlInput & SlInvalid;
+export type SlRangeEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
+export type SlRatingEventMap = SlChange & SlHover;
+export type SlResizeObserverEventMap = SlResize;
+export type SlSelectEventMap = SlChange &
+  SlClear &
+  SlInput &
+  SlFocus &
+  SlBlur &
+  SlShow &
+  SlAfterShow &
+  SlHide &
+  SlAfterHide &
+  SlInvalid;
+export type SlSplitPanelEventMap = SlReposition;
+export type SlSwitchEventMap = SlBlur & SlChange & SlInput & SlFocus & SlInvalid;
+export type SlTabEventMap = SlClose;
+export type SlTabGroupEventMap = SlTabShow & SlTabHide;
+export type SlTagEventMap = SlRemove;
+export type SlTextareaEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
+export type SlTooltipEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
+export type SlTreeItemEventMap = SlExpand &
+  SlAfterExpand &
+  SlCollapse &
+  SlAfterCollapse &
+  SlLazyChange &
+  SlLazyLoad;
+export type SlTreeEventMap = SlSelectionChange;
+
 declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'sl-alert': GreyCat.Element<sl.SlAlert>;
-        'sl-animated-image': GreyCat.Element<sl.SlAnimatedImage>;
-        'sl-animation': GreyCat.Element<sl.SlAnimation>;
-        'sl-avatar': GreyCat.Element<sl.SlAvatar>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-alert': GreyCat.Element<sl.SlAlert, SlAlertEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-animated-image': GreyCat.Element<sl.SlAnimatedImage, SlAnimatedImageEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-animation': GreyCat.Element<sl.SlAnimation, SlAnimationEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-avatar': GreyCat.Element<sl.SlAvatar, SlAvatarEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-badge': GreyCat.Element<sl.SlBadge>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-breadcrumb-item': GreyCat.Element<sl.SlBreadcrumbItem>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-breadcrumb': GreyCat.Element<sl.SlBreadcrumb>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-button': GreyCat.Element<sl.SlButton, SlButtonEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-button-group': GreyCat.Element<sl.SlButtonGroup>;
-        'sl-button': GreyCat.Element<sl.SlButton>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-card': GreyCat.Element<sl.SlCard>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-carousel': GreyCat.Element<sl.SlCarousel, SlCarouselEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-carousel-item': GreyCat.Element<sl.SlCarouselItem>;
-        'sl-carousel': GreyCat.Element<sl.SlCarousel>;
-        'sl-checkbox': GreyCat.Element<sl.SlCheckbox>;
-        'sl-color-picker': GreyCat.Element<sl.SlColorPicker>;
-        'sl-copy-button': GreyCat.Element<sl.SlCopyButton>;
-        'sl-details': GreyCat.Element<sl.SlDetails>;
-        'sl-dialog': GreyCat.Element<sl.SlDialog>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-checkbox': GreyCat.Element<sl.SlCheckbox, SlCheckboxEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-color-picker': GreyCat.Element<sl.SlColorPicker, SlColorPickerEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-copy-button': GreyCat.Element<sl.SlCopyButton, SlCopyButtonEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-details': GreyCat.Element<sl.SlDetails, SlDetailsEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-dialog': GreyCat.Element<sl.SlDialog, SlDialogEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-divider': GreyCat.Element<sl.SlDivider>;
-        'sl-drawer': GreyCat.Element<sl.SlDrawer>;
-        'sl-dropdown': GreyCat.Element<sl.SlDropdown>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-drawer': GreyCat.Element<sl.SlDrawer, SlDrawerEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-dropdown': GreyCat.Element<sl.SlDropdown, SlDropdownEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-format-bytes': GreyCat.Element<sl.SlFormatBytes>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-format-date': GreyCat.Element<sl.SlFormatDate>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-format-number': GreyCat.Element<sl.SlFormatNumber>;
-        'sl-icon-button': GreyCat.Element<sl.SlIconButton>;
-        'sl-icon': GreyCat.Element<sl.SlIcon>;
-        'sl-image-comparer': GreyCat.Element<sl.SlImageComparer>;
-        'sl-include': GreyCat.Element<sl.SlInclude>;
-        'sl-input': GreyCat.Element<sl.SlInput>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-icon': GreyCat.Element<sl.SlIcon, SlLoad & SlError>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-icon-button': GreyCat.Element<sl.SlIconButton, SlIconButtonEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-image-comparer': GreyCat.Element<sl.SlImageComparer, SlImageComparerEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-include': GreyCat.Element<sl.SlInclude, SlIncludeEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-input': GreyCat.Element<sl.SlInput, SlInputEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-menu': GreyCat.Element<sl.SlMenu, SlMenuEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-menu-item': GreyCat.Element<sl.SlMenuItem>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-menu-label': GreyCat.Element<sl.SlMenuLabel>;
-        'sl-menu': GreyCat.Element<sl.SlMenu>;
-        'sl-mutation-observer': GreyCat.Element<sl.SlMutationObserver>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-mutation-observer': GreyCat.Element<sl.SlMutationObserver, SlMutationObserverEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-option': GreyCat.Element<sl.SlOption>;
-        'sl-popup': GreyCat.Element<sl.SlPopup>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-popup': GreyCat.Element<sl.SlPopup, SlPopupEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-progress-bar': GreyCat.Element<sl.SlProgressBar>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-progress-ring': GreyCat.Element<sl.SlProgressRing>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-qr-code': GreyCat.Element<sl.SlQrCode>;
-        'sl-radio-button': GreyCat.Element<sl.SlRadioButton>;
-        'sl-radio-group': GreyCat.Element<sl.SlRadioGroup>;
-        'sl-radio': GreyCat.Element<sl.SlRadio>;
-        'sl-range': GreyCat.Element<sl.SlRange>;
-        'sl-rating': GreyCat.Element<sl.SlRating>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-radio': GreyCat.Element<sl.SlRadio, SlRadioEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-radio-button': GreyCat.Element<sl.SlRadioButton, SlRadioButtonEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-radio-group': GreyCat.Element<sl.SlRadioGroup, SlRadioGroupEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-range': GreyCat.Element<sl.SlRange, SlRangeEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-rating': GreyCat.Element<sl.SlRating, SlRatingEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-relative-time': GreyCat.Element<sl.SlRelativeTime>;
-        'sl-resize-observer': GreyCat.Element<sl.SlResizeObserver>;
-        'sl-select': GreyCat.Element<sl.SlSelect>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-resize-observer': GreyCat.Element<sl.SlResizeObserver, SlResizeObserverEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-select': GreyCat.Element<sl.SlSelect, SlSelectEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-skeleton': GreyCat.Element<sl.SlSkeleton>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-spinner': GreyCat.Element<sl.SlSpinner>;
-        'sl-split-panel': GreyCat.Element<sl.SlSplitPanel>;
-        'sl-switch': GreyCat.Element<sl.SlSwitch>;
-        'sl-tab-group': GreyCat.Element<sl.SlTabGroup>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-split-panel': GreyCat.Element<sl.SlSplitPanel, SlSplitPanelEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-switch': GreyCat.Element<sl.SlSwitch, SlSwitchEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tab': GreyCat.Element<sl.SlTab, SlClose>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tab-group': GreyCat.Element<sl.SlTabGroup, SlTabGroupEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-tab-panel': GreyCat.Element<sl.SlTabPanel>;
-        'sl-tab': GreyCat.Element<sl.SlTab>;
-        'sl-tag': GreyCat.Element<sl.SlTag>;
-        'sl-textarea': GreyCat.Element<sl.SlTextarea>;
-        'sl-tooltip': GreyCat.Element<sl.SlTooltip>;
-        'sl-tree-item': GreyCat.Element<sl.SlTreeItem>;
-        'sl-tree': GreyCat.Element<sl.SlTree>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tag': GreyCat.Element<sl.SlTag, SlRemove>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-textarea': GreyCat.Element<sl.SlTextarea, SlTextareaEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tooltip': GreyCat.Element<sl.SlTooltip, SlTooltipEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tree-item': GreyCat.Element<sl.SlTreeItem, SlTreeItemEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'sl-tree': GreyCat.Element<sl.SlTree, SlTreeEventMap>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
         'sl-visually-hidden': GreyCat.Element<sl.SlVisuallyHidden>;
       }
     }

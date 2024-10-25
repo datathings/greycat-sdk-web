@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { GreyCat, IndexedDbCache, TableLikeColumnBased, core } from '@greycat/web';
+import { GreyCat, IndexedDbCache, core } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -7,13 +7,11 @@ await GreyCat.init({
 });
 
 let nbPoints = 100;
-const randomTable = (): TableLikeColumnBased => {
-  return {
-    cols: [
-      Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
-      Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
-    ],
-  };
+const randomTable = () => {
+  return core.Table.create([
+    Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
+    Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
+  ]);
 };
 
 const chart = document.createElement('gui-chart');

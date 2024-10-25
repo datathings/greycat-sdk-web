@@ -7,7 +7,7 @@ await GreyCat.init({
 
 document.body.appendChild(
   <app-layout title="Factory">
-    <gui-factory
+    {/* <gui-factory
       name="global"
       mappings={{
         // 'project::Person': 'app-person',
@@ -17,7 +17,7 @@ document.body.appendChild(
         // },
       }}
     >
-    </gui-factory>
+    </gui-factory> */}
   </app-layout>,
 );
 

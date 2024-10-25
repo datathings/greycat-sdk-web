@@ -1,4 +1,5 @@
 import { type SlIcon, SlInput } from '@shoelace-style/shoelace';
+import { SlInputEventMap } from '../../shoelace';
 
 export class GuiSearchInput extends SlInput {
   private _icon: SlIcon;
@@ -21,14 +22,10 @@ declare global {
     'gui-search-input': GuiSearchInput;
   }
 
-  interface GuiSearchInputEventMap {}
-
-  interface HTMLElementEventMap extends GuiSearchInputEventMap {}
-
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'gui-search-input': GreyCat.Element<GuiSearchInput, GuiSearchInputEventMap>;
+        'gui-search-input': GreyCat.Element<GuiSearchInput, SlInputEventMap>;
       }
     }
   }

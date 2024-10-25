@@ -1,4 +1,4 @@
-import { std } from '../../../exports.js';
+import { SlDialogEventMap, std } from '../../../exports.js';
 import type { GuiTaskInfoDialog } from './task-info-dialog.js';
 import type { GuiUpdateEvent } from '../../events.js';
 import { GuiTaskInfo } from './task-info.js';
@@ -38,7 +38,7 @@ declare global {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
          */
-        'gui-task-info-dialog': GreyCat.Element<GuiTaskInfoDialog, GuiTaskInfoEventMap>;
+        'gui-task-info-dialog': GreyCat.Element<GuiTaskInfoDialog, GuiTaskInfoEventMap & SlDialogEventMap>;
       }
     }
   }

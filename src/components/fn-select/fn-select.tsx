@@ -1,10 +1,9 @@
-import { type AbiFunction, $ } from '../../exports.js';
-import { SlSelect } from '@shoelace-style/shoelace';
+import { type AbiFunction, $, sl, SlSelectEventMap } from '../../exports.js';
 
 /**
  * Provides a selector for the currently defined ABI functions.
  */
-export class GuiFnSelect extends SlSelect {
+export class GuiFnSelect extends sl.SlSelect {
   constructor() {
     super();
 
@@ -53,14 +52,10 @@ declare global {
     'gui-fn-select': GuiFnSelect;
   }
 
-  interface GuiFnSelectEventMap {}
-
-  interface HTMLElementEventMap extends GuiFnSelectEventMap {}
-
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'gui-fn-select': GreyCat.Element<GuiFnSelect, GuiFnSelectEventMap>;
+        'gui-fn-select': GreyCat.Element<GuiFnSelect, SlSelectEventMap>;
       }
     }
   }

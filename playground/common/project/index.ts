@@ -316,7 +316,7 @@ export namespace project {
 export const projectlib: $greycat.Library = {
   name: 'project',
   mapped: new globalThis.Array(13),
-  configure(loaders, factories) {
+  configure(_loaders, factories) {
     factories.set(project.Obj1._type, project.Obj1);
     factories.set(project.Sensor._type, project.Sensor);
     factories.set(project.Obj2._type, project.Obj2);
