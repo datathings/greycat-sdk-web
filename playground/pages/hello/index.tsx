@@ -1,4 +1,4 @@
-import { $, GreyCat, IndexedDbCache } from '@greycat/web';
+import { GreyCat, IndexedDbCache, io } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -7,6 +7,6 @@ await GreyCat.init({
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <gui-value value={await $.default.call('project::hello', ['world!'])} />
+    <gui-input-object type={io.CsvColumn._type} />
   </app-layout>,
 );

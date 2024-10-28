@@ -7,8 +7,8 @@ import {
   std,
   decomposeDuration,
   $,
+  sl,
 } from '../../exports.js';
-import type { SlInput, SlSelect } from '@shoelace-style/shoelace';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import { registerCustomElement } from '../common.js';
@@ -306,7 +306,7 @@ export class GuiInput extends GuiInputElement<unknown> {
 }
 
 export class GuiInputString extends GuiInputElement<string | null> {
-  private _input: SlInput;
+  private _input: sl.SlInput;
 
   constructor() {
     super();
@@ -379,7 +379,7 @@ export class GuiInputString extends GuiInputElement<string | null> {
 }
 
 export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
-  private _input: SlInput;
+  private _input: sl.SlInput;
 
   constructor() {
     super();
@@ -454,7 +454,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 }
 
 export class GuiInputBool extends GuiInputElement<boolean | null> {
-  private _input: SlSelect;
+  private _input: sl.SlSelect;
 
   constructor() {
     super();
@@ -538,7 +538,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 }
 
 export class GuiInputTime extends GuiInputElement<std.core.time | null> {
-  private _input: SlInput;
+  private _input: sl.SlInput;
 
   constructor() {
     super();
@@ -696,6 +696,70 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 }
 
+// export class GuiInputAbstract extends GuiInputElement<unknown> {
+//   private _input: SlSelect;
+
+//   constructor() {
+//     super();
+
+//     this._input = document.createElement('sl-select');
+//     this._input.setAttribute('exportparts', 'base');
+//     this._input.addEventListener('sl-input', (ev) => {
+//       ev.stopPropagation();
+//       this.dispatchEvent(new GuiInputEvent(this.value));
+//     });
+//     this._input.addEventListener('sl-change', (ev) => {
+//       ev.stopPropagation();
+//       this.dispatchEvent(new GuiChangeEvent(this.value));
+//     });
+
+//     this.shadowRoot.replaceChildren(this._input);
+//   }
+
+//   override get placeholder() {
+//     return this._input.placeholder;
+//   }
+
+//   override set placeholder(placeholder: string) {
+//     this._input.placeholder = placeholder;
+//   }
+
+//   override get label() {
+//     return this._input.label;
+//   }
+
+//   override set label(label: string) {
+//     this._input.label = label;
+//   }
+
+//   override get helpText() {
+//     return this._input.helpText;
+//   }
+
+//   override set helpText(helpText: string) {
+//     this._input.helpText = helpText;
+//   }
+
+//   set type(type: AbiType) {
+//     const options: SlOption[] = [];
+//     // type.abi.types.filter((ty) => ty.)
+//     this._input.replaceChildren(options);
+//   }
+
+//   get value() {
+//     return this._input.value as string;
+//   }
+
+//   set value(value: string) {
+//     this._input.value = value;
+//   }
+
+//   override connectedCallback(): void {
+//     super.connectedCallback();
+//     this.setAttribute('exportparts', 'base');
+//   }
+// }
+
 export class GuiInputObject extends GuiInputElement<
   GCObject | null | Record<string | number, unknown>
 > {
@@ -716,7 +780,6 @@ export class GuiInputObject extends GuiInputElement<
     super();
 
     this.shadowRoot.adoptedStyleSheets.push(GuiInputObject.STYLE);
-
     this.render();
   }
 
@@ -2205,7 +2268,7 @@ export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
 }
 
 export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
-  private _input: SlInput;
+  private _input: sl.SlInput;
 
   constructor() {
     super();

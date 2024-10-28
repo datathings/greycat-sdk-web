@@ -11,6 +11,22 @@ import '../search-input/index.js'; // makes sure we already have GuiSearchInput 
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { convertToTable, Disposer, GuiRenderEvent, TableLike } from '../common.js';
 
+export interface GuiTableProps {
+  value: TableLike;
+  filter: string;
+  filterColumns: Array<string | undefined | null>;
+  sortBy: readonly [number] | readonly [number, SortOrd];
+  cellProps: CellPropsFactory;
+  headers: string[] | undefined;
+  columnsWidths: Array<number | undefined>;
+  minColWidth: number;
+  ignoreCols: number[] | undefined;
+  columnFactories: ColumnFactories | undefined;
+  rowHeight: number;
+  globalFilter: boolean;
+  globalFilterPlaceholder: string;
+  onrowupdate: RowUpdateCallback;
+}
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
 
@@ -49,7 +65,7 @@ const DEFAULT_CELL_PROPS: CellPropsFactory = (value) => {
  */
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, rowIdx: number) => void;
 
-export class GuiTable extends HTMLElement {
+export class GuiTable extends HTMLElement implements GuiTableProps {
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
   private _table = core.Table.create();
@@ -140,16 +156,16 @@ export class GuiTable extends HTMLElement {
     return this._table;
   }
 
-  get value(): TableLike | undefined {
+  get value(): core.Table {
     return this._table;
   }
 
-  set value(table: TableLike | undefined) {
+  set value(table: TableLike) {
     this._setValue(table);
     this.update();
   }
 
-  private _setValue(table: TableLike | undefined) {
+  private _setValue(table: TableLike) {
     if (table === this._table) {
       // noop: same ref
       return;
@@ -403,22 +419,7 @@ export class GuiTable extends HTMLElement {
     columnsWidths = this._wCalc.getWidths(),
     minColWidth = this._wCalc.getMinWidth(),
     onrowupdate = this._rowUpdateCallback,
-  }: Partial<{
-    value: TableLike;
-    filter: string;
-    filterColumns: Array<string | undefined | null>;
-    sortBy: readonly [number] | readonly [number, SortOrd];
-    cellProps: CellPropsFactory;
-    headers: string[];
-    columnsWidths: Array<number | undefined>;
-    minColWidth: number;
-    ignoreCols: number[];
-    columnFactories: ColumnFactories;
-    rowHeight: number;
-    globalFilter: boolean;
-    globalFilterPlaceholder: string;
-    onrowupdate: RowUpdateCallback;
-  }>) {
+  }: Partial<GuiTableProps>) {
     this._setValue(value);
     this._ignoreCols = ignoreCols;
     this._filterText = filter;
@@ -442,24 +443,9 @@ export class GuiTable extends HTMLElement {
     this.update();
   }
 
-  getAttrs(): {
-    table: TableLike | undefined;
-    filter: string;
-    filterColumns: Array<string | undefined | null>;
-    sortBy: readonly [number, SortOrd];
-    cellProps: CellPropsFactory;
-    headers: string[] | undefined;
-    columnsWidths: Array<number | undefined>;
-    ignoreCols: number[] | undefined;
-    columnFactories: CleanColumnFactories | undefined;
-    rowHeight: number;
-    minColWidth: number;
-    globalFilter: boolean;
-    globalFilterPlaceholder: string;
-    onrowupdate: RowUpdateCallback;
-  } {
+  getAttrs(): GuiTableProps {
     return {
-      table: this._table,
+      value: this._table,
       filter: this._filterText,
       filterColumns: this._filterColumns,
       sortBy: [this._sortCol.index, this._sortCol.ord],

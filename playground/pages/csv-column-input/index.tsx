@@ -1,95 +1,41 @@
 import './styles.css';
-import { GreyCat, IndexedDbCache, io, core, $ } from '@greycat/web';
+import { GreyCat, IndexedDbCache, io } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
-const map = await $.default.call('project::mapTest');
-console.log({ map });
+const columns = new Map<string, () => io.CsvColumn>([
+  [io.CsvColumnBoolean._type, () => io.CsvColumnBoolean.create()],
+  [io.CsvColumnDate._type, () => io.CsvColumnDate.create()],
+  [io.CsvColumnDuration._type, () => io.CsvColumnDuration.create()],
+  [io.CsvColumnFloat._type, () => io.CsvColumnFloat.create()],
+  [io.CsvColumnIgnored._type, () => io.CsvColumnIgnored.create()],
+  [io.CsvColumnInteger._type, () => io.CsvColumnInteger.create()],
+  [io.CsvColumnString._type, () => io.CsvColumnString.create()],
+  [io.CsvColumnTime._type, () => io.CsvColumnTime.create()],
+]);
 
-let offset = 0;
+let columnEl = (<gui-csv-column-input />) as ChildNode;
 
 document.body.appendChild(
   <app-layout title="CSV Column Input">
-    <div>
-      <div className="grid">
-        <gui-csv-column-input
-          value={io.CsvColumnString.createFrom({
-            name: 'string',
-            mandatory: false,
-            offset: offset++,
-            trim: null,
-            try_number: null,
-            try_json: null,
-            values: null,
-            encoder: null,
-          })}
-        />
-        <div className="placeholder">
-          {offset}...{(offset += 2) - 1}
-        </div>
-        <gui-csv-column-input
-          value={io.CsvColumnInteger.createFrom({
-            name: 'int',
-            mandatory: true,
-            offset: offset++,
-          })}
-        />
-        <gui-csv-column-input
-          value={io.CsvColumnFloat.createFrom({
-            name: 'float',
-            mandatory: true,
-            offset: offset++,
-          })}
-        />
-        <div className="placeholder">{offset++}</div>
-        <gui-csv-column-input
-          value={io.CsvColumnTime.createFrom({
-            name: 'time',
-            mandatory: true,
-            offset: offset++,
-            unit: core.DurationUnit.minutes(),
-          })}
-        />
-        <gui-csv-column-input
-          value={io.CsvColumnIgnored.createFrom({
-            name: 'ignored',
-            mandatory: true,
-            offset: offset++,
-          })}
-        />
-        <gui-csv-column-input
-          value={io.CsvColumnDate.createFrom({
-            name: 'date',
-            mandatory: true,
-            offset: offset++,
-            as_time: null,
-            format: null,
-            tz: null,
-          })}
-        />
-        <gui-csv-column-input
-          value={io.CsvColumnDuration.createFrom({
-            name: 'duration',
-            mandatory: true,
-            offset: offset++,
-            unit: null,
-          })}
-        />
-        <div className="placeholder">
-          {offset}...{(offset += 4) - 1}
-        </div>
-        <gui-csv-column-input
-          value={io.CsvColumnIgnored.createFrom({
-            name: 'ignored',
-            mandatory: true,
-            offset: offset++,
-          })}
-        />
-      </div>
-    </div>
+    <sl-select
+      placeholder="Choose an io.CsvColumn"
+      onsl-change={function () {
+        const column_factory = columns.get(this.value as string);
+        if (column_factory) {
+          const newColumn = (<gui-input-object value={column_factory()} />) as ChildNode;
+          columnEl.replaceWith(newColumn);
+          columnEl = newColumn;
+        }
+      }}
+    >
+      {Array.from(columns.keys().map((name) => <sl-option value={name}>{name}</sl-option>))}
+    </sl-select>
+    <sl-divider />
+    {columnEl}
   </app-layout>,
 );
 
