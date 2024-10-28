@@ -81,7 +81,7 @@ document.body.appendChild(
       value={table}
       globalFilter
       columnsWidths={[100, 100, 100]}
-      columnFactories={{
+      columnFactory={{
         1: 'gui-value',
         2: 'gui-input-string',
         3: 'gui-input-bool',

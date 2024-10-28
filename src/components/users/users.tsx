@@ -28,7 +28,7 @@ export class GuiUsers extends HTMLElement {
       columnsWidths: [80, undefined, undefined, undefined, 150, 130, 120],
       globalFilter: true,
       globalFilterPlaceholder: 'Filter the users',
-      columnFactories: {
+      columnFactory: {
         7: 'gui-user-group-policy',
       },
     });

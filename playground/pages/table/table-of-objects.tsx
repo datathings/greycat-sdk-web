@@ -17,7 +17,7 @@ document.body.appendChild(
     {actions}
     <gui-table
       value={table}
-      columnFactories={{
+      columnFactory={{
         0: 'gui-input-string',
         1: 'gui-input-number',
         2: 'gui-input-bool',

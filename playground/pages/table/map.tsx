@@ -12,7 +12,7 @@ document.body.appendChild(
     {actions}
     <gui-table
       value={await $.default.call<TableLike>('project::mapTest')}
-      columnFactories={{ 1: 'gui-object' }}
+      columnFactory={{ 1: 'gui-object' }}
       ongui-click={(ev) => {
         console.log(ev.detail);
       }}

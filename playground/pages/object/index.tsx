@@ -14,7 +14,7 @@ document.body.appendChild(
     <div
       style={{
         display: 'flex',
-        flexDirection: 'row',
+        flexDirection: 'column',
         flexWrap: 'wrap',
         gap: 'var(--spacing)',
       }}

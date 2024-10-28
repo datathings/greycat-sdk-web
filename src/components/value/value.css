@@ -1,0 +1,5 @@
+gui-value {
+  display: inline-block;
+  height: 100%;
+  line-height: var(--line-height);
+}

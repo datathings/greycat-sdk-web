@@ -96,7 +96,7 @@ document.body.appendChild(
     <gui-table
       value={await $.default.call<TableLike>('project::chart', [100])}
       ignoreCols={[3, 4]}
-      columnFactories={{
+      columnFactory={{
         5: 'app-confidence',
       }}
       rowHeight={30}

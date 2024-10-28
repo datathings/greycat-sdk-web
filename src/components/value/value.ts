@@ -33,16 +33,16 @@ export interface GuiValueProps {
  * Tries to give a simple textual representation of any given GreyCat (or vanilla js) value
  */
 export class GuiValue extends HTMLElement implements GuiValueProps {
-  private _dateFmt: Intl.DateTimeFormat | undefined;
-  private _numFmt: Intl.NumberFormat | undefined;
-  private _value: unknown;
-  private _name: string | undefined;
-  private _linkify: boolean | ((value: unknown) => boolean) = false;
-  private _tiny = false;
-  private _text: string | undefined;
-  private _data: unknown;
-  private _onClick: ClickHandler = NOOP;
-  private _disposeClickHandler: Disposable | undefined;
+  protected _dateFmt: Intl.DateTimeFormat | undefined;
+  protected _numFmt: Intl.NumberFormat | undefined;
+  protected _value: unknown;
+  protected _name: string | undefined;
+  protected _linkify: boolean | ((value: unknown) => boolean) = false;
+  protected _tiny = false;
+  protected _text: string | undefined;
+  protected _data: unknown;
+  protected _onClick: ClickHandler = NOOP;
+  protected _disposeClickHandler: Disposable | undefined;
 
   get value(): unknown {
     return this._value;
@@ -55,7 +55,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     }
 
     this._value = value;
-    this.render();
+    this.update();
   }
 
   get linkify(): boolean | ((value: unknown) => boolean) {
@@ -64,7 +64,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set linkify(enable: boolean | ((value: unknown) => boolean)) {
     this._linkify = enable;
-    this.render();
+    this.update();
   }
 
   get tiny(): boolean {
@@ -73,7 +73,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set tiny(enable: boolean) {
     this._tiny = enable;
-    this.render();
+    this.update();
   }
 
   get name(): string | undefined {
@@ -82,12 +82,12 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set name(name: string | undefined) {
     this._name = name;
-    this.render();
+    this.update();
   }
 
   set text(text: string | undefined) {
     this._text = text;
-    this.render();
+    this.update();
   }
 
   get text(): string | undefined {
@@ -100,7 +100,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set dateFmt(formatter: Intl.DateTimeFormat | undefined) {
     this._dateFmt = formatter;
-    this.render();
+    this.update();
   }
 
   get numFmt() {
@@ -109,12 +109,12 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set numFmt(formatter: Intl.NumberFormat | undefined) {
     this._numFmt = formatter;
-    this.render();
+    this.update();
   }
 
   set onClick(cb: ClickHandler) {
     this._onClick = cb;
-    this.render();
+    this.update();
   }
 
   get data() {
@@ -123,7 +123,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
 
   set data(data: unknown) {
     this._data = data;
-    this.render();
+    this.update();
   }
 
   setAttrs({
@@ -166,7 +166,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this._data = data;
     this.className = className;
     this.title = title;
-    this.render();
+    this.update();
   }
 
   getAttrs(): {
@@ -202,7 +202,7 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     this.replaceChildren();
   }
 
-  render() {
+  update() {
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
 
     if (Array.isArray(this._value)) {

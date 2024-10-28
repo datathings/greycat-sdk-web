@@ -21,7 +21,7 @@ export class GuiRoles extends HTMLElement {
         columnWidths={[200]}
         globalFilter
         globalFilterPlaceholder="Filter by name or permissions"
-        columnFactories={{
+        columnFactory={{
           1: 'gui-role-permissions',
         }}
         ongui-click={(ev) => {

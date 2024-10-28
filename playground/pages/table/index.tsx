@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, $, core } from '@greycat/web';
+import { GreyCat, IndexedDbCache, $, core, getGlobalNumberFormat } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -15,28 +15,34 @@ document.body.appendChild(
     {actions}
     <gui-table
       value={table}
-      onrowupdate={(el, row) => {
-        const klass = table.cols[2][row] as string;
-        switch (klass) {
-          case 'low':
-            (el.children[1] as HTMLElement).style.color = 'cyan';
-            break;
-          case 'normal':
-            (el.children[1] as HTMLElement).style.color = 'lightgreen';
-            break;
-          case 'high':
-            (el.children[1] as HTMLElement).style.color = 'orange';
-            break;
-          default:
-            (el.children[1] as HTMLElement).style.color = 'unset';
-            break;
-        }
+      globalFilter
+      columnFactory={{
+        1: (value: number | bigint | null, rowIdx: number, el) => {
+          const klass = table.cols[2][rowIdx] as 'low' | 'normal' | 'high';
+          switch (klass) {
+            case 'low':
+              el.style.color = 'cyan';
+              break;
+            case 'normal':
+              el.style.color = 'lightgreen';
+              break;
+            case 'high':
+              el.style.color = 'orange';
+              break;
+            default:
+              el.style.color = 'unset';
+              break;
+          }
+          if (value === null) {
+            return <code>null</code>;
+          }
+          return document.createTextNode(getGlobalNumberFormat().format(value));
+        },
       }}
       ongui-dblclick={(ev) => {
         const { rowIdx, colIdx } = ev.detail;
         window.alert(`Col ${colIdx}, Row ${rowIdx}, Value "${table.cols[colIdx][rowIdx]}"`);
       }}
-      globalFilter
     />
   </app-layout>,
 );

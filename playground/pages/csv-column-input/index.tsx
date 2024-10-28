@@ -32,7 +32,9 @@ document.body.appendChild(
         }
       }}
     >
-      {Array.from(columns.keys().map((name) => <sl-option value={name}>{name}</sl-option>))}
+      {Array.from(columns.keys()).map((name) => (
+        <sl-option value={name}>{name}</sl-option>
+      ))}
     </sl-select>
     <sl-divider />
     {columnEl}

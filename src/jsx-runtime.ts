@@ -10,8 +10,7 @@ export const Fragment = '<></>';
 
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: Partial<{ [A in keyof E]: E[A] } & { children?: HTMLElement | HTMLElement[] }> &
-    GreyCat.ExtendedHTMLProperties,
+  props: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();

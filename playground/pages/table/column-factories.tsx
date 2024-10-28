@@ -11,6 +11,6 @@ const { actions } = await import('./actions');
 document.body.appendChild(
   <app-layout title="Table (columnFactories)">
     {actions}
-    <gui-table value={{ cols: [books] }} headers={['Book']} columnFactories={{ 0: 'gui-object' }} />
+    <gui-table headers={['Book']} value={{ cols: [books] }} defaultCellFactory="gui-object" />
   </app-layout>,
 );
