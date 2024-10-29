@@ -5,6 +5,7 @@ import {
   GuiClickEvent,
   GuiDblClickEvent,
   GuiChangeEvent,
+  GuiFactory,
 } from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
@@ -22,7 +23,7 @@ export interface GuiTableProps {
   minColWidth: number;
   ignoreCols: number[] | undefined;
   columnFactory: ColumnFactory | undefined;
-  defaultCellFactory: CellFactory;
+  // defaultCellFactory: CellFactory;
   rowHeight: number;
   globalFilter: boolean;
   globalFilterPlaceholder: string;
@@ -97,7 +98,6 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   private _disposer = new Disposer();
   private _columnFactory: CleanColumnFactory | undefined;
-  private _defaultCellFactory: CleanCellFactory = { tag: 'gui-value' };
 
   constructor() {
     super();
@@ -149,12 +149,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
     this._tableContainer.addEventListener('scroll', async () => {
       if (this._tbody.rowHeight <= 0 && this._table.nbRows() > 0) {
-        await this._tbody.computeRowHeight(
-          this._table,
-          this._ignoreCols,
-          this._defaultCellFactory,
-          this._columnFactory,
-        );
+        await this._tbody.computeRowHeight(this._table, this._ignoreCols, this._columnFactory);
       }
       const fromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
       if (this._prevFromRowIdx == fromRowIdx) {
@@ -255,9 +250,9 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this.update();
   }
 
-  get defaultCellFactory() {
-    return this._defaultCellFactory;
-  }
+  // get defaultCellFactory() {
+  //   return this._defaultCellFactory;
+  // }
 
   /**
    * Overrides the default cell factory used by the table to display cells value.
@@ -267,10 +262,10 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
    *
    * *If you want to override the display for a specific column, use `columnFactory`.*
    */
-  set defaultCellFactory(factory: CellFactory) {
-    this._defaultCellFactory = this._sanitizeCellFactory(factory);
-    this.update();
-  }
+  // set defaultCellFactory(factory: CellFactory) {
+  //   this._defaultCellFactory = this._sanitizeCellFactory(factory);
+  //   this.update();
+  // }
 
   set columnWidths(columnWidths: Array<number | undefined>) {
     this._wCalc.setWidths(columnWidths);
@@ -457,7 +452,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     headers = this._headers,
     ignoreCols = this._ignoreCols,
     columnFactory = this._columnFactory,
-    defaultCellFactory = this._defaultCellFactory,
+    // defaultCellFactory = this._defaultCellFactory,
     rowHeight = this._tbody.rowHeight,
     globalFilter = this.globalFilter,
     globalFilterPlaceholder = this.globalFilterPlaceholder,
@@ -472,7 +467,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this._cellProps = cellProps;
     this._headers = headers;
     this._columnFactory = this._sanitizeColumnFactory(columnFactory);
-    this._defaultCellFactory = this._sanitizeCellFactory(defaultCellFactory);
+    // this._defaultCellFactory = this._sanitizeCellFactory(defaultCellFactory);
     this.globalFilter = globalFilter;
     this.globalFilterPlaceholder = globalFilterPlaceholder;
     if (this._sortCol.sortBy(sortBy[0], sortBy[1])) {
@@ -499,7 +494,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       headers: this._headers,
       columnsWidths: this._wCalc.getWidths(),
       ignoreCols: this._ignoreCols,
-      defaultCellFactory: this._defaultCellFactory,
+      // defaultCellFactory: this._defaultCellFactory,
       columnFactory: this._columnFactory,
       rowHeight: this._tbody.rowHeight,
       globalFilter: this.globalFilter,
@@ -570,7 +565,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
         await this._tbody.computeRowHeight(
           this._table,
           this._ignoreCols,
-          this._defaultCellFactory,
+          // this._defaultCellFactory,
           this._columnFactory,
         );
       }
@@ -612,7 +607,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       this._wCalc,
       this._cellProps,
       // this._rowUpdateCallback,
-      this._defaultCellFactory,
+      // this._defaultCellFactory,
       this._columnFactory,
     );
 
@@ -1058,6 +1053,7 @@ export class GuiTableBody extends HTMLElement {
   filtered_rows: number[] = [];
   virtual_rows: number[] = [];
   virtualScroller: HTMLDivElement;
+  private _factory = GuiFactory.global;
 
   constructor() {
     super();
@@ -1070,14 +1066,14 @@ export class GuiTableBody extends HTMLElement {
   }
 
   connectedCallback() {
+    this._factory = GuiFactory.closest(this);
     this.replaceChildren(this.virtualScroller);
   }
 
   async computeRowHeight(
     table: core.Table,
     ignoreCols: number[] | undefined,
-    defaultCellFactory: CleanCellFactory,
-    factory: CleanColumnFactory | undefined,
+    columnFactory: CleanColumnFactory | undefined,
   ) {
     if (this.rowHeight <= 0) {
       // create a ghost row to compute the height
@@ -1090,19 +1086,19 @@ export class GuiTableBody extends HTMLElement {
         0,
         calc,
         DEFAULT_CELL_PROPS,
-        defaultCellFactory,
-        factory,
+        this._factory,
+        columnFactory,
       );
       const tempElement = document.createElement('span');
       tempElement.style.visibility = 'hidden';
       tempElement.style.position = 'absolute';
       tempElement.style.lineHeight = 'var(--line-height)';
       tempElement.textContent = 'M'; // 'M' gives a reliable height measurement
-    
+
       // Append to inherit default styles
       document.body.appendChild(tempElement);
       const lineHeight = tempElement.offsetHeight;
-      // document.body.removeChild(tempElement);
+      document.body.removeChild(tempElement);
       this.rowHeight = Math.max(lineHeight, tmpRow.offsetHeight);
       tmpRow.remove();
     }
@@ -1117,12 +1113,11 @@ export class GuiTableBody extends HTMLElement {
     filterColumns: Array<string | undefined | null>,
     wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
-    defaultCellFactory: CleanCellFactory,
-    factory?: CleanColumnFactory,
+    columnFactory?: CleanColumnFactory,
   ): Promise<void> {
     const nb_rows = table.nbRows();
     if (this.rowHeight === -1 && nb_rows > 0) {
-      await this.computeRowHeight(table, ignoreCols, defaultCellFactory, factory);
+      await this.computeRowHeight(table, ignoreCols, columnFactory);
     }
 
     // Make it `extraRows` more than the total height space divided by row height, so that we are sure that even
@@ -1177,7 +1172,7 @@ export class GuiTableBody extends HTMLElement {
       }
       const rowEl = this._getOrCreateRow(rendered);
       // update the DOM row to reflect the new row's data
-      await rowEl.update(table, ignoreCols, rowIdx, wCalc, cellProps, defaultCellFactory, factory);
+      await rowEl.update(table, ignoreCols, rowIdx, wCalc, cellProps, this._factory, columnFactory);
       rowEl.style.height = rowHeight;
       // at the right position
       rowEl.style.top = `${viewIdx * this.rowHeight}px`;
@@ -1309,8 +1304,9 @@ export class GuiTableBodyRow extends HTMLElement {
     rowIdx: number,
     wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
-    defaultCellFactory: CleanCellFactory,
-    factory?: CleanColumnFactory,
+    factory: GuiFactory,
+    // defaultCellFactory: CleanCellFactory,
+    columnFactory?: CleanColumnFactory,
   ): Promise<void> {
     this.idx = rowIdx;
     this.setAttribute('data-row', `${rowIdx}`);
@@ -1330,7 +1326,7 @@ export class GuiTableBodyRow extends HTMLElement {
         colIdx,
         cellProps,
         wCalc.getWidth(rowIdx),
-        factory?.[colIdx] ?? defaultCellFactory,
+        columnFactory?.[colIdx] ?? { tag: factory.valueTag },
       );
     }
 

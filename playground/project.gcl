@@ -9,25 +9,25 @@ fn main() {
       });
   }
 
-  if (sensor == null) {
-    sensor = nodeTime<SensorData> {};
-    var reader = CsvReader {
-      path: "files/import/sensor.csv",
-      format: CsvFormat {
-        header_lines: 1,
-        separator: ',',
-      },
-    };
-    while (reader.can_read()) {
-      var row = reader.read() as Array<any>;
-      var data = SensorData {
-        temperature: row[1] as float,
-        pression: row[2] as float,
-        humidity: row[3] as float,
-      };
-      sensor.setAt(time::new(row[0] as int, DurationUnit::seconds), data);
-    }
-  }
+  // if (sensor == null) {
+  //   sensor = nodeTime<SensorData> {};
+  //   var reader = CsvReader {
+  //     path: "files/import/sensor.csv",
+  //     format: CsvFormat {
+  //       header_lines: 1,
+  //       separator: ',',
+  //     },
+  //   };
+  //   while (reader.can_read()) {
+  //     var row = reader.read() as Array<any>;
+  //     var data = SensorData {
+  //       temperature: row[1] as float,
+  //       pression: row[2] as float,
+  //       humidity: row[3] as float,
+  //     };
+  //     sensor.setAt(time::new(row[0] as int, DurationUnit::seconds), data);
+  //   }
+  // }
 }
 
 type Person2 {
@@ -111,7 +111,7 @@ fn chart(nbRows: int) {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -133,7 +133,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -509,7 +509,7 @@ fn obj() {
 @expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first",("BAR", 42));
+  map.set("first", ("BAR", 42));
   map.set("second", TimeZone::Africa_Abidjan);
 
   var array = [42, 3.14, "hello world"];
@@ -580,6 +580,38 @@ fn obj2() {
   };
 }
 // pages/object end
+
+var person: node<Person2>?;
+
+@expose
+fn get_person() {
+  person ?= node<Person2> {
+    Person2 {
+      id: 42,
+      name: "John",
+      age: 46,
+      children: 4
+    }
+  };
+  return person;
+}
+
+type Node {
+  id: String;
+  value: any;
+  link: node<Node>?;
+}
+
+@expose
+fn tree() {
+  var root = node<Node> { Node { id: "root", value: 0 } };
+  var node0 = node<Node> { Node { id: "node_0", value: 42 } };
+  var node1 = node<Node> { Node { id: "node_1", value: 1337 } };
+  root->link = node0;
+  node0->link = node1;
+  node1->link = root;
+  return root;
+}
 
 type SemiRecursive {
   sub: SemiRecursive?;

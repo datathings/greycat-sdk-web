@@ -27,4 +27,4 @@ export * from './users/index.js';
 export * from './roles/index.js';
 export * from './histogram/index.js';
 export * from './files/index.js';
-// export * from './factory/index.js';
+export * from './factory/index.js';

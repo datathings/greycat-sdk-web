@@ -1,7 +1,7 @@
 :host {
   --gui-searchable-select-list-z-index: 1000;
-  --gui-searchable-select-list-bg: var(--bg-1);
-  --gui-searchable-select-list-item-hover: var(--bg-2);
+  --gui-searchable-select-list-bg: var(--bg-2);
+  --gui-searchable-select-list-item-hover: var(--bg-1);
   --gui-searchable-select-list-item-selected-color: var(--primary);
   --gui-searchable-select-list-item-selected-bg: var(--bg-0);
 
@@ -31,6 +31,9 @@
     flex-direction: column;
     pointer-events: auto;
     border: var(--border-width) solid var(--border-color);
+    box-shadow: -3px 0 3px rgb(var(--base-0)),
+             3px 0 3px rgb(var(--base-0)),
+             0 3px 3px rgb(var(--base-0));
 
     > div {
       font-weight: normal;

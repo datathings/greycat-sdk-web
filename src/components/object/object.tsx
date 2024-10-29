@@ -1,12 +1,9 @@
 import type { SlDetails } from '@shoelace-style/shoelace';
-import { GCEnum, GCObject, std } from '../../exports.js';
-import type { GuiValueProps, sl } from '../../exports.js';
+import { GCEnum, GCObject, GuiFactory, registerCustomElement, std } from '../../exports.js';
+import type { GuiValueElement, sl } from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 
-/**
- * A subset of `GuiValueProps` used to type `GuiObject.props` field
- */
-export type ObjectProps = Partial<Omit<GuiValueProps, 'value'>>;
+export type ObjectProps = Record<string | number | symbol, unknown>;
 export type GuiObjectProps = {
   value: unknown;
   /**
@@ -14,7 +11,7 @@ export type GuiObjectProps = {
    *
    * *This property has no effect if the value is a scalar value.*
    */
-  withHeader: boolean;
+  header: boolean | string;
   /** Indicates whether or not this gui-object is within another gui-object */
   nested: boolean;
   /** Whether or not to display the nested field expanded or not. Defaults to `false`. */
@@ -30,59 +27,23 @@ export interface GuiObject {
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class GuiObject extends HTMLElement {
-  /**
-   * A mapping of GreyCat type fqn to the WebComponent tag name used for its rendering.
-   *
-   * If nothing matches, the tag name set as `GuiObject.fallback` will be used.
-   */
-  static readonly components: Map<string, keyof HTMLElementTagNameMap> = new Map();
-  /**
-   * The fallback WebComponent tag name used when no component match a type.
-   *
-   * By default this falls back to `'gui-object'`.
-   */
-  static fallback: keyof HTMLElementTagNameMap;
-  static {
-    // natives
-    this.components.set(std.core.Table._type, 'gui-table');
-    // this.components.set(util.BoxPlotFloat._type, 'gui-boxplot');
-    // this.components.set(util.BoxPlotInt._type, 'gui-boxplot');
-    // // primitives
-    // this.components.set(std.core.geo._type, 'gui-value');
-    // this.components.set(std.core.time._type, 'gui-value');
-    // this.components.set(std.core.duration._type, 'gui-value');
-    // this.components.set(std.core.Date._type, 'gui-value');
-    // // nodes
-    // this.components.set(std.core.node._type, 'gui-value');
-    // this.components.set(std.core.nodeTime._type, 'gui-value');
-    // this.components.set(std.core.nodeList._type, 'gui-value');
-    // this.components.set(std.core.nodeGeo._type, 'gui-value');
-    // this.components.set(std.core.nodeIndex._type, 'gui-value');
-    // special
-    this.components.set(std.runtime.Task._type, 'gui-task-info');
-    this.components.set(std.runtime.TaskInfo._type, 'gui-task-info');
-
-    this.fallback = 'gui-object';
-  }
   private _value: unknown;
-  private _withHeader = false;
+  private _header: string | boolean = false;
   private _expanded = false;
   private _nested = false;
   private _resolve = false;
   private _props: ObjectProps = {};
+  private _factory = GuiFactory.global;
 
   connectedCallback() {
     this.classList.add('gui-object');
-    setTimeout(() => this.update(), 0);
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
+    this._factory = GuiFactory.closest(this);
+    this.update();
   }
 
   setAttrs({
     value = this._value,
-    withHeader = this._withHeader,
+    header = this._header,
     nested = this._nested,
     expanded = this._expanded,
     resolve = this._resolve,
@@ -93,7 +54,7 @@ export class GuiObject extends HTMLElement {
       (this._props as any)[key] = (props as any)[key];
     }
     this._value = value;
-    this._withHeader = withHeader;
+    this._header = header;
     this._nested = nested;
     this._expanded = expanded;
     this._resolve = resolve;
@@ -103,12 +64,16 @@ export class GuiObject extends HTMLElement {
   getAttrs(): Partial<GuiObjectProps> {
     return {
       value: this._value,
-      withHeader: this._withHeader,
+      header: this._header,
       nested: this._nested,
       expanded: this._expanded,
       resolve: this._resolve,
       ...this._props,
     };
+  }
+
+  get props() {
+    return this._props;
   }
 
   set props(props: ObjectProps) {
@@ -121,6 +86,10 @@ export class GuiObject extends HTMLElement {
   }
 
   set value(value: unknown) {
+    if (this._value === value) {
+      // optimize the case where the value did not change
+      return;
+    }
     this._value = value;
     this.update();
   }
@@ -130,12 +99,12 @@ export class GuiObject extends HTMLElement {
    *
    * *This property has no effect if the value is a scalar value.*
    */
-  get withHeader() {
-    return this._withHeader;
+  get header() {
+    return this._header;
   }
 
-  set withHeader(withHeader: boolean) {
-    this._withHeader = withHeader;
+  set header(header: boolean | string) {
+    this._header = header;
     this.update();
   }
 
@@ -170,317 +139,311 @@ export class GuiObject extends HTMLElement {
   }
 
   update() {
-    const type = typeof this._value;
-    switch (type) {
-      case 'bigint':
-      case 'boolean':
-      case 'number':
-      case 'string':
-      case 'undefined':
-      case 'function':
-        this.replaceChildren(<gui-value value={this._value} {...this._props} />);
-        break;
-      case 'symbol':
-        this.replaceChildren(<gui-value value={`${this._value}`} {...this._props} />);
-        break;
-      case 'object': {
-        // null
-        if (this._value === null) {
-          this.replaceChildren(<gui-value value={this._value} {...this._props} />);
-          return;
-        }
+    this._render(this._value);
+  }
 
-        // undefined
-        if (this._value === undefined) {
-          this.replaceChildren();
-          return;
-        }
+  private _render(value: unknown): void {
+    if (typeof value === 'object' && value !== null) {
+      this._renderAsObject(value);
+    } else {
+      this._renderAsValue(value);
+    }
+  }
 
-        if (this._value instanceof HTMLElement) {
-          this.replaceChildren(this._value);
-          return;
-        }
+  private _renderAsValue(value: unknown): void {
+    if (this._factory.valueTag.toUpperCase() === this.tagName) {
+      // debugger;
+      const el = document.createElement('gui-value');
+      el.setAttrs({ ...this._props, value });
+      this.replaceChildren(el);
+    } else {
+      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+    }
+  }
 
-        // Enum
-        if (this._value instanceof GCEnum) {
-          let text: string;
-          if (this._value.$type.name.startsWith('core::')) {
-            text = `${this._value.$type.name.slice(6)}::${this._value.key}`;
-          } else {
-            text = `${this._value.$type.name}::${this._value.key}`;
-          }
-          this.replaceChildren(document.createTextNode(text));
-          return;
-        }
+  private _renderAsObject(value: object): void {
+    if (value instanceof HTMLElement) {
+      this.replaceChildren(value);
+      return;
+    }
 
-        if (this._value instanceof GCObject) {
-          const customElement = GuiObject.components.get(this._value.$type.name);
-          if (customElement) {
-            const element = document.createElement(customElement) as GuiObject;
-            element.value = this._value;
-            Object.assign(element, this._props);
-            this.replaceChildren(element);
-            return;
-          }
-        }
+    if (value instanceof GCEnum) {
+      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      return;
+    }
 
-        // Array
-        if (Array.isArray(this._value)) {
-          const tableEl = document.createElement(
-            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
-          ) as GuiObject;
-          tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.columnFactories = { 0: 'gui-object' };
-          tableEl.value = this._value;
-          tableEl.columnsWidths = [135];
-          tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
-          this.replaceChildren(tableEl);
-          return;
-        }
+    if (Array.isArray(value)) {
+      const table = this._factory.create(std.core.Table._type, {
+        ...this._props,
+        value,
+        style: { minHeight: 'var(--gui-object-table-min-height)' },
+      });
+      this.replaceChildren(table);
+      return;
+    }
 
-        // Map
-        if (this._value instanceof Map) {
-          const tableEl = document.createElement(
-            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
-          ) as GuiObject;
-          tableEl.columnFactories = { 1: GuiObject.fallback };
-          tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.value = this._value;
-          tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.columnsWidths = [135];
-          tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
-          this.replaceChildren(tableEl);
-          return;
-        }
+    if (value instanceof Map) {
+      const table = this._factory.create(std.core.Table._type, {
+        ...this._props,
+        value,
+        style: { minHeight: 'var(--gui-object-table-min-height)' },
+      });
+      this.replaceChildren(table);
+      return;
+    }
 
-        // if (this._value instanceof std.core.node && this._resolve) {
-        //   this._value.resolve().then((resolved) => {
-        //     this.value = resolved;
-        //   });
-        //   this.replaceChildren(<em>Resolving...</em>);
-        //   return;
-        // }
+    if (value instanceof std.core.node && this._resolve) {
+      value.resolve().then((value) => {
+        this._render(value);
+      });
+      return;
+    }
 
-        // std.core.nodeXXX, std.core.geo, std.core.Duration, std.core.time, etc
-        if (isStd(this._value)) {
-          this.replaceChildren(<gui-value value={this._value} {...this._props} />);
-          return;
-        }
+    if (isStd(value)) {
+      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      return;
+    }
 
-        if (this._value instanceof Error) {
-          this.replaceChildren(
-            <sl-alert variant="danger" open>
-              <pre>{this._value.message}</pre>
-            </sl-alert>,
-          );
-          return;
-        }
+    if (value instanceof Error) {
+      this.replaceChildren(
+        <sl-alert variant="danger" open>
+          <pre>{value.message}</pre>
+        </sl-alert>,
+      );
+      return;
+    }
 
-        // std.core.Table special handling
-        if (this._value instanceof std.core.Table) {
-          const tableEl = document.createElement(
-            GuiObject.components.get(std.core.Table._type) ?? 'gui-table',
-          ) as GuiObject;
-          tableEl.style.minHeight = 'var(--gui-object-table-min-height)';
-          tableEl.value = this._value;
-          tableEl.cellProps = (_: unknown, value: unknown) => ({ value, ...this._props });
-          this.replaceChildren(tableEl);
-          return;
-        }
+    if (value instanceof std.core.Table) {
+      const table = this._factory.create(std.core.Table._type, {
+        ...this._props,
+        value,
+        style: { minHeight: 'var(--gui-object-table-min-height)' },
+      });
+      this.replaceChildren(table);
+      return;
+    }
 
-        // any non-native GreyCat object
-        if (this._value instanceof GCObject && !this._value.$type.is_native) {
-          if (this._value.$attrs === undefined || this._value.$attrs.length === 0) {
-            this.replaceChildren(<em>empty object</em>);
-            return;
-          }
-
-          const fragment = document.createDocumentFragment();
-
-          for (let i = 0; i < this._value.$type.attrs.length; i++) {
-            const attr = this._value.$type.attrs[i];
-            const attrVal = this._value.$attrs[i];
-            if (attrVal === null) {
-              fragment.appendChild(
-                <>
-                  <div>{attr.name}</div>
-                  <div className="gui-object-value">null</div>
-                </>,
-              );
-              continue;
-            }
-
-            // nested object
-            if (this._needsCollapsible(attrVal)) {
-              const open =
-                (
-                  this.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
-                    | sl.SlDetails
-                    | undefined
-                )?.open ?? false;
-              const details = document.createElement('sl-details');
-              details.open = this._expanded || open;
-              details.summary = this._typeName(attrVal) ?? '';
-              details.updateComplete.then(() => {
-                details.open = this._expanded || open;
-              });
-              const onshow = () => {
-                const child = createElement(GuiObject.fallback, {
-                  ...this.getAttrs(),
-                  withHeader: false, // past level 0 this is no longer needed
-                  value: attrVal,
-                  data: attr.name,
-                  ...this._props,
-                });
-                details.appendChild(child);
-                // remove it once loaded
-                details.removeEventListener('sl-show', onshow);
-              };
-              if (details.open) {
-                onshow();
-              } else {
-                details.addEventListener('sl-show', onshow);
-              }
-
-              fragment.appendChild(
-                <>
-                  <div>{attr.name}</div>
-                  <div className="gui-object-value">{details}</div>
-                </>,
-              );
-            } else if (attrVal instanceof std.core.node && this._resolve) {
-              const details = document.createElement('sl-details');
-              details.summary = `${attrVal}`;
-              details.updateComplete.then(() => {
-                details.open = this._expanded;
-              });
-              const onshow = () => {
-                const child = createElement(GuiObject.fallback, {
-                  ...this.getAttrs(),
-                  withHeader: false, // past level 0 this is no longer needed
-                  value: attrVal,
-                  data: attr.name,
-                  ...this._props,
-                }) as GuiObject;
-                attrVal.resolve().then((resolved) => {
-                  if (resolved instanceof GCObject) {
-                    details.summary = this._typeName(resolved) ?? details.summary;
-                  }
-                  child.value = resolved;
-                });
-                details.appendChild(child);
-                // remove it once loaded
-                details.removeEventListener('sl-show', onshow);
-              };
-              details.addEventListener('sl-show', onshow);
-
-              fragment.appendChild(
-                <>
-                  <div>{attr.name}</div>
-                  <div className="gui-object-value">{details}</div>
-                </>,
-              );
-            } else {
-              fragment.appendChild(
-                <>
-                  <div>{attr.name}</div>
-                  <div className="gui-object-value">
-                    {createElement(GuiObject.fallback, {
-                      ...this.getAttrs(),
-                      nested: true,
-                      value: attrVal,
-                      ...this._props,
-                      data: attr.name,
-                    })}
-                  </div>
-                </>,
-              );
-            }
-          }
-
-          if (this._nested) {
-            this.classList.add('gui-object-grid');
-            this.replaceChildren(fragment);
-            return;
-          }
-
-          // Important note:
-          // ---------------
-          // if the structure changes here, remember to update the selector in components/table/table.css too:
-          //  eg. gui-table gui-tbody gui-tbody-row gui-tbody-cell :has(gui-object.gui-object > article > .gui-object.gui-object-grid)
-          //
-          // the above selectors rely on the below structure to work properly
-          this.replaceChildren(
-            <sl-card className="gui-object-card">
-              {this._withHeader ? (
-                <header slot="header">{this._typeName(this._value)}</header>
-              ) : undefined}
-              <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-            </sl-card>,
-          );
-          return;
-        }
-
-        const fragment = document.createDocumentFragment();
-        let index = 0;
-        for (const key in this._value) {
-          const val = (this._value as Record<string, unknown>)[key];
-          if (this._needsCollapsible(val)) {
-            const open =
-              (this.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)?.open ??
-              false;
-            const details = (
-              <sl-details summary={this._typeName(val)} open={this._expanded || open}>
-                {createElement(GuiObject.fallback, {
-                  ...this.getAttrs(),
-                  value: val,
-                  ...this._props,
-                  data: key,
-                })}
-              </sl-details>
-            ) as SlDetails;
-            details.updateComplete.then(() => {
-              details.open = this._expanded || open;
-            });
-            fragment.appendChild(
-              <>
-                <div>{key}</div>
-                <div className="gui-object-value">{details}</div>
-              </>,
-            );
-          } else {
-            fragment.appendChild(
-              <>
-                <div>{key}</div>
-                <div className="gui-object-value">
-                  {createElement(GuiObject.fallback, {
-                    ...this.getAttrs(),
-                    value: val,
-                    ...this._props,
-                    data: key,
-                  })}
-                </div>
-              </>,
-            );
-          }
-          index += 1;
-        }
-
-        if (this._withHeader) {
-          this.replaceChildren(
-            <sl-card className="gui-object-card">
-              <header slot="header">{this._typeName(this._value)}</header>
-              <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-            </sl-card>,
-          );
-          return;
-        }
-
-        this.classList.add('gui-object-grid');
-        this.replaceChildren(fragment);
+    if (value instanceof GCObject) {
+      const tagName = this._factory.getMapping(value.$type.name);
+      if (tagName) {
+        this.replaceChildren(createElement(tagName, { ...this._props, value }));
         return;
       }
+      if (value.$type.is_native) {
+        const node = document.createTextNode(`No component for native type '${value.$type.name}'`);
+        this.replaceChildren(node);
+        return;
+      }
+
+      this._renderAsGcObject(value);
+      return;
     }
+
+    this._renderAsJsObject(value);
+  }
+
+  private _renderAsGcObject(value: GCObject): void {
+    if (value.$attrs === undefined || value.$attrs.length === 0) {
+      this.replaceChildren(<em>empty object</em>);
+      return;
+    }
+
+    const fragment = document.createDocumentFragment();
+
+    for (let i = 0; i < value.$type.attrs.length; i++) {
+      const attr = value.$type.attrs[i];
+      const attrVal = value.$attrs[i];
+      if (attrVal === null) {
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={attr.name} />
+            <gui-object-fieldvalue>
+              {this._factory.createValue({ ...this._props, value: attrVal })}
+            </gui-object-fieldvalue>
+          </>,
+        );
+        continue;
+      }
+
+      // nested object
+      if (this._needsCollapsible(attrVal)) {
+        const open =
+          (
+            this.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
+              | sl.SlDetails
+              | undefined
+          )?.open ?? false;
+        const details = document.createElement('sl-details');
+        details.open = this._expanded || open;
+        details.summary = this._typeName(attrVal) ?? '';
+        details.updateComplete.then(() => {
+          details.open = this._expanded || open;
+        });
+        const onshow = () => {
+          const child = this._factory.create(
+            value.$type.abi.types[attr.abi_type].name,
+            Object.assign(this.getAttrs(), this._props, {
+              header: false, // past level 0 this is no longer needed
+              value: attrVal,
+              data: attr.name,
+            }),
+          );
+          details.appendChild(child);
+          // remove it once loaded
+          details.removeEventListener('sl-show', onshow);
+        };
+        if (details.open) {
+          onshow();
+        } else {
+          details.addEventListener('sl-show', onshow);
+        }
+
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={attr.name} />
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
+          </>,
+        );
+      } else if (attrVal instanceof std.core.node && this._resolve) {
+        const details = document.createElement('sl-details');
+        details.summary = `${attrVal}`;
+        details.updateComplete.then(() => {
+          console.log('details update complete');
+          details.open = this._expanded;
+        });
+        const content = this._factory.createObject(
+          Object.assign(this.getAttrs(), this._props, {
+            header: false, // past level 0 this is no longer needed
+            value: 'loading...',
+            data: attr.name,
+          }),
+        ) as GuiValueElement;
+        details.appendChild(content);
+        const onshow = () => {
+          attrVal.resolve().then((resolved) => {
+            if (resolved instanceof GCObject) {
+              details.summary = `${resolved.$type.name} (${attrVal})`;
+            }
+            content.value = resolved;
+          });
+          // remove it once loaded
+          details.removeEventListener('sl-show', onshow);
+        };
+        details.addEventListener('sl-show', onshow);
+
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={attr.name} />
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
+          </>,
+        );
+      } else {
+        const child = this._factory.createObject(
+          Object.assign(this.getAttrs(), this._props, {
+            nested: true,
+            value: attrVal,
+            data: attr.name,
+          }),
+        );
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={attr.name} />
+            <gui-object-fieldvalue>{child}</gui-object-fieldvalue>
+          </>,
+        );
+      }
+    }
+
+    if (this._nested) {
+      this.classList.add('gui-object-grid');
+      this.replaceChildren(fragment);
+      return;
+    }
+
+    // Important note:
+    // ---------------
+    // if the structure changes here, remember to update the selector in components/table/table.css too:
+    //  eg. gui-table gui-tbody gui-tbody-row gui-tbody-cell :has(gui-object.gui-object > article > .gui-object.gui-object-grid)
+    //
+    // the above selectors rely on the below structure to work properly
+    let header: Node | undefined;
+    if (this._header) {
+      if (this._value === value) {
+        header = <header slot="header">{this._typeName(this._value)}</header>;
+      } else {
+        header = (
+          <header slot="header">
+            {this._typeName(this._value)}&lt;{value.$type.name}&gt;
+          </header>
+        );
+      }
+    }
+    this.replaceChildren(
+      <sl-card className="gui-object-card">
+        {header}
+        <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
+      </sl-card>,
+    );
+    return;
+  }
+
+  private _renderAsJsObject(value: object): void {
+    const fragment = document.createDocumentFragment();
+    let index = 0;
+    for (const key in value) {
+      const val = (value as Record<string, unknown>)[key];
+      if (this._needsCollapsible(val)) {
+        const open =
+          (this.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)?.open ??
+          false;
+        const details = (
+          <sl-details summary={this._typeName(val)} open={this._expanded || open}>
+            {this._factory.createObject(
+              Object.assign(this.getAttrs(), this._props, {
+                header: false, // past level 0 this is no longer needed
+                value: val,
+                data: key,
+              }),
+            )}
+          </sl-details>
+        ) as SlDetails;
+        details.updateComplete.then(() => {
+          details.open = this._expanded || open;
+        });
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={key} />
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
+          </>,
+        );
+      } else {
+        const child = this._factory.createObject(
+          Object.assign(this.getAttrs(), this._props, {
+            value: val,
+            data: key,
+          }),
+        );
+        fragment.appendChild(
+          <>
+            <gui-object-fieldname value={key} />
+            <gui-object-fieldvalue>{child}</gui-object-fieldvalue>
+          </>,
+        );
+      }
+      index += 1;
+    }
+
+    const card = (
+      <sl-card className="gui-object-card">
+        <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
+      </sl-card>
+    ) as sl.SlCard;
+    if (typeof this._header === 'string') {
+      card.prepend(<header slot="header">{this._header}</header>);
+    } else if (this._header) {
+      card.prepend(<header slot="header">{this._typeName(this._value)}</header>);
+    }
+    this.replaceChildren(card);
   }
 
   /**
@@ -527,15 +490,69 @@ function isStd(value: unknown): boolean {
   );
 }
 
+class GuiObjectFieldName extends HTMLElement {
+  private _value: string;
+  // private _tooltip: sl.SlTooltip;
+  private _span: HTMLSpanElement;
+
+  constructor() {
+    super();
+
+    this._value = '';
+    // this._tooltip = document.createElement('sl-tooltip');
+    // this._tooltip.hoist = true;
+    // this._tooltip.placement = 'bottom';
+    this._span = document.createElement('span');
+    // this._tooltip.appendChild(this._span);
+  }
+
+  connectedCallback() {
+    // this.replaceChildren(this._tooltip);
+    this.replaceChildren(this._span);
+    this.update();
+  }
+
+  get value() {
+    return this._value;
+  }
+
+  set value(value: string) {
+    this._value = value;
+    this.update();
+  }
+
+  update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+    this._span.textContent = this._value;
+    if (this.scrollWidth > this.clientWidth) {
+      this._span.title = this._value;
+    }
+    // XXX using sl.SlTooltip here will make the usage of gui-object sluggish in gui-table
+    // because the promise create to many minor GCs
+    // this._tooltip.content = this._value;
+    // this._tooltip.updateComplete.then(() => {
+    //   this._tooltip.disabled = !(this.scrollWidth > this.clientWidth);
+    // });
+  }
+}
+
+class GuiObjectFieldValue extends HTMLElement {}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-object': GuiObject;
+    'gui-object-fieldname': GuiObjectFieldName;
+    'gui-object-fieldvalue': GuiObjectFieldValue;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
         /**
+         * Any unknown properties given to `gui-object` will be passed down to the underlying element.
+         *
          * Please, don't use this in a React context. Use `WCWrapper`.
          */
         'gui-object': GreyCat.Element<
@@ -545,11 +562,15 @@ declare global {
             [key: string]: unknown;
           }
         >;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'gui-object-fieldname': GreyCat.Element<GuiObjectFieldName>;
+        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        'gui-object-fieldvalue': GreyCat.Element<GuiObjectFieldValue>;
       }
     }
   }
 }
 
-if (!globalThis.customElements.get('gui-object')) {
-  globalThis.customElements.define('gui-object', GuiObject);
-}
+registerCustomElement('gui-object', GuiObject);
+registerCustomElement('gui-object-fieldname', GuiObjectFieldName);
+registerCustomElement('gui-object-fieldvalue', GuiObjectFieldValue);

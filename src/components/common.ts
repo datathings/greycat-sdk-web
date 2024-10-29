@@ -63,7 +63,7 @@ export function convertToTable(table: TableLike | undefined | null): core.Table 
       if (typeof table[0] === 'object') {
         return core.Table.fromObjects(table);
       }
-      const new_table = core.Table.fromRows(table as unknown[][]);
+      const new_table = core.Table.fromCols([table]);
       new_table.headers = ['Element'];
       return new_table;
     }

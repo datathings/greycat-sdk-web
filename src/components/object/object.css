@@ -2,19 +2,11 @@ gui-object {
   --gui-object-font-size: var(--font-size);
   --gui-object-font-family: var(--font-family);
   --gui-object-table-min-height: 400px;
-  --gui-object-column-gap: 12px;
+  --gui-object-column-gap: calc(var(--spacing) * 2);
   --gui-object-row-gap: 2px;
-}
+  --gui-object-fieldname-max-width: 200px;
 
-.gui-object {
   display: grid;
-}
-
-.gui-object.gui-object-grid {
-  align-content: start;
-  grid-template-columns: auto 1fr;
-  column-gap: var(--gui-object-column-gap);
-  row-gap: var(--gui-object-row-gap);
 }
 
 .gui-object-card {
@@ -30,11 +22,23 @@ gui-object {
   padding: var(--spacing);
 }
 
-.gui-object > gui-table {
-  min-height: 250px;
+.gui-object-grid {
+  display: grid;
+  align-content: start;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--gui-object-column-gap);
+  row-gap: var(--gui-object-row-gap);
 }
 
-gui-object .gui-object-value > sl-details {
+gui-object-fieldname {
+  max-width: 200px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: var(--gui-object-fieldname-max-width);
+}
+
+gui-object-fieldvalue > sl-details {
   margin: 0;
   border: none;
   padding: 0;
@@ -44,19 +48,32 @@ gui-object > code {
   width: fit-content;
 }
 
-gui-object .gui-object-value > sl-details::part(header) {
+gui-object-fieldvalue > sl-details::part(header) {
   transition: all 0.3s ease;
   line-height: 1rem;
 }
 
-gui-object .gui-object-value > sl-details:not([open])::part(header) {
+gui-object-fieldvalue > sl-details:not([open])::part(header) {
   color: var(--muted-color);
 }
 
-gui-object .gui-object-value > sl-details::part(content) {
+gui-object-fieldvalue > sl-details::part(content) {
   padding: 0;
 }
 
-gui-object .gui-object-value > sl-details > .gui-object-card::part(base) {
+gui-object-fieldvalue > sl-details > .gui-object-card::part(base) {
   border-width: 0;
+}
+
+gui-object-fieldvalue > sl-details > gui-table {
+  min-height: var(--gui-object-table-min-height);
+}
+
+gui-object-fieldvalue > sl-details > gui-table .gui-table-filter::part(base) {
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+
+gui-object-fieldvalue > sl-details > gui-object > sl-card {
+  --border-width: 0;
 }
