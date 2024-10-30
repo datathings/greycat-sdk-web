@@ -1053,7 +1053,7 @@ export class GuiTableBody extends HTMLElement {
   filtered_rows: number[] = [];
   virtual_rows: number[] = [];
   virtualScroller: HTMLDivElement;
-  private _factory = GuiFactory.global;
+  private _factory: GuiFactory = GuiFactory.global;
 
   constructor() {
     super();

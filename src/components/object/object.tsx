@@ -33,7 +33,7 @@ export class GuiObject extends HTMLElement {
   private _nested = false;
   private _resolve = false;
   private _props: ObjectProps = {};
-  private _factory = GuiFactory.global;
+  private _factory: GuiFactory = GuiFactory.global;
 
   connectedCallback() {
     this.classList.add('gui-object');
