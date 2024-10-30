@@ -6,6 +6,9 @@ await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
+// const task = await greycat.spawn('project::task_without_params');
+// const element = GuiFactory.global.create(task.$type.name, { value: task });
+
 document.body.appendChild(
   <app-layout title="Tasks - Info">
     {actions}

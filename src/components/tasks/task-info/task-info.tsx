@@ -134,7 +134,7 @@ export class GuiTaskInfo extends HTMLElement {
     }
   }
 
-  private _updateTaskInfo(t: TaskInfoLike) {
+  private _updateTaskInfo = (t: TaskInfoLike) => {
     this._lastUpdate.textContent = new Date().toISOString();
     this._task = t;
     if (t.type) {
@@ -236,7 +236,7 @@ export class GuiTaskInfo extends HTMLElement {
       this._btn.onclick = () =>
         this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
-  }
+  };
 
   async status(): Promise<std.runtime.TaskStatus | null> {
     if (!this._task) {
