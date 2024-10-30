@@ -9,8 +9,8 @@ dependencies:
     specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.105-dev.tgz
     version: '@get.greycat.io/files/sdk/js/dev/7.0/7.0.105-dev.tgz'
   '@shoelace-style/shoelace':
-    specifier: 2.15.1
-    version: 2.15.1(@types/react@18.3.11)
+    specifier: 2.18.0
+    version: 2.18.0(@types/react@18.3.11)
   d3:
     specifier: 7.8.5
     version: 7.8.5
@@ -731,8 +731,8 @@ packages:
     resolution: {integrity: sha512-r4C9C/5kSfMBIr0D9imvpRdCNXtUNgyYThc4YlS6K5Hchv1UyxNQ9mxwj+BTRH2i1Neits260sR3OjKMnplsFA==}
     dev: false
 
-  /@shoelace-style/shoelace@2.15.1(@types/react@18.3.11):
-    resolution: {integrity: sha512-3ecUw8gRwOtcZQ8kWWkjk4FTfObYQ/XIl3aRhxprESoOYV1cYhloYPsmQY38UoL3+pwJiZb5+LzX0l3u3Zl0GA==}
+  /@shoelace-style/shoelace@2.18.0(@types/react@18.3.11):
+    resolution: {integrity: sha512-uzpL0+8Qm8aE2ArcXBcKHkaPc6l7ymuVaN6xJM0yd2o3talcoXpuP+gRBsgggSZKuuJEa+JkEuLDdzzFnE/+jw==}
     engines: {node: '>=14.17.0'}
     dependencies:
       '@ctrl/tinycolor': 4.1.0

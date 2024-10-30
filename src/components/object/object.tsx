@@ -307,7 +307,6 @@ export class GuiObject extends HTMLElement {
         const details = document.createElement('sl-details');
         details.summary = `${attrVal}`;
         details.updateComplete.then(() => {
-          console.log('details update complete');
           details.open = this._expanded;
         });
         const content = this._factory.createObject(
