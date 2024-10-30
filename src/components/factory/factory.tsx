@@ -8,7 +8,7 @@ type Props = {
 } & GreyCat.ExtendedHTMLProperties;
 
 export class GuiFactory extends HTMLElement {
-  static global: GuiGlobalFactory;
+  static global: GuiFactory & { mappings: Map<string, keyof HTMLElementTagNameMap> };
 
   constructor(
     /**
@@ -147,16 +147,6 @@ export class GuiFactory extends HTMLElement {
   }
 }
 
-export class GuiGlobalFactory extends GuiFactory {
-  constructor(
-    public override objectTag: keyof HTMLElementTagNameMap = 'gui-object',
-    public override valueTag: keyof HTMLElementTagNameMap = 'gui-value',
-    public override readonly mappings: Map<string, keyof HTMLElementTagNameMap> = new Map(),
-  ) {
-    super(objectTag, valueTag, mappings);
-  }
-}
-
 declare global {
   interface HTMLElementTagNameMap {
     'gui-factory': GuiFactory;
@@ -174,7 +164,7 @@ declare global {
 registerCustomElement('gui-factory', GuiFactory);
 
 // needs to be created after registered
-GuiFactory.global = new GuiGlobalFactory(
+GuiFactory.global = new GuiFactory(
   'gui-object',
   'gui-value',
   new Map([
@@ -184,4 +174,4 @@ GuiFactory.global = new GuiGlobalFactory(
     [std.runtime.Task._type, 'gui-task-info'],
     [std.runtime.TaskInfo._type, 'gui-task-info'],
   ]),
-);
+) as GuiFactory & { mappings: Map<string, keyof HTMLElementTagNameMap> };
