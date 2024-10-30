@@ -31,7 +31,6 @@ gui-object {
 }
 
 gui-object-fieldname {
-  max-width: 200px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;

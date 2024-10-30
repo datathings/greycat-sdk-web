@@ -279,23 +279,22 @@ export class GuiObject extends HTMLElement {
         details.updateComplete.then(() => {
           details.open = this._expanded || open;
         });
+        const child = this._factory.create(
+          value.$type.abi.types[attr.abi_type].name,
+          Object.assign(this.getAttrs(), this._props, {
+            header: false, // past level 0 this is no longer needed
+            value: undefined,
+            data: attr.name,
+          }),
+        ) as GuiValueElement;
+        details.appendChild(child);
         const onshow = () => {
-          const child = this._factory.create(
-            value.$type.abi.types[attr.abi_type].name,
-            Object.assign(this.getAttrs(), this._props, {
-              header: false, // past level 0 this is no longer needed
-              value: attrVal,
-              data: attr.name,
-            }),
-          );
-          details.appendChild(child);
-          // remove it once loaded
-          details.removeEventListener('sl-show', onshow);
+          child.value = attrVal;
         };
         if (details.open) {
           onshow();
         } else {
-          details.addEventListener('sl-show', onshow);
+          details.addEventListener('sl-show', onshow, { once: true });
         }
 
         fragment.appendChild(
@@ -319,17 +318,18 @@ export class GuiObject extends HTMLElement {
           }),
         ) as GuiValueElement;
         details.appendChild(content);
-        const onshow = () => {
-          attrVal.resolve().then((resolved) => {
-            if (resolved instanceof GCObject) {
-              details.summary = `${resolved.$type.name} (${attrVal})`;
-            }
-            content.value = resolved;
-          });
-          // remove it once loaded
-          details.removeEventListener('sl-show', onshow);
-        };
-        details.addEventListener('sl-show', onshow);
+        details.addEventListener(
+          'sl-show',
+          () => {
+            attrVal.resolve().then((resolved) => {
+              if (resolved instanceof GCObject) {
+                details.summary = `${resolved.$type.name} (${attrVal})`;
+              }
+              content.value = resolved;
+            });
+          },
+          { once: true },
+        );
 
         fragment.appendChild(
           <>
@@ -526,15 +526,11 @@ class GuiObjectFieldName extends HTMLElement {
       return;
     }
     this._span.textContent = this._value;
-    if (this.scrollWidth > this.clientWidth) {
-      this._span.title = this._value;
-    }
-    // XXX using sl.SlTooltip here will make the usage of gui-object sluggish in gui-table
-    // because the promise create to many minor GCs
-    // this._tooltip.content = this._value;
-    // this._tooltip.updateComplete.then(() => {
-    //   this._tooltip.disabled = !(this.scrollWidth > this.clientWidth);
-    // });
+    queueMicrotask(() => {
+      if (this.scrollWidth > this.clientWidth) {
+        this.title = this._value;
+      }
+    });
   }
 }
 
