@@ -1,0 +1,68 @@
+gui-chart-config {
+  sl-card {
+    width: 100%;
+  }
+
+  .gui-chart-config-summary {
+    display: flex;
+    flex-grow: 1;
+    justify-content: space-between;
+    align-items: center;
+    padding-right: var(--spacing);
+  }
+
+  gui-chart-axis-input,
+  gui-chart-ordinate-input {
+    sl-input,
+    sl-select,
+    sl-radio-group {
+      --label-width: 80px;
+    }
+  }
+
+  sl-input,
+  sl-select,
+  sl-radio-group,
+  sl-checkbox,
+  .gui-chart-config-input-field {
+    --label-width: 100px;
+    --gap-width: var(--spacing);
+  }
+
+  sl-input::part(form-control),
+  sl-select::part(form-control),
+  sl-radio-group::part(form-control),
+  .gui-chart-config-input-field {
+    display: grid;
+    grid: auto / var(--label-width) 1fr;
+    gap: var(--sl-spacing-3x-small) var(--gap-width);
+    align-items: center;
+  }
+
+  sl-input::part(form-control-label),
+  sl-select::part(form-control-label),
+  sl-radio-group::part(form-control-label),
+  .gui-chart-config-input-label {
+    font-size: var(--sl-input-label-font-size-small);
+    text-align: right;
+  }
+
+  sl-input::part(form-control-help-text),
+  sl-select::part(form-control-help-text),
+  sl-radio-group::part(form-control-help-text) {
+    grid-column-start: 2;
+  }
+
+  sl-checkbox {
+    padding-left: calc(var(--label-width) + var(--gap-width));
+  }
+
+  sl-input[data-user-invalid]::part(base),
+  sl-select[data-user-invalid]::part(combobox),
+  sl-checkbox[data-user-invalid]::part(control),
+  sl-input[data-invalid]::part(base),
+  sl-select[data-invalid]::part(combobox),
+  sl-checkbox[data-invalid]::part(control) {
+    border-color: var(--sl-color-danger-600);
+  }
+}

@@ -1,4 +1,4 @@
-import { getDebuggerLogger, type GreyCat, $ } from './exports.js';
+import { getDebuggerLogger, type GreyCat, $, core, GCObject } from './exports.js';
 
 export function ref<S, K extends keyof S>(state: S, key: K): [S, K] {
   return [state, key];
@@ -279,4 +279,28 @@ export function getIndexInParent(element: Element): number {
   }
 
   return index;
+}
+
+export function greycatTypeFromValueStr(value: unknown, greycat = $.default): string {
+  switch (typeof value) {
+    case 'bigint':
+    case 'number':
+      return core.int._type;
+    case 'boolean':
+      return 'core::boolean';
+    case 'string':
+      return core.String._type;
+    case 'object': {
+      if (Array.isArray(value)) {
+        return core.Array._type;
+      } else if (value instanceof Map) {
+        return core.Map._type;
+      } else if (value instanceof GCObject) {
+        return greycat.abi.types[value.$type.mapped_type_off].name;
+      }
+      return 'core::any';
+    }
+    default:
+      return 'core::any';
+  }
 }

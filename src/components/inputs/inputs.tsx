@@ -402,7 +402,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
   get value() {
     if (this._input.value.length === 0) {
-      return this._config.nullable ? null : 0;
+      return this._config.nullable ? null : NaN;
     }
     return this._input.valueAsNumber;
   }

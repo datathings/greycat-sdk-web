@@ -326,8 +326,13 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         fillOpacity: 0.2,
         yCol2: 'min',
         hideInTooltip: false,
+        hide: false,
         ...this._config.series[i],
       };
+
+      if (serie.hide) {
+        continue;
+      }
 
       const v = +xScale.invert(this._cursor.x);
 
@@ -727,19 +732,24 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
     this.main.rectangle(0, 0, this.main.ctx.canvas.width, this.main.ctx.canvas.height, { fill });
 
     for (let i = 0; i < this._config.series.length; i++) {
-      const serie = this._config.series[i];
-      this.drawSerie({
+      const s = this._config.series[i];
+      const serie: Serie<string> & SerieOptions = {
         color: this._colors[i],
         width: 1,
         markerWidth: 3,
         markerShape: 'circle',
-        markerColor: serie.color ?? this._colors[i],
+        markerColor: s.color ?? this._colors[i],
         opacity: 1,
         fillOpacity: 0.2,
         yCol2: 'min',
         hideInTooltip: false,
-        ...serie,
-      });
+        hide: false,
+        ...s,
+      };
+      if (serie.hide) {
+        continue;
+      }
+      this.drawSerie(serie);
     }
 
     this.main.rectInverse(

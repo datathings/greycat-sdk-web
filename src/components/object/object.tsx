@@ -167,6 +167,11 @@ export class GuiObject extends HTMLElement {
       return;
     }
 
+    if (value instanceof Date) {
+      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      return;
+    }
+
     if (value instanceof GCEnum) {
       this.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
@@ -455,7 +460,8 @@ export class GuiObject extends HTMLElement {
       typeof val === 'object' &&
       !isStd(val) &&
       !(val instanceof GCEnum) &&
-      !(val instanceof Node)
+      !(val instanceof Node) &&
+      !(val instanceof Date)
     );
   }
 

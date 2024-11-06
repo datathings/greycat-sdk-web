@@ -373,9 +373,9 @@ export class GuiHeatmap extends HTMLElement {
       this._computed;
 
     // Draw the heatmap
-    for (let col = 0; col < (this._table.cols?.length ?? 0); col++) {
-      for (let row = 0; row < (this._table.cols?.[col]?.length ?? 0); row++) {
-        const value = this._table.cols?.[col]?.[row];
+    for (let col = 0; col < this._table.cols.length; col++) {
+      for (let row = 0; row < (this._table.cols[col]?.length ?? 0); row++) {
+        const value = this._table.cols[col]?.[row];
 
         if (!isNaN(Number(value))) {
           const color = colorScale(Number(value));
@@ -516,9 +516,9 @@ export class GuiHeatmap extends HTMLElement {
     ];
 
     if (colorScaleMin === null || colorScaleMax === null) {
-      for (let col = 0; col < (this._table.cols?.length ?? 0); col++) {
-        for (let row = 0; row < (this._table.cols?.[col]?.length ?? 0); row++) {
-          const value = this._table.cols?.[col]?.[row];
+      for (let col = 0; col < this._table.cols.length; col++) {
+        for (let row = 0; row < (this._table.cols[col]?.length ?? 0); row++) {
+          const value = this._table.cols[col]?.[row];
           if (typeof value === 'number') {
             if (colorScaleMin === null || value < colorScaleMin) {
               colorScaleMin = value;
@@ -542,13 +542,13 @@ export class GuiHeatmap extends HTMLElement {
     const yLabels = this._config.yAxis.labels ?? [];
 
     if (xLabels.length === 0) {
-      for (let colIdx = 0; colIdx < (this._table.cols?.length ?? 0); colIdx++) {
+      for (let colIdx = 0; colIdx < this._table.cols.length; colIdx++) {
         xLabels.push(`${colIdx}`);
       }
     }
 
-    if (yLabels.length === 0 && this._table.cols?.[0] !== undefined) {
-      for (let rowIdx = 0; rowIdx < this._table.cols?.[0].length; rowIdx++) {
+    if (yLabels.length === 0 && this._table.cols[0] !== undefined) {
+      for (let rowIdx = 0; rowIdx < this._table.cols[0].length; rowIdx++) {
         yLabels.push(`${rowIdx}`);
       }
     }

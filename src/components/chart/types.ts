@@ -104,15 +104,15 @@ export type LinearAxis = {
   ticks?: any[];
 
   /**
-   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   * Formats the ticks text depending on the axis type and this parameter type:
    *
-   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
-   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
-   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   * - When `format: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `format: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `format: undefined` the value is stringified and displayed as-is.
    */
   format?: ((value: unknown) => string) | string;
   /**
-   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   * Formats the cursor text depending on the axis type and this parameter type:
    *
    * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
    * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
@@ -158,12 +158,12 @@ export type TimeAxis = {
   ticks?: d3.TimeInterval | (std.core.time | std.core.Date | Date | number)[] | null;
 
   /**
-   * Formats the cursor text on the axis depending on the axis type and this parameter type:
+   * Formats the ticks text on the axis depending on the axis type and this parameter type:
    *
-   * - When `cursorFormat: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
-   * - When `cursorFormat: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
+   * - When `format: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
+   * - When `format: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
    *   The `specifier` parameter is set to be the best possible specifier for the range.
-   * - When `cursorFormat: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
+   * - When `format: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
    */
   format?: ((value: number, specifier: string) => string) | string;
   /**
@@ -182,6 +182,8 @@ export type Axis = CommonAxis & (LinearAxis | LogAxis | TimeAxis);
 export type Ordinate = Axis & { position?: AxisPosition };
 
 export type SerieOptions = {
+  /** Whether or not to display the serie */
+  hide: boolean;
   color: string;
   width: number;
   markerWidth: number;

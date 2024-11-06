@@ -22,8 +22,10 @@ import {
   CanvasContext,
   getColors,
   convertToTable,
+  GuiChartConfig,
+  GuiUpdateEvent,
 } from '../../exports.js';
-import type { std, TableLike } from '../../exports.js';
+import type { sl, std, TableLike } from '../../exports.js';
 
 type ComputedState = {
   leftAxes: number;
@@ -89,6 +91,8 @@ export class GuiChart extends HTMLElement {
     }
   > = {};
   private _computed: ComputedState | undefined;
+  private _drawer: sl.SlDrawer;
+  private _configEl: GuiChartConfig;
 
   constructor() {
     super();
@@ -102,6 +106,7 @@ export class GuiChart extends HTMLElement {
     this._canvas.style.display = 'block';
     this._canvas.style.position = 'absolute';
     this._canvas.style.background = 'transparent';
+    this._canvas.setAttribute('data-canvas', '');
     this._ctx = new CanvasContext(this._canvas.getContext('2d') as CanvasRenderingContext2D);
 
     // ux canvas
@@ -109,6 +114,7 @@ export class GuiChart extends HTMLElement {
     this._uxCanvas.style.display = 'block';
     this._uxCanvas.style.position = 'absolute';
     this._uxCanvas.style.background = 'transparent';
+    this._uxCanvas.setAttribute('data-ux-canvas', '');
     this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
     // svg
@@ -123,15 +129,46 @@ export class GuiChart extends HTMLElement {
     this._tooltip.style.position = 'absolute';
     this._tooltip.classList.add('gui-chart-tooltip');
 
-    // mouse events
-    this.addEventListener('mousedown', (event) => {
-      if (event.button !== 0) {
-        return;
+    // config drawer
+    this._drawer = document.createElement('sl-drawer');
+    this._drawer.contained = true;
+    this._drawer.label = 'Chart config';
+    this._configEl = document.createElement('gui-chart-config');
+    this._configEl.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      const value = this._configEl.value;
+      console.log('change', { current: this._config, new: value });
+
+      // check for series/yAxis validity
+      let isValid = true;
+      for (const serie of value.series) {
+        if (value.yAxes[serie.yAxis] === undefined) {
+          isValid = false;
+          break;
+        }
       }
-      const { left, top } = this._canvas.getBoundingClientRect();
-      this._cursor.startX = Math.round(event.pageX - (left + window.scrollX));
-      this._cursor.startY = Math.round(event.pageY - (top + window.scrollY));
-      this._cursor.selection = true;
+      // we only update the chart if the config is valid
+      if (isValid) {
+        this.config = value;
+      }
+
+      this.dispatchEvent(new GuiUpdateEvent(value));
+    });
+    this._drawer.appendChild(this._configEl);
+
+    // mouse events
+    this.addEventListener('mousedown', (ev) => {
+      if (ev.button === 0) {
+        const { left, top } = this._canvas.getBoundingClientRect();
+        this._cursor.startX = Math.round(ev.pageX - (left + window.scrollX));
+        this._cursor.startY = Math.round(ev.pageY - (top + window.scrollY));
+        this._cursor.selection = true;
+      }
+    });
+    this._uxCanvas.addEventListener('contextmenu', (ev) => {
+      ev.preventDefault();
+      ev.stopPropagation();
+      this.toggleConfig();
     });
     // this.addEventListener('mouseleave', () => this._resetCursor());
     this.addEventListener('dblclick', () => {
@@ -146,43 +183,59 @@ export class GuiChart extends HTMLElement {
       }
       this.compute();
       this.update();
-      this.dispatchEvent(new GuiChartResetSelectionEvent());
+      this.dispatchEvent(new GuiChartSelectionEvent());
     });
 
     let lastTouch = Date.now();
+    let touchTimer = -1;
     // touch events
-    this.addEventListener('touchstart', (event) => {
-      // prevents the browser from processing emulated mouse events
-      event.preventDefault();
+    this.addEventListener(
+      'touchstart',
+      (ev) => {
+        // prevents the browser from processing emulated mouse events
+        ev.preventDefault();
 
-      const now = Date.now();
-      if (now - lastTouch < (this._config.dblTapThreshold ?? 500)) {
-        this._resetCursor();
-        // reset X configuration
-        this._config.xAxis.min = this._userXAxisMin;
-        this._config.xAxis.max = this._userXAxisMax;
-        // reset Y configuration
-        for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
-          yAxis.min = this._userYAxes[name].min;
-          yAxis.max = this._userYAxes[name].max;
+        console.log('touchstart');
+
+        touchTimer = setTimeout(() => {
+          this.toggleConfig();
+        }, 500);
+
+        const now = Date.now();
+        if (now - lastTouch < (this._config.dblTapThreshold ?? 500)) {
+          this._resetCursor();
+          // reset X configuration
+          this._config.xAxis.min = this._userXAxisMin;
+          this._config.xAxis.max = this._userXAxisMax;
+          // reset Y configuration
+          for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
+            yAxis.min = this._userYAxes[name].min;
+            yAxis.max = this._userYAxes[name].max;
+          }
+          this.compute();
+          this.update();
+          lastTouch = now;
+          return;
         }
-        this.compute();
-        this.update();
         lastTouch = now;
-        return;
-      }
-      lastTouch = now;
 
-      if (event.touches.length > 0) {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.startX = Math.round(event.touches[0].pageX - (left + window.scrollX));
-        this._cursor.startY = Math.round(event.touches[0].pageY - (top + window.scrollY));
-        this._cursor.selection = true;
-      }
-    });
-    this.addEventListener('touchend', (event) => {
+        if (ev.touches.length > 0) {
+          const { left, top } = this._canvas.getBoundingClientRect();
+          this._cursor.startX = Math.round(ev.touches[0].pageX - (left + window.scrollX));
+          this._cursor.startY = Math.round(ev.touches[0].pageY - (top + window.scrollY));
+          this._cursor.selection = true;
+        }
+      },
+      { passive: true },
+    );
+    this.addEventListener('touchend', (ev) => {
       // prevents the browser from processing emulated mouse events
-      event.preventDefault();
+      ev.preventDefault();
+
+      console.log('touchend');
+
+      clearTimeout(touchTimer);
+
       if (this._config.selection === false) {
         this._resetCursor();
         return;
@@ -205,180 +258,154 @@ export class GuiChart extends HTMLElement {
         this._selection(this._config.selection?.orientation);
       }
     });
-    this.addEventListener('touchmove', (event) => {
-      // prevents the browser from processing emulated mouse events
-      event.preventDefault();
-      if (event.touches.length > 0) {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
-        this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
-        // this._updateUX();
-      }
-    });
+    this.addEventListener(
+      'touchmove',
+      (ev) => {
+        // prevents the browser from processing emulated mouse events
+        ev.preventDefault();
+
+        console.log('touchmove');
+
+        clearTimeout(touchTimer);
+
+        if (ev.touches.length > 0) {
+          const { left, top } = this._canvas.getBoundingClientRect();
+          this._cursor.x = Math.round(ev.touches[0].pageX - (left + window.scrollX));
+          this._cursor.y = Math.round(ev.touches[0].pageY - (top + window.scrollY));
+          // this._updateUX();
+        }
+      },
+      { passive: true },
+    );
     this.addEventListener('touchcancel', () => {
+      console.log('touchcancel');
       this._resetCursor();
     });
 
-    this.addEventListener('wheel', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
+    this.addEventListener(
+      'wheel',
+      (event) => {
+        event.stopPropagation();
 
-      throttle((event: WheelEvent) => {
-        if (!this._computed) {
-          return;
-        }
-        const { xRange, yRange, xScale: scale, yScales } = this._computed;
-        if (event.shiftKey) {
-          // x axis panning
-          if (this._config.xAxis.ratio === 0) {
+        throttle((event: WheelEvent) => {
+          if (!this._computed) {
             return;
           }
-          const [min, max] = scale.range();
-          const ratio = this._config.xAxis.ratio ?? 100;
-          const dx = (Math.abs(max - min) / ratio) * (event.deltaY > 0 ? 1 : -1);
-          const from = (this._config.xAxis.min = scale.invert(min + dx));
-          const to = (this._config.xAxis.max = scale.invert(max + dx));
-          this.dispatchEvent(new GuiChartSelectionEvent(from, to));
-          this.compute();
-          this.update();
-        } else if (event.altKey) {
-          // y axes panning
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if (axis.ratio === 0) {
-              continue;
+          const { xRange, yRange, xScale: scale, yScales } = this._computed;
+          if (event.shiftKey) {
+            // x axis panning
+            if (this._config.xAxis.ratio === 0) {
+              return;
             }
             const [min, max] = scale.range();
-            const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
-            axis.min = scale.invert(min + d);
-            axis.max = scale.invert(max + d);
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x < xRange[0] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // left y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const dx = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + dx);
-              axis.max = scale.invert(max - dx);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.x > xRange[1] &&
-          this._cursor.y <= yRange[0] &&
-          this._cursor.y >= yRange[1]
-        ) {
-          // right y axes zoom
-          for (const [name, scale] of Object.entries(yScales)) {
-            const axis = this._config.yAxes[name];
-            if (axis.position === 'right' && axis.ratio !== 0) {
-              const [min, max] = scale.range();
-              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
-              axis.min = scale.invert(min + d);
-              axis.max = scale.invert(max - d);
-            }
-          }
-          this.compute();
-          this.update();
-        } else if (
-          this._cursor.y > yRange[0] &&
-          this._cursor.x >= xRange[0] &&
-          this._cursor.x <= xRange[1]
-        ) {
-          if (this._config.xAxis.ratio !== 0) {
-            // x axis zoom
-            const [min, max] = scale.range();
-            const d =
-              (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
-              (event.deltaY > 0 ? 1 : -1);
-            const from = (this._config.xAxis.min = scale.invert(min - d));
-            const to = (this._config.xAxis.max = scale.invert(max + d));
-            this.dispatchEvent(new GuiChartSelectionEvent(from, to));
+            const ratio = this._config.xAxis.ratio ?? 100;
+            const dx = (Math.abs(max - min) / ratio) * (event.deltaY > 0 ? 1 : -1);
+            const from = (this._config.xAxis.min = scale.invert(min + dx));
+            const to = (this._config.xAxis.max = scale.invert(max + dx));
+
+            this.dispatchEvent(new GuiChartSelectionEvent({ from, to }));
             this.compute();
             this.update();
+          } else if (event.altKey) {
+            // y axes panning
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if (axis.ratio === 0) {
+                continue;
+              }
+              const [min, max] = scale.range();
+              const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? -1 : 1);
+              axis.min = scale.invert(min + d);
+              axis.max = scale.invert(max + d);
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x < xRange[0] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // left y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const dx =
+                  (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + dx);
+                axis.max = scale.invert(max - dx);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.x > xRange[1] &&
+            this._cursor.y <= yRange[0] &&
+            this._cursor.y >= yRange[1]
+          ) {
+            // right y axes zoom
+            for (const [name, scale] of Object.entries(yScales)) {
+              const axis = this._config.yAxes[name];
+              if (axis.position === 'right' && axis.ratio !== 0) {
+                const [min, max] = scale.range();
+                const d = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                axis.min = scale.invert(min + d);
+                axis.max = scale.invert(max - d);
+              }
+            }
+            this.compute();
+            this.update();
+          } else if (
+            this._cursor.y > yRange[0] &&
+            this._cursor.x >= xRange[0] &&
+            this._cursor.x <= xRange[1]
+          ) {
+            if (this._config.xAxis.ratio !== 0) {
+              // x axis zoom
+              const [min, max] = scale.range();
+              const d =
+                (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
+                (event.deltaY > 0 ? 1 : -1);
+              const from = (this._config.xAxis.min = scale.invert(min - d));
+              const to = (this._config.xAxis.max = scale.invert(max + d));
+              this.dispatchEvent(new GuiChartSelectionEvent({ from, to }));
+              this.compute();
+              this.update();
+            }
           }
-        }
-      }, 16)(event);
-    });
+        }, 16)(event);
+      },
+      { passive: true },
+    );
   }
 
   connectedCallback() {
-    this._colors = getColors(this);
+    requestAnimationFrame(() => {
+      this._colors = getColors(this);
+      const style = getComputedStyle(this);
+      if (style.display === 'inline') {
+        // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
+        this.style.display = 'block';
+      }
+      this.style.position = 'relative';
+    });
 
-    const style = getComputedStyle(this);
-    if (style.display === 'inline') {
-      // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
-      this.style.display = 'block';
-    }
-    this.style.position = 'relative';
+    // update current config
+    this._configEl.value = this._config;
 
-    this.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
+    this.replaceChildren(
+      this._svg.node() as SVGSVGElement,
+      this._canvas,
+      this._uxCanvas,
+      this._tooltip,
+      this._drawer,
+    );
 
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    document.addEventListener(
-      'mouseup',
-      (event) => {
-        if (event.button !== 0 || this._config.selection === false) {
-          return;
-        }
-
-        const threshold = this._config.selection?.threshold ?? 10;
-        const dx = Math.abs(this._cursor.x - this._cursor.startX);
-        const dy = Math.abs(this._cursor.y - this._cursor.startY);
-
-        const orientation = this._config.selection?.orientation ?? 'horizontal';
-        switch (orientation) {
-          case 'both':
-            if (
-              this._cursor.startX === -1 ||
-              this._cursor.x === -1 ||
-              this._cursor.startY === -1 ||
-              this._cursor.y === -1 ||
-              (dx < threshold && dy < threshold)
-            ) {
-              this._resetCursor();
-              return;
-            }
-            break;
-          case 'horizontal':
-            if (this._cursor.startX === -1 || this._cursor.x === -1 || dx < threshold) {
-              this._resetCursor();
-              return;
-            }
-            break;
-          case 'vertical':
-            if (this._cursor.startY === -1 || this._cursor.y === -1 || dy < threshold) {
-              this._resetCursor();
-              return;
-            }
-            break;
-        }
-
-        this._selection(this._config.selection?.orientation);
-      },
-      { signal: this._disposer.signal },
-    );
-    document.addEventListener(
-      'mousemove',
-      (event) => {
-        const { left, top } = this._canvas.getBoundingClientRect();
-        this._cursor.x = Math.round(event.pageX - (left + window.scrollX));
-        this._cursor.y = Math.round(event.pageY - (top + window.scrollY));
-        // this._updateUX();
-      },
-      { signal: this._disposer.signal },
-    );
+    document.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
+    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
 
     const obs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._disposer.disposables.push(() => obs.disconnect());
@@ -387,10 +414,90 @@ export class GuiChart extends HTMLElement {
     const animRef = { id: -1 };
     const animationCallback = () => {
       this._updateUX();
-      animRef.id = window.requestAnimationFrame(animationCallback);
+      animRef.id = requestAnimationFrame(animationCallback);
     };
-    animRef.id = window.requestAnimationFrame(animationCallback);
-    this._disposer.disposables.push(() => window.cancelAnimationFrame(animRef.id));
+    animRef.id = requestAnimationFrame(animationCallback);
+    this._disposer.disposables.push(() => cancelAnimationFrame(animRef.id));
+  }
+
+  private _onmouseup = (ev: MouseEvent) => {
+    if (
+      ev.button !== 0 ||
+      this._config.selection === false ||
+      (this._cursor.x === this._cursor.startX && this._cursor.y === this._cursor.startY)
+    ) {
+      this._cursor.selection = false;
+      return;
+    }
+
+    const threshold = this._config.selection?.threshold ?? 10;
+    const dx = Math.abs(this._cursor.x - this._cursor.startX);
+    const dy = Math.abs(this._cursor.y - this._cursor.startY);
+
+    const orientation = this._config.selection?.orientation ?? 'horizontal';
+    switch (orientation) {
+      case 'both':
+        if (
+          this._cursor.startX === -1 ||
+          this._cursor.x === -1 ||
+          this._cursor.startY === -1 ||
+          this._cursor.y === -1 ||
+          (dx < threshold && dy < threshold)
+        ) {
+          this._resetCursor();
+          return;
+        }
+        break;
+      case 'horizontal':
+        if (this._cursor.startX === -1 || this._cursor.x === -1 || dx < threshold) {
+          this._resetCursor();
+          return;
+        }
+        break;
+      case 'vertical':
+        if (this._cursor.startY === -1 || this._cursor.y === -1 || dy < threshold) {
+          this._resetCursor();
+          return;
+        }
+        break;
+    }
+
+    this._selection(this._config.selection?.orientation);
+  };
+
+  private _onmousemove = (ev: MouseEvent) => {
+    if (
+      (ev.target !== this._uxCanvas && ev.target !== this._tooltip) ||
+      document.documentElement.classList.contains('sl-scroll-lock')
+    ) {
+      this._resetCursor();
+      return;
+    }
+
+    const container = this._canvas.getBoundingClientRect();
+    const x = Math.round(ev.clientX - container.left);
+    const y = Math.round(ev.clientY - container.top);
+
+    // check if the cursor is inside the container boundaries
+    if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
+      this._cursor.x = x;
+      this._cursor.y = y;
+    } else {
+      this._resetCursor();
+    }
+  };
+
+  toggleConfig(): void {
+    console.log('toggle', { current: this._config, new: this._configEl.value });
+    this._drawer.open = !this._drawer.open;
+  }
+
+  openConfig(): void {
+    this._drawer.open = true;
+  }
+
+  closeConfig(): void {
+    this._drawer.open = false;
   }
 
   /**
@@ -418,7 +525,6 @@ export class GuiChart extends HTMLElement {
   }
 
   disconnectedCallback() {
-    this.replaceChildren(); // cleanup
     this._disposer.dispose();
   }
 
@@ -504,13 +610,33 @@ export class GuiChart extends HTMLElement {
     };
   }
 
+  selection(selection: { from: unknown; to: unknown } | null = null) {
+    if (selection === null) {
+      // reset selection
+      this._config.xAxis.min = this._userXAxisMin;
+      this._config.xAxis.max = this._userXAxisMax;
+      // for (const name in this._config.yAxes) {
+      //   const yAxis = this._config.yAxes[name];
+      //   yAxis.min = this._userYAxes[name].min;
+      //   yAxis.max = this._userYAxes[name].max;
+      // }
+    } else {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._config.xAxis.min = selection.from as any;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      this._config.xAxis.max = selection.to as any;
+    }
+    this.compute();
+    this.update();
+  }
+
   /**
    * This is all about cursor interactions.
    *
    * This needs to be light as it is rendered every single possible frame (leveraging `requestAnimationFrame`)
    */
   private _updateUX() {
-    if (!this._computed || this._table.cols === undefined || this._table.cols.length === 0) {
+    if (!this._computed || this._table.cols.length === 0) {
       return;
     }
     this._clearUX();
@@ -680,8 +806,13 @@ export class GuiChart extends HTMLElement {
           fillOpacity: 0.2,
           yCol2: 'min',
           hideInTooltip: false,
+          hide: false,
           ...this._config.series[i],
         };
+
+        if (serie.hide) {
+          continue;
+        }
 
         const v = +xScale.invert(this._cursor.x);
 
@@ -1041,7 +1172,7 @@ export class GuiChart extends HTMLElement {
     const to: number = +xScale.invert(endX);
 
     // selection is done
-    const selectionEvt = new GuiChartSelectionEvent(from, to);
+    const selectionEvt = new GuiChartSelectionEvent({ from, to });
 
     if (orientation === 'both' || orientation === 'horizontal') {
       // call update to apply zoom
@@ -1126,39 +1257,42 @@ export class GuiChart extends HTMLElement {
         fillOpacity: 0.2,
         yCol2: 'min',
         hideInTooltip: false,
+        hide: false,
         ...this._config.series[i],
       };
 
-      serie.drawBefore?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
+      if (!serie.hide) {
+        serie.drawBefore?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
 
-      switch (serie.type) {
-        case 'line':
-          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'line+scatter':
-          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
-          this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'line+area':
-          // draw area "under" (before) line
-          this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
-          this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'area':
-          this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'bar':
-          this._ctx.bar(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'scatter':
-          this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
-          break;
-        case 'custom':
-          serie.draw(this._ctx, serie, xScale, yScales[serie.yAxis]);
-          break;
+        switch (serie.type) {
+          case 'line':
+            this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'line+scatter':
+            this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
+            this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'line+area':
+            // draw area "under" (before) line
+            this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
+            this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'area':
+            this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'bar':
+            this._ctx.bar(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'scatter':
+            this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
+            break;
+          case 'custom':
+            serie.draw(this._ctx, serie, xScale, yScales[serie.yAxis]);
+            break;
+        }
+
+        serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
       }
-
-      serie.drawAfter?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
     }
 
     // Clean Canvas bounds
@@ -1311,12 +1445,44 @@ export class GuiChart extends HTMLElement {
       xMax = vMap(this._config.xAxis.max);
     }
 
-    if (xMin === null || xMax === null) {
-      // x axis domain is not fully defined, let's iterate over the table to find the boundaries
+    if (xMin !== null && xMax === null) {
+      // x axis domain is not fully defined, we are missing the 'xMax' bound, let's iterate over the table to find it
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols?.[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols?.[serie.xCol]?.[row]);
+          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols[serie.xCol]?.[row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMax == null) {
+                xMax = value;
+              } else if (value >= xMax) {
+                xMax = value;
+              }
+            }
+          }
+        }
+      }
+    } else if (xMin === null && xMax !== null) {
+      // x axis domain is not fully defined, we are missing the 'xMin' bound, let's iterate over the table to find it
+      for (const serie of this._config.series) {
+        if (serie.xCol !== undefined) {
+          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols[serie.xCol]?.[row]);
+            if (value !== null && value !== undefined && !isNaN(value)) {
+              if (xMin == null) {
+                xMin = value;
+              } else if (value <= xMin) {
+                xMin = value;
+              }
+            }
+          }
+        }
+      }
+    } else if (xMin === null && xMax === null) {
+      // x axis domain is not defined, let's iterate over the table to find the boundaries
+      for (const serie of this._config.series) {
+        if (serie.xCol !== undefined) {
+          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
+            const value = vMap(this._table.cols[serie.xCol]?.[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1339,7 +1505,7 @@ export class GuiChart extends HTMLElement {
     }
 
     if (xMax === null) {
-      xMax = Math.max(0, (this._table.cols?.[0]?.length ?? 0) - 1);
+      xMax = Math.max(0, (this._table.cols[0]?.length ?? 0) - 1);
     }
 
     // TODO handle the case where no yAxes have been defined at all
@@ -1359,13 +1525,13 @@ export class GuiChart extends HTMLElement {
         max = vMap(yAxis.max);
       }
 
-      if (min === null || max === null) {
+      if (min === null && max === null) {
         // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
+            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
+              const value = vMap(this._table.cols[serie.yCol]?.[row]);
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1380,7 +1546,7 @@ export class GuiChart extends HTMLElement {
               }
               // make sure to account for 'yCol2' if used
               if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols?.[serie.yCol2]?.[row]);
+                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
@@ -1391,6 +1557,62 @@ export class GuiChart extends HTMLElement {
                     max = value;
                   } else if (value >= max) {
                     max = value;
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else if (min !== null && max === null) {
+        // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
+        for (let i = 0; i < this._config.series.length; i++) {
+          const serie = this._config.series[i];
+          if (serie.yAxis === yAxisName) {
+            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
+              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+              if (value !== null && value !== undefined && !isNaN(value)) {
+                if (max == null) {
+                  max = value;
+                } else if (value >= max) {
+                  max = value;
+                }
+              }
+              // make sure to account for 'yCol2' if used
+              if (typeof serie.yCol2 === 'number') {
+                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+                if (value !== null && value !== undefined && !isNaN(value)) {
+                  if (max == null) {
+                    max = value;
+                  } else if (value >= max) {
+                    max = value;
+                  }
+                }
+              }
+            }
+          }
+        }
+      } else if (min === null && max !== null) {
+        // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
+        for (let i = 0; i < this._config.series.length; i++) {
+          const serie = this._config.series[i];
+          if (serie.yAxis === yAxisName) {
+            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
+              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+              if (value !== null && value !== undefined && !isNaN(value)) {
+                if (min == null) {
+                  min = value;
+                } else if (value <= min) {
+                  min = value;
+                }
+              }
+              // make sure to account for 'yCol2' if used
+              if (typeof serie.yCol2 === 'number') {
+                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+                if (value !== null && value !== undefined && !isNaN(value)) {
+                  if (min == null) {
+                    min = value;
+                  } else if (value <= min) {
+                    min = value;
                   }
                 }
               }
@@ -1452,21 +1674,13 @@ export class GuiChart extends HTMLElement {
 
 /**
  * `detail` contains the current x axis domain boundaries `from` and `to` as either `number, number` or `Date, Date`
+ *
+ * If the `detail` is `null` it means the selection as been reseted to its initial values.
  */
-export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown }> {
-  static readonly NAME = 'selection';
-  constructor(from: unknown, to: unknown) {
-    super(GuiChartSelectionEvent.NAME, { detail: { from, to }, bubbles: true });
-  }
-}
-
-/**
- * Called when the selection is reset.
- */
-export class GuiChartResetSelectionEvent extends CustomEvent<void> {
-  static readonly NAME = 'reset-selection';
-  constructor() {
-    super(GuiChartResetSelectionEvent.NAME, { bubbles: true });
+export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown } | null> {
+  static readonly NAME = 'gui-selection';
+  constructor(detail: { from: unknown; to: unknown } | null = null) {
+    super(GuiChartSelectionEvent.NAME, { detail, bubbles: true });
   }
 }
 
@@ -1475,7 +1689,7 @@ export class GuiChartResetSelectionEvent extends CustomEvent<void> {
  * - `detail.cursor` contains the current cursor info
  */
 export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
-  static readonly NAME = 'cursor';
+  static readonly NAME = 'gui-chart-cursor';
   constructor(data: SerieData[], cursor: Cursor) {
     super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
   }
@@ -1485,7 +1699,7 @@ export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor
  * Called when the cursor enters the canvas.
  */
 export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-enter';
+  static readonly NAME = 'gui-chart-enter';
   constructor() {
     super(GuiChartCanvasEnterEvent.NAME, { bubbles: true });
   }
@@ -1495,7 +1709,7 @@ export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
  * Called when the cursor leaves the canvas.
  */
 export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-leave';
+  static readonly NAME = 'gui-chart-leave';
   constructor() {
     super(GuiChartCanvasLeaveEvent.NAME, { bubbles: true });
   }
@@ -1504,7 +1718,6 @@ export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
 interface GuiChartEventMap {
   [GuiChartCursorEvent.NAME]: GuiChartCursorEvent;
   [GuiChartSelectionEvent.NAME]: GuiChartSelectionEvent;
-  [GuiChartResetSelectionEvent.NAME]: GuiChartResetSelectionEvent;
   [GuiChartCanvasEnterEvent.NAME]: GuiChartCanvasEnterEvent;
   [GuiChartCanvasLeaveEvent.NAME]: GuiChartCanvasLeaveEvent;
 }

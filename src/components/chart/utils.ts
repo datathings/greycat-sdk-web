@@ -1,6 +1,12 @@
 import * as d3 from 'd3';
-import { Axis, Scale } from './types.js';
-import { getGlobalDateTimeFormat, getGlobalDateTimeFormatTimezone } from '../../globals.js';
+import { Axis, ChartConfig, Scale } from './types.js';
+import {
+  getGlobalDateTimeFormat,
+  getGlobalDateTimeFormatTimezone,
+  $,
+  core,
+  greycatTypeFromValueStr,
+} from '../../exports.js';
 
 const SECONDS_IN_MS = 1000;
 const MINUTES_IN_MS = SECONDS_IN_MS * 60;
@@ -47,11 +53,11 @@ export function axisSpan(axis: d3.Axis<unknown>): number {
   return Math.abs(+scale.invert(to) - +scale.invert(from));
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function createFormatter(
   axis: Axis,
   scale: Scale,
   useCursorFormat = false,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): (...args: any[]) => string {
   const format = axis[useCursorFormat ? 'cursorFormat' : 'format'];
   if (format === undefined) {
@@ -151,4 +157,72 @@ export function createFormatter(
       return format;
     }
   }
+}
+
+/**
+ * Tries to infer axes and series based on the content of the given table
+ * @param table
+ * @param greycat
+ * @returns
+ */
+export function inferConfig(table: core.Table, greycat = $.default): ChartConfig {
+  const config: ChartConfig = {
+    xAxis: {},
+    yAxes: {},
+    series: [],
+  };
+
+  if (table.cols.length === 0 || table.cols[0].length === 0) {
+    return config;
+  }
+
+  // TODO
+  // - skip null to try to find first interesting value
+  // - heuristic to determine xAxis column?
+  if (table.cols[0][0] instanceof core.time) {
+    // first column is a time, most likely a timeserie
+    config.xAxis.scale = 'time';
+  } else {
+    config.xAxis.scale = 'linear';
+  }
+
+  for (let c = 1; c < table.cols.length; c++) {
+    const col = table.cols[c];
+    for (let r = 0; r < col.length; r++) {
+      const cell = col[0];
+      if (cell === null) {
+        continue;
+      }
+      if (!isPotentiallyChartable(cell)) {
+        break;
+      }
+      const columnName =
+        table.headers?.[c] ?? greycatTypeFromValueStr(cell, greycat).replaceAll(/[- :]+/g, '_');
+      const yAxis = `c${c}_${columnName}`;
+      config.yAxes[yAxis] = { scale: cell instanceof core.time ? 'time' : 'linear' };
+      config.series.push({
+        title: table.headers?.[c] ?? `c${c}`,
+        type: 'line',
+        xCol: 0,
+        yCol: c,
+        yAxis,
+      });
+      break;
+    }
+  }
+
+  return config;
+}
+
+function isPotentiallyChartable(value: unknown): boolean {
+  const type = typeof value;
+  return (
+    type === 'number' ||
+    type === 'bigint' ||
+    value instanceof core.time ||
+    value instanceof core.duration ||
+    value instanceof core.int ||
+    value instanceof core.float ||
+    value instanceof core.geo
+  );
 }

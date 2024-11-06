@@ -179,10 +179,10 @@ async function randomize() {
   chart.update();
 }
 
-chart.addEventListener('selection', (ev) => {
+chart.addEventListener('gui-selection', (ev) => {
   console.log('selection', ev.detail);
 });
 
-chart.addEventListener('reset-selection', () => {
+chart.addEventListener('gui-selection-reset', () => {
   console.log('reset-selection');
 });
