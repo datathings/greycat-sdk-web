@@ -7,6 +7,7 @@ import {
   GCObject,
   GuiChangeEvent,
   modal,
+  toast,
 } from '../../exports.js';
 
 /*
@@ -54,8 +55,8 @@ export class GuiTableConfig extends HTMLElement {
       // Clean up
       document.body.removeChild(a);
       URL.revokeObjectURL(url);
-    } catch {
-      // TODO handle errors
+    } catch (err) {
+      toast.error(err);
     }
   };
 
@@ -283,9 +284,8 @@ export class GuiTableMappings extends HTMLElement {
           mappings.push(core.TableColumnMapping.create(i, ['*']));
         }
       }
-    } catch {
-      // ignore errors: best-effort
-      // TODO are we sure we want to silent fail here?
+    } catch (err) {
+      toast.error(err);
     }
     this._value = mappings;
     this._mappings.replaceChildren(
@@ -300,13 +300,14 @@ export class GuiTableMappings extends HTMLElement {
   };
   private _applyMappings = async () => {
     try {
+      const mappings = this.value;
       // const startIndex = this.table.table.cols.length + 1;
-      const table = await core.Table.applyMappings(this.table.table, this._value);
+      const table = await core.Table.applyMappings(this.table.table, mappings);
       this.table.value = table;
       // for (let i = 0; i < this.table.headers)
       this.table.dispatchEvent(new GuiChangeEvent(table));
-    } catch {
-      // TODO handle error with toasts
+    } catch (err) {
+      toast.error(err);
     }
   };
 
@@ -319,9 +320,8 @@ export class GuiTableMappings extends HTMLElement {
     this._mappings.classList.add('list', 'smart');
     this._mappings.addEventListener('gui-table-mapping-delete', (ev) => {
       ev.stopPropagation();
-      const el = ev.detail;
-      el.remove();
-      this._applyBtn.disabled = this._mappings.children.length === 0;
+      ev.detail.remove();
+      this._value = this.value;
       this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
     });
 

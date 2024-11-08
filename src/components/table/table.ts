@@ -648,7 +648,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       this._columnFactory,
     );
 
-    this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth);
+    this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth || this._tbody.scrollWidth);
     this._wCalc.update();
     this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
     this._tbody.updateWidths(this._wCalc);
@@ -1229,8 +1229,10 @@ export class GuiTableBody extends HTMLElement {
     // update virtual scroller height to reflect the number of unfiltered rows
     this.virtualScroller.style.height = `${total_unfiltered * this.rowHeight}px`;
 
-    // and add it back to the DOM
-    this.appendChild(this.virtualScroller);
+    // and add it back to the DOM if necessary
+    if (rendered > 0) {
+      this.appendChild(this.virtualScroller);
+    }
   }
 
   updateWidths(wCalc: WidthCalculator) {

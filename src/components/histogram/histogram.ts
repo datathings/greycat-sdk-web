@@ -41,10 +41,10 @@ export class GuiHistogram extends HTMLElement {
       ) {
         this._render_heatmap(this._value.bins, [quant.dimensions[0], quant.dimensions[1]]);
       } else {
-        throw 'Not Supported';
+        throw new Error('Histogram cannot render this quantizers');
       }
     } else {
-      throw 'Not Supported';
+      throw new Error('Histogram cannot render this quantizers');
     }
   }
 

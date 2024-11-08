@@ -205,7 +205,7 @@ export class GuiUserForm extends HTMLElement {
     }
 
     if (errors) {
-      throw '';
+      throw new Error(this._username.helpText);
     }
 
     await std.runtime.SecurityEntity.set(user);
@@ -238,7 +238,7 @@ export class GuiUserForm extends HTMLElement {
     }
 
     if (errors) {
-      throw '';
+      throw new Error('Form is incomplete or malformed');
     }
 
     await std.runtime.SecurityEntity.set(user);

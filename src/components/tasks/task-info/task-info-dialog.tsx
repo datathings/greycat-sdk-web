@@ -1,4 +1,4 @@
-import { GreyCat, std, Value, TaskHandler, $ } from '../../../exports.js';
+import { GreyCat, std, Value, TaskHandler, $, toast } from '../../../exports.js';
 import { parseTaskArgs } from '../utils.js';
 import { GuiUpdateEvent } from '../../events.js';
 import { SlDialog } from '@shoelace-style/shoelace';
@@ -304,8 +304,7 @@ export class GuiTaskInfoDialog extends SlDialog {
   }
 
   private _handleError(error: unknown) {
-    // TODO: Replace with user notification for any specific error
-    console.error('An error occured: ', error);
+    toast.error(error);
   }
 }
 

@@ -7,3 +7,5 @@ export * from './greycat.js';
 export * from './serialize.js';
 export * from './canvas/index.js';
 export * from './modal.js';
+export * from './toast.js';
+

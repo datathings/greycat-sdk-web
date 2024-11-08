@@ -43,6 +43,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Table',                   href: 'table/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
+    { title: 'Toast',                   href: 'toast/' },
     { title: 'Users',                   href: 'users/' },
   ];
 

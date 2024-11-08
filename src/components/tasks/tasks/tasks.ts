@@ -1,4 +1,4 @@
-import { Value, std } from '../../../exports.js';
+import { Value, std, toast } from '../../../exports.js';
 import { CellProps, type GuiTable } from '../../table/table.js';
 import '../../table/table.js'; // depends on gui-table
 import { TaskInfoLike } from '../task-info/common.js';
@@ -184,8 +184,7 @@ export class GuiTasks extends HTMLElement {
       // update table
       this.table.value = rows;
     } catch (err) {
-      console.error(err);
-      // ignore errors (for now?)
+      toast.error(err);
     }
   }
 }

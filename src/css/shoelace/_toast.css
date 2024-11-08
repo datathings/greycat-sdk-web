@@ -1,0 +1,11 @@
+.sl-toast-stack {
+  z-index: 1001;
+  position: absolute;
+  right: var(--spacing);
+  bottom: var(--spacing);
+
+  display: grid;
+  grid-auto-rows: auto;
+  row-gap: var(--spacing);
+  overflow: hidden;
+}

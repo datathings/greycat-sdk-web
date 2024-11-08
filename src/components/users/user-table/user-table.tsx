@@ -1,4 +1,4 @@
-import { type GreyCat, std, sha256hex, $ } from '../../../exports.js';
+import { type GreyCat, std, sha256hex, $, toast } from '../../../exports.js';
 // ensures multi-select-checkbox is with this component
 import '../../multi-select-checkbox/index.js';
 import type { SlButton, SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
@@ -155,8 +155,7 @@ export class GuiUserTable extends HTMLElement {
   }
 
   private _handleError(error: unknown) {
-    // TODO: replace it with User friendly error notification
-    console.error(error);
+    toast.error(error);
   }
 
   async updateUsersAndGroups() {

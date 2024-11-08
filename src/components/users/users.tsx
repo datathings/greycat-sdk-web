@@ -1,4 +1,4 @@
-import { core, std } from '../../exports.js';
+import { core, std, toast } from '../../exports.js';
 import { registerCustomElement } from '../common.js';
 import '../table/table.js'; // ensure gui-table is defined
 import type { GuiTable } from '../table/table.js';
@@ -188,8 +188,8 @@ export class GuiUsers extends HTMLElement {
               await this._userForm.createUser();
               this.reload();
               this._dialog.hide();
-            } catch {
-              // handle problems
+            } catch (err) {
+              toast.error(err);
             }
           }}
         >

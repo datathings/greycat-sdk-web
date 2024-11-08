@@ -156,6 +156,17 @@ gui-tbody {
   display: flex;
   flex-direction: column;
 }
+gui-tbody:empty {
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+}
+gui-tbody:empty::before {
+  content: 'Table is empty';
+  color: var(--muted-color);
+  font-size: var(--sl-font-size-small);
+}
+
 gui-tbody-row {
   flex: 1;
   position: absolute;
