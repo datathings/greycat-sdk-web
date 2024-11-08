@@ -4,6 +4,7 @@ gui-table {
   --icon-sort-desc: ↑;
   --table-background-color: var(--bg-1);
 
+  position: relative;
   display: grid;
   grid-template-rows: min-content 1fr;
   overflow: hidden;
@@ -12,7 +13,7 @@ gui-table {
   background-color: var(--table-background-color);
 }
 
-gui-table .gui-table-filter {
+.gui-table-filter {
   visibility: hidden;
   height: 0;
 
@@ -22,7 +23,7 @@ gui-table .gui-table-filter {
   }
 }
 
-gui-table .gui-table-filter.visible {
+.gui-table-filter.visible {
   visibility: visible;
   height: fit-content;
 }
@@ -36,21 +37,21 @@ gui-table .gui-table {
   width: 100%;
 }
 
-.gui-table gui-thead {
+gui-thead {
   position: sticky;
   top: 0;
   display: flex;
   z-index: 1;
   opacity: 1;
 }
-.gui-table gui-thead.gui-table-resizing > * {
+.gui-table-resizing > * {
   cursor: ew-resize !important;
   background-color: rgb(var(--base-0)) !important;
 }
-.gui-table gui-thead .gui-thead-subheader {
+.gui-thead-subheader {
   color: var(--muted-color);
 }
-.gui-table gui-thead gui-thead-cell {
+gui-thead-cell {
   --resizer-width: 3px;
   position: relative;
   flex-shrink: 0;
@@ -60,7 +61,7 @@ gui-table .gui-table {
 .gui-table gui-thead gui-thead-cell:has(.gui-thead-dropdown.open) {
   border-bottom: 0;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead {
+.gui-thead {
   display: flex;
   align-items: center;
   gap: var(--spacing);
@@ -69,42 +70,42 @@ gui-table .gui-table {
   padding-left: var(--spacing);
   padding-right: var(--spacing);
 }
-.gui-table gui-thead gui-thead-cell:hover {
+gui-thead-cell:hover {
   background-color: var(--bg-1);
 }
-.gui-table gui-thead gui-thead-cell.active .gui-thead-sorter,
-.gui-table gui-thead gui-thead-cell.active .gui-thead-title {
+gui-thead-cell.active .gui-thead-sorter,
+gui-thead-cell.active .gui-thead-title {
   color: rgb(var(--accent-0));
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-title {
+.gui-thead-title {
   display: inline-flex;
   width: 100%;
   gap: var(--spacing);
   overflow: hidden;
   flex: 1;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header {
+.gui-thead-header {
   flex-shrink: 1; /* we want the header to ellipse but as last resort */
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-subheader {
+.gui-thead-subheader {
   flex-shrink: 10000; /* we really want the type to ellipse prior to the header */
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-header,
-.gui-table gui-thead gui-thead-cell .gui-thead-title .gui-thead-subheader {
+.gui-thead-header,
+.gui-thead-subheader {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-sorter {
+.gui-thead-sorter {
   display: block;
   height: 28px;
   font-size: 26px;
   line-height: 20px;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-sorter:hover {
+.gui-thead-sorter:hover {
   color: var(--primary-hover);
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-resizer {
+.gui-thead-resizer {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -115,10 +116,10 @@ gui-table .gui-table {
   height: 100%;
   cursor: ew-resize;
 }
-.gui-table gui-thead gui-thead-cell:last-child .gui-thead-resizer {
+gui-thead-cell:last-child .gui-thead-resizer {
   visibility: hidden;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-filter {
+.gui-thead-filter {
   display: block;
   width: 20px;
   height: 20px;
@@ -127,48 +128,48 @@ gui-table .gui-table {
   background-size: 18px;
   background-image: var(--icon-search);
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-filter:hover {
+.gui-thead-filter:hover {
   background-color: var(--primary-focus);
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-filter.open:hover {
+.gui-thead-filter.open:hover {
   background-color: unset;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-dropdown {
+.gui-thead-dropdown {
   display: none;
   z-index: 10;
   width: 100%;
 }
-.gui-table gui-thead gui-thead-cell .gui-thead-dropdown.open {
+.gui-thead-dropdown.open {
   /* transform: scaleY(1); */
   display: block;
 }
 
-.gui-table gui-thead gui-thead-cell .gui-thead-dropdown > gui-search-input {
+.gui-thead-dropdown > gui-search-input {
   --sl-focus-ring-width: 0;
   &::part(base) {
     border-radius: 0;
   }
 }
 
-.gui-table gui-tbody {
+gui-tbody {
   position: relative;
   display: flex;
   flex-direction: column;
 }
-.gui-table gui-tbody gui-tbody-row {
+gui-tbody-row {
   flex: 1;
   position: absolute;
   align-items: center;
   width: 100%;
   display: flex;
 }
-.gui-table gui-tbody gui-tbody-row:hover gui-tbody-cell {
+gui-tbody-row:hover gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.8);
 }
-.gui-table gui-tbody gui-tbody-row.gui-tbody-row-even:not(:hover) gui-tbody-cell {
+gui-tbody-row.gui-tbody-row-even:not(:hover) gui-tbody-cell {
   background-color: rgba(var(--base-1), 0.3);
 }
-.gui-table gui-tbody gui-tbody-row gui-tbody-cell {
+gui-tbody-cell {
   display: inline-flex;
   align-items: center;
   height: 100%;
@@ -184,6 +185,15 @@ gui-tbody-cell > *:first-child {
   white-space: nowrap;
   text-overflow: ellipsis;
   width: 100%;
+}
+
+gui-tbody-cell:has(> gui-value) {
+  overflow: hidden;
+  align-content: center;
+}
+
+gui-tbody-cell > gui-value {
+  height: min-content;
 }
 
 /* Special-case for gui-object within gui-table cells */

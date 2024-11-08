@@ -142,11 +142,8 @@ export class GuiChartYAxesInput extends HTMLElement {
     super();
 
     this._axes = document.createElement('div');
-    this._axes.className = 'list';
+    this._axes.classList.add('list', 'smart');
     this._axes.appendChild(<gui-chart-ordinate-input header="y" />);
-    this._axes.addEventListener('sl-change', () => {
-      this._value = this.value;
-    });
     this._axes.addEventListener('gui-chart-config-delete', (ev) => {
       ev.stopPropagation();
       modal
@@ -185,6 +182,8 @@ export class GuiChartYAxesInput extends HTMLElement {
                 (this.children[0] as sl.SlDetails).open = true;
                 const ord = (<gui-chart-ordinate-input header={key} />) as GuiChartOrdinateInput;
                 this._axes.appendChild(ord);
+                // update the local state
+                this._value = this.value;
                 this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
               }
             }}
@@ -421,7 +420,8 @@ export class GuiChartAxisInput extends HTMLElement {
     ) as sl.SlInput;
 
     this._scale.addEventListener('sl-change', () => {
-      if (this._scale.value === 'time') {
+      const scale = getSelectValue(this._scale);
+      if (scale === 'time') {
         this._min.type = 'datetime-local';
         this._max.type = 'datetime-local';
       } else {
@@ -729,15 +729,13 @@ export class GuiChartSerieInput extends HTMLElement {
     super();
 
     this._header = (<span>Serie</span>) as HTMLElement;
-    this._hide = (
-      <sl-checkbox helpText="Prevents drawing">Hide</sl-checkbox>
-    ) as sl.SlCheckbox;
+    this._hide = (<sl-checkbox helpText="Prevents drawing">Hide</sl-checkbox>) as sl.SlCheckbox;
     this._title = (
       <sl-input
         size="small"
         label="Title"
         onsl-input={() => {
-          this._header.textContent = this._title.value;
+          this._header.textContent = this._title.value || 'Serie';
         }}
       />
     ) as sl.SlInput;
@@ -1082,10 +1080,7 @@ export class GuiChartSeriesInput extends HTMLElement {
     super();
 
     this._series = document.createElement('div');
-    this._series.className = 'list';
-    this._series.addEventListener('sl-change', () => {
-      this._value = this.value;
-    });
+    this._series.classList.add('list', 'smart');
     this._series.addEventListener('gui-chart-config-delete', (ev) => {
       ev.stopPropagation();
       modal
@@ -1116,16 +1111,10 @@ export class GuiChartSeriesInput extends HTMLElement {
             onclick={async (ev) => {
               ev.stopPropagation();
               ev.preventDefault();
-              const title =
-                (await modal.input({
-                  title: `New serie`,
-                  inputProps: { label: 'Name' },
-                })) ?? 'Serie';
-              (this.children[0] as sl.SlDetails).open = true;
-              const serie = (
-                <gui-chart-serie-input header={title} yAxes={this._yAxes} />
-              ) as GuiChartSerieInput;
+              const serie = (<gui-chart-serie-input yAxes={this._yAxes} />) as GuiChartSerieInput;
               this._series.appendChild(serie);
+              // update the local state
+              this._value = this.value;
               this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
             }}
           >

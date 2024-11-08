@@ -6,11 +6,13 @@ import {
   GuiDblClickEvent,
   GuiChangeEvent,
   GuiFactory,
+  sl,
 } from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
 import { GuiValue, GuiValueProps } from '../value/index.js';
 import { convertToTable, Disposer, GuiRenderEvent, TableLike } from '../common.js';
+import type { GuiTableConfig } from './table-config.js';
 
 export interface GuiTableProps {
   value: TableLike;
@@ -94,10 +96,11 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
   private _prevFromRowIdx = 0;
   private _filterText = '';
   private _filterColumns: Array<string | undefined | null> = [];
-  private _headers: string[] | undefined;
   private _rowUpdateCallback: RowUpdateCallback = () => void 0;
   private _disposer = new Disposer();
   private _columnFactory: CleanColumnFactory | undefined;
+  private _drawer: sl.SlDrawer;
+  private _configEl: GuiTableConfig;
 
   constructor() {
     super();
@@ -113,6 +116,18 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this._tableContainer = document.createElement('div');
     this._tableContainer.className = 'gui-table';
     this._tableContainer.append(this._thead, this._tbody);
+
+    this._drawer = document.createElement('sl-drawer');
+    this._drawer.label = 'Table config';
+    this._drawer.contained = true;
+
+    this._configEl = document.createElement('gui-table-config');
+    this._configEl.table = this;
+    this._configEl.addEventListener('sl-change', () => {
+      const value = this._configEl.value;
+      this.setAttrs(value);
+    });
+    this._drawer.appendChild(this._configEl);
 
     this._thead.addEventListener('gui-table-sort', (ev) => {
       if (this._sortCol.sortBy(ev.detail)) {
@@ -159,6 +174,11 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
         this._prevFromRowIdx = fromRowIdx;
         this.update();
       }
+    });
+
+    this._tableContainer.addEventListener('contextmenu', (ev) => {
+      ev.preventDefault();
+      this.toggleConfig();
     });
   }
 
@@ -393,11 +413,16 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
   }
 
   get headers() {
-    return this._headers;
+    return this._table.headers;
   }
 
+  /**
+   * Defines headers for the table columns.
+   * 
+   * *NB: this will mutate the headers of the underlying `core.Table`*
+   */
   set headers(headers: string[] | undefined) {
-    this._headers = headers;
+    this._table.headers = headers;
     this.update();
   }
 
@@ -449,7 +474,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     filterColumns = this._filterColumns,
     sortBy = [this._sortCol.index, this._sortCol.ord],
     cellProps = this._cellProps,
-    headers = this._headers,
+    headers = this._table.headers,
     ignoreCols = this._ignoreCols,
     columnFactory = this._columnFactory,
     // defaultCellFactory = this._defaultCellFactory,
@@ -465,7 +490,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this._filterText = filter;
     this._filterColumns = filterColumns;
     this._cellProps = cellProps;
-    this._headers = headers;
+    this._table.headers = headers;
     this._columnFactory = this._sanitizeColumnFactory(columnFactory);
     // this._defaultCellFactory = this._sanitizeCellFactory(defaultCellFactory);
     this.globalFilter = globalFilter;
@@ -491,7 +516,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       filterColumns: this._filterColumns,
       sortBy: [this._sortCol.index, this._sortCol.ord],
       cellProps: this._cellProps,
-      headers: this._headers,
+      headers: this._table.headers,
       columnsWidths: this._wCalc.getWidths(),
       ignoreCols: this._ignoreCols,
       // defaultCellFactory: this._defaultCellFactory,
@@ -505,7 +530,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
   }
 
   connectedCallback() {
-    this.append(this._filter, this._tableContainer);
+    this.append(this._filter, this._tableContainer, this._drawer);
 
     let px = 0;
     let cx = 0;
@@ -582,6 +607,18 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this.replaceChildren(); // cleanup
   }
 
+  toggleConfig(): void {
+    this._drawer.open = !this._drawer.open;
+  }
+
+  openConfig(): void {
+    this._drawer.open = true;
+  }
+
+  closeConfig(): void {
+    this._drawer.open = false;
+  }
+
   async update(): Promise<void> {
     if (!this.isConnected) {
       return;
@@ -613,8 +650,10 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
     this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth);
     this._wCalc.update();
-    this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol, this._headers);
+    this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
     this._tbody.updateWidths(this._wCalc);
+
+    this._configEl.value = this.getAttrs();
 
     this.dispatchEvent(new GuiRenderEvent(start));
   }
@@ -626,8 +665,8 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
     let csv = '';
 
-    if (this._headers) {
-      csv += this._headers.join(sep);
+    if (this.table.headers) {
+      csv += this.table.headers.filter((h) => h.length > 0).join(sep);
       csv += '\n';
     }
 
@@ -638,11 +677,11 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
-          if (needsSep) {
-            csv += sep;
-          }
           if (this._ignoreCols?.includes(c)) {
             continue;
+          }
+          if (needsSep) {
+            csv += sep;
           }
           csv += utils.stringify(cellProps(this._table.cols[c][r], r, c));
           needsSep = true;
@@ -654,11 +693,11 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
-          if (needsSep) {
-            csv += sep;
-          }
           if (this._ignoreCols?.includes(c)) {
             continue;
+          }
+          if (needsSep) {
+            csv += sep;
           }
           props.value = this._table.cols[c][r];
           csv += utils.stringify(props);
@@ -741,34 +780,33 @@ export class GuiTableHead extends HTMLElement {
     ignoreCols: number[] | undefined,
     calc: WidthCalculator,
     sortCol: SortCol,
-    headers?: string[],
   ) {
     let index = 0; // this index does not account for ignored columns
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       if (ignoreCols?.includes(colIdx)) {
         continue;
       }
-      const colWidth = calc.getWidth(colIdx);
-      const header = this._getOrCreateHeader(colIdx, colWidth);
+      const colWidth = calc.getWidth(index);
+      const header = this._getOrCreateHeader(index, colWidth);
       header.update(
         colIdx,
-        headers?.[index] ?? table.headers?.[colIdx],
+        table.headers?.[colIdx],
         table.subheaders?.[colIdx],
         sortCol.index === colIdx ? sortCol.ord : 'default',
       );
       index += 1;
     }
 
-    this._removeExceedingColumns(table.cols.length - 1);
+    this._removeExceedingColumns(index - 1);
 
-    for (let colIdx = 0; colIdx < this.childNodes.length; colIdx++) {
-      const header = this.childNodes[colIdx] as GuiTableHeadCell;
-      if (colIdx === sortCol.index && sortCol.ord !== 'default') {
+    this.childNodes.forEach((node) => {
+      const header = node as GuiTableHeadCell;
+      if (header.index === sortCol.index && sortCol.ord !== 'default') {
         header.classList.add('active');
       } else {
         header.classList.remove('active');
       }
-    }
+    });
   }
 
   private _getOrCreateHeader(index: number, colWidth: number): GuiTableHeadCell {
@@ -855,7 +893,7 @@ export type GuiTableClickDetail = {
  * A column header cell.
  */
 export class GuiTableHeadCell extends HTMLElement {
-  private _index = 0;
+  public index = 0;
   private _width = 0;
   private _container = document.createElement('div');
   private _title = document.createElement('div');
@@ -882,7 +920,7 @@ export class GuiTableHeadCell extends HTMLElement {
           this.closeDropdown();
         }
       } else if (e.target !== this._resizer && e.target !== this._input) {
-        this.dispatchEvent(new GuiTableSortEvent(this._index));
+        this.dispatchEvent(new GuiTableSortEvent(this.index));
       }
     });
 
@@ -901,11 +939,11 @@ export class GuiTableHeadCell extends HTMLElement {
     this._input.addEventListener('input', (e) => {
       const target = e.target as HTMLInputElement;
       const text = target.value;
-      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, text));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this.index, text));
     });
 
     this._input.addEventListener('sl-clear', () => {
-      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, ''));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this.index, ''));
     });
 
     this._input.addEventListener('blur', (e) => {
@@ -926,7 +964,7 @@ export class GuiTableHeadCell extends HTMLElement {
     this._resizer.addEventListener('mousedown', (e) => {
       e.preventDefault();
       e.stopPropagation();
-      this.dispatchEvent(new GuiTableResizeColEvent(this._index, e.clientX));
+      this.dispatchEvent(new GuiTableResizeColEvent(this.index, e.clientX));
     });
   }
 
@@ -943,7 +981,7 @@ export class GuiTableHeadCell extends HTMLElement {
     if (typeof text === 'string' && text.length > 0) {
       this._input.value = text;
       this.openDropdown();
-      this.dispatchEvent(new GuiTableFilterColumnEvent(this._index, text));
+      this.dispatchEvent(new GuiTableFilterColumnEvent(this.index, text));
     } else {
       this._input.value = '';
       this.closeDropdown();
@@ -1014,14 +1052,14 @@ export class GuiTableHeadCell extends HTMLElement {
   }
 
   update(index: number, header: string | undefined, subheader: string | undefined, sort: SortOrd) {
-    this._index = index;
+    this.index = index;
     const title = document.createDocumentFragment();
 
     const headerContainer = document.createElement('sl-tooltip');
     const headerEl = document.createElement('span');
     headerEl.className = 'gui-thead-header';
 
-    if (header !== undefined) {
+    if (header) {
       headerEl.textContent = header;
     } else {
       headerEl.textContent = `Column ${index}`;
@@ -1311,12 +1349,12 @@ export class GuiTableBodyRow extends HTMLElement {
     this.idx = rowIdx;
     this.setAttribute('data-row', `${rowIdx}`);
 
-    let colIdx: number;
-    for (colIdx = 0; colIdx < table.cols.length; colIdx++) {
+    let index = 0;
+    for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       if (ignoreCols?.includes(colIdx)) {
         continue;
       }
-      const cell = this._getOrCreateCell(table, colIdx);
+      const cell = this._getOrCreateCell(table, index);
       // SAFETY:
       // `originalColIndex` is optional for backward-compatibility reason, which means
       // it is safe to assert it as a 'number' here
@@ -1325,13 +1363,14 @@ export class GuiTableBodyRow extends HTMLElement {
         rowIdx,
         colIdx,
         cellProps,
-        wCalc.getWidth(rowIdx),
+        wCalc.getWidth(index),
         columnFactory?.[colIdx] ?? { tag: factory.valueTag },
       );
+      index += 1;
     }
 
     // remove exceeding cells
-    this._removeExceedingCells(colIdx - 1);
+    this._removeExceedingCells(index - 1);
   }
 
   cell(index: number) {
@@ -1577,6 +1616,7 @@ class WidthCalculator {
       return;
     }
     this._nb_cols = n;
+    this._widths.length = n;
   }
 
   getAvailable(): number {

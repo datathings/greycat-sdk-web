@@ -65,6 +65,14 @@ div[role='list'],
   gap: var(--spacing);
 }
 
+div[role='list'].smart:empty::before,
+.list.smart:empty::before {
+  content: 'List is empty';
+  color: var(--muted-color);
+  align-self: center;
+  font-size: var(--sl-font-size-small);
+}
+
 div[role='row'],
 .row {
   display: flex;

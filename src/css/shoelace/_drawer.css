@@ -1,0 +1,4 @@
+sl-drawer::part(header),
+sl-drawer::part(footer) {
+  background-color: var(--bg-0);
+}

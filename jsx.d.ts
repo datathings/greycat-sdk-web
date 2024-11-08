@@ -5,7 +5,7 @@ declare namespace GreyCat {
   };
 
   // eslint-disable-next-line @typescript-eslint/ban-types
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children'>> &
+  type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children' | 'onclick'>> &
     ExtendedHTMLProperties & {
       [EVENT in keyof EventMap as EVENT extends string ? `on${EVENT}` : never]?: (
         this: T,
@@ -13,6 +13,9 @@ declare namespace GreyCat {
         options?: boolean | AddEventListenerOptions,
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ) => any;
+    } & {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      onclick?: (this: T, ev: MouseEvent) => any;
     };
 
   namespace JSX {

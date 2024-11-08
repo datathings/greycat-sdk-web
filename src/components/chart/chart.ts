@@ -137,7 +137,6 @@ export class GuiChart extends HTMLElement {
     this._configEl.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
       const value = this._configEl.value;
-      console.log('change', { current: this._config, new: value });
 
       // check for series/yAxis validity
       let isValid = true;
@@ -195,8 +194,6 @@ export class GuiChart extends HTMLElement {
         // prevents the browser from processing emulated mouse events
         ev.preventDefault();
 
-        console.log('touchstart');
-
         touchTimer = setTimeout(() => {
           this.toggleConfig();
         }, 500);
@@ -232,8 +229,6 @@ export class GuiChart extends HTMLElement {
       // prevents the browser from processing emulated mouse events
       ev.preventDefault();
 
-      console.log('touchend');
-
       clearTimeout(touchTimer);
 
       if (this._config.selection === false) {
@@ -264,8 +259,6 @@ export class GuiChart extends HTMLElement {
         // prevents the browser from processing emulated mouse events
         ev.preventDefault();
 
-        console.log('touchmove');
-
         clearTimeout(touchTimer);
 
         if (ev.touches.length > 0) {
@@ -278,7 +271,6 @@ export class GuiChart extends HTMLElement {
       { passive: true },
     );
     this.addEventListener('touchcancel', () => {
-      console.log('touchcancel');
       this._resetCursor();
     });
 
@@ -390,9 +382,6 @@ export class GuiChart extends HTMLElement {
       this.style.position = 'relative';
     });
 
-    // update current config
-    this._configEl.value = this._config;
-
     this.replaceChildren(
       this._svg.node() as SVGSVGElement,
       this._canvas,
@@ -488,7 +477,6 @@ export class GuiChart extends HTMLElement {
   };
 
   toggleConfig(): void {
-    console.log('toggle', { current: this._config, new: this._configEl.value });
     this._drawer.open = !this._drawer.open;
   }
 
@@ -1385,6 +1373,9 @@ export class GuiChart extends HTMLElement {
         delete this._yAxisGroups[yAxisName];
       }
     }
+
+    // update current config
+    this._configEl.value = this._config;
   }
 
   /**

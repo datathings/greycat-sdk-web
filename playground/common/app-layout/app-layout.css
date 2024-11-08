@@ -50,6 +50,10 @@
         flex-direction: column;
       }
 
+      &::part(panel) {
+        box-shadow: var(--sl-shadow-large);
+      }
+
       > sl-button {
         display: flex;
         width: 100%;

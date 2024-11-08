@@ -2,6 +2,7 @@
 @import '../components/donut/donut.css';
 @import '../components/heatmap/heatmap.css';
 @import '../components/table/table.css';
+@import '../components/table/table-config.css';
 @import '../components/chart/chart.css';
 @import '../components/chart/chart-config.css';
 @import '../components/csv/csv-column-input/csv-column-input.css';

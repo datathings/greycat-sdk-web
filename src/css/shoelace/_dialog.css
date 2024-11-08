@@ -1,3 +1,11 @@
+sl-dialog {
+  --sl-shadow-x-small: 0 1px 2px hsl(240 3.8% 46.1% / 6%);
+  --sl-shadow-small: 0 1px 2px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-medium: 0 2px 4px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-large: 0 2px 8px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-x-large: 0 4px 16px hsl(240 3.8% 46.1% / 12%);
+}
+
 sl-dialog::part(panel),
 gui-task-info-dialog::part(panel) {
   border: var(--border-width) solid var(--border-color);

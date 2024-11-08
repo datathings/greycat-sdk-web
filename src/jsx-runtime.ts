@@ -94,7 +94,15 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
       if (typeof value === 'string') {
         element.style.cssText = value;
       } else {
-        Object.assign(element.style, value);
+        const styles = value as Partial<CSSStyleDeclaration>;
+        for (const key in styles) {
+          const value = styles[key];
+          if (key.startsWith('--')) {
+            element.style.setProperty(key, value ?? null);
+          } else if (value !== undefined) {
+            element.style[key] = value;
+          }
+        }
       }
       break;
     }

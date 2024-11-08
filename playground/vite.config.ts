@@ -1,7 +1,7 @@
 import { basename, resolve } from 'node:path';
 import { Plugin, defineConfig } from 'vite';
 import httpProxy from 'http-proxy';
-import { readdirSync, readFileSync, statSync } from 'node:fs';
+import { readdirSync, statSync } from 'node:fs';
 
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),

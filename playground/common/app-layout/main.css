@@ -1,4 +1,4 @@
-@import '../src/css/greycat.css';
+@import '@greycat/web/css/greycat.css';
 
 @font-face {
   font-family: 'Open Sans';
