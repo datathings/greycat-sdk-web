@@ -1,4 +1,3 @@
-// import type { core } from '@greycat/sdk';
 import '../layout';
 import './index.css';
 
@@ -21,7 +20,7 @@ app.addSimpleAction(`Switch tooltip to 'in-place'`, (_, a) => {
 
 const heatmap = document.createElement('gui-heatmap');
 heatmap.config = {
-  table: await greycat.default.call<core.Table>('project::heatmap'),
+  table: await greycat.default.call('project::heatmap'),
   displayValue: true,
   markerColor: 'white',
 
