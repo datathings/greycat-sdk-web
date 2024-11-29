@@ -56,6 +56,11 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   disconnectedCallback() {
+    if (this._handler) {
+      this._handler.stop().finally(() => {
+        this._handler = null;
+      });
+    }
     this.replaceChildren();
   }
 
@@ -114,15 +119,21 @@ export class GuiTaskInfo extends HTMLElement {
   }
 
   async update(): Promise<void> {
-    if (!this._task || this._handler) {
+    if (!this.isConnected || !this._task) {
       return;
     }
 
-    if (this._isAlive(this._task.status)) {
+    if (this._handler !== null) {
+      // cancel any previous polling
+      // do not wait for it to complete, we don't care we just want it to stop
+      this._handler.stop();
+    }
+
+    if (!this._task.status) {
+      await this.updateInfo();
+    } else if (this._isAlive(this._task.status)) {
       this._handler = new TaskHandler(this._task);
-      await this._handler.start(2000, (info) => {
-        this._updateTaskInfo(info);
-      });
+      await this._handler.start(2000, this._updateTaskInfo);
       this._handler = null;
     }
     this._updateTaskInfo(this._task);
@@ -147,7 +158,7 @@ export class GuiTaskInfo extends HTMLElement {
     }
   }
 
-  private _updateTaskInfo(t: TaskInfoLike) {
+  private _updateTaskInfo = (t: TaskInfoLike) => {
     this._lastUpdate.textContent = new Date().toISOString();
     this._task = t;
     if (t.type) {
@@ -249,7 +260,7 @@ export class GuiTaskInfo extends HTMLElement {
       this._btn.onclick = () =>
         this.run().then(() => this.dispatchEvent(new GuiUpdateEvent(undefined)));
     }
-  }
+  };
 
   async status(): Promise<runtime.TaskStatus | null> {
     if (!this._task) {

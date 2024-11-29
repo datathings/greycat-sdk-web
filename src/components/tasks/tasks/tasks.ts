@@ -74,9 +74,11 @@ export class GuiTasks extends HTMLElement {
     });
     this.table.addEventListener('table-click', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(
-        new GuiClickEvent<TaskInfoLike>(this._tasks[ev.detail.row[0].originalIndex]),
-      );
+      const task_id = ev.detail.row[0].value as number;
+      const task = this._tasks.find((t) => t.task_id === task_id);
+      if (task) {
+        this.dispatchEvent(new GuiClickEvent<TaskInfoLike>(task));
+      }
     });
 
     this._updateId = -1;
