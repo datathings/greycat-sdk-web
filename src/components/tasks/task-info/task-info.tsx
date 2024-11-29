@@ -50,9 +50,7 @@ export class GuiTaskInfo extends HTMLElement {
       </article>,
     );
 
-    if (this._task) {
-      this.update();
-    }
+    this.update();
   }
 
   disconnectedCallback() {
@@ -143,7 +141,10 @@ export class GuiTaskInfo extends HTMLElement {
    * Cleans up polling if any
    */
   stopPolling(): void {
-    this._handler?.stop();
+    if (this._handler) {
+      this._handler.stop();
+      this._handler = null;
+    }
   }
 
   async updateInfo(): Promise<void> {
@@ -151,8 +152,11 @@ export class GuiTaskInfo extends HTMLElement {
       return;
     }
     try {
-      this.value = await runtime.Task.info(this._task.user_id, this._task.task_id);
+      this._task = await runtime.Task.info(this._task.user_id, this._task.task_id);
       this._lastUpdate.textContent = new Date().toISOString();
+      if (this._task) {
+        this._updateTaskInfo(this._task);
+      }
     } catch (err) {
       this._handleError(err);
     }
