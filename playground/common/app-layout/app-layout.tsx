@@ -1,5 +1,6 @@
 import { registerCustomElement, registerDebugLogger } from '@greycat/web';
 import type { sl } from '@greycat/web';
+import { cx } from '@greycat/web/jsx-runtime';
 import './main.css';
 
 import style from './app-layout.css?inline';
@@ -9,6 +10,7 @@ registerDebugLogger();
 export class AppLayout extends HTMLElement {
   // prettier-ignore
   private static readonly PAGES: Array<{ href: string; title: string }> = [
+    // { title: 'Abi',                     href: 'abi/' },
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
@@ -35,11 +37,12 @@ export class AppLayout extends HTMLElement {
     { title: 'Inputs',                  href: 'inputs/' },
     { title: 'Logs',                    href: 'logs/' },
     { title: 'Modal',                   href: 'modal/' },
-    { title: 'node-time',               href: 'node-time/' },
+    // { title: 'Node Time',               href: 'node-time/' },
     { title: 'Object',                  href: 'object/' },
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Roles',                   href: 'roles/' },
     { title: 'Searchable Select',       href: 'searchable-select/' },
+    // { title: 'Signal',                  href: 'signal/' },
     { title: 'Table',                   href: 'table/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },
@@ -125,6 +128,10 @@ export class AppLayout extends HTMLElement {
 
   set mainStyle(style: Partial<CSSStyleDeclaration>) {
     Object.assign(this._main.style, style);
+  }
+
+  set mainClassName(className: GreyCat.ExtendedHTMLProperties['className']) {
+    cx(this._main, className);
   }
 
   private _toggleTheme(): void {

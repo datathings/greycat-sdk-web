@@ -51,6 +51,33 @@ function setElementAttrs(element: GuiElement, props: { [k: string]: unknown }) {
   }
 }
 
+export function cx(element: HTMLElement, value: GreyCat.ExtendedHTMLProperties['className']): void {
+  switch (typeof value) {
+    case 'string': {
+      element.classList.add(value);
+      break;
+    }
+    case 'object': {
+      if (Array.isArray(value)) {
+        element.classList.add(...value);
+      } else if (value !== null) {
+        for (const className in value) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((value as any)[className]) {
+            element.classList.add(className);
+          } else {
+            element.classList.remove(className);
+          }
+        }
+      }
+      break;
+    }
+    default:
+      // unsupported
+      break;
+  }
+}
+
 function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly = false) {
   if (value === undefined || value === null) {
     return;
@@ -58,30 +85,8 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
 
   switch (key) {
     case 'className': {
-      switch (typeof value) {
-        case 'string': {
-          element.classList.add(value);
-          break;
-        }
-        case 'object': {
-          if (Array.isArray(value)) {
-            element.classList.add(...value);
-          } else if (value !== null) {
-            for (const className in value) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              if ((value as any)[className]) {
-                element.classList.add(className);
-              } else {
-                element.classList.remove(className);
-              }
-            }
-          }
-          break;
-        }
-        default:
-          // unsupported
-          break;
-      }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cx(element, value as any);
       break;
     }
 

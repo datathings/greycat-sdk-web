@@ -9,10 +9,14 @@ const currentValue = (<span slot="action" />) as HTMLElement;
 
 const chart = document.createElement('gui-chart');
 
-chart.addEventListener('selection', (e) => {
-  const from = core.time.fromMs(e.detail.from as number);
-  const to = core.time.fromMs(e.detail.to as number);
-  console.log(`selection from ${from} to ${to}`);
+chart.addEventListener('gui-selection', (e) => {
+  if (e.detail) {
+    const from = core.time.fromMs(e.detail.from as number);
+    const to = core.time.fromMs(e.detail.to as number);
+    console.log(`selection from ${from} to ${to}`);
+  } else {
+    console.log(`reset selection`);
+  }
 });
 
 const colors = {

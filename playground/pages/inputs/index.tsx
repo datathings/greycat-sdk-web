@@ -1,6 +1,7 @@
 import {
   GreyCat,
   GuiInput,
+  GuiInputElement,
   GuiSearchableSelect,
   IndexedDbCache,
   SearchableOption,
@@ -106,12 +107,14 @@ type InputViewerAttrs = {
   header: string;
 };
 export class InputViewer extends HTMLElement {
+
   connectedCallback() {
     this.style.display = 'contents';
     const header = this.getAttribute('header');
 
     const display = document.createElement('gui-value');
-    const input = this.children[0] as GuiInput;
+    const input = this.children[0] as GuiInputElement<unknown>;
+    console.log('input', input);
     display.value = input.value;
     input.addEventListener('gui-input', () => {
       console.log(`[gui-input][${header}]`, input.value);

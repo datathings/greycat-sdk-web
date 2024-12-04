@@ -1060,9 +1060,15 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     )
       return true;
     else if (typeof value === 'object') {
-      if (Array.isArray(value) && ty.name === std.core.Array._type) {
+      if (
+        Array.isArray(value) &&
+        (ty.name === std.core.Array._type || ty.generic_abi_type === ty.abi.core_array_offset)
+      ) {
         return true;
-      } else if (value instanceof Map && ty.name === std.core.Map._type) {
+      } else if (
+        value instanceof Map &&
+        (ty.name === std.core.Map._type || ty.generic_abi_type === ty.abi.core_map_offset)
+      ) {
         return true;
       } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
         return true;
@@ -1182,13 +1188,25 @@ export class GuiInputFn extends GuiInputElement<any[] | null> {
     }
     //Validate that arguments length match
     if (args.length !== this._fn.params.length) {
-      throw `Function params required (${this._fn.params.length}), arguments provided (${args.length})`;
+      this.shadowRoot.replaceChildren(
+        <sl-alert variant="danger" open>
+          <code>&lt;gui-input-fn /&gt;</code> Function params required ({this._fn.params.length}),
+          arguments provided ({args.length})
+        </sl-alert>,
+      );
+      return;
     }
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
       const param = this._fn.params[i];
       if (!GuiInputFn.checkAbiType(arg, param.type, param.nullable)) {
-        throw `Type for param ${param.name} doesn't match, ${param.type.name} required`;
+        this.shadowRoot.replaceChildren(
+          <sl-alert variant="danger" open>
+            <code>&lt;gui-input-fn /&gt;</code> Type <code>'{arg}'</code> for param{' '}
+            <code>'{param.name}'</code> doesn't match, <code>'{param.type.name}'</code> required
+          </sl-alert>,
+        );
+        return;
       }
       this._params.get(param.name)!.value = arg;
     }
@@ -2250,10 +2268,17 @@ export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
   }
 
   get value() {
-    if (this._latInput.value === null || this._lngInput.value === null) {
+    let lat = this._latInput.value;
+    let lng = this._lngInput.value;
+    if (lat === null || lng === null) {
       return null;
     }
-    return std.core.geo.fromLatLng(Number(this._latInput.value), Number(this._lngInput.value));
+    lat = Number(lat);
+    lng = Number(lng);
+    if (isNaN(lat) || isNaN(lng)) {
+      return null;
+    }
+    return std.core.geo.fromLatLng(lat, lng);
   }
 
   set value(value: std.core.geo | null) {

@@ -23,7 +23,7 @@ sl-card.noPadding::part(body) {
     width: 250px;
     display: flex;
     flex-direction: column;
-    background-color: var(--sl-color-neutral-200);
+    background-color: var(--background-color);
     gap: var(--spacing);
     border: var(--border-width) solid var(--border-color);
     padding: var(--spacing);

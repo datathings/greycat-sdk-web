@@ -1,12 +1,21 @@
-import { GreyCat, IndexedDbCache, io } from '@greycat/web';
+import { GreyCat } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+const greycat = await GreyCat.init();
+
+const arrayOfTime = greycat.findType('core::Array<core::time>');
+if (!arrayOfTime) {
+  throw "missing Array<time>";
+}
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <gui-input-object type={io.CsvColumn._type} />
+    <gui-value value="Hello, world!" />
+
+    <gui-input type={arrayOfTime.name} />
+
+    <gui-input-fn type="project::doWhatever" />
   </app-layout>,
 );
+
+// kopr.io/map-v2/

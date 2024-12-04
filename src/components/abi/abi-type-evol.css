@@ -1,0 +1,7 @@
+gui-abi-type-evol {
+  display: contents;
+}
+
+gui-abi-type-evol > sl-card::part(body) {
+  overflow-x: auto;
+}

@@ -6,11 +6,70 @@ declare global {
   }
 }
 
-export abstract class GuiElement<T = unknown> extends HTMLElement {
-  abstract value: T;
+export function customElement(tagName: string) {
+  return (constructor: CustomElementConstructor): void => {
+    if (!customElements.get(tagName)) {
+      customElements.define(tagName, constructor);
+    }
+  };
+}
 
-  connectedCallback(): void | Promise<void> {}
-  disconnectedCallback(): void | Promise<void> {}
+export function attr() {
+  return function attrDecorator<T, E extends GuiElement<T>, K extends keyof E>(
+    target: E,
+    propertyKey: K,
+  ): void {
+    // create a unique property for each instance to store the value
+    const privateKey = `__${String(propertyKey)}`;
+
+    Object.defineProperty(target, propertyKey, {
+      get: function get(this: E) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        return (this as any)[privateKey];
+      },
+      set: function set(this: E, newValue: E[K]) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (this as any)[privateKey] = newValue;
+        this._internalUpdate();
+      },
+      enumerable: true,
+      configurable: false,
+    });
+  };
+}
+
+export abstract class GuiElement<T> extends HTMLElement {
+  abstract value: T;
+  protected _updatePending: boolean;
+  updateComplete: Promise<void>;
+
+  constructor() {
+    super();
+    this._updatePending = false;
+    this.updateComplete = Promise.resolve();
+  }
+
+  connectedCallback(): void {
+    this._internalUpdate();
+  }
+
+  disconnectedCallback(): void {}
+
+  protected _internalUpdate(): void {
+    if (this._updatePending || !this.isConnected) {
+      return;
+    }
+    this._updatePending = true;
+    const { promise, resolve } = Promise.withResolvers<void>();
+    this.updateComplete = promise;
+    queueMicrotask(() => {
+      this.update();
+      this._updatePending = false;
+      resolve();
+    });
+  }
+
+  update(): void {}
 }
 
 export class GuiRenderEvent extends CustomEvent<number> {

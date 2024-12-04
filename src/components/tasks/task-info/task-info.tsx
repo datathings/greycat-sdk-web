@@ -48,11 +48,10 @@ export class GuiTaskInfo extends HTMLElement {
     }
   }
 
-  disconnectedCallback() {
+  async disconnectedCallback() {
     if (this._handler) {
-      this._handler.stop().finally(() => {
-        this._handler = null;
-      });
+      await this._handler.stop();
+      this._handler = null;
     }
     this.replaceChildren();
   }
@@ -103,6 +102,7 @@ export class GuiTaskInfo extends HTMLElement {
       // cancel any previous polling
       // do not wait for it to complete, we don't care we just want it to stop
       this._handler.stop();
+      this._handler = null;
     }
 
     if (!this._task.status) {
@@ -120,6 +120,7 @@ export class GuiTaskInfo extends HTMLElement {
    */
   stopPolling(): void {
     this._handler?.stop();
+    this._handler = null;
   }
 
   async updateInfo(): Promise<void> {
@@ -127,8 +128,9 @@ export class GuiTaskInfo extends HTMLElement {
       return;
     }
     try {
-      this.value = await std.runtime.Task.info(this._task.user_id, this._task.task_id);
+      this._task = await std.runtime.Task.info(this._task.user_id, this._task.task_id);
       this._lastUpdate.textContent = new Date().toISOString();
+      this.update();
     } catch (err) {
       this._handleError(err);
     }

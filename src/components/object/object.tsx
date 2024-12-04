@@ -86,10 +86,6 @@ export class GuiObject extends HTMLElement {
   }
 
   set value(value: unknown) {
-    if (this._value === value) {
-      // optimize the case where the value did not change
-      return;
-    }
     this._value = value;
     this.update();
   }
@@ -556,13 +552,8 @@ declare global {
          *
          * Please, don't use this in a React context. Use `WCWrapper`.
          */
-        'gui-object': GreyCat.Element<
-          GuiObject & {
-            // gui-object accept any properties that the underlying component
-            // would accept, therefore we have to loosen its type
-            [key: string]: unknown;
-          }
-        >;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        'gui-object': GreyCat.Element<GuiObject & { [propName: string]: unknown }>;
         /** Please, don't use this in a React context. Use `WCWrapper`. */
         'gui-object-fieldname': GreyCat.Element<GuiObjectFieldName>;
         /** Please, don't use this in a React context. Use `WCWrapper`. */

@@ -1,0 +1,394 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="../jsx.d.ts" />
+
+import { effect, isSignal } from './signal.js';
+
+let uuid = 0;
+function getUuid() {
+  return uuid++;
+}
+
+export namespace JSX {
+  export interface Element extends Node {}
+  export interface IntrinsicElements extends GreyCat.JSX.IntrinsicElements {}
+}
+
+export const Fragment = '<></>';
+
+export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
+  tagName: K | typeof Fragment,
+  props: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
+): HTMLElementTagNameMap[K] | DocumentFragment {
+  if (tagName === Fragment) {
+    const fragment = document.createDocumentFragment();
+    if (props?.children) {
+      appendChild(fragment, props.children);
+    }
+    return fragment;
+  }
+
+  const element = document.createElement(tagName);
+  if ('setAttrs' in element && typeof element.setAttrs === 'function') {
+    // This is an optimisation for components that define a 'setAttrs' method.
+    // Rather than calling every 'setter' sequentially
+    //   ie. `element[prop1] = props[prop1]`
+    // we only call `setAttrs(props)` once and the component can batch update itself.
+    setElementAttrs(element as unknown as GuiElement, props);
+  } else {
+    for (const key in props) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      setElementProp(element as unknown as GuiElement, key, props);
+    }
+  }
+
+  return element;
+}
+
+interface GuiElement extends HTMLElement {
+  setAttrs(props: { [k: string]: unknown }): void;
+  addEventListener(key: string, handler: EventListener): void;
+  setAttribute(key: string, value: unknown): void;
+}
+
+function setElementAttrs(element: GuiElement, props: { [k: string]: unknown }) {
+  for (const key in props) {
+    setElementProp(element, key, props, true);
+  }
+  element.setAttrs(props);
+}
+
+export function cx(element: HTMLElement, value: GreyCat.ExtendedHTMLProperties['className']): void {
+  switch (typeof value) {
+    case 'string': {
+      element.classList.add(value);
+      break;
+    }
+    case 'object': {
+      if (Array.isArray(value)) {
+        element.classList.add(...value);
+      } else if (value !== null) {
+        for (const className in value) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          if ((value as any)[className]) {
+            element.classList.add(className);
+          } else {
+            element.classList.remove(className);
+          }
+        }
+      }
+      break;
+    }
+    default:
+      // unsupported
+      break;
+  }
+}
+
+function setElementProp(
+  element: GuiElement,
+  key: string,
+  props: { [k: string]: unknown },
+  updateAttrs = false,
+) {
+  const value = props[key];
+  switch (key) {
+    case 'className': {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      cx(element, value as any);
+      return true;
+    }
+
+    case 'children': {
+      appendChild(element, value);
+      return true;
+    }
+
+    case 'style': {
+      if (typeof value === 'string') {
+        element.style.cssText = value;
+      } else {
+        const styles = value as Partial<CSSStyleDeclaration>;
+        for (const key in styles) {
+          const value = styles[key];
+          if (key.startsWith('--')) {
+            element.style.setProperty(key, value ?? null);
+          } else if (value !== undefined) {
+            element.style[key] = value;
+          }
+        }
+      }
+      return true;
+    }
+
+    case 'slot': {
+      if (typeof value === 'string') {
+        element.slot = value;
+      }
+      return true;
+    }
+
+    default: {
+      if (key.startsWith('on')) {
+        if (typeof value === 'function') {
+          element.addEventListener(key.substring(2), value as EventListener);
+        }
+        return true;
+      }
+      if (key in element) {
+        if (isSignal(value)) {
+          const signal = value;
+          // read the value for all signals
+          effect(() => {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (element as any)[key] = signal.get();
+          });
+          if (updateAttrs) {
+            props[key] = signal.get();
+          }
+        } else if (!updateAttrs) {
+          // safety: we just validated that 'key' was a property in 'element'
+          // therefore we can, at least, set it
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (element as any)[key] = value;
+        }
+      } else {
+        element.setAttribute(key, value);
+      }
+      return true;
+    }
+  }
+}
+
+class MarkedList {
+  constructor(readonly elements: NodeList | HTMLCollection) {}
+}
+
+class MarkedArray {
+  constructor(readonly arr: unknown[]) {}
+}
+
+function appendChild(parent: Node, child: unknown) {
+  if (child === undefined || child === null) {
+    return;
+  }
+
+  if (typeof child === 'string') {
+    const node = document.createTextNode(child);
+    parent.appendChild(node);
+    return node;
+  }
+
+  if (child instanceof Node) {
+    parent.appendChild(child);
+    return child;
+  }
+
+  if (child instanceof DocumentFragment) {
+    const marker = document.createComment(`fragment:${child.childElementCount}`);
+    parent.appendChild(marker);
+    parent.appendChild(child);
+    return marker;
+  }
+
+  if (child instanceof MarkedList) {
+    const data = `${getUuid()}`;
+    const watermark = document.createComment(data);
+    parent.appendChild(watermark);
+    for (let i = 0; i < child.elements.length; i++) {
+      parent.appendChild(child.elements[i]);
+    }
+    parent.appendChild(document.createComment(`end_${data}`));
+    return watermark;
+  }
+
+  if (child instanceof MarkedArray) {
+    const data = `${getUuid()}`;
+    const watermark = document.createComment(data);
+    parent.appendChild(watermark);
+    for (let i = 0; i < child.arr.length; i++) {
+      appendChild(parent, child.arr[i]);
+    }
+    parent.appendChild(document.createComment(`end_${data}`));
+    return watermark;
+  }
+
+  if (child instanceof NodeList || child instanceof HTMLCollection) {
+    for (let i = 0; i < child.length; i++) {
+      parent.appendChild(child[i]);
+    }
+    return;
+  }
+
+  if (Array.isArray(child)) {
+    for (let i = 0; i < child.length; i++) {
+      appendChild(parent, child[i]);
+    }
+    return;
+  }
+
+  if (isSignal(child)) {
+    const signal = child;
+    let node: Node | undefined;
+    effect(() => {
+      const value = signal.get();
+      if (node) {
+        // update
+        updateChild(parent, node, value);
+      } else if (value instanceof NodeList || value instanceof HTMLCollection) {
+        // create
+        node = appendChild(parent, new MarkedList(value));
+      } else if (Array.isArray(value)) {
+        // create
+        node = appendChild(parent, new MarkedArray(value));
+      } else {
+        // create
+        node = appendChild(parent, value);
+      }
+    });
+    return;
+  }
+
+  const node = document.createTextNode(child.toString());
+  parent.appendChild(node);
+  return node;
+}
+
+function prependChild(parent: Node, child: unknown, next: Node) {
+  if (child === undefined || child === null) {
+    return;
+  }
+
+  if (typeof child === 'string') {
+    const node = document.createTextNode(child);
+    parent.insertBefore(node, next);
+    return;
+  }
+
+  if (child instanceof NodeList || child instanceof HTMLCollection) {
+    for (let i = child.length - 1; i >= 0; i--) {
+      parent.insertBefore(child[i], next);
+    }
+    return;
+  }
+
+  if (Array.isArray(child)) {
+    for (let i = child.length - 1; i >= 0; i--) {
+      prependChild(parent, child[i], next);
+    }
+    return;
+  }
+
+  if (child instanceof DocumentFragment) {
+    const marker = document.createComment(`fragment:${child.childElementCount}`);
+    const prev = next.previousSibling!;
+    parent.insertBefore(child, next);
+    parent.insertBefore(marker, prev.nextSibling);
+    return;
+  }
+
+  const node = document.createTextNode(child.toString());
+  parent.insertBefore(node, next);
+}
+
+function updateChild(parent: Node, prev: Node, child: unknown) {
+  if (child instanceof NodeList || child instanceof HTMLCollection) {
+    while (prev.nextSibling) {
+      parent.removeChild(prev.nextSibling);
+    }
+    for (let i = 0; i < child.length; i++) {
+      parent.appendChild(child[i]);
+    }
+    return;
+  }
+
+  if (Array.isArray(child)) {
+    const endMarkerData = `end_${prev.textContent}`;
+    let endMarker: Node | null = prev.nextSibling;
+    while (
+      endMarker &&
+      !(endMarker.nodeType === Node.COMMENT_NODE && endMarker.nodeValue === endMarkerData)
+    ) {
+      if (endMarker.nodeType === Node.COMMENT_NODE) {
+        if (endMarker.nodeValue === endMarkerData) {
+          break;
+        } else if (endMarker.nodeValue?.startsWith('fragment:')) {
+          let skip = +endMarker.nodeValue.split(':')[1];
+          while (skip > 0 && endMarker) {
+            skip--;
+            endMarker = endMarker?.nextSibling;
+          }
+          if (!endMarker) {
+            break;
+          }
+        }
+      }
+      endMarker = endMarker.nextSibling;
+    }
+
+    if (!endMarker) {
+      // that should never happen
+      return;
+    }
+
+    let curr: Node | null = prev.nextSibling;
+    let index = 0;
+
+    while (curr && curr !== endMarker) {
+      const next = curr.nextSibling;
+
+      if (index < child.length) {
+        // update existing element node
+        updateChild(parent, curr, child[index]);
+        index += 1;
+      } else {
+        // remove extra nodes
+        parent.removeChild(curr);
+      }
+
+      curr = next;
+    }
+
+    // add new nodes if the child list has more items
+    while (index < child.length) {
+      prependChild(parent, child[index], endMarker);
+      index += 1;
+    }
+
+    return;
+  }
+
+  if (typeof child === 'string') {
+    prev.textContent = child;
+    return;
+  }
+
+  if (child instanceof DocumentFragment) {
+    if (prev.nodeType === Node.COMMENT_NODE && prev.nodeValue?.startsWith('fragment:')) {
+      let del = +prev.nodeValue.split(':')[1];
+      let current: ChildNode | null = prev.nextSibling;
+      while (current && del) {
+        del--;
+        const next: ChildNode | null = current.nextSibling;
+        current.remove();
+        current = next;
+      }
+      if (current) {
+        parent.insertBefore(child, current);
+      }
+      return;
+    }
+    parent.replaceChild(child, prev);
+    return;
+  }
+
+  if (child instanceof Node) {
+    parent.replaceChild(child, prev);
+    return;
+  }
+
+  prev.textContent = `${child}`;
+}
+
+export { createElement as jsx };
+export { createElement as jsxs };
+export { createElement as jsxDEV };

@@ -1,22 +1,44 @@
 declare namespace GreyCat {
   type ExtendedHTMLProperties = {
     className?: string | string[] | { [className: string]: boolean };
-    style?: Partial<CSSStyleDeclaration> | string;
+    style?: Partial<CSSStyleDeclaration & { [key: `--${string}`]: string }> | string;
   };
 
+  type ElementEventMap<T, EventMap> = {
+    [EVENT in keyof EventMap as EVENT extends string ? `on${EVENT}` : never]?: (
+      this: T,
+      ev: EventMap[EVENT],
+      options?: boolean | AddEventListenerOptions,
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    ) => any;
+  };
+
+  // type SignalOrValue<T> = T extends boolean
+  //   ? boolean | GreyCat.Signal<boolean>
+  //   : T extends null | undefined
+  //     ? T
+  //     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  //       T extends any
+  //       ? T | GreyCat.Signal<T>
+  //       : never;
+
+  // type WrapElement<T> = {
+  //   [K in keyof T]: SignalOrValue<T[K]>;
+  // };
+  type WrapElement<T> = T; // noop type for now
+
   // eslint-disable-next-line @typescript-eslint/ban-types
-  type Element<T, EventMap = {}> = Partial<Omit<T, 'style' | 'className' | 'children' | 'onclick'>> &
-    ExtendedHTMLProperties & {
-      [EVENT in keyof EventMap as EVENT extends string ? `on${EVENT}` : never]?: (
-        this: T,
-        ev: EventMap[EVENT],
-        options?: boolean | AddEventListenerOptions,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      ) => any;
-    } & {
+  type Element<T, EventMap = {}> = Partial<
+    WrapElement<Omit<T, 'style' | 'className' | 'children' | 'onclick'>>
+  > &
+    ExtendedHTMLProperties &
+    ElementEventMap<T, EventMap> & {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onclick?: (this: T, ev: MouseEvent) => any;
     };
+  // & {
+  //   value?: 'value' extends keyof T ? T['value'] | Signal<T['value']> : never;
+  // }
 
   namespace JSX {
     type IntrinsicElement = IntrinsicElements[keyof IntrinsicElements];

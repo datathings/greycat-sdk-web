@@ -51,7 +51,7 @@
       }
 
       &::part(panel) {
-        box-shadow: var(--sl-shadow-large);
+        box-shadow: var(--sl-shadow-medium);
       }
 
       > sl-button {

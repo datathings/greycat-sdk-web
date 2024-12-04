@@ -18,6 +18,6 @@
       "@greycat/web/jsx-runtime": ["../src/jsx-runtime.ts"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
+  "include": ["./**/*.ts", "./**/*.tsx", "../src/signal.ts"],
   "exclude": ["./gcdata", "./files", "./public", "vite.config.ts"]
 }

@@ -13,6 +13,8 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitOverride": true,
+    // "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
 
     "lib": ["DOM", "ESNext"],
     "jsx": "react-jsx",

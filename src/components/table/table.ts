@@ -418,7 +418,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
   /**
    * Defines headers for the table columns.
-   * 
+   *
    * *NB: this will mutate the headers of the underlying `core.Table`*
    */
   set headers(headers: string[] | undefined) {
@@ -587,17 +587,12 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     const oResize = new ResizeObserver(async () => {
       if (this._table.nbRows() > 0) {
         // recompute the available space for the rows
-        await this._tbody.computeRowHeight(
-          this._table,
-          this._ignoreCols,
-          // this._defaultCellFactory,
-          this._columnFactory,
-        );
+        await this._tbody.computeRowHeight(this._table, this._ignoreCols, this._columnFactory);
       }
       // update the whole table
       this.update();
     });
-    oResize.observe(this);
+    // oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
   }
 
@@ -1422,23 +1417,24 @@ export class GuiTableBodyRow extends HTMLElement {
 export class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
-  private _value: GuiValueElement;
+  /** By default the cell is displayed by a GuiValueElement (`'gui-value'`) */
+  private _cell: GuiValueElement;
 
   constructor() {
     super();
-    this._value = document.createElement('gui-value');
+    this._cell = document.createElement('gui-value');
   }
 
   set value(value: unknown) {
-    this._value.value = value;
+    this._cell.value = value;
   }
 
   get value() {
-    return this._value.value;
+    return this._cell.value;
   }
 
   connectedCallback() {
-    this.replaceChildren(this._value);
+    this.replaceChildren(this._cell);
   }
 
   /**
@@ -1460,48 +1456,40 @@ export class GuiTableBodyCell extends HTMLElement {
     this.rowIdx = rowIdx;
     this.colIdx = colIdx;
     this.setAttribute('data-col', `${colIdx}`);
-    if (factory) {
-      if (this._value.tagName !== factory.tag.toUpperCase()) {
-        // different tag: create+replace
-        this._value = document.createElement(factory.tag) as GuiValueElement;
-        this.replaceChildren(this._value);
-      }
-      if (this._value instanceof GuiValue) {
-        if (typeof cellProps === 'function') {
-          const attrs = {
-            ...cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx),
-            ...factory.props,
-          };
-          this._value.setAttrs(attrs);
-        } else {
-          const attrs = {
-            ...cellProps,
-            ...factory.props,
-            value: table.cols[colIdx][rowIdx],
-          };
-          this._value.setAttrs(attrs);
-        }
-      } else if ('setAttrs' in this._value && typeof this._value.setAttrs === 'function') {
-        const attrs = { ...factory.props, value: table.cols[colIdx][rowIdx] };
-        this._value.setAttrs(attrs);
-      } else {
-        Object.assign(this._value, factory.props);
-        this._value.value = table.cols[colIdx][rowIdx];
-      }
-    } else {
-      let attrs: CellProps;
+    const value = table.cols[colIdx][rowIdx];
+    if (value instanceof Node) {
+      this.replaceChildren(value);
+      this.style.width = `${colWidth}px`;
+      return Promise.resolve();
+    }
+
+    if (this._cell.tagName !== factory.tag.toUpperCase()) {
+      // different tag: create+replace
+      this._cell = document.createElement(factory.tag) as GuiValueElement;
+      this.replaceChildren(this._cell);
+    }
+
+    if (this._cell instanceof GuiValue) {
       if (typeof cellProps === 'function') {
-        attrs = cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx);
+        const attrs = {
+          ...cellProps(value, rowIdx, colIdx),
+          ...factory.props,
+        };
+        this._cell.setAttrs(attrs);
       } else {
-        attrs = { ...cellProps, value: table.cols[colIdx][rowIdx] };
+        const attrs = {
+          ...cellProps,
+          ...factory.props,
+          value,
+        };
+        this._cell.setAttrs(attrs);
       }
-      if (this._value instanceof GuiValue) {
-        this._value.setAttrs(attrs);
-      } else if ('setAttrs' in this._value && typeof this._value.setAttrs === 'function') {
-        this._value.setAttrs(attrs);
-      } else {
-        Object.assign(this._value, attrs);
-      }
+    } else if ('setAttrs' in this._cell && typeof this._cell.setAttrs === 'function') {
+      const attrs = { ...factory.props, value: value };
+      this._cell.setAttrs(attrs);
+    } else {
+      Object.assign(this._cell, factory.props);
+      this._cell.value = value;
     }
     this.style.width = `${colWidth}px`;
     return Promise.resolve();

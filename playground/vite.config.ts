@@ -95,6 +95,11 @@ function greycatProxy(): Plugin {
   };
 }
 
+// proxyPort, req and res are passed here
+// proxyPort: 5000
+// req: incoming expressjs request
+// res: incoming expressjs response
+
 // function genEntrypointsSchema(outDir: string): Plugin {
 //   type Entrypoint = { href: string; title: string; filepath: string };
 //   const outDirName = basename(outDir);

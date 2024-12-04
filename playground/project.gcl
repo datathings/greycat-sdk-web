@@ -1,12 +1,31 @@
 var sensor: nodeTime<SensorData>?;
+var serie_float: nodeTime<float>?;
+
+enum RelayApp {
+  pv;
+  pv_shelly;
+  ev;
+  ev_shelly;
+  empty;
+  // foo;
+}
+
+type Book {
+  name: String;
+  owner: Person?;
+}
 
 fn main() {
-  for (var i = 0; i < 15; i++) {
-    SecurityEntity::set(UserGroup {
-        id: 0,
-        name: "group-${i}",
-        activated: true,
-      });
+  // for (var i = 0; i < 15; i++) {
+  //   SecurityEntity::set(UserGroup {
+  //       id: 0,
+  //       name: "group-${i}",
+  //       activated: true,
+  //     });
+  // }
+
+  if (serie_float == null) {
+    init_float();
   }
 
   // if (sensor == null) {
@@ -111,7 +130,7 @@ fn chart(nbRows: int) {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -133,7 +152,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -452,8 +471,10 @@ fn task_long_running2() {
 
 @expose
 fn mainTask() {
-  Task::spawn(TaskRequest { function: project::subTask, arguments: Array<any?> {0} });
-  Task::spawn(TaskRequest { function: project::subTask, arguments: Array<any?> {1} });
+  await(Array<Job> {
+    Job { function: project::subTask, arguments: Array<any?> {0} },
+    Job { function: project::subTask, arguments: Array<any?> {1} },
+  });
 }
 
 fn subTask(id: int) {
@@ -509,7 +530,7 @@ fn obj() {
 @expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first", ("BAR", 42));
+  map.set("first",("BAR", 42));
   map.set("second", TimeZone::Africa_Abidjan);
 
   var array = [42, 3.14, "hello world"];
@@ -747,4 +768,36 @@ type Obj2 {
 @expose
 fn array_of_ints(arr: Array<int>): Array<int> {
   return arr;
+}
+
+@expose
+fn resolve_person() {
+  var n = 4198400node;
+  return *n;
+}
+
+
+fn init_float() {
+  serie_float ?= nodeTime<float> {};
+
+  var now = time::now();
+  var start = now.calendar_add(-1, CalendarUnit::year, TimeZone::Europe_Paris);
+
+  var random = Random {};
+  var curr = start;
+  var prev = 0_f;
+  while (curr < now) {
+    var value = nextValueFloat(prev, random, 0.05);
+    serie_float.setAt(curr, value);
+    prev = value;
+    curr = curr.calendar_add(1, CalendarUnit::minute, TimeZone::Europe_Paris);
+  }
+}
+
+fn nextValueFloat(prev: float, random: Random, threshold: float): float {
+  var throttle = random.uniformf(-threshold, threshold);
+  if (prev - throttle > 0) {
+    return prev - throttle;
+  }
+  return prev + throttle;
 }

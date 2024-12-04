@@ -79,6 +79,11 @@ div[role='row'],
   gap: var(--spacing);
 }
 
+div[role='row'] > :last-child,
+.row > :last-child {
+  padding-right: var(--spacing);
+}
+
 div[role='row-fluid'],
 .row-fluid {
   display: flex;
