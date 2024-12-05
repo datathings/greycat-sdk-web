@@ -1,20 +1,17 @@
-import { GreyCat } from '@greycat/web';
+import { GreyCat, GuiInput } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init();
-
-const arrayOfTime = greycat.findType('core::Array<core::time>');
-if (!arrayOfTime) {
-  throw "missing Array<time>";
-}
+await GreyCat.init();
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <gui-value value="Hello, world!" />
-
-    <gui-input type={arrayOfTime.name} />
-
-    <gui-input-fn type="project::doWhatever" />
+    <div>
+      <gui-value value="Hello, world!" />
+      <gui-input
+        type="project::ComplexForm"
+        ongui-change={(ev) => console.log('[onchange]', structuredClone((ev.target as GuiInput).value))}
+      />
+    </div>
   </app-layout>,
 );
 

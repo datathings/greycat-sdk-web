@@ -20,6 +20,7 @@ import FnStyle from './input-fn.css?inline';
 import ArrayStyle from './input-array.css?inline';
 import MapStyle from './input-map.css?inline';
 import ObjectStyle from './input-object.css?inline';
+import AbstractStyle from './input-abstract.css?inline';
 import AnyStyle from './input-any.css?inline';
 import DurationStyle from './input-duration.css?inline';
 import GeoStyle from './input-geo.css?inline';
@@ -221,6 +222,14 @@ export class GuiInput extends GuiInputElement<unknown> {
           if (this._value !== undefined) {
             this._inner.value = this._value;
           }
+        } else if (this._type.is_abstract) {
+          const input = document.createElement('gui-input-abstract');
+          input.config = this._config;
+          input.type = this._type;
+          if (this._value instanceof GCObject) {
+            input.value = this._value;
+          }
+          this._inner = input;
         } else {
           const input = document.createElement('gui-input-object');
           input.config = this._config;
@@ -358,8 +367,8 @@ export class GuiInputString extends GuiInputElement<string | null> {
   }
 
   get value() {
-    if (this._input.value.length === 0) {
-      return this._config.nullable ? null : '';
+    if (this._config.nullable) {
+      return this._input.value.length === 0 ? null : this._input.value;
     }
     return this._input.value;
   }
@@ -696,69 +705,106 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 }
 
-// export class GuiInputAbstract extends GuiInputElement<unknown> {
-//   private _input: SlSelect;
+export class GuiInputAbstract extends GuiInputElement<unknown> {
+  private _select: sl.SlSelect;
+  private _input: GuiInputObject;
 
-//   constructor() {
-//     super();
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(AbstractStyle);
+  }
 
-//     this._input = document.createElement('sl-select');
-//     this._input.setAttribute('exportparts', 'base');
-//     this._input.addEventListener('sl-input', (ev) => {
-//       ev.stopPropagation();
-//       this.dispatchEvent(new GuiInputEvent(this.value));
-//     });
-//     this._input.addEventListener('sl-change', (ev) => {
-//       ev.stopPropagation();
-//       this.dispatchEvent(new GuiChangeEvent(this.value));
-//     });
+  constructor() {
+    super();
 
-//     this.shadowRoot.replaceChildren(this._input);
-//   }
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputAbstract.STYLE);
 
-//   override get placeholder() {
-//     return this._input.placeholder;
-//   }
+    this._select = document.createElement('sl-select');
+    this._select.placeholder = 'Select a concrete type';
+    this._select.setAttribute('exportparts', 'base');
+    this._select.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      this._input.type = this._select.value as string;
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
 
-//   override set placeholder(placeholder: string) {
-//     this._input.placeholder = placeholder;
-//   }
+    this._input = document.createElement('gui-input-object');
 
-//   override get label() {
-//     return this._input.label;
-//   }
+    this.shadowRoot.replaceChildren(<div className="base">{this._select}{this._input}</div>);
+  }
 
-//   override set label(label: string) {
-//     this._input.label = label;
-//   }
+  override get placeholder() {
+    return this._select.placeholder;
+  }
 
-//   override get helpText() {
-//     return this._input.helpText;
-//   }
+  override set placeholder(placeholder: string) {
+    this._select.placeholder = placeholder;
+  }
 
-//   override set helpText(helpText: string) {
-//     this._input.helpText = helpText;
-//   }
+  override get label() {
+    return this._select.label;
+  }
 
-//   set type(type: AbiType) {
-//     const options: SlOption[] = [];
-//     // type.abi.types.filter((ty) => ty.)
-//     this._input.replaceChildren(options);
-//   }
+  override set label(label: string) {
+    this._select.label = label;
+  }
 
-//   get value() {
-//     return this._input.value as string;
-//   }
+  override get helpText() {
+    return this._select.helpText;
+  }
 
-//   set value(value: string) {
-//     this._input.value = value;
-//   }
+  override set helpText(helpText: string) {
+    this._select.helpText = helpText;
+  }
 
-//   override connectedCallback(): void {
-//     super.connectedCallback();
-//     this.setAttribute('exportparts', 'base');
-//   }
-// }
+  set type(type: AbiType | string | null) {
+    if (type === null) {
+      this._select.placeholder = 'No type';
+      this._select.disabled = true;
+      this._select.replaceChildren();
+      return;
+    } else if (typeof type === 'string') {
+      const ty = $.default.findType(type);
+      if (!ty) {
+        this._select.placeholder = `Unknown type '${type}'`;
+        this._select.disabled = true;
+        this._select.replaceChildren();
+        return;
+      }
+      type = ty;
+    }
+    if (!type.is_abstract) {
+      console.warn(
+        `GuiInputAbstract 'type' field must be set with an abstract type ('${type.name}' is not abstract)`,
+      );
+      return;
+    }
+    const options: sl.SlOption[] = [];
+    for (const ty of type.abi.types) {
+      if (ty.super_type === type.offset) {
+        options.push((<sl-option value={ty.name}>{ty.name}</sl-option>) as sl.SlOption);
+      }
+    }
+    this._select.placeholder = `Select a concrete type for '${type.name}'`;
+    this._select.replaceChildren(...options);
+    this._input.type = undefined;
+    this._input.value = null;
+  }
+
+  get value() {
+    return this._input.value;
+  }
+
+  set value(value: GCObject | Record<string | number, unknown> | null) {
+    this._input.value = value;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.setAttribute('exportparts', 'base');
+  }
+}
 
 export class GuiInputObject extends GuiInputElement<
   GCObject | null | Record<string | number, unknown>
@@ -2374,6 +2420,7 @@ declare global {
     'gui-input-time': GuiInputTime;
     'gui-input-enum': GuiInputEnum;
     'gui-input-object': GuiInputObject;
+    'gui-input-abstract': GuiInputAbstract;
     'gui-input-fn': GuiInputFn;
     'gui-input-duration': GuiInputDuration;
     'gui-input-any': GuiInputAny;
@@ -2405,6 +2452,7 @@ declare global {
         'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;
         'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
         'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
+        'gui-input-abstract': GreyCat.Element<GuiInputAbstract, GuiInputEventMap>;
         'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
         'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
         'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
@@ -2429,6 +2477,7 @@ registerCustomElement('gui-input-bool', GuiInputBool);
 registerCustomElement('gui-input-time', GuiInputTime);
 registerCustomElement('gui-input-enum', GuiInputEnum);
 registerCustomElement('gui-input-object', GuiInputObject);
+registerCustomElement('gui-input-abstract', GuiInputAbstract);
 registerCustomElement('gui-input-fn', GuiInputFn);
 registerCustomElement('gui-input-duration', GuiInputDuration);
 registerCustomElement('gui-input-any', GuiInputAny);

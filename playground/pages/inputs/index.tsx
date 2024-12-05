@@ -114,7 +114,7 @@ export class InputViewer extends HTMLElement {
 
     const display = document.createElement('gui-value');
     const input = this.children[0] as GuiInputElement<unknown>;
-    console.log('input', input);
+    // console.log('input', input);
     display.value = input.value;
     input.addEventListener('gui-input', () => {
       console.log(`[gui-input][${header}]`, input.value);
