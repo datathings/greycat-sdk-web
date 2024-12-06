@@ -1,24 +1,14 @@
-import { GreyCat, GuiFactory } from '@greycat/web';
+import { GreyCat } from '@greycat/web';
 import '@/common';
 
 const greycat = await GreyCat.init();
 
-const o = greycat.create('project::Person', [false, 'John', 42]);
+const table = await greycat.call('project::persons');
+console.log(table);
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <div>
-      {/* <gui-value value="Hello, world!" /> */}
-      <gui-factory
-        mappings={{
-          'project::Person::age': GuiFactory.defineFromFn((value) => (
-            <span style={{ color: 'orange' }}>{value}</span>
-          )),
-        }}
-      >
-        <gui-object value={o} header />
-      </gui-factory>
-    </div>
+    <gui-table value={table} />
   </app-layout>,
 );
 

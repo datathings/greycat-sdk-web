@@ -1,9 +1,7 @@
-import { GreyCat, GuiFactory, GuiValue, IndexedDbCache, sl } from '@greycat/web';
+import { GreyCat, type sl } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+const greycat = await GreyCat.init();
 
 const objectEl = document.createElement('gui-object');
 objectEl.props.globalFilter = true;
@@ -19,14 +17,6 @@ function toggleObjectHeader() {
 function toggleObjectResolve() {
   objectEl.resolve = !objectEl.resolve;
 }
-
-const valueTag = GuiFactory.defineFromClass(
-  class extends GuiValue {
-    connectedCallback() {
-      this.style.color = 'pink';
-    }
-  },
-);
 
 document.body.appendChild(
   <app-layout
@@ -47,6 +37,6 @@ document.body.appendChild(
     </sl-select>
     <sl-checkbox onsl-change={toggleObjectHeader}>Object with header</sl-checkbox>
     <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>
-    <gui-factory valueTag={valueTag}>{objectEl}</gui-factory>
+    {objectEl}
   </app-layout>,
 );

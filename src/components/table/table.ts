@@ -1458,7 +1458,7 @@ export class GuiTableBodyCell extends HTMLElement {
     this.setAttribute('data-col', `${colIdx}`);
     const value = table.cols[colIdx][rowIdx];
     if (value instanceof Node) {
-      this.replaceChildren(value.cloneNode(true));
+      this.replaceChildren(value);
       this.style.width = `${colWidth}px`;
       return Promise.resolve();
     }

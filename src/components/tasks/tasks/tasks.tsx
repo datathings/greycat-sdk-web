@@ -1,4 +1,4 @@
-import { core, std, toast, type GuiTable, TaskInfoLike, GuiClickEvent, type sl } from '../../../exports.js';
+import { core, std, toast, type GuiTable, TaskInfoLike, GuiClickEvent } from '../../../exports.js';
 
 export class GuiTasks extends HTMLElement {
   /** The table used to display the task list */
@@ -88,9 +88,9 @@ export class GuiTasks extends HTMLElement {
         if (!name_or_id) {
           name_or_id = user_id;
         }
-        const cancellable =
-          task.status === std.runtime.TaskStatus.waiting() ||
-          task.status === std.runtime.TaskStatus.running();
+        // const cancellable =
+        //   task.status === std.runtime.TaskStatus.waiting() ||
+        //   task.status === std.runtime.TaskStatus.running();
 
         return {
           Task: task.task_id,
@@ -99,20 +99,20 @@ export class GuiTasks extends HTMLElement {
           Created: task.creation,
           Started: task.start ?? '',
           Duration: task.duration ?? '',
-          Status: <gui-value value={task.status.key} className={task.status.key} />,
+          Status: task.status.key,
           Progress: task.progress ? `${(task.progress * 100).toFixed(1)}%` : '',
-          Action: cancellable ? (
-            <sl-button
-              variant="text"
-              size="small"
-              onclick={(ev) => {
-                std.runtime.Task.cancel(task.task_id);
-                (ev.target as sl.SlButton).textContent = 'Cancelling...';
-              }}
-            >
-              Cancel
-            </sl-button>
-          ) : undefined,
+          // Action: cancellable ? (
+          //   <sl-button
+          //     variant="text"
+          //     size="small"
+          //     onclick={(ev) => {
+          //       std.runtime.Task.cancel(task.task_id);
+          //       (ev.target as sl.SlButton).textContent = 'Cancelling...';
+          //     }}
+          //   >
+          //     Cancel
+          //   </sl-button>
+          // ) : undefined,
         };
       });
 
