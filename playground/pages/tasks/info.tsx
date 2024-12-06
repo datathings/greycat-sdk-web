@@ -12,6 +12,6 @@ await GreyCat.init({
 document.body.appendChild(
   <app-layout title="Tasks - Info">
     {actions}
-    <gui-task-info value={{ user_id: 1, task_id: 1 }} />
+    {/* <gui-task-info value={{ user_id: 1, task_id: 1 }} /> */}
   </app-layout>,
 );

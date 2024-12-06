@@ -1,9 +1,7 @@
-import { $, GreyCat, IndexedDbCache, core } from '@greycat/web';
+import { $, GreyCat, core } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await GreyCat.init();
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');

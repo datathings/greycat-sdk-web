@@ -259,7 +259,10 @@ export class GuiObject extends HTMLElement {
           <>
             <gui-object-fieldname value={attr.name} />
             <gui-object-fieldvalue>
-              {this._factory.createValue({ ...this._props, value: attrVal })}
+              {this._factory.createAttrValue(value.$type, attr.name, {
+                ...this._props,
+                value: attrVal,
+              })}
             </gui-object-fieldvalue>
           </>,
         );
@@ -338,13 +341,12 @@ export class GuiObject extends HTMLElement {
           </>,
         );
       } else {
-        const child = this._factory.createObject(
-          Object.assign(this.getAttrs(), this._props, {
-            nested: true,
-            value: attrVal,
-            data: attr.name,
-          }),
-        );
+        const props = Object.assign(this.getAttrs(), this._props, {
+          nested: true,
+          value: attrVal,
+          data: attr.name,
+        });
+        const child = this._factory.createAttrObject(value.$type, attr.name, props);
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
@@ -548,12 +550,10 @@ declare global {
     namespace JSX {
       interface IntrinsicElements {
         /**
-         * Any unknown properties given to `gui-object` will be passed down to the underlying element.
-         *
          * Please, don't use this in a React context. Use `WCWrapper`.
          */
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        'gui-object': GreyCat.Element<GuiObject & { [propName: string]: unknown }>;
+        'gui-object': GreyCat.Element<GuiObject>;
         /** Please, don't use this in a React context. Use `WCWrapper`. */
         'gui-object-fieldname': GreyCat.Element<GuiObjectFieldName>;
         /** Please, don't use this in a React context. Use `WCWrapper`. */

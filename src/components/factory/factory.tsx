@@ -1,14 +1,18 @@
 import { createElement } from '@greycat/web/jsx-runtime';
 import { registerCustomElement } from '../common.js';
-import { GuiValueElement, std } from '../../exports.js';
+import { AbiType, GuiValueElement, std } from '../../exports.js';
 
 type Props = {
   [key: string]: unknown;
   children?: HTMLElement | HTMLElement[];
 } & GreyCat.ExtendedHTMLProperties;
 
+export type FactoryMap = {
+  [typeFqn: string]: keyof HTMLElementTagNameMap;
+};
+
 export class GuiFactory extends HTMLElement {
-  static global: GuiFactory & { mappings: Map<string, keyof HTMLElementTagNameMap> };
+  static global: GuiFactory & { mappings: FactoryMap };
 
   constructor(
     /**
@@ -24,8 +28,13 @@ export class GuiFactory extends HTMLElement {
      * *Defaults to `'gui-value'`*
      */
     public valueTag: keyof HTMLElementTagNameMap = 'gui-value',
-    /** mapping of GreyCat fqn to HTMLElement tagName */
-    public mappings?: Map<string, keyof HTMLElementTagNameMap>,
+    /**
+     * Mapping of GreyCat fqn to HTMLElement tagName.
+     * 
+     * *Note: `GuiFactory` comes with 2 helpers to easily register a custom element from either a class or a function,
+     * see `GuiFactory.defineFromClass` and `GuiFactory.defineFromFn`*
+     */
+    public mappings?: FactoryMap,
   ) {
     super();
   }
@@ -34,8 +43,18 @@ export class GuiFactory extends HTMLElement {
     return createElement(this.objectTag, props);
   }
 
+  createAttrObject(type: AbiType, attrName: string, props: Props = {}): Node {
+    const tagName = this.get(`${type.name}::${attrName}`);
+    return createElement(tagName, props);
+  }
+
   createValue(props: Props = {}): Node {
     return createElement(this.valueTag, props);
+  }
+
+  createAttrValue(type: AbiType, attrName: string, props: Props = {}): Node {
+    const tagName = this.getValue(`${type.name}::${attrName}`);
+    return createElement(tagName, props);
   }
 
   create(type: string, props: Props = {}): Node {
@@ -44,7 +63,7 @@ export class GuiFactory extends HTMLElement {
   }
 
   getMapping(type: string): keyof HTMLElementTagNameMap | undefined {
-    return this.mappings?.get(type);
+    return this.mappings?.[type];
   }
 
   /**
@@ -56,7 +75,7 @@ export class GuiFactory extends HTMLElement {
    */
   get(type: string): keyof HTMLElementTagNameMap {
     if (this.mappings) {
-      const tagName = this.mappings.get(type);
+      const tagName = this.mappings[type];
       if (tagName) {
         return tagName;
       }
@@ -66,6 +85,20 @@ export class GuiFactory extends HTMLElement {
     }
     const parentFactory = GuiFactory.closest(this);
     return parentFactory.get(type);
+  }
+
+  getValue(type: string): keyof HTMLElementTagNameMap {
+    if (this.mappings) {
+      const tagName = this.mappings[type];
+      if (tagName) {
+        return tagName;
+      }
+    }
+    if (this === GuiFactory.global) {
+      return this.valueTag;
+    }
+    const parentFactory = GuiFactory.closest(this);
+    return parentFactory.getValue(type);
   }
 
   /**
@@ -164,14 +197,8 @@ declare global {
 registerCustomElement('gui-factory', GuiFactory);
 
 // needs to be created after registered
-GuiFactory.global = new GuiFactory(
-  'gui-object',
-  'gui-value',
-  new Map([
-    [std.core.Table._type, 'gui-table'],
-    [std.core.Map._type, 'gui-table'],
-    [std.core.Array._type, 'gui-table'],
-    [std.runtime.Task._type, 'gui-task-info'],
-    [std.runtime.TaskInfo._type, 'gui-task-info'],
-  ]),
-) as GuiFactory & { mappings: Map<string, keyof HTMLElementTagNameMap> };
+GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
+  [std.core.Table._type]: 'gui-table',
+  [std.core.Map._type]: 'gui-table',
+  [std.core.Array._type]: 'gui-table',
+}) as GuiFactory & { mappings: FactoryMap };

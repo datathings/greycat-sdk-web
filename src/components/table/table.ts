@@ -592,7 +592,7 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       // update the whole table
       this.update();
     });
-    // oResize.observe(this);
+    oResize.observe(this);
     this._disposer.disposables.push(() => oResize.disconnect());
   }
 
@@ -1458,7 +1458,7 @@ export class GuiTableBodyCell extends HTMLElement {
     this.setAttribute('data-col', `${colIdx}`);
     const value = table.cols[colIdx][rowIdx];
     if (value instanceof Node) {
-      this.replaceChildren(value);
+      this.replaceChildren(value.cloneNode(true));
       this.style.width = `${colWidth}px`;
       return Promise.resolve();
     }

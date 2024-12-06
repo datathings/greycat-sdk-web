@@ -26,7 +26,6 @@ export class AppLayout extends HTMLElement {
     { title: 'Csv (column-input)',      href: 'csv-column-input/' },
     { title: 'Dashboard',               href: 'dashboard/' },
     { title: 'Donut',                   href: 'donut/' },
-    { title: 'Factory',                 href: 'factory/' },
     { title: 'Fieldset Group',          href: 'fieldset-group/' },
     { title: 'Files',                   href: 'files/' },
     { title: 'Fn Call',                 href: 'fn-call/' },

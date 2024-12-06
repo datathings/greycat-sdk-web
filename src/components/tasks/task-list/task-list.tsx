@@ -175,7 +175,7 @@ export class GuiTaskList extends HTMLElement {
               <td>{fqn}</td>
               <td>{task.start}</td>
               <td>{task.duration}</td>
-              <td>{task.remaining}</td>
+              {/* <td>{task.remaining}</td> */}
               <td>{task.progress ? (task.progress * 100).toFixed() + '%' : null}</td>
             </tr>
           ) as HTMLTableRowElement;

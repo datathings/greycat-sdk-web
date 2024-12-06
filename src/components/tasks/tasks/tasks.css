@@ -8,15 +8,15 @@ gui-tasks {
     border-radius: 0;
   }
 
-  > gui-table gui-tbody-cell[data-col='7'] > gui-value.error {
+  > gui-table gui-tbody-cell > gui-value.error {
     color: var(--color-error);
   }
 
-  > gui-table gui-tbody-cell[data-col='7'] > gui-value.cancelled {
+  > gui-table gui-tbody-cell > gui-value.cancelled {
     color: var(--color-8);
   }
 
-  > gui-table gui-tbody-cell[data-col='7'] > gui-value.running {
+  > gui-table gui-tbody-cell > gui-value.running {
     /* color: var(--primary); */
     animation: blink 2s ease-in-out infinite;
   }
