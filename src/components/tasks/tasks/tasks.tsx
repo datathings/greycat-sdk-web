@@ -1,4 +1,12 @@
-import { core, std, toast, type GuiTable, TaskInfoLike, GuiClickEvent } from '../../../exports.js';
+import {
+  core,
+  std,
+  toast,
+  type GuiTable,
+  TaskInfoLike,
+  GuiClickEvent,
+  sl,
+} from '../../../exports.js';
 
 export class GuiTasks extends HTMLElement {
   /** The table used to display the task list */
@@ -15,6 +23,31 @@ export class GuiTasks extends HTMLElement {
       globalFilter: true,
       globalFilterPlaceholder: 'Filter the tasks',
       sortBy: [0, 'desc'],
+      columnFactory: {
+        8: (_value, rowIdx, _el) => {
+          const task = this._tasks[rowIdx];
+          const cancellable =
+            task.status === std.runtime.TaskStatus.waiting() ||
+            task.status === std.runtime.TaskStatus.running();
+
+          return cancellable ? (
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={async (ev) => {
+                const self = (ev.target as sl.SlButton);
+                self.textContent = 'Cancelling...';
+                self.disabled = true;
+                await std.runtime.Task.cancel(task.task_id);
+              }}
+            >
+              Cancel
+            </sl-button>
+          ) : (
+            <span />
+          );
+        },
+      },
     });
 
     this._updateId = -1;
@@ -101,6 +134,7 @@ export class GuiTasks extends HTMLElement {
           Duration: task.duration ?? '',
           Status: task.status.key,
           Progress: task.progress ? `${(task.progress * 100).toFixed(1)}%` : '',
+          Action: undefined,
           // Action: cancellable ? (
           //   <sl-button
           //     variant="text"
