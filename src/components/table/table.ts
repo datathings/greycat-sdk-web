@@ -1227,7 +1227,7 @@ export class GuiTableBody extends HTMLElement {
       if (this.children[i] instanceof GuiTableBodyRow) {
         const row = this.children[i];
         if (row.children[colIdx] instanceof GuiTableBodyCell) {
-          const cell = row.children[colIdx];
+          const cell = row.children[colIdx] as GuiTableBodyCell;
           cell.style.width = `${width}px`;
         }
       }
