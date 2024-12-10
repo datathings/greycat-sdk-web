@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $ } from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $, sl } from '@greycat/web';
 import '@/common';
 import actions from './actions';
 
@@ -13,9 +13,23 @@ const fnSelector = (
     options={$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
       fnInput.type = ev.detail;
+      spawnBtn.disabled = ev.detail === null;
     }}
   />
 ) as GuiSearchableSelect;
+const spawnBtn = (
+  <sl-button
+    variant="text"
+    size="small"
+    disabled
+    onclick={async () => {
+      await $.default.spawn(fnSelector.value.fqn, fnInput.value);
+      tasks.reload();
+    }}
+  >
+    Spawn
+  </sl-button>
+) as sl.SlButton;
 
 const tasks = document.createElement('gui-tasks');
 
@@ -25,21 +39,19 @@ document.body.appendChild(
     mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}
   >
     {actions}
-    <fieldset>
-      <legend>Create a task</legend>
+    <sl-card>
+      <header slot="header">
+        Create a task
+        {spawnBtn}
+      </header>
       <div role="list">
         {fnSelector}
-        {fnInput}
-        <sl-button
-          onclick={async () => {
-            await $.default.spawn(fnSelector.value.fqn, fnInput.value);
-            tasks.reload();
-          }}
-        >
-          Spawn
-        </sl-button>
+        <fieldset>
+          <legend>Arguments:</legend>
+          {fnInput}
+        </fieldset>
       </div>
-    </fieldset>
+    </sl-card>
     {tasks}
   </app-layout>,
 );

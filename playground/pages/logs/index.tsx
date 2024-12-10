@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, io } from '@greycat/web';
+import { core, GreyCat, GuiFactory, IndexedDbCache, io } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({
@@ -6,7 +6,7 @@ await GreyCat.init({
 });
 
 const format = io.CsvFormat.createFrom({
-  separator: ';',
+  separator: ',',
   columns: null,
   columns_size: null,
   decimal_separator: null,
@@ -15,13 +15,17 @@ const format = io.CsvFormat.createFrom({
   thousands_separator: null,
 });
 const table = await io.CsvFormat.sample('files/1/log.csv', format, null, 1000);
+console.log(table);
 
 document.body.appendChild(
   <app-layout title="Logs">
     <gui-table
       value={table}
-      headers={['Level', 'Time', 'Type', 'User', 'Task/Req', 'Sub', 'Context', 'Data']}
+      headers={['Level', 'Time', 'Type', 'User', 'Task/Req', 'Tag', 'Context', 'Data']}
       columnsWidths={[100, 250, 100, 100, 120, 100, 200]}
+      columnFactory={{
+        1: GuiFactory.defineFromFn((v) => <gui-value value={core.time.create(v)} />),
+      }}
       globalFilter
     />
   </app-layout>,

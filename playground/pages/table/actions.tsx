@@ -29,6 +29,13 @@ export const actions = (
     <sl-button
       slot="action"
       variant="text"
+      onclick={() => location.assign('/pages/table/mappings.html')}
+    >
+      Mappings
+    </sl-button>
+    <sl-button
+      slot="action"
+      variant="text"
       onclick={() => location.assign('/pages/table/row-based.html')}
     >
       Row-based

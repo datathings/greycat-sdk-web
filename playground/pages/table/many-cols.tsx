@@ -82,15 +82,10 @@ document.body.appendChild(
       globalFilter
       columnsWidths={[100, 100, 100]}
       columnFactory={{
-        1: 'gui-value',
-        2: 'gui-input-string',
-        3: 'gui-input-bool',
-        4: 'gui-input-string',
-        5: 'gui-input-string',
-        6: 'gui-value',
-        7: 'gui-input-number',
-        8: 'gui-value',
-        9: 'gui-input-bool',
+        2: { tag: 'gui-input-string', props: { size: 'small' } },
+        3: { tag: 'gui-input-bool', props: { size: 'small'} },
+        4: { tag: 'gui-input-string', props: { size: 'small'} },
+        5: { tag: 'gui-input-string', props: { size: 'small'} },
       }}
       ongui-change={function (ev) {
         console.log('ongui-change', {

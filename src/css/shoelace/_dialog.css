@@ -4,6 +4,8 @@ sl-dialog {
   --sl-shadow-medium: 0 2px 4px hsl(240 3.8% 46.1% / 12%);
   --sl-shadow-large: 0 2px 8px hsl(240 3.8% 46.1% / 12%);
   --sl-shadow-x-large: 0 4px 16px hsl(240 3.8% 46.1% / 12%);
+  --sl-spacing-2x-large: 25%;
+  --width: minmax(30%, 500px);
 }
 
 sl-dialog::part(panel),

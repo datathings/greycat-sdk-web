@@ -5,7 +5,6 @@ import {
   GuiTableProps,
   core,
   GCObject,
-  GuiChangeEvent,
   modal,
   toast,
 } from '../../exports.js';
@@ -207,6 +206,14 @@ export class GuiTableConfig extends HTMLElement {
     this.update();
   }
 
+  get mappings() {
+    return this._mappings.value;
+  }
+
+  set mappings(mappings: core.TableColumnMapping[]) {
+    this._mappings.value = mappings;
+  }
+
   update(): void {
     if (!this.isConnected) {
       return;
@@ -298,17 +305,10 @@ export class GuiTableMappings extends HTMLElement {
     this._applyBtn.disabled = mappings.length === 0;
     this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
   };
-  private _applyMappings = async () => {
-    try {
-      const mappings = this.value;
-      // const startIndex = this.table.table.cols.length + 1;
-      const table = await core.Table.applyMappings(this.table.table, mappings);
-      this.table.value = table;
-      // for (let i = 0; i < this.table.headers)
-      this.table.dispatchEvent(new GuiChangeEvent(table));
-    } catch (err) {
-      toast.error(err);
-    }
+  private _applyMappings = () => {
+    this.dispatchEvent(
+      new CustomEvent('gui-table-apply-mappings', { detail: this.value, bubbles: true }),
+    );
   };
 
   constructor() {
@@ -323,6 +323,10 @@ export class GuiTableMappings extends HTMLElement {
       ev.detail.remove();
       this._value = this.value;
       this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+    });
+    this._mappings.addEventListener('sl-change', (ev) => {
+      // swallow change event so that they do not bubble up to GuiTableConfig
+      ev.stopPropagation();
     });
 
     this._applyBtn = (
@@ -358,10 +362,10 @@ export class GuiTableMappings extends HTMLElement {
 
   get value() {
     const mappings: core.TableColumnMapping[] = [];
-    this._mappings.childNodes.forEach((node) => {
-      const mapping = node as GuiTableMapping;
+    for (let i = 0; i < this._mappings.children.length; i++) {
+      const mapping = this._mappings.children[i] as GuiTableMapping;
       mappings.push(mapping.value);
-    });
+    }
     return mappings;
   }
 
@@ -376,10 +380,34 @@ export class GuiTableMappings extends HTMLElement {
     }
 
     this._applyBtn.disabled = this._value.length === 0;
-    this._mappings.childNodes.forEach((node) => {
-      const mapping = node as GuiTableMapping;
-      mapping.update();
-    });
+
+    if (this._value.length === this._mappings.children.length) {
+      // same number of elements
+      for (let i = 0; i < this._value.length; i++) {
+        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+      }
+    } else if (this._value.length < this._mappings.children.length) {
+      // less mappings that DOM elements
+      let i = 0;
+      for (i; i < this._value.length; i++) {
+        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+      }
+      let left = this._mappings.children.length - i;
+      while (left > 0) {
+        const mapping = this._mappings.children[left - 1];
+        mapping.remove();
+        left -= 1;
+      }
+    } else if (this._value.length > this._mappings.children.length) {
+      // more mappings that DOM elements
+      let i = 0;
+      for (i; i < this._mappings.children.length; i++) {
+        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+      }
+      for (i; i < this._value.length; i++) {
+        this._mappings.appendChild(<gui-table-mapping value={this._value[i]} />);
+      }
+    }
   }
 }
 
@@ -450,7 +478,8 @@ export class GuiTableMapping extends HTMLElement {
       const header = this.table.table.headers?.[i] || `Column ${i}`;
       this._column.appendChild(<sl-option value={`${i}`}>{header}</sl-option>);
     }
-    this._column.setAttribute('value', `${this._value.column}`);
+    this._column.value = `${this._value.column}`;
+    // this._column.setAttribute('value', `${this._value.column}`);
     this._extractors.value = this._value.extractors.join('.');
   }
 }
@@ -466,13 +495,17 @@ declare global {
     'gui-table-mapping-delete': CustomEvent<GuiTableMapping>;
   }
 
+  interface GuiTableMappingsEventMap {
+    'gui-table-apply-mappings': CustomEvent<core.TableColumnMapping[]>;
+  }
+
   interface HTMLElementEventMap extends GuiTableMappingEventMap {}
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
         'gui-table-config': GreyCat.Element<GuiTableConfig>;
-        'gui-table-mappings': GreyCat.Element<GuiTableMappings>;
+        'gui-table-mappings': GreyCat.Element<GuiTableMappings, GuiTableMappingsEventMap>;
         'gui-table-mapping': GreyCat.Element<GuiTableMapping, GuiTableMappingEventMap>;
       }
     }

@@ -1,5 +1,13 @@
 var sensor: nodeTime<SensorData>?;
 var serie_float: nodeTime<float>?;
+var kline: nodeTime<KLine>?;
+var nt: nodeTime?;
+
+type KLine {
+  open: float;
+  close: float;
+  volume: int;
+}
 
 enum RelayApp {
   pv;
@@ -47,6 +55,10 @@ fn main() {
     init_float();
   }
 
+  if (kline == null) {
+    init_kline();
+  }
+
   // if (sensor == null) {
   //   sensor = nodeTime<SensorData> {};
   //   var reader = CsvReader {
@@ -66,6 +78,13 @@ fn main() {
   //     sensor.setAt(time::new(row[0] as int, DurationUnit::seconds), data);
   //   }
   // }
+}
+
+fn nothing() {}
+
+@expose
+fn init_foo() {
+  nt = nodeTime {};
 }
 
 type Person2 {
@@ -813,10 +832,46 @@ fn init_float() {
   }
 }
 
+fn init_kline() {
+  kline = nodeTime<KLine> {};
+
+  var now = time::now();
+  var start = now.calendar_add(-1, CalendarUnit::month, TimeZone::Europe_Paris);
+
+  var random = Random {};
+  var curr = start;
+  var open = 2.5_f;
+  var close = 2.5_f;
+  var volume = 0;
+  while (curr < now) {
+    kline.setAt(curr, KLine { open: open, close: close, volume: volume });
+    open = nextValueFloat(open, random, 0.05);
+    close = nextValueFloat(close, random, 0.05);
+    volume = nextValueInt(volume, random, 10_000);
+    curr = curr.calendar_add(1, CalendarUnit::day, TimeZone::Europe_Paris);
+  }
+}
+
 fn nextValueFloat(prev: float, random: Random, threshold: float): float {
   var throttle = random.uniformf(-threshold, threshold);
   if (prev - throttle > 0) {
     return prev - throttle;
   }
   return prev + throttle;
+}
+
+fn nextValueInt(prev: int, random: Random, threshold: int): int {
+  var throttle = random.uniform(-threshold, threshold);
+  if (prev - throttle > 0) {
+    return prev - throttle;
+  }
+  return prev + throttle;
+}
+
+@expose
+fn serie_of_obj() {
+  if (kline == null) {
+    return Table {};
+  }
+  return nodeTime::sample(Array<nodeTime> { kline }, null, null, 1000, SamplingMode::adaptative, null, null);
 }

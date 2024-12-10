@@ -6,6 +6,7 @@ import {
   TaskInfoLike,
   GuiClickEvent,
   sl,
+  modal,
 } from '../../../exports.js';
 
 export class GuiTasks extends HTMLElement {
@@ -35,7 +36,7 @@ export class GuiTasks extends HTMLElement {
               variant="text"
               size="small"
               onclick={async (ev) => {
-                const self = (ev.target as sl.SlButton);
+                const self = ev.target as sl.SlButton;
                 self.textContent = 'Cancelling...';
                 self.disabled = true;
                 await std.runtime.Task.cancel(task.task_id);
@@ -44,7 +45,31 @@ export class GuiTasks extends HTMLElement {
               Cancel
             </sl-button>
           ) : (
-            <span />
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={async (ev) => {
+                const self = ev.target as sl.SlButton;
+                const prev = self.textContent;
+                self.textContent = 'Loading...';
+                self.disabled = true;
+                let value;
+                try {
+                  value = await task.result();
+                } catch (err) {
+                  value = err;
+                } finally {
+                  self.disabled = false;
+                  self.textContent = prev;
+                  modal.info({
+                    title: `Task ${task.task_id}`,
+                    message: <gui-object header value={value} />,
+                  });
+                }
+              }}
+            >
+              Result
+            </sl-button>
           );
         },
       },

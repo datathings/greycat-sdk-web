@@ -214,6 +214,15 @@ export class GuiObject extends HTMLElement {
       return;
     }
 
+    if (value instanceof std.core.Error) {
+      this.replaceChildren(
+        <sl-alert variant="danger" open>
+          <pre>{value.toString()}</pre>
+        </sl-alert>,
+      );
+      return;
+    }
+
     if (value instanceof std.core.Table) {
       const table = this._factory.create(std.core.Table._type, {
         ...this._props,

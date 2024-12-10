@@ -7,6 +7,7 @@ import {
   GuiChangeEvent,
   GuiFactory,
   sl,
+  toast,
 } from '../../exports.js';
 import '../value/index.js'; // makes sure we already have GuiValue defined
 import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
@@ -25,7 +26,6 @@ export interface GuiTableProps {
   minColWidth: number;
   ignoreCols: number[] | undefined;
   columnFactory: ColumnFactory | undefined;
-  // defaultCellFactory: CellFactory;
   rowHeight: number;
   globalFilter: boolean;
   globalFilterPlaceholder: string;
@@ -180,6 +180,12 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       ev.preventDefault();
       this.toggleConfig();
     });
+
+    this._configEl.addEventListener('gui-table-apply-mappings', async (ev) => {
+      ev.stopPropagation();
+      await this.applyMappings();
+      this.update();
+    });
   }
 
   /**
@@ -191,6 +197,10 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     return this._table;
   }
 
+  set table(_: core.Table) {
+    throw new Error(`use the 'value' setter to update the table`);
+  }
+
   get value(): TableLike {
     return this._table;
   }
@@ -200,14 +210,59 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this.update();
   }
 
+  /**
+   * Returns the current mappings
+   *
+   * To apply the mappings, call `applyMappings()`
+   */
+  get mappings() {
+    return this._configEl.mappings;
+  }
+
+  set mappings(mappings: core.TableColumnMapping[]) {
+    this._configEl.mappings = mappings;
+  }
+
   private _setValue(table: TableLike) {
     if (table === this._table) {
       // noop: same ref
       return;
     }
+
     this._table = convertToTable(table);
     this._wCalc.reset();
     this._wCalc.setNbCols(this._table.cols.length);
+    this._sortTable();
+  }
+
+  /**
+   * Applies the current mappings from the config to the table.
+   * 
+   * If no `table` parameter is given, the current table value is used. Otherwise, the given `table` is used to apply
+   * the mappings. This is made to prevent updating the table twice. Since this will
+   * do it in one update it will re-render only once.
+   * 
+   * Eg.
+   * ```ts
+   * el.value = myTable; // update the table
+   * el.applyMappings(); // update the table again with the result of the mappings
+   * 
+   * // The above "double update" can be prevented by doing:
+   * el.applyMappings(myTable); // only one update
+   * ```
+   */
+  async applyMappings(table: core.Table = this._table): Promise<void> {
+    try {
+      const mappings = this._configEl.mappings;
+      if (mappings.length > 0) {
+        this._table = await core.Table.applyMappings(table, mappings);
+      } else {
+        this._table = table;
+      }
+      this.update();
+    } catch (err) {
+      toast.error(err);
+    }
   }
 
   /**
@@ -269,23 +324,6 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
     this._columnFactory = this._sanitizeColumnFactory(factories);
     this.update();
   }
-
-  // get defaultCellFactory() {
-  //   return this._defaultCellFactory;
-  // }
-
-  /**
-   * Overrides the default cell factory used by the table to display cells value.
-   *
-   * By default the table uses `'gui-value'`, but anything can be given as long as it is
-   * compliant with the `GuiValueElement` interface.
-   *
-   * *If you want to override the display for a specific column, use `columnFactory`.*
-   */
-  // set defaultCellFactory(factory: CellFactory) {
-  //   this._defaultCellFactory = this._sanitizeCellFactory(factory);
-  //   this.update();
-  // }
 
   set columnWidths(columnWidths: Array<number | undefined>) {
     this._wCalc.setWidths(columnWidths);
@@ -660,8 +698,8 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
     let csv = '';
 
-    if (this.table.headers) {
-      csv += this.table.headers.filter((h) => h.length > 0).join(sep);
+    if (this._table.headers) {
+      csv += this._table.headers.filter((h) => h.length > 0).join(sep);
       csv += '\n';
     }
 
@@ -829,60 +867,6 @@ export class GuiTableHead extends HTMLElement {
     }
   }
 }
-
-export type GuiTableResizeColDetail = {
-  /** the currently resized column index */
-  colIdx: number;
-  /** the current `event.clientX` */
-  x: number;
-};
-
-/**
- * `detail` contains the target column index and the current `event.clientX`
- */
-export class GuiTableResizeColEvent extends CustomEvent<GuiTableResizeColDetail> {
-  static readonly NAME = 'gui-table-resize-col';
-
-  constructor(colIdx: number, x: number) {
-    super(GuiTableResizeColEvent.NAME, { detail: { colIdx, x }, bubbles: true });
-  }
-}
-
-/**
- * `detail` contains the sorted column index
- */
-export class GuiTableSortEvent extends CustomEvent<number> {
-  static readonly NAME = 'gui-table-sort';
-
-  constructor(colIdx: number) {
-    super(GuiTableSortEvent.NAME, { detail: colIdx, bubbles: true });
-  }
-}
-
-export class GuiTableFilterEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-table-filter';
-  constructor() {
-    super(GuiTableFilterEvent.NAME, { bubbles: true });
-  }
-}
-
-/**
- * `detail` contains the target input of dropdown from filter button
- */
-export class GuiTableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
-  static readonly NAME = 'gui-table-filter-column';
-
-  constructor(index: number, text: string) {
-    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true });
-  }
-}
-
-export type GuiTableClickDetail = {
-  /** The clicked row index */
-  rowIdx: number;
-  /** The clicked column index */
-  colIdx: number;
-};
 
 /**
  * A column header cell.
@@ -1239,10 +1223,14 @@ export class GuiTableBody extends HTMLElement {
   }
 
   resizeColumn(colIdx: number, width: number): void {
-    for (let i = 0; i < this.maxVirtualRows; i++) {
-      const row = this.children[i] as GuiTableBodyRow;
-      const cell = row.children[colIdx] as GuiTableBodyCell;
-      cell.style.width = `${width}px`;
+    for (let i = 0; i < this.children.length; i++) {
+      if (this.children[i] instanceof GuiTableBodyRow) {
+        const row = this.children[i];
+        if (row.children[colIdx] instanceof GuiTableBodyCell) {
+          const cell = row.children[colIdx];
+          cell.style.width = `${width}px`;
+        }
+      }
     }
   }
 
@@ -1502,6 +1490,60 @@ export class GuiTableBodyCell extends HTMLElement {
 export interface GuiValueElement<T = unknown> extends HTMLElement {
   value: T;
 }
+
+export type GuiTableResizeColDetail = {
+  /** the currently resized column index */
+  colIdx: number;
+  /** the current `event.clientX` */
+  x: number;
+};
+
+/**
+ * `detail` contains the target column index and the current `event.clientX`
+ */
+class GuiTableResizeColEvent extends CustomEvent<GuiTableResizeColDetail> {
+  static readonly NAME = 'gui-table-resize-col';
+
+  constructor(colIdx: number, x: number) {
+    super(GuiTableResizeColEvent.NAME, { detail: { colIdx, x }, bubbles: true });
+  }
+}
+
+/**
+ * `detail` contains the sorted column index
+ */
+export class GuiTableSortEvent extends CustomEvent<number> {
+  static readonly NAME = 'gui-table-sort';
+
+  constructor(colIdx: number) {
+    super(GuiTableSortEvent.NAME, { detail: colIdx, bubbles: true });
+  }
+}
+
+export class GuiTableFilterEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-table-filter';
+  constructor() {
+    super(GuiTableFilterEvent.NAME, { bubbles: true });
+  }
+}
+
+/**
+ * `detail` contains the target input of dropdown from filter button
+ */
+export class GuiTableFilterColumnEvent extends CustomEvent<{ index: number; text: string }> {
+  static readonly NAME = 'gui-table-filter-column';
+
+  constructor(index: number, text: string) {
+    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true });
+  }
+}
+
+export type GuiTableClickDetail = {
+  /** The clicked row index */
+  rowIdx: number;
+  /** The clicked column index */
+  colIdx: number;
+};
 
 type SortOrd = 'asc' | 'desc' | 'default';
 
