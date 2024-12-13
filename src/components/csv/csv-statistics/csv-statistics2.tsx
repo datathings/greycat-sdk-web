@@ -35,6 +35,7 @@ export class GuiCsvStatistics2 extends HTMLElement {
     }
 
     console.log(this._stats);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const table = core.Table.fromRows<any[]>([
       ['Column offset (zero-based)', ...this._stats.columns.map((_, i) => i)],
       ['Nb rows', ...this._stats.columns.map(countValues)],
@@ -194,7 +195,7 @@ const nullCount = (c: io.CsvColumnStatistics) => {
 };
 
 type NullMapper = (prop: keyof io.CsvColumnStatistics) => (c: io.CsvColumnStatistics) => string;
-const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : c[prop]);
+const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : c[prop] as string);
 
 const example = (c: io.CsvColumnStatistics) => {
   if (typeof c.example === 'string') {

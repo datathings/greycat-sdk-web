@@ -1,9 +1,12 @@
 :host {
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
+  & {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 250px;
+  }
 
-  gui-input-number, gui-input-enum {
+  gui-input-number,
+  gui-input-enum {
     min-width: 0;
   }
 

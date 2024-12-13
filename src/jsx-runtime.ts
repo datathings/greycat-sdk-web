@@ -131,7 +131,8 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (element as any)[key] = value;
         } else {
-          element.setAttribute(key, value);
+          // TODO was that needed?
+          // element.setAttribute(key, value);
         }
       }
       break;

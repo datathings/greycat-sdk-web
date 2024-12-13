@@ -8,7 +8,16 @@ console.log(table);
 
 document.body.appendChild(
   <app-layout title="Hello">
-    <gui-table value={table} />
+    <gui-input-object
+      type="project::Type"
+      ongui-change={function () {
+        // validate data
+        // send over rpc
+
+        // this: GuiInputObject
+        // this.setValues('value2', [...]);
+      }}
+    />
   </app-layout>,
 );
 

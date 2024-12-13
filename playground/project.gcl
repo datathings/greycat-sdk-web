@@ -1,3 +1,5 @@
+@include("pages");
+
 var sensor: nodeTime<SensorData>?;
 var serie_float: nodeTime<float>?;
 var kline: nodeTime<KLine>?;
@@ -43,13 +45,7 @@ type ComplexForm {
 }
 
 fn main() {
-  // for (var i = 0; i < 15; i++) {
-  //   SecurityEntity::set(UserGroup {
-  //       id: 0,
-  //       name: "group-${i}",
-  //       activated: true,
-  //     });
-  // }
+  factory::init();
 
   if (serie_float == null) {
     init_float();
@@ -58,26 +54,6 @@ fn main() {
   if (kline == null) {
     init_kline();
   }
-
-  // if (sensor == null) {
-  //   sensor = nodeTime<SensorData> {};
-  //   var reader = CsvReader {
-  //     path: "files/import/sensor.csv",
-  //     format: CsvFormat {
-  //       header_lines: 1,
-  //       separator: ',',
-  //     },
-  //   };
-  //   while (reader.can_read()) {
-  //     var row = reader.read() as Array<any>;
-  //     var data = SensorData {
-  //       temperature: row[1] as float,
-  //       pression: row[2] as float,
-  //       humidity: row[3] as float,
-  //     };
-  //     sensor.setAt(time::new(row[0] as int, DurationUnit::seconds), data);
-  //   }
-  // }
 }
 
 fn nothing() {}
@@ -168,7 +144,7 @@ fn chart(nbRows: int) {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -190,7 +166,7 @@ fn chart(nbRows: int) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -555,6 +531,14 @@ type Obj {
   tuple: Tuple<any, any>;
 }
 
+type MapContainer {
+  a: Map<int, String>;
+  b: Map<TimeZone, String>;
+  c: Map<SamplingMode, Person?>;
+  d: Array<Person?>;
+  e: Map<String, String?>;
+}
+
 @expose
 fn obj() {
   return Obj {
@@ -623,17 +607,18 @@ fn obj1() {
 
 @expose
 fn obj2() {
-  var prop3 = Map<any, any?> {};
-  for (var i = 0; i < 25; i++) {
-    prop3.set("entry-${i}", Runtime::info());
-  }
+  var prop3 = Map<String, Person?> {
+    "John": Person { name: "John", age: 42, activated: true },
+    "Paul": Person { name: "Paul", age: 36, activated: false },
+    "Maria": Person { name: "Maria", age: 28, activated: true },
+  };
 
   return Obj2 {
     prop1: "Hello",
-    prop2: [
+    prop2: Array<User?> {
       User { id: 1000, name: "user1", activated: false, external: false },
       User { id: 1001, name: "user2", activated: false, external: false },
-    ],
+    },
     prop3: prop3,
     prop4: mapTest(),
   };
@@ -798,8 +783,8 @@ type TimeZones {
 }
 type Obj2 {
   prop1: String;
-  prop2: Array<User>;
-  prop3: Map<any, any?>;
+  prop2: Array<User?>;
+  prop3: Map<String, Person?>;
   prop4: any?;
 }
 

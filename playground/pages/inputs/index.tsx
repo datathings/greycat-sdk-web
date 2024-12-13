@@ -1,7 +1,7 @@
 import {
   GreyCat,
-  GuiInput,
   GuiInputElement,
+  GuiInputFactory,
   GuiSearchableSelect,
   IndexedDbCache,
   SearchableOption,
@@ -20,7 +20,7 @@ const greycat = await GreyCat.init({
 // matches a WebComponent that inherits GuiInputElement:
 // eg.
 //
-GuiInput.factory['project::Sensor'] = 'project-sensor-form';
+GuiInputFactory.global.set('project::Sensor', 'project-sensor-form');
 
 // TODO:
 //  - allow for removal of nullable attr (essentially resetting to 'null')

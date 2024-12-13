@@ -1,0 +1,50 @@
+var incoming: nodeIndex<String, Tx>?;
+var outcoming: nodeIndex<String, Tx>?;
+
+fn init() {
+  incoming ?= nodeIndex<String, Tx> {};
+  incoming.set("0001", Tx { id: 1 });
+  incoming.set("0002", Tx { id: 2 });
+  incoming.set("0003", Tx { id: 3 });
+
+  outcoming ?= nodeIndex<String, Tx> {};
+  outcoming.set("1001", Tx { id: 10 });
+  outcoming.set("1002", Tx { id: 20 });
+  outcoming.set("1003", Tx { id: 30 });
+}
+
+type TxFormData {
+  type: TxType;
+  id: String;
+
+  @expose
+  static fn process(data: TxFormData) {
+    println("Process: ${data}");
+  }
+}
+
+type Tx {
+  id: int;
+  // stuff
+}
+
+@expose
+fn values(type: TxType): Array<String> {
+  var ids = Array<String> {};
+  if (type == TxType::Incoming) {
+    for (id, _ in incoming?) {
+      ids.add(id);
+    }
+  } else {
+    for (id, _ in outcoming?) {
+      ids.add(id);
+    }
+  }
+  return ids;
+}
+
+enum TxType {
+  Incoming;
+  Outgoing;
+}
+

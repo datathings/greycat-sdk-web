@@ -1,6 +1,5 @@
 import {
   AbiAttribute,
-  AbiFunction,
   AbiType,
   GCEnum,
   GCObject,
@@ -8,6 +7,9 @@ import {
   decomposeDuration,
   $,
   sl,
+  GuiInputFactory,
+  Abi,
+  getIndexInParent,
 } from '../../exports.js';
 import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
@@ -16,7 +18,6 @@ import '../searchable-select/index.js';
 import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 
-import FnStyle from './input-fn.css?inline';
 import ArrayStyle from './input-array.css?inline';
 import MapStyle from './input-map.css?inline';
 import ObjectStyle from './input-object.css?inline';
@@ -24,10 +25,16 @@ import AbstractStyle from './input-abstract.css?inline';
 import AnyStyle from './input-any.css?inline';
 import DurationStyle from './input-duration.css?inline';
 import GeoStyle from './input-geo.css?inline';
+import UnsupportedStyle from './input-unsupported.css?inline';
 
 export interface GuiInputConfig {
   nullable?: boolean;
   // TODO
+}
+
+export interface GuiInputElementElementConstructor {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  new (...params: any[]): GuiInputElement<any>;
 }
 
 export abstract class GuiInputElement<T> extends HTMLElement {
@@ -42,7 +49,6 @@ export abstract class GuiInputElement<T> extends HTMLElement {
   connectedCallback() {
     this.classList.add('gui-input');
   }
-
   abstract get value(): T;
   abstract set value(value: T);
 
@@ -84,237 +90,43 @@ type PickGuiInputElement<T> = {
 export type GuiInputElementMap = PickGuiInputElement<HTMLElementTagNameMap>;
 
 export class GuiInput extends GuiInputElement<unknown> {
-  /**
-   * Long story short, make sure the components you register in this factory actually extend
-   * `GuiInputElement`.
-   *
-   * TypeScript is getting a bit lost here, so the type-safety is not perfect
-   * although most of the accepted tagName values are fine some might not actually extend
-   * `GuiInputElement` as expected by this factory, which means you might be tempted to
-   * register the tagName of a component that do not extend `GuiInputElement` though you must not.
-   *
-   */
-  static readonly factory: Record<string, GuiInputElementMap> = {
-    [std.core.int._type]: 'gui-input-number',
-    [std.core.float._type]: 'gui-input-number',
-    ['core::bool']: 'gui-input-bool',
-    [std.core.String._type]: 'gui-input-string',
-    ['core::char']: 'gui-input-string',
-    [std.core.time._type]: 'gui-input-time',
-    [std.core.duration._type]: 'gui-input-duration',
-    [std.core.Array._type]: 'gui-input-array',
-    [std.core.Map._type]: 'gui-input-map',
-    ['core::any']: 'gui-input-any',
-    [std.core.geo._type]: 'gui-input-geo',
-    [std.core.node._type]: 'gui-input-node',
-    [std.core.nodeIndex._type]: 'gui-input-node-index',
-    [std.core.nodeTime._type]: 'gui-input-node-time',
-    [std.core.nodeList._type]: 'gui-input-node-list',
-    [std.core.nodeGeo._type]: 'gui-input-node-geo',
-    [std.core.function_._type]: 'gui-input-fnptr',
-  };
-
-  private _type: AbiFunction | AbiType | undefined;
   private _value: unknown;
-  private _inner: GuiInputElement<unknown> | undefined;
+  private _inner: GuiInputElement<unknown>;
 
   constructor() {
     super();
-  }
 
-  /**
-   * - `type` always has priority over `value`
-   * - when a string is given we first look for a matching `AbiType` if none found, we look for an `AbiFunction`
-   */
-  get type() {
-    return this._type;
-  }
-
-  set type(type: string | AbiFunction | AbiType | undefined) {
-    if (typeof type === 'string') {
-      this._type = $.default.findType(type);
-      if (!this._type) {
-        this._type = $.default.findFn(type);
-      }
-    } else {
-      this._type = type;
-    }
-    this.render();
+    this._inner = document.createElement('gui-input-string');
   }
 
   get value() {
-    return this._inner?.value;
+    return this._value;
   }
 
   set value(value: unknown) {
     this._value = value;
-    if (value instanceof GCObject) {
-      this._type = value.$type;
-    }
-    this.render();
-  }
-
-  override set config(config: GuiInputConfig) {
-    this._config = config;
-    if (this._inner) {
-      this._inner.config = config;
-    }
-  }
-
-  override get config() {
-    return this._config;
+    this._inner = GuiInputFactory.closest(this).createElement(value);
+    this.shadowRoot.replaceChildren(this._inner);
   }
 
   override get label() {
-    if (this._inner) {
-      return this._inner.label;
-    }
-    return '';
+    return this._inner.label;
   }
 
   override set label(label: string) {
-    if (this._inner) {
-      this._inner.label = label;
-    }
+    this._inner.label = label;
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   setAttrs(attrs: any) {
-    if (attrs.type) {
-      this.type = attrs.type;
-    }
-    if (attrs.config) {
-      this.config = attrs.config;
-    }
-    this.value = attrs.value;
-    if (this._inner) {
-      Object.assign(this._inner, attrs);
-    }
-  }
-
-  override render(): void {
-    if (this._type instanceof AbiFunction) {
-      // show object form based on params
-      const input = document.createElement('gui-input-fn');
-      input.type = this._type;
-      this._inner = input;
-    } else if (this._type instanceof AbiType) {
-      // show object form based on attrs
-      if (this._type.is_enum) {
-        const input = document.createElement('gui-input-enum');
-        input.type = this._type;
-        if (this._value instanceof GCEnum) {
-          input.value = this._value;
-        }
-        this._inner = input;
-      } else if (this._type.generic_abi_type === this._type.abi.core_array_offset) {
-        const input = document.createElement('gui-input-array');
-        input.genericParam = this._type.abi.types[this._type.g1_abi_type_desc >> 1];
-        input.config.nullable = (this._type.g1_abi_type_desc & 0b00000001) === 1;
-        if (this._value instanceof Array) {
-          input.value = this._value;
-        }
-        this._inner = input;
-      } else {
-        const tagName = GuiInput.factory[this._type.name];
-        if (tagName) {
-          this._inner = document.createElement(tagName);
-          if (this._value !== undefined) {
-            this._inner.value = this._value;
-          }
-        } else if (this._type.is_abstract) {
-          const input = document.createElement('gui-input-abstract');
-          input.config = this._config;
-          input.type = this._type;
-          if (this._value instanceof GCObject) {
-            input.value = this._value;
-          }
-          this._inner = input;
-        } else {
-          const input = document.createElement('gui-input-object');
-          input.config = this._config;
-          input.type = this._type;
-          if (this._value instanceof GCObject) {
-            input.value = this._value;
-          }
-          this._inner = input;
-        }
-      }
-    } else {
-      switch (typeof this._value) {
-        case 'bigint': {
-          this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
-          break;
-        }
-        case 'boolean': {
-          this._inner = document.createElement('gui-input-bool');
-          this._inner.value = this._value;
-          break;
-        }
-        case 'function': {
-          this._inner = document.createElement('gui-input-string'); // TODO replace with proper one
-          break;
-        }
-        case 'number': {
-          this._inner = document.createElement('gui-input-number');
-          this._inner.value = this._value;
-          break;
-        }
-        case 'object': {
-          if (this._value instanceof GCEnum) {
-            this._inner = document.createElement('gui-input-enum');
-            this._inner.value = this._value;
-          } else if (this._value instanceof GCObject) {
-            const tagName = GuiInput.factory[this._value.$type.name];
-
-            if (tagName) {
-              this._inner = document.createElement(tagName);
-            } else {
-              this._inner = document.createElement('gui-input-object');
-            }
-
-            this._inner.value = this._value;
-          } else if (Array.isArray(this._value)) {
-            this._inner = document.createElement('gui-input-array');
-            this._inner.value = this._value;
-          } else if (this._value instanceof Map) {
-            this._inner = document.createElement('gui-input-map');
-            this._inner.value = this._value;
-          } else if (this._value === null) {
-            // we have a 'null' here, we have neither a type or a value render nothing
-            return;
-          } else {
-            // we have an '{ ... }' here
-            this._inner = document.createElement('gui-input-object');
-            this._inner.value = this._value;
-          }
-          break;
-        }
-        case 'string': {
-          this._inner = document.createElement('gui-input-string');
-          this._inner.value = this._value;
-          break;
-        }
-        case 'symbol': {
-          this._inner = document.createElement('gui-input-string');
-          this._inner.value = this._value.toString();
-          break;
-        }
-        case 'undefined': {
-          this._inner = document.createElement('gui-input-string');
-          this._inner.value = '';
-          break;
-        }
-      }
-    }
-
-    this._inner.config = this._config;
-
+    this._value = attrs.value;
+    this._inner = GuiInputFactory.closest(this).createElement(attrs.value);
+    Object.assign(this._inner, attrs);
     this.shadowRoot.replaceChildren(this._inner);
   }
 }
 
-export class GuiInputString extends GuiInputElement<string | null> {
+export class GuiInputString extends GuiInputElement<string | std.core.String | null> {
   private _input: sl.SlInput;
 
   constructor() {
@@ -366,15 +178,15 @@ export class GuiInputString extends GuiInputElement<string | null> {
     this._input.helpText = helpText;
   }
 
-  get value() {
-    if (this._config.nullable) {
-      return this._input.value.length === 0 ? null : this._input.value;
-    }
+  get value(): string {
     return this._input.value;
   }
 
-  set value(value: string | null) {
-    if (value === null) {
+  set value(value: string | std.core.String | null | undefined) {
+    if (value instanceof std.core.String) {
+      value = value.value;
+    }
+    if (value === null || value === undefined) {
       this._input.value = '';
     } else {
       this._input.value = value;
@@ -547,6 +359,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 }
 
 export class GuiInputTime extends GuiInputElement<std.core.time | null> {
+  private _value: std.core.time | null = null;
   private _input: sl.SlInput;
 
   constructor() {
@@ -558,6 +371,12 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
 
     this._input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
+      const epochMs = this._input.valueAsNumber;
+      if (isNaN(epochMs)) {
+        this._value = null;
+      } else {
+        this._value = std.core.time.fromMs(epochMs);
+      }
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
     this._input.addEventListener('sl-change', (ev) => {
@@ -569,23 +388,20 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
   }
 
   get value() {
-    const epochMs = this._input.valueAsNumber;
-
-    if (isNaN(epochMs)) {
-      return null;
-    }
-    return std.core.time.fromMs(this._input.valueAsNumber);
+    return this._value;
   }
 
   set value(value: std.core.time | null) {
-    if (value === null) {
-      this._input.value = '';
-    } else {
-      this._input.updateComplete.then(() => {
-        this._input.input.valueAsNumber = value.epochMs;
-        this._input.value = this._input.input.value;
-      });
-    }
+    this._value = value;
+    this.update();
+    // if (value === null) {
+    //   this._input.value = '';
+    // } else {
+    //   this._input.updateComplete.then(() => {
+    //     this._input.input.valueAsNumber = value.epochMs;
+    //     this._input.value = this._input.input.value;
+    //   });
+    // }
   }
 
   override get autocomplete(): string {
@@ -623,6 +439,20 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
   override connectedCallback(): void {
     super.connectedCallback();
     this.setAttribute('exportparts', 'base');
+    this._input.updateComplete.then(() => this.update());
+  }
+
+  update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    if (this._value) {
+      this._input.input.valueAsNumber = this._value.epochMs;
+      this._input.value = this._input.input.value;
+    } else {
+      this._input.value = '';
+    }
   }
 }
 
@@ -678,7 +508,7 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
   }
 
   set value(value: GCEnum | null) {
-    if (value === null) {
+    if (value === null || value === undefined) {
       this._input.value = undefined;
       return;
     }
@@ -704,7 +534,6 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     this._input.config = this._config;
   }
 }
-
 export class GuiInputAbstract extends GuiInputElement<unknown> {
   private _select: sl.SlSelect;
   private _input: GuiInputObject;
@@ -725,13 +554,22 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
     this._select.setAttribute('exportparts', 'base');
     this._select.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
-      this._input.type = this._select.value as string;
+      const type = $.default.findType(this._select.value as string);
+      if (!type) {
+        throw new Error(`Unable to find type '${this._select.value}' in ABI`);
+      }
+      this._input.value = new type.factory(type);
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
     this._input = document.createElement('gui-input-object');
 
-    this.shadowRoot.replaceChildren(<div className="base">{this._select}{this._input}</div>);
+    this.shadowRoot.replaceChildren(
+      <div className="base">
+        {this._select}
+        {this._input}
+      </div>,
+    );
   }
 
   override get placeholder() {
@@ -788,15 +626,14 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
     }
     this._select.placeholder = `Select a concrete type for '${type.name}'`;
     this._select.replaceChildren(...options);
-    this._input.type = undefined;
-    this._input.value = null;
+    this._input.value = undefined;
   }
 
   get value() {
     return this._input.value;
   }
 
-  set value(value: GCObject | Record<string | number, unknown> | null) {
+  set value(value: GCObject | undefined) {
     this._input.value = value;
   }
 
@@ -806,506 +643,184 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputObject extends GuiInputElement<
-  GCObject | null | Record<string | number, unknown>
-> {
-  private _type: AbiType | undefined;
-  private _attrs: Map<string, GuiInputElement<unknown>> = new Map();
-  /**
-   * whether or not we've initialized this input's form already
-   */
-  private _initialized = false;
-
+export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
   static STYLE: CSSStyleSheet;
   static {
     this.STYLE = new CSSStyleSheet();
     this.STYLE.replaceSync(ObjectStyle);
   }
 
+  protected _value: GCObject | undefined;
+
   constructor() {
     super();
 
     this.shadowRoot.adoptedStyleSheets.push(GuiInputObject.STYLE);
-    this.render();
-  }
-
-  get type() {
-    return this._type;
-  }
-
-  set type(type: AbiType | string | undefined) {
-    if (typeof type === 'string') {
-      type = $.default.findType(type);
-    }
-    if (type === undefined) {
-      // no type, noop
-    } else if (this._type && type !== this.type) {
-      // different types, clear previous attributes
-      this._attrs.clear();
-      this._initialized = false;
-    }
-    this._type = type;
-
-    if (!this._type) {
-      return;
-    }
-
-    if (this.config.nullable && !this._initialized) {
-      return;
-    }
-
-    this._initializeAttrs(this._type);
-    this.render();
   }
 
   get value() {
-    if (this._attrs.size === 0) {
-      // TODO is that valid?
-      return null;
-    }
-
-    let allNull = true;
-    if (this._type) {
-      let index = 0;
-      const attrs: unknown[] = [];
-      this._attrs.forEach((input) => {
-        const attr = this._type!.attrs[index];
-        let value: unknown;
-        if (attr.nullable) {
-          if (input instanceof GuiInputElement) {
-            value = input.value;
-          } else {
-            value = null;
-          }
-        } else {
-          value = input.value;
-        }
-        if (value !== null) {
-          allNull = false;
-        }
-        attrs.push(value);
-        index++;
-      });
-
-      if (this.config.nullable && allNull) {
-        return null;
-      }
-
-      return $.default.create(this._type.name, attrs) ?? null;
-    } else {
-      const obj = {} as Record<string, unknown>;
-      this._attrs.forEach((input, key) => {
-        const value = input.value;
-        if (value !== null) {
-          allNull = false;
-        }
-        obj[key] = value;
-      });
-      return obj;
-    }
+    return this._value;
   }
 
-  set value(value: GCObject | Record<string | number, unknown> | null) {
-    if (value === null) {
-      this._clearAttrs();
-      this.render();
+  set value(value: GCObject | undefined) {
+    if (!value) {
+      this.shadowRoot.replaceChildren();
       return;
     }
-
-    if (value instanceof GCObject) {
-      if (this._type?.name === value.$type.name && this._initialized) {
-        // the value is of the same type and we are already initialized
-        // therefore we can just update the value of the inputs
-        this._attrs.forEach((input, name) => {
-          // SAFETY:
-          // we are dealing with the attribute of the type of that 'value'
-          // therefore, we have to have the properties defined on 'value'
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          input.value = (value as any)[name as string];
-        });
-      } else {
-        // the value is of another type
-        this._type = value.$type;
-      }
-    }
-    this._initializeAttrs(value);
-    this.render();
+    this._value = value;
+    this.update();
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('part', 'input-object');
+    this.update();
   }
 
-  override render(): void {
-    if (this._config.nullable) {
-      if (this._initialized) {
-        this._renderAttrs();
-      } else {
-        this.shadowRoot.replaceChildren(
-          <sl-button
-            className={'gui-input-add'}
-            variant="text"
-            onclick={() => {
-              if (this._type) {
-                this._initializeAttrs(this._type);
-                this.render();
-              }
-            }}
-          >
-            Set a value
-          </sl-button>,
-        );
-      }
-    } else {
-      this._renderAttrs();
-    }
-  }
-
-  private _clearAttrs(): void {
-    this._attrs.clear();
-    this._initialized = false;
-  }
-
-  private _initializeAttrs(
-    valueOrType: GCObject | AbiType | Record<string | number, unknown>,
-  ): void {
-    if (valueOrType instanceof AbiType) {
-      for (const attr of valueOrType.attrs) {
-        const input = this._initializeAttr(attr);
-        this._attrs.set(attr.name, input);
-      }
-    } else if (valueOrType instanceof GCObject) {
-      for (const attr of valueOrType.$type.attrs) {
-        const input = this._initializeAttr(attr);
-        if (valueOrType) {
-          // SAFETY:
-          // we are dealing with the attribute of the type of that 'value'
-          // therefore, we have to have the properties defined on 'value'
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          input.value = (valueOrType as any)[attr.name];
-        }
-        this._attrs.set(attr.name, input);
-      }
-    } else {
-      for (const key in valueOrType) {
-        const input = this._initializeAttr();
-        input.value = valueOrType[key];
-        this._attrs.set(key, input);
-      }
+  update(): void {
+    if (!this.isConnected || !this._value) {
+      return;
     }
 
-    // and we flip the switch
-    this._initialized = true;
-  }
-
-  private _initializeAttr(attr?: AbiAttribute): GuiInput {
-    const input = document.createElement('gui-input');
-
-    input.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-    input.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    if (attr instanceof AbiAttribute) {
-      input.config = { nullable: attr.nullable };
-      input.type = $.default.abi.types[attr.abi_type];
-    }
-    return input;
-  }
-
-  private _renderAttrs(): void {
-    const attrs = document.createDocumentFragment();
-
-    let index = 0;
-    this._attrs.forEach((input, key) => {
-      const slot = document.createElement('slot');
-
-      slot.name = key;
-      const label = (
-        <label className={'gui-input-label'}>
-          <span className="gui-input-attr-name">{key}</span>
-        </label>
+    const factory = GuiInputFactory.closest(this);
+    const fields = document.createDocumentFragment();
+    const abi = this._value.$type.abi;
+    for (const attr of this._value.$type.attrs) {
+      const [attrEl] = this._createAttr(
+        abi,
+        factory,
+        this._value,
+        this._value.$type,
+        attr,
+        this._value[attr.name],
       );
+      fields.appendChild(attrEl);
+    }
+    this.shadowRoot.replaceChildren(fields);
+  }
 
-      if (this._type) {
-        const attr = this._type.attrs[index];
-        const attrTy = $.default.abi.types[attr.abi_type];
-        let typeName = attrTy.name;
-        if (typeName.startsWith('core::')) {
-          typeName = typeName.slice(6);
-        }
-        label.appendChild(<span className="gui-input-attr-type">{typeName}</span>);
-      }
-      slot.append(label, input);
+  private _createAttr(
+    abi: Abi,
+    factory: GuiInputFactory,
+    object: GCObject,
+    type: AbiType,
+    attr: AbiAttribute,
+    value: unknown,
+  ): [Node, Element | null] {
+    const attrType = abi.types[attr.abi_type];
+    if (attr.nullable && (value === null || value === undefined)) {
+      const field = (
+        <div className="field">
+          <label className="label">
+            <span className="field-name">{attr.name}</span>
+            <span className="field-type">{this._attrType(attr, abi)}</span>
+          </label>
+          <div>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={() => {
+                const value = new attrType.factory(attrType);
+                const [node, input] = this._createAttr(abi, factory, object, type, attr, value);
+                this.shadowRoot.replaceChild(node, field);
+                if (input instanceof GuiInputElement) {
+                  object[attr.name] = input.value;
+                }
+                this.dispatchEvent(new GuiChangeEvent(this.value));
+              }}
+            >
+              Set a value
+            </sl-button>
+          </div>
+        </div>
+      );
+      return [field, null];
+    }
 
-      slot.addEventListener('slotchange', (e) => {
-        const a = e.target as HTMLSlotElement;
-
-        const assignedElements = a.assignedElements();
-
-        assignedElements.forEach((elem) => {
-          if (elem instanceof GuiInputElement) {
-            this._attrs.set(key, elem);
-            elem.value = input.value;
-            return;
-          }
-          const slotInput = elem.querySelector('.gui-input');
-          if (!slotInput || !(slotInput instanceof GuiInputElement)) {
-            throw `Element provided to gui-input-fn slot "${key}" has to be an instanceof GuiInputElement`;
-          }
-          slotInput.value = input.value;
-          this._attrs.set(key, slotInput);
-        });
+    const slottedAttr = this.querySelector(`[slot=${attr.name}]`);
+    let input: Element;
+    if (slottedAttr) {
+      input = slottedAttr;
+    } else {
+      const tagName = factory.get(`${type.name}::${attr.name}`);
+      input = tagName ? document.createElement(tagName) : factory.createElement(value, attrType);
+    }
+    if ('value' in input) {
+      input.value = value;
+    } else {
+      input.textContent = value?.toString() ?? `${value}`;
+    }
+    if (input instanceof GuiInputElement) {
+      input.addEventListener('gui-change', () => {
+        object[attr.name] = input.value;
+        // TODO check validatity
       });
-
-      attrs.append(<div className={'gui-input-arg'}>{slot}</div>);
-
-      index++;
-    });
-
-    const frag = document.createDocumentFragment();
-
-    if (this.config.nullable) {
-      const del = (
-        <sl-button
-          className={'gui-input-remove'}
-          variant="text"
-          onclick={() => {
-            this.value = null;
-            this.dispatchEvent(new GuiChangeEvent(this.value));
-          }}
-        >
-          &#10005;
-        </sl-button>
-      );
-      frag.appendChild(del);
     }
-    frag.appendChild(<div className={'gui-input-object-wrapper'}> {attrs} </div>);
+    const field = (
+      <div className="field">
+        <label className="label">
+          <span className="field-name">{attr.name}</span>
+          <span className="field-type">{this._attrType(attr, abi)}</span>
+        </label>
+        {attr.nullable && (slottedAttr === null || slottedAttr instanceof GuiInputElement) ? (
+          <div className="nullable">
+            <sl-tooltip content="Set to null" placement="left">
+              <sl-button
+                className="del"
+                variant="text"
+                size="small"
+                onclick={() => {
+                  const [node, input] = this._createAttr(abi, factory, object, type, attr, null);
+                  if (input instanceof GuiInputElement) {
+                    object[attr.name] = input.value;
+                  }
+                  this.shadowRoot.replaceChild(node, field);
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                {/* &#10005; = ✕ */}
+                &#10005;
+              </sl-button>
+            </sl-tooltip>
+            <div className="sep" />
+            <slot name={attr.name}>{slottedAttr ? undefined : input}</slot>
+          </div>
+        ) : (
+          <slot name={attr.name}>{slottedAttr ? undefined : input}</slot>
+        )}
+      </div>
+    );
+    return [field, input];
+  }
 
-    this.shadowRoot.replaceChildren(frag);
+  /**
+   * Returns the attribute's type fqn, shortens to only the type symbol if the type is a core type
+   */
+  private _attrType(attr: AbiAttribute, abi: Abi): string {
+    const type = abi.types[attr.abi_type];
+    const name = type.is_core ? abi.symbols[type.symbol] : type.name;
+    return attr.nullable ? `${name}?` : name;
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GuiInputFn extends GuiInputElement<any[] | null> {
-  private _fn: AbiFunction | undefined;
-  private _params: Map<string, GuiInputElement<unknown>> = new Map();
+export class GuiInputFn extends GuiInputObject {
+  /**
+   * Give an instance of `'<function_name>_args'` as value, then use `el.args` to retrieve
+   * the array of arguments. `el.value` will be the instance, for now it cannot be used
+   * for `@expose`d function, an array is expected.
+   */
+  override get value() {
+    return super.value;
+  }
 
-  static checkAbiType(value: unknown, ty: AbiType, nullable: boolean): boolean {
-    if (value === null) return nullable;
-    else if (ty.name === 'core::any') return true;
-    else if (typeof value === 'string' && ty.name === std.core.String._type) return true;
-    else if (typeof value === 'boolean' && ty.name === 'core::bool') return true;
-    else if (
-      (typeof value === 'number' || typeof value === 'bigint') &&
-      (ty.name === std.core.int._type || ty.name === std.core.float._type)
-    )
-      return true;
-    else if (typeof value === 'object') {
-      if (
-        Array.isArray(value) &&
-        (ty.name === std.core.Array._type || ty.generic_abi_type === ty.abi.core_array_offset)
-      ) {
-        return true;
-      } else if (
-        value instanceof Map &&
-        (ty.name === std.core.Map._type || ty.generic_abi_type === ty.abi.core_map_offset)
-      ) {
-        return true;
-      } else if (value instanceof GCObject && value.$type.offset === ty.offset) {
-        return true;
-      }
+  override set value(value: GCObject | undefined) {
+    super.value = value;
+  }
+
+  get args() {
+    if (this._value && this._value.$attrs) {
+      return this._value.$attrs;
     }
-    return false;
-  }
-
-  static STYLE: CSSStyleSheet;
-  static {
-    this.STYLE = new CSSStyleSheet();
-    this.STYLE.replaceSync(FnStyle);
-  }
-
-  constructor() {
-    super();
-
-    this.shadowRoot.adoptedStyleSheets.push(GuiInputFn.STYLE);
-
-    this.render();
-  }
-
-  /** A getter to directly access the function's fqn. This cannot be used as a setter. */
-  get fqn() {
-    return this._fn?.fqn;
-  }
-
-  get type() {
-    return this._fn;
-  }
-
-  set type(fn: AbiFunction | string | undefined) {
-    if (typeof fn === 'string') {
-      fn = $.default.findFn(fn);
-    }
-
-    if (this._fn) {
-      // we already have an AbiFunction defined, lets compare
-      if (this._fn === fn) {
-        // same function, no need to re-render
-      } else {
-        // different function, let's clean
-        this._params.clear();
-        this._fn = fn;
-        if (this._fn) {
-          for (const param of this._fn.params) {
-            const input = document.createElement('gui-input');
-            input.type = param.type;
-            input.config = { nullable: param.nullable };
-            this._params.set(param.name, input);
-          }
-        }
-      }
-    } else {
-      // no previous fn definition
-      this._fn = fn;
-      if (this._fn) {
-        for (const param of this._fn.params) {
-          const input = document.createElement('gui-input');
-          input.type = param.type;
-          input.config = { nullable: param.nullable };
-          this._params.set(param.name, input);
-        }
-      }
-    }
-
-    this.shadowRoot.querySelectorAll('.gui-input').forEach((input) => {
-      if (input instanceof HTMLElement) {
-        input.removeEventListener('gui-input', this._onInput);
-        input.removeEventListener('gui-change', this._onChange);
-      }
-    });
-
-    this.render();
-
-    this.shadowRoot.querySelectorAll('.gui-input').forEach((input) => {
-      if (input instanceof HTMLElement) {
-        input.addEventListener('gui-input', this._onInput);
-        input.addEventListener('gui-change', this._onChange);
-      }
-    });
-  }
-
-  private _onInput = (ev: GuiInputEvent) => {
-    ev.stopPropagation();
-    this.dispatchEvent(new GuiInputEvent(this.value));
-  };
-  private _onChange = (ev: GuiChangeEvent) => {
-    ev.stopPropagation();
-    this.dispatchEvent(new GuiChangeEvent(this.value));
-  };
-
-  get value() {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const args: any[] = [];
-    let index = 0;
-    this._params.forEach((input) => {
-      const param = this._fn!.params[index];
-      if (param.nullable) {
-        if (input instanceof GuiInputElement) {
-          args[index] = input.value;
-        } else {
-          args[index] = null;
-        }
-      } else {
-        args[index] = input.value;
-      }
-      index++;
-    });
-    return args;
-  }
-
-  set value(args: unknown[]) {
-    //if no function set we skip
-    if (this._fn === undefined) {
-      return;
-    }
-    //Validate that arguments length match
-    if (args.length !== this._fn.params.length) {
-      this.shadowRoot.replaceChildren(
-        <sl-alert variant="danger" open>
-          <code>&lt;gui-input-fn /&gt;</code> Function params required ({this._fn.params.length}),
-          arguments provided ({args.length})
-        </sl-alert>,
-      );
-      return;
-    }
-    for (let i = 0; i < args.length; i++) {
-      const arg = args[i];
-      const param = this._fn.params[i];
-      if (!GuiInputFn.checkAbiType(arg, param.type, param.nullable)) {
-        this.shadowRoot.replaceChildren(
-          <sl-alert variant="danger" open>
-            <code>&lt;gui-input-fn /&gt;</code> Type <code>'{arg}'</code> for param{' '}
-            <code>'{param.name}'</code> doesn't match, <code>'{param.type.name}'</code> required
-          </sl-alert>,
-        );
-        return;
-      }
-      this._params.get(param.name)!.value = arg;
-    }
-  }
-
-  override render(): void {
-    const params = document.createDocumentFragment();
-    let index = 0;
-    this._params.forEach((input, name) => {
-      const slot = document.createElement('slot');
-      slot.name = name;
-      const param = this._fn!.params[index];
-      let typeName = param.type.name;
-      if (typeName.startsWith('core::')) {
-        typeName = typeName.slice(6);
-      }
-      const label = (
-        <label className="gui-input-label">
-          <span className="gui-input-param-name">{name}</span>
-          <span className="gui-input-param-type">
-            {typeName}
-            {param.nullable ? '?' : ''}
-          </span>
-        </label>
-      );
-      slot.append(label, input);
-      params.append(<div className={'gui-input-arg'}>{slot}</div>);
-
-      slot.addEventListener('slotchange', (e) => {
-        const a = e.target as HTMLSlotElement;
-
-        const assignedElements = a.assignedElements();
-
-        assignedElements.forEach((elem) => {
-          if (elem instanceof GuiInputElement) {
-            this._params.set(name, elem);
-            elem.value = input.value;
-            return;
-          }
-          const slotInput = elem.querySelector('.gui-input');
-          if (!slotInput || !(slotInput instanceof GuiInputElement)) {
-            throw new Error(
-              `Element provided to gui-input-fn slot "${name}" has to be an instanceof GuiInputElement`,
-            );
-          }
-          this._params.set(name, slotInput);
-          slotInput.value = input.value;
-        });
-      });
-
-      index++;
-    });
-    this.shadowRoot.replaceChildren(params);
+    return [];
   }
 }
 
@@ -1429,9 +944,9 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       ev.stopPropagation();
       if (ev.detail === null) {
         this._input.value = null;
-        this._input.type = undefined;
       } else {
-        this._input.type = $.default.abi.types[ev.detail];
+        const type = $.default.abi.types[ev.detail];
+        this._input.value = new type.factory(type);
       }
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -1464,23 +979,28 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     this._input.value = val;
     switch (typeof val) {
       case 'bigint':
-      case 'number':
-        this._select.value = $.default.abi.core_int_offset;
+      case 'number': {
+        if (Number.isInteger(val)) {
+          this._select.value = $.default.abi.core.int;
+        } else {
+          this._select.value = $.default.abi.core.float;
+        }
         break;
+      }
       case 'boolean':
         this._select.value = $.default.findType('core::bool')?.offset;
         break;
       case 'string':
-        this._select.value = $.default.abi.core_string_offset;
+        this._select.value = $.default.abi.core.string;
         break;
       case 'undefined':
         this._select.value = undefined;
         break;
       case 'object': {
         if (Array.isArray(val)) {
-          this._select.value = $.default.abi.core_array_offset;
+          this._select.value = $.default.abi.core.array;
         } else if (val instanceof Map) {
-          this._select.value = $.default.abi.core_map_offset;
+          this._select.value = $.default.abi.core.map;
         } else if (val instanceof GCObject) {
           this._select.value = $.default.findType(val.$type.name)?.offset;
         } else {
@@ -1509,7 +1029,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   set type(value: AbiType | null) {
     if (value) {
       this._select.value = value.offset;
-      this._input.type = value;
+      this._input.value = new value.factory(value);
     }
   }
 
@@ -1535,9 +1055,10 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputArray extends GuiInputElement<unknown[] | null> {
-  private _inputs: GuiInputElement<unknown>[] = [];
+export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
   private _generic_param: AbiType | undefined;
+  private _generic_param_nullable = false;
+  private _value: unknown[] = [];
 
   static STYLE: CSSStyleSheet;
   static {
@@ -1547,26 +1068,28 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   constructor() {
     super();
+
     this.shadowRoot.adoptedStyleSheets.push(GuiInputArray.STYLE);
-
-    this._render();
   }
 
-  get value() {
-    if (this._inputs.length === 0 && this.config.nullable) {
-      return null;
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.update();
+  }
+
+  get value(): unknown[] {
+    return this._value;
+  }
+
+  set value(value: unknown[] | std.core.Array) {
+    if (value instanceof std.core.Array) {
+      if (value.$type.generic_abi_type !== 0) {
+        this._generic_param = value.$type.abi.types[value.$type.g1()];
+        this._generic_param_nullable = value.$type.g1Nullable();
+      }
+      value = value.values;
     }
-    return this._inputs.map((input) => input.value);
-  }
-
-  set value(value: unknown[] | null) {
-    this._inputs = [];
-
-    value?.forEach((val) => {
-      this._addInput(val);
-    });
-
-    this._render();
+    this.update();
   }
 
   get genericParam() {
@@ -1575,100 +1098,181 @@ export class GuiInputArray extends GuiInputElement<unknown[] | null> {
 
   set genericParam(type: AbiType | undefined) {
     this._generic_param = type;
+    this.update();
   }
 
-  override connectedCallback(): void {
-    super.connectedCallback();
-    this.setAttribute('part', 'input-array');
-    this._render();
+  get genericParamNullable() {
+    return this._generic_param_nullable;
   }
 
-  _addInput(val?: unknown) {
-    let input: GuiInputElement<unknown>;
-    if (this._generic_param) {
-      const el = document.createElement('gui-input');
-      el.type = this._generic_param;
-      input = el;
-    } else {
-      const el = document.createElement('gui-input-any');
-      if (val === undefined && this._inputs.length > 0) {
-        const prevInput = this._inputs[this._inputs.length - 1];
-        if (prevInput instanceof GuiInputAny && prevInput.type) {
-          el.type = prevInput.type;
-        }
-      }
-      input = el;
-    }
-    input.config = this.config;
-    input.value = val;
-
-    this._inputs.push(input);
-    const elem = (
-      <div className="gui-input-array-entry">
-        <sl-button
-          className={'gui-input-remove'}
-          size="small"
-          variant="text"
-          onclick={() => {
-            this._inputs = this._inputs.filter((i) => i !== input);
-            this.shadowRoot.removeChild(elem);
-            this.dispatchEvent(new GuiChangeEvent(this.value));
-          }}
-        >
-          &#10005;
-        </sl-button>
-        {input}
-      </div>
-    );
-    this.shadowRoot.appendChild(elem);
+  set genericParamNullable(nullable: boolean) {
+    this._generic_param_nullable = nullable;
+    this.update();
   }
 
-  _render() {
+  update(): void {
     if (!this.isConnected) {
       return;
     }
-    this.shadowRoot.replaceChildren();
-    this.shadowRoot.appendChild(
-      <sl-button
-        size="small"
-        variant="text"
-        className={'gui-input-add'}
-        onclick={() => {
-          this._addInput();
-          this.dispatchEvent(new GuiChangeEvent(this.value));
-        }}
-      >
-        Add
-      </sl-button>,
+
+    const factory = GuiInputFactory.closest(this);
+    const items = document.createDocumentFragment();
+    for (const item of this._value) {
+      const [node] = this._createItem(factory, item);
+      items.appendChild(node);
+    }
+    this.shadowRoot.replaceChildren(
+      <>
+        <sl-button
+          className="add"
+          variant="text"
+          size="small"
+          onclick={() => {
+            const [itemEl, input] = this._createItem(factory);
+            this._value.push(input?.value);
+            this.shadowRoot.appendChild(itemEl);
+            this.dispatchEvent(new GuiChangeEvent(this.value));
+          }}
+        >
+          Add item
+        </sl-button>
+        {items}
+      </>,
     );
-    this._inputs.forEach((input) => {
-      const elem = (
-        <div className="gui-input-array-entry">
+  }
+
+  private _createItem(
+    factory: GuiInputFactory,
+    value?: unknown,
+  ): [Node, GuiInputElement<unknown> | null] {
+    if (this._generic_param) {
+      if (value === undefined && !this._generic_param_nullable) {
+        value = new this._generic_param.factory(this._generic_param);
+      }
+    } else if (value === undefined) {
+      // we are completely in the dark, the value is not set, and we are not monomorphized
+      throw new Error('not implemented yet');
+    }
+
+    if (
+      this._generic_param &&
+      this._generic_param_nullable &&
+      (value === null || value === undefined)
+    ) {
+      const generic_param = this._generic_param;
+      const item = (
+        <div className="item">
+          <sl-tooltip content="Delete item" placement="left">
+            <sl-button
+              className="del"
+              variant="text"
+              size="small"
+              onclick={() => {
+                const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                this._value.splice(index, 1);
+                item.remove();
+                this.dispatchEvent(new GuiChangeEvent(this.value));
+              }}
+            >
+              {/* &#10005; = ✕ */}
+              &#10005;
+            </sl-button>
+          </sl-tooltip>
           <sl-button
-            size="small"
             variant="text"
-            className={'gui-input-remove'}
+            size="small"
             onclick={() => {
-              this._inputs = this._inputs.filter((i) => i !== input);
-              this.shadowRoot.removeChild(elem);
+              const value = new generic_param.factory(generic_param);
+              const [node, input] = this._createItem(factory, value);
+              const index = getIndexInParent(item) - 1;
+              this._value[index] = input?.value;
+              this.shadowRoot.replaceChild(node, item);
               this.dispatchEvent(new GuiChangeEvent(this.value));
             }}
           >
-            &#10005;
+            Set a value
           </sl-button>
-          {input}
         </div>
-      );
-      this.shadowRoot.appendChild(elem);
+      ) as Element;
+      return [item, null];
+    }
+
+    const input = factory.createElement(value);
+    input.value = value;
+    input.addEventListener('gui-change', () => {
+      const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+      this._value[index] = input.value;
     });
+    const item = (
+      <div className="item">
+        {this._generic_param_nullable ? (
+          <div>
+            <sl-tooltip content="Delete item" placement="left">
+              <sl-button
+                className="del"
+                variant="text"
+                size="small"
+                onclick={() => {
+                  const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                  this._value.splice(index, 1);
+                  item.remove();
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                {/* &#10005; = ✕ */}
+                &#10005;
+              </sl-button>
+            </sl-tooltip>
+            <sl-tooltip content="Set item to null" placement="left">
+              <sl-button
+                className="del"
+                variant="text"
+                size="small"
+                onclick={() => {
+                  const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                  this._value[index] = null;
+                  const [node] = this._createItem(factory, null);
+                  item.replaceWith(node);
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                Reset
+              </sl-button>
+            </sl-tooltip>
+          </div>
+        ) : (
+          <sl-tooltip content="Delete item" placement="left">
+            <sl-button
+              className="del"
+              variant="text"
+              size="small"
+              onclick={() => {
+                const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                this._value.splice(index, 1);
+                item.remove();
+                this.dispatchEvent(new GuiChangeEvent(this.value));
+              }}
+            >
+              {/* &#10005; = ✕ */}
+              &#10005;
+            </sl-button>
+          </sl-tooltip>
+        )}
+        <div className="sep" />
+        {input}
+      </div>
+    ) as Element;
+    return [item, input];
   }
 }
 
-export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object | null> {
-  as_object = false;
-  private _inputs: Map<GuiInputAny, GuiInputAny> = new Map();
-
-  static ALLOWED_KEY_OPTIONS: Array<{ text: string; value: number }> = [];
+export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | std.core.Map> {
+  private _value: Map<unknown, unknown> = new Map();
+  private _key_type: AbiType | undefined;
+  private _key_type_nullable = false;
+  private _value_type: AbiType | undefined;
+  private _value_type_nullable = false;
+  private _entries: HTMLElement;
 
   static STYLE: CSSStyleSheet;
   static {
@@ -1679,212 +1283,256 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | object 
   constructor() {
     super();
 
+    this._entries = document.createElement('div');
+    this._entries.className = 'entries';
+
     this.shadowRoot.adoptedStyleSheets.push(GuiInputMap.STYLE);
-
-    if (GuiInputMap.ALLOWED_KEY_OPTIONS.length === 0) {
-      GuiInputMap.ALLOWED_KEY_OPTIONS = [
-        { text: std.core.String._type, value: $.default.abi.core_string_offset },
-        { text: std.core.int._type, value: $.default.abi.core_int_offset },
-        { text: std.core.float._type, value: $.default.abi.core_float_offset },
-        { text: 'core::char', value: $.default.abi.core_char_offset },
-        { text: std.core.duration._type, value: $.default.abi.core_duration_offset },
-        { text: std.core.time._type, value: $.default.abi.core_time_offset },
-        { text: std.core.node._type, value: $.default.abi.core_node_offset },
-        { text: std.core.nodeGeo._type, value: $.default.abi.core_node_geo_offset },
-        { text: std.core.nodeIndex._type, value: $.default.abi.core_node_index_offset },
-        { text: std.core.nodeList._type, value: $.default.abi.core_node_list_offset },
-        { text: std.core.nodeTime._type, value: $.default.abi.core_node_time_offset },
-      ];
-    }
-
-    this.render();
-  }
-
-  get value() {
-    if (this._inputs.size === 0 && this.config.nullable) {
-      return null;
-    }
-    if (this.as_object) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const value: Record<any, unknown> = {};
-      this._inputs.forEach((input, key) => {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        value[key.value as any] = input.value;
-      });
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return value;
-    }
-    const map = new Map<unknown, unknown>();
-    this._inputs.forEach((input, key) => {
-      map.set(key.value, input.value);
-    });
-
-    return map;
-  }
-
-  set value(value: Map<unknown, unknown> | object | null) {
-    this._inputs.clear();
-
-    if (value instanceof Map) {
-      value.forEach((val, key) => {
-        this.addEntry(key, val);
-      });
-    } else if (value == null) {
-      // noop
-    } else {
-      this.as_object = true;
-      for (const name in value) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.addEntry(name, (value as any)[name]);
-      }
-    }
-
-    this.render();
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('part', 'input-map');
+    this.update();
   }
 
-  addEntry(key?: unknown, val?: unknown): [GuiInputAny, GuiInputElement<unknown>] {
-    const keyInput = document.createElement('gui-input-any');
-    keyInput.value = key;
-    const valInput = document.createElement('gui-input-any');
-    valInput.value = val;
-
-    valInput.config = this.config;
-
-    if (key === undefined && this._inputs.size > 0) {
-      const prevKyeInput = [...this._inputs.keys()][this._inputs.size - 1];
-      if (prevKyeInput.type !== null) {
-        keyInput.type = prevKyeInput.type;
-      }
-    }
-
-    if (val === undefined && this._inputs.size > 0) {
-      const prevValInput = [...this._inputs.values()][this._inputs.size - 1];
-      if (prevValInput.type !== null) {
-        valInput.type = prevValInput.type;
-      }
-    }
-
-    this._inputs.set(keyInput, valInput);
-
-    keyInput.config = { nullable: false };
-    keyInput.options = GuiInputMap.ALLOWED_KEY_OPTIONS;
-
-    valInput.addEventListener('gui-change', () => {
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    keyInput.addEventListener('gui-change', () => {
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-
-    return [keyInput, valInput];
+  get value(): Map<unknown, unknown> {
+    return this._value;
   }
 
-  private _createMapInput(keyInput: GuiInputAny, valInput: GuiInputElement<unknown>) {
-    const elem = (
-      <div className={'gui-input-map-entry'}>
+  set value(value: Map<unknown, unknown> | std.core.Map | null | undefined) {
+    if (value instanceof std.core.Map) {
+      if (value.$type.generic_abi_type != 0) {
+        this._key_type = value.$type.abi.types[value.$type.g1()];
+        this._key_type_nullable = value.$type.g1Nullable();
+        this._value_type = value.$type.abi.types[value.$type.g2()];
+        this._value_type_nullable = value.$type.g2Nullable();
+      }
+      value = value.map;
+    }
+    if (value === null || value === undefined) {
+      this._value.clear();
+    } else {
+      this._value = value;
+    }
+    this.update();
+  }
+
+  get keyType() {
+    return this._key_type;
+  }
+
+  set keyType(type: AbiType | undefined) {
+    this._key_type = type;
+    this.update();
+  }
+
+  get keyTypeNullable() {
+    return this._key_type_nullable;
+  }
+
+  set keyTypeNullable(nullable: boolean) {
+    this._key_type_nullable = nullable;
+    this.update();
+  }
+
+  get valueType() {
+    return this._value_type;
+  }
+
+  set valueType(type: AbiType | undefined) {
+    this._value_type = type;
+    this.update();
+  }
+
+  get valueTypeNullable() {
+    return this._value_type_nullable;
+  }
+
+  set valueTypeNullable(nullable: boolean) {
+    this._value_type_nullable = nullable;
+    this.update();
+  }
+
+  update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    const factory = GuiInputFactory.closest(this);
+    const entries = document.createDocumentFragment();
+    for (const [key, value] of this._value) {
+      const [entry] = this._createEntry(factory, key, value);
+      entries.appendChild(entry);
+    }
+
+    this._entries.replaceChildren(entries);
+    this.shadowRoot.replaceChildren(
+      <>
         <sl-button
+          className="btn"
           variant="text"
           size="small"
-          className={'gui-input-remove'}
           onclick={() => {
-            this._inputs.delete(keyInput);
-            this.shadowRoot.removeChild(elem);
+            const [node, keyInput, valInput] = this._createEntry(factory);
+            if (keyInput) {
+              this._value.set(keyInput.value, valInput?.value ?? null);
+            }
+            this._entries.appendChild(node);
             this.dispatchEvent(new GuiChangeEvent(this.value));
           }}
         >
-          &#10005;
+          Add entry
         </sl-button>
-        {keyInput}
-        {valInput}
-      </div>
+        {this._entries}
+      </>,
     );
-    return elem;
   }
 
-  override render() {
-    this.shadowRoot.replaceChildren();
-    this.shadowRoot.appendChild(
-      <sl-button
-        variant="text"
-        size="small"
-        className={'gui-input-add'}
-        onclick={() => {
-          const elems = this.addEntry();
-          this.shadowRoot.appendChild(this._createMapInput(elems[0], elems[1]));
-          this.dispatchEvent(new GuiChangeEvent(this.value));
-        }}
-      >
-        Add
-      </sl-button>,
-    );
-    this._inputs.forEach((valInput, keyInput) => {
-      this.shadowRoot.appendChild(this._createMapInput(keyInput, valInput));
-    });
-  }
-}
-
-export class GuiInputNull extends GuiInputElement<unknown> {
-  private _type: AbiType | AbiFunction | undefined;
-  private _inner?: GuiInput;
-
-  get value(): unknown {
-    if (this._inner) {
-      return this._inner.value;
-    } else if (this._type instanceof AbiType) {
-      return $.default.create(this._type.name, []);
+  private _createEntry(
+    factory: GuiInputFactory,
+    key?: unknown,
+    value?: unknown,
+  ): [Node, GuiInputElement<unknown> | null, GuiInputElement<unknown> | null] {
+    if (this._key_type) {
+      if ((key === null || key === undefined) && !this._key_type_nullable) {
+        key = new this._key_type.factory(this._key_type);
+      }
     }
-    return null;
-  }
-
-  get type() {
-    return this._type;
-  }
-
-  set type(type: AbiType | AbiFunction | undefined) {
-    this._type = type;
-
-    this.render();
-  }
-
-  override render(): void {
-    if (this.type === undefined) {
-      this.shadowRoot.replaceChildren();
-      return;
+    if (this._value_type) {
+      if ((value === null || value === undefined) && !this._value_type_nullable) {
+        value = new this._value_type.factory(this._value_type);
+      }
     }
-    if (this._inner) {
-      this.shadowRoot.replaceChildren(
-        <>
-          <a
+
+    const keyInput = factory.createElement(key, this._key_type);
+    keyInput.value = key;
+
+    if (this._value_type && this._value_type_nullable && (value === null || value === undefined)) {
+      let prevKey = keyInput.value;
+      const entryUpdate = () => {
+        this._value.delete(prevKey);
+        const newKey = keyInput.value;
+        this._value.set(newKey, null);
+        prevKey = newKey;
+      };
+      keyInput.addEventListener('gui-change', entryUpdate);
+
+      const value_type = this._value_type;
+      const entry = (
+        <div className="entry">
+          <sl-tooltip content="Delete entry" placement="left">
+            <sl-button
+              className="btn"
+              variant="text"
+              size="small"
+              onclick={() => {
+                this._value.delete(keyInput.value);
+                entry.remove();
+                this.dispatchEvent(new GuiChangeEvent(this.value));
+              }}
+            >
+              {/* &#10005; = ✕ */}
+              &#10005;
+            </sl-button>
+          </sl-tooltip>
+          <div className="sep" />
+          {keyInput}
+          <div className="sep" />
+          <sl-button
+            className="btn"
+            variant="text"
+            size="small"
             onclick={() => {
-              this._inner = undefined;
+              const value = new value_type.factory(value_type);
+              const [node, keyInputEl, valInput] = this._createEntry(
+                factory,
+                keyInput.value,
+                value,
+              );
+              if (keyInputEl && valInput) {
+                this._value.set(keyInputEl.value, valInput.value);
+              }
+              this._entries.replaceChild(node, entry);
               this.dispatchEvent(new GuiChangeEvent(this.value));
-              this.render();
             }}
           >
-            x
-          </a>
-          {this._inner}
-        </>,
-      );
-      return;
+            Set a value
+          </sl-button>
+        </div>
+      ) as Element;
+      return [entry, keyInput, null];
     }
-    this.shadowRoot.replaceChildren(
-      <a
-        onclick={() => {
-          this._inner = document.createElement('gui-input');
-          this._inner.type = this._type!;
-          this.dispatchEvent(new GuiChangeEvent(this.value));
-          this.render();
-        }}
-      >
-        Set
-      </a>,
-    );
+
+    let prevKey = keyInput.value;
+    const entryUpdate = () => {
+      this._value.delete(prevKey);
+      const newKey = keyInput.value;
+      this._value.set(newKey, valInput.value);
+      prevKey = newKey;
+    };
+    keyInput.addEventListener('gui-change', entryUpdate);
+
+    const valInput = factory.createElement(value, this._value_type);
+    valInput.value = value;
+    valInput.addEventListener('gui-change', entryUpdate);
+    const entry = (
+      <div className="entry">
+        {this._value_type_nullable ? (
+          <div>
+            <sl-tooltip content="Delete entry" placement="left">
+              <sl-button
+                className="btn"
+                variant="text"
+                size="small"
+                onclick={() => {
+                  this._value.delete(keyInput.value);
+                  entry.remove();
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                {/* &#10005; = ✕ */}
+                &#10005;
+              </sl-button>
+            </sl-tooltip>
+            <sl-tooltip content="Set value to null" placement="left">
+              <sl-button
+                className="btn"
+                variant="text"
+                size="small"
+                onclick={() => {
+                  const [node] = this._createEntry(factory, key, null);
+                  this._value.set(keyInput.value, null);
+                  this._entries.replaceChild(node, entry);
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                Reset
+              </sl-button>
+            </sl-tooltip>
+          </div>
+        ) : (
+          <sl-tooltip content="Delete entry" placement="left">
+            <sl-button
+              className="btn"
+              variant="text"
+              size="small"
+              onclick={() => {
+                this._value.delete(keyInput.value);
+                entry.remove();
+                this.dispatchEvent(new GuiChangeEvent(this.value));
+              }}
+            >
+              {/* &#10005; = ✕ */}
+              &#10005;
+            </sl-button>
+          </sl-tooltip>
+        )}
+        <div className="sep" />
+        {keyInput}
+        <div className="sep" />
+        {valInput}
+      </div>
+    ) as Element;
+    return [entry, keyInput, valInput];
   }
 }
 
@@ -2276,7 +1924,7 @@ export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
   constructor() {
     super();
 
-    this.shadowRoot!.adoptedStyleSheets.push(GuiInputGeo.STYLE);
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputGeo.STYLE);
 
     this._latInput = document.createElement('gui-input-number');
     this._latInput.addEventListener('gui-change', (ev) => {
@@ -2411,6 +2059,60 @@ export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
   }
 }
 
+export class GuiInputUnsupported extends GuiInputElement<undefined> {
+  static STYLE: CSSStyleSheet;
+  static {
+    this.STYLE = new CSSStyleSheet();
+    this.STYLE.replaceSync(UnsupportedStyle);
+  }
+
+  value = undefined;
+  private _message = document.createTextNode('');
+
+  constructor() {
+    super();
+
+    this.shadowRoot.adoptedStyleSheets.push(GuiInputUnsupported.STYLE);
+    this.shadowRoot.appendChild(<em>This type is not supported{this._message}</em>);
+  }
+
+  set message(message: string) {
+    this._message.textContent = `: ${message}`;
+  }
+}
+
+/**
+ * Walks the DOM tree upwards in the search of a `GuiInputElement` instance.
+ *
+ * By default, it will return the first matching parent, but that can be changed by specifying
+ * a higher `level` than `1`.
+ * @param from
+ * @param level
+ * @returns
+ */
+export function findParentInputElement(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  from: GuiInputElement<any>,
+  level = 1,
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+): GuiInputElement<any> {
+  let parent: ParentNode | null = from;
+  while (parent !== null) {
+    if (parent instanceof ShadowRoot) {
+      parent = parent.host;
+    } else {
+      parent = parent.parentNode;
+    }
+    if (parent instanceof GuiInputElement) {
+      if (level === 1) {
+        return parent;
+      }
+      level -= 1;
+    }
+  }
+  throw new Error('Looks like element `from` is not in a DOM');
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-input': GuiInput;
@@ -2433,6 +2135,7 @@ declare global {
     'gui-input-node-geo': GuiInputNodeGeo;
     'gui-input-geo': GuiInputGeo;
     'gui-input-fnptr': GuiInputFnPtr;
+    'gui-input-unsupported': GuiInputUnsupported;
   }
 
   interface GuiInputEventMap {
@@ -2465,6 +2168,7 @@ declare global {
         'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
         'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
         'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
+        'gui-input-unsupported': GreyCat.Element<GuiInputUnsupported, GuiInputEventMap>;
       }
     }
   }
@@ -2490,3 +2194,4 @@ registerCustomElement('gui-input-node-list', GuiInputNodeList);
 registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
 registerCustomElement('gui-input-geo', GuiInputGeo);
 registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
+registerCustomElement('gui-input-unsupported', GuiInputUnsupported);

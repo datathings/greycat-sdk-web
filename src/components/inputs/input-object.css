@@ -1,61 +1,37 @@
 :host {
-  display: block;
-
-  .gui-input-object-wrapper {
+  & {
     display: grid;
     grid-template-columns: auto 1fr;
     align-items: start;
     gap: var(--spacing);
   }
-
-  .gui-input-remove {
-    padding: 0 var(--spacing);
-    align-self: center;
+  .field {
+    display: contents;
   }
-
-  .gui-input-add {
-    width: fit-content;
-    padding: 0 var(--spacing);
-  }
-
-  .gui-input-label {
+  .label {
+    min-height: 30px;
     display: flex;
     flex-direction: column;
     align-items: end;
     gap: 2px;
   }
-  .gui-input-arg {
-    display: contents;
-  }
-
-  gui-input::part(input-object) {
-    padding-left: var(--spacing);
-    border-left: var(--border-width) solid var(--border-color);
-    display: grid;
-    grid-template-columns: auto 1fr;
-  }
-
-  gui-input::part(input-array) {
-    border-left: var(--border-width) solid var(--border-color);
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-  gui-input::part(input-map) {
-    border-left: var(--border-width) solid var(--border-color);
-    display: grid;
-    grid-template-columns: 1fr;
-  }
-
-  .gui-input-attr-name,
-  .gui-input-param-name {
+  .field-name {
     font-size: var(--sl-font-size-medium);
     line-height: var(--sl-font-size-medium);
   }
-
-  .gui-input-attr-type,
-  .gui-input-param-type {
+  .field-type {
     font-size: var(--sl-font-size-small);
     line-height: var(--sl-font-size-small);
     color: var(--sl-color-gray-500);
+  }
+  .nullable {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    column-gap: var(--spacing);
+    align-items: center;
+  }
+  .sep {
+    height: 100%;
+    border-right: var(--border-width) solid var(--border-color);
   }
 }

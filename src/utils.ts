@@ -240,8 +240,8 @@ export function putFileProgress(
   return cancellablePromise;
 }
 
-export function getIndexInParent(element: Element): number {
-  const parent = element.parentElement;
+export function getIndexInParent(element: Node): number {
+  const parent = element.parentNode;
 
   if (!parent) {
     return -1;

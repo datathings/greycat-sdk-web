@@ -1,22 +1,26 @@
 :host {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: var(--spacing);
-
-  /* Add button */
-  .gui-input-add {
-    width: fit-content;
-    padding: 0 var(--spacing);
-  }
-
-  .gui-input-array-entry {
+  & {
     display: grid;
-    grid-template-columns: auto 1fr;
-    column-gap: var(--spacing);
-    align-items: baseline;
+    grid-template-columns: 1fr;
+    row-gap: var(--spacing);
+    border: var(--border-width) solid var(--border-color);
+    border-radius: var(--border-radius);
+    padding-right: var(--spacing);
   }
-
-  .gui-input-remove {
-    padding: 0 var(--spacing);
+  .item {
+    display: grid;
+    grid-template-columns: auto auto 1fr;
+    column-gap: var(--spacing);
+    align-items: center;
+  }
+  .item:last-child {
+    padding-bottom: var(--spacing);
+  }
+  sl-button.add {
+    width: fit-content;
+  }
+  .sep {
+    height: 100%;
+    border-right: var(--border-width) solid var(--border-color);
   }
 }

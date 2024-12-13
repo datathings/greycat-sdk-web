@@ -1,0 +1,10 @@
+:host {
+  & {
+    display: contents;
+  }
+
+  em {
+    align-self: center;
+    color: var(--sl-color-danger-600);
+  }
+}
