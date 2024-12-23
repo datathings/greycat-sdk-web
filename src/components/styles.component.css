@@ -1,0 +1,202 @@
+/*
+ * Common styles that should be imported by all GreyCat components
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  background-repeat: no-repeat;
+  /* see: https://datacadamia.com/web/css/grid/overflow */
+  min-width: 0;
+}
+
+::before,
+::after {
+  text-decoration: inherit;
+  vertical-align: inherit;
+}
+
+/* https://www.abeautifulsite.net/posts/flash-of-undefined-custom-elements/ */
+:not(:defined) {
+  visibility: hidden;
+}
+
+gui-search-input > sl-icon[slot='prefix'] {
+  background-size: contain;
+  background-image: var(--icon-search);
+}
+
+.p-1 {
+  padding: var(--spacing);
+}
+
+.pt-1 {
+  padding-top: var(--spacing);
+}
+
+.pr-1 {
+  padding-right: var(--spacing);
+}
+
+.pl-1 {
+  padding-left: var(--spacing);
+}
+
+.pb-1 {
+  padding-bottom: var(--spacing);
+}
+
+.px-1 {
+  padding-left: var(--spacing);
+  padding-right: var(--spacing);
+}
+
+.py-1 {
+  padding-top: var(--spacing);
+  padding-bottom: var(--spacing);
+}
+
+.p-2 {
+  padding: calc(var(--spacing) * 2);
+}
+
+.pt-2 {
+  padding-top: calc(var(--spacing) * 2);
+}
+
+.pr-2 {
+  padding-right: calc(var(--spacing) * 2);
+}
+
+.pl-2 {
+  padding-left: calc(var(--spacing) * 2);
+}
+
+.pb-2 {
+  padding-bottom: calc(var(--spacing) * 2);
+}
+
+.px-2 {
+  padding-left: calc(var(--spacing) * 2);
+  padding-right: calc(var(--spacing) * 2);
+}
+
+.py-2 {
+  padding-top: calc(var(--spacing) * 2);
+  padding-bottom: calc(var(--spacing) * 2);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+}
+
+.list.smart:empty::before {
+  content: 'List is empty';
+  color: var(--muted-color);
+  align-self: center;
+  font-size: var(--sl-font-size-small);
+}
+
+.row {
+  display: flex;
+  gap: var(--spacing);
+}
+
+.row-fluid {
+  display: flex;
+  gap: var(--spacing);
+
+  > * {
+    flex: 1;
+  }
+}
+
+.flex-1 {
+  flex: 1;
+}
+
+/**
+ * sl-drawer
+ */
+sl-drawer::part(header),
+sl-drawer::part(footer) {
+  background-color: var(--bg-0);
+}
+
+/**
+  * sl-card
+  */
+sl-card::part(header),
+sl-card::part(footer) {
+  background-color: var(--bg-0);
+  padding: calc(var(--padding) / 2) var(--padding);
+  font-weight: bold;
+}
+sl-card > header,
+gui-card > header,
+sl-card > footer,
+gui-card > footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing);
+}
+
+/**
+  * sl-details
+  */
+sl-details::part(header) {
+  background-color: var(--bg-0);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+  overflow: hidden;
+  border-radius: var(--sl-border-radius-medium);
+  transition: border-radius var(--sl-transition-medium) ease;
+}
+sl-details[open]::part(header) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+gui-details > summary {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing);
+}
+
+/**
+  * sl-dialog
+  */
+sl-dialog {
+  --border-color: var(--sl-color-neutral-200);
+  --sl-shadow-x-small: 0 1px 2px hsl(240 3.8% 46.1% / 6%);
+  --sl-shadow-small: 0 1px 2px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-medium: 0 2px 4px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-large: 0 2px 8px hsl(240 3.8% 46.1% / 12%);
+  --sl-shadow-x-large: 0 4px 16px hsl(240 3.8% 46.1% / 12%);
+  --sl-spacing-2x-large: 25%;
+}
+sl-dialog::part(panel) {
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+}
+sl-dialog::part(header) {
+  background-color: var(--sl-dialog-header-background-color);
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  border-bottom: var(--border-width) solid var(--border-color);
+}
+sl-dialog::part(footer) {
+  background-color: var(--sl-dialog-footer-background-color);
+  border-bottom-left-radius: var(--border-radius);
+  border-bottom-right-radius: var(--border-radius);
+  border-top: var(--border-width) solid var(--border-color);
+}
+
+sl-button,
+sl-checkbox {
+  min-width: auto;
+}

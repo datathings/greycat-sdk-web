@@ -1,0 +1,9 @@
+account,type,cat,id,amount
+A,Incoming,Income,0,2000
+A,Outgoing,Expense,1,39.99
+A,Outgoing,Expense,2,14.52
+A,Outgoing,Expense,3,9.99
+B,Outgoing,Saving,4,1000
+B,Incoming,Income,5,4500
+B,Outgoing,Investment,6,400
+B,Incoming,Transfer,7,45

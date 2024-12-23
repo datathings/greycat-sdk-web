@@ -119,6 +119,17 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
       break;
     }
 
+    case 'exportparts': {
+      element.setAttribute('exportparts', value);
+      break;
+    }
+
+    case 'part': {
+      const parts = value.toString().split(' ');
+      element.part.add(...parts);
+      break;
+    }
+
     default: {
       if (key.startsWith('on')) {
         if (typeof value === 'function') {
@@ -131,8 +142,7 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (element as any)[key] = value;
         } else {
-          // TODO was that needed?
-          // element.setAttribute(key, value);
+          element.setAttribute(key, value);
         }
       }
       break;

@@ -1,17 +1,7 @@
-import {
-  GreyCat,
-  IndexedDbCache,
-  type GuiCsvStatistics2,
-  io,
-  $,
-  type GuiTable,
-  sl,
-} from '@greycat/web';
+import { GreyCat, type GuiCsvStatistics2, io, $, type GuiTable, sl } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await GreyCat.init();
 
 async function runAnalysis(filepath: string) {
   const task = await $.default.spawn('io::CsvAnalysis::analyze', [
@@ -50,11 +40,15 @@ document.body.appendChild(
       <sl-option value="./pages/csv-analysis/data/people-10000.csv">People 10k</sl-option>
     </sl-select>
     <gui-tabs>
-      <gui-tab>CSV</gui-tab>
-      <gui-tab>Statistics</gui-tab>
+      <gui-tab slot="tab">CSV</gui-tab>
+      <gui-tab slot="tab">Statistics</gui-tab>
 
-      <gui-panel data-tab="CSV">{sample}</gui-panel>
-      <gui-panel data-tab="Statistics">{csvStatistics}</gui-panel>
+      <gui-panel slot="panel" tab="CSV">
+        {sample}
+      </gui-panel>
+      <gui-panel slot="panel" tab="Statistics">
+        {csvStatistics}
+      </gui-panel>
     </gui-tabs>
   </app-layout>,
 );

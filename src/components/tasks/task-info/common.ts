@@ -1,4 +1,4 @@
-import { std } from '../../../exports.js';
+import type { std } from '../../../exports.js';
 // import type { GuiTaskInfoDialog } from './task-info-dialog.js';
 // import type { GuiUpdateEvent } from '../../events.js';
 // import { GuiTaskInfo } from './task-info.js';
@@ -8,12 +8,12 @@ export type TaskInfoLike = {
   task_id: number | bigint;
 } & std.runtime.Task;
 
-export class GuiFilesClickEvent extends CustomEvent<void> {
-  static readonly NAME = 'gui-files-click';
-  constructor() {
-    super(GuiFilesClickEvent.NAME, { cancelable: true });
-  }
-}
+// export class GuiFilesClickEvent extends CustomEvent<void> {
+//   static readonly NAME = 'gui-files-click';
+//   constructor() {
+//     super(GuiFilesClickEvent.NAME, { cancelable: true });
+//   }
+// }
 
 // declare global {
 //   interface HTMLElementTagNameMap {

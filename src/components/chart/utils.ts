@@ -199,7 +199,9 @@ export function inferConfig(table: core.Table, greycat = $.default): ChartConfig
       const columnName =
         table.headers?.[c] ?? greycatTypeFromValueStr(cell, greycat).replaceAll(/[- :]+/g, '_');
       const yAxis = `c${c}_${columnName}`;
-      config.yAxes[yAxis] = { scale: cell instanceof core.time ? 'time' : 'linear' };
+      if (!(cell instanceof core.time)) {
+        config.yAxes[yAxis] = { scale: 'linear' };
+      }
       config.series.push({
         title: table.headers?.[c] ?? `c${c}`,
         type: 'line',

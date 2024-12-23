@@ -1,65 +1,102 @@
-export class GuiTabs extends HTMLElement {
-  readonly tabs: Map<string, GuiTab> = new Map();
+import { css, GuiChangeEvent, GuiElement, registerCustomElement } from '../../exports.js';
+import tabsStyle from './tabs.css?inline';
+import tabStyle from './tab.css?inline';
+import panelStyle from './panel.css?inline';
+
+/**
+ * Children of a `gui-tabs` should be either `gui-tab` or `gui-panel` (or subclasses of them)
+ */
+export class GuiTabs extends GuiElement {
+  static override styles = [css(tabsStyle)];
+
+  private _tabsSlot: HTMLSlotElement;
+  private _panelsSlot: HTMLSlotElement;
+  private _tabs: GuiTab[] = [];
   readonly panels: Map<string, GuiPanel> = new Map();
 
+  constructor() {
+    super();
+
+    this._tabsSlot = document.createElement('slot');
+    this._tabsSlot.name = 'tab';
+
+    this._panelsSlot = document.createElement('slot');
+    this._panelsSlot.name = 'panel';
+
+    this.shadowRoot.appendChild(
+      <>
+        <div className="tabs">{this._tabsSlot}</div>
+        {this._panelsSlot}
+      </>,
+    );
+  }
+
   connectedCallback() {
-    const activeTabName = this.querySelector('gui-tab.activeTab')?.textContent;
-    const tabs = this.querySelectorAll('gui-tab');
-    tabs.forEach((tab) => {
+    this._tabs = this._tabsSlot.assignedElements().filter((el): el is GuiTab => {
+      if (el instanceof GuiTab) {
+        return true;
+      }
+      console.warn(`Only 'gui-tab' elements can be used as tabs with 'gui-tabs'`);
+      return false;
+    });
+
+    this._tabs.forEach((tab) => {
       const tabName = tab.textContent;
       if (!tabName) {
         return;
       }
-      this.tabs.set(tabName, tab);
-
       tab.addEventListener('keypress', (ev) => {
-        if (
-          tab === document.activeElement &&
-          ev.key === 'Enter' &&
-          !tab.classList.contains('activeTab')
-        ) {
+        if (ev.key === 'Enter' && !tab.active) {
           this._internalSelect(tab);
         }
       });
       tab.addEventListener('click', () => this._internalSelect(tab));
     });
 
-    const panels = this.querySelectorAll('gui-panel');
-    panels.forEach((panel) => {
-      const tabName = panel.getAttribute('data-tab');
-      if (!tabName) {
-        return;
+    const activeTab = this._tabs.find((el) => el.active);
+
+    {
+      const panels = this._panelsSlot.assignedElements() as HTMLElement[];
+      for (const panel of panels) {
+        if (panel instanceof GuiPanel) {
+          const tabName = panel.tab;
+          this.panels.set(tabName, panel);
+          panel.remove();
+        } else {
+          console.warn(`Only 'gui-panel' elements can be used as panels with 'gui-tabs'`);
+        }
       }
-      this.panels.set(tabName, panel);
-      panel.remove();
-    });
-
-    this.replaceChildren(<div className="tabs">{tabs}</div>);
-
-    if (activeTabName) {
-      const activePanel = this.panels.get(activeTabName);
+    }
+    this.shadowRoot.replaceChildren(<div className="tabs">{this._tabs}</div>);
+    if (activeTab && activeTab.textContent) {
+      const activePanel = this.panels.get(activeTab.textContent);
       if (activePanel) {
-        this.appendChild(activePanel);
+        this.shadowRoot.appendChild(activePanel);
       }
-    } else {
-      const firstTab = tabs.item(0);
-      const firstPanel = panels.item(0);
-      if (firstTab && firstPanel) {
-        firstTab.classList.add('activeTab');
-        this.appendChild(firstPanel);
+    } else if (this._tabs.length > 0) {
+      const firstTab = this._tabs[0];
+      if (firstTab.textContent) {
+        const tabName = firstTab.textContent;
+        for (const panel of this.panels.values()) {
+          const tab = panel.tab;
+          if (tab === tabName) {
+            firstTab.active = true;
+            this.shadowRoot.appendChild(panel);
+            break;
+          }
+        }
       }
     }
   }
 
   disconnectedCallback() {
     this.panels.clear();
-    this.replaceChildren();
+    this.shadowRoot.replaceChildren();
   }
 
   selectTab(name: string): void {
-    const tabs = this.querySelectorAll('gui-tab');
-    for (let i = 0; i < tabs.length; i++) {
-      const tab = tabs[i];
+    for (let i = 0; i < this._tabs.length; i++) {
+      const tab = this._tabs[i];
       if (tab.textContent === name) {
         this._internalSelect(tab);
       }
@@ -67,23 +104,51 @@ export class GuiTabs extends HTMLElement {
   }
 
   private _internalSelect(tab: GuiTab): void {
-    this.tabs.forEach((tab) => tab.classList.remove('activeTab'));
+    this._tabs.forEach((el) => {
+      el.active = false;
+    });
     this.panels.forEach((panel) => panel.remove());
 
-    tab.classList.add('activeTab');
+    tab.active = true;
     const tabName = tab.textContent;
     if (!tabName) {
       return;
     }
     const panel = this.panels.get(tabName);
     if (panel) {
-      this.appendChild(panel);
-      this.dispatchEvent(new GuiTabChangeEvent({ detail: tab }));
+      this.shadowRoot.appendChild(panel);
+      this.dispatchEvent(new GuiChangeEvent(tab));
     }
   }
 }
 
-export class GuiTab extends HTMLElement {
+export class GuiTab extends GuiElement {
+  static override styles = [css(tabStyle)];
+  private _active = false;
+
+  constructor() {
+    super();
+
+    this.shadowRoot.appendChild(
+      <div className="tab" part="base">
+        <slot />
+      </div>,
+    );
+  }
+
+  get active() {
+    return this._active;
+  }
+
+  set active(active: boolean) {
+    this._active = active;
+    if (this._active) {
+      this.shadowRoot.children[0].classList.add('active');
+    } else {
+      this.shadowRoot.children[0].classList.remove('active');
+    }
+  }
+
   connectedCallback() {
     if (!this.hasAttribute('tabindex')) {
       this.tabIndex = 0;
@@ -91,20 +156,26 @@ export class GuiTab extends HTMLElement {
   }
 }
 
-export class GuiPanel extends HTMLElement {
+export class GuiPanel extends GuiElement {
+  static override styles = [css(panelStyle)];
+
+  private _tab = '';
+
+  constructor() {
+    super();
+
+    this.shadowRoot.appendChild(<slot />);
+  }
+
   /**
-   * Returns the associated tab name
+   * The associated `gui-tab` name (it's `textContent`)
    */
   get tab() {
-    return this.getAttribute('data-tab');
+    return this._tab;
   }
-}
 
-export class GuiTabChangeEvent extends CustomEvent<GuiTab> {
-  static readonly NAME = 'gui-tab-change'; // TODO rename to 'gui-change' in v7
-
-  constructor(eventInitDict: CustomEventInit<GuiTab>) {
-    super(GuiTabChangeEvent.NAME, eventInitDict);
+  set tab(tab: string) {
+    this._tab = tab;
   }
 }
 
@@ -116,7 +187,7 @@ declare global {
   }
 
   interface GuiTabsEventMap {
-    [GuiTabChangeEvent.NAME]: GuiTabChangeEvent;
+    [GuiChangeEvent.NAME]: GuiChangeEvent<HTMLElement>;
   }
 
   interface HTMLElementEventMap extends GuiTabsEventMap {}
@@ -124,6 +195,9 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /**
+         * Children of `gui-tabs` should be either `gui-tab` or `gui-panel` (or subclasses of them).
+         */
         'gui-tabs': GreyCat.Element<GuiTabs, GuiTabsEventMap>;
         'gui-tab': GreyCat.Element<GuiTab>;
         'gui-panel': GreyCat.Element<GuiPanel>;
@@ -132,12 +206,6 @@ declare global {
   }
 }
 
-if (!customElements.get('gui-tabs')) {
-  customElements.define('gui-tabs', GuiTabs);
-}
-if (!customElements.get('gui-tab')) {
-  customElements.define('gui-tab', GuiTab);
-}
-if (!customElements.get('gui-panel')) {
-  customElements.define('gui-panel', GuiPanel);
-}
+registerCustomElement('gui-tabs', GuiTabs);
+registerCustomElement('gui-tab', GuiTab);
+registerCustomElement('gui-panel', GuiPanel);

@@ -7,9 +7,14 @@ import {
   GuiClickEvent,
   sl,
   modal,
+  css,
+  GuiElement,
 } from '../../../exports.js';
+import style from './tasks.css?inline';
 
-export class GuiTasks extends HTMLElement {
+export class GuiTasks extends GuiElement {
+  static override styles = [css(style)];
+
   /** The table used to display the task list */
   readonly table: GuiTable;
   private _updateId: number;
@@ -79,10 +84,11 @@ export class GuiTasks extends HTMLElement {
     this._updateDelay = 5000;
 
     this._tasks = [];
+
+    this.shadowRoot.appendChild(this.table);
   }
 
   connectedCallback() {
-    this.append(this.table);
     this.reload();
     this._updateId = setInterval(() => this.reload(), this._updateDelay);
   }

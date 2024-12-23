@@ -1,19 +1,11 @@
-import { type SlIcon, SlInput } from '@shoelace-style/shoelace';
-import { SlInputEventMap } from '../../shoelace';
+import { registerCustomElement, sl, SlInputEventMap } from '../../exports.js';
 
-export class GuiSearchInput extends SlInput {
-  private _icon: SlIcon;
-
-  constructor() {
-    super();
-
-    this._icon = document.createElement('sl-icon');
-    this._icon.setAttribute('slot', 'prefix');
-  }
-
+export class GuiSearchInput extends sl.SlInput {
   override connectedCallback() {
     super.connectedCallback();
-    this.replaceChildren(this._icon);
+    const icon = document.createElement('sl-icon');
+    icon.slot = 'prefix';
+    this.replaceChildren(icon);
   }
 }
 
@@ -31,6 +23,4 @@ declare global {
   }
 }
 
-if (!customElements.get('gui-search-input')) {
-  customElements.define('gui-search-input', GuiSearchInput);
-}
+registerCustomElement('gui-search-input', GuiSearchInput);

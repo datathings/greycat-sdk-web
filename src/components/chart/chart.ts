@@ -24,8 +24,11 @@ import {
   convertToTable,
   GuiChartConfig,
   GuiUpdateEvent,
+  GuiElement,
+  css,
 } from '../../exports.js';
 import type { sl, std, TableLike } from '../../exports.js';
+import style from './chart.css?inline';
 
 type ComputedState = {
   leftAxes: number;
@@ -53,7 +56,9 @@ type ComputedState = {
   yScales: Record<string, Scale>;
 };
 
-export class GuiChart extends HTMLElement {
+export class GuiChart extends GuiElement {
+  static override styles = [css(style)];
+
   private _disposer: Disposer;
   private _table: core.Table;
   private _config: ChartConfig;
@@ -156,7 +161,7 @@ export class GuiChart extends HTMLElement {
     this._drawer.appendChild(this._configEl);
 
     // mouse events
-    this.addEventListener('mousedown', (ev) => {
+    this._uxCanvas.addEventListener('mousedown', (ev) => {
       if (ev.button === 0) {
         const { left, top } = this._canvas.getBoundingClientRect();
         this._cursor.startX = Math.round(ev.pageX - (left + window.scrollX));
@@ -170,7 +175,7 @@ export class GuiChart extends HTMLElement {
       this.toggleConfig();
     });
     // this.addEventListener('mouseleave', () => this._resetCursor());
-    this.addEventListener('dblclick', () => {
+    this._uxCanvas.addEventListener('dblclick', () => {
       this._resetCursor();
       // reset X configuration
       this._config.xAxis.min = this._userXAxisMin;
@@ -188,7 +193,7 @@ export class GuiChart extends HTMLElement {
     let lastTouch = Date.now();
     let touchTimer = -1;
     // touch events
-    this.addEventListener(
+    this._uxCanvas.addEventListener(
       'touchstart',
       (ev) => {
         // prevents the browser from processing emulated mouse events
@@ -225,7 +230,7 @@ export class GuiChart extends HTMLElement {
       },
       { passive: true },
     );
-    this.addEventListener('touchend', (ev) => {
+    this._uxCanvas.addEventListener('touchend', (ev) => {
       // prevents the browser from processing emulated mouse events
       ev.preventDefault();
 
@@ -253,7 +258,7 @@ export class GuiChart extends HTMLElement {
         this._selection(this._config.selection?.orientation);
       }
     });
-    this.addEventListener(
+    this._uxCanvas.addEventListener(
       'touchmove',
       (ev) => {
         // prevents the browser from processing emulated mouse events
@@ -270,11 +275,11 @@ export class GuiChart extends HTMLElement {
       },
       { passive: true },
     );
-    this.addEventListener('touchcancel', () => {
+    this._uxCanvas.addEventListener('touchcancel', () => {
       this._resetCursor();
     });
 
-    this.addEventListener(
+    this._uxCanvas.addEventListener(
       'wheel',
       (event) => {
         event.stopPropagation();
@@ -369,6 +374,14 @@ export class GuiChart extends HTMLElement {
       },
       { passive: true },
     );
+
+    this.shadowRoot.append(
+      this._svg.node() as SVGSVGElement,
+      this._canvas,
+      this._uxCanvas,
+      this._tooltip,
+      this._drawer,
+    );
   }
 
   connectedCallback() {
@@ -382,19 +395,11 @@ export class GuiChart extends HTMLElement {
       this.style.position = 'relative';
     });
 
-    this.replaceChildren(
-      this._svg.node() as SVGSVGElement,
-      this._canvas,
-      this._uxCanvas,
-      this._tooltip,
-      this._drawer,
-    );
-
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    document.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
-    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
+    this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
+    this.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
 
     const obs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._disposer.disposables.push(() => obs.disconnect());
@@ -407,6 +412,10 @@ export class GuiChart extends HTMLElement {
     };
     animRef.id = requestAnimationFrame(animationCallback);
     this._disposer.disposables.push(() => cancelAnimationFrame(animRef.id));
+  }
+
+  disconnectedCallback() {
+    this._disposer.dispose();
   }
 
   private _onmouseup = (ev: MouseEvent) => {
@@ -455,8 +464,10 @@ export class GuiChart extends HTMLElement {
   };
 
   private _onmousemove = (ev: MouseEvent) => {
+    const [target] = ev.composedPath();
     if (
-      (ev.target !== this._uxCanvas && ev.target !== this._tooltip) ||
+      ev.target !== this ||
+      target !== this._uxCanvas ||
       document.documentElement.classList.contains('sl-scroll-lock')
     ) {
       this._resetCursor();
@@ -510,10 +521,6 @@ export class GuiChart extends HTMLElement {
     this.compute();
 
     this.update();
-  }
-
-  disconnectedCallback() {
-    this._disposer.dispose();
   }
 
   private _resetCursor() {

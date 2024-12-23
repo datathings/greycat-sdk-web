@@ -3,12 +3,12 @@
   grid-template-columns: auto 1fr;
   align-items: start;
   gap: var(--spacing);
+}
+label,
+gui-input-number {
+  min-width: 0;
+}
 
-  label, gui-input-number {
-    min-width: 0;
-  }
-
-  .gui-input-label {
-    align-self: center;
-  }
+.gui-input-label {
+  align-self: center;
 }

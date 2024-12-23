@@ -1,16 +1,10 @@
-import { GreyCat, IndexedDbCache, toast } from '@greycat/web';
+import { GreyCat } from '@greycat/web';
 import '@/common';
 
-try {
-  await GreyCat.init({
-    cache: new IndexedDbCache('sdk-web-playground'),
-  });
-} catch (err) {
-  toast.error(err);
-}
+await GreyCat.init();
 
 document.body.appendChild(
-  <app-layout title="Users" mainStyle={{ display: 'flex', flexDirection: 'column' }}>
+  <app-layout title="Users" mainStyle={{ display: 'grid' }}>
     <gui-users />
   </app-layout>,
 );

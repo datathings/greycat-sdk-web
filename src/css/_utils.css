@@ -58,14 +58,12 @@
   padding-bottom: calc(var(--spacing) * 2);
 }
 
-div[role='list'],
 .list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
 }
 
-div[role='list'].smart:empty::before,
 .list.smart:empty::before {
   content: 'List is empty';
   color: var(--muted-color);
@@ -73,18 +71,11 @@ div[role='list'].smart:empty::before,
   font-size: var(--sl-font-size-small);
 }
 
-div[role='row'],
 .row {
   display: flex;
   gap: var(--spacing);
 }
 
-div[role='row'] > :last-child,
-.row > :last-child {
-  padding-right: var(--spacing);
-}
-
-div[role='row-fluid'],
 .row-fluid {
   display: flex;
   gap: var(--spacing);
@@ -96,4 +87,17 @@ div[role='row-fluid'],
 
 .flex-1 {
   flex: 1;
+}
+
+.text-muted {
+  color: var(--muted-color);
+}
+
+.header-actions {
+  display: flex;
+  gap: var(--spacing);
+
+  > button {
+    width: fit-content;
+  }
 }

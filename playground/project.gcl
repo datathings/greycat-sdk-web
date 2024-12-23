@@ -45,7 +45,7 @@ type ComplexForm {
 }
 
 fn main() {
-  factory::init();
+  tx::init();
 
   if (serie_float == null) {
     init_float();

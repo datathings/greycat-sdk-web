@@ -1,23 +1,5 @@
 @import '@greycat/web/css/greycat.css';
 
-@font-face {
-  font-family: 'Open Sans';
-  font-weight: normal;
-  src: url('/OpenSans-Regular.ttf');
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-weight: bold;
-  src: url('/OpenSans-Bold.ttf');
-}
-
-@font-face {
-  font-family: 'Open Sans';
-  font-style: italic;
-  src: url('/OpenSans-Italic.ttf');
-}
-
 html,
 body {
   width: 100%;

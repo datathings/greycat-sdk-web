@@ -1,14 +1,15 @@
 import { createElement } from '@greycat/web/jsx-runtime';
-import { registerCustomElement } from '../common.js';
 import {
   AbiType,
   GCEnum,
   GCFunction,
   GCObject,
   GuiInputElement,
-  GuiInputElementElementConstructor,
-  GuiValueElement,
   std,
+  AnyValueElement,
+  registerCustomElement,
+  GuiElement,
+  css,
 } from '../../exports.js';
 
 type Props = {
@@ -20,24 +21,30 @@ export type FactoryMap = {
   [typeFqn: string]: keyof HTMLElementTagNameMap;
 };
 
-type PickGuiInputElement<T> = {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  [K in keyof T]: T[K] extends GuiInputElement<any> ? K : never;
-}[keyof T];
+type PickElement<Target, Map> = {
+  [K in keyof Map]: Map[K] extends Target ? K : never;
+}[keyof Map];
 
 export type InputElementTagNameMap = Pick<
   HTMLElementTagNameMap,
-  PickGuiInputElement<HTMLElementTagNameMap>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  PickElement<GuiInputElement<any>, HTMLElementTagNameMap>
 >;
 export type InputFactoryMap = {
   [typeFqn: string]: keyof InputElementTagNameMap;
 };
+export interface GuiInputElementElementConstructor {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  new (...params: any[]): GuiInputElement<any>;
+}
 
 /**
  * This component is **not** reactive. Do not expect that modifying `mappings` will update already created children
  * elements. Only new elements created **after** the modification will leverage the new mappings.
  */
-export class GuiFactory extends HTMLElement {
+export class GuiFactory extends GuiElement {
+  static override styles = [css(':host { display: contents; }')];
+
   /**
    * The global factory for everything not-input
    */
@@ -188,7 +195,7 @@ export class GuiFactory extends HTMLElement {
    */
   static defineFromFn(update: CustomElementFn): keyof HTMLElementTagNameMap {
     return GuiFactory.defineFromClass(
-      class extends HTMLElement implements GuiValueElement<unknown> {
+      class extends HTMLElement {
         private _value: unknown;
 
         get value() {
@@ -229,7 +236,9 @@ export class GuiFactory extends HTMLElement {
  * This component is **not** reactive. Do not expect that modifying `mappings` will update already created children
  * elements. Only new elements created **after** the modification will leverage the new mappings.
  */
-export class GuiInputFactory extends HTMLElement {
+export class GuiInputFactory extends GuiElement {
+  static override styles = [css(':host { display: contents; }')];
+
   /**
    * The global factory for inputs
    */
@@ -325,8 +334,12 @@ export class GuiInputFactory extends HTMLElement {
         return document.createElement('gui-input-unsupported');
       case 'object': {
         if (value === null) {
-          // TODO null input should be a 'Set a value' button
-          return document.createElement('gui-input-unsupported');
+          if (type) {
+            return this.createElementFromType(type);
+          }
+          const input = document.createElement('gui-input-unsupported');
+          input.message = `not nullable`;
+          return input;
         }
         if (Array.isArray(value)) {
           const input = document.createElement('gui-input-array');
@@ -421,7 +434,7 @@ export class GuiInputFactory extends HTMLElement {
 const TAG_NAME_REGEX = /[^a-z0-9-]+|^[^a-z]+/g;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type CustomElementFn<T = any> = (value: T, el: GuiValueElement, data?: any) => Node;
+export type CustomElementFn<T = any> = (value: T, el: AnyValueElement, data?: any) => Node;
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type InputElementFn<T = any> = (value: T, el: GuiInputElement<T>, data?: any) => Node;
 
@@ -451,16 +464,17 @@ GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
   [std.core.Array._type]: 'gui-table',
 });
 GuiInputFactory.global = new GuiInputFactory({
+  ['core::any']: 'gui-input-any',
   [std.core.int._type]: 'gui-input-number',
   [std.core.float._type]: 'gui-input-number',
   [std.core.bool._type]: 'gui-input-bool',
   [std.core.String._type]: 'gui-input-string',
   [std.core.char._type]: 'gui-input-string',
+  [std.core.str._type]: 'gui-input-str',
   [std.core.time._type]: 'gui-input-time',
   [std.core.duration._type]: 'gui-input-duration',
   [std.core.Array._type]: 'gui-input-array',
   [std.core.Map._type]: 'gui-input-map',
-  ['core::any']: 'gui-input-any',
   [std.core.geo._type]: 'gui-input-geo',
   [std.core.node._type]: 'gui-input-node',
   [std.core.nodeIndex._type]: 'gui-input-node-index',

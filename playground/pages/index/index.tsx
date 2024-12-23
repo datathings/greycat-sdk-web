@@ -6,7 +6,7 @@ import s from './index.module.css';
 document.body.appendChild(
   <app-layout title="Index">
     <div className={s.body}>
-      <sl-card>
+      <gui-card>
         <div slot="header">Colors</div>
         <div className={s.paletteContainer}>
           {colorPalette('primary')}
@@ -15,22 +15,30 @@ document.body.appendChild(
           {colorPalette('danger')}
           {colorPalette('neutral')}
         </div>
-      </sl-card>
+      </gui-card>
       {Array.from({ length: 6 }).map((_, i) => {
         const heading = document.createElement(`h${i + 1}`);
         heading.textContent = `Heading h${i + 1}`;
         return (
-          <sl-card className={s.noPadding}>
+          <gui-card className={s.noPadding}>
             <div slot="header">
               Heading <code>&lt;h{i + 1}&gt;</code>
             </div>
             <div className={s.list}>{heading}</div>
-          </sl-card>
+          </gui-card>
         );
       })}
-      <sl-card className={s.noPadding}>
-        <div slot="header">
+      <gui-card className={s.noPadding}>
+        <span slot="header">
           Paragraph <code>&lt;p&gt;</code>
+        </span>
+        <div slot="header">
+          <sl-button variant="text" size="small">
+            Action 0
+          </sl-button>
+          <sl-button variant="text" size="small">
+            Action 1
+          </sl-button>
         </div>
         <p>
           This is a paragraph, that contains a <span>span</span>, an <em>emphasized</em> word. But
@@ -38,10 +46,16 @@ document.body.appendChild(
           just to:
           <blockquote>Validate each stylings.</blockquote>
         </p>
-      </sl-card>
-      <sl-card className={s.noPadding}>
+      </gui-card>
+      <gui-card className={s.noPadding}>
         <div slot="header">Details</div>
-        <sl-details summary="This is the summary">
+        <gui-details>
+          <summary slot="summary">
+            Summary text
+            <sl-button variant="text" size="small">
+              Action
+            </sl-button>
+          </summary>
           <p>
             Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae
             vestibulum vestibulum. Cras venenatis euismod malesuada. Nullam ac erat ante. Proin
@@ -50,9 +64,9 @@ document.body.appendChild(
             Morbi non urna ut odio efficitur hendrerit. Quisque egestas ipsum vitae lacus lacinia,
             at consectetur enim vehicula.
           </p>
-        </sl-details>
-      </sl-card>
-      <sl-card>
+        </gui-details>
+      </gui-card>
+      <gui-card>
         <div slot="header">Buttons</div>
         <div
           style={{
@@ -132,7 +146,7 @@ document.body.appendChild(
             </div>
           </fieldset>
         </div>
-      </sl-card>
+      </gui-card>
     </div>
   </app-layout>,
 );

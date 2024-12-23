@@ -10,6 +10,9 @@ import {
 } from 'dockview-core';
 
 import { createElement } from '@greycat/web/jsx-runtime';
+import { css, GuiElement } from '../../exports.js';
+import style from './dashboard.css?inline';
+import dockviewStyle from 'dockview-core/dist/styles/dockview.css?inline';
 
 /**
  * A helper function to properly type the given props based on the component tag name.
@@ -49,13 +52,15 @@ export type GuiDashboardFetcher<S = Record<string, unknown>> = (
 // TODO updateEvery: number | undefined
 // to automatically update every component (fetch)
 
-export class GuiDashboard extends HTMLElement {
+export class GuiDashboard extends GuiElement {
+  static override styles = [css(dockviewStyle), css(style)];
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _components: Record<string, GuiDashboardComponent<any>> = {};
   private _associations: Record<string, GuiDashboardAssociation> = {};
   private _fetchers: Record<string, GuiDashboardFetcher> = {};
   private _states: Record<string, Record<string, unknown>> = {};
-  private _dockview: DockviewComponent | undefined;
+  private _dockview: DockviewComponent;
   private _updateEvery = 0;
   private _updateIntervalId = -1;
 
@@ -85,24 +90,34 @@ export class GuiDashboard extends HTMLElement {
     }
   };
 
-  connectedCallback() {
-    // ensures the dockview fits the available host size
-    this.dockview.layout(this.clientWidth, this.clientHeight);
+  constructor() {
+    super();
+
+    // const container = document.createElement('div');
+    // this.shadowRoot.appendChild(container);
+
+    this._dockview = new DockviewComponent({
+      parentElement: this.shadowRoot as unknown as HTMLElement,
+      components: {
+        default: DashboardPanel,
+      },
+    });
 
     // fire a 'gui-dashboard-update' when the layout changes
-    this.dockview.onDidLayoutChange(() => {
+    this._dockview.onDidLayoutChange(() => {
       this.dispatchEvent(new GuiDashboardUpdateEvent(this));
     });
 
     // automatically call the fetcher (if any) when a new component is added
-    this.dockview.onDidAddPanel(this.updatePanel);
+    this._dockview.onDidAddPanel(this.updatePanel);
+  }
+
+  connectedCallback() {
+    // ensures the dockview fits the available host size
+    this._dockview.layout(this.clientWidth, this.clientHeight);
 
     // create the components on mount
     this.update();
-  }
-
-  disconnectedCallback() {
-    // noop
   }
 
   /**
@@ -164,11 +179,11 @@ export class GuiDashboard extends HTMLElement {
    * This is intended to allow reloading a previously serialized model.
    */
   get model() {
-    return this.dockview.toJSON();
+    return this._dockview.toJSON();
   }
 
   set model(model: SerializedDockview) {
-    this.dockview.fromJSON(model);
+    this._dockview.fromJSON(model);
     this.update();
   }
 
@@ -187,7 +202,7 @@ export class GuiDashboard extends HTMLElement {
     updateEvery: number;
   }>) {
     if (model) {
-      this.dockview.fromJSON(model);
+      this._dockview.fromJSON(model);
     }
     this._components = components;
     this._associations = associations;
@@ -199,7 +214,7 @@ export class GuiDashboard extends HTMLElement {
   getAttrs() {
     // TODO actually call `.getAttrs()` on every components
     return {
-      model: this.dockview.toJSON(),
+      model: this._dockview.toJSON(),
       components: this._components,
       associations: this._associations,
     };
@@ -262,18 +277,6 @@ export class GuiDashboard extends HTMLElement {
         dockview.removePanel(panel);
       }
     }
-  }
-
-  get dockview() {
-    if (this._dockview === undefined) {
-      this._dockview = new DockviewComponent({
-        parentElement: this,
-        components: {
-          default: DashboardPanel,
-        },
-      });
-    }
-    return this._dockview;
   }
 }
 

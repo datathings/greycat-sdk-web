@@ -1,7 +1,10 @@
 import type { SlCheckbox, SlInput, SlSelect } from '@shoelace-style/shoelace';
-import { std, sha256hex } from '../../exports.js';
+import { std, sha256hex, GuiElement, css } from '../../exports.js';
+import style from './user-form.css?inline';
 
-export class GuiUserForm extends HTMLElement {
+export class GuiUserForm extends GuiElement {
+  static override styles = [css(style)];
+
   private readonly _user_id: SlInput;
   private readonly _username: SlInput;
   private readonly _password: SlInput;
@@ -27,8 +30,7 @@ export class GuiUserForm extends HTMLElement {
       <sl-select name="groups" label="Groups" placeholder="Define the user groups" multiple />
     ) as SlSelect;
 
-    const root = this.attachShadow({ mode: 'open' });
-    root.replaceChildren(
+    this.shadowRoot.replaceChildren(
       this._user_id,
       this._username,
       this._password,
@@ -44,13 +46,13 @@ export class GuiUserForm extends HTMLElement {
   }
 
   connectedCallback() {
-    this.updateRoles();
+    this.update();
   }
 
   /**
    * Fetches the roles from the server and updates the select list
    */
-  async updateRoles(): Promise<void> {
+  async update(): Promise<void> {
     const roles = await std.runtime.UserRole.all();
     this.roles = roles.map((r) => r.name);
   }

@@ -1,0 +1,10 @@
+gui-layout-menu > sl-button::part(base) {
+  justify-content: start;
+}
+
+.card {
+  width: 100%;
+  &::part(body) {
+    height: 500px;
+  }
+}

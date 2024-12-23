@@ -30,6 +30,18 @@ export class GuiChangeEvent<T = any> extends CustomEvent<T> {
   }
 }
 
+/**
+ * Bound to the underlying 'change' events
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export class GuiSubmitEvent<T = any> extends CustomEvent<T> {
+  static readonly NAME = 'gui-submit';
+
+  constructor(value: T) {
+    super(GuiSubmitEvent.NAME, { detail: value, bubbles: true, composed: true });
+  }
+}
+
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuiClickEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-click';
@@ -59,11 +71,11 @@ export class GuiUpdateEvent<T = any> extends CustomEvent<T> {
 
 declare global {
   interface HTMLElementEventMap {
-    // [GuiConnectedEvent.NAME]: GuiConnectedEvent;
     [GuiInputEvent.NAME]: GuiInputEvent;
     [GuiChangeEvent.NAME]: GuiChangeEvent;
     [GuiClickEvent.NAME]: GuiClickEvent;
     [GuiDblClickEvent.NAME]: GuiClickEvent;
     [GuiUpdateEvent.NAME]: GuiUpdateEvent;
+    [GuiSubmitEvent.NAME]: GuiSubmitEvent;
   }
 }

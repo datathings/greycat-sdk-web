@@ -1,67 +1,5 @@
 import { getDebuggerLogger, type GreyCat, $, core, GCObject } from './exports.js';
 
-export function getScrollBarWidth() {
-  const inner = document.createElement('p');
-  inner.style.width = '100%';
-  inner.style.height = '200px';
-
-  const outer = document.createElement('div');
-  outer.style.position = 'absolute';
-  outer.style.top = '0px';
-  outer.style.left = '0px';
-  outer.style.visibility = 'hidden';
-  outer.style.width = '200px';
-  outer.style.height = '150px';
-  outer.style.overflow = 'hidden';
-  outer.appendChild(inner);
-
-  document.body.appendChild(outer);
-  const w1 = inner.offsetWidth;
-  outer.style.overflow = 'scroll';
-  let w2 = inner.offsetWidth;
-  if (w1 == w2) {
-    w2 = outer.clientWidth;
-  }
-
-  document.body.removeChild(outer);
-
-  return w1 - w2;
-}
-
-/**
- * *If you want to call this function multiple times in a row, prefer `getCSSVars()`, as it only calls `getComputedStyle()` once*
- *
- * @param name the variable name to read
- * @param el the element to get the computed styles from (defaults to `document.body`)
- * @returns
- */
-export function getCSSVar(name: string, el: HTMLElement = document.body): string | undefined {
-  const s = getComputedStyle(el);
-  const value = s.getPropertyValue(name).trim();
-  return value.length ? value : undefined;
-}
-
-/**
- * Returns multiple values from the given names.
- *
- * *You should use this instead of `getCSSVar` if you want more than one color, because it only calls `getComputedStyle()` once (which is the bottleneck)*
- *
- * @param el the element to get the computed styles from (defaults to `document.body`)
- * @param names the variable names to read
- */
-export function getCSSVars(
-  el: HTMLElement = document.body,
-  ...names: string[]
-): Array<string | undefined> {
-  const s = getComputedStyle(el);
-  const values: Array<string | undefined> = [];
-  for (let i = 0; i < names.length; i++) {
-    const value = s.getPropertyValue(names[i]).trim();
-    values.push(value.length ? value : undefined);
-  }
-  return values;
-}
-
 /**
  * Returns the parsed values from the `getCSSVars` and `getCSSVar` values.
  * The use case is the usage of CSS vars in class chart components in Greycat.
@@ -128,53 +66,37 @@ export const processCssVars = (component: HTMLElement, cssVars: (string | undefi
 
 export function getColors(el?: HTMLElement): string[] {
   const s = getComputedStyle(el ?? document.body);
+  const defaultColor = s.getPropertyValue('--color') || 'inherit';
   const colors = [
-    s.getPropertyValue('--color-0').trim(),
-    s.getPropertyValue('--color-1').trim(),
-    s.getPropertyValue('--color-2').trim(),
-    s.getPropertyValue('--color-3').trim(),
-    s.getPropertyValue('--color-4').trim(),
-    s.getPropertyValue('--color-5').trim(),
-    s.getPropertyValue('--color-6').trim(),
-    s.getPropertyValue('--color-7').trim(),
-    s.getPropertyValue('--color-8').trim(),
-    s.getPropertyValue('--color-9').trim(),
-    s.getPropertyValue('--color-10').trim(),
-    s.getPropertyValue('--color-11').trim(),
-    s.getPropertyValue('--color-12').trim(),
+    s.getPropertyValue('--color-0').trim() || defaultColor,
+    s.getPropertyValue('--color-1').trim() || defaultColor,
+    s.getPropertyValue('--color-2').trim() || defaultColor,
+    s.getPropertyValue('--color-3').trim() || defaultColor,
+    s.getPropertyValue('--color-4').trim() || defaultColor,
+    s.getPropertyValue('--color-5').trim() || defaultColor,
+    s.getPropertyValue('--color-6').trim() || defaultColor,
+    s.getPropertyValue('--color-7').trim() || defaultColor,
+    s.getPropertyValue('--color-8').trim() || defaultColor,
+    s.getPropertyValue('--color-9').trim() || defaultColor,
+    s.getPropertyValue('--color-10').trim() || defaultColor,
+    s.getPropertyValue('--color-11').trim() || defaultColor,
+    s.getPropertyValue('--color-12').trim() || defaultColor,
   ];
   return colors;
 }
 
 export function getHeatmapColors(el?: HTMLElement): string[] {
   const s = getComputedStyle(el ?? document.body);
+  const defaultColor = s.getPropertyValue('--color') || 'inherit';
   const colors = [
-    s.getPropertyValue('--color-8').trim(),
-    s.getPropertyValue('--color-9').trim(),
-    s.getPropertyValue('--color-0').trim(),
-    s.getPropertyValue('--color-3').trim(),
-    s.getPropertyValue('--color-2').trim(),
-    s.getPropertyValue('--color-12').trim(),
+    s.getPropertyValue('--color-8').trim() || defaultColor,
+    s.getPropertyValue('--color-9').trim() || defaultColor,
+    s.getPropertyValue('--color-0').trim() || defaultColor,
+    s.getPropertyValue('--color-3').trim() || defaultColor,
+    s.getPropertyValue('--color-2').trim() || defaultColor,
+    s.getPropertyValue('--color-12').trim() || defaultColor,
   ];
   return colors;
-}
-
-export function emptyDataElement(cssClass: string) {
-  const incompleteTableEl = document.createElement('div');
-  incompleteTableEl.classList.add(cssClass);
-  incompleteTableEl.classList.add('gui-chart-incomplete');
-  incompleteTableEl.style.position = 'absolute';
-  incompleteTableEl.style.inset = '0';
-  incompleteTableEl.style.width = '100%';
-  incompleteTableEl.style.height = '100%';
-  incompleteTableEl.style.display = 'flex';
-  incompleteTableEl.style.alignItems = 'center';
-  incompleteTableEl.style.justifyContent = 'center';
-  incompleteTableEl.style.fontSize = '1em';
-  incompleteTableEl.style.textAlign = 'center';
-  incompleteTableEl.style.color = getCSSVar('--color-9') ?? 'inherit';
-  incompleteTableEl.textContent = `Table is empty or is missing an index`;
-  return incompleteTableEl;
 }
 
 /**

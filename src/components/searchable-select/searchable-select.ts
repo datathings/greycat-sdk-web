@@ -1,6 +1,4 @@
-import type { SlInput } from '@shoelace-style/shoelace';
-import { getIndexInParent } from '../../utils.js';
-import { GuiChangeEvent, GuiInputEvent } from '../events.js';
+import { css, getIndexInParent, GuiChangeEvent, GuiInputEvent, type sl } from '../../exports.js';
 import { GuiInputElement } from '../inputs/index.js';
 
 import style from './searchable-select.css?inline';
@@ -18,40 +16,33 @@ export interface GuiSearchableInputConfig {
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined> {
-  private _input: SlInput;
+  static override styles = [...GuiInputElement.styles, css(style)];
+
+  input: sl.SlInput;
   private _list: HTMLElement;
   private _options: SearchableOption[];
-
-  static STYLE: CSSStyleSheet;
-
-  static {
-    this.STYLE = new CSSStyleSheet();
-    this.STYLE.replaceSync(style);
-  }
 
   constructor() {
     super();
 
-    this.shadowRoot.adoptedStyleSheets.push(GuiSearchableSelect.STYLE);
-
     this._options = [];
 
     // Create an input element for searching
-    this._input = document.createElement('sl-input');
-    this._input.setAttribute(
+    this.input = document.createElement('sl-input');
+    this.input.setAttribute(
       'exportparts',
       'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
     );
-    this._input.type = 'search';
-    this._input.placeholder = 'Search...';
-    this._input.autocomplete = 'off';
-    this._input.clearable = true;
+    this.input.type = 'search';
+    this.input.placeholder = 'Search...';
+    this.input.autocomplete = 'off';
+    this.input.clearable = true;
     const icon = document.createElement('sl-icon');
     icon.setAttribute('slot', 'prefix');
-    this._input.appendChild(icon);
+    this.input.appendChild(icon);
     // Handle input events for filtering options
-    this._input.addEventListener('sl-input', () => {
-      const query = this._input.value.toLowerCase();
+    this.input.addEventListener('sl-input', () => {
+      const query = this.input.value.toLowerCase();
 
       this._list.querySelectorAll('div').forEach((item) => {
         const text = item.textContent?.toLowerCase() ?? '';
@@ -65,8 +56,8 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
       this.showDropdown();
     });
 
-    this._input.addEventListener('sl-clear', () => {
-      this._input.value = '';
+    this.input.addEventListener('sl-clear', () => {
+      this.input.value = '';
       this._list.querySelectorAll('div').forEach((item) => {
         item.classList.remove('hidden', 'selected');
       });
@@ -74,21 +65,21 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
       this.dispatchEvent(new GuiInputEvent(undefined));
     });
 
-    this._input.addEventListener('blur', () => {
+    this.input.addEventListener('blur', () => {
       setTimeout(() => {
         this.hideDropdown();
       }, 0);
     });
 
-    this._input.addEventListener('focus', () => {
+    this.input.addEventListener('focus', () => {
       this.showDropdown();
     });
 
-    this._input.addEventListener('click', () => {
+    this.input.addEventListener('click', () => {
       this.showDropdown();
     });
 
-    this._input.addEventListener('keydown', (ev) => {
+    this.input.addEventListener('keydown', (ev) => {
       if (ev.key === 'Escape') {
         this.hideDropdown();
         ev.preventDefault();
@@ -108,7 +99,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
             .forEach((e) => e.classList.remove('selected'));
           item.classList.add('selected');
           this.hideDropdown();
-          this._input.value = item.textContent!;
+          this.input.value = item.textContent!;
           const index = getIndexInParent(item);
           const value =
             this._options[index].value === undefined
@@ -154,7 +145,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this._list.classList.add('gui-searchable-select-list');
     this.hideDropdown();
 
-    this.shadowRoot.append(this._input, this._list);
+    this.shadowRoot.append(this.input, this._list);
   }
 
   override connectedCallback() {
@@ -167,41 +158,58 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     for (let i = 0; i < this._options.length; i++) {
       const opt = this._options[i];
       if (opt.selected) {
-        this._input.value = opt.text;
+        this.input.value = opt.text;
       }
     }
   }
 
-  override get placeholder() {
-    return this._input.placeholder;
+  override get name() {
+    return this.input.name;
   }
-
-  override set placeholder(placeholder: string) {
-    this._input.placeholder = placeholder;
+  override set name(name: string) {
+    this.input.name = name;
   }
-
+  override get autocomplete() {
+    return this.input.autocomplete;
+  }
+  override set autocomplete(value: string) {
+    this.input.autocomplete = value;
+  }
+  override get placeholder(): string {
+    return this.input.placeholder;
+  }
+  override set placeholder(value: string) {
+    this.input.placeholder = value;
+  }
   override get label() {
-    return this._input.label;
+    return this.input.label;
   }
-
   override set label(label: string) {
-    this._input.label = label;
+    this.input.label = label;
   }
-
   override get helpText() {
-    return this._input.helpText;
+    return this.input.helpText;
   }
-
   override set helpText(helpText: string) {
-    this._input.helpText = helpText;
+    this.input.helpText = helpText;
   }
-
-  get disabled() {
-    return this._input.disabled;
+  override get required() {
+    return this.input.required;
   }
-
-  set disabled(disabled: boolean) {
-    this._input.disabled = disabled;
+  override set required(required: boolean) {
+    this.input.required = required;
+  }
+  override get disabled() {
+    return this.input.disabled;
+  }
+  override set disabled(disabled: boolean) {
+    this.input.disabled = disabled;
+  }
+  override get size() {
+    return this.input.size;
+  }
+  override set size(size: sl.SlInput['size']) {
+    this.input.size = size;
   }
 
   /**
@@ -225,7 +233,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
    */
   set value(value: T | undefined) {
     if (value === undefined) {
-      this._input.value = '';
+      this.input.value = '';
     }
 
     for (let i = 0; i < this._list.children.length; i++) {
@@ -233,7 +241,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       if ((item as any).__value === value) {
         item.classList.add('selected');
-        this._input.value = item.textContent as string;
+        this.input.value = item.textContent as string;
       } else {
         item.classList.remove('selected');
       }
@@ -246,14 +254,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
 
   set options(options: SearchableOption[]) {
     this._options = options;
-    this.render();
-  }
-
-  override set config(config: GuiSearchableInputConfig) {
-    this._config = config;
-    const tmpValue = this.value;
-    this.render();
-    this.value = tmpValue;
+    this.update();
   }
 
   showDropdown(): void {
@@ -273,18 +274,13 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this._list.replaceChildren(empty);
   }
 
-  override render(): void {
+  override update(): void {
     const options = this.options;
     if (options.length === 0) {
       this._emptyList();
       return;
     }
 
-    if (this._config.nullable && options[0].value !== null) {
-      options.unshift({ text: 'null', value: null });
-    } else if (!this._config.nullable && options[0].value === null) {
-      options.shift();
-    }
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < options.length; i++) {
@@ -299,7 +295,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
       }
       itemEl.addEventListener('mousedown', (ev) => {
         ev.preventDefault();
-        this._input.value = opt.text;
+        this.input.value = opt.text;
         const selected = this._list.querySelector('div.selected');
         if (selected) {
           selected.classList.remove('selected');
@@ -308,7 +304,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
         itemEl.classList.add('selected');
         opt.selected = true;
         this.hideDropdown();
-        this._input.focus();
+        this.input.focus();
         this.dispatchEvent(new GuiChangeEvent(value));
         this.dispatchEvent(new GuiInputEvent(value));
       });

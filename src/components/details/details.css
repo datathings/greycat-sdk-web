@@ -1,0 +1,12 @@
+:host::part(header) {
+  background-color: var(--bg-0);
+  padding: calc(var(--spacing) * 0.5) var(--spacing);
+  overflow: hidden;
+  border-radius: var(--sl-border-radius-medium);
+  transition: border-radius var(--sl-transition-medium) ease;
+}
+
+:host[open]::part(header) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}

@@ -1,34 +1,34 @@
 :host {
   display: grid;
   grid-template-columns: 1fr 1fr;
+}
 
-  gui-searchable-select::part(base) {
-    border-radius: var(--border-radius) 0 0 var(--border-radius);
-  }
+gui-searchable-select::part(base) {
+  border-radius: var(--border-radius) 0 0 var(--border-radius);
+}
 
-  gui-input::part(base) {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  }
-  gui-input::part(combobox) {
-    border-radius: 0 var(--border-radius) var(--border-radius) 0;
-  }
+gui-input::part(base) {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+gui-input::part(combobox) {
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
 
-  gui-input::part(input-geo) {
-    padding-left: var(--spacing);
-    border-left: var(--border-width) solid var(--border-color);
-  }
-  gui-input::part(input-array) {
-    padding-left: var(--spacing);
-    border-left: var(--border-width) solid var(--border-color);
-  }
-  gui-input::part(input-map) {
-    padding-left: var(--spacing);
-    border-left: var(--border-width) solid var(--border-color);
-  }
-  gui-input::part(input-object) {
-    padding-left: var(--spacing);
-    border-left: var(--border-width) solid var(--border-color);
-    display: grid;
-    grid-template-columns: auto 1fr;
-  }
+gui-input::part(input-geo) {
+  padding-left: var(--spacing);
+  border-left: var(--border-width) solid var(--border-color);
+}
+gui-input::part(input-array) {
+  padding-left: var(--spacing);
+  border-left: var(--border-width) solid var(--border-color);
+}
+gui-input::part(input-map) {
+  padding-left: var(--spacing);
+  border-left: var(--border-width) solid var(--border-color);
+}
+gui-input::part(input-object) {
+  padding-left: var(--spacing);
+  border-left: var(--border-width) solid var(--border-color);
+  display: grid;
+  grid-template-columns: auto 1fr;
 }

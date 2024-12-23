@@ -1,0 +1,27 @@
+:host {
+  border: 1px solid var(--bg-0);
+  border-bottom: none;
+  border-top-left-radius: var(--border-radius);
+  border-top-right-radius: var(--border-radius);
+  background-color: var(--bg-2);
+  user-select: none;
+}
+
+.tab {
+  padding: 2px var(--spacing);
+}
+
+.tab:hover {
+  color: var(--primary-hover);
+  cursor: pointer;
+}
+
+.tab.active {
+  color: var(--primary);
+  background-color: var(--bg-0);
+}
+
+.tab.active:hover {
+  color: var(--primary);
+  cursor: default;
+}

@@ -5,13 +5,23 @@ details {
 }
 
 details > summary {
+  width: 100%;
   display: flex;
   justify-content: space-between;
   align-items: center;
   line-height: normal;
   margin-bottom: 0;
   padding: calc(var(--spacing) * 0.5);
-  background-color: var(--bg-1);
+  background-color: var(--bg-0);
+}
+
+gui-details > summary,
+sl-details > summary {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--spacing);
 }
 
 details[open] {

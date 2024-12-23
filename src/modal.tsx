@@ -1,4 +1,4 @@
-import type { sl } from './exports.js';
+import type { sl, GuiDialog } from './exports.js';
 
 export type ModalInfoProps = {
   message: string | Node;
@@ -38,11 +38,11 @@ export type ModalSelectProps = {
 export const modal = {
   info({ message, title = 'Information' }: ModalInfoProps): void {
     const dialog = (
-      <sl-dialog>
+      <gui-dialog>
         <header slot="label">{title}</header>
         {message}
-      </sl-dialog>
-    ) as sl.SlDialog;
+      </gui-dialog>
+    ) as GuiDialog;
 
     document.body.appendChild(dialog);
     setTimeout(() => {
@@ -62,7 +62,7 @@ export const modal = {
     let resolved = false;
     const promise = new Promise<boolean>((resolve) => {
       const dialog = (
-        <sl-dialog label={title}>
+        <gui-dialog label={title}>
           {message}
           <sl-button
             slot="footer"
@@ -87,8 +87,8 @@ export const modal = {
           >
             {confirm}
           </sl-button>
-        </sl-dialog>
-      ) as sl.SlDialog;
+        </gui-dialog>
+      ) as GuiDialog;
 
       document.body.appendChild(dialog);
       setTimeout(() => {
@@ -120,7 +120,7 @@ export const modal = {
       const input = (<sl-input autofocus {...inputProps} />) as sl.SlInput;
 
       const dialog = (
-        <sl-dialog label={title}>
+        <gui-dialog label={title}>
           {input}
           <sl-button
             slot="footer"
@@ -139,8 +139,8 @@ export const modal = {
           >
             {confirm}
           </sl-button>
-        </sl-dialog>
-      ) as sl.SlDialog;
+        </gui-dialog>
+      ) as GuiDialog;
 
       dialog.addEventListener('sl-after-hide', () => {
         dialog.remove();
@@ -189,7 +189,7 @@ export const modal = {
       }
 
       const dialog = (
-        <sl-dialog label={title}>
+        <gui-dialog label={title}>
           {select}
           <sl-button
             slot="footer"
@@ -208,8 +208,8 @@ export const modal = {
           >
             {confirm}
           </sl-button>
-        </sl-dialog>
-      ) as sl.SlDialog;
+        </gui-dialog>
+      ) as GuiDialog;
 
       dialog.addEventListener('sl-after-hide', (ev) => {
         if (ev.target === dialog) {

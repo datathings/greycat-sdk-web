@@ -1,0 +1,7 @@
+sl-tag {
+  padding-right: var(--spacing);
+}
+
+sl-tag:last-child {
+  padding-right: 0;
+}

@@ -11,9 +11,14 @@ import {
   ChartConfig,
   ScaleType,
   MarkerShape,
+  css,
+  GuiElement,
 } from '../../exports.js';
+import style from './chart-config.css?inline';
 
-export class GuiChartConfig extends HTMLElement {
+export class GuiChartConfig extends GuiElement {
+  static override styles = [css(style)];
+
   private _value: ChartConfig = {
     xAxis: {},
     yAxes: {},
@@ -57,24 +62,24 @@ export class GuiChartConfig extends HTMLElement {
     });
 
     this.addEventListener('sl-change', () => this.updateValidity());
-  }
 
-  connectedCallback() {
-    this.replaceChildren(
+    this.shadowRoot.appendChild(
       <div className="list">
         {this._xAxis}
         {this._yAxes}
         {this._series}
-        <sl-details>
-          <header slot="summary">Options</header>
+        <gui-details summary="Options">
           <div className="list">
             {this._cursor}
             {this._tooltip}
             {this._selection}
           </div>
-        </sl-details>
+        </gui-details>
       </div>,
     );
+  }
+
+  connectedCallback() {
     this.update();
   }
 
@@ -118,14 +123,14 @@ export class GuiChartConfig extends HTMLElement {
   }
 
   updateValidity(): void {
-    this.querySelectorAll('sl-details').forEach((details) => {
-      const header = details.querySelector('header > span');
-      if (header instanceof HTMLElement) {
+    this.querySelectorAll('gui-details').forEach((details) => {
+      const summary = details.querySelector('summary > span');
+      if (summary instanceof HTMLElement) {
         if (details.querySelector('[data-user-invalid], [data-invalid]')) {
-          header.style.color = 'var(--sl-color-danger-700)';
+          summary.style.color = 'var(--sl-color-danger-700)';
           this.invalid = true;
         } else {
-          header.style.color = 'unset';
+          summary.style.color = 'unset';
           this.invalid = false;
         }
       }
@@ -165,8 +170,8 @@ export class GuiChartYAxesInput extends HTMLElement {
 
   connectedCallback() {
     this.replaceChildren(
-      <sl-details open>
-        <header slot="summary" className="gui-chart-config-summary">
+      <gui-details open>
+        <summary slot="summary">
           <span>yAxes</span>
           <sl-button
             variant="text"
@@ -190,9 +195,9 @@ export class GuiChartYAxesInput extends HTMLElement {
           >
             Add
           </sl-button>
-        </header>
+        </summary>
         {this._axes}
-      </sl-details>,
+      </gui-details>,
     );
 
     this.update();
@@ -358,7 +363,7 @@ export class GuiChartSelectionInput extends HTMLElement {
 export class GuiChartAxisInput extends HTMLElement {
   protected _value: Axis = {};
 
-  protected _header: HTMLElement;
+  protected _summary: HTMLElement;
   protected _scale: sl.SlSelect;
   protected _min: sl.SlInput;
   protected _max: sl.SlInput;
@@ -369,7 +374,7 @@ export class GuiChartAxisInput extends HTMLElement {
   constructor() {
     super();
 
-    this._header = (<span>Axis</span>) as HTMLElement;
+    this._summary = (<span>Axis</span>) as HTMLElement;
     this._scale = (
       <sl-select size="small" label="Scale">
         <sl-option value="linear">linear</sl-option>
@@ -435,33 +440,33 @@ export class GuiChartAxisInput extends HTMLElement {
 
   connectedCallback() {
     const root = (
-      <sl-details>
-        <header slot="summary">{this._header}</header>
+      <gui-details>
+        <summary slot="summary">{this._summary}</summary>
         <div className="list">
           {this._scale}
           {this._min}
           {this._max}
           {this._ratio}
-          <sl-details>
-            <header slot="summary">Styles</header>
+          <gui-details>
+            <summary slot="summary">Styles</summary>
             <div className="list">
               {this._format}
               {this._cursorFormat}
             </div>
-          </sl-details>
+          </gui-details>
         </div>
-      </sl-details>
+      </gui-details>
     ) as sl.SlDetails;
     this.replaceChildren(root);
     this.update();
   }
 
   get header() {
-    return this._header.textContent ?? '';
+    return this._summary.textContent ?? '';
   }
 
   set header(header: string) {
-    this._header.textContent = header;
+    this._summary.textContent = header;
   }
 
   get value(): Axis {
@@ -577,7 +582,7 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
         label="Name"
         helpText="The name to use for 'yAxis' in series"
         onsl-input={() => {
-          this._header.textContent = this._name.value;
+          this._summary.textContent = this._name.value;
         }}
       />
     ) as sl.SlInput;
@@ -592,9 +597,9 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
 
   override connectedCallback() {
     this.replaceChildren(
-      <sl-details>
-        <header slot="summary" className="gui-chart-config-summary">
-          {this._header}
+      <gui-details>
+        <summary slot="summary">
+          {this._summary}
           <sl-button
             variant="text"
             size="small"
@@ -606,7 +611,7 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
           >
             Del
           </sl-button>
-        </header>
+        </summary>
         <div className="list">
           {this._name}
           {this._scale}
@@ -614,22 +619,21 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
           {this._max}
           {this._ratio}
           {this._position}
-          <sl-details>
-            <header slot="summary">Style</header>
+          <gui-details summary="Style">
             <div className="list">
               {this._format}
               {this._cursorFormat}
             </div>
-          </sl-details>
+          </gui-details>
         </div>
-      </sl-details>,
+      </gui-details>,
     );
 
     this.update();
   }
 
   override get header() {
-    return this._header.textContent ?? '';
+    return this._summary.textContent ?? '';
   }
 
   override set header(name: string) {
@@ -665,7 +669,7 @@ export class GuiChartSerieInput extends HTMLElement {
   private _value: Serie = { type: 'line', yAxis: '', yCol: 0 };
   private _yAxes: string[] = [];
 
-  private _header: HTMLElement;
+  private _summary: HTMLElement;
   private _hide: sl.SlCheckbox;
   private _title: sl.SlInput;
   private _type: sl.SlSelect;
@@ -728,14 +732,14 @@ export class GuiChartSerieInput extends HTMLElement {
   constructor() {
     super();
 
-    this._header = (<span>Serie</span>) as HTMLElement;
+    this._summary = (<span>Serie</span>) as HTMLElement;
     this._hide = (<sl-checkbox helpText="Prevents drawing">Hide</sl-checkbox>) as sl.SlCheckbox;
     this._title = (
       <sl-input
         size="small"
         label="Title"
         onsl-input={() => {
-          this._header.textContent = this._title.value || 'Serie';
+          this._summary.textContent = this._title.value || 'Serie';
         }}
       />
     ) as sl.SlInput;
@@ -819,9 +823,9 @@ export class GuiChartSerieInput extends HTMLElement {
 
   connectedCallback() {
     this.replaceChildren(
-      <sl-details>
-        <header slot="summary" className="gui-chart-config-summary">
-          {this._header}
+      <gui-details>
+        <summary slot="summary">
+          {this._summary}
           <sl-button
             variant="text"
             size="small"
@@ -833,7 +837,7 @@ export class GuiChartSerieInput extends HTMLElement {
           >
             Del
           </sl-button>
-        </header>
+        </summary>
         <div className="list">
           {this._title}
           {this._type}
@@ -846,8 +850,7 @@ export class GuiChartSerieInput extends HTMLElement {
           {this._spanCol0}
           {this._spanCol1}
           {this._baseline}
-          <sl-details>
-            <header slot="summary">Style</header>
+          <gui-details summary="Style">
             <div className="list">
               {this._plotRadius}
               <div className="gui-chart-config-input-field">
@@ -862,20 +865,20 @@ export class GuiChartSerieInput extends HTMLElement {
                 {this._markerColor}
               </div>
             </div>
-          </sl-details>
+          </gui-details>
         </div>
-      </sl-details>,
+      </gui-details>,
     );
 
     this.update();
   }
 
   get header() {
-    return this._header.textContent ?? '';
+    return this._summary.textContent ?? '';
   }
 
   set header(header: string) {
-    this._header.textContent = header;
+    this._summary.textContent = header;
     this._title.value = header;
   }
 
@@ -1015,7 +1018,7 @@ export class GuiChartSerieInput extends HTMLElement {
       return;
     }
 
-    this._header.textContent = this._value.title ?? 'Serie';
+    this._summary.textContent = this._value.title ?? 'Serie';
     this._title.value = this._value.title ?? '';
 
     this._type.setAttribute('value', this._value.type);
@@ -1102,8 +1105,8 @@ export class GuiChartSeriesInput extends HTMLElement {
 
   connectedCallback() {
     this.replaceChildren(
-      <sl-details open>
-        <header slot="summary" className="gui-chart-config-summary">
+      <gui-details open>
+        <summary slot="summary">
           <span>Series</span>
           <sl-button
             variant="text"
@@ -1120,9 +1123,9 @@ export class GuiChartSeriesInput extends HTMLElement {
           >
             Add
           </sl-button>
-        </header>
+        </summary>
         {this._series}
-      </sl-details>,
+      </gui-details>,
     );
 
     this.update();

@@ -239,11 +239,6 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   }
 
   connectedCallback() {
-    const style = getComputedStyle(this);
-    if (style.display === 'inline') {
-      // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
-      this.style.display = 'block';
-    }
     this._colors = getColors(this);
 
     const container = document.createElement('div');

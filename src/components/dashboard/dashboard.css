@@ -1,32 +1,5 @@
-@import '../../../node_modules/dockview-core/dist/styles/dockview.css';
-
-gui-dashboard {
-  display: contents;
-
-  .groupview > .content-container {
-    display: grid !important;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .branch-node > .split-view-container > .view-container:empty {
-    justify-content: center;
-    align-items: center;
-    display: flex;
-
-    &::after {
-      content: 'No selection';
-      color: var(--muted-color);
-    }
-  }
-
-  .tabs-and-actions-container .tabs-container {
-    scrollbar-width: auto;
-  }
-}
-
 /* default dark theme */
-gui-dashboard {
+:host {
   --dv-background-color: var(--bg-2);
   --dv-paneview-active-outline-color: var(--primary);
   --dv-tabs-and-actions-container-font-size: 13px;
@@ -44,4 +17,27 @@ gui-dashboard {
   --dv-activegroup-visiblepanel-tab-color: var(--text);
   --dv-inactivegroup-visiblepanel-tab-color: var(--text-2);
   --dv-separator-border: var(--bg-0);
+
+  display: contents;
+}
+
+.groupview > .content-container {
+  display: grid !important;
+  position: relative;
+  overflow: hidden;
+}
+
+.branch-node > .split-view-container > .view-container:empty {
+  justify-content: center;
+  align-items: center;
+  display: flex;
+}
+
+.branch-node > .split-view-container > .view-container:empty::after {
+  content: 'No selection';
+  color: var(--muted-color);
+}
+
+.tabs-and-actions-container .tabs-container {
+  scrollbar-width: auto;
 }

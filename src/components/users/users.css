@@ -1,23 +1,23 @@
-gui-users {
+:host {
   display: contents;
+}
 
-  sl-card::part(header) {
-    --border-width: 0;
-  }
+gui-card::part(header) {
+  --border-width: 0;
+}
 
-  sl-card::part(body) {
-    padding: 0;
-  }
+gui-card::part(body) {
+  padding: 0;
+}
 
-  gui-table {
-    min-height: var(--gui-users-table-min-height);
+gui-table {
+  min-height: var(--gui-table-min-height);
+}
 
-    > gui-search-input::part(base) {
-      border-radius: 0;
-    }
-  }
+gui-table > gui-search-input::part(base) {
+  border-radius: 0;
+}
 
-  gui-tbody-row:hover {
-    cursor: pointer;
-  }
+gui-tbody-row:hover {
+  cursor: pointer;
 }

@@ -1,37 +1,34 @@
-gui-periodic-task-list {
-  > table {
-    margin-bottom: 0;
-
-    > thead > tr > th:last-child,
-    > tbody > tr > td:last-child {
-      text-align: right;
-    }
-
-    > tbody tr:nth-child(odd):hover,
-    > tbody tr:nth-child(even):hover {
-      cursor: pointer;
-      background-color: rgba(var(--base-1), 0.8);
-    }
-  }
-
-  .gui-periodic-task-dialog {
-    --width: 95vw;
-    --fieldset-label-width: 150px;
-
-    > article {
-      > div {
-        padding: var(--spacing);
-
-        .gui-input-labelled-fieldset > label {
-          width: var(--fieldset-label-width);
-        }
-      }
-    }
-  }
+table {
+  margin-bottom: 0;
 }
 
+table > thead > tr > th:last-child,
+table > tbody > tr > td:last-child {
+  text-align: right;
+}
+
+table > tbody tr:nth-child(odd):hover,
+table > tbody tr:nth-child(even):hover {
+  cursor: pointer;
+  background-color: rgba(var(--base-1), 0.8);
+}
+
+.gui-periodic-task-dialog {
+  --width: 95vw;
+  --fieldset-label-width: 150px;
+}
+
+.gui-periodic-task-dialog > article > div {
+  padding: var(--spacing);
+}
+
+.gui-periodic-task-dialog > article > div > .gui-input-labelled-fieldset > label {
+  width: var(--fieldset-label-width);
+}
+
+
 @media (min-width: 992px) {
-  gui-periodic-task-list {
+  :host {
     .gui-periodic-task-dialog {
       --width: 650px;
     }

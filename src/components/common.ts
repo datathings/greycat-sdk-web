@@ -1,4 +1,5 @@
 import { AbiType, std, core } from '../exports.js';
+import componentStyle from './styles.component.css?inline';
 
 declare global {
   interface HTMLElementEventMap {
@@ -14,8 +15,14 @@ export function customElement(tagName: string) {
   };
 }
 
+export function css(text: string): CSSStyleSheet {
+  const stylesheet = new CSSStyleSheet();
+  stylesheet.replaceSync(text);
+  return stylesheet;
+}
+
 export function attr() {
-  return function attrDecorator<T, E extends GuiElement<T>, K extends keyof E>(
+  return function attrDecorator<T, E extends GuiValueElement<T>, K extends keyof E>(
     target: E,
     propertyKey: K,
   ): void {
@@ -38,7 +45,24 @@ export function attr() {
   };
 }
 
-export abstract class GuiElement<T> extends HTMLElement {
+export abstract class GuiElement extends HTMLElement {
+  static readonly styles = [css(componentStyle)];
+
+  /** Returns this element's shadow root */
+  override shadowRoot!: ShadowRoot;
+
+  constructor() {
+    super();
+
+    this.attachShadow({ mode: 'open' });
+    this.shadowRoot.adoptedStyleSheets = [...GuiElement.styles, ...(this.constructor as typeof GuiElement).styles];
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type AnyValueElement = HTMLElement & { value: any };
+
+export abstract class GuiValueElement<T = unknown> extends GuiElement {
   abstract value: T;
   protected _updatePending: boolean;
   updateComplete: Promise<void>;

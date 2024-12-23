@@ -1,13 +1,16 @@
-gui-table {
+:host {
   --icon-sort-default: unset;
   --icon-sort-asc: ↓;
   --icon-sort-desc: ↑;
   --table-background-color: var(--bg-1);
+  --gui-table-filter-border-top-left-radius: var(--border-radius);
+  --gui-table-filter-border-top-right-radius: var(--border-radius);
 
   position: relative;
   display: grid;
   grid-template-rows: min-content 1fr;
   overflow: hidden;
+  min-height: var(--gui-table-min-height);
   height: 100%;
   width: 100%;
   background-color: var(--table-background-color);
@@ -16,19 +19,19 @@ gui-table {
 .gui-table-filter {
   visibility: hidden;
   height: 0;
-
-  &::part(base) {
-    border-bottom-left-radius: 0;
-    border-bottom-right-radius: 0;
-  }
 }
-
+.gui-table-filter::part(base) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: var(--gui-table-filter-border-top-left-radius);
+  border-top-right-radius: var(--gui-table-filter-border-top-right-radius);
+}
 .gui-table-filter.visible {
   visibility: visible;
   height: fit-content;
 }
 
-gui-table .gui-table {
+.gui-table {
   position: relative;
   display: grid;
   grid-template-rows: min-content 1fr;

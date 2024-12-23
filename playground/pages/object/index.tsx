@@ -1,4 +1,4 @@
-import { GreyCat, type sl } from '@greycat/web';
+import { GreyCat, runtime, type sl } from '@greycat/web';
 import '@/common';
 
 const greycat = await GreyCat.init();
@@ -38,5 +38,8 @@ document.body.appendChild(
     <sl-checkbox onsl-change={toggleObjectHeader}>Object with header</sl-checkbox>
     <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>
     {objectEl}
+    <sl-divider />
+    <gui-object header value={await runtime.Runtime.info()} />
+    <gui-object value={['One', 'Two', 'Three']} />
   </app-layout>,
 );

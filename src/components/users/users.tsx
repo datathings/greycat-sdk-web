@@ -1,11 +1,18 @@
-import { core, std, toast } from '../../exports.js';
-import { registerCustomElement } from '../common.js';
+import {
+  core,
+  std,
+  toast,
+  registerCustomElement,
+  GuiElement,
+  type GuiTable,
+  GuiDialog,
+  css,
+} from '../../exports.js';
 import '../table/table.js'; // ensure gui-table is defined
-import type { GuiTable } from '../table/table.js';
 import '../user-form/user-form.js'; // ensure gui-user-form is defined
 import './user-group-policy.js';
 import type { GuiUserForm } from '../user-form/user-form.js';
-import type { SlDialog } from '@shoelace-style/shoelace';
+import style from './users.css?inline';
 
 type GroupItem = {
   id: number | bigint;
@@ -13,9 +20,11 @@ type GroupItem = {
   policy: std.runtime.UserGroupPolicy;
 };
 
-export class GuiUsers extends HTMLElement {
+export class GuiUsers extends GuiElement {
+  static override styles = [css(style)];
+
   private _table: GuiTable;
-  private _dialog: SlDialog;
+  private _dialog: GuiDialog;
   private _userForm: GuiUserForm;
 
   constructor() {
@@ -60,31 +69,29 @@ export class GuiUsers extends HTMLElement {
       this._onEdit(user);
     });
 
-    this._dialog = document.createElement('sl-dialog');
+    this._dialog = document.createElement('gui-dialog');
+
+    this.shadowRoot.append(
+      <gui-card>
+        <header slot="header">
+          Users
+          <div className="header-actions">
+            <sl-button variant="text" onclick={this._onCreate}>
+              Create
+            </sl-button>
+          </div>
+        </header>
+        {this._table}
+      </gui-card>,
+      this._dialog,
+    );
   }
 
   connectedCallback() {
-    this.replaceChildren(
-      <>
-        <sl-card>
-          <header slot="header">
-            Users
-            <div className="header-actions">
-              <sl-button variant="text" onclick={this._onCreate}>
-                Create
-              </sl-button>
-            </div>
-          </header>
-          {this._table}
-        </sl-card>
-        {this._dialog}
-      </>,
-    );
-
-    this.reload();
+    this.update();
   }
 
-  async reload(): Promise<void> {
+  async update(): Promise<void> {
     try {
       const entities = await std.runtime.SecurityEntity.all();
       const groups: std.runtime.UserGroup[] = [];
@@ -97,7 +104,7 @@ export class GuiUsers extends HTMLElement {
         }
       }
 
-      await this._userForm.updateRoles();
+      await this._userForm.update();
       this._userForm.groups = groups;
 
       const rows: Array<Array<unknown>> = new Array(users.length);
@@ -147,7 +154,7 @@ export class GuiUsers extends HTMLElement {
           onclick={async () => {
             try {
               await this._userForm.updateUser();
-              this.reload();
+              this.update();
               this._dialog.hide();
             } catch {
               // handle problems
@@ -186,7 +193,7 @@ export class GuiUsers extends HTMLElement {
           onclick={async () => {
             try {
               await this._userForm.createUser();
-              this.reload();
+              this.update();
               this._dialog.hide();
             } catch (err) {
               toast.error(err);
@@ -207,14 +214,10 @@ declare global {
     'gui-users': GuiUsers;
   }
 
-  interface GuiUsersEventMap {}
-
-  interface HTMLElementEventMap extends GuiUsersEventMap {}
-
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'gui-users': GreyCat.Element<GuiUsers, GuiUsersEventMap>;
+        'gui-users': GreyCat.Element<GuiUsers>;
       }
     }
   }

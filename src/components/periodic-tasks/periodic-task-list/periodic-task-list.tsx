@@ -1,15 +1,23 @@
-import { GreyCat, prettyError, std, $ } from '../../../exports.js';
-import '../../object/index.js'; // ensures gui-object is loaded
-import '../../inputs/index.js'; // ensures gui-input (and the likes) are loaded
-import { GuiInput } from '../../inputs/index.js';
-import type { SlDialog } from '@shoelace-style/shoelace';
+import {
+  GreyCat,
+  prettyError,
+  std,
+  $,
+  type sl,
+  GuiInput,
+  GuiElement,
+  css,
+} from '../../../exports.js';
+import style from './periodic-task-list.css?inline';
 
-export class GuiPeriodicTaskList extends HTMLElement {
+export class GuiPeriodicTaskList extends GuiElement {
+  static override styles = [css(style)];
+
   private static NOOP = () => void 0;
 
   private _tasks: std.runtime.PeriodicTask[] = [];
   private _tbody = document.createElement('tbody');
-  private _dialog: SlDialog;
+  private _dialog: sl.SlDialog;
   private _dialogContent = document.createElement('div');
   private _dialogUpdateTask = GuiPeriodicTaskList.NOOP;
   private _greycat = $.default;
@@ -51,11 +59,9 @@ export class GuiPeriodicTaskList extends HTMLElement {
           Update
         </sl-button>
       </sl-dialog>
-    ) as SlDialog;
-  }
+    ) as sl.SlDialog;
 
-  connectedCallback() {
-    this.appendChild(
+    this.shadowRoot.appendChild(
       <>
         <table role="grid">
           <thead>
@@ -86,8 +92,8 @@ export class GuiPeriodicTaskList extends HTMLElement {
     );
   }
 
-  disconnectedCallback() {
-    this.replaceChildren();
+  connectedCallback() {
+    this.update();
   }
 
   async deleteAll(): Promise<void> {
@@ -96,7 +102,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     // update task list
     await std.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
-    this.render();
+    this.update();
   }
 
   async deleteTask(index: number): Promise<void> {
@@ -105,7 +111,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     // update task list
     await std.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
-    this.render();
+    this.update();
   }
 
   showTask(index: number): void {
@@ -132,7 +138,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     }
   }
 
-  render() {
+  update() {
     const fragment = document.createDocumentFragment();
     for (let i = 0; i < this._tasks.length; i++) {
       const task = this._tasks[i];
@@ -183,7 +189,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
     try {
       await std.runtime.PeriodicTask.set(tasks, this._greycat);
       this._tasks = tasks;
-      this.render();
+      this.update();
     } catch (err) {
       console.error(prettyError(err, 'something went wrong while updating tasks'));
     }
@@ -191,7 +197,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
 
   async reloadTasks(): Promise<void> {
     this._tasks = await std.runtime.PeriodicTask.all(this._greycat);
-    this.render();
+    this.update();
   }
 
   get value() {
@@ -200,7 +206,7 @@ export class GuiPeriodicTaskList extends HTMLElement {
 
   set value(value: std.runtime.PeriodicTask[]) {
     this._tasks = value;
-    this.render();
+    this.update();
   }
 
   set greycat(greycat: GreyCat) {

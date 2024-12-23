@@ -1,0 +1,12 @@
+.card__header,
+.card__footer {
+  --sl-input-height-medium: var(--line-height);
+  padding: calc(var(--padding) / 2) var(--padding);
+
+  background-color: var(--bg-0);
+  font-weight: bold;
+}
+.card__body {
+  background-color: var(--bg-1);
+}
+

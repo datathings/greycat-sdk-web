@@ -1,9 +1,6 @@
 @import './shoelace/_dark.css';
 @import './shoelace/_light.css';
 @import './shoelace/_theme.css';
-@import './shoelace/_card.css';
-@import './shoelace/_details.css';
-@import './shoelace/_dialog.css';
 @import './shoelace/_inputs.css';
 @import './shoelace/_drawer.css';
 @import './shoelace/_tabs.css';

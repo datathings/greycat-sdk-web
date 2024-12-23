@@ -1,0 +1,16 @@
+:host {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  grid-template-columns: 1fr;
+  height: 100%;
+}
+
+.splitPanel {
+  overflow: hidden;
+}
+
+.content {
+  display: grid;
+  overflow: auto;
+  background-color: var(--bg-2);
+}

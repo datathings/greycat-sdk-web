@@ -1,17 +1,34 @@
-import { core, type GuiTable, io, registerCustomElement, std, modal } from '../../../exports.js';
+import {
+  core,
+  type GuiTable,
+  io,
+  registerCustomElement,
+  std,
+  GuiElement,
+  css,
+  GuiDialog,
+} from '../../../exports.js';
 import '../../table/index.js'; // ensures table is defined
-export class GuiCsvStatistics2 extends HTMLElement {
+import '../../tabs/index.js';
+// import '../../donut/index.js';
+import style from './csv-statistics2.css?inline';
+
+export class GuiCsvStatistics2 extends GuiElement {
+  static override styles = [css(style)];
+
   private _stats: std.io.CsvStatistics | null | undefined;
   private _table: GuiTable;
+  private _dialog: GuiDialog;
 
   constructor() {
     super();
 
     this._table = document.createElement('gui-table');
+    this._dialog = document.createElement('gui-dialog');
+    this.shadowRoot.append(this._table, this._dialog);
   }
 
   connectedCallback() {
-    this.replaceChildren(this._table);
     this.update();
   }
 
@@ -34,7 +51,6 @@ export class GuiCsvStatistics2 extends HTMLElement {
       return;
     }
 
-    console.log(this._stats);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const table = core.Table.fromRows<any[]>([
       ['Column offset (zero-based)', ...this._stats.columns.map((_, i) => i)],
@@ -83,26 +99,27 @@ export class GuiCsvStatistics2 extends HTMLElement {
       cTotal += BigInt(count);
     }
 
-    modal.info({
-      title: column.name ?? '',
-      message: (
-        <gui-tabs>
-          <gui-tab className="activeTab">Enumerable Count</gui-tab>
-          <gui-tab>Enumerable Count (Donut)</gui-tab>
+    this._dialog.label = `Column: ${column.name ?? '<unknown>'}`;
+    this._dialog.replaceChildren(
+      <gui-tabs className="tabs">
+        <gui-tab slot="tab" active>
+          Enumerable Count
+        </gui-tab>
+        {/* <gui-tab slot="tab">Enumerable Count (Donut)</gui-tab> */}
 
-          <gui-panel data-tab="Enumerable Count">
-            <gui-table
-              globalFilter
-              headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
-              value={core.Table.create([words, counts])}
-            />
-          </gui-panel>
-          <gui-panel data-tab="Enumerable Count (Donut)">
-            <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
-          </gui-panel>
-        </gui-tabs>
-      ),
-    });
+        <gui-panel slot="panel" tab="Enumerable Count">
+          <gui-table
+            globalFilter
+            headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
+            value={core.Table.create([words, counts])}
+          />
+        </gui-panel>
+        {/* <gui-panel slot="panel" tab="Enumerable Count (Donut)">
+          <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
+        </gui-panel> */}
+      </gui-tabs>,
+    );
+    this._dialog.show();
   }
 }
 
@@ -195,7 +212,7 @@ const nullCount = (c: io.CsvColumnStatistics) => {
 };
 
 type NullMapper = (prop: keyof io.CsvColumnStatistics) => (c: io.CsvColumnStatistics) => string;
-const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : c[prop] as string);
+const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : (c[prop] as string));
 
 const example = (c: io.CsvColumnStatistics) => {
   if (typeof c.example === 'string') {

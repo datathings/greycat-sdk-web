@@ -1,9 +1,7 @@
-import { GuiValueElement } from '../table/table.js';
+import { css, GuiElement } from '../../exports.js';
 
-export class GuiUserGroupPolicy extends HTMLElement implements GuiValueElement {
-  connectedCallback() {
-    this.style.display = 'contents';
-  }
+export class GuiUserGroupPolicy extends GuiElement {
+  static override styles = [css(':host { display: contents; }')];
 
   set value(value: Array<{ id: number | bigint; name: string }> | null) {
     if (value && value.length > 0) {
@@ -15,9 +13,9 @@ export class GuiUserGroupPolicy extends HTMLElement implements GuiValueElement {
           fragment.appendChild(document.createTextNode(', '));
         }
       }
-      this.replaceChildren(fragment);
+      this.shadowRoot.replaceChildren(fragment);
     } else {
-      this.replaceChildren();
+      this.shadowRoot.replaceChildren();
     }
   }
 }

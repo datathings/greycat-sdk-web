@@ -1,5 +1,6 @@
-import { AbiType, utils, getGlobalNumberFormat } from '../../exports.js';
+import { AbiType, utils, getGlobalNumberFormat, GuiElement, css } from '../../exports.js';
 import { Disposable } from '../../internals.js';
+import style from './value.css?inline';
 
 export type ClickHandler<T = unknown> = (
   e: MouseEvent,
@@ -32,7 +33,9 @@ export interface GuiValueProps {
 /**
  * Tries to give a simple textual representation of any given GreyCat (or vanilla js) value
  */
-export class GuiValue extends HTMLElement implements GuiValueProps {
+export class GuiValue extends GuiElement implements GuiValueProps {
+  static override styles = [css(style)];
+
   protected _dateFmt: Intl.DateTimeFormat | undefined;
   protected _numFmt: Intl.NumberFormat | undefined;
   protected _value: unknown;
@@ -197,13 +200,21 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
     };
   }
 
+  connectedCallback() {
+    this.update();
+  }
+
   disconnectedCallback() {
     this._disposeClickHandler?.();
-    this.replaceChildren();
   }
 
   update() {
+    if (!this.isConnected) {
+      return;
+    }
+
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
+    let element: Node;
 
     if (Array.isArray(this._value)) {
       this._disposeClickHandler?.();
@@ -252,60 +263,47 @@ export class GuiValue extends HTMLElement implements GuiValueProps {
         }
       }
       children.appendChild(document.createTextNode(']'));
-      this.replaceChildren(children);
-      return;
-    }
-
-    if (this._value instanceof AbiType) {
-      this.textContent = `<${this._value.name}>`;
+      element = children;
+    } else if (this._value instanceof AbiType) {
+      this.shadowRoot.replaceChildren(document.createTextNode(`<${this._value.name}>`));
       this.title = this._value.name;
       return;
-    }
-
-    // reset content
-    const content = utils.stringify({
-      value: this._value,
-      name: this._name,
-      tiny: this._tiny,
-      text: this._text,
-      dateFmt: this._dateFmt,
-      numFmt,
-    });
-
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    let el: HTMLElement = this;
-
-    // make sure previous handlers are removed
-    this._disposeClickHandler?.();
-    let linkify = false;
-    if (typeof this._linkify === 'boolean') {
-      linkify = this._linkify;
     } else {
-      linkify = this._linkify(this._value);
-    }
-    if (linkify) {
-      this.textContent = null;
-      const link = document.createElement('a');
-      const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, content, this._data);
-      link.addEventListener('auxclick', onclick);
-      link.addEventListener('click', onclick);
-      this._disposeClickHandler = () => {
-        link.removeEventListener('click', onclick);
-        link.removeEventListener('auxclick', onclick);
-      };
-      this.appendChild(link);
-      el = link;
+      const text = utils.stringify({
+        value: this._value,
+        name: this._name,
+        tiny: this._tiny,
+        text: this._text,
+        dateFmt: this._dateFmt,
+        numFmt,
+      });
+
+      // make sure previous handlers are removed
+      this._disposeClickHandler?.();
+      let linkify = false;
+      if (typeof this._linkify === 'boolean') {
+        linkify = this._linkify;
+      } else {
+        linkify = this._linkify(this._value);
+      }
+      if (linkify) {
+        const link = document.createElement('a');
+        const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, text, this._data);
+        link.addEventListener('auxclick', onclick);
+        link.addEventListener('click', onclick);
+        this._disposeClickHandler = () => {
+          link.removeEventListener('click', onclick);
+          link.removeEventListener('auxclick', onclick);
+        };
+        link.textContent = text;
+        this.shadowRoot.appendChild(link);
+        element = link;
+      } else {
+        element = document.createTextNode(text);
+      }
     }
 
-    el.textContent = content;
-    // if (el.title.length === 0) {
-    //   el.title = utils.stringify({
-    //     value: this._value,
-    //     dateFmt: this._dateFmt,
-    //     numFmt,
-    //     pretty: true,
-    //   });
-    // }
+    this.shadowRoot.replaceChildren(element);
   }
 }
 

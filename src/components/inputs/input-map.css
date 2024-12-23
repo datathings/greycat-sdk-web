@@ -1,33 +1,31 @@
 :host {
-  & {
-    display: grid;
-    grid-template-columns: 1fr;
-    row-gap: var(--spacing);
-  }
-  .entries {
-    display: grid;
-    grid-template-columns: auto auto auto auto 1fr;
-    gap: var(--spacing);
-    align-items: center;
-  }
-  .entry {
-    display: contents;
-  }
-  .entry > :nth-child(5n + 1) {
-    justify-self: start;
-  }
-  sl-button.btn {
-    width: fit-content;
-  }
-  .sep {
-    height: 100%;
-    border-right: var(--border-width) solid var(--border-color);
-  }
-
-  /* .entry > :nth-child(5n + 3) {
-    align-self: baseline;
-  }
-  .entry > :nth-child(5n + 5) {
-    align-self: baseline;
-  } */
+  display: flex;
+  flex-direction: column;
+  height: fit-content;
+  border: var(--border-width) solid var(--border-color);
+  border-radius: var(--border-radius);
+  padding-right: var(--spacing);
+}
+.entries {
+  display: grid;
+  grid-template-columns: auto auto auto auto 1fr;
+  gap: var(--spacing);
+  align-items: center;
+}
+.entries:not(:empty) {
+  padding-top: var(--spacing);
+  padding-bottom: var(--spacing);
+}
+.entry {
+  display: contents;
+}
+.entry > :nth-child(5n + 1) {
+  justify-self: start;
+}
+sl-button.btn {
+  width: fit-content;
+}
+.sep {
+  height: 100%;
+  border-right: var(--border-width) solid var(--border-color);
 }

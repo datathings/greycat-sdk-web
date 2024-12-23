@@ -1,6 +1,5 @@
 :root,
 :host {
-  --font-family: 'Open Sans', sans-serif;
   --font-size: 14px;
   --font-size-sm: 14px;
   --font-size-md: 14px;
@@ -63,13 +62,15 @@
   --gui-fieldset-background-color: var(--bg-2);
   --gui-fieldset-legend-background-color: var(--bg-0);
 
-  --gui-users-table-min-height: 400px;
+  --gui-table-min-height: 400px;
 }
 
 /* Dark colors (default) */
 :host,
+:host.sl-theme-dark,
 :root,
-:root[data-theme='dark'] {
+:root[data-theme='dark'],
+:root.sl-theme-dark {
   color-scheme: dark;
 
   --primary: rgb(var(--accent-0));
@@ -136,7 +137,9 @@
 
 /* Light colors */
 :host[data-theme='light'],
-:root[data-theme='light'] {
+:host.sl-theme-light,
+:root[data-theme='light'],
+:root.sl-theme-light {
   color-scheme: light;
 
   --primary: #37c43e;
@@ -212,7 +215,7 @@
   font-weight: var(--font-weight);
   font-size: var(--font-size);
   line-height: var(--line-height);
-  font-family: var(--font-family);
+  font-family: var(--sl-font-sans);
   text-rendering: optimizeLegibility;
   overflow-wrap: break-word;
   cursor: default;
@@ -437,18 +440,5 @@ dialog {
         margin-bottom: 0;
       }
     }
-  }
-}
-
-.text-muted {
-  color: var(--muted-color);
-}
-
-.header-actions {
-  display: flex;
-  gap: var(--spacing);
-
-  > button {
-    width: fit-content;
   }
 }

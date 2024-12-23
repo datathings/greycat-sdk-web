@@ -1,14 +1,16 @@
-import type { SlDialog } from '@shoelace-style/shoelace';
-import { core, std } from '../../exports.js';
+import { core, std, type GuiDialog, GuiElement, css } from '../../exports.js';
 import '../table/table.js'; // makes sure gui-table is available
 import type { GuiTable } from '../table/table.js';
 import './role-permissions.js';
 import type { GuiRoleForm } from './role-form.js';
 import './role-form.js';
+import style from './roles.css?inline';
 
-export class GuiRoles extends HTMLElement {
+export class GuiRoles extends GuiElement {
+  static override styles = [css(style)];
+
   private _table: GuiTable;
-  private _dialog: SlDialog;
+  private _dialog: GuiDialog;
   private _form: GuiRoleForm;
 
   constructor() {
@@ -16,7 +18,6 @@ export class GuiRoles extends HTMLElement {
 
     this._table = (
       <gui-table
-        headers={['Name', 'Permissions']}
         sortBy={[0, 'asc']}
         columnWidths={[200]}
         globalFilter
@@ -35,10 +36,8 @@ export class GuiRoles extends HTMLElement {
 
     this._dialog = document.createElement('sl-dialog');
     this._form = document.createElement('gui-role-form');
-  }
 
-  connectedCallback() {
-    this.replaceChildren(
+    this.shadowRoot.appendChild(
       <>
         <sl-card>
           <header slot="header">
@@ -54,11 +53,13 @@ export class GuiRoles extends HTMLElement {
         {this._dialog}
       </>,
     );
-
-    this.reload();
   }
 
-  async reload(): Promise<void> {
+  connectedCallback() {
+    this.update();
+  }
+
+  async update(): Promise<void> {
     try {
       const roles = await std.runtime.UserRole.all();
       this._form.permissions = await std.runtime.SecurityPolicy.permissions();
@@ -70,7 +71,9 @@ export class GuiRoles extends HTMLElement {
         rows[i] = [role.name, role.permissions];
       }
 
-      this._table.value = core.Table.fromRows(rows);
+      const table = core.Table.fromRows(rows);
+      table.headers = ['Name', 'Permissions'];
+      this._table.value = table;
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::UserRole::all'`, err);
     }
@@ -90,7 +93,7 @@ export class GuiRoles extends HTMLElement {
           onclick={async () => {
             try {
               await this._form.delete();
-              this.reload();
+              this.update();
               this._dialog.hide();
             } catch {
               // handle problems
@@ -104,7 +107,7 @@ export class GuiRoles extends HTMLElement {
           onclick={async () => {
             try {
               await this._form.update();
-              this.reload();
+              this.update();
               this._dialog.hide();
             } catch {
               // handle problems
@@ -131,7 +134,7 @@ export class GuiRoles extends HTMLElement {
           onclick={async () => {
             try {
               await this._form.update();
-              this.reload();
+              this.update();
               this._dialog.hide();
             } catch {
               // handle problems

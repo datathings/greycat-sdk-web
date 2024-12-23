@@ -283,17 +283,17 @@ export class GuiCsvStatistics extends HTMLElement {
       <>
         <header slot="label">{column.name}</header>
         <gui-tabs>
-          <gui-tab className="activeTab">Enumerable Count</gui-tab>
-          <gui-tab>Enumerable Count (Donut)</gui-tab>
+          <gui-tab slot="tab" active>Enumerable Count</gui-tab>
+          <gui-tab slot="tab">Enumerable Count (Donut)</gui-tab>
 
-          <gui-panel data-tab="Enumerable Count">
+          <gui-panel slot="panel" tab="Enumerable Count">
             <gui-table
               globalFilter
               headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
               value={core.Table.create([words, counts])}
             />
           </gui-panel>
-          <gui-panel data-tab="Enumerable Count (Donut)">
+          <gui-panel slot="panel" tab="Enumerable Count (Donut)">
             <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
           </gui-panel>
         </gui-tabs>

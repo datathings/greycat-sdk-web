@@ -1,9 +1,13 @@
 import type { SlCheckbox } from '@shoelace-style/shoelace';
+import { css, GuiElement } from '../../exports.js';
+import style from './multi-select-checkbox.css?inline';
 
 /**
  * Custom component for options with checkboxes in 2 columns.
  */
-export class GuiMultiSelectCheckbox extends HTMLElement {
+export class GuiMultiSelectCheckbox extends GuiElement {
+  static override styles = [css(style)];
+
   private _checkboxes: SlCheckbox[] = [];
 
   set selected(values: Array<string>) {
@@ -20,7 +24,7 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
 
     if (options.length === 0) {
       // no available options
-      this.replaceChildren(
+      this.shadowRoot.replaceChildren(
         <small>
           <i>No option</i>
         </small>,
@@ -35,7 +39,7 @@ export class GuiMultiSelectCheckbox extends HTMLElement {
       this._checkboxes.push((<sl-checkbox>{options[i]}</sl-checkbox>) as SlCheckbox);
     }
 
-    this.replaceChildren(...this._checkboxes);
+    this.shadowRoot.replaceChildren(...this._checkboxes);
   }
 
   get selected() {

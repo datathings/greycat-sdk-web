@@ -1,25 +1,26 @@
-gui-tasks {
+:host {
   display: flex;
   flex-direction: column;
   background-color: var(--bg-1);
+}
 
-  > input[type='search'].gui-tasks-search {
-    margin-bottom: 0;
-    border-radius: 0;
-  }
+input[type='search'].gui-tasks-search {
+  margin-bottom: 0;
+  border-radius: 0;
+}
 
-  > gui-table gui-tbody-cell > gui-value.error {
-    color: var(--color-error);
-  }
+gui-table gui-tbody-cell > gui-value.error {
+  color: var(--color-error);
+}
 
-  > gui-table gui-tbody-cell > gui-value.cancelled {
-    color: var(--color-8);
-  }
+gui-table gui-tbody-cell > gui-value.cancelled {
+  color: var(--color-8);
+}
 
-  > gui-table gui-tbody-cell > gui-value.running {
-    /* color: var(--primary); */
-    animation: blink 2s ease-in-out infinite;
-  }
+/* TODO make sure we can use animation within a Shadow root for a sub-sub-child */
+gui-table gui-tbody-cell > gui-value.running {
+  /* color: var(--primary); */
+  animation: blink 2s ease-in-out infinite;
 }
 
 @keyframes blink {

@@ -26,7 +26,6 @@ export class AppLayout extends HTMLElement {
     { title: 'Csv (column-input)',      href: 'csv-column-input/' },
     { title: 'Dashboard',               href: 'dashboard/' },
     { title: 'Donut',                   href: 'donut/' },
-    { title: 'Fieldset Group',          href: 'fieldset-group/' },
     { title: 'Files',                   href: 'files/' },
     { title: 'Fn Call',                 href: 'fn-call/' },
     { title: 'Heatmap',                 href: 'heatmap/' },
@@ -34,9 +33,9 @@ export class AppLayout extends HTMLElement {
     { title: 'Histogram',               href: 'histogram/' },
     { title: 'Index',                   href: 'index/' },
     { title: 'Inputs',                  href: 'inputs/' },
+    { title: 'Layout',                  href: 'layout/' },
     { title: 'Logs',                    href: 'logs/' },
     { title: 'Modal',                   href: 'modal/' },
-    // { title: 'Node Time',               href: 'node-time/' },
     { title: 'Object',                  href: 'object/' },
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Roles',                   href: 'roles/' },
@@ -136,8 +135,8 @@ export class AppLayout extends HTMLElement {
 
   private _toggleTheme(): void {
     const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-    console.log('prefers-color-scheme: dark', prefersDark);
-    const theme = document.documentElement.getAttribute('data-theme') ?? 'dark';
+    const defaultTheme = prefersDark ? 'dark' : 'light';
+    const theme = document.documentElement.getAttribute('data-theme') ?? defaultTheme;
     document.documentElement.setAttribute('data-theme', theme === 'dark' ? 'light' : 'dark');
     document.body.classList.toggle(`sl-theme-${theme}`);
     document.body.classList.toggle(`sl-theme-${theme === 'dark' ? 'light' : 'dark'}`);

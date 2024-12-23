@@ -29,12 +29,15 @@ declare namespace GreyCat {
 
   // eslint-disable-next-line @typescript-eslint/ban-types
   type Element<T, EventMap = {}> = Partial<
-    WrapElement<Omit<T, 'style' | 'className' | 'children' | 'onclick'>>
+    WrapElement<Omit<T, 'style' | 'className' | 'children' | 'onclick' | 'exportparts' | 'part'>>
   > &
     ExtendedHTMLProperties &
     ElementEventMap<T, EventMap> & {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       onclick?: (this: T, ev: MouseEvent) => any;
+      exportparts?: string;
+      /** A space-separated list of the part names of the element */
+      part?: string;
     };
   // & {
   //   value?: 'value' extends keyof T ? T['value'] | Signal<T['value']> : never;
@@ -51,6 +54,7 @@ declare namespace GreyCat {
     interface Element extends Node {}
 
     interface IntrinsicElements {
+      "<></>": GreyCat.Element<DocumentFragment>;
       // HTML
       a: GreyCat.Element<HTMLAnchorElement>;
       abbr: GreyCat.Element<HTMLElement>;

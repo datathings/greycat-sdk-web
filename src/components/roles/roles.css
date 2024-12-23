@@ -1,33 +1,23 @@
-gui-roles {
+:host {
   display: contents;
+}
 
-  sl-card::part(header) {
-    --border-width: 0;
-  }
+sl-card::part(header) {
+  --border-width: 0;
+}
 
-  sl-card::part(body) {
-    padding: 0;
-  }
+sl-card::part(body) {
+  padding: 0;
+}
 
-  gui-table {
-    min-height: var(--gui-users-table-min-height);
+gui-table {
+  --gui-table-filter-border-top-left-radius: 0;
+  --gui-table-filter-border-top-right-radius: 0;
+  min-height: var(--gui-table-min-height);
+}
 
-    > gui-search-input::part(base) {
-      border-radius: 0;
-    }
-  }
-
-  gui-tbody-row:hover {
-    cursor: pointer;
-  }
-
-  gui-tbody-cell sl-tag {
-    padding-right: var(--spacing);
-  }
-
-  gui-tbody-cell sl-tag:last-child {
-    padding-right: 0;
-  }
+gui-tbody-row:hover {
+  cursor: pointer;
 }
 
 gui-role-form {

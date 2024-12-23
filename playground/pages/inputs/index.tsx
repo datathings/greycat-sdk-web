@@ -1,15 +1,18 @@
 import {
   GreyCat,
+  GuiElement,
   GuiInputElement,
   GuiInputFactory,
-  GuiSearchableSelect,
+  GuiObject,
   IndexedDbCache,
-  SearchableOption,
   core,
+  css,
   registerCustomElement,
+  sl,
 } from '@greycat/web';
 import './project-sensor-form';
 import { project, projectlib } from '@/common';
+import IndexStyle from './index.css?inline';
 
 const greycat = await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
@@ -22,11 +25,66 @@ const greycat = await GreyCat.init({
 //
 GuiInputFactory.global.set('project::Sensor', 'project-sensor-form');
 
-// TODO:
-//  - allow for removal of nullable attr (essentially resetting to 'null')
-//  - Validation for Maps unique keys, and char input
-//  - Validation if input not nullable, and value is null
-//  - Fix styling, example Array input with duration type
+export class InputViewer extends GuiElement {
+  static override styles = [css(IndexStyle)];
+
+  private _header: HTMLElement;
+  private _value: GuiObject;
+  private _slot: HTMLSlotElement;
+
+  constructor() {
+    super();
+
+    this._header = (<header slot="header" />) as HTMLElement;
+    this._value = document.createElement('gui-object');
+    this._slot = document.createElement('slot');
+
+    this.shadowRoot.appendChild(
+      <gui-card>
+        {this._header}
+        <div className="grid">
+          {this._slot}
+          <slot name="value">{this._value}</slot>
+        </div>
+      </gui-card>,
+    );
+  }
+
+  set header(header: string) {
+    this._header.textContent = header;
+  }
+
+  connectedCallback() {
+    const input = this._slot.assignedElements()[0];
+    if (input instanceof GuiInputElement) {
+      this._value.value = input.value;
+      input.addEventListener('gui-change', () => {
+        this._value.value = input.value;
+      });
+    } else if (input instanceof sl.SlInput) {
+      this._value.value = input.value;
+      input.addEventListener('sl-change', () => {
+        this._value.value = input.value;
+      });
+    }
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'input-viewer': InputViewer;
+  }
+
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'input-viewer': GreyCat.Element<InputViewer>;
+      }
+    }
+  }
+}
+
+registerCustomElement('input-viewer', InputViewer);
 
 document.body.appendChild(
   <app-layout title="Inputs">
@@ -61,30 +119,25 @@ document.body.appendChild(
         <gui-input-map />
       </input-viewer>
       <input-viewer header="String">
-        <gui-input label="This is a string" value="Hello world!" />
+        <gui-input-string label="This is a string" value="Hello world!" />
       </input-viewer>
       <input-viewer header="int | float">
-        <gui-input value={42} />
+        <gui-input-number value={42} />
       </input-viewer>
       <input-viewer header="bool">
         <gui-input value={false} />
       </input-viewer>
       <input-viewer header="core::time">
-        <gui-input type="core::time" />
+        <gui-input value={core.time.now()} />
       </input-viewer>
       <input-viewer header="core::duration">
         <gui-input value={core.duration.from_mins(42)} />
       </input-viewer>
-      {EnumViewer()}
-      <input-viewer header="Enum (value)">
-        <gui-input-enum label="This is a label" type={core.TimeZone._type} />
+      <input-viewer header="Enum">
+        <gui-input-enum value={core.TimeZone.Europe_Paris()} />
       </input-viewer>
-      {ObjectViewer()}
-      <input-viewer header="Object (instance)">
-        <gui-input value={{ name: 'John', age: 42 }} />
-      </input-viewer>
-      <input-viewer header="Object (instance + manual override)">
-        <gui-input-object value={{ name: 'John', age: 42 }}>
+      <input-viewer header="Object">
+        <gui-input-object value={greycat.create('project::Person', ['John', 42, true])}>
           <gui-input-string slot="name" />
           <gui-input-number slot="age" />
         </gui-input-object>
@@ -94,291 +147,8 @@ document.body.appendChild(
       </input-viewer>
 
       <input-viewer header="Recursive type">
-        <gui-input type="project::Link" />
+        <gui-input-object value={greycat.create('project::Link', [])} />
       </input-viewer>
-      {FnViewer()}
-      {Composition()}
     </div>
   </app-layout>,
 );
-
-type InputViewerAttrs = {
-  /** readonly attribute */
-  header: string;
-};
-export class InputViewer extends HTMLElement {
-
-  connectedCallback() {
-    this.style.display = 'contents';
-    const header = this.getAttribute('header');
-
-    const display = document.createElement('gui-value');
-    const input = this.children[0] as GuiInputElement<unknown>;
-    // console.log('input', input);
-    display.value = input.value;
-    input.addEventListener('gui-input', () => {
-      console.log(`[gui-input][${header}]`, input.value);
-      display.value = input.value;
-    });
-    input.addEventListener('gui-change', () => {
-      console.log(`[gui-change][${header}]`, input.value);
-      display.value = input.value;
-    });
-
-    const slCheckbox = document.createElement('sl-checkbox');
-    slCheckbox.textContent = 'Nullable';
-    slCheckbox.addEventListener('sl-change', (e) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      input.config = { nullable: (e.target as any).checked };
-    });
-
-    this.appendChild(
-      <sl-card>
-        <h6 slot="header" style={{ margin: '0', display: 'flex', justifyContent: 'space-between' }}>
-          {header}
-          {slCheckbox}
-        </h6>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
-          {input}
-          {display}
-        </div>
-      </sl-card>,
-    );
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren();
-  }
-}
-
-declare global {
-  interface HTMLElementTagNameMap {
-    'input-viewer': InputViewer;
-  }
-
-  namespace GreyCat {
-    namespace JSX {
-      interface IntrinsicElements {
-        'input-viewer': GreyCat.Element<InputViewer & InputViewerAttrs>;
-      }
-    }
-  }
-}
-
-registerCustomElement('input-viewer', InputViewer);
-
-function EnumViewer() {
-  const options: SearchableOption[] = greycat.abi.types
-    .filter((ty) => ty.is_enum)
-    .map((ty) => {
-      return {
-        text: ty.name,
-        value: ty.offset,
-        selected: ty.name === 'project::SensorKind',
-      };
-    });
-
-  const typeSelector = (
-    <gui-searchable-select
-      placeholder="Search an enum..."
-      options={options}
-      ongui-change={(ev) => {
-        input.type = greycat.abi.types[ev.detail];
-      }}
-    />
-  ) as GuiSearchableSelect;
-  const display = document.createElement('gui-value');
-  const input = document.createElement('gui-input-enum');
-  input.type = greycat.abi.types[typeSelector.value];
-  input.addEventListener('gui-update', () => {
-    console.log(
-      `[gui-update][gui-input-enum][${greycat.abi.types[typeSelector.value].name}]`,
-      input.value,
-    );
-    display.value = input.value;
-  });
-  input.addEventListener('gui-change', () => {
-    console.log(
-      `[gui-change][gui-input-enum][${greycat.abi.types[typeSelector.value].name}]`,
-      input.value,
-    );
-    display.value = input.value;
-  });
-
-  const slCheckbox = document.createElement('sl-checkbox');
-  slCheckbox.textContent = 'Nullable';
-  slCheckbox.addEventListener('sl-change', (e) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    input.config = { nullable: (e.target as any).checked };
-  });
-
-  return (
-    <sl-card>
-      <div
-        slot="header"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <h6 style={{ margin: '0' }}>Enum (type)</h6>
-        <div style={{ display: 'flex', gap: 'var(--spacing)', alignItems: 'center' }}>
-          {typeSelector}
-          {slCheckbox}
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
-        {input}
-        {display}
-      </div>
-    </sl-card>
-  );
-}
-
-function ObjectViewer() {
-  const options: SearchableOption[] = greycat.abi.types
-    .filter((ty) => !ty.is_enum && !ty.is_native && !ty.is_abstract)
-    .map((ty) => {
-      return {
-        text: ty.name,
-        value: ty.offset,
-        selected: ty.name === 'project::Sensor',
-      };
-    });
-  const typeSelector = (
-    <gui-searchable-select
-      placeholder="Search a type..."
-      options={options}
-      ongui-change={(ev) => {
-        input.type = greycat.abi.types[ev.detail];
-      }}
-    />
-  ) as GuiSearchableSelect;
-  const display = document.createElement('gui-value');
-  const input = document.createElement('gui-input-object');
-  input.type = greycat.abi.types[typeSelector.value];
-  input.addEventListener('gui-update', () => {
-    console.log(
-      `[gui-update][gui-input-object][${greycat.abi.types[typeSelector.value].name}]`,
-      input.value,
-    );
-    display.value = input.value;
-  });
-  input.addEventListener('gui-change', () => {
-    console.log(
-      `[gui-change][gui-input-object][${greycat.abi.types[typeSelector.value].name}]`,
-      input.value,
-    );
-    display.value = input.value;
-  });
-
-  const slCheckbox = document.createElement('sl-checkbox');
-  slCheckbox.textContent = 'Nullable';
-  slCheckbox.addEventListener('sl-change', (e) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    input.config = { nullable: (e.target as any).checked };
-  });
-
-  return (
-    <sl-card>
-      <div
-        slot="header"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <h6 style={{ margin: '0' }}>Object (type):</h6>
-        <div style={{ display: 'flex', gap: 'var(--spacing)', alignItems: 'center' }}>
-          {typeSelector}
-          {slCheckbox}
-        </div>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
-        {input}
-        {display}
-      </div>
-    </sl-card>
-  );
-}
-
-function FnViewer() {
-  const options: SearchableOption[] = greycat.abi.functions
-    .filter((f) => f.params.length > 0)
-    .map((fn) => {
-      return {
-        text: fn.fqn,
-        value: fn,
-        selected: fn.fqn === 'project::goodFnForTestingFnCallInput',
-      };
-    });
-  const typeSelector = (
-    <gui-searchable-select
-      style={{ width: '300px' }}
-      placeholder="Search a fn..."
-      options={options}
-      ongui-change={(ev) => {
-        input.type = ev.detail;
-      }}
-    />
-  ) as GuiSearchableSelect;
-  const display = document.createElement('gui-value');
-  const input = document.createElement('gui-input-fn');
-  input.type = typeSelector.value;
-  input.addEventListener('gui-update', () => {
-    console.log(`[gui-update][gui-input-fn][${typeSelector.value.fqn}]`, input.value);
-    display.value = input.value;
-  });
-  input.addEventListener('gui-change', () => {
-    console.log(`[gui-change][gui-input-fn][${typeSelector.value.fqn}]`, input.value);
-    display.value = input.value;
-  });
-
-  return (
-    <sl-card>
-      <div
-        slot="header"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <h6 style={{ margin: '0' }}>Function</h6>
-        {typeSelector}
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
-        {input}
-        {display}
-      </div>
-    </sl-card>
-  );
-}
-
-function Composition() {
-  const display = document.createElement('gui-value');
-  const input = document.createElement('gui-input-fn');
-  input.type = 'project::goodFnForTestingFnCallInput';
-  input.addEventListener('gui-update', () => {
-    console.log(`[gui-update][gui-input-fn]`, input.value);
-    display.value = input.value;
-  });
-  input.addEventListener('gui-change', () => {
-    console.log(`[gui-change][gui-input-fn]`, input.value);
-    display.value = input.value;
-  });
-
-  const slot = (
-    <slot slot="name">
-      <label htmlFor="">Custom input</label>
-      <gui-searchable-select placeholder="Select" options={[{ text: 'one' }, { text: 'two' }]} />
-    </slot>
-  );
-
-  input.append(slot);
-
-  return (
-    <sl-card>
-      <div
-        slot="header"
-        style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}
-      >
-        <h6 style={{ margin: '0' }}>Composition</h6>
-      </div>
-      <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing)' }}>
-        {input}
-        {display}
-      </div>
-    </sl-card>
-  );
-}

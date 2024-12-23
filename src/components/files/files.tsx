@@ -1,9 +1,12 @@
-import { core, GuiClickEvent, humanSize, io } from '../../exports.js';
+import { core, css, GuiClickEvent, GuiElement, humanSize, io } from '../../exports.js';
 import '../table/table.js';
 import type { GuiTable } from '../table/table.js';
 import type { GuiValue } from '../value/value.js';
+import style from './files.css?inline';
 
-export class GuiFiles extends HTMLElement {
+export class GuiFiles extends GuiElement {
+  static override styles = [css(style)];
+
   private _current_dir: string;
   private _table: GuiTable;
 
@@ -45,17 +48,18 @@ export class GuiFiles extends HTMLElement {
           }
           const changed = this.change_dir(path);
           if (changed) {
-            this.reload();
+            this.update();
           }
         }}
         globalFilter
       />
     ) as GuiTable;
+
+    this.shadowRoot.appendChild(this._table);
   }
 
   connectedCallback() {
-    this.replaceChildren(this._table);
-    this.reload();
+    this.update();
   }
 
   get path() {
@@ -64,7 +68,7 @@ export class GuiFiles extends HTMLElement {
 
   set path(path: string) {
     this.change_dir(path);
-    this.reload();
+    this.update();
   }
 
   change_dir(path: string): boolean {
@@ -97,7 +101,7 @@ export class GuiFiles extends HTMLElement {
     }
   }
 
-  async reload() {
+  async update() {
     if (!this.isConnected) {
       return;
     }

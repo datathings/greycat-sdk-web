@@ -1,6 +1,9 @@
-import type { GuiValueElement } from '../table/table.js';
+import { css, GuiElement, registerCustomElement } from '../../exports.js';
+import style from './role-permissions.css?inline';
 
-export class GuiRolePermissions extends HTMLElement implements GuiValueElement {
+export class GuiRolePermissions extends GuiElement {
+  static override styles = [css(style)];
+
   set value(value: string[]) {
     if (value.length > 0) {
       value.sort();
@@ -8,9 +11,9 @@ export class GuiRolePermissions extends HTMLElement implements GuiValueElement {
       for (let i = 0; i < value.length; i++) {
         fragment.appendChild(<sl-tag size="small">{value[i]}</sl-tag>);
       }
-      this.replaceChildren(fragment);
+      this.shadowRoot.replaceChildren(fragment);
     } else {
-      this.replaceChildren();
+      this.shadowRoot.replaceChildren();
     }
   }
 }
@@ -29,6 +32,4 @@ declare global {
   }
 }
 
-if (!customElements.get('gui-role-permissions')) {
-  customElements.define('gui-role-permissions', GuiRolePermissions);
-}
+registerCustomElement('gui-role-permissions', GuiRolePermissions);

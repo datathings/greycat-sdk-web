@@ -1,23 +1,11 @@
-gui-table-config {
-  sl-card {
-    width: 100%;
-  }
-
-  .gui-table-config-summary {
-    display: flex;
-    flex-grow: 1;
-    justify-content: space-between;
-    align-items: center;
-    padding-right: var(--spacing);
-  }
+sl-card {
+  width: 100%;
 }
 
-gui-table-mapping {
-  display: grid;
-  grid-template-columns: auto max-content auto;
-  column-gap: var(--spacing);
-
-  sl-button {
-    align-self: flex-end;
-  }
+.gui-table-config-summary {
+  display: flex;
+  flex-grow: 1;
+  justify-content: space-between;
+  align-items: center;
+  padding-right: var(--spacing);
 }

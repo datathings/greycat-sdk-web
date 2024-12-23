@@ -1,6 +1,6 @@
-gui-object {
+:host {
   --gui-object-font-size: var(--font-size);
-  --gui-object-font-family: var(--font-family);
+  --gui-object-font-family: var(--sl-font-sans);
   --gui-object-table-min-height: 400px;
   --gui-object-column-gap: calc(var(--spacing) * 2);
   --gui-object-row-gap: 2px;
@@ -43,7 +43,7 @@ gui-object-fieldvalue > sl-details {
   padding: 0;
 }
 
-gui-object > code {
+:host > code {
   width: fit-content;
 }
 
@@ -66,13 +66,12 @@ gui-object-fieldvalue > sl-details > .gui-object-card::part(base) {
 
 gui-object-fieldvalue > sl-details > gui-table {
   min-height: var(--gui-object-table-min-height);
+  --gui-table-filter-border-top-left-radius: 0;
+  --gui-table-filter-border-top-right-radius: 0;
 }
 
-gui-object-fieldvalue > sl-details > gui-table .gui-table-filter::part(base) {
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-}
-
-gui-object-fieldvalue > sl-details > gui-object > sl-card {
+gui-object-fieldvalue > sl-details > gui-object::part(base) {
   --border-width: 0;
+  --gui-table-filter-border-top-left-radius: 0;
+  --gui-table-filter-border-top-right-radius: 0;
 }

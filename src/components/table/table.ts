@@ -6,14 +6,21 @@ import {
   GuiDblClickEvent,
   GuiChangeEvent,
   GuiFactory,
+  GuiElement,
   sl,
   toast,
+  css,
+  AnyValueElement,
+  convertToTable,
+  Disposer,
+  GuiRenderEvent,
+  TableLike,
+  GuiValue,
+  GuiValueProps,
 } from '../../exports.js';
-import '../value/index.js'; // makes sure we already have GuiValue defined
-import '../search-input/index.js'; // makes sure we already have GuiSearchInput defined
-import { GuiValue, GuiValueProps } from '../value/index.js';
-import { convertToTable, Disposer, GuiRenderEvent, TableLike } from '../common.js';
+import '../search-input/index.js';
 import type { GuiTableConfig } from './table-config.js';
+import style from './table.css?inline';
 
 export interface GuiTableProps {
   value: TableLike;
@@ -54,7 +61,7 @@ export type CellFnFactory = (
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   value: any,
   rowIdx: number,
-  el: GuiValueElement,
+  el: AnyValueElement,
 ) => Node;
 
 export type CellFactory = CellTagFactory | CellFnFactory;
@@ -80,7 +87,8 @@ const DEFAULT_CELL_PROPS: CellPropsFactory = (value) => {
  */
 export type RowUpdateCallback = (rowEl: GuiTableBodyRow, rowIdx: number) => void;
 
-export class GuiTable extends HTMLElement implements GuiTableProps {
+export class GuiTable extends GuiElement implements GuiTableProps {
+  static override styles = [css(style)];
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
   private _table = core.Table.create();
@@ -186,6 +194,8 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
       await this.applyMappings();
       this.update();
     });
+
+    this.shadowRoot.append(this._filter, this._tableContainer, this._drawer);
   }
 
   /**
@@ -237,16 +247,16 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
 
   /**
    * Applies the current mappings from the config to the table.
-   * 
+   *
    * If no `table` parameter is given, the current table value is used. Otherwise, the given `table` is used to apply
    * the mappings. This is made to prevent updating the table twice. Since this will
    * do it in one update it will re-render only once.
-   * 
+   *
    * Eg.
    * ```ts
    * el.value = myTable; // update the table
    * el.applyMappings(); // update the table again with the result of the mappings
-   * 
+   *
    * // The above "double update" can be prevented by doing:
    * el.applyMappings(myTable); // only one update
    * ```
@@ -568,8 +578,6 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
   }
 
   connectedCallback() {
-    this.append(this._filter, this._tableContainer, this._drawer);
-
     let px = 0;
     let cx = 0;
     let resize = false;
@@ -778,22 +786,18 @@ export class GuiTable extends HTMLElement implements GuiTableProps {
         return { tag: cellFactory };
       }
       case 'function': {
-        const tagName = `gui-table-cell-${Date.now()}`;
+        const tagName = `gui-table-value-${Date.now()}`;
         customElements.define(
           tagName,
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          class extends HTMLElement implements GuiValueElement<any> {
+          class extends GuiValue implements AnyValueElement {
             rowIdx = -1;
-            private _value: unknown;
 
-            get value() {
-              return this._value;
-            }
-
-            set value(value: unknown) {
-              this._value = value;
-              this.replaceChildren(
-                cellFactory(value, (this.parentElement as GuiTableBodyCell).rowIdx, this),
+            override update() {
+              if (!this.isConnected) {
+                return;
+              }
+              this.shadowRoot.replaceChildren(
+                cellFactory(this._value, (this.parentElement as GuiTableBodyCell).rowIdx, this),
               );
             }
           },
@@ -1406,7 +1410,7 @@ export class GuiTableBodyCell extends HTMLElement {
   rowIdx = -1;
   colIdx = -1;
   /** By default the cell is displayed by a GuiValueElement (`'gui-value'`) */
-  private _cell: GuiValueElement;
+  private _cell: AnyValueElement;
 
   constructor() {
     super();
@@ -1453,7 +1457,7 @@ export class GuiTableBodyCell extends HTMLElement {
 
     if (this._cell.tagName !== factory.tag.toUpperCase()) {
       // different tag: create+replace
-      this._cell = document.createElement(factory.tag) as GuiValueElement;
+      this._cell = document.createElement(factory.tag) as AnyValueElement;
       this.replaceChildren(this._cell);
     }
 
@@ -1482,13 +1486,6 @@ export class GuiTableBodyCell extends HTMLElement {
     this.style.width = `${colWidth}px`;
     return Promise.resolve();
   }
-}
-
-/**
- * Minimal interface to implement when defining `columnFactory`
- */
-export interface GuiValueElement<T = unknown> extends HTMLElement {
-  value: T;
 }
 
 export type GuiTableResizeColDetail = {

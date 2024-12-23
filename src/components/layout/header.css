@@ -1,0 +1,38 @@
+:host {
+  display: contents;
+}
+
+.base {
+  background-color: var(--bg-0);
+  padding: var(--spacing);
+  border-bottom: var(--border-width) solid var(--border-color);
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  column-gap: var(--spacing);
+}
+
+.menu {
+  display: flex;
+  gap: var(--spacing);
+  align-items: center;
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing);
+  align-items: center;
+}
+
+@media (max-width: 768px) {
+  .base {
+    grid-template-columns: 1fr;
+  }
+
+  .menu {
+    display: none;
+  }
+
+  .actions {
+    display: none;
+  }
+}

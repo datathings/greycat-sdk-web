@@ -1,0 +1,9 @@
+:host {
+  display: grid;
+  grid-template-columns: auto max-content auto;
+  column-gap: var(--spacing);
+}
+
+sl-button {
+  align-self: flex-end;
+}

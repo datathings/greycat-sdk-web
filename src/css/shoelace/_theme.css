@@ -156,9 +156,9 @@
   --sl-button-font-size-large: var(--sl-font-size-large);
 
   /* Inputs */
-  --sl-input-height-small: 24px;
-  --sl-input-height-medium: 30px;
-  --sl-input-height-large: 36px;
+  --sl-input-height-small: 22px;
+  --sl-input-height-medium: 28px;
+  --sl-input-height-large: 34px;
 
   --sl-input-background-color: var(--sl-color-neutral-0);
   --sl-input-background-color-hover: var(--sl-input-background-color);

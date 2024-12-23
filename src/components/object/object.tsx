@@ -1,7 +1,16 @@
-import type { SlDetails } from '@shoelace-style/shoelace';
-import { GCEnum, GCObject, GuiFactory, registerCustomElement, std } from '../../exports.js';
-import type { GuiValueElement, sl } from '../../exports.js';
+import {
+  css,
+  GCEnum,
+  GCObject,
+  GuiElement,
+  GuiFactory,
+  registerCustomElement,
+  std,
+  type GuiValueElement,
+  type sl,
+} from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
+import style from './object.css?inline';
 
 export type ObjectProps = Record<string | number | symbol, unknown>;
 export type GuiObjectProps = {
@@ -26,7 +35,9 @@ export interface GuiObject {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export class GuiObject extends HTMLElement {
+export class GuiObject extends GuiElement {
+  static override styles = [css(style)];
+
   private _value: unknown;
   private _header: string | boolean = false;
   private _expanded = false;
@@ -151,25 +162,33 @@ export class GuiObject extends HTMLElement {
       // debugger;
       const el = document.createElement('gui-value');
       el.setAttrs({ ...this._props, value });
-      this.replaceChildren(el);
+      el.part.add('base');
+      this.shadowRoot.replaceChildren(el);
     } else {
-      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      const el = this._factory.createValue({ ...this._props, value }) as Element;
+      el.part.add('base');
+      this.shadowRoot.replaceChildren(el);
     }
   }
 
   private _renderAsObject(value: object): void {
     if (value instanceof HTMLElement) {
-      this.replaceChildren(value);
+      this.shadowRoot.replaceChildren(value);
       return;
     }
 
     if (value instanceof Date) {
-      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
 
     if (value instanceof GCEnum) {
-      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      return;
+    }
+
+    if (value instanceof std.core.str) {
+      this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
 
@@ -177,9 +196,11 @@ export class GuiObject extends HTMLElement {
       const table = this._factory.create(std.core.Table._type, {
         ...this._props,
         value,
+        headers: ['Array'],
         style: { minHeight: 'var(--gui-object-table-min-height)' },
-      });
-      this.replaceChildren(table);
+      }) as Element;
+      table.part.add('base');
+      this.shadowRoot.replaceChildren(table);
       return;
     }
 
@@ -188,8 +209,9 @@ export class GuiObject extends HTMLElement {
         ...this._props,
         value,
         style: { minHeight: 'var(--gui-object-table-min-height)' },
-      });
-      this.replaceChildren(table);
+      }) as Element;
+      table.part.add('base');
+      this.shadowRoot.replaceChildren(table);
       return;
     }
 
@@ -201,12 +223,12 @@ export class GuiObject extends HTMLElement {
     }
 
     if (isStd(value)) {
-      this.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
 
     if (value instanceof Error) {
-      this.replaceChildren(
+      this.shadowRoot.replaceChildren(
         <sl-alert variant="danger" open>
           <pre>{value.message}</pre>
         </sl-alert>,
@@ -215,7 +237,7 @@ export class GuiObject extends HTMLElement {
     }
 
     if (value instanceof std.core.Error) {
-      this.replaceChildren(
+      this.shadowRoot.replaceChildren(
         <sl-alert variant="danger" open>
           <pre>{value.toString()}</pre>
         </sl-alert>,
@@ -228,20 +250,21 @@ export class GuiObject extends HTMLElement {
         ...this._props,
         value,
         style: { minHeight: 'var(--gui-object-table-min-height)' },
-      });
-      this.replaceChildren(table);
+      }) as Element;
+      table.part.add('base');
+      this.shadowRoot.replaceChildren(table);
       return;
     }
 
     if (value instanceof GCObject) {
       const tagName = this._factory.getMapping(value.$type.name);
       if (tagName) {
-        this.replaceChildren(createElement(tagName, { ...this._props, value }));
+        this.shadowRoot.replaceChildren(createElement(tagName, { ...this._props, value }));
         return;
       }
       if (value.$type.is_native) {
         const node = document.createTextNode(`No component for native type '${value.$type.name}'`);
-        this.replaceChildren(node);
+        this.shadowRoot.replaceChildren(node);
         return;
       }
 
@@ -254,7 +277,7 @@ export class GuiObject extends HTMLElement {
 
   private _renderAsGcObject(value: GCObject): void {
     if (value.$attrs === undefined || value.$attrs.length === 0) {
-      this.replaceChildren(<em>empty object</em>);
+      this.shadowRoot.replaceChildren(<em>empty object</em>);
       return;
     }
 
@@ -282,7 +305,7 @@ export class GuiObject extends HTMLElement {
       if (this._needsCollapsible(attrVal)) {
         const open =
           (
-            this.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
+            this.shadowRoot.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
               | sl.SlDetails
               | undefined
           )?.open ?? false;
@@ -299,7 +322,7 @@ export class GuiObject extends HTMLElement {
             value: undefined,
             data: attr.name,
           }),
-        ) as GuiValueElement;
+        ) as GuiValueElement<unknown>;
         details.appendChild(child);
         const onshow = () => {
           child.value = attrVal;
@@ -328,7 +351,7 @@ export class GuiObject extends HTMLElement {
             value: 'loading...',
             data: attr.name,
           }),
-        ) as GuiValueElement;
+        ) as GuiValueElement<unknown>;
         details.appendChild(content);
         details.addEventListener(
           'sl-show',
@@ -367,7 +390,7 @@ export class GuiObject extends HTMLElement {
 
     if (this._nested) {
       this.classList.add('gui-object-grid');
-      this.replaceChildren(fragment);
+      this.shadowRoot.replaceChildren(fragment);
       return;
     }
 
@@ -389,8 +412,8 @@ export class GuiObject extends HTMLElement {
         );
       }
     }
-    this.replaceChildren(
-      <sl-card className="gui-object-card">
+    this.shadowRoot.replaceChildren(
+      <sl-card className="gui-object-card" part="base">
         {header}
         <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
       </sl-card>,
@@ -405,8 +428,8 @@ export class GuiObject extends HTMLElement {
       const val = (value as Record<string, unknown>)[key];
       if (this._needsCollapsible(val)) {
         const open =
-          (this.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)?.open ??
-          false;
+          (this.shadowRoot.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)
+            ?.open ?? false;
         const details = (
           <sl-details summary={this._typeName(val)} open={this._expanded || open}>
             {this._factory.createObject(
@@ -417,7 +440,7 @@ export class GuiObject extends HTMLElement {
               }),
             )}
           </sl-details>
-        ) as SlDetails;
+        ) as sl.SlDetails;
         details.updateComplete.then(() => {
           details.open = this._expanded || open;
         });
@@ -445,7 +468,7 @@ export class GuiObject extends HTMLElement {
     }
 
     const card = (
-      <sl-card className="gui-object-card">
+      <sl-card className="gui-object-card" part="base">
         <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
       </sl-card>
     ) as sl.SlCard;
@@ -454,7 +477,7 @@ export class GuiObject extends HTMLElement {
     } else if (this._header) {
       card.prepend(<header slot="header">{this._typeName(this._value)}</header>);
     }
-    this.replaceChildren(card);
+    this.shadowRoot.replaceChildren(card);
   }
 
   /**
@@ -498,7 +521,8 @@ function isStd(value: unknown): boolean {
     value instanceof std.core.geo ||
     value instanceof std.core.Date ||
     value instanceof std.core.duration ||
-    value instanceof std.core.time
+    value instanceof std.core.time ||
+    value instanceof std.core.str
   );
 }
 
@@ -519,7 +543,7 @@ class GuiObjectFieldName extends HTMLElement {
   }
 
   connectedCallback() {
-    // this.replaceChildren(this._tooltip);
+    // this.shadowRoot.replaceChildren(this._tooltip);
     this.replaceChildren(this._span);
     this.update();
   }

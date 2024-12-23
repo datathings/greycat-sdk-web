@@ -1,7 +1,8 @@
 import {
   findParentInputElement,
   GreyCat,
-  GuiInputFactory,
+  GuiChangeEvent,
+  GuiInputObject,
   GuiSearchableSelect,
 } from '@greycat/web';
 import '@/common';
@@ -9,14 +10,26 @@ import '@/common';
 const greycat = await GreyCat.init();
 
 class TxIdSelect extends GuiSearchableSelect {
-  private _onChange = async () => {
+  private _onChange = async (ev: GuiChangeEvent) => {
+    if (ev.target === this) {
+      return;
+    }
     const objInput = findParentInputElement(this);
     const value = objInput.value;
-    const values = await greycat.call<Array<string>>('factory::values', [value.type]);
-    if (values.indexOf(this.value) === -1) {
+    try {
+      const values = await greycat.call<Array<string>>('tx::TxFormData::values', [value.type]);
+      if (values.indexOf(this.value) === -1) {
+        this.value = undefined;
+        this.dispatchEvent(new GuiChangeEvent(this.value));
+      }
+      this.options = values
+        .map((value) => ({ text: value }))
+        .sort((a, b) => a.text.localeCompare(b.text));
+    } catch {
       this.value = undefined;
+      this.options = [];
+      this.dispatchEvent(new GuiChangeEvent(this.value));
     }
-    this.options = values.map((value) => ({ text: value }));
   };
 
   override connectedCallback(): void {
@@ -28,18 +41,25 @@ class TxIdSelect extends GuiSearchableSelect {
 
 customElements.define('tx-id-select', TxIdSelect);
 
-GuiInputFactory.global.set('factory::TxFormData::id', 'tx-id-select');
+const input = (<gui-input-object value={greycat.create('tx::TxFormData', [])} />) as GuiInputObject;
+
+async function loadTx() {
+  loadValue.value = await greycat.call('tx::TxFormData::load', [input.value]);
+}
+
+const loadValue = document.createElement('gui-object');
+loadValue.value = '';
+loadValue.header = true;
 
 document.body.appendChild(
   <app-layout title="Input (factory)">
-    <gui-input-object
-      type="factory::TxFormData"
-      ongui-change={function () {
-        console.log('form update', { ...this.value });
-      }}
-    >
-      <tx-id-select className="this-is-a-slot" slot="id" />
-    </gui-input-object>
+    <div className="row">
+      <div className="list">
+        {input}
+        <sl-button onclick={loadTx}>Load</sl-button>
+        {loadValue}
+      </div>
+    </div>
   </app-layout>,
 );
 

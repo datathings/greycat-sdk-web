@@ -1,0 +1,30 @@
+:host {
+  --gui-object-table-min-height: 400px;
+  --gui-object-row-gap: 2px;
+  --gui-object-column-gap: 14px;
+}
+
+:host > gui-table {
+  min-height: var(--gui-object-table-min-height);
+}
+
+:host > sl-card {
+  width: 100%;
+}
+
+.fields {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  row-gap: var(--gui-object-row-gap);
+  column-gap: var(--gui-object-column-gap);
+  align-items: center;
+  /* row-gap: calc(var(--spacing), 0.5); */
+}
+
+.field {
+  display: contents;
+}
+
+.field-name {
+  justify-self: end;
+}

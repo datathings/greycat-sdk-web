@@ -1,4 +1,4 @@
-gui-chart {
+:host {
   /* margin variables, can only be pixels */
   --m-top: 10px;
   --m-right: 40px;
@@ -19,7 +19,7 @@ gui-chart {
   position: relative;
 }
 
-gui-chart .gui-chart-tooltip {
+.gui-chart-tooltip {
   font-size: 10px;
 
   display: grid;
@@ -32,11 +32,11 @@ gui-chart .gui-chart-tooltip {
   /* border: 1px solid rgb(var(--neutral-0)); */
 }
 
-gui-chart .gui-chart-tooltip-value {
+.gui-chart-tooltip-value {
   padding-left: 1em;
   justify-self: start;
 }
 
-gui-chart .gui-chart-tooltip-value.right {
+.gui-chart-tooltip-value.right {
   justify-self: end;
 }

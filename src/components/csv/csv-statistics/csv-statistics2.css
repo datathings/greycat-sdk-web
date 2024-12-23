@@ -1,0 +1,14 @@
+:host {
+  display: contents;
+}
+
+.tabs {
+  min-height: 400px;
+  max-height: 400px;
+  /* overflow: hidden; */
+}
+
+.tabs > gui-panel[tab='Word List'] {
+  display: flex;
+  flex-direction: column;
+}
