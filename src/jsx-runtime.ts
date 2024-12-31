@@ -135,14 +135,14 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
         if (typeof value === 'function') {
           element.addEventListener(key.substring(2), value as EventListener);
         }
+      } else if (key.startsWith('attr:')) {
+        element.setAttribute(key.substring(5), value);
       } else if (!eventsOnly) {
         if (key in element) {
           // safety: we just validated that 'key' was a property in 'element'
           // therefore we can, at least, set it
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           (element as any)[key] = value;
-        } else {
-          element.setAttribute(key, value);
         }
       }
       break;

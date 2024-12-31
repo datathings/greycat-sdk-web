@@ -1,8 +1,8 @@
 @import './shoelace/_dark.css';
 @import './shoelace/_light.css';
 @import './shoelace/_theme.css';
-@import './shoelace/_inputs.css';
-@import './shoelace/_drawer.css';
-@import './shoelace/_tabs.css';
+/* @import './shoelace/_inputs.css'; */
+/* @import './shoelace/_drawer.css'; */
+/* @import './shoelace/_tabs.css'; */
 @import './shoelace/_toast.css';
 @import './shoelace/_common.css';

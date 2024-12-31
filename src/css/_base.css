@@ -427,18 +427,3 @@ tfoot td {
   --background-color: var(--primary-hover);
   --border-color: var(--primary-hover);
 }
-
-dialog {
-  > article {
-    > footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--spacing);
-
-      button {
-        width: fit-content;
-        margin-bottom: 0;
-      }
-    }
-  }
-}

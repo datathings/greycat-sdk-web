@@ -29,17 +29,19 @@ document.body.appendChild(
         );
       })}
       <gui-card className={s.noPadding}>
-        <span slot="header">
-          Paragraph <code>&lt;p&gt;</code>
-        </span>
-        <div slot="header">
-          <sl-button variant="text" size="small">
-            Action 0
-          </sl-button>
-          <sl-button variant="text" size="small">
-            Action 1
-          </sl-button>
-        </div>
+        <header slot="header">
+          <span>
+            Paragraph <code>&lt;p&gt;</code>
+          </span>
+          <div>
+            <sl-button variant="text" size="small">
+              Action 0
+            </sl-button>
+            <sl-button variant="text" size="small">
+              Action 1
+            </sl-button>
+          </div>
+        </header>
         <p>
           This is a paragraph, that contains a <span>span</span>, an <em>emphasized</em> word. But
           also a <b>bold</b> one, and a <s>strikethrough</s>. All this <small>small</small> things
