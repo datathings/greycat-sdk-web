@@ -392,11 +392,11 @@ export class GuiChartAxisInput extends HTMLElement {
       <sl-input size="small" label="Ticks">
         <span slot="help-text">
           See{' '}
-          <a href="https://d3js.org/d3-format#format" target="_blank">
+          <a href="https://d3js.org/d3-format#format" target="_blank" rel="noreferrer">
             d3-format
           </a>{' '}
           or{' '}
-          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank">
+          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
             d3-time-format
           </a>
         </span>
@@ -410,11 +410,11 @@ export class GuiChartAxisInput extends HTMLElement {
       >
         <span slot="help-text">
           See{' '}
-          <a href="https://d3js.org/d3-format#format" target="_blank">
+          <a href="https://d3js.org/d3-format#format" target="_blank" rel="noreferrer">
             d3-format
           </a>{' '}
           or{' '}
-          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank">
+          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
             d3-time-format
           </a>
         </span>

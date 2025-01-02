@@ -107,7 +107,7 @@ export class GuiUsers extends GuiElement {
       await this._userForm.update();
       this._userForm.groups = groups;
 
-      const rows: Array<Array<unknown>> = new Array(users.length);
+      const rows: Array<Array<unknown>> = Array.from({ length: users.length });
 
       for (let i = 0; i < users.length; i++) {
         const user = users[i];

@@ -8,6 +8,7 @@ rm -rf dist
 sed -i -e "s/\"version\":\\s*\"0.0.0\"/\"version\": \"${VERSION}\"/g" package.json
 
 pnpm install
+pnpm lint
 pnpm build
 pnpm pack
 

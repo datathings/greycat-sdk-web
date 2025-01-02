@@ -64,7 +64,7 @@ export class GuiRoles extends GuiElement {
       const roles = await std.runtime.UserRole.all();
       this._form.permissions = await std.runtime.SecurityPolicy.permissions();
 
-      const rows: Array<[string, string[]]> = new Array(roles.length);
+      const rows: Array<[string, string[]]> = Array.from({ length: roles.length });
 
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i];

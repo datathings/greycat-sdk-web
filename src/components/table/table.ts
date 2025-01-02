@@ -1249,7 +1249,7 @@ export class GuiTableBody extends HTMLElement {
     rowIdx: number,
     cellProps: CellPropsFactory,
   ): boolean {
-    const cells: string[] = new Array(table.cols.length);
+    const cells: string[] = Array.from({ length: table.cols.length });
 
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       const colFilter = filterColumns[colIdx];
@@ -1398,7 +1398,7 @@ export class GuiTableBodyRow extends HTMLElement {
   }
 
   get value() {
-    const values = new Array(this.children.length);
+    const values = Array.from({ length: this.children.length });
     this.childNodes.forEach((child, i) => {
       values[i] = (child as GuiTableBodyCell).value;
     });
@@ -1608,7 +1608,7 @@ class WidthCalculator {
     private _nb_cols: number,
     private _min_width: number,
   ) {
-    this._widths = new Array(_nb_cols);
+    this._widths = Array.from({ length: _nb_cols });
     this._width = Math.max(_min_width, _available / _nb_cols);
   }
 
