@@ -35,7 +35,7 @@
   "scripts": {
     "clean": "rm -rf dist",
     "gen": "GREYCAT_CODEGEN_TS_SDK='../exports.js' GREYCAT_CODEGEN_TS_FOOTER='src/sdk/std/std_ext.d.ts' greycat codegen --target=ts --lib=std src/sdk/std",
-    "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:types && pnpm build:bundle && pnpm build:css",
+    "build": "pnpm build:jsx && pnpm build:types && pnpm build:bundle && pnpm build:css",
     "build:jsx": "tsc -p tsconfig.jsx.json",
     "build:sdk": "tsc -p tsconfig.sdk.json",
     "build:types": "tsc -p tsconfig.types.json",
@@ -57,14 +57,14 @@
     "@types/d3": "7.4.0",
     "@types/node": "22.5.0",
     "@typescript-eslint/eslint-plugin": "6.2.1",
-    "esbuild": "0.20.2",
+    "esbuild": "0.24.2",
     "eslint": "8.46.0",
     "http-proxy": "1.18.1",
     "lightningcss": "1.25.1",
     "lightningcss-cli": "1.25.1",
     "prettier": "3.3.3",
     "tslib": "2.6.3",
-    "typescript": "5.4.3",
+    "typescript": "5.7.2",
     "vite": "5.3.5"
   }
 }
