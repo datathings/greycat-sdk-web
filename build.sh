@@ -23,10 +23,10 @@ mv \
   dist/greycat.js \
   dist/sdk/web/
 
-mkdir -p libweb/web/lib/web
-mkdir -p libweb/web/webroot/web
-cp -R dist/sdk/web/types/* libweb/web/lib/web
-cp dist/sdk/web/greycat.css libweb/webroot/web
-cp dist/sdk/web/greycat.js libweb/webroot/web
+mkdir -p libweb/lib/web
+mkdir -p libweb/webroot/web
+cp -r dist/sdk/web/types/* libweb/lib/web/
+cp dist/sdk/web/greycat.css libweb/webroot/web/
+cp dist/sdk/web/greycat.js libweb/webroot/web/
 
 rm -rf dist/types
