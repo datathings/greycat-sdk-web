@@ -2,6 +2,7 @@ import * as d3 from 'd3';
 import { GestureDrawer } from '../../canvas/index.js';
 import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
 import { getColors } from '../../utils.js';
+import { core } from '../../exports.js';
 import type {
   Axis,
   BarSerie,
@@ -17,7 +18,6 @@ import { convertToTable, type TableLike } from '../common.js';
 import { Resizable } from '../mixins.js';
 import { vMap } from './internals.js';
 import { closest } from '../../internals.js';
-import { core } from '@greycat/sdk';
 
 type CachedState = {
   leftAxes: number;

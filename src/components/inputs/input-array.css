@@ -7,6 +7,9 @@
   border-radius: var(--border-radius);
   padding-right: var(--spacing);
 }
+.root, .items {
+  display: contents;
+}
 .item {
   display: grid;
   grid-template-columns: auto auto 1fr;

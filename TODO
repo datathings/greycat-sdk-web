@@ -1,8 +1,0 @@
-- error in gui-input-object field type checks
-- write slides with runtimeInfo + gui-value slot example
-- <gui-input-object2 value={value} ongui-change={printValue}>
-    <gui-input-object2 slot="license">
-      <gui-input-string slot="name" />
-      <gui-value slot="max_memory" />
-    </gui-input-object2>
-  </gui-input-object2>

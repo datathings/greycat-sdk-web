@@ -1,11 +1,4 @@
-import {
-  GreyCat,
-  IndexedDbCache,
-  GuiFnSelect,
-  GuiInputFn,
-  $,
-  AbiFunction,
-} from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiFnSelect, GuiInputFn, $ } from '@greycat/web';
 import '@/common';
 import './index.css';
 
@@ -19,24 +12,18 @@ resultEl.value = `Click on 'Call' to see the result`;
 
 const input = (
   <gui-input-fn
-    ongui-input={(ev) => {
-      console.log('input-args-change', ev.detail);
-      const args: Record<string, unknown> = {};
-      const values = input.value;
-      const fn = input.type as AbiFunction;
-      fn.params.forEach((param, i) => {
-        args[param.name] = values[i];
-      });
-      argumentsEl.value = args;
+    ongui-change={(ev) => {
+      console.log('gui-input-fn change', ev.detail);
+      argumentsEl.value = input.value;
     }}
   />
 ) as GuiInputFn;
 
+let method: string = '';
+
 const handleFnCall = async () => {
   try {
-    if (input.fqn) {
-      resultEl.value = await $.default.call(input.fqn, input.value);
-    }
+    resultEl.value = await $.default.call(method, input.args);
   } catch (err) {
     resultEl.value = err;
   }
@@ -52,8 +39,9 @@ document.body.appendChild(
             onsl-change={function (this: GuiFnSelect) {
               const fn = $.default.findFn(this.value as string);
               if (fn) {
+                method = fn.fqn;
                 resultEl.value = undefined;
-                input.type = fn;
+                input.value = new fn.args_type.factory(fn.args_type);
               }
               argumentsEl.value = undefined;
             }}

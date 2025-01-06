@@ -142,22 +142,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     className = this.className,
     title = this.title,
   }: Partial<GuiValueProps>) {
-    if (
-      this._value === value &&
-      this._name === name &&
-      this._tiny === tiny &&
-      this._linkify === linkify &&
-      this._onClick === onClick &&
-      this._dateFmt === dateFmt &&
-      this._numFmt === numFmt &&
-      this._text === text &&
-      this._data === data &&
-      this.className === className &&
-      this.title === title
-    ) {
-      // prevent unecessary re-renders
-      return;
-    }
     this._value = value;
     this._name = name;
     this._linkify = linkify;

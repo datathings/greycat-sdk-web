@@ -337,6 +337,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 
     this.input = document.createElement('sl-input');
     this.input.type = 'number';
+    this.input.step = 'any';
     this.input.setAttribute('exportparts', 'base');
 
     this.input.addEventListener('sl-input', (ev) => {
@@ -351,15 +352,15 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value() {
+  get value(): number | null {
     if (this.input.value.length === 0) {
       return null;
     }
     return this.input.valueAsNumber;
   }
 
-  set value(value: number | bigint | null) {
-    if (value === null) {
+  set value(value: number | bigint | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = '';
     } else {
       this.input.value = `${value}`;
@@ -440,7 +441,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     return this.input.checked;
   }
 
-  set value(value: boolean) {
+  set value(value: boolean | null | undefined) {
     this.input.checked = Boolean(value);
   }
 
@@ -491,7 +492,7 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
 
     this.input = document.createElement('sl-input');
     this.input.type = 'datetime-local';
-    this.input.step = 0.1;
+    this.input.step = 1;
 
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
@@ -511,12 +512,116 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value() {
+  get value(): std.core.time | null {
     return this._value;
   }
 
-  set value(value: std.core.time | null) {
-    this._value = value;
+  set value(value: std.core.time | null | undefined) {
+    this._value = value ?? null;
+    this.update();
+  }
+
+  override get name() {
+    return this.input.name;
+  }
+  override set name(name: string) {
+    this.input.name = name;
+  }
+  override get autocomplete() {
+    return this.input.autocomplete;
+  }
+  override set autocomplete(value: string) {
+    this.input.autocomplete = value;
+  }
+  override get placeholder(): string {
+    return this.input.placeholder;
+  }
+  override set placeholder(value: string) {
+    this.input.placeholder = value;
+  }
+  override get label() {
+    return this.input.label;
+  }
+  override set label(label: string) {
+    this.input.label = label;
+  }
+  override get helpText() {
+    return this.input.helpText;
+  }
+  override set helpText(helpText: string) {
+    this.input.helpText = helpText;
+  }
+  override get required() {
+    return this.input.required;
+  }
+  override set required(required: boolean) {
+    this.input.required = required;
+  }
+  override get disabled() {
+    return this.input.disabled;
+  }
+  override set disabled(disabled: boolean) {
+    this.input.disabled = disabled;
+  }
+  override get size() {
+    return this.input.size;
+  }
+  override set size(size: sl.SlInput['size']) {
+    this.input.size = size;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.input.updateComplete.then(() => this.update());
+  }
+
+  override update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    if (this._value) {
+      this.input.input.valueAsNumber = this._value.epochMs;
+      this.input.value = this.input.input.value;
+    } else {
+      this.input.value = '';
+    }
+  }
+}
+
+export class GuiInputType extends GuiInputElement<std.core.type | null> {
+  private _value: std.core.type | null = null;
+  input: sl.SlInput;
+
+  constructor() {
+    super();
+
+    this.input = document.createElement('sl-input');
+    this.input.placeholder = `Specify a type fqn (eg. 'runtime::User')`;
+    this.input.addEventListener('sl-input', (ev) => {
+      ev.stopPropagation();
+      const type = $.default.findType(this.input.value);
+      if (type) {
+        this._value = std.core.type.create(type.offset);
+      } else {
+        this._value = null;
+      }
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+    this.input.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+
+    this.shadowRoot.replaceChildren(this.input);
+  }
+
+  get value(): std.core.type | null {
+    return this._value;
+  }
+
+  set value(value: std.core.type | null | undefined) {
+    this._value = value ?? null;
     this.update();
   }
 
@@ -581,8 +686,122 @@ export class GuiInputTime extends GuiInputElement<std.core.time | null> {
     }
 
     if (this._value) {
-      this.input.input.valueAsNumber = this._value.epochMs;
-      this.input.value = this.input.input.value;
+      this.input.value = this._value.toString();
+    } else {
+      this.input.value = '';
+    }
+  }
+}
+
+export class GuiInputField extends GuiInputElement<std.core.field | null> {
+  private _value: std.core.field | null = null;
+  input: sl.SlInput;
+
+  constructor() {
+    super();
+
+    this.input = document.createElement('sl-input');
+    this.input.placeholder = `Specify a field fqn (eg. 'runtime::User::name')`;
+    this.input.addEventListener('sl-input', (ev) => {
+      ev.stopPropagation();
+      const index = this.input.value.lastIndexOf('::');
+      if (index < 0) {
+        this._value = null;
+      } else {
+        const type_fqn = this.input.value.slice(0, index);
+        const field_name = this.input.value.slice(index + 2);
+        const type = $.default.findType(type_fqn);
+        if (type) {
+          const offset = type.attrs.findIndex((a) => a.name === field_name);
+          if (offset >= 0) {
+            this._value = std.core.field.create(type.offset, offset);
+          } else {
+            this._value = null;
+          }
+        } else {
+          this._value = null;
+        }  
+      }
+      this.dispatchEvent(new GuiInputEvent(this.value));
+    });
+    this.input.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(this.value));
+    });
+
+    this.shadowRoot.replaceChildren(this.input);
+  }
+
+  get value(): std.core.field | null {
+    return this._value;
+  }
+
+  set value(value: std.core.field | null | undefined) {
+    this._value = value ?? null;
+    this.update();
+  }
+
+  override get name() {
+    return this.input.name;
+  }
+  override set name(name: string) {
+    this.input.name = name;
+  }
+  override get autocomplete() {
+    return this.input.autocomplete;
+  }
+  override set autocomplete(value: string) {
+    this.input.autocomplete = value;
+  }
+  override get placeholder(): string {
+    return this.input.placeholder;
+  }
+  override set placeholder(value: string) {
+    this.input.placeholder = value;
+  }
+  override get label() {
+    return this.input.label;
+  }
+  override set label(label: string) {
+    this.input.label = label;
+  }
+  override get helpText() {
+    return this.input.helpText;
+  }
+  override set helpText(helpText: string) {
+    this.input.helpText = helpText;
+  }
+  override get required() {
+    return this.input.required;
+  }
+  override set required(required: boolean) {
+    this.input.required = required;
+  }
+  override get disabled() {
+    return this.input.disabled;
+  }
+  override set disabled(disabled: boolean) {
+    this.input.disabled = disabled;
+  }
+  override get size() {
+    return this.input.size;
+  }
+  override set size(size: sl.SlInput['size']) {
+    this.input.size = size;
+  }
+
+  override connectedCallback(): void {
+    super.connectedCallback();
+    this.input.updateComplete.then(() => this.update());
+  }
+
+  override update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    if (this._value) {
+      this.input.value = this._value.toString();
     } else {
       this.input.value = '';
     }
@@ -636,11 +855,11 @@ export class GuiInputEnum extends GuiInputElement<GCEnum | null> {
     }
   }
 
-  get value() {
+  get value(): GCEnum | null {
     return this._type?.enum_values?.[this.input.value as number] ?? null;
   }
 
-  set value(value: GCEnum | null) {
+  set value(value: GCEnum | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = undefined;
       return;
@@ -869,7 +1088,11 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
       );
       fields.appendChild(attrEl);
     }
-    this.shadowRoot.replaceChildren(fields);
+    this.shadowRoot.replaceChildren(
+      <div className="root" part="root">
+        {fields}
+      </div>,
+    );
   }
 
   validate(): boolean {
@@ -895,11 +1118,16 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
   ): [Node, Element | null] {
     const attrType = abi.types[attr.abi_type];
     if (attr.nullable && (value === null || value === undefined)) {
+      object[attr.name] = null; // ensures the value is 'null' rather than maybe 'undefined'
       const field = (
-        <div className="field">
-          <label className="label">
-            <span className="field-name">{attr.name}</span>
-            <span className="field-type">{this._attrType(attr, abi)}</span>
+        <div className="field" part={`field ${attr.name}`}>
+          <label className="label" part="label">
+            <span className="field-name" part="field-name">
+              {attr.name}
+            </span>
+            <span className="field-type" part="field-type">
+              {this._attrType(attr, abi)}
+            </span>
           </label>
           <div>
             <sl-button
@@ -908,7 +1136,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
               onclick={() => {
                 const value = new attrType.factory(attrType);
                 const [node, input] = this._createAttr(abi, factory, object, type, attr, value);
-                this.shadowRoot.replaceChild(node, field);
+                field.replaceWith(node);
                 if (input instanceof GuiInputElement) {
                   object[attr.name] = input.value;
                 }
@@ -919,7 +1147,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
             </sl-button>
           </div>
         </div>
-      );
+      ) as HTMLElement;
       return [field, null];
     }
 
@@ -939,16 +1167,21 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
     if (input instanceof GuiInputElement) {
       input.name = `${type.name}::${attr.name}`;
       input.required = true;
+      object[attr.name] = input.value;
       input.addEventListener('gui-change', () => {
         object[attr.name] = input.value;
         this.validate();
       });
     }
     const field = (
-      <div className="field">
-        <label className="label">
-          <span className="field-name">{attr.name}</span>
-          <span className="field-type">{this._attrType(attr, abi)}</span>
+      <div className="field" part={`field ${attr.name}`}>
+        <label className="label" part="label">
+          <span className="field-name" part="field-name">
+            {attr.name}
+          </span>
+          <span className="field-type" part="field-type">
+            {this._attrType(attr, abi)}
+          </span>
         </label>
         {attr.nullable && (slottedAttr === null || slottedAttr instanceof GuiInputElement) ? (
           <div className="nullable">
@@ -960,7 +1193,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
                 onclick={() => {
                   const [node] = this._createAttr(abi, factory, object, type, attr, null);
                   object[attr.name] = null;
-                  this.shadowRoot.replaceChild(node, field);
+                  field.replaceWith(node);
                   this.dispatchEvent(new GuiChangeEvent(this.value));
                 }}
               >
@@ -975,7 +1208,7 @@ export class GuiInputObject extends GuiInputElement<GCObject | undefined> {
           <slot name={attr.name}>{slottedAttr ? undefined : input}</slot>
         )}
       </div>
-    );
+    ) as HTMLElement;
     return [field, input];
   }
 
@@ -1014,39 +1247,50 @@ export class GuiInputFn extends GuiInputObject {
 export class GuiInputDuration extends GuiInputElement<std.core.duration | null> {
   static override styles = [...GuiInputElement.styles, css(DurationStyle)];
 
-  readonly input: GuiInputNumber;
-  readonly select: GuiInputEnum;
+  readonly input: sl.SlInput;
+  readonly select: sl.SlSelect;
+  private readonly _units: std.core.DurationUnit[];
 
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-number');
+    this.input = document.createElement('sl-input');
+    this.input.placeholder = 'Value';
+    this.input.type = 'number';
     this.input.required = true;
     this.input.part.add('value');
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    this.select = document.createElement('gui-input-enum');
+    this.select = document.createElement('sl-select');
+    this.select.placeholder = 'Unit';
     this.select.required = true;
     this.select.part.add('unit');
-    this.select.addEventListener('gui-change', (ev) => {
+    this.select.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.select.type = $.default.findType(std.core.DurationUnit._type);
+    const durationUnit = $.default.findType(std.core.DurationUnit._type);
+    if (!durationUnit || !durationUnit.enum_values) {
+      throw new Error('Unable to find core.DurationUnit in ABI');
+    }
+    this._units = durationUnit.enum_values as std.core.DurationUnit[];
+    for (const field of durationUnit.enum_values) {
+      this.select.appendChild(<sl-option value={`${field.offset}`}>{field.key}</sl-option>);
+    }
 
-    this.shadowRoot.replaceChildren(this.input, this.select);
+    this.shadowRoot.append(this.input, this.select);
   }
 
-  get value() {
+  get value(): std.core.duration | null {
     const durationValue = Number(this.input.value);
-    const durationUnit = this.select.value as std.core.DurationUnit | null;
+    const durationUnit = this.durationUnit;
 
     if (isNaN(durationValue) || !durationUnit) {
       return null;
@@ -1055,32 +1299,35 @@ export class GuiInputDuration extends GuiInputElement<std.core.duration | null> 
     return std.core.duration.from_unit(durationValue, durationUnit);
   }
 
-  set value(value: std.core.duration | null) {
-    if (value === null) {
-      this.input.value = null;
-      this.select.value = null;
+  set value(value: std.core.duration | null | undefined) {
+    if (value === null || value === undefined) {
+      this.input.value = '';
+      this.select.value = '';
     } else {
       const [val, unit] = decomposeDuration(value);
-
-      this.select.value = unit;
-      this.input.value = val;
+      this.input.value = `${val}`;
+      this.select.value = unit.key;
     }
   }
 
   get durationValue() {
-    return this.input.value;
+    return +this.input.value;
   }
 
   set durationValue(value: number | bigint | null) {
-    this.input.value = value;
+    this.input.value = `${value}`;
   }
 
   get durationUnit() {
-    return this.select.value as std.core.DurationUnit | null;
+    return this._units[+(this.select.value as string)];
   }
 
   set durationUnit(value: std.core.DurationUnit | null) {
-    this.select.value = value;
+    if (value) {
+      this.select.value = value.key;
+    } else {
+      this.select.value = '';
+    }
   }
 
   override get name() {
@@ -1094,7 +1341,6 @@ export class GuiInputDuration extends GuiInputElement<std.core.duration | null> 
   }
   override set autocomplete(value: string) {
     this.input.autocomplete = value;
-    this.select.autocomplete = value;
   }
   override get placeholder(): string {
     return this.input.placeholder;
@@ -1137,20 +1383,21 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   static override styles = [...GuiInputElement.styles, css(AnyStyle)];
 
   private _value: unknown;
-  private _select: GuiSearchableSelect;
-  private _input: GuiInputElement<unknown>;
+  readonly select: GuiSearchableSelect;
+  input: GuiInputElement<unknown>;
 
   constructor() {
     super();
 
-    this._select = document.createElement('gui-searchable-select');
-    this._select.addEventListener('gui-change', (ev) => {
+    this.select = document.createElement('gui-searchable-select');
+    this.select.part.add('select');
+    this.select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       if (ev.detail === null) {
-        this._input.value = null;
+        this.input.value = null;
       } else {
         const type = $.default.abi.types[ev.detail];
-        this._input.value = new type.factory(type);
+        this.value = new type.factory(type);
       }
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -1161,15 +1408,16 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       opts[index - 1] = { text: t.name, value: t.offset };
     }
 
-    this._select.options = opts;
+    this.select.options = opts;
 
-    this._input = document.createElement('gui-input-string');
-    this._input.value = null;
+    this.input = document.createElement('gui-input-string');
+    this.input.part.add('input');
+    this.input.value = null;
 
     this.shadowRoot.replaceChildren(
       <>
-        {this._select}
-        {this._input}
+        {this.select}
+        {this.input}
       </>,
     );
   }
@@ -1178,84 +1426,112 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     return this._value;
   }
 
-  set value(val: unknown) {
-    this._value = val;
-    const input = GuiInputFactory.closest(this).createElement(val);
-    input.addEventListener('gui-change', () => {
-      this._value = input.value;
-    });
-    input.value = val;
-    this._input.replaceWith(input);
-    switch (typeof val) {
+  set value(value: unknown) {
+    this._value = value;
+    const factory = GuiInputFactory.closest(this);
+    const abi = $.default.abi;
+    let input: GuiInputElement<unknown>;
+    switch (typeof value) {
       case 'bigint':
       case 'number': {
-        if (Number.isInteger(val)) {
-          this._select.value = $.default.abi.core.int;
+        if (Number.isInteger(value)) {
+          this.select.value = abi.core.int;
+          input = factory.createElement(value, abi.types[abi.core.int]);
         } else {
-          this._select.value = $.default.abi.core.float;
+          this.select.value = abi.core.float;
+          input = factory.createElement(value, abi.types[abi.core.float]);
         }
         break;
       }
       case 'boolean':
-        this._select.value = $.default.abi.core.bool;
-        break;
-      case 'string':
-        this._select.value = $.default.abi.core.string;
-        break;
-      case 'undefined':
-        this._select.value = undefined;
+        this.select.value = abi.core.bool;
+        input = factory.createElement(value, abi.types[abi.core.bool]);
         break;
       case 'object': {
-        if (Array.isArray(val)) {
-          this._select.value = $.default.abi.core.array;
-        } else if (val instanceof Map) {
-          this._select.value = $.default.abi.core.map;
-        } else if (val instanceof GCObject) {
-          this._select.value = $.default.findType(val.$type.name)?.offset;
+        if (Array.isArray(value)) {
+          this.select.value = abi.core.array;
+          input = factory.createElement(value, abi.types[abi.core.array]);
+        } else if (value instanceof Map) {
+          this.select.value = $.default.abi.core.map;
+          input = factory.createElement(value, abi.types[abi.core.map]);
+        } else if (value instanceof GCObject) {
+          if (value.$type.offset === 0) {
+            this.select.value = abi.core.string;
+            input = document.createElement('gui-input-string');
+          } else {
+            const type = abi.type_by_fqn.get(value.$type.name);
+            if (type) {
+              this.select.value = type.offset;
+              input = factory.createElement(value, type);
+            } else {
+              this.select.value = undefined;
+              const unsupported = document.createElement('gui-input-unsupported');
+              unsupported.message = `Unable to find type '${value.$type.name}'`;
+              input = unsupported;
+            }
+          }
         } else {
-          this._select.value = undefined;
+          this.select.value = undefined;
+          const unsupported = document.createElement('gui-input-unsupported');
+          unsupported.message = 'Unsupported value';
+          input = unsupported;
         }
         break;
       }
+      default: {
+        this.select.value = abi.core.string;
+        input = factory.createElement(value, abi.types[abi.core.string]);
+        break;
+      }
+    }
+
+    this.input.replaceWith(input);
+    this.input = input;
+    this.input.part.add('input');
+    this.input.addEventListener('gui-change', () => {
+      this._value = this.input.value;
+    });
+    if (!(value instanceof GCObject && value.$type.offset === 0)) {
+      this.input.value = value;
     }
   }
 
   set options(options: SearchableOption[]) {
-    this._select.options = options;
+    this.select.options = options;
   }
 
   get options() {
-    return this._select.options;
+    return this.select.options;
   }
 
   get type() {
-    if (this._select.value === null) {
+    if (this.select.value === null) {
       return null;
     }
-    return $.default.abi.types[this._select.value];
+    return $.default.abi.types[this.select.value];
   }
 
   set type(value: AbiType | null) {
     if (value) {
-      this._select.value = value.offset;
-      this._input.value = new value.factory(value);
+      this.select.value = value.offset;
+      this.input.value = new value.factory(value);
     }
   }
 
   override get autocomplete(): string {
-    return this._input.autocomplete;
+    return this.input.autocomplete;
   }
 
   override set autocomplete(value: string) {
-    this._input.autocomplete = value;
+    this.input.autocomplete = value;
   }
 
   override get placeholder() {
-    return this._input.placeholder;
+    return this.input.placeholder;
   }
 
   override set placeholder(placeholder: string) {
-    this._input.placeholder = placeholder;
+    this.input.placeholder = placeholder;
   }
 }
 
@@ -1275,7 +1551,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
     return this._value;
   }
 
-  set value(value: unknown[] | std.core.Array) {
+  set value(value: unknown[] | std.core.Array | null | undefined) {
     if (value instanceof std.core.Array) {
       if (value.$type.generic_abi_type !== 0) {
         this._generic_param = value.$type.abi.types[value.$type.g1()];
@@ -1315,33 +1591,36 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
     }
 
     const factory = GuiInputFactory.closest(this);
-    const items = document.createDocumentFragment();
+    const items = document.createElement('div');
+    items.className = 'items';
+    items.part.add('items');
     for (const item of this._value) {
-      const [node] = this._createItem(factory, item);
+      const [node] = this._createItem(factory, items, item);
       items.appendChild(node);
     }
     this.shadowRoot.replaceChildren(
-      <>
+      <div className="root" part="root">
         <sl-button
           className="add"
           variant="text"
           size="small"
           onclick={() => {
-            const [itemEl, input] = this._createItem(factory);
+            const [itemEl, input] = this._createItem(factory, items);
             this._value.push(input?.value);
-            this.shadowRoot.appendChild(itemEl);
+            items.appendChild(itemEl);
             this.dispatchEvent(new GuiChangeEvent(this.value));
           }}
         >
           Add item
         </sl-button>
         {items}
-      </>,
+      </div>,
     );
   }
 
   private _createItem(
     factory: GuiInputFactory,
+    items: HTMLElement,
     value?: unknown,
   ): [Node, GuiInputElement<unknown> | null] {
     if (this._generic_param) {
@@ -1360,7 +1639,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
     ) {
       const generic_param = this._generic_param;
       const item = (
-        <div className="item">
+        <div className="item" part="item">
           <sl-tooltip content="Delete item" placement="left">
             <sl-button
               className="del"
@@ -1382,10 +1661,10 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
             size="small"
             onclick={() => {
               const value = new generic_param.factory(generic_param);
-              const [node, input] = this._createItem(factory, value);
+              const [node, input] = this._createItem(factory, items, value);
               const index = getIndexInParent(item) - 1;
               this._value[index] = input?.value;
-              this.shadowRoot.replaceChild(node, item);
+              items.replaceChild(node, item);
               this.dispatchEvent(new GuiChangeEvent(this.value));
             }}
           >
@@ -1403,7 +1682,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
       this._value[index] = input.value;
     });
     const item = (
-      <div className="item">
+      <div className="item" part="item">
         {this._generic_param_nullable ? (
           <div>
             <sl-tooltip content="Delete item" placement="left">
@@ -1430,7 +1709,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | std.core.Array> {
                 onclick={() => {
                   const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
                   this._value[index] = null;
-                  const [node] = this._createItem(factory, null);
+                  const [node] = this._createItem(factory, items, null);
                   item.replaceWith(node);
                   this.dispatchEvent(new GuiChangeEvent(this.value));
                 }}
@@ -1748,7 +2027,7 @@ export class GuiInputNode extends GuiInputElement<std.core.node | null> {
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value() {
+  get value(): std.core.node | null {
     if (this.input.value !== null) {
       try {
         return std.core.node.fromRef(this.input.value);
@@ -1759,8 +2038,8 @@ export class GuiInputNode extends GuiInputElement<std.core.node | null> {
     return null;
   }
 
-  set value(value: std.core.node | null) {
-    if (value === null) {
+  set value(value: std.core.node | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = null;
     } else {
       this.input.value = value.ref;
@@ -1836,7 +2115,7 @@ export class GuiInputNodeIndex extends GuiInputElement<std.core.nodeIndex | null
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value() {
+  get value(): std.core.nodeIndex | null {
     if (this.input.value !== null) {
       try {
         return std.core.nodeIndex.fromRef(this.input.value);
@@ -1847,8 +2126,8 @@ export class GuiInputNodeIndex extends GuiInputElement<std.core.nodeIndex | null
     return null;
   }
 
-  set value(value: std.core.nodeIndex | null) {
-    if (value === null) {
+  set value(value: std.core.nodeIndex | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = null;
     } else {
       this.input.value = value.ref;
@@ -1924,7 +2203,7 @@ export class GuiInputNodeTime extends GuiInputElement<std.core.nodeTime | null> 
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value() {
+  get value(): std.core.nodeTime | null {
     if (this.input.value !== null) {
       try {
         return std.core.nodeTime.fromRef(this.input.value);
@@ -1935,8 +2214,8 @@ export class GuiInputNodeTime extends GuiInputElement<std.core.nodeTime | null> 
     return null;
   }
 
-  set value(value: std.core.nodeTime | null) {
-    if (value === null) {
+  set value(value: std.core.nodeTime | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = null;
     } else {
       this.input.value = value.ref;
@@ -2012,7 +2291,7 @@ export class GuiInputNodeList extends GuiInputElement<std.core.nodeList | null> 
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value() {
+  get value(): std.core.nodeList | null {
     if (this.input.value !== null) {
       try {
         return std.core.nodeList.fromRef(this.input.value);
@@ -2023,8 +2302,8 @@ export class GuiInputNodeList extends GuiInputElement<std.core.nodeList | null> 
     return null;
   }
 
-  set value(value: std.core.nodeList | null) {
-    if (value === null) {
+  set value(value: std.core.nodeList | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = null;
     } else {
       this.input.value = value.ref;
@@ -2100,7 +2379,7 @@ export class GuiInputNodeGeo extends GuiInputElement<std.core.nodeGeo | null> {
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value() {
+  get value(): std.core.nodeGeo | null {
     if (this.input.value !== null) {
       try {
         return std.core.nodeGeo.fromRef(this.input.value);
@@ -2111,8 +2390,8 @@ export class GuiInputNodeGeo extends GuiInputElement<std.core.nodeGeo | null> {
     return null;
   }
 
-  set value(value: std.core.nodeGeo | null) {
-    if (value === null) {
+  set value(value: std.core.nodeGeo | null | undefined) {
+    if (value === null || value === undefined) {
       this.input.value = null;
     } else {
       this.input.value = value.ref;
@@ -2213,7 +2492,7 @@ export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
     this.setAttribute('part', 'input-geo');
   }
 
-  get value() {
+  get value(): std.core.geo | null {
     let lat = this.latInput.value;
     let lng = this.lngInput.value;
     if (lat === null || lng === null) {
@@ -2227,8 +2506,8 @@ export class GuiInputGeo extends GuiInputElement<std.core.geo | null> {
     return std.core.geo.fromLatLng(lat, lng);
   }
 
-  set value(value: std.core.geo | null) {
-    if (value === null) {
+  set value(value: std.core.geo | null | undefined) {
+    if (value === null || value === undefined) {
       this.latInput.value = null;
       this.lngInput.value = null;
     } else {
@@ -2259,7 +2538,7 @@ export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value() {
+  get value(): std.core.function_ | null {
     if (this.input.value.length === 0) {
       return null;
     }
@@ -2269,7 +2548,7 @@ export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
       return null;
     }
   }
-  set value(fn: std.core.function_ | null) {
+  set value(fn: std.core.function_ | null | undefined) {
     if (fn) {
       this.input.value = fn.fqn;
     } else {
@@ -2324,6 +2603,16 @@ export class GuiInputFnPtr extends GuiInputElement<std.core.function_ | null> {
   }
   override set size(size: sl.SlInput['size']) {
     this.input.size = size;
+  }
+}
+
+export class GuiInputNull extends GuiInputElement<null> {
+  value = null;
+
+  constructor() {
+    super();
+
+    this.shadowRoot.appendChild(<em>null</em>);
   }
 }
 
@@ -2400,6 +2689,9 @@ declare global {
     'gui-input-geo': GuiInputGeo;
     'gui-input-fnptr': GuiInputFnPtr;
     'gui-input-unsupported': GuiInputUnsupported;
+    'gui-input-null': GuiInputNull;
+    'gui-input-type': GuiInputType;
+    'gui-input-field': GuiInputField;
   }
 
   interface GuiInputEventMap {
@@ -2434,6 +2726,9 @@ declare global {
         'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
         'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
         'gui-input-unsupported': GreyCat.Element<GuiInputUnsupported, GuiInputEventMap>;
+        'gui-input-null': GreyCat.Element<GuiInputNull, GuiInputEventMap>;
+        'gui-input-type': GreyCat.Element<GuiInputType, GuiInputEventMap>;
+        'gui-input-field': GreyCat.Element<GuiInputField, GuiInputEventMap>;
       }
     }
   }
@@ -2461,3 +2756,6 @@ registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
 registerCustomElement('gui-input-geo', GuiInputGeo);
 registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
 registerCustomElement('gui-input-unsupported', GuiInputUnsupported);
+registerCustomElement('gui-input-null', GuiInputNull);
+registerCustomElement('gui-input-type', GuiInputType);
+registerCustomElement('gui-input-field', GuiInputField);

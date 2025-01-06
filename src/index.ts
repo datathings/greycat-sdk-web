@@ -1,9 +1,9 @@
-import * as sdk from './exports.js';
+import * as web from './exports.js';
 
-Object.assign(globalThis, { greycat: sdk });
+Object.assign(globalThis, { greycat: web });
 
 declare global {
-  let greycat: typeof sdk;
+  let greycat: typeof web;
 }
 
 export * from './exports.js';

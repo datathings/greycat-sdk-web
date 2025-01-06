@@ -8,9 +8,6 @@ importers:
 
   .:
     dependencies:
-      '@greycat/sdk':
-        specifier: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz
-        version: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz
       '@shoelace-style/shoelace':
         specifier: 2.19.0
         version: 2.19.0(@floating-ui/utils@0.2.8)(@types/react@18.3.18)
@@ -369,11 +366,6 @@ packages:
 
   '@floating-ui/utils@0.2.8':
     resolution: {integrity: sha512-kym7SodPp8/wloecOpcmSnWJsK7M0E5Wg8UcFA+uO4B9s5d0ywXOEro/8HM9x0rW+TljRzul/14UYz3TleT3ig==}
-
-  '@greycat/sdk@https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz}
-    version: 7.0.123-dev
-    engines: {node: '>=18'}
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -1695,8 +1687,6 @@ snapshots:
       '@floating-ui/utils': 0.2.8
 
   '@floating-ui/utils@0.2.8': {}
-
-  '@greycat/sdk@https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz': {}
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:

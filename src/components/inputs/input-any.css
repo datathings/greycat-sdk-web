@@ -1,9 +1,10 @@
 :host {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: auto 1fr;
+  column-gap: var(--spacing);
 }
 
-gui-searchable-select::part(base) {
+/* gui-searchable-select::part(base) {
   border-radius: var(--border-radius) 0 0 var(--border-radius);
 }
 
@@ -31,4 +32,4 @@ gui-input::part(input-object) {
   border-left: var(--border-width) solid var(--border-color);
   display: grid;
   grid-template-columns: auto 1fr;
-}
+} */

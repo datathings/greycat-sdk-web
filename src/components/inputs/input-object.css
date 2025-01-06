@@ -1,4 +1,7 @@
 :host {
+  display: contents;
+}
+.root {
   display: grid;
   grid-template-columns: auto 1fr;
   align-items: start;

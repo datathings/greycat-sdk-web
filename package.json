@@ -9,6 +9,10 @@
       "types": "./dist/types/index.d.ts",
       "import": "./dist/greycat.esm.js"
     },
+    "./sdk": {
+      "types": "./dist/sdk/index.d.ts",
+      "import": "./dist/sdk/index.js"
+    },
     "./jsx-runtime": {
       "types": "./dist/jsx-runtime.d.ts",
       "import": "./dist/jsx-runtime.js"
@@ -30,18 +34,20 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "build": "pnpm build:jsx && pnpm build:types && pnpm build:bundle && pnpm build:css",
+    "gen": "GREYCAT_CODEGEN_TS_SDK='../exports.js' GREYCAT_CODEGEN_TS_FOOTER='src/sdk/std/std_ext.d.ts' greycat codegen --target=ts --lib=std src/sdk/std",
+    "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:types && pnpm build:bundle && pnpm build:css",
     "build:jsx": "tsc -p tsconfig.jsx.json",
+    "build:sdk": "tsc -p tsconfig.sdk.json",
     "build:types": "tsc -p tsconfig.types.json",
     "build:bundle": "node esbuild.config.js",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/greycat.css",
     "build:playground": "./playground/gen.sh && tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
+    "test": "./sdk/test.sh",
     "dev": "vite -c playground/vite.config.ts",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@greycat/sdk": "https://get.greycat.io/files/sdk/js/dev/7.0/7.0.123-dev.tgz",
     "@shoelace-style/shoelace": "2.19.0",
     "d3": "7.8.5",
     "dockview-core": "1.10.1"

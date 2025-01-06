@@ -12,7 +12,7 @@ const fnSelector = (
     placeholder="Select a function to run as a task"
     options={$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
-      fnInput.type = ev.detail;
+      fnInput.value = new ev.detail.attr_type.factory(ev.detail.attr_type);
       spawnBtn.disabled = ev.detail === null;
     }}
   />
@@ -23,7 +23,7 @@ const spawnBtn = (
     size="small"
     disabled
     onclick={async () => {
-      await $.default.spawn(fnSelector.value.fqn, fnInput.value);
+      await $.default.spawn(fnSelector.value.fqn, fnInput.args);
       tasks.reload();
     }}
   >

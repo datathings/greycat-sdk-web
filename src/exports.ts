@@ -1,4 +1,4 @@
-export * from '@greycat/sdk';
+export * from './sdk/index.js';
 // export * from './signal.js';
 export * from './shoelace.js';
 export * from './components/index.js';

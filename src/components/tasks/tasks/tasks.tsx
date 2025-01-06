@@ -31,7 +31,8 @@ export class GuiTasks extends GuiElement {
       sortBy: [0, 'desc'],
       columnFactory: {
         8: (_value, rowIdx, _el) => {
-          const task = this._tasks[rowIdx];
+          const [task_id] = this.table.table.getRowArray(rowIdx) as [number];
+          const task = this._tasks.find((t) => t.task_id === task_id)!;
           const cancellable =
             task.status === std.runtime.TaskStatus.waiting() ||
             task.status === std.runtime.TaskStatus.running();

@@ -796,9 +796,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
               if (!this.isConnected) {
                 return;
               }
-              this.shadowRoot.replaceChildren(
-                cellFactory(this._value, (this.parentElement as GuiTableBodyCell).rowIdx, this),
-              );
+              const node = cellFactory(this._value, (this.parentElement as GuiTableBodyCell).rowIdx, this);
+              this.shadowRoot.replaceChildren(node);
             }
           },
         );

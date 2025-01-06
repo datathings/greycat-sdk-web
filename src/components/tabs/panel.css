@@ -1,4 +1,4 @@
 :host {
-  display: block;
+  display: var(--gui-panel-display);
   background-color: var(--bg-1);
 }

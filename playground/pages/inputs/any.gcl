@@ -1,0 +1,5 @@
+type AnyInput {
+  type: type;
+  field: field;
+  never: null;
+}
