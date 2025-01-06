@@ -31,4 +31,4 @@ cd ..
 lib="lib.zip"
 zip -r $lib libweb
 
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${LIB}.zip"
+curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
