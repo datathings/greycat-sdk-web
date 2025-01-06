@@ -1,8 +1,8 @@
-var n: node<String>?;
-var nt: nodeTime<String>?;
-var nl: nodeList<String>?;
-var ni: nodeIndex<String, float>?;
-var ng: nodeGeo<String>?;
+var n: node<String?>;
+var nt: nodeTime<String>;
+var nl: nodeList<String>;
+var ni: nodeIndex<String, float>;
+var ng: nodeGeo<String>;
 
 type FloatPrecisionTest {
   normal: float;
@@ -14,24 +14,24 @@ fn main() {
   write_std(GcbWriter { path: "project.test.gcb" });
 
   n ?= node<String> { "Hello, world!" };
-  if (nt == null) {
+  if (nt.size() == 0) {
     nt = nodeTime<String> {};
     nt.setAt('2024-01-01T00:00:00Z', "first day");
     nt.setAt('2024-01-02T00:00:00Z', "second day");
   }
-  if (nl == null) {
+  if (nl.size() == 0) {
     nl = nodeList<String> {};
     nl.add("first");
     nl.add("second");
     nl.add("third");
   }
-  if (ni == null) {
+  if (ni.size() == 0) {
     ni = nodeIndex<String, float> {};
     ni.set("sensor-0", 14.3);
     ni.set("sensor-1", 28.36);
     ni.set("sensor-2", 5.1);
   }
-  if (ng == null) {
+  if (ng.size() == 0) {
     ng = nodeGeo<String> {};
     ng.set(geo { 1, 2 }, "first");
     ng.set(geo { 1.2, 1.3 }, "second");
