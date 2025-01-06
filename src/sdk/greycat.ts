@@ -146,6 +146,7 @@ export async function downloadAbi(
   return [data, token];
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface GreyCat {
   /**
    * The generic param `T` is there only for convenience as no runtime checks are made on the deserialized value.
@@ -204,6 +205,7 @@ export interface GreyCat {
   getFile<T = unknown>(filepath: string, signal?: AbortSignal): Promise<T | T[]>;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class GreyCat {
   /** GreyCat's api endpoint normalized (does not contain a trailing slash) */
   readonly api: string;

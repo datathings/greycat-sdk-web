@@ -1,6 +1,7 @@
 import type { AbiType, AbiReader, AbiWriter, GreyCat, std } from '../../exports.js';
 import { GCObject, PrimitiveType, $ } from '../../exports.js';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface time {
   sub(duration: std.core.duration): std.core.time;
   sub(time: std.core.time): std.core.duration;
@@ -21,6 +22,7 @@ export interface time {
   format(options: Intl.DateTimeFormatOptions, locales?: string): string;
 }
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class time extends GCObject {
   private static readonly LOCALE = 'fr-FR';
   private static readonly FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {

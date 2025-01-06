@@ -620,7 +620,7 @@ export class Writer {
   /**
    * Returns a slice of the current writer buffer from `0` to `this._curr`
    */
-  get buffer(): Uint8Array {
+  get buffer(): Uint8Array<ArrayBuffer> {
     return this._buf.slice(0, this._curr);
   }
 

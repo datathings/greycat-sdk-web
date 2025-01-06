@@ -1,6 +1,7 @@
 import type { AbiType, AbiWriter, Abi, Value } from './exports.js';
 import { GCEnum, PrimitiveType } from './exports.js';
 
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export interface GCObject {
   readonly $type: AbiType;
   readonly $attrs?: Value[];
@@ -12,6 +13,7 @@ export interface GCObject {
 /**
  * A dynamic GreyCat type instance, used when no matching class found in the factory
  */
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class GCObject {
   readonly $attrs?: Value[];
 

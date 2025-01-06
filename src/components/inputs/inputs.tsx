@@ -720,7 +720,7 @@ export class GuiInputField extends GuiInputElement<std.core.field | null> {
           }
         } else {
           this._value = null;
-        }  
+        }
       }
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
