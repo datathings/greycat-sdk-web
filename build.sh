@@ -9,6 +9,7 @@ sed -i -e "s/\"version\":\\s*\"0.0.0\"/\"version\": \"${VERSION}\"/g" package.js
 
 pnpm install
 pnpm lint
+pnpm test
 pnpm build
 pnpm pack
 
