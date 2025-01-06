@@ -27,8 +27,8 @@ curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.esm.js             
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
 curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/sdk/web/${BRANCH}/latest"
 
-cd ..
+cd ../libweb
 lib="lib.zip"
-zip -r $lib libweb
+zip -r $lib .
 
 curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
