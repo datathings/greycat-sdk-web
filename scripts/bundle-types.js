@@ -73,11 +73,20 @@ async function removeImportsFromDTS(filepath) {
     Program: {
       exit(path) {
         // Check if all remaining nodes are only export declarations
-        isOnlyReExports = path.node.body.every(
-          (node) =>
-            t.isExportAllDeclaration(node) ||
-            (t.isExportNamedDeclaration(node) && !node.declaration),
-        );
+        isOnlyReExports = path.node.body.every((node) => {
+          // Export all without an alias (e.g., `export * from './whatever.js';`)
+          if (t.isExportAllDeclaration(node) && !node.exported) {
+            return true; // These can be discarded
+          }
+
+          // Export all with an alias (e.g., `export * as some_name from './another.js';`)
+          if (t.isExportAllDeclaration(node) && node.exported) {
+            return false; // Keep these, as they should be part of the namespace
+          }
+
+          // Named export declarations without a declaration (e.g., `export { a } from './module';`)
+          return t.isExportNamedDeclaration(node) && !node.declaration;
+        });
 
         if (!isOnlyReExports) {
           // Collect non-export content
@@ -108,8 +117,8 @@ async function removeImportsFromDTS(filepath) {
 async function writeBundle() {
   const globalAugments = [];
 
-  
   for (const node of globalDeclarations) {
+    // prefix every type 'XXX' with 'greycat.XXX'
     globalAugments.push(...node.body.body);
   }
 

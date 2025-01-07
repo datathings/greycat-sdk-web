@@ -1,4 +1,4 @@
-export { html } from 'lit-html';
+export { html, render } from 'lit-html';
 export * from './sdk/index.js';
 export * from './shoelace.js';
 export * from './components/index.js';
