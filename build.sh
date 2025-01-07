@@ -21,6 +21,7 @@ mv \
   dist/greycat.css \
   dist/greycat.esm.js \
   dist/greycat.js \
+  dist/greycat.d.ts \
   dist/sdk/web/
 
 mkdir -p libweb/lib/web
