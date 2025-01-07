@@ -39,7 +39,7 @@
     "build:jsx": "tsc -p tsconfig.jsx.json",
     "build:sdk": "tsc -p tsconfig.sdk.json",
     "build:types": "tsc -p tsconfig.types.json",
-    "build:bundle": "node esbuild.config.js",
+    "build:bundle": "node scripts/bundle-types.js && node esbuild.config.js",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/greycat.css",
     "build:playground": "./playground/gen.sh && tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./sdk/prepare-test.sh",
@@ -51,9 +51,14 @@
   "dependencies": {
     "@shoelace-style/shoelace": "2.19.0",
     "d3": "7.8.5",
-    "dockview-core": "1.10.1"
+    "dockview-core": "1.10.1",
+    "lit-html": "3.2.1"
   },
   "devDependencies": {
+    "@babel/generator": "7.26.3",
+    "@babel/parser": "7.26.3",
+    "@babel/traverse": "7.26.4",
+    "@babel/types": "7.26.3",
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
     "@types/node": "22.5.0",
