@@ -1227,8 +1227,8 @@ export class GuiInputFn extends GuiInputObject {
   }
 
   get args() {
-    if (this._value && this._value.$attrs) {
-      return this._value.$attrs;
+    if (this._value && this._value.$fields) {
+      return this._value.$fields;
     }
     return [];
   }

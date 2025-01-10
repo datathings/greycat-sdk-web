@@ -273,7 +273,7 @@ export class GuiObject extends GuiElement {
   }
 
   private _renderAsGCObject(value: greycat.GCObject): void {
-    if (value.$attrs === undefined || value.$fields?.length === 0) {
+    if (value.$fields === undefined || value.$fields?.length === 0) {
       this.shadowRoot.replaceChildren(<em>empty object</em>);
       return;
     }

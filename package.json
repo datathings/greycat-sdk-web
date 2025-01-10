@@ -37,7 +37,7 @@
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
     "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
-    "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js && ./concat.sh",
+    "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
     "build:playground": "./playground/gen.sh && tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare-test.sh",
