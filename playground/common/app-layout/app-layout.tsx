@@ -1,16 +1,15 @@
-import { registerCustomElement, registerDebugLogger } from '@greycat/web';
-import type { sl } from '@greycat/web';
-import { cx } from '@greycat/web/jsx-runtime';
+import { registerCustomElement } from '@greycat/sdk/web';
+import type { sl } from '@greycat/sdk/web';
+import { cx } from '@greycat/sdk/jsx-runtime';
 import './main.css';
 
 import style from './app-layout.css?inline';
 
-registerDebugLogger();
+greycat.registerDebugLogger();
 
 export class AppLayout extends HTMLElement {
   // prettier-ignore
   private static readonly PAGES: Array<{ href: string; title: string }> = [
-    // { title: 'Abi',                     href: 'abi/' },
     { title: 'Chart (bar-histogram)',   href: 'chart-bar-histogram/' },
     { title: 'Chart (bar)',             href: 'chart-bar/' },
     { title: 'Chart (colored-area)',    href: 'chart-colored-area/' },
@@ -41,7 +40,6 @@ export class AppLayout extends HTMLElement {
     { title: 'Roles',                   href: 'roles/' },
     { title: 'Root',                    href: 'root/' },
     { title: 'Searchable Select',       href: 'searchable-select/' },
-    // { title: 'Signal',                  href: 'signal/' },
     { title: 'Table',                   href: 'table/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },

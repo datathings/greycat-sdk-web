@@ -1,8 +1,8 @@
 import '@/common';
 import './index.css';
 
-import { GreyCat, runtime } from '@greycat/web';
-import '@greycat/web/css/greycat.css';
+import { GreyCat, runtime } from '@greycat/sdk/web';
+import '@greycat/sdk/greycat.css';
 
 await GreyCat.init();
 

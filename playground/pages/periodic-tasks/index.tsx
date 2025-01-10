@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, runtime } from '@greycat/web';
+import { GreyCat, IndexedDbCache, runtime } from '@greycat/sdk/web';
 import '@/common';
 
 const greycat = await GreyCat.init({

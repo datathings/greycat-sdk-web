@@ -1,36 +1,35 @@
-import * as esbuild from 'esbuild';
+import { buildSync } from 'esbuild';
 
-await Promise.all([
-  // iife bundle
-  esbuild.build({
-    entryPoints: ['src/exports.ts'],
-    outfile: './dist/greycat.js',
-    bundle: true,
-    globalName: 'greycat',
-    format: 'iife',
-    target: 'esnext',
-    minifySyntax: true,
-    minifyWhitespace: true,
-    loader: {
-      '.css': 'text',
-      '.css?inline': 'text',
-    },
-    logLevel: 'info'
-  }),
-  // esm bundle
-  esbuild.build({
-    entryPoints: ['src/index.ts'],
-    outfile: './dist/greycat.esm.js',
-    bundle: true,
-    format: 'esm',
-    target: 'esnext',
-    sourcemap: true,
-    minifySyntax: true,
-    minifyWhitespace: true,
-    loader: {
-      '.css': 'text',
-      '.css?inline': 'text',
-    },
-    logLevel: 'info'
-  })
-]);
+// iife bundle
+buildSync({
+  entryPoints: ['src/web/index.ts'],
+  outfile: './dist/greycat.web.js',
+  bundle: true,
+  format: 'iife',
+  target: 'esnext',
+  globalName: 'greycat',
+  minifySyntax: true,
+  minifyWhitespace: true,
+  loader: {
+    '.css': 'text',
+    '.css?inline': 'text',
+  },
+  logLevel: 'info',
+});
+
+// esm bundle
+buildSync({
+  entryPoints: ['src/web/index.ts'],
+  outfile: './dist/greycat.web.esm.js',
+  bundle: true,
+  format: 'esm',
+  target: 'esnext',
+  sourcemap: true,
+  minifySyntax: true,
+  minifyWhitespace: true,
+  loader: {
+    '.css': 'text',
+    '.css?inline': 'text',
+  },
+  logLevel: 'info',
+});

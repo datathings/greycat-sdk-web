@@ -1,4 +1,4 @@
-import { GreyCat, type GuiChart, type SerieStyle, IndexedDbCache, type core, $ } from '@greycat/web';
+import { GreyCat, type GuiChart, type SerieStyle, IndexedDbCache, type core, $ } from '@greycat/sdk/web';
 import '@/common';
 
 const LINE_COL = 0;

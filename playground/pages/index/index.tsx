@@ -1,5 +1,5 @@
-import '@greycat/web';
-import '@greycat/web/css/greycat.css';
+import '@greycat/sdk/web';
+import '@greycat/sdk/greycat.css';
 import '@/common';
 import s from './index.module.css';
 

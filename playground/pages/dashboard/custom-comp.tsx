@@ -1,4 +1,4 @@
-import { registerCustomElement } from '@greycat/web';
+import { registerCustomElement } from '@greycat/sdk/web';
 
 class CustomComponent extends HTMLElement {
   private _counter: Text;

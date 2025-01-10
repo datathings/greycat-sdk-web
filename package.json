@@ -1,49 +1,47 @@
 {
-  "name": "@greycat/web",
+  "name": "@greycat/sdk",
   "version": "0.0.0",
   "type": "module",
-  "module": "./dist/greycat.esm.js",
-  "types": "./dist/types/index.d.ts",
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/greycat.esm.js"
+      "types": "./dist/greycat.d.ts",
+      "import": "./dist/greycat.js"
     },
-    "./sdk": {
-      "types": "./dist/sdk/index.d.ts",
-      "import": "./dist/sdk/index.js"
+    "./web": {
+      "types": "./dist/types/index.d.ts",
+      "import": "./dist/greycat.web.esm.js"
     },
     "./jsx-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
-      "import": "./dist/jsx-runtime.js"
+      "types": "./dist/jsx/jsx-runtime.d.ts",
+      "import": "./dist/jsx/jsx-runtime.js"
     },
     "./jsx-dev-runtime": {
-      "types": "./dist/jsx-runtime.d.ts",
-      "import": "./dist/jsx-runtime.js"
+      "types": "./dist/jsx/jsx-runtime.d.ts",
+      "import": "./dist/jsx/jsx-runtime.js"
     },
-    "./css/*.css": "./dist/*.css",
-    "./fonts/*.ttf": "./fonts/*.ttf",
-    "./fonts/*.woff": "./fonts/*.woff"
+    "./*.css": "./dist/*.css",
+    "./*.ttf": "./fonts/*.ttf",
+    "./*.woff": "./fonts/*.woff"
   },
   "license": "Apache-2.0",
   "files": [
     "jsx.d.ts",
     "dist",
     "fonts",
-    "src"
+    "src",
+    "css"
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "gen": "GREYCAT_CODEGEN_TS_SDK='../exports.js' GREYCAT_CODEGEN_TS_FOOTER='src/sdk/std/std_ext.d.ts' greycat codegen --target=ts --lib=std src/sdk/std",
-    "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:types && pnpm build:bundle && pnpm build:css",
-    "build:jsx": "tsc -p tsconfig.jsx.json",
-    "build:sdk": "tsc -p tsconfig.sdk.json",
-    "build:types": "tsc -p tsconfig.types.json",
-    "build:bundle": "node scripts/bundle-types.js && node esbuild.config.js",
-    "build:css": "lightningcss --minify --bundle --targets '>=0.25%' src/css/greycat.css -o dist/greycat.css",
+    "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen --target=ts . && mv project.d.ts std.d.ts",
+    "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:css",
+    "build:jsx": "tsc -p src/jsx/tsconfig.json",
+    "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
+    "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js && ./concat.sh",
+    "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
     "build:playground": "./playground/gen.sh && tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
-    "prepare:test": "./sdk/prepare-test.sh",
-    "test": "./sdk/test.sh",
+    "prepare:test": "./test/prepare-test.sh",
+    "test": "./test/test.sh",
     "dev": "vite -c playground/vite.config.ts",
     "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
@@ -63,18 +61,16 @@
     "@types/d3": "7.4.0",
     "@types/node": "22.5.0",
     "@typescript-eslint/eslint-plugin": "6.2.1",
-    "add": "2.0.6",
     "dts-bundle": "0.7.3",
+    "dts-bundle-generator": "9.5.1",
     "esbuild": "0.24.2",
     "eslint": "8.46.0",
     "http-proxy": "1.18.1",
     "lightningcss": "1.25.1",
     "lightningcss-cli": "1.25.1",
     "prettier": "3.3.3",
-    "rollup": "4.30.1",
-    "rollup-plugin-dts": "6.1.1",
     "tslib": "2.6.3",
     "typescript": "5.7.2",
-    "vite": "5.3.5"
+    "vite": "6.0.7"
   }
 }

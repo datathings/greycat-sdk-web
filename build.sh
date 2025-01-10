@@ -17,17 +17,22 @@ mkdir -p dist/sdk/web
 
 mv greycat-*.tgz dist/sdk/web/package.tgz
 mv \
+  dist/jsx \
   dist/types \
   dist/greycat.css \
-  dist/greycat.esm.js \
   dist/greycat.js \
   dist/greycat.d.ts \
+  dist/greycat.web.js \
+  dist/greycat.web.esm.js \
   dist/sdk/web/
 
 mkdir -p libweb/lib/web
 mkdir -p libweb/webroot/web
-cp -r dist/sdk/web/greycat.d.ts libweb/lib/web/
+cp dist/sdk/web/greycat.d.ts libweb/lib/web/
+cp -r dist/sdk/web/types libweb/lib/web/
 cp dist/sdk/web/greycat.css libweb/webroot/web/
 cp dist/sdk/web/greycat.js libweb/webroot/web/
+cp dist/sdk/web/greycat.web.js libweb/webroot/web/
+cp dist/sdk/web/greycat.web.esm.js libweb/webroot/web/
 
-rm -rf dist/types
+rm -rf dist/jsx dist/types **/*.map

@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { ChartConfig, GreyCat, IndexedDbCache } from '@greycat/web';
+import { ChartConfig, GreyCat, IndexedDbCache } from '@greycat/sdk/web';
 import '@/common';
 import data from './data.json';
 

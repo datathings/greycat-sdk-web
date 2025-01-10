@@ -1,37 +1,44 @@
-import type { AbiType, AbiReader, AbiWriter, GreyCat } from '../../exports.js';
-import { GCObject, PrimitiveType, utils, $ } from '../../exports.js';
+namespace greycat {
+  export namespace std_n {
+    export namespace core {
+      export class t3 extends GCObject {
+        static readonly _type = 'core::t3' as const;
 
-export class t3 extends GCObject {
-  static readonly _type = 'core::t3' as const;
+        constructor(
+          public x0: number = 0,
+          public x1: number = 0,
+          public x2: number = 0,
+        ) {
+          super();
+        }
 
-  constructor(type: AbiType, public x0: number = 0, public x1: number = 0, public x2: number = 0) {
-    super(type);
-  }
+        static create(x0: number, x1: number, x2: number, g: GreyCat = $.default): t3 {
+          const ty = g.abi.types[g.abi.core.t3];
+          return new ty.ctor(x0, x1, x2) as t3;
+        }
 
-  static create(x0: number, x1: number, x2: number, g: GreyCat = $.default): t3 {
-    const ty = g.abi.types[g.abi.core.t3];
-    return new ty.factory(ty, x0, x1, x2) as t3;
-  }
+        static load(r: AbiReader, ty: AbiType): t3 {
+          const [x0, x1, x2] = utils.deinterleave64_3di(r.read_u64());
+          return new ty.ctor(x0, x1, x2) as t3;
+        }
 
-  static load(r: AbiReader, ty: AbiType): t3 {
-    const [x0, x1, x2] = utils.deinterleave64_3di(r.read_u64());
-    return new ty.factory(ty, x0, x1, x2) as t3;
-  }
+        override saveHeader(w: AbiWriter): void {
+          w.write_u8(PrimitiveType.t3);
+        }
 
-  override saveHeader(w: AbiWriter): void {
-    w.write_u8(PrimitiveType.t3);
-  }
+        override saveContent(w: AbiWriter) {
+          w.write_u64(utils.interleave64_3di(this.x0, this.x1, this.x2));
+        }
 
-  override saveContent(w: AbiWriter) {
-    w.write_u64(utils.interleave64_3di(this.x0, this.x1, this.x2));
-  }
-
-  override toJSON() {
-    return {
-      _type: this.$type.name,
-      x0: this.x0,
-      x1: this.x1,
-      x2: this.x2,
-    };
+        override toJSON() {
+          return {
+            _type: this.$type.name,
+            x0: this.x0,
+            x1: this.x1,
+            x2: this.x2,
+          };
+        }
+      }
+    }
   }
 }

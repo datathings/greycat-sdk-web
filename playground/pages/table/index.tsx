@@ -1,13 +1,13 @@
-import { GreyCat, IndexedDbCache, $, core, getGlobalNumberFormat } from '@greycat/web';
+import { IndexedDbCache, getGlobalNumberFormat } from '@greycat/sdk/web';
 import '@/common';
 
-await GreyCat.init({
+await greycat.GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
 const { actions } = await import('./actions');
 
-const table = await $.default.call<core.Table>('project::table');
+const table = await greycat.project.table();
 console.log(table);
 
 document.body.appendChild(

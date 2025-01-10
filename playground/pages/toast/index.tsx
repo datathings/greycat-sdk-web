@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, toast } from '@greycat/web';
+import { GreyCat, IndexedDbCache, toast } from '@greycat/sdk/web';
 import '@/common';
 
 const greycat = await GreyCat.init({

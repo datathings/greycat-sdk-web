@@ -1,25 +1,28 @@
-import type { AbiType, AbiReader, AbiWriter } from '../../exports.js';
-import { GCObject } from '../../exports.js';
+namespace greycat {
+  export namespace std_n {
+    export namespace core {
+      export class nodeTimeCursor extends GCObject {
+        static readonly _type = 'core::nodeTimeCursor' as const;
 
-export class nodeTimeCursor extends GCObject {
-  static readonly _type = 'core::nodeTimeCursor' as const;
+        constructor(public value: bigint = 0n) {
+          super();
+          throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
+        }
 
-  constructor(type: AbiType, public value: bigint = 0n) {
-    super(type);
-    throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
-  }
+        static load(_r: AbiReader): nodeTimeCursor {
+          throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
+        }
 
-  static load(_r: AbiReader): nodeTimeCursor {
-    throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
-  }
+        override saveContent(_w: AbiWriter) {
+          throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
+        }
 
-  override saveContent(_w: AbiWriter) {
-    throw new Error(`${nodeTimeCursor._type}: is not implemented yet`);
-  }
-
-  override toJSON() {
-    return {
-      _type: this.$type.name,
-    };
+        override toJSON() {
+          return {
+            _type: this.$type.name,
+          };
+        }
+      }
+    }
   }
 }

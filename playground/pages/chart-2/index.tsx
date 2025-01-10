@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, type GuiChart2 } from '@greycat/web';
+import { GreyCat, IndexedDbCache, type GuiChart2 } from '@greycat/sdk/web';
 import '@/common';
 import './index.css';
 

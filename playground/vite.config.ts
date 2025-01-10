@@ -22,8 +22,6 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': resolve(__dirname),
-      '@greycat/web/jsx-dev-runtime': resolve(__dirname, '..', 'src', 'jsx-runtime.ts'),
-      '@greycat/web': resolve(__dirname, '..', 'src'),
     },
   },
   build: {

@@ -1,4 +1,4 @@
-import { GreyCat, sl } from '@greycat/web';
+import { GreyCat, sl } from '@greycat/sdk/web';
 import '@/common';
 import './index.css';
 

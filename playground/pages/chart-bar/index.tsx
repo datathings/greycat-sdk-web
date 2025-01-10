@@ -1,4 +1,4 @@
-import { core, BarSerie, GreyCat, IndexedDbCache, $ } from '@greycat/web';
+import { core, BarSerie, GreyCat, IndexedDbCache, $ } from '@greycat/sdk/web';
 import '@/common';
 
 const baseLine = 10;

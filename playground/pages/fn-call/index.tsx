@@ -1,8 +1,8 @@
-import { GreyCat, IndexedDbCache, GuiFnSelect, GuiInputFn, $ } from '@greycat/web';
+import { IndexedDbCache, GuiFnSelect, GuiInputFn } from '@greycat/sdk/web';
 import '@/common';
 import './index.css';
 
-await GreyCat.init({
+const g = await greycat.GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -23,7 +23,7 @@ let method: string = '';
 
 const handleFnCall = async () => {
   try {
-    resultEl.value = await $.default.call(method, input.args);
+    resultEl.value = await g.call(method, input.args);
   } catch (err) {
     resultEl.value = err;
   }
@@ -37,7 +37,7 @@ document.body.appendChild(
           <legend>Pick a function:</legend>
           <gui-fn-select
             onsl-change={function (this: GuiFnSelect) {
-              const fn = $.default.findFn(this.value as string);
+              const fn = g.findFn(this.value as string);
               if (fn) {
                 method = fn.fqn;
                 resultEl.value = undefined;

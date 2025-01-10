@@ -1,9 +1,9 @@
 @include("pages");
 
-var sensor: nodeTime<SensorData>?;
-var serie_float: nodeTime<float>?;
-var kline: nodeTime<KLine>?;
-var nt: nodeTime?;
+var sensor: nodeTime<SensorData>;
+var serie_float: nodeTime<float>;
+var kline: nodeTime<KLine>;
+var nt: nodeTime;
 
 type KLine {
   open: float;
@@ -625,7 +625,7 @@ fn obj2() {
 }
 // pages/object end
 
-var person: node<Person2>?;
+var person: node<Person2?>;
 
 @expose
 fn get_person() {

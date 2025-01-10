@@ -1,4 +1,4 @@
-import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache, sl } from '@greycat/web';
+import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache, sl } from '@greycat/sdk/web';
 import '@/common';
 import './index.css';
 

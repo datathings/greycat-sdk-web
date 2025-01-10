@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { GreyCat, IndexedDbCache, core } from '@greycat/web';
+import { GreyCat, IndexedDbCache, core } from '@greycat/sdk/web';
 import '@/common';
 
 await GreyCat.init({

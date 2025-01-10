@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $, sl } from '@greycat/web';
+import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $, sl } from '@greycat/sdk/web';
 import '@/common';
 import actions from './actions';
 

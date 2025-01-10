@@ -19,9 +19,10 @@ module.exports = {
       'error',
       {
         argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
+        varsIgnorePattern: '^_|greycat',
         destructuredArrayIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
+
       },
     ],
     '@typescript-eslint/no-extra-non-null-assertion': 'error',

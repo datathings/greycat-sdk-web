@@ -1,4 +1,4 @@
-import { core, setGlobalDateTimeFormatTimezone } from '@greycat/web';
+import { setGlobalDateTimeFormatTimezone } from '@greycat/sdk/web';
 
 export const actions = (
   <>
@@ -63,7 +63,7 @@ export const actions = (
     </sl-button>
     <gui-input-enum
       slot="action"
-      type={core.TimeZone._type}
+      type={greycat.core.TimeZone._type}
       ongui-change={(ev) => {
         if (ev.detail) {
           const dateFmt = setGlobalDateTimeFormatTimezone(ev.detail);

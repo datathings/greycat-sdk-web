@@ -13,18 +13,6 @@ declare namespace GreyCat {
     ) => any;
   };
 
-  // type SignalOrValue<T> = T extends boolean
-  //   ? boolean | GreyCat.Signal<boolean>
-  //   : T extends null | undefined
-  //     ? T
-  //     : // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  //       T extends any
-  //       ? T | GreyCat.Signal<T>
-  //       : never;
-
-  // type WrapElement<T> = {
-  //   [K in keyof T]: SignalOrValue<T[K]>;
-  // };
   type WrapElement<T> = T; // noop type for now
 
   // eslint-disable-next-line @typescript-eslint/ban-types
@@ -54,7 +42,7 @@ declare namespace GreyCat {
     interface Element extends Node {}
 
     interface IntrinsicElements {
-      "<></>": GreyCat.Element<DocumentFragment>;
+      '<></>': GreyCat.Element<DocumentFragment>;
       // HTML
       a: GreyCat.Element<HTMLAnchorElement>;
       abbr: GreyCat.Element<HTMLElement>;
@@ -67,7 +55,6 @@ declare namespace GreyCat {
       base: GreyCat.Element<HTMLBaseElement>;
       bdi: GreyCat.Element<HTMLElement>;
       bdo: GreyCat.Element<HTMLElement>;
-      big: GreyCat.Element<HTMLElement>;
       blockquote: GreyCat.Element<HTMLQuoteElement>;
       body: GreyCat.Element<HTMLBodyElement>;
       br: GreyCat.Element<HTMLBRElement>;

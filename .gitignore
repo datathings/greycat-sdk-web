@@ -7,3 +7,4 @@ gcdata
 /.vitepress/dist
 
 /package-lock.json
+/src/sdk_esm_not_working

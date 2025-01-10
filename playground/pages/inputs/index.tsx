@@ -9,7 +9,7 @@ import {
   css,
   registerCustomElement,
   sl,
-} from '@greycat/web';
+} from '@greycat/sdk/web';
 import './project-sensor-form';
 import { project, projectlib } from '@/common';
 import IndexStyle from './index.css?inline';

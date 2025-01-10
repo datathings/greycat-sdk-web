@@ -1,9 +1,9 @@
-import { GreyCat } from '@greycat/web';
+import '@greycat/sdk/web';
 import { LayoutHeader, LayoutMenu } from '@/common';
 
-const greycat = await GreyCat.init();
+const g = await greycat.GreyCat.init();
 
-const table = await greycat.call('project::persons');
+const table = await g.call('project::persons');
 console.log(table);
 
 document.body.appendChild(
