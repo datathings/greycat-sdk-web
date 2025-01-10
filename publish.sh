@@ -23,8 +23,8 @@ curl -s -X PUT -H "Authorization: $token" -T $file                              
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/package.tgz                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.tgz"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.css                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.css"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.esm.js              "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.esm.js"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
+curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.web.js              "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.web.js"
+curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.web.esm.js          "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.web.esm.js"
 curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/sdk/web/${BRANCH}/latest"
 
 cd ../libweb
