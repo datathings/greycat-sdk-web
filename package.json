@@ -53,16 +53,10 @@
     "lit-html": "3.2.1"
   },
   "devDependencies": {
-    "@babel/generator": "7.26.3",
-    "@babel/parser": "7.26.3",
-    "@babel/traverse": "7.26.4",
-    "@babel/types": "7.26.3",
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
     "@types/node": "22.5.0",
     "@typescript-eslint/eslint-plugin": "6.2.1",
-    "dts-bundle": "0.7.3",
-    "dts-bundle-generator": "9.5.1",
     "esbuild": "0.24.2",
     "eslint": "8.46.0",
     "http-proxy": "1.18.1",
