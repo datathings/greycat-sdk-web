@@ -425,6 +425,7 @@ namespace greycat {
           case this.core.array: {
             type.loader = std_n.core.Array.load;
             type.ctor = greycat.core.Array;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.Array;
             break;
@@ -432,6 +433,7 @@ namespace greycat {
           case this.core.table: {
             type.loader = std_n.core.Table.load;
             type.ctor = greycat.core.Table;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.Table;
             break;
@@ -439,6 +441,7 @@ namespace greycat {
           case this.core.map: {
             type.loader = std_n.core.Map.load;
             type.ctor = greycat.core.Map;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.Map;
             break;
@@ -446,6 +449,7 @@ namespace greycat {
           case this.core.node: {
             type.loader = std_n.core.node.load;
             type.ctor = greycat.core.node;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.node;
             break;
@@ -453,6 +457,7 @@ namespace greycat {
           case this.core.node_time: {
             type.loader = std_n.core.nodeTime.load;
             type.ctor = greycat.core.nodeTime;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.nodeTime;
             break;
@@ -460,6 +465,7 @@ namespace greycat {
           case this.core.node_list: {
             type.loader = std_n.core.nodeList.load;
             type.ctor = greycat.core.nodeList;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.nodeList;
             break;
@@ -467,6 +473,7 @@ namespace greycat {
           case this.core.node_index: {
             type.loader = std_n.core.nodeIndex.load;
             type.ctor = greycat.core.nodeIndex;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.nodeIndex;
             break;
@@ -474,6 +481,7 @@ namespace greycat {
           case this.core.node_geo: {
             type.loader = std_n.core.nodeGeo.load;
             type.ctor = greycat.core.nodeGeo;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (greycat as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
               greycat.core.nodeGeo;
             break;
@@ -727,6 +735,7 @@ namespace greycat {
       readonly is_core: boolean,
       readonly abi: Abi,
     ) {
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
       const type = this;
       const module_name = abi.symbols[module];
       const type_name = abi.symbols[symbol];
@@ -737,6 +746,7 @@ namespace greycat {
             Object.defineProperty(this, '$type', { value: type, enumerable: false });
           }
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.ctor = (greycat as any)[module_name][type_name] = GCEnum;
         this.static_values = {};
         if (offset === mapped_type_off) {
@@ -747,6 +757,7 @@ namespace greycat {
             const en = new this.ctor(offset, en_field_name) as GCEnum;
             this.static_values[en_field_name] = en;
             this.enum_values[offset] = en;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (this.ctor as any)[en_field_name] = en;
           }
         }
@@ -760,6 +771,7 @@ namespace greycat {
                   Object.defineProperty(this, '$type', { value: type, enumerable: false });
                 }
               };
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               this.ctor = (greycat as any)[module_name]['function_'] = GCObject;
               break;
             }
@@ -770,6 +782,7 @@ namespace greycat {
                   Object.defineProperty(this, '$type', { value: type, enumerable: false });
                 }
               };
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               this.ctor = (greycat as any)[module_name]['null_'] = GCObject;
               break;
             }
@@ -778,12 +791,15 @@ namespace greycat {
               if ((greycat.std_n.core as any)[type_name]) {
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 const GCObject = class extends (greycat.std_n.core as any)[type_name] {
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                   constructor(...args: any[]) {
                     super(...args);
                     Object.defineProperty(this, '$type', { value: type, enumerable: false });
                     this.$init?.();
                   }
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any;
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 this.ctor = (greycat as any)[module_name][type_name] = GCObject;
               } else {
                 const GCObject = class extends greycat.GCObject {
@@ -794,6 +810,7 @@ namespace greycat {
                     );
                   }
                 };
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 this.ctor = (greycat as any)[module_name][type_name] = GCObject;
               }
               break;
@@ -819,7 +836,7 @@ namespace greycat {
           };
         }
         const GCObject = class extends greycat.GCObject {
-          constructor(...$fields: any[]) {
+          constructor(...$fields: unknown[]) {
             super();
             Object.defineProperty(this, '$type', { value: type, enumerable: false });
             Object.defineProperty(this, '$fields', { value: $fields, enumerable: false });
@@ -827,9 +844,11 @@ namespace greycat {
           }
 
           static createFrom(fields: object) {
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return new (this as any as GCObject).$type.ctor(...Object.values(fields));
           }
         };
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.ctor = (greycat as any)[module_name][type_name] = GCObject;
       }
 
@@ -840,6 +859,7 @@ namespace greycat {
       });
 
       if (this.is_native) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         this.loader = (this.ctor as any).load ?? AbiType.error_loader;
       } else if (this.is_enum) {
         this.loader = AbiType.enum_loader;
