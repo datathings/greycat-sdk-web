@@ -1,4 +1,4 @@
-import { createElement } from '@greycat/sdk/jsx-runtime';
+import { createElement } from '@greycat/web/jsx-runtime';
 import {
   GuiElement,
   registerCustomElement,

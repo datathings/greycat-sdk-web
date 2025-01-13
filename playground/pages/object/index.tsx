@@ -1,4 +1,4 @@
-import { GreyCat, runtime, type sl } from '@greycat/sdk/web';
+import { GreyCat, runtime, type sl } from '@greycat/web';
 import '@/common';
 
 const greycat = await GreyCat.init();

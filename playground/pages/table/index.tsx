@@ -1,4 +1,4 @@
-import { IndexedDbCache, getGlobalNumberFormat } from '@greycat/sdk/web';
+import { IndexedDbCache, getGlobalNumberFormat } from '@greycat/web';
 import '@/common';
 
 await greycat.GreyCat.init({

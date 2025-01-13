@@ -9,7 +9,7 @@ import {
   SerializedDockview,
 } from 'dockview-core';
 
-import { createElement } from '@greycat/sdk/jsx-runtime';
+import { createElement } from '@greycat/web/jsx-runtime';
 import { css, GuiElement } from '../../exports.js';
 import style from './dashboard.css?inline';
 import dockviewStyle from 'dockview-core/dist/styles/dockview.css?inline';

@@ -1,4 +1,4 @@
-import { IndexedDbCache, GuiFnSelect, GuiInputFn } from '@greycat/sdk/web';
+import { IndexedDbCache, GuiFnSelect, GuiInputFn } from '@greycat/web';
 import '@/common';
 import './index.css';
 

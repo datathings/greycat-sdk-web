@@ -253,6 +253,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
   }
 
   set options(options: SearchableOption[]) {
+    // TODO reset value if options no longer contains it
     this._options = options;
     this.update();
   }

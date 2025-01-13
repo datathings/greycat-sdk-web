@@ -1,6 +1,6 @@
-import { registerCustomElement } from '@greycat/sdk/web';
-import type { sl } from '@greycat/sdk/web';
-import { cx } from '@greycat/sdk/jsx-runtime';
+import { registerCustomElement } from '@greycat/web';
+import type { sl } from '@greycat/web';
+import { cx } from '@greycat/web/jsx-runtime';
 import './main.css';
 
 import style from './app-layout.css?inline';

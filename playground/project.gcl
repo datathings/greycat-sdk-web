@@ -45,13 +45,13 @@ type ComplexForm {
 }
 
 fn main() {
-  tx::init();
+  // tx::init();
 
-  if (serie_float == null) {
+  if (serie_float.size() == 0) {
     init_float();
   }
 
-  if (kline == null) {
+  if (kline.size() == 0) {
     init_kline();
   }
 }
@@ -855,7 +855,7 @@ fn nextValueInt(prev: int, random: Random, threshold: int): int {
 
 @expose
 fn serie_of_obj() {
-  if (kline == null) {
+  if (kline.size() == 0) {
     return Table {};
   }
   return nodeTime::sample(Array<nodeTime> { kline }, null, null, 1000, SamplingMode::adaptative, null, null);

@@ -1,4 +1,4 @@
-import { setGlobalDateTimeFormatTimezone } from '@greycat/sdk/web';
+import { setGlobalDateTimeFormatTimezone } from '@greycat/web';
 
 export const actions = (
   <>

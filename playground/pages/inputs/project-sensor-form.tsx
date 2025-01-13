@@ -5,7 +5,7 @@ import {
   GuiInputEvent,
   GuiInputNumber,
   registerCustomElement,
-} from '@greycat/sdk/web';
+} from '@greycat/web';
 import { project } from '@/common';
 
 export class ProjectSensorForm extends GuiInputElement<project.Sensor> {

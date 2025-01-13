@@ -1,4 +1,4 @@
-import { GreyCat, GuiInputElement, GuiInputFn, runtime } from '@greycat/sdk/web';
+import { GreyCat, GuiInputElement, GuiInputFn, runtime } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init();

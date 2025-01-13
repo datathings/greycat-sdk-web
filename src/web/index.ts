@@ -1,4 +1,4 @@
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 import * as web from './exports.js';
 
 Object.assign(globalThis.greycat, web);

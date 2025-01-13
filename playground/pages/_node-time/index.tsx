@@ -1,4 +1,4 @@
-// import { ChartConfig, core, effect, GreyCat, Signal } from '@greycat/sdk/web';
+// import { ChartConfig, core, effect, GreyCat, Signal } from '@greycat/web';
 // import '@/common';
 
 // const greycat = await GreyCat.init();

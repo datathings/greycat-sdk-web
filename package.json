@@ -1,15 +1,15 @@
 {
-  "name": "@greycat/sdk",
+  "name": "@greycat/web",
   "version": "0.0.0",
   "type": "module",
   "exports": {
     ".": {
-      "types": "./dist/greycat.d.ts",
-      "import": "./dist/greycat.js"
-    },
-    "./web": {
       "types": "./dist/types/index.d.ts",
       "import": "./dist/greycat.web.esm.js"
+    },
+    "./sdk": {
+      "types": "./dist/greycat.d.ts",
+      "import": "./dist/greycat.js"
     },
     "./jsx-runtime": {
       "types": "./dist/jsx/jsx-runtime.d.ts",

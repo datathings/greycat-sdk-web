@@ -1,4 +1,4 @@
-import '@greycat/sdk/web';
+import '@greycat/web';
 import { LayoutHeader, LayoutMenu } from '@/common';
 
 const g = await greycat.GreyCat.init();

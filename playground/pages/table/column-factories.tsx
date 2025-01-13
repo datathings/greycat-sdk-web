@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache } from '@greycat/sdk/web';
+import { GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 import { books } from '@/common/data';
 

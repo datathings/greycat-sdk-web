@@ -1,4 +1,4 @@
-import { $, GreyCat, IndexedDbCache, util } from '@greycat/sdk/web';
+import { $, GreyCat, IndexedDbCache, util } from '@greycat/web';
 import '@/common';
 import './index.css';
 

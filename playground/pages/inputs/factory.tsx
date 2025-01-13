@@ -4,7 +4,7 @@ import {
   GuiChangeEvent,
   GuiInputObject,
   GuiSearchableSelect,
-} from '@greycat/sdk/web';
+} from '@greycat/web';
 import '@/common';
 
 const greycat = await GreyCat.init();

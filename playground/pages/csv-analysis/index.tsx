@@ -1,4 +1,4 @@
-import { GreyCat, type GuiCsvStatistics2, io, $, type GuiTable, sl } from '@greycat/sdk/web';
+import { GreyCat, type GuiCsvStatistics2, io, $, type GuiTable, sl } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init();

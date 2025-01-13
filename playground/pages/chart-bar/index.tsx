@@ -1,10 +1,10 @@
-import { core, BarSerie, GreyCat, IndexedDbCache, $ } from '@greycat/sdk/web';
+import { BarSerie, IndexedDbCache } from '@greycat/web';
 import '@/common';
 
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;
 
-await GreyCat.init({
+await greycat.GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 
@@ -12,15 +12,15 @@ const chart = document.createElement('gui-chart');
 
 chart.addEventListener('gui-selection', (e) => {
   if (e.detail) {
-    const from = core.time.fromMs(e.detail.from as number);
-    const to = core.time.fromMs(e.detail.to as number);
+    const from = greycat.core.time.fromMs(e.detail.from as number);
+    const to = greycat.core.time.fromMs(e.detail.to as number);
     console.log(`selection from ${from} to ${to}`);
   } else {
     console.log(`reset selection`);
   }
 });
 
-chart.value = await $.default.call<core.Table>('project::chart_time');
+chart.value = await greycat.project.chart_time();
 chart.setConfig({
   tooltip: {
     // Override default tooltip
@@ -75,7 +75,7 @@ document.body.appendChild(
 
 // eslint-disable-next-line no-inner-declarations
 async function randomize() {
-  chart.value = await $.default.call<core.Table>('project::chart_time');
+  chart.value = await greycat.project.chart_time();
   chart.compute();
   chart.update();
 }

@@ -1,4 +1,4 @@
-import { $, GreyCat, core } from '@greycat/sdk/web';
+import { $, GreyCat, core } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init();

@@ -1,4 +1,4 @@
-import { core, GreyCat, GuiFactory, IndexedDbCache, io } from '@greycat/sdk/web';
+import { core, GreyCat, GuiFactory, IndexedDbCache, io } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({

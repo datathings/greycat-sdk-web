@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, defineComp, greycatFetcher } from '@greycat/sdk/web';
+import { GreyCat, IndexedDbCache, defineComp, greycatFetcher } from '@greycat/web';
 import '@/common';
 import './custom-comp';
 

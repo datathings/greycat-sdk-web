@@ -1,4 +1,4 @@
-import { $, type core, GreyCat, IndexedDbCache } from '@greycat/sdk/web';
+import { $, type core, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({

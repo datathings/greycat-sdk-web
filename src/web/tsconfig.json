@@ -20,7 +20,7 @@
 
     "lib": ["DOM", "ES2024"],
     "jsx": "react-jsx",
-    "jsxImportSource": "@greycat/sdk",
+    "jsxImportSource": "@greycat/web",
     "types": ["../../jsx.d.ts"],
   },
   "include": ["**/*"],

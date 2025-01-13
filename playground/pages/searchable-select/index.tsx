@@ -1,4 +1,4 @@
-import { GreyCat, IndexedDbCache, type SearchableOption } from '@greycat/sdk/web';
+import { GreyCat, IndexedDbCache, type SearchableOption } from '@greycat/web';
 import '@/common';
 
 const greycat = await GreyCat.init({

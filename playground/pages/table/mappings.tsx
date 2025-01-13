@@ -1,5 +1,5 @@
 import '@/common';
-import { core, GreyCat, type GuiTable } from '@greycat/sdk/web';
+import { core, GreyCat, type GuiTable } from '@greycat/web';
 
 const greycat = await GreyCat.init();
 const { actions } = await import('./actions');

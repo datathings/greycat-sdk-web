@@ -6,7 +6,7 @@
     "noEmit": true,
     "emitDeclarationOnly": false,
     "jsx": "react-jsx",
-    "jsxImportSource": "@greycat/sdk",
+    "jsxImportSource": "@greycat/web",
     "useDefineForClassFields": false,
     "types": ["vite/client", "../jsx.d.ts"],
     "paths": {

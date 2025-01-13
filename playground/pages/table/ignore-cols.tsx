@@ -2,7 +2,7 @@ import HighIcon from '@tabler/icons/temperature-sun.svg?raw';
 import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
-import { $, GCEnum, GreyCat, GuiValueElement, IndexedDbCache, TableLike } from '@greycat/sdk/web';
+import { $, GCEnum, GreyCat, GuiValueElement, IndexedDbCache, TableLike } from '@greycat/web';
 import '@/common';
 
 await GreyCat.init({

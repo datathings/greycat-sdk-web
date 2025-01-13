@@ -6,7 +6,7 @@ import {
   type GuiValueElement,
   type sl,
 } from '../../exports.js';
-import { createElement } from '@greycat/sdk/jsx-runtime';
+import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
 export type ObjectProps = Record<string | number | symbol, unknown>;

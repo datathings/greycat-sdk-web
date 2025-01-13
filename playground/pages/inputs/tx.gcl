@@ -1,75 +1,75 @@
-var accounts: nodeIndex<String, Account>?; 
-var incoming: nodeIndex<int, node<Tx>>?;
-var outgoing: nodeIndex<int, node<Tx>>?;
-var categories: nodeList<str>?;
+// var accounts: nodeIndex<String, Account>;
+// var incoming: nodeIndex<int, node<Tx>>;
+// var outgoing: nodeIndex<int, node<Tx>>;
+// var categories: nodeList<str>;
 
-type Account {
-  id: String;
-  incoming: nodeIndex<int, node<Tx>>?;
-  outgoing: nodeIndex<int, node<Tx>>?;
-}
+// type Account {
+//   id: String;
+//   incoming: nodeIndex<int, node<Tx>>?;
+//   outgoing: nodeIndex<int, node<Tx>>?;
+// }
 
-type Tx {
-  category: str;
-  id: int;
-  amount: float;
-}
+// type Tx {
+//   category: str;
+//   id: int;
+//   amount: float;
+// }
 
-enum TxType {
-  Incoming;
-  Outgoing;
-}
+// enum TxType {
+//   Incoming;
+//   Outgoing;
+// }
 
-type TxFormData {
-  type: TxType;
-  category: str;
-  id: int;
+// type TxFormData {
+//   type: TxType;
+//   category: str;
+//   id: int;
 
-  @expose
-  static fn load(data: TxFormData): Tx? {
-    if (data.type == TxType::Incoming) {
-      return incoming?.get(data.id)?.resolve();
-    }
-    return outgoing?.get(data.id)?.resolve();
-  }
-}
+//   @expose
+//   static fn load(data: TxFormData): Tx? {
+//     if (data.type == TxType::Incoming) {
+//       return incoming.get(data.id)?.resolve();
+//     }
+//     return outgoing.get(data.id)?.resolve();
+//   }
+// }
 
-type TxRecord {
-  account_id: String;
-  type: TxType;
-  tx: Tx;
-}
+// type TxRecord {
+//   account_id: String;
+//   type: TxType;
+//   tx: Tx;
+// }
 
-fn init() {
-  if (accounts == null) {
-    accounts = nodeIndex<String, Account> {};
-    incoming = nodeIndex<int, node<Tx>> {};
-    outgoing = nodeIndex<int, node<Tx>> {};
-    categories = nodeList<str> {};
+// fn init() {
+//   if (accounts.size() == 0) {
+//     accounts = nodeIndex<String, Account> {};
+//     incoming = nodeIndex<int, node<Tx>> {};
+//     outgoing = nodeIndex<int, node<Tx>> {};
+//     categories = nodeList<str> {};
 
-    var reader = CsvReader<TxRecord> {
-      path: "pages/inputs/tx.csv",
-      format: CsvFormat {
-        header_lines: 1,
-      },
-    };
+//     var reader = CsvReader<TxRecord> {
+//       path: "pages/inputs/tx.csv",
+//       format: CsvFormat {
+//         header_lines: 1,
+//       },
+//     };
 
-    while (reader.can_read()) {
-      var record = reader.read();
-      categories.add(record.tx.category);
+//     while (reader.can_read()) {
+//       var record = reader.read();
+//       categories.add(record.tx.category);
 
-      var account = accounts.get(record.account_id) ?? accounts.set(record.account_id, Account { id: record.account_id });
-      if (record.type == TxType::Incoming) {
-        account.incoming ?= nodeIndex<int, node<Tx>> {};
-        var tx = node<Tx> { record.tx };
-        account.incoming.set(record.tx.id, tx);
-        incoming.set(record.tx.id, tx);
-      } else {
-        account.outgoing ?= nodeIndex<int, node<Tx>> {};
-        var tx = node<Tx> { record.tx };
-        account.outgoing.set(record.tx.id, tx);
-        outgoing.set(record.tx.id, tx);
-      }
-    }
-  }
-}
+//       var account = accounts.get(record.account_id) ?? accounts.set(record.account_id, Account { id: record.account_id });
+//       if (record.type == TxType::Incoming) {
+//         account.incoming ?= nodeIndex<int, node<Tx>> {};
+//         var tx = node<Tx> { record.tx };
+//         account.incoming.set(record.tx.id, tx);
+//         incoming.set(record.tx.id, tx);
+//       } else {
+//         account.outgoing ?= nodeIndex<int, node<Tx>> {};
+//         var tx = node<Tx> { record.tx };
+//         account.outgoing.set(record.tx.id, tx);
+//         outgoing.set(record.tx.id, tx);
+//       }
+//     }
+//   }
+// }

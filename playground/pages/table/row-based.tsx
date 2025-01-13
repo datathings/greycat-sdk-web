@@ -1,5 +1,5 @@
 import '@/common';
-import { GreyCat, IndexedDbCache } from '@greycat/sdk/web';
+import { GreyCat, IndexedDbCache } from '@greycat/web';
 
 await GreyCat.init({
   cache: new IndexedDbCache('sdk-web-playground'),
