@@ -2,7 +2,7 @@ import assert from 'node:assert';
 import { describe, before, it } from 'node:test';
 import { readFile } from 'node:fs/promises';
 
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 const { Abi, AbiReader, AbiWriter, GCEnum, GreyCat } = greycat;
 
 describe('project', () => {

@@ -2,7 +2,7 @@
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 const m = greycat.utils;
 
 const INT32_MIN = -2147483648;
