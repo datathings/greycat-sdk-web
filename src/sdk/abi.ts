@@ -844,8 +844,7 @@ namespace greycat {
           }
 
           static createFrom(fields: object) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            return new (this as any as GCObject).$type.ctor(...Object.values(fields));
+            return new type.ctor(...Object.values(fields));
           }
         };
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
