@@ -28,5 +28,5 @@
     "allowUnreachableCode": false,
     "allowUnusedLabels": false
   },
-  "files": ["../../jsx.d.ts", "jsx-runtime.ts"]
+  "files": ["jsx.ts", "jsx-runtime.ts"]
 }

@@ -8,7 +8,7 @@
     "jsx": "react-jsx",
     "jsxImportSource": "@greycat/web",
     "useDefineForClassFields": false,
-    "types": ["vite/client", "../jsx.d.ts"],
+    "types": ["vite/client"],
     "paths": {
       "@/*": ["./*"],
     }
