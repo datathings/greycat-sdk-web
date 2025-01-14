@@ -760,6 +760,11 @@ namespace greycat {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             (this.ctor as any)[en_field_name] = en;
           }
+          Object.defineProperty(this.ctor, '$fields', {
+            value: this.enum_values,
+            enumerable: true,
+            writable: false,
+          });
         }
       } else if (is_native) {
         if (module_name === 'core') {
@@ -851,10 +856,17 @@ namespace greycat {
         this.ctor = (greycat as any)[module_name][type_name] = GCObject;
       }
 
-      Object.defineProperty(this.ctor, 'name', {
-        value: abi.symbols[symbol],
-        writable: false,
-        enumerable: false,
+      Object.defineProperties(this.ctor, {
+        name: {
+          value: abi.symbols[symbol],
+          writable: false,
+          enumerable: false,
+        },
+        _type: {
+          value: `${module_name}::${type_name}`,
+          enumerable: true,
+          writable: false,
+        },
       });
 
       if (this.is_native) {
