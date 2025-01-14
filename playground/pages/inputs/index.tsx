@@ -1,23 +1,17 @@
 import {
-  GreyCat,
   GuiElement,
   GuiInputElement,
   GuiInputFactory,
   GuiObject,
-  IndexedDbCache,
-  core,
   css,
   registerCustomElement,
   sl,
 } from '@greycat/web';
+import '@/common';
 import './project-sensor-form';
-import { project, projectlib } from '@/common';
 import IndexStyle from './index.css?inline';
 
-const greycat = await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-  libraries: [projectlib],
-});
+await greycat.GreyCat.init();
 
 // One can override any form by providing a tagName that
 // matches a WebComponent that inherits GuiInputElement:
@@ -128,26 +122,26 @@ document.body.appendChild(
         <gui-input value={false} />
       </input-viewer>
       <input-viewer header="core::time">
-        <gui-input value={core.time.now()} />
+        <gui-input value={greycat.core.time.now()} />
       </input-viewer>
       <input-viewer header="core::duration">
-        <gui-input value={core.duration.from_mins(42)} />
+        <gui-input value={greycat.core.duration.from_mins(42)} />
       </input-viewer>
       <input-viewer header="Enum">
-        <gui-input-enum value={core.TimeZone.Europe_Paris()} />
+        <gui-input-enum value={greycat.core.TimeZone.Europe_Paris} />
       </input-viewer>
       <input-viewer header="Object">
-        <gui-input-object value={greycat.create('project::Person', ['John', 42, true])}>
+        <gui-input-object value={new greycat.project.Person('John', 42, true)}>
           <gui-input-string slot="name" />
           <gui-input-number slot="age" />
         </gui-input-object>
       </input-viewer>
       <input-viewer header="Custom Form">
-        <gui-input value={project.Sensor.create(42, project.SensorKind.Pressure())} />
+        <gui-input value={new greycat.project.Sensor(42, greycat.project.SensorKind.Pressure)} />
       </input-viewer>
 
       <input-viewer header="Recursive type">
-        <gui-input-object value={greycat.create('project::Link', [])} />
+        <gui-input-object value={new greycat.project.Link('', null)} />
       </input-viewer>
     </div>
   </app-layout>,

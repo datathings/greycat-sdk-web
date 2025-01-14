@@ -1,13 +1,9 @@
-import { GreyCat } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init();
+await greycat.GreyCat.init();
 
-const type = greycat.findType('any::AnyInput');
-if (!type) {
-  throw 'missing any::AnyInput type';
-}
-const value = new type.factory(type);
+const value = new greycat.any.AnyInput('');
 
 document.body.appendChild(
   <app-layout title="Input (Any)">

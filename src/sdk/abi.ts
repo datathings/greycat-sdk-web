@@ -1,5 +1,6 @@
 namespace greycat {
   class AbiCoreBuilder {
+    public any = 0;
     public null_ = 0;
     public int = 0;
     public bool = 0;
@@ -34,6 +35,7 @@ namespace greycat {
 
     toAbiCore(): AbiCore {
       return new AbiCore(
+        this.any,
         this.null_,
         this.int,
         this.bool,
@@ -71,6 +73,7 @@ namespace greycat {
 
   export class AbiCore {
     constructor(
+      readonly any: number,
       readonly null_: number,
       readonly int: number,
       readonly bool: number,
@@ -250,6 +253,9 @@ namespace greycat {
         this.types[i] = type;
         if (lib_name === 'std' && module_name === 'core') {
           switch (type_name) {
+            case 'any':
+              core.any = i;
+              break;
             case 'null':
               core.null_ = i;
               break;
@@ -789,6 +795,17 @@ namespace greycat {
               };
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
               this.ctor = (greycat as any)[module_name]['null_'] = GCObject;
+              break;
+            }
+            case 'any': {
+              const GCObject = class extends greycat.GCObject {
+                constructor() {
+                  super();
+                  Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                }
+              };
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              this.ctor = (greycat as any)[module_name][type_name] = GCObject;
               break;
             }
             default: {

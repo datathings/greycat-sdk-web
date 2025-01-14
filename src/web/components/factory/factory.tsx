@@ -299,6 +299,13 @@ export class GuiInputFactory extends GuiElement {
   }
 
   createElement(value: unknown, type?: greycat.AbiType): GuiInputElement<unknown> {
+    if (type && type.offset === type.abi.core.any) {
+      const tagName = this.get(type.name);
+      if (tagName) {
+        return document.createElement(tagName);
+      }
+      return document.createElement('gui-input-any');
+    }
     if (value instanceof greycat.GCEnum) {
       const tagName = this.get(value.$type.name);
       if (tagName) {
