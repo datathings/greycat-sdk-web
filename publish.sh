@@ -31,11 +31,4 @@ cd ../libweb
 lib="lib.zip"
 zip -r $lib .
 
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/x64-linux/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/arm64-linux/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/arm64-apple/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/x64-apple/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/x64-windows/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/arm64-windows/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/x64-freebsd/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/arm64-freebsd/${VERSION}.zip"
+curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/noarch/${VERSION}.zip"
