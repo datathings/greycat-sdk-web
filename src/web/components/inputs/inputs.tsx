@@ -349,7 +349,9 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     return this.input.valueAsNumber;
   }
 
-  set value(value: number | bigint | null | undefined) {
+  set value(
+    value: number | bigint | greycat.std_n.core.int | greycat.std_n.core.float | null | undefined,
+  ) {
     if (value === null || value === undefined) {
       this.input.value = '';
     } else {
@@ -431,8 +433,12 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     return this.input.checked;
   }
 
-  set value(value: boolean | null | undefined) {
-    this.input.checked = Boolean(value);
+  set value(value: boolean | greycat.std_n.core.bool | null | undefined) {
+    if (value instanceof greycat.std_n.core.bool) {
+      this.input.checked = value.value;
+    } else {
+      this.input.checked = Boolean(value);
+    }
   }
 
   override get name() {
