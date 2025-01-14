@@ -6,7 +6,7 @@ declare namespace greycat {
 
     class SamplingMode extends greycat.GCEnum {
       static readonly _type = 'core::SamplingMode';
-      static readonly $fields: SamplingMode.Field[];
+      static readonly $fields: SamplingMode[];
       key: SamplingMode.Field;
       constructor(type: greycat.AbiType, offset: number, key: SamplingMode.Field, value?: unknown);
       static fixed: SamplingMode;
@@ -50,7 +50,7 @@ declare namespace greycat {
 
     class CalendarUnit extends greycat.GCEnum {
       static readonly _type = 'core::CalendarUnit';
-      static readonly $fields: CalendarUnit.Field[];
+      static readonly $fields: CalendarUnit[];
       key: CalendarUnit.Field;
       constructor(type: greycat.AbiType, offset: number, key: CalendarUnit.Field, value?: unknown);
       static year: CalendarUnit;
@@ -179,7 +179,7 @@ declare namespace greycat {
 
     class TimeZone extends greycat.GCEnum {
       static readonly _type = 'core::TimeZone';
-      static readonly $fields: TimeZone.Field[];
+      static readonly $fields: TimeZone[];
       key: TimeZone.Field;
       constructor(type: greycat.AbiType, offset: number, key: TimeZone.Field, value?: unknown);
       static Africa_Accra: TimeZone;
@@ -751,7 +751,7 @@ declare namespace greycat {
 
     class SortOrder extends greycat.GCEnum {
       static readonly _type = 'core::SortOrder';
-      static readonly $fields: SortOrder.Field[];
+      static readonly $fields: SortOrder[];
       key: SortOrder.Field;
       constructor(type: greycat.AbiType, offset: number, key: SortOrder.Field, value?: unknown);
       static asc: SortOrder;
@@ -786,7 +786,7 @@ declare namespace greycat {
 
     class FloatPrecision extends greycat.GCEnum {
       static readonly _type = 'core::FloatPrecision';
-      static readonly $fields: FloatPrecision.Field[];
+      static readonly $fields: FloatPrecision[];
       key: FloatPrecision.Field;
       constructor(type: greycat.AbiType, offset: number, key: FloatPrecision.Field, value?: unknown);
       static p1: FloatPrecision;
@@ -814,7 +814,7 @@ declare namespace greycat {
 
     class DurationUnit extends greycat.GCEnum {
       static readonly _type = 'core::DurationUnit';
-      static readonly $fields: DurationUnit.Field[];
+      static readonly $fields: DurationUnit[];
       key: DurationUnit.Field;
       constructor(type: greycat.AbiType, offset: number, key: DurationUnit.Field, value?: unknown);
       static microseconds: DurationUnit;
@@ -830,7 +830,7 @@ declare namespace greycat {
 
     class ErrorCode extends greycat.GCEnum {
       static readonly _type = 'core::ErrorCode';
-      static readonly $fields: ErrorCode.Field[];
+      static readonly $fields: ErrorCode[];
       key: ErrorCode.Field;
       constructor(type: greycat.AbiType, offset: number, key: ErrorCode.Field, value?: unknown);
       static none: ErrorCode;
@@ -878,7 +878,7 @@ declare namespace greycat {
 
     class TensorType extends greycat.GCEnum {
       static readonly _type = 'core::TensorType';
-      static readonly $fields: TensorType.Field[];
+      static readonly $fields: TensorType[];
       key: TensorType.Field;
       constructor(type: greycat.AbiType, offset: number, key: TensorType.Field, value?: unknown);
       static i32: TensorType;
@@ -1131,7 +1131,7 @@ declare namespace greycat {
 
     class LogLevel extends greycat.GCEnum {
       static readonly _type = 'runtime::LogLevel';
-      static readonly $fields: LogLevel.Field[];
+      static readonly $fields: LogLevel[];
       key: LogLevel.Field;
       constructor(type: greycat.AbiType, offset: number, key: LogLevel.Field, value?: unknown);
       static error: LogLevel;
@@ -1178,7 +1178,7 @@ declare namespace greycat {
 
     class LicenseType extends greycat.GCEnum {
       static readonly _type = 'runtime::LicenseType';
-      static readonly $fields: LicenseType.Field[];
+      static readonly $fields: LicenseType[];
       key: LicenseType.Field;
       constructor(type: greycat.AbiType, offset: number, key: LicenseType.Field, value?: unknown);
       static community: LicenseType;
@@ -1417,7 +1417,7 @@ declare namespace greycat {
 
     class TaskStatus extends greycat.GCEnum {
       static readonly _type = 'runtime::TaskStatus';
-      static readonly $fields: TaskStatus.Field[];
+      static readonly $fields: TaskStatus[];
       key: TaskStatus.Field;
       constructor(type: greycat.AbiType, offset: number, key: TaskStatus.Field, value?: unknown);
       static empty: TaskStatus;
@@ -1435,7 +1435,7 @@ declare namespace greycat {
 
     class UserGroupPolicyType extends greycat.GCEnum {
       static readonly _type = 'runtime::UserGroupPolicyType';
-      static readonly $fields: UserGroupPolicyType.Field[];
+      static readonly $fields: UserGroupPolicyType[];
       key: UserGroupPolicyType.Field;
       constructor(type: greycat.AbiType, offset: number, key: UserGroupPolicyType.Field, value?: unknown);
       static read: UserGroupPolicyType;
@@ -1685,7 +1685,7 @@ declare namespace greycat {
 
     class SmtpMode extends greycat.GCEnum {
       static readonly _type = 'io::SmtpMode';
-      static readonly $fields: SmtpMode.Field[];
+      static readonly $fields: SmtpMode[];
       key: SmtpMode.Field;
       constructor(type: greycat.AbiType, offset: number, key: SmtpMode.Field, value?: unknown);
       static plain: SmtpMode;
@@ -1799,7 +1799,7 @@ declare namespace greycat {
 
     class SmtpAuth extends greycat.GCEnum {
       static readonly _type = 'io::SmtpAuth';
-      static readonly $fields: SmtpAuth.Field[];
+      static readonly $fields: SmtpAuth[];
       key: SmtpAuth.Field;
       constructor(type: greycat.AbiType, offset: number, key: SmtpAuth.Field, value?: unknown);
       static none: SmtpAuth;
@@ -1836,7 +1836,7 @@ declare namespace greycat {
 
     class TextEncoder extends greycat.GCEnum {
       static readonly _type = 'io::TextEncoder';
-      static readonly $fields: TextEncoder.Field[];
+      static readonly $fields: TextEncoder[];
       key: TextEncoder.Field;
       constructor(type: greycat.AbiType, offset: number, key: TextEncoder.Field, value?: unknown);
       static plain: TextEncoder;
