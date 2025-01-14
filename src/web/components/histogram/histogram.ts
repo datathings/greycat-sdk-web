@@ -27,19 +27,19 @@ export class GuiHistogram extends HTMLElement {
       this._render_histogram(this._value.bins, quant);
     } else if (quant instanceof greycat.util.MultiQuantizer) {
       if (
-        quant.dimensions.length === 1 &&
-        (quant.dimensions[0] instanceof greycat.util.LinearQuantizer ||
-          quant.dimensions[0] instanceof greycat.util.LogQuantizer)
+        quant.quantizers.length === 1 &&
+        (quant.quantizers[0] instanceof greycat.util.LinearQuantizer ||
+          quant.quantizers[0] instanceof greycat.util.LogQuantizer)
       ) {
-        this._render_histogram(this._value.bins, quant.dimensions[0]);
+        this._render_histogram(this._value.bins, quant.quantizers[0]);
       } else if (
-        quant.dimensions.length === 2 &&
-        (quant.dimensions[0] instanceof greycat.util.LinearQuantizer ||
-          quant.dimensions[0] instanceof greycat.util.LogQuantizer) &&
-        (quant.dimensions[1] instanceof greycat.util.LinearQuantizer ||
-          quant.dimensions[1] instanceof greycat.util.LogQuantizer)
+        quant.quantizers.length === 2 &&
+        (quant.quantizers[0] instanceof greycat.util.LinearQuantizer ||
+          quant.quantizers[0] instanceof greycat.util.LogQuantizer) &&
+        (quant.quantizers[1] instanceof greycat.util.LinearQuantizer ||
+          quant.quantizers[1] instanceof greycat.util.LogQuantizer)
       ) {
-        this._render_heatmap(this._value.bins, [quant.dimensions[0], quant.dimensions[1]]);
+        this._render_heatmap(this._value.bins, [quant.quantizers[0], quant.quantizers[1]]);
       } else {
         throw new Error('Histogram cannot render this quantizers');
       }
@@ -138,12 +138,12 @@ export class GuiHistogram extends HTMLElement {
   }
 
   /*   private _get_multi_bounds(slot: number, quantizer: greycat.util.MultiQuantizer): [number, number][] {
-    const result = Array.from({ length: quantizer.dimensions.length });
+    const result = Array.from({ length: quantizer.quantizers.length });
     let multiplier = 1;
     let slotId = 0;
     let multiSlot = slot;
-    for (let index = 0; index < quantizer.dimensions.length; index++) {
-      const qt = quantizer.dimensions[index];
+    for (let index = 0; index < quantizer.quantizers.length; index++) {
+      const qt = quantizer.quantizers[index];
       const dimSize = this._get_quantize_size(qt);
       multiplier = multiplier * dimSize;
       slotId = multiSlot % dimSize;
@@ -161,8 +161,8 @@ export class GuiHistogram extends HTMLElement {
       return Number(quantizer.bins);
     } else if (quantizer instanceof greycat.util.MultiQuantizer) {
       let slots = 1;
-      for (let index = 0; index < quantizer.dimensions.length; index++) {
-        const qt = quantizer.dimensions[index];
+      for (let index = 0; index < quantizer.quantizers.length; index++) {
+        const qt = quantizer.quantizers[index];
         const size = this._get_quantize_size(qt);
         if (size === -1) {
           return 0;
