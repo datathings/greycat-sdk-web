@@ -253,6 +253,26 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
   }
 
   set options(options: SearchableOption[]) {
+    if (this.value !== undefined) {
+      // if we do not find the value in the given options we reset the current value
+      let found = false;
+      for (const o of options) {
+        if ('value' in o) {
+          if (o.value === this.value) {
+            found = true;
+            break;
+          }
+        } else {
+          if (o.text === this.value) {
+            found = true;
+            break;
+          }
+        }
+      }
+      if (!found) {
+        this.value = undefined;
+      }
+    }
     // TODO reset value if options no longer contains it
     this._options = options;
     this.update();
