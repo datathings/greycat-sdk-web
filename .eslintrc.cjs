@@ -19,7 +19,7 @@ module.exports = {
       'error',
       {
         argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_|greycat',
+        varsIgnorePattern: '^_|gc',
         destructuredArrayIgnorePattern: '^_',
         caughtErrorsIgnorePattern: '^_',
 

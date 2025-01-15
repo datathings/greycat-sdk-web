@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "outFile": "../../dist/gc.js",
+    "outFile": "../../dist/greycat.js",
     "declaration": true,
 
     "target": "ES2024",

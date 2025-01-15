@@ -71,8 +71,8 @@ namespace gc {
 
     export type PrimitiveType = ExtractValues<typeof PrimitiveType>;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     export interface IGCObjectClass {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       new (...fields: any[]): GCObject;
       _type: string;
       load: ILoader;
