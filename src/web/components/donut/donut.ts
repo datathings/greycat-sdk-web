@@ -8,7 +8,7 @@ const BREAKARCMULT = 0.85;
 const AFTERBREAKMULT = 0.05;
 const LABELTEXTMULT = 0.05;
 
-type DonutTable = greycat.core.Table | Map<string, number | bigint>;
+type DonutTable = gc.core.Table | Map<string, number | bigint>;
 
 interface GuiDoughnutProps {
   value: DonutTable | null;

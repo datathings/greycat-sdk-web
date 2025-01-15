@@ -25,7 +25,7 @@ export class GuiFiles extends GuiElement {
             typeof this._table.table.cols[1][row] === 'bigint'
           ) {
             const size = this._table.table.cols[1][row];
-            (el.children[1].children[0] as GuiValue).value = greycat.sdk.humanSize(Number(size));
+            (el.children[1].children[0] as GuiValue).value = gc.sdk.humanSize(Number(size));
           } else {
             (el.children[1].children[0] as GuiValue).textContent = '';
           }
@@ -37,10 +37,10 @@ export class GuiFiles extends GuiElement {
             // clicked on an actual file
             this.dispatchEvent(
               new GuiClickEvent(
-                new greycat.io.File(
+                new gc.io.File(
                   path,
                   this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
-                  this._table.table.cols[2][ev.detail.rowIdx] as greycat.core.time | null,
+                  this._table.table.cols[2][ev.detail.rowIdx] as gc.core.time | null,
                 ),
               ),
             );
@@ -106,12 +106,12 @@ export class GuiFiles extends GuiElement {
       return;
     }
 
-    const files = (await new greycat.io.File(this._current_dir).list()) ?? [];
+    const files = (await new gc.io.File(this._current_dir).list()) ?? [];
     if (this._current_dir !== '/') {
-      files.unshift(new greycat.io.File('..'));
+      files.unshift(new gc.io.File('..'));
     }
     // update table
-    this._table.value = greycat.core.Table.fromObjects(files);
+    this._table.value = gc.core.Table.fromObjects(files);
   }
 }
 
@@ -121,7 +121,7 @@ declare global {
   }
 
   interface GuiFilesEventMap {
-    'gui-click': GuiClickEvent<greycat.io.File>;
+    'gui-click': GuiClickEvent<gc.io.File>;
   }
 
   interface HTMLElementEventMap extends GuiFilesEventMap {}

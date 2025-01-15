@@ -20,7 +20,7 @@ export function setGlobalDateTimeFormat(fmt: Intl.DateTimeFormat) {
   dateFmt = fmt;
 }
 
-export function setGlobalDateTimeFormatTimezone(tz: greycat.core.TimeZone): Intl.DateTimeFormat {
+export function setGlobalDateTimeFormatTimezone(tz: gc.core.TimeZone): Intl.DateTimeFormat {
   const opts = dateFmt.resolvedOptions();
   dateFmt = new Intl.DateTimeFormat(opts.locale, {
     ...(opts as Intl.DateTimeFormatOptions),
@@ -29,10 +29,10 @@ export function setGlobalDateTimeFormatTimezone(tz: greycat.core.TimeZone): Intl
   return dateFmt;
 }
 
-export function getGlobalDateTimeFormatTimezone(): greycat.core.TimeZone | undefined {
+export function getGlobalDateTimeFormatTimezone(): gc.core.TimeZone | undefined {
   const opts = dateFmt.resolvedOptions();
   if (opts.timeZone.length > 0) {
-    return greycat.core.TimeZone[opts.timeZone.replace('/', '_') as greycat.core.TimeZone.Field];
+    return gc.core.TimeZone[opts.timeZone.replace('/', '_') as gc.core.TimeZone.Field];
   }
   return;
 }

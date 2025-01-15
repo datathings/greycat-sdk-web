@@ -4,7 +4,7 @@ import '@/common';
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;
 
-await greycat.GreyCat.init({
+await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

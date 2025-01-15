@@ -1,16 +1,14 @@
 import '@/common';
-import { $, GreyCat, GuiTable, IndexedDbCache } from '@greycat/web';
+import { GuiTable, TableLike } from '@greycat/web';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
 const table = (
   <gui-table
     globalFilter
-    value={await $.default.call('project::persons')}
+    value={(await gc.project.persons()) as TableLike}
     style={{ height: '250px' }}
   />
 ) as GuiTable;

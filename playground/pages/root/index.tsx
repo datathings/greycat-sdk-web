@@ -1,7 +1,7 @@
 import { GreyCat } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init();
+const greycat = await await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="Root">

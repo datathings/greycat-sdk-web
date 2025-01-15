@@ -53,7 +53,7 @@ export class GuiUserForm extends GuiElement {
    * Fetches the roles from the server and updates the select list
    */
   async update(): Promise<void> {
-    const roles = await greycat.runtime.UserRole.all();
+    const roles = await gc.runtime.UserRole.all();
     this.roles = roles.map((r) => r.name);
   }
 
@@ -65,7 +65,7 @@ export class GuiUserForm extends GuiElement {
     this._role.replaceChildren(options);
   }
 
-  set groups(groups: greycat.runtime.UserGroup[]) {
+  set groups(groups: gc.runtime.UserGroup[]) {
     const options = document.createDocumentFragment();
     for (const group of groups) {
       options.appendChild(<sl-option value={`${group.id}`}>{group.name}</sl-option>);
@@ -130,13 +130,13 @@ export class GuiUserForm extends GuiElement {
   get user_groups() {
     if (Array.isArray(this._groups.value)) {
       return this._groups.value.map((id) =>
-        new greycat.runtime.UserGroupPolicy(+id, greycat.runtime.UserGroupPolicyType.execute),
+        new gc.runtime.UserGroupPolicy(+id, gc.runtime.UserGroupPolicyType.execute),
       );
     }
     return null;
   }
 
-  set user_groups(groups: greycat.runtime.UserGroupPolicy[] | null) {
+  set user_groups(groups: gc.runtime.UserGroupPolicy[] | null) {
     if (groups === null) {
       this._groups.value = [];
     } else {
@@ -160,7 +160,7 @@ export class GuiUserForm extends GuiElement {
     this._external.checked = external;
   }
 
-  set value(user: greycat.runtime.User) {
+  set value(user: gc.runtime.User) {
     this.user_id = user.id;
     this.username = user.name;
     this._username.helpText = '';
@@ -175,7 +175,7 @@ export class GuiUserForm extends GuiElement {
   }
 
   get value() {
-    return new greycat.runtime.User(
+    return new gc.runtime.User(
       this.user_id,
       this.username,
       this.activated,
@@ -210,9 +210,9 @@ export class GuiUserForm extends GuiElement {
       throw new Error(this._username.helpText);
     }
 
-    await greycat.runtime.SecurityEntity.set(user);
+    await gc.runtime.SecurityEntity.set(user);
     if (password.length > 0) {
-      await greycat.runtime.User.setPassword(user.name, greycat.sdk.sha256hex(password));
+      await gc.runtime.User.setPassword(user.name, gc.sdk.sha256hex(password));
     }
   }
 
@@ -243,8 +243,8 @@ export class GuiUserForm extends GuiElement {
       throw new Error('Form is incomplete or malformed');
     }
 
-    await greycat.runtime.SecurityEntity.set(user);
-    await greycat.runtime.User.setPassword(user.name, greycat.sdk.sha256hex(password));
+    await gc.runtime.SecurityEntity.set(user);
+    await gc.runtime.User.setPassword(user.name, gc.sdk.sha256hex(password));
   }
 }
 

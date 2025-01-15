@@ -1,7 +1,7 @@
 import { GreyCat, IndexedDbCache, runtime } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init({
+const greycat = await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

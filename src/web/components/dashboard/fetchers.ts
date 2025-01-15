@@ -23,5 +23,5 @@ export interface GreycatFetcherState {
 export const greycatFetcher: GuiDashboardFetcher<GreycatFetcherState> = async (el, state) => {
   const prop = state.prop ?? 'value';
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (el as any)[prop] = await greycat.$.default.call(state.fqn, state.args);
+  (el as any)[prop] = await gc.$.default.call(state.fqn, state.args);
 };

@@ -1,19 +1,19 @@
 // AUTO-GENERATED FILE PLEASE DO NOT MODIFY MANUALLY
 /* eslint-disable */
-declare namespace greycat {
+declare namespace gc {
   namespace project {
-    class anything$args extends greycat.GCObject {
+    class anything$args extends gc.sdk.GCObject {
       static readonly _type = 'project::anything$args';
       v: any | null;
       constructor(v?: any | null);
       static createFrom(fields: {v?: any | null}): anything$args;
     }
 
-    class SensorKind extends greycat.GCEnum {
+    class SensorKind extends gc.sdk.GCEnum {
       static readonly _type = 'project::SensorKind';
       static readonly $fields: SensorKind[];
       key: SensorKind.Field;
-      constructor(type: greycat.AbiType, offset: number, key: SensorKind.Field, value?: unknown);
+      constructor(type: gc.sdk.AbiType, offset: number, key: SensorKind.Field, value?: unknown);
       static Temp: SensorKind;
       static Pressure: SensorKind;
     }
@@ -21,106 +21,106 @@ declare namespace greycat {
       type Field = 'Temp'|'Pressure';
     }
 
-    class Node extends greycat.GCObject {
+    class Node extends gc.sdk.GCObject {
       static readonly _type = 'project::Node';
       id: string;
       value: any;
-      link: greycat.core.node<project.Node> | null;
-      constructor(id: string, value: any, link?: greycat.core.node<project.Node> | null);
-      static createFrom(fields: {id: string, value: any, link?: greycat.core.node<project.Node> | null}): Node;
+      link: gc.core.node<project.Node> | null;
+      constructor(id: string, value: any, link?: gc.core.node<project.Node> | null);
+      static createFrom(fields: {id: string, value: any, link?: gc.core.node<project.Node> | null}): Node;
     }
 
-    class chart_colored_area$args extends greycat.GCObject {
+    class chart_colored_area$args extends gc.sdk.GCObject {
       static readonly _type = 'project::chart_colored_area$args';
     }
 
-    class ComplexObject extends greycat.GCObject {
+    class ComplexObject extends gc.sdk.GCObject {
       static readonly _type = 'project::ComplexObject';
       string: string;
       int: number | bigint;
       float: number;
       bool: boolean;
       char: string;
-      geo: greycat.core.geo;
+      geo: gc.core.geo;
       null: any | null;
-      enum: greycat.core.TimeZone;
+      enum: gc.core.TimeZone;
       array: globalThis.Array<any | null>;
-      nodeTime: greycat.core.nodeTime;
-      nodeIndex: greycat.core.nodeIndex;
-      nodeList: greycat.core.nodeList;
-      nodeGeo: greycat.core.nodeGeo;
+      nodeTime: gc.core.nodeTime;
+      nodeIndex: gc.core.nodeIndex;
+      nodeList: gc.core.nodeList;
+      nodeGeo: gc.core.nodeGeo;
       nested: any | null;
       map: globalThis.Map<string, any>;
-      tuple: greycat.core.Tuple<any, any>;
-      constructor(string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: greycat.core.geo, null_: any | null, enum_: greycat.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: greycat.core.nodeTime, nodeIndex: greycat.core.nodeIndex, nodeList: greycat.core.nodeList, nodeGeo: greycat.core.nodeGeo, nested: any | null, map: globalThis.Map<string, any>, tuple: greycat.core.Tuple<any, any>);
-      static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: greycat.core.geo, null_?: any | null, enum_: greycat.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: greycat.core.nodeTime, nodeIndex: greycat.core.nodeIndex, nodeList: greycat.core.nodeList, nodeGeo: greycat.core.nodeGeo, nested?: any | null, map: globalThis.Map<string, any>, tuple: greycat.core.Tuple<any, any>}): ComplexObject;
+      tuple: gc.core.Tuple<any, any>;
+      constructor(string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: gc.core.geo, null_: any | null, enum_: gc.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: gc.core.nodeTime, nodeIndex: gc.core.nodeIndex, nodeList: gc.core.nodeList, nodeGeo: gc.core.nodeGeo, nested: any | null, map: globalThis.Map<string, any>, tuple: gc.core.Tuple<any, any>);
+      static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: gc.core.geo, null_?: any | null, enum_: gc.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: gc.core.nodeTime, nodeIndex: gc.core.nodeIndex, nodeList: gc.core.nodeList, nodeGeo: gc.core.nodeGeo, nested?: any | null, map: globalThis.Map<string, any>, tuple: gc.core.Tuple<any, any>}): ComplexObject;
     }
 
-    class task_without_params$args extends greycat.GCObject {
+    class task_without_params$args extends gc.sdk.GCObject {
       static readonly _type = 'project::task_without_params$args';
     }
 
-    class now$args extends greycat.GCObject {
+    class now$args extends gc.sdk.GCObject {
       static readonly _type = 'project::now$args';
     }
 
-    class Link$whatever$args extends greycat.GCObject {
+    class Link$whatever$args extends gc.sdk.GCObject {
       static readonly _type = 'project::Link$whatever$args';
-      link: greycat.core.node<project.Link>;
-      constructor(link: greycat.core.node<project.Link>);
-      static createFrom(fields: {link: greycat.core.node<project.Link>}): Link$whatever$args;
+      link: gc.core.node<project.Link>;
+      constructor(link: gc.core.node<project.Link>);
+      static createFrom(fields: {link: gc.core.node<project.Link>}): Link$whatever$args;
     }
 
-    class array_of_ints$args extends greycat.GCObject {
+    class array_of_ints$args extends gc.sdk.GCObject {
       static readonly _type = 'project::array_of_ints$args';
       arr: globalThis.Array<number | bigint>;
       constructor(arr: globalThis.Array<number | bigint>);
       static createFrom(fields: {arr: globalThis.Array<number | bigint>}): array_of_ints$args;
     }
 
-    class persons$args extends greycat.GCObject {
+    class persons$args extends gc.sdk.GCObject {
       static readonly _type = 'project::persons$args';
     }
 
-    class obj1$args extends greycat.GCObject {
+    class obj1$args extends gc.sdk.GCObject {
       static readonly _type = 'project::obj1$args';
     }
 
-    class Obj2 extends greycat.GCObject {
+    class Obj2 extends gc.sdk.GCObject {
       static readonly _type = 'project::Obj2';
       prop1: string;
-      prop2: globalThis.Array<greycat.runtime.User | null>;
+      prop2: globalThis.Array<gc.runtime.User | null>;
       prop3: globalThis.Map<string, project.Person | null>;
       prop4: any | null;
-      constructor(prop1: string, prop2: globalThis.Array<greycat.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null);
-      static createFrom(fields: {prop1: string, prop2: globalThis.Array<greycat.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null}): Obj2;
+      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null);
+      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null}): Obj2;
     }
 
-    class FooBar extends greycat.GCObject {
+    class FooBar extends gc.sdk.GCObject {
       static readonly _type = 'project::FooBar';
     }
 
-    class obj$args extends greycat.GCObject {
+    class obj$args extends gc.sdk.GCObject {
       static readonly _type = 'project::obj$args';
     }
 
-    class table$args extends greycat.GCObject {
+    class table$args extends gc.sdk.GCObject {
       static readonly _type = 'project::table$args';
     }
 
-    class chart_time$args extends greycat.GCObject {
+    class chart_time$args extends gc.sdk.GCObject {
       static readonly _type = 'project::chart_time$args';
     }
 
-    class task_long_running$args extends greycat.GCObject {
+    class task_long_running$args extends gc.sdk.GCObject {
       static readonly _type = 'project::task_long_running$args';
     }
 
-    class donut$args extends greycat.GCObject {
+    class donut$args extends gc.sdk.GCObject {
       static readonly _type = 'project::donut$args';
     }
 
-    class Sensor extends greycat.GCObject {
+    class Sensor extends gc.sdk.GCObject {
       static readonly _type = 'project::Sensor';
       id: number | bigint;
       kind: project.SensorKind;
@@ -128,7 +128,7 @@ declare namespace greycat {
       static createFrom(fields: {id: number | bigint, kind: project.SensorKind}): Sensor;
     }
 
-    class Triangle extends greycat.GCObject {
+    class Triangle extends gc.sdk.GCObject {
       static readonly _type = 'project::Triangle';
       base: number;
       height: number;
@@ -136,11 +136,11 @@ declare namespace greycat {
       static createFrom(fields: {base: number, height: number}): Triangle;
     }
 
-    class Confidence extends greycat.GCEnum {
+    class Confidence extends gc.sdk.GCEnum {
       static readonly _type = 'project::Confidence';
       static readonly $fields: Confidence[];
       key: Confidence.Field;
-      constructor(type: greycat.AbiType, offset: number, key: Confidence.Field, value?: unknown);
+      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field, value?: unknown);
       static High: Confidence;
       static Medium: Confidence;
       static Low: Confidence;
@@ -149,28 +149,28 @@ declare namespace greycat {
       type Field = 'High'|'Medium'|'Low';
     }
 
-    class mainTask$args extends greycat.GCObject {
+    class mainTask$args extends gc.sdk.GCObject {
       static readonly _type = 'project::mainTask$args';
     }
 
-    class resolve_person$args extends greycat.GCObject {
+    class resolve_person$args extends gc.sdk.GCObject {
       static readonly _type = 'project::resolve_person$args';
     }
 
-    class bar$args extends greycat.GCObject {
+    class bar$args extends gc.sdk.GCObject {
       static readonly _type = 'project::bar$args';
     }
 
-    class Obj1 extends greycat.GCObject {
+    class Obj1 extends gc.sdk.GCObject {
       static readonly _type = 'project::Obj1';
       prop1: string;
-      prop2: greycat.runtime.User;
-      prop3: greycat.runtime.RuntimeInfo;
-      constructor(prop1: string, prop2: greycat.runtime.User, prop3: greycat.runtime.RuntimeInfo);
-      static createFrom(fields: {prop1: string, prop2: greycat.runtime.User, prop3: greycat.runtime.RuntimeInfo}): Obj1;
+      prop2: gc.runtime.User;
+      prop3: gc.runtime.RuntimeInfo;
+      constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
+      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
     }
 
-    class add$args extends greycat.GCObject {
+    class add$args extends gc.sdk.GCObject {
       static readonly _type = 'project::add$args';
       a: number | bigint;
       b: number | bigint;
@@ -178,29 +178,29 @@ declare namespace greycat {
       static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
     }
 
-    class link_whatever$args extends greycat.GCObject {
+    class link_whatever$args extends gc.sdk.GCObject {
       static readonly _type = 'project::link_whatever$args';
-      l: greycat.core.node<project.Link>;
-      constructor(l: greycat.core.node<project.Link>);
-      static createFrom(fields: {l: greycat.core.node<project.Link>}): link_whatever$args;
+      l: gc.core.node<project.Link>;
+      constructor(l: gc.core.node<project.Link>);
+      static createFrom(fields: {l: gc.core.node<project.Link>}): link_whatever$args;
     }
 
-    class hello$args extends greycat.GCObject {
+    class hello$args extends gc.sdk.GCObject {
       static readonly _type = 'project::hello$args';
       name: string;
       constructor(name: string);
       static createFrom(fields: {name: string}): hello$args;
     }
 
-    class serie_of_obj$args extends greycat.GCObject {
+    class serie_of_obj$args extends gc.sdk.GCObject {
       static readonly _type = 'project::serie_of_obj$args';
     }
 
-    class tree$args extends greycat.GCObject {
+    class tree$args extends gc.sdk.GCObject {
       static readonly _type = 'project::tree$args';
     }
 
-    class Person extends greycat.GCObject {
+    class Person extends gc.sdk.GCObject {
       static readonly _type = 'project::Person';
       name: string;
       age: number | bigint;
@@ -209,7 +209,7 @@ declare namespace greycat {
       static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
     }
 
-    class Book extends greycat.GCObject {
+    class Book extends gc.sdk.GCObject {
       static readonly _type = 'project::Book';
       name: string;
       owner: project.Person | null;
@@ -217,22 +217,22 @@ declare namespace greycat {
       static createFrom(fields: {name: string, owner?: project.Person | null}): Book;
     }
 
-    class obj2$args extends greycat.GCObject {
+    class obj2$args extends gc.sdk.GCObject {
       static readonly _type = 'project::obj2$args';
     }
 
-    class SemiRecursive extends greycat.GCObject {
+    class SemiRecursive extends gc.sdk.GCObject {
       static readonly _type = 'project::SemiRecursive';
       sub: project.SemiRecursive | null;
       constructor(sub?: project.SemiRecursive | null);
       static createFrom(fields: {sub?: project.SemiRecursive | null}): SemiRecursive;
     }
 
-    class complex_object$args extends greycat.GCObject {
+    class complex_object$args extends gc.sdk.GCObject {
       static readonly _type = 'project::complex_object$args';
     }
 
-    class KLine extends greycat.GCObject {
+    class KLine extends gc.sdk.GCObject {
       static readonly _type = 'project::KLine';
       open: number;
       close: number;
@@ -241,32 +241,32 @@ declare namespace greycat {
       static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
     }
 
-    class MapContainer extends greycat.GCObject {
+    class MapContainer extends gc.sdk.GCObject {
       static readonly _type = 'project::MapContainer';
       a: globalThis.Map<number | bigint, string>;
-      b: globalThis.Map<greycat.core.TimeZone, string>;
-      c: globalThis.Map<greycat.core.SamplingMode, project.Person | null>;
+      b: globalThis.Map<gc.core.TimeZone, string>;
+      c: globalThis.Map<gc.core.SamplingMode, project.Person | null>;
       d: globalThis.Array<project.Person | null>;
       e: globalThis.Map<string, string | null>;
-      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<greycat.core.TimeZone, string>, c: globalThis.Map<greycat.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>);
-      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<greycat.core.TimeZone, string>, c: globalThis.Map<greycat.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
+      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>);
+      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
     }
 
-    class heatmap$args extends greycat.GCObject {
+    class heatmap$args extends gc.sdk.GCObject {
       static readonly _type = 'project::heatmap$args';
     }
 
-    class TimeZones extends greycat.GCObject {
+    class TimeZones extends gc.sdk.GCObject {
       static readonly _type = 'project::TimeZones';
-      azores: greycat.core.Date;
-      utc: greycat.core.Date;
-      paris: greycat.core.Date;
-      athens: greycat.core.Date;
-      constructor(azores: greycat.core.Date, utc: greycat.core.Date, paris: greycat.core.Date, athens: greycat.core.Date);
-      static createFrom(fields: {azores: greycat.core.Date, utc: greycat.core.Date, paris: greycat.core.Date, athens: greycat.core.Date}): TimeZones;
+      azores: gc.core.Date;
+      utc: gc.core.Date;
+      paris: gc.core.Date;
+      athens: gc.core.Date;
+      constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
+      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
     }
 
-    class Person2 extends greycat.GCObject {
+    class Person2 extends gc.sdk.GCObject {
       static readonly _type = 'project::Person2';
       id: number | bigint;
       name: string;
@@ -276,7 +276,7 @@ declare namespace greycat {
       static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
     }
 
-    class Rect extends greycat.GCObject {
+    class Rect extends gc.sdk.GCObject {
       static readonly _type = 'project::Rect';
       width: number;
       height: number;
@@ -284,11 +284,11 @@ declare namespace greycat {
       static createFrom(fields: {width: number, height: number}): Rect;
     }
 
-    class TrafficLight extends greycat.GCEnum {
+    class TrafficLight extends gc.sdk.GCEnum {
       static readonly _type = 'project::TrafficLight';
       static readonly $fields: TrafficLight[];
       key: TrafficLight.Field;
-      constructor(type: greycat.AbiType, offset: number, key: TrafficLight.Field, value?: unknown);
+      constructor(type: gc.sdk.AbiType, offset: number, key: TrafficLight.Field, value?: unknown);
       static Green: TrafficLight;
       static Yellow: TrafficLight;
       static Red: TrafficLight;
@@ -297,7 +297,7 @@ declare namespace greycat {
       type Field = 'Green'|'Yellow'|'Red';
     }
 
-    class task_with_params$args extends greycat.GCObject {
+    class task_with_params$args extends gc.sdk.GCObject {
       static readonly _type = 'project::task_with_params$args';
       name: string;
       age: number | bigint;
@@ -305,45 +305,45 @@ declare namespace greycat {
       static createFrom(fields: {name: string, age: number | bigint}): task_with_params$args;
     }
 
-    class init_foo$args extends greycat.GCObject {
+    class init_foo$args extends gc.sdk.GCObject {
       static readonly _type = 'project::init_foo$args';
     }
 
-    class goodFnForTestingFnCallInput$args extends greycat.GCObject {
+    class goodFnForTestingFnCallInput$args extends gc.sdk.GCObject {
       static readonly _type = 'project::goodFnForTestingFnCallInput$args';
       name: string;
       flag: boolean;
-      item: greycat.core.DurationUnit;
+      item: gc.core.DurationUnit;
       optionalFlag: boolean | null;
-      constructor(name: string, flag: boolean, item: greycat.core.DurationUnit, optionalFlag?: boolean | null);
-      static createFrom(fields: {name: string, flag: boolean, item: greycat.core.DurationUnit, optionalFlag?: boolean | null}): goodFnForTestingFnCallInput$args;
+      constructor(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null);
+      static createFrom(fields: {name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null}): goodFnForTestingFnCallInput$args;
     }
 
-    class Root extends greycat.GCObject {
+    class Root extends gc.sdk.GCObject {
       static readonly _type = 'project::Root';
-      "project::sensor": greycat.core.nodeTime<project.SensorData>;
-      "project::serie_float": greycat.core.nodeTime<number>;
-      "project::kline": greycat.core.nodeTime<project.KLine>;
-      "project::nt": greycat.core.nodeTime;
-      "project::person": greycat.core.node<project.Person2 | null>;
+      "project::sensor": gc.core.nodeTime<project.SensorData>;
+      "project::serie_float": gc.core.nodeTime<number>;
+      "project::kline": gc.core.nodeTime<project.KLine>;
+      "project::nt": gc.core.nodeTime;
+      "project::person": gc.core.node<project.Person2 | null>;
     }
 
-    class chart$args extends greycat.GCObject {
+    class chart$args extends gc.sdk.GCObject {
       static readonly _type = 'project::chart$args';
       nbRows: number | bigint;
       constructor(nbRows: number | bigint);
       static createFrom(fields: {nbRows: number | bigint}): chart$args;
     }
 
-    class get_person$args extends greycat.GCObject {
+    class get_person$args extends gc.sdk.GCObject {
       static readonly _type = 'project::get_person$args';
     }
 
-    class Shape extends greycat.GCObject {
+    class Shape extends gc.sdk.GCObject {
       static readonly _type = 'project::Shape';
     }
 
-    class ComplexForm extends greycat.GCObject {
+    class ComplexForm extends gc.sdk.GCObject {
       static readonly _type = 'project::ComplexForm';
       shapes: globalThis.Array<project.Shape>;
       shape: project.Shape;
@@ -351,11 +351,11 @@ declare namespace greycat {
       static createFrom(fields: {shapes: globalThis.Array<project.Shape>, shape: project.Shape}): ComplexForm;
     }
 
-    class RelayApp extends greycat.GCEnum {
+    class RelayApp extends gc.sdk.GCEnum {
       static readonly _type = 'project::RelayApp';
       static readonly $fields: RelayApp[];
       key: RelayApp.Field;
-      constructor(type: greycat.AbiType, offset: number, key: RelayApp.Field, value?: unknown);
+      constructor(type: gc.sdk.AbiType, offset: number, key: RelayApp.Field, value?: unknown);
       static pv: RelayApp;
       static pv_shelly: RelayApp;
       static ev: RelayApp;
@@ -366,47 +366,47 @@ declare namespace greycat {
       type Field = 'pv'|'pv_shelly'|'ev'|'ev_shelly'|'empty';
     }
 
-    class Obj extends greycat.GCObject {
+    class Obj extends gc.sdk.GCObject {
       static readonly _type = 'project::Obj';
       field: any | null;
-      tuple: greycat.core.Tuple<any, any>;
-      constructor(field: any | null, tuple: greycat.core.Tuple<any, any>);
-      static createFrom(fields: {field?: any | null, tuple: greycat.core.Tuple<any, any>}): Obj;
+      tuple: gc.core.Tuple<any, any>;
+      constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
+      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
     }
 
-    class mapTest$args extends greycat.GCObject {
+    class mapTest$args extends gc.sdk.GCObject {
       static readonly _type = 'project::mapTest$args';
     }
 
-    class foo$args extends greycat.GCObject {
+    class foo$args extends gc.sdk.GCObject {
       static readonly _type = 'project::foo$args';
     }
 
-    class one_d_histo_example$args extends greycat.GCObject {
+    class one_d_histo_example$args extends gc.sdk.GCObject {
       static readonly _type = 'project::one_d_histo_example$args';
     }
 
-    class big_map$args extends greycat.GCObject {
+    class big_map$args extends gc.sdk.GCObject {
       static readonly _type = 'project::big_map$args';
     }
 
-    class Circle extends greycat.GCObject {
+    class Circle extends gc.sdk.GCObject {
       static readonly _type = 'project::Circle';
       radius: number;
       constructor(radius: number);
       static createFrom(fields: {radius: number}): Circle;
     }
 
-    class Link extends greycat.GCObject {
+    class Link extends gc.sdk.GCObject {
       static readonly _type = 'project::Link';
       name: string;
       next: project.Link | null;
       constructor(name: string, next?: project.Link | null);
       static createFrom(fields: {name: string, next?: project.Link | null}): Link;
-      static whatever(link: greycat.core.node<project.Link>, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+      static whatever(link: gc.core.node<project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     }
 
-    class SensorData extends greycat.GCObject {
+    class SensorData extends gc.sdk.GCObject {
       static readonly _type = 'project::SensorData';
       temperature: number;
       pression: number;
@@ -415,55 +415,55 @@ declare namespace greycat {
       static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
     }
 
-    class objects_table$args extends greycat.GCObject {
+    class objects_table$args extends gc.sdk.GCObject {
       static readonly _type = 'project::objects_table$args';
     }
 
-    class task_long_running2$args extends greycat.GCObject {
+    class task_long_running2$args extends gc.sdk.GCObject {
       static readonly _type = 'project::task_long_running2$args';
     }
 
-    function init_foo($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function persons($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function chart(nbRows: number | bigint, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function chart_time($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-    function chart_colored_area($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-    function donut($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-    function heatmap($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function hello(name: string, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
-    function table($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-    function objects_table($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.core.Table<project.Person>>;
-    function task_without_params($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function task_with_params(name: string, age: number | bigint, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function task_long_running($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function task_long_running2($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function mainTask($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function foo($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function bar($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function obj($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function complex_object($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function obj1($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function obj2($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function get_person($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function tree($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function add(a: number | bigint, b: number | bigint, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<number | bigint>;
-    function anything(v?: any | null, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function mapTest($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function goodFnForTestingFnCallInput(name: string, flag: boolean, item: greycat.core.DurationUnit, optionalFlag?: boolean | null, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function now($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function link_whatever(l: greycat.core.node<project.Link>, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function big_map($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
-    function one_d_histo_example($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<greycat.util.Histogram>;
-    function array_of_ints(arr: globalThis.Array<number | bigint>, $g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
-    function resolve_person($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function serie_of_obj($g?: greycat.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function init_foo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function persons($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function chart(nbRows: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function chart_time($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+    function chart_colored_area($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+    function donut($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+    function heatmap($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function hello(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
+    function table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+    function objects_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+    function task_without_params($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function task_with_params(name: string, age: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function task_long_running($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function task_long_running2($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function mainTask($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function foo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function bar($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function obj($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function complex_object($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function obj1($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function obj2($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function get_person($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function tree($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function add(a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<number | bigint>;
+    function anything(v?: any | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function mapTest($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function goodFnForTestingFnCallInput(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function now($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function link_whatever(l: gc.core.node<project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function big_map($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
+    function one_d_histo_example($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
+    function array_of_ints(arr: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
+    function resolve_person($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function serie_of_obj($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
   }
 
   namespace tx {
   }
 
   namespace any {
-    class AnyInput extends greycat.GCObject {
+    class AnyInput extends gc.sdk.GCObject {
       static readonly _type = 'any::AnyInput';
       idk: any;
       constructor(idk: any);
@@ -472,113 +472,306 @@ declare namespace greycat {
 
   }
 
-}
-declare namespace greycat {
-  interface GreyCat {
-      call(method: 'project::Link::whatever', args: [greycat.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::Link::whatever', args: [greycat.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::Link::whatever', args: [greycat.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::init_foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::persons', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::persons', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::persons', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::chart', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::chart', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::chart', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::chart_time', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      spawn(method: 'project::chart_time', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::chart_time', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      call(method: 'project::chart_colored_area', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      spawn(method: 'project::chart_colored_area', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::chart_colored_area', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      call(method: 'project::donut', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      spawn(method: 'project::donut', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::donut', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      call(method: 'project::heatmap', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::heatmap', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::heatmap', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::hello', args: [string], signal?: globalThis.AbortSignal): Promise<string>;
-      spawn(method: 'project::hello', args: [string], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::hello', args: [string], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
-      call(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      spawn(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.core.Table>;
-      call(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.core.Table<project.Person>>;
-      spawn(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::objects_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.core.Table<project.Person>>;
-      call(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::task_without_params', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::task_with_params', args: [string, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::task_long_running', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::task_long_running', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::task_long_running', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::task_long_running2', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::task_long_running2', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::task_long_running2', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::mainTask', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::mainTask', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::mainTask', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::bar', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::bar', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::bar', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::obj', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::complex_object', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::complex_object', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::complex_object', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::obj1', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::obj1', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::obj1', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::obj2', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::obj2', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::obj2', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::get_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::get_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::get_person', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::tree', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::tree', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::tree', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::add', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<number | bigint>;
-      spawn(method: 'project::add', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::add', args: [number | bigint, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<number | bigint>;
-      call(method: 'project::anything', args: [any | null], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::anything', args: [any | null], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::anything', args: [any | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::mapTest', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::mapTest', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::mapTest', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, greycat.core.DurationUnit, boolean | null], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, greycat.core.DurationUnit, boolean | null], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, greycat.core.DurationUnit, boolean | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::now', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::link_whatever', args: [greycat.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::link_whatever', args: [greycat.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::link_whatever', args: [greycat.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
-      spawn(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::big_map', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
-      call(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.util.Histogram>;
-      spawn(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::one_d_histo_example', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<greycat.util.Histogram>;
-      call(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
-      spawn(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
-      call(method: 'project::resolve_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::resolve_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::resolve_person', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-      call(method: 'project::serie_of_obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-      spawn(method: 'project::serie_of_obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;
-      spawnAwait(method: 'project::serie_of_obj', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+  namespace sdk {
+    interface GreyCat {
+        call(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::init_foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::persons', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::persons', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::persons', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::chart', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::chart', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::chart', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::chart_time', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        spawn(method: 'project::chart_time', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::chart_time', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        call(method: 'project::chart_colored_area', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        spawn(method: 'project::chart_colored_area', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::chart_colored_area', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        call(method: 'project::donut', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        spawn(method: 'project::donut', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::donut', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        call(method: 'project::heatmap', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::heatmap', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::heatmap', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::hello', args: [string], signal?: globalThis.AbortSignal): Promise<string>;
+        spawn(method: 'project::hello', args: [string], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::hello', args: [string], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
+        call(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        spawn(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        call(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+        spawn(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::objects_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+        call(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::task_without_params', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::task_with_params', args: [string, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::task_long_running', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::task_long_running', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::task_long_running', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::task_long_running2', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::task_long_running2', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::task_long_running2', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::mainTask', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::mainTask', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::mainTask', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::bar', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::bar', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::bar', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::obj', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::complex_object', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::complex_object', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::complex_object', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::obj1', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::obj1', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::obj1', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::obj2', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::obj2', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::obj2', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::get_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::get_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::get_person', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::tree', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::tree', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::tree', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::add', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<number | bigint>;
+        spawn(method: 'project::add', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::add', args: [number | bigint, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<number | bigint>;
+        call(method: 'project::anything', args: [any | null], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::anything', args: [any | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::anything', args: [any | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::mapTest', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::mapTest', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::mapTest', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, gc.core.DurationUnit, boolean | null], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, gc.core.DurationUnit, boolean | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::goodFnForTestingFnCallInput', args: [string, boolean, gc.core.DurationUnit, boolean | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::now', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::link_whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::link_whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::link_whatever', args: [gc.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
+        spawn(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::big_map', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
+        call(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
+        spawn(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::one_d_histo_example', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
+        call(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
+        spawn(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
+        call(method: 'project::resolve_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::resolve_person', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::resolve_person', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::serie_of_obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::serie_of_obj', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::serie_of_obj', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+    }
   }
+
+  export import t3f = gc.core.t3f;
+  export import str = gc.core.str;
+  export import int = gc.core.int;
+  export import function_ = gc.core.function_;
+  export import NodeInfo = gc.core.NodeInfo;
+  export import Tuple = gc.core.Tuple;
+  export import GeoCircle = gc.core.GeoCircle;
+  export import Array = gc.core.Array;
+  export import GeoPoly = gc.core.GeoPoly;
+  export import TimeZone = gc.core.TimeZone;
+  export import SortOrder = gc.core.SortOrder;
+  export import ErrorFrame = gc.core.ErrorFrame;
+  export import String = gc.core.String;
+  export import t4 = gc.core.t4;
+  export import field = gc.core.field;
+  export import Map = gc.core.Map;
+  export import DurationUnit = gc.core.DurationUnit;
+  export import ErrorCode = gc.core.ErrorCode;
+  export import t2 = gc.core.t2;
+  export import Tensor = gc.core.Tensor;
+  export import nodeList = gc.core.nodeList;
+  export import GeoBox = gc.core.GeoBox;
+  export import type = gc.core.type;
+  export import nodeTimeCursor = gc.core.nodeTimeCursor;
+  export import null_ = gc.core.null_;
+  export import char = gc.core.char;
+  export import Table = gc.core.Table;
+  export import geo = gc.core.geo;
+  export import SamplingMode = gc.core.SamplingMode;
+  export import nodeTime = gc.core.nodeTime;
+  export import CalendarUnit = gc.core.CalendarUnit;
+  export import Date = gc.core.Date;
+  export import bool = gc.core.bool;
+  export import nodeIndex = gc.core.nodeIndex;
+  export import Buffer = gc.core.Buffer;
+  export import t3 = gc.core.t3;
+  export import Error = gc.core.Error;
+  export import t2f = gc.core.t2f;
+  export import nodeGeo = gc.core.nodeGeo;
+  export import FloatPrecision = gc.core.FloatPrecision;
+  export import duration = gc.core.duration;
+  export import t4f = gc.core.t4f;
+  export import node = gc.core.node;
+  export import TableColumnMapping = gc.core.TableColumnMapping;
+  export import time = gc.core.time;
+  export import float = gc.core.float;
+  export import TensorType = gc.core.TensorType;
+  export import MathConstants = gc.core.MathConstants;
+  export import UserGroupPolicy = gc.runtime.UserGroupPolicy;
+  export import User = gc.runtime.User;
+  export import StoreStat = gc.runtime.StoreStat;
+  export import RuntimeInfo = gc.runtime.RuntimeInfo;
+  export import CallPerf = gc.runtime.CallPerf;
+  export import SecurityEntity = gc.runtime.SecurityEntity;
+  export import Debug = gc.runtime.Debug;
+  export import LogLevel = gc.runtime.LogLevel;
+  export import Task = gc.runtime.Task;
+  export import DebugVariable = gc.runtime.DebugVariable;
+  export import LicenseType = gc.runtime.LicenseType;
+  export import License = gc.runtime.License;
+  export import DebugInfo = gc.runtime.DebugInfo;
+  export import Job = gc.runtime.Job;
+  export import DebugFrame = gc.runtime.DebugFrame;
+  export import Runtime = gc.runtime.Runtime;
+  export import OpenIDConnect = gc.runtime.OpenIDConnect;
+  export import Log = gc.runtime.Log;
+  export import System = gc.runtime.System;
+  export import PeriodicTask = gc.runtime.PeriodicTask;
+  export import UserRole = gc.runtime.UserRole;
+  export import DebugBreakpoint = gc.runtime.DebugBreakpoint;
+  export import SecurityPolicy = gc.runtime.SecurityPolicy;
+  export import TaskStatus = gc.runtime.TaskStatus;
+  export import UserGroupPolicyType = gc.runtime.UserGroupPolicyType;
+  export import UserGroup = gc.runtime.UserGroup;
+  export import SecurityFields = gc.runtime.SecurityFields;
+  export import CsvColumnInteger = gc.io.CsvColumnInteger;
+  export import CsvWriter = gc.io.CsvWriter;
+  export import CsvColumn = gc.io.CsvColumn;
+  export import CsvFormat = gc.io.CsvFormat;
+  export import GcbReader = gc.io.GcbReader;
+  export import CsvColumnTime = gc.io.CsvColumnTime;
+  export import CsvValidateResult = gc.io.CsvValidateResult;
+  export import GcbWriter = gc.io.GcbWriter;
+  export import CsvColumnBoolean = gc.io.CsvColumnBoolean;
+  export import CsvColumnDuration = gc.io.CsvColumnDuration;
+  export import CsvColumnString = gc.io.CsvColumnString;
+  export import File = gc.io.File;
+  export import JsonReader = gc.io.JsonReader;
+  export import Smtp = gc.io.Smtp;
+  export import HttpHeader = gc.io.HttpHeader;
+  export import SmtpMode = gc.io.SmtpMode;
+  export import CsvAnalysisConfig = gc.io.CsvAnalysisConfig;
+  export import CsvSharding = gc.io.CsvSharding;
+  export import JsonWriter = gc.io.JsonWriter;
+  export import Email = gc.io.Email;
+  export import CsvColumnStatistics = gc.io.CsvColumnStatistics;
+  export import Reader = gc.io.Reader;
+  export import Json = gc.io.Json;
+  export import CsvColumnFloat = gc.io.CsvColumnFloat;
+  export import TextReader = gc.io.TextReader;
+  export import CsvReader = gc.io.CsvReader;
+  export import SmtpAuth = gc.io.SmtpAuth;
+  export import Url = gc.io.Url;
+  export import Http = gc.io.Http;
+  export import TextWriter = gc.io.TextWriter;
+  export import TextEncoder = gc.io.TextEncoder;
+  export import CsvColumnDate = gc.io.CsvColumnDate;
+  export import CsvStatistics = gc.io.CsvStatistics;
+  export import CsvColumnIgnored = gc.io.CsvColumnIgnored;
+  export import Writer = gc.io.Writer;
+  export import FileWalker = gc.io.FileWalker;
+  export import CsvAnalysis = gc.io.CsvAnalysis;
+  export import TimeWindow = gc.util.TimeWindow;
+  export import Assert = gc.util.Assert;
+  export import Gaussian = gc.util.Gaussian;
+  export import SlidingWindow = gc.util.SlidingWindow;
+  export import Plot = gc.util.Plot;
+  export import MultiQuantizer = gc.util.MultiQuantizer;
+  export import GaussianProfile = gc.util.GaussianProfile;
+  export import Histogram = gc.util.Histogram;
+  export import Stack = gc.util.Stack;
+  export import CustomQuantizer = gc.util.CustomQuantizer;
+  export import GaussianProfileSlot = gc.util.GaussianProfileSlot;
+  export import Quantizer = gc.util.Quantizer;
+  export import QuantizerSlotBound = gc.util.QuantizerSlotBound;
+  export import Random = gc.util.Random;
+  export import HistogramStats = gc.util.HistogramStats;
+  export import LinearQuantizer = gc.util.LinearQuantizer;
+  export import Queue = gc.util.Queue;
+  export import ProgressTracker = gc.util.ProgressTracker;
+  export import Crypto = gc.util.Crypto;
+  export import LogQuantizer = gc.util.LogQuantizer;
+  export import SensorKind = gc.project.SensorKind;
+  export import Node = gc.project.Node;
+  export import ComplexObject = gc.project.ComplexObject;
+  export import Obj2 = gc.project.Obj2;
+  export import FooBar = gc.project.FooBar;
+  export import Sensor = gc.project.Sensor;
+  export import Triangle = gc.project.Triangle;
+  export import Confidence = gc.project.Confidence;
+  export import Obj1 = gc.project.Obj1;
+  export import Person = gc.project.Person;
+  export import Book = gc.project.Book;
+  export import SemiRecursive = gc.project.SemiRecursive;
+  export import KLine = gc.project.KLine;
+  export import MapContainer = gc.project.MapContainer;
+  export import TimeZones = gc.project.TimeZones;
+  export import Person2 = gc.project.Person2;
+  export import Rect = gc.project.Rect;
+  export import TrafficLight = gc.project.TrafficLight;
+  export import Shape = gc.project.Shape;
+  export import ComplexForm = gc.project.ComplexForm;
+  export import RelayApp = gc.project.RelayApp;
+  export import Obj = gc.project.Obj;
+  export import Circle = gc.project.Circle;
+  export import Link = gc.project.Link;
+  export import SensorData = gc.project.SensorData;
+  export import init_foo = gc.project.init_foo;
+  export import persons = gc.project.persons;
+  export import chart = gc.project.chart;
+  export import chart_time = gc.project.chart_time;
+  export import chart_colored_area = gc.project.chart_colored_area;
+  export import donut = gc.project.donut;
+  export import heatmap = gc.project.heatmap;
+  export import hello = gc.project.hello;
+  export import table = gc.project.table;
+  export import objects_table = gc.project.objects_table;
+  export import task_without_params = gc.project.task_without_params;
+  export import task_with_params = gc.project.task_with_params;
+  export import task_long_running = gc.project.task_long_running;
+  export import task_long_running2 = gc.project.task_long_running2;
+  export import mainTask = gc.project.mainTask;
+  export import foo = gc.project.foo;
+  export import bar = gc.project.bar;
+  export import obj = gc.project.obj;
+  export import complex_object = gc.project.complex_object;
+  export import obj1 = gc.project.obj1;
+  export import obj2 = gc.project.obj2;
+  export import get_person = gc.project.get_person;
+  export import tree = gc.project.tree;
+  export import add = gc.project.add;
+  export import anything = gc.project.anything;
+  export import mapTest = gc.project.mapTest;
+  export import goodFnForTestingFnCallInput = gc.project.goodFnForTestingFnCallInput;
+  export import now = gc.project.now;
+  export import link_whatever = gc.project.link_whatever;
+  export import big_map = gc.project.big_map;
+  export import one_d_histo_example = gc.project.one_d_histo_example;
+  export import array_of_ints = gc.project.array_of_ints;
+  export import resolve_person = gc.project.resolve_person;
+  export import serie_of_obj = gc.project.serie_of_obj;
+  export import AnyInput = gc.any.AnyInput;
 }

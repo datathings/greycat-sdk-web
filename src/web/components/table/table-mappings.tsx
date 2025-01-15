@@ -14,7 +14,7 @@ export class GuiTableMappings extends GuiElement {
 
   public table!: GuiTable;
 
-  private _value: greycat.core.TableColumnMapping[];
+  private _value: gc.core.TableColumnMapping[];
 
   private _mappings: HTMLElement;
   private _applyBtn: sl.SlButton;
@@ -29,44 +29,44 @@ export class GuiTableMappings extends GuiElement {
   };
   private _automaticDestructuring = async () => {
     const table = this.table.table;
-    const mappings: greycat.core.TableColumnMapping[] = [];
+    const mappings: gc.core.TableColumnMapping[] = [];
     const row = Array.from({ length: table.cols.length });
     let hasNodes = false;
     for (let i = 0; i < table.cols.length; i++) {
       const value = table.cols[i][0];
       row[i] = value;
-      if (value instanceof greycat.core.node) {
+      if (value instanceof gc.core.node) {
         hasNodes = true;
       }
     }
     try {
       let columns: unknown[];
-      const nodes = row.map((v) => (v instanceof greycat.core.node ? v : null)) as greycat.core.node[];
+      const nodes = row.map((v) => (v instanceof gc.core.node ? v : null)) as gc.core.node[];
       if (hasNodes) {
-        columns = await greycat.core.node.resolve_all(nodes);
+        columns = await gc.core.node.resolve_all(nodes);
       } else {
         columns = row;
       }
       for (let i = 0; i < columns.length; i++) {
         const col = columns[i] === null ? row[i] : columns[i];
-        if (col instanceof greycat.core.node) {
+        if (col instanceof gc.core.node) {
           // nested node
-          const [value] = await greycat.core.node.resolve_all([col]);
-          if (value instanceof greycat.sdk.GCObject && !value.$type.is_native) {
+          const [value] = await gc.core.node.resolve_all([col]);
+          if (value instanceof gc.sdk.GCObject && !value.$type.is_native) {
             for (let j = 0; j < value.$type.attrs.length; j++) {
               const attr = value.$type.attrs[j];
-              mappings.push(new greycat.core.TableColumnMapping(i, [attr.name]));
+              mappings.push(new gc.core.TableColumnMapping(i, [attr.name]));
             }
           } else {
-            mappings.push(new greycat.core.TableColumnMapping(i, ['*']));
+            mappings.push(new gc.core.TableColumnMapping(i, ['*']));
           }
-        } else if (col instanceof greycat.sdk.GCObject && !col.$type.is_native) {
+        } else if (col instanceof gc.sdk.GCObject && !col.$type.is_native) {
           for (let j = 0; j < col.$type.attrs.length; j++) {
             const attr = col.$type.attrs[j];
-            mappings.push(new greycat.core.TableColumnMapping(i, [attr.name]));
+            mappings.push(new gc.core.TableColumnMapping(i, [attr.name]));
           }
         } else if (nodes[i] !== null) {
-          mappings.push(new greycat.core.TableColumnMapping(i, ['*']));
+          mappings.push(new gc.core.TableColumnMapping(i, ['*']));
         }
       }
     } catch (err) {
@@ -140,7 +140,7 @@ export class GuiTableMappings extends GuiElement {
   }
 
   get value() {
-    const mappings: greycat.core.TableColumnMapping[] = [];
+    const mappings: gc.core.TableColumnMapping[] = [];
     for (let i = 0; i < this._mappings.children.length; i++) {
       const mapping = this._mappings.children[i] as GuiTableMapping;
       mappings.push(mapping.value);
@@ -148,7 +148,7 @@ export class GuiTableMappings extends GuiElement {
     return mappings;
   }
 
-  set value(value: greycat.core.TableColumnMapping[]) {
+  set value(value: gc.core.TableColumnMapping[]) {
     this._value = value;
     this.update();
   }
@@ -194,7 +194,7 @@ export class GuiTableMapping extends GuiElement {
   static override styles = [css(Mapping)];
 
   public table!: GuiTable;
-  private _value: greycat.core.TableColumnMapping = new greycat.core.TableColumnMapping(0, []);
+  private _value: gc.core.TableColumnMapping = new gc.core.TableColumnMapping(0, []);
 
   private _column: sl.SlSelect;
   private _extractors: sl.SlInput;
@@ -245,7 +245,7 @@ export class GuiTableMapping extends GuiElement {
     return value;
   }
 
-  set value(value: greycat.core.TableColumnMapping) {
+  set value(value: gc.core.TableColumnMapping) {
     this._value = value;
     this.update();
   }
@@ -277,7 +277,7 @@ declare global {
   }
 
   interface GuiTableMappingsEventMap {
-    'gui-table-apply-mappings': CustomEvent<greycat.core.TableColumnMapping[]>;
+    'gui-table-apply-mappings': CustomEvent<gc.core.TableColumnMapping[]>;
   }
 
   interface HTMLElementEventMap extends GuiTableMappingEventMap {}

@@ -1,7 +1,7 @@
 import { GreyCat } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init();
+await await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="CSV Column Input">

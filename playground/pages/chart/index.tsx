@@ -20,7 +20,7 @@ const styleMapping: Record<string, SerieStyle> = {
   },
 };
 
-const greycat = await GreyCat.init({
+const greycat = await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

@@ -1,13 +1,11 @@
-import { IndexedDbCache, getGlobalNumberFormat } from '@greycat/web';
+import { getGlobalNumberFormat } from '@greycat/web';
 import '@/common';
 
-await greycat.GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-const table = await greycat.project.table();
+const table = await gc.project.table();
 console.log(table);
 
 document.body.appendChild(

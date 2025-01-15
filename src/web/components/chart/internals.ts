@@ -8,9 +8,9 @@ export function vMap(x: unknown): number {
       if (x === null) {
         return NaN;
       }
-      if (x instanceof greycat.core.time) {
+      if (x instanceof gc.core.time) {
         return Math.round(x.epochMs);
-      } else if (x instanceof greycat.core.Date) {
+      } else if (x instanceof gc.core.Date) {
         return new Date(x.toString()).getTime();
       }
       return +x;

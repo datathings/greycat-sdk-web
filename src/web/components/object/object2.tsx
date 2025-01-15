@@ -36,14 +36,14 @@ export class GuiObject2 extends GuiElement {
 
     const factory = this._factory;
     const value = this._attrs.value;
-    if (value instanceof greycat.sdk.GCObject) {
+    if (value instanceof gc.sdk.GCObject) {
       const tagName = factory.mappings[value.$type.name];
       if (tagName) {
         this.shadowRoot.replaceChildren(createElement(tagName, this._attrs) as Node);
         return;
       }
 
-      if (value instanceof greycat.sdk.GCEnum) {
+      if (value instanceof gc.sdk.GCEnum) {
         this._renderEnum(value);
         return;
       }
@@ -61,7 +61,7 @@ export class GuiObject2 extends GuiElement {
     this.shadowRoot.replaceChildren(createElement('gui-value', this._attrs));
   }
 
-  private _renderObject(value: greycat.sdk.GCObject): void {
+  private _renderObject(value: gc.sdk.GCObject): void {
     const abi = value.$type.abi;
     const fields = document.createDocumentFragment();
     for (const attr of value.$type.attrs) {
@@ -81,11 +81,11 @@ export class GuiObject2 extends GuiElement {
     );
   }
 
-  private _renderEnum(value: greycat.sdk.GCEnum): void {
+  private _renderEnum(value: gc.sdk.GCEnum): void {
     this.shadowRoot.replaceChildren(<>{value.toString()}</>);
   }
 
-  private _createObjField(objType: greycat.sdk.AbiType, attrName: string, _attrType: greycat.sdk.AbiType, value: unknown) {
+  private _createObjField(objType: gc.sdk.AbiType, attrName: string, _attrType: gc.sdk.AbiType, value: unknown) {
     const slottedField = this.querySelector(`[slot="${attrName}"]`);
     let field: Node;
     if (slottedField) {

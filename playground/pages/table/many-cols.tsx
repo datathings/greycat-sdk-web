@@ -1,13 +1,11 @@
 import '@/common';
-import { core, GreyCat, IndexedDbCache } from '@greycat/web';
+import '@greycat/web';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-const table = core.Table.create([
+const table = gc.core.Table.create([
   [3, 5, 7, 9, 8, 2, 1, 6, 4, 10],
   ['user3', 'user5', 'user7', 'user9', 'user8', 'user2', 'user1', 'user6', 'user4', 'user10'],
   [true, true, true, true, false, false, true, true, false, false],

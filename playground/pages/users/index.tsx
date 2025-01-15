@@ -1,7 +1,7 @@
-import { GreyCat } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await GreyCat.init();
+await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="Users" mainStyle={{ display: 'grid' }}>

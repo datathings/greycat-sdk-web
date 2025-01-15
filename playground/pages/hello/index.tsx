@@ -1,7 +1,7 @@
 import '@greycat/web';
 import { LayoutHeader, LayoutMenu } from '@/common';
 
-const g = await greycat.GreyCat.init();
+const g = await await gc.sdk.init();
 
 const table = await g.call('project::persons');
 console.log(table);

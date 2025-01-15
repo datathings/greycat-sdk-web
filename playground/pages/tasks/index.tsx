@@ -1,16 +1,14 @@
-import { GreyCat, IndexedDbCache, GuiSearchableSelect, GuiInputFn, $, sl } from '@greycat/web';
+import { GuiSearchableSelect, GuiInputFn, sl } from '@greycat/web';
 import '@/common';
 import actions from './actions';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const fnInput = (<gui-input-fn />) as GuiInputFn;
 const fnSelector = (
   <gui-searchable-select
     placeholder="Select a function to run as a task"
-    options={$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
+    options={gc.$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
       fnInput.value = new ev.detail.attr_type.factory(ev.detail.attr_type);
       spawnBtn.disabled = ev.detail === null;
@@ -23,7 +21,7 @@ const spawnBtn = (
     size="small"
     disabled
     onclick={async () => {
-      await $.default.spawn(fnSelector.value.fqn, fnInput.args);
+      await gc.$.default.spawn(fnSelector.value.fqn, fnInput.args);
       tasks.reload();
     }}
   >

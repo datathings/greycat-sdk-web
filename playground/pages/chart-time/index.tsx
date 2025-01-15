@@ -1,7 +1,7 @@
 import { $, GreyCat, core } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init();
+await await gc.sdk.init();
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');

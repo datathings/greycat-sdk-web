@@ -11,12 +11,12 @@ export class GuiPeriodicTaskList extends GuiElement {
 
   private static NOOP = () => void 0;
 
-  private _tasks: greycat.runtime.PeriodicTask[] = [];
+  private _tasks: gc.runtime.PeriodicTask[] = [];
   private _tbody = document.createElement('tbody');
   private _dialog: sl.SlDialog;
   private _dialogContent = document.createElement('div');
   private _dialogUpdateTask = GuiPeriodicTaskList.NOOP;
-  private _greycat = greycat.$.default;
+  private _greycat = gc.$.default;
 
   constructor() {
     super();
@@ -96,7 +96,7 @@ export class GuiPeriodicTaskList extends GuiElement {
     // deletes all the tasks
     this._tasks.length = 0;
     // update task list
-    await greycat.runtime.PeriodicTask.set(this._tasks, this._greycat);
+    await gc.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
     this.update();
   }
@@ -105,7 +105,7 @@ export class GuiPeriodicTaskList extends GuiElement {
     // deletes the task by index
     this._tasks.splice(index, 1);
     // update task list
-    await greycat.runtime.PeriodicTask.set(this._tasks, this._greycat);
+    await gc.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
     this.update();
   }
@@ -118,7 +118,7 @@ export class GuiPeriodicTaskList extends GuiElement {
       input.id = `periodic-task-input-${index}`;
       // input.type = $.default.abi.type_by_fqn.get(std.runtime.PeriodicTask._type);
       input.addEventListener('gui-change', () => {
-        tmpTask = input.value as greycat.runtime.PeriodicTask;
+        tmpTask = input.value as gc.runtime.PeriodicTask;
       });
       input.value = task;
       this._dialogUpdateTask = () => {
@@ -181,18 +181,18 @@ export class GuiPeriodicTaskList extends GuiElement {
     }
   }
 
-  async updateTasks(tasks: greycat.runtime.PeriodicTask[]): Promise<void> {
+  async updateTasks(tasks: gc.runtime.PeriodicTask[]): Promise<void> {
     try {
-      await greycat.runtime.PeriodicTask.set(tasks, this._greycat);
+      await gc.runtime.PeriodicTask.set(tasks, this._greycat);
       this._tasks = tasks;
       this.update();
     } catch (err) {
-      console.error(greycat.sdk.prettyError(err, 'something went wrong while updating tasks'));
+      console.error(gc.sdk.prettyError(err, 'something went wrong while updating tasks'));
     }
   }
 
   async reloadTasks(): Promise<void> {
-    this._tasks = await greycat.runtime.PeriodicTask.all(this._greycat);
+    this._tasks = await gc.runtime.PeriodicTask.all(this._greycat);
     this.update();
   }
 
@@ -200,21 +200,21 @@ export class GuiPeriodicTaskList extends GuiElement {
     return this._tasks;
   }
 
-  set value(value: greycat.runtime.PeriodicTask[]) {
+  set value(value: gc.runtime.PeriodicTask[]) {
     this._tasks = value;
     this.update();
   }
 
-  set greycat(greycat: greycat.sdk.GreyCat) {
+  set greycat(greycat: gc.sdk.GreyCat) {
     this._greycat = greycat;
     this.reloadTasks();
   }
 }
 
-export class GuiPeriodicTaskListClickEvent extends CustomEvent<greycat.runtime.PeriodicTask> {
+export class GuiPeriodicTaskListClickEvent extends CustomEvent<gc.runtime.PeriodicTask> {
   static readonly NAME = 'periodic-task-list-click'; // TODO use 'gui-click' in v7
 
-  constructor(task: greycat.runtime.PeriodicTask) {
+  constructor(task: gc.runtime.PeriodicTask) {
     super(GuiPeriodicTaskListClickEvent.NAME, { detail: task, bubbles: true });
   }
 }

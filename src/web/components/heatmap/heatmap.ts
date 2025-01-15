@@ -37,7 +37,7 @@ type ComputedState = {
 
 export class GuiHeatmap extends HTMLElement {
   private _disposer: Disposer;
-  private _table: greycat.core.Table;
+  private _table: gc.core.Table;
   private _config: HeatmapConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -83,7 +83,7 @@ export class GuiHeatmap extends HTMLElement {
     super();
 
     this._disposer = new Disposer();
-    this._table = greycat.core.Table.create();
+    this._table = gc.core.Table.create();
     this._config = { xAxis: {}, yAxis: {} };
 
     // main canvas

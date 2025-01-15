@@ -1,8 +1,8 @@
-import { GreyCat, sl } from '@greycat/web';
+import { sl } from '@greycat/web';
 import '@/common';
 import './index.css';
 
-await GreyCat.init();
+await gc.sdk.init();
 
 // async function getTable() {
 //   const nt = core.nodeTime.create(41943357n);

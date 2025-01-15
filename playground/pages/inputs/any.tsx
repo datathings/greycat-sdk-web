@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '@/common';
 
-await greycat.GreyCat.init();
+await await gc.sdk.init();
 
 const value = new greycat.any.AnyInput('');
 

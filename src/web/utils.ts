@@ -98,7 +98,7 @@ export function getHeatmapColors(el?: HTMLElement): string[] {
 }
 
 /**
- * Similar to `greycat.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
+ * Similar to `gc.putFile()` but leveraging `XMLHttpRequest` to get progress in browser context.
  *
  * @param file the File to upload
  * @param filepath if defined, will upload the file at that path. Falls back to `file.name` otherwise.
@@ -109,7 +109,7 @@ export function putFileProgress(
   file: File,
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
-  g: greycat.sdk.GreyCat = greycat.$.default,
+  g: gc.sdk.GreyCat = gc.$.default,
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 
@@ -131,12 +131,12 @@ export function putFileProgress(
       } else if (xhr.status === 403) {
         // forbidden
         // unauthorized
-        const logger = greycat.sdk.getDebuggerLogger();
+        const logger = gc.sdk.getDebuggerLogger();
         logger(xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
         // unauthorized
-        const logger = greycat.sdk.getDebuggerLogger();
+        const logger = gc.sdk.getDebuggerLogger();
         logger(xhr.status, route);
         g.token = undefined;
         g.unauthorizedHandler?.();
@@ -182,21 +182,21 @@ export function getIndexInParent(element: Node): number {
   return index;
 }
 
-export function greycatTypeFromValueStr(value: unknown, g = greycat.$.default): string {
+export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): string {
   switch (typeof value) {
     case 'bigint':
     case 'number':
-      return greycat.core.int._type;
+      return gc.core.int._type;
     case 'boolean':
       return 'core::boolean';
     case 'string':
-      return greycat.core.String._type;
+      return gc.core.String._type;
     case 'object': {
       if (Array.isArray(value)) {
-        return greycat.core.Array._type;
+        return gc.core.Array._type;
       } else if (value instanceof Map) {
-        return greycat.core.Map._type;
-      } else if (value instanceof greycat.sdk.GCObject) {
+        return gc.core.Map._type;
+      } else if (value instanceof gc.sdk.GCObject) {
         return g.abi.types[value.$type.mapped_type_off].name;
       }
       return 'core::any';

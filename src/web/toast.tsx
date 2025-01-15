@@ -38,7 +38,7 @@ function notify(toast: Toast | string) {
 function error(err: unknown) {
   if (typeof err === 'string') {
     return notify({ message: err, variant: 'danger' });
-  } else if (err instanceof Error || err instanceof greycat.core.Error) {
+  } else if (err instanceof Error || err instanceof gc.core.Error) {
     return notify({
       message: <pre>{err.message}</pre>,
       variant: 'danger',

@@ -1,13 +1,11 @@
+import '@greycat/web';
 import '@/common';
-import { $, core, GreyCat, IndexedDbCache } from '@greycat/web';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-const table = await $.default.call<core.Table>('project::objects_table');
+const table = await gc.project.objects_table();
 
 document.body.appendChild(
   <app-layout

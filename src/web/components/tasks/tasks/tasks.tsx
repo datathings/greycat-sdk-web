@@ -32,8 +32,8 @@ export class GuiTasks extends GuiElement {
           const [task_id] = this.table.table.getRowArray(rowIdx) as [number];
           const task = this._tasks.find((t) => t.task_id === task_id)!;
           const cancellable =
-            task.status === greycat.runtime.TaskStatus.waiting ||
-            task.status === greycat.runtime.TaskStatus.running;
+            task.status === gc.runtime.TaskStatus.waiting ||
+            task.status === gc.runtime.TaskStatus.running;
 
           return cancellable ? (
             <sl-button
@@ -43,7 +43,7 @@ export class GuiTasks extends GuiElement {
                 const self = ev.target as sl.SlButton;
                 self.textContent = 'Cancelling...';
                 self.disabled = true;
-                await greycat.runtime.Task.cancel(task.task_id);
+                await gc.runtime.Task.cancel(task.task_id);
               }}
             >
               Cancel
@@ -125,7 +125,7 @@ export class GuiTasks extends GuiElement {
   async reload(): Promise<void> {
     const users: Record<number, string> = {};
     try {
-      const entities = await greycat.runtime.SecurityEntity.all();
+      const entities = await gc.runtime.SecurityEntity.all();
       for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
         users[Number(entity.id)] = entity.name;
@@ -136,11 +136,11 @@ export class GuiTasks extends GuiElement {
     }
 
     try {
-      const history = await greycat.runtime.Task.history(0, 1);
+      const history = await gc.runtime.Task.history(0, 1);
       const maxHistory = history.length > 0 ? Number(history[0].task_id) : 0;
 
-      this._tasks = await greycat.runtime.Task.history(0, maxHistory);
-      const running = await greycat.runtime.Task.running();
+      this._tasks = await gc.runtime.Task.history(0, maxHistory);
+      const running = await gc.runtime.Task.running();
       for (const t of running) {
         this._tasks.push(t);
       }
@@ -181,7 +181,7 @@ export class GuiTasks extends GuiElement {
       });
 
       // update table
-      const table = greycat.core.Table.fromObjects(rows);
+      const table = gc.core.Table.fromObjects(rows);
       this.table.value = table;
     } catch (err) {
       toast.error(err);

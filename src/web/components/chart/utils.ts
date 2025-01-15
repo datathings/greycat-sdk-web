@@ -164,8 +164,8 @@ export function createFormatter(
  * @returns
  */
 export function inferConfig(
-  table: greycat.core.Table,
-  g: greycat.sdk.GreyCat = greycat.$.default,
+  table: gc.core.Table,
+  g: gc.sdk.GreyCat = gc.$.default,
 ): ChartConfig {
   const config: ChartConfig = {
     xAxis: {},
@@ -180,7 +180,7 @@ export function inferConfig(
   // TODO
   // - skip null to try to find first interesting value
   // - heuristic to determine xAxis column?
-  if (table.cols[0][0] instanceof greycat.core.time) {
+  if (table.cols[0][0] instanceof gc.core.time) {
     // first column is a time, most likely a timeserie
     config.xAxis.scale = 'time';
   } else {
@@ -200,7 +200,7 @@ export function inferConfig(
       const columnName =
         table.headers?.[c] ?? greycatTypeFromValueStr(cell, g).replaceAll(/[- :]+/g, '_');
       const yAxis = `c${c}_${columnName}`;
-      config.yAxes[yAxis] = { scale: cell instanceof greycat.core.time ? 'time' : 'linear' };
+      config.yAxes[yAxis] = { scale: cell instanceof gc.core.time ? 'time' : 'linear' };
       config.series.push({
         title: table.headers?.[c] ?? `c${c}`,
         type: 'line',
@@ -220,10 +220,10 @@ function isPotentiallyChartable(value: unknown): boolean {
   return (
     type === 'number' ||
     type === 'bigint' ||
-    value instanceof greycat.core.time ||
-    value instanceof greycat.core.duration ||
-    value instanceof greycat.core.int ||
-    value instanceof greycat.core.float ||
-    value instanceof greycat.core.geo
+    value instanceof gc.core.time ||
+    value instanceof gc.core.duration ||
+    value instanceof gc.core.int ||
+    value instanceof gc.core.float ||
+    value instanceof gc.core.geo
   );
 }

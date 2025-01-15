@@ -1,7 +1,7 @@
 import { GreyCat, type GuiCsvStatistics2, io, $, type GuiTable, sl } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init();
+await await gc.sdk.init();
 
 async function runAnalysis(filepath: string) {
   const task = await $.default.spawn('io::CsvAnalysis::analyze', [

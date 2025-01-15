@@ -13,7 +13,7 @@ import style from './csv-statistics2.css?inline';
 export class GuiCsvStatistics2 extends GuiElement {
   static override styles = [css(style)];
 
-  private _stats: greycat.io.CsvStatistics | null | undefined;
+  private _stats: gc.io.CsvStatistics | null | undefined;
   private _table: GuiTable;
   private _dialog: GuiDialog;
 
@@ -33,7 +33,7 @@ export class GuiCsvStatistics2 extends GuiElement {
     return this._stats;
   }
 
-  set value(value: greycat.io.CsvStatistics | null | undefined) {
+  set value(value: gc.io.CsvStatistics | null | undefined) {
     this._stats = value;
     this.update();
   }
@@ -49,7 +49,7 @@ export class GuiCsvStatistics2 extends GuiElement {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const table = greycat.core.Table.fromRows<any[]>([
+    const table = gc.core.Table.fromRows<any[]>([
       ['Column offset (zero-based)', ...this._stats.columns.map((_, i) => i)],
       ['Nb rows', ...this._stats.columns.map(countValues)],
       ['Possible type', ...this._stats.columns.map(possibleType)],
@@ -84,7 +84,7 @@ export class GuiCsvStatistics2 extends GuiElement {
     this._table.value = table;
   }
 
-  showWordList(column: greycat.io.CsvColumnStatistics): void {
+  showWordList(column: gc.io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
     let wTotal = 0;
@@ -108,7 +108,7 @@ export class GuiCsvStatistics2 extends GuiElement {
           <gui-table
             globalFilter
             headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
-            value={greycat.core.Table.create([words, counts])}
+            value={gc.core.Table.create([words, counts])}
           />
         </gui-panel>
         {/* <gui-panel slot="panel" tab="Enumerable Count (Donut)">
@@ -120,7 +120,7 @@ export class GuiCsvStatistics2 extends GuiElement {
   }
 }
 
-const countValues = (c: greycat.io.CsvColumnStatistics): number => {
+const countValues = (c: gc.io.CsvColumnStatistics): number => {
   return (
     Number(c.bool_count) +
     Number(c.date_count) +
@@ -131,7 +131,7 @@ const countValues = (c: greycat.io.CsvColumnStatistics): number => {
   );
 };
 
-const possibleInt = (c: greycat.io.CsvColumnStatistics): boolean => {
+const possibleInt = (c: gc.io.CsvColumnStatistics): boolean => {
   return (
     c.int_count > c.bool_count &&
     c.int_count > c.date_count &&
@@ -140,7 +140,7 @@ const possibleInt = (c: greycat.io.CsvColumnStatistics): boolean => {
   );
 };
 
-const possibleFloat = (c: greycat.io.CsvColumnStatistics): boolean => {
+const possibleFloat = (c: gc.io.CsvColumnStatistics): boolean => {
   return (
     c.float_count > c.bool_count &&
     c.float_count > c.date_count &&
@@ -149,7 +149,7 @@ const possibleFloat = (c: greycat.io.CsvColumnStatistics): boolean => {
   );
 };
 
-const possibleString = (c: greycat.io.CsvColumnStatistics): boolean => {
+const possibleString = (c: gc.io.CsvColumnStatistics): boolean => {
   return (
     c.string_count > c.bool_count &&
     c.string_count > c.date_count &&
@@ -158,7 +158,7 @@ const possibleString = (c: greycat.io.CsvColumnStatistics): boolean => {
   );
 };
 
-const possibleBool = (c: greycat.io.CsvColumnStatistics): boolean => {
+const possibleBool = (c: gc.io.CsvColumnStatistics): boolean => {
   return (
     c.bool_count > c.string_count &&
     c.bool_count > c.date_count &&
@@ -167,7 +167,7 @@ const possibleBool = (c: greycat.io.CsvColumnStatistics): boolean => {
   );
 };
 
-const possibleDate = (c: greycat.io.CsvColumnStatistics): boolean => {
+const possibleDate = (c: gc.io.CsvColumnStatistics): boolean => {
   return (
     c.date_count > c.string_count &&
     c.date_count > c.bool_count &&
@@ -176,7 +176,7 @@ const possibleDate = (c: greycat.io.CsvColumnStatistics): boolean => {
   );
 };
 
-const possibleType = (c: greycat.io.CsvColumnStatistics) => {
+const possibleType = (c: gc.io.CsvColumnStatistics) => {
   if (possibleInt(c)) {
     return c.null_count === 0 ? 'int' : 'int?';
   }
@@ -199,7 +199,7 @@ const possibleType = (c: greycat.io.CsvColumnStatistics) => {
   return '';
 };
 
-const nullCount = (c: greycat.io.CsvColumnStatistics) => {
+const nullCount = (c: gc.io.CsvColumnStatistics) => {
   if (c.null_count == 0) {
     return '';
   }
@@ -208,24 +208,24 @@ const nullCount = (c: greycat.io.CsvColumnStatistics) => {
   return `${c.null_count} (${percentage}%)`;
 };
 
-type NullMapper = (prop: keyof greycat.io.CsvColumnStatistics) => (c: greycat.io.CsvColumnStatistics) => string;
+type NullMapper = (prop: keyof gc.io.CsvColumnStatistics) => (c: gc.io.CsvColumnStatistics) => string;
 const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : (c[prop] as string));
 
-const example = (c: greycat.io.CsvColumnStatistics) => {
+const example = (c: gc.io.CsvColumnStatistics) => {
   if (typeof c.example === 'string') {
     return c.example;
   }
   return '';
 };
 
-const average = (c: greycat.io.CsvColumnStatistics) => {
+const average = (c: gc.io.CsvColumnStatistics) => {
   if (c.profile.sum && c.profile.count) {
     return (c.profile.sum / Number(c.profile.count)).toFixed(1);
   }
   return '';
 };
 
-const stdDeviation = (c: greycat.io.CsvColumnStatistics) => {
+const stdDeviation = (c: gc.io.CsvColumnStatistics) => {
   if (c.profile.count && c.profile.sum && c.profile.sumsq) {
     let std = 0.0;
     const s = (c.profile.sum * c.profile.sum) / Number(c.profile.count);

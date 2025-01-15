@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import { GreyCat, IndexedDbCache, core } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init({
+await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

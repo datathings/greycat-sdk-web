@@ -1,7 +1,7 @@
 import { GreyCat, GuiInputElement, GuiInputFn, runtime } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init();
+await await gc.sdk.init();
 
 function printValue(this: GuiInputElement<unknown>) {
   console.log('update', this.value);

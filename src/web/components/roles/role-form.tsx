@@ -33,7 +33,7 @@ export class GuiRoleForm extends HTMLElement {
     }
   }
 
-  set value(role: greycat.runtime.UserRole) {
+  set value(role: gc.runtime.UserRole) {
     this._name.value = role.name;
     this._permissions.value = role.permissions;
   }
@@ -44,12 +44,12 @@ export class GuiRoleForm extends HTMLElement {
   }
 
   async delete(): Promise<void> {
-    await greycat.runtime.UserRole.remove(this._name.value);
+    await gc.runtime.UserRole.remove(this._name.value);
   }
 
   async update(): Promise<void> {
-    const role = new greycat.runtime.UserRole(this._name.value, this._permissions.value as string[]);
-    await greycat.runtime.UserRole.set(role);
+    const role = new gc.runtime.UserRole(this._name.value, this._permissions.value as string[]);
+    await gc.runtime.UserRole.set(role);
   }
 }
 

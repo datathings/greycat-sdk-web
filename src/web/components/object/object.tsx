@@ -179,18 +179,18 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.sdk.GCEnum) {
+    if (value instanceof gc.sdk.GCEnum) {
       this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
 
-    if (value instanceof greycat.core.str) {
+    if (value instanceof gc.core.str) {
       this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
 
     if (Array.isArray(value)) {
-      const table = this._factory.create(greycat.core.Table._type, {
+      const table = this._factory.create(gc.core.Table._type, {
         ...this._props,
         value,
         headers: ['Array'],
@@ -202,7 +202,7 @@ export class GuiObject extends GuiElement {
     }
 
     if (value instanceof Map) {
-      const table = this._factory.create(greycat.core.Table._type, {
+      const table = this._factory.create(gc.core.Table._type, {
         ...this._props,
         value,
         style: { minHeight: 'var(--gui-object-table-min-height)' },
@@ -212,7 +212,7 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.core.node && this._resolve) {
+    if (value instanceof gc.core.node && this._resolve) {
       value.resolve().then((value) => {
         this._render(value);
       });
@@ -233,7 +233,7 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.core.Error) {
+    if (value instanceof gc.core.Error) {
       this.shadowRoot.replaceChildren(
         <sl-alert variant="danger" open>
           <pre>{value.toString()}</pre>
@@ -242,8 +242,8 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.core.Table) {
-      const table = this._factory.create(greycat.core.Table._type, {
+    if (value instanceof gc.core.Table) {
+      const table = this._factory.create(gc.core.Table._type, {
         ...this._props,
         value,
         style: { minHeight: 'var(--gui-object-table-min-height)' },
@@ -253,7 +253,7 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.sdk.GCObject) {
+    if (value instanceof gc.sdk.GCObject) {
       const tagName = this._factory.getMapping(value.$type.name);
       if (tagName) {
         this.shadowRoot.replaceChildren(createElement(tagName, { ...this._props, value }) as Node);
@@ -272,7 +272,7 @@ export class GuiObject extends GuiElement {
     this._renderAsJsObject(value);
   }
 
-  private _renderAsGCObject(value: greycat.sdk.GCObject): void {
+  private _renderAsGCObject(value: gc.sdk.GCObject): void {
     if (value.$fields === undefined || value.$fields?.length === 0) {
       this.shadowRoot.replaceChildren(<em>empty object</em>);
       return;
@@ -336,7 +336,7 @@ export class GuiObject extends GuiElement {
             <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
           </>,
         );
-      } else if (attrVal instanceof greycat.core.node && this._resolve) {
+      } else if (attrVal instanceof gc.core.node && this._resolve) {
         const details = document.createElement('sl-details');
         details.summary = `${attrVal}`;
         details.updateComplete.then(() => {
@@ -354,7 +354,7 @@ export class GuiObject extends GuiElement {
           'sl-show',
           () => {
             attrVal.resolve().then((resolved) => {
-              if (resolved instanceof greycat.sdk.GCObject) {
+              if (resolved instanceof gc.sdk.GCObject) {
                 details.summary = `${resolved.$type.name} (${attrVal})`;
               }
               content.value = resolved;
@@ -486,14 +486,14 @@ export class GuiObject extends GuiElement {
       val !== null &&
       typeof val === 'object' &&
       !isStd(val) &&
-      !(val instanceof greycat.sdk.GCEnum) &&
+      !(val instanceof gc.sdk.GCEnum) &&
       !(val instanceof Node) &&
       !(val instanceof Date)
     );
   }
 
   private _typeName(val: unknown): string | undefined {
-    if (val instanceof greycat.sdk.GCObject) {
+    if (val instanceof gc.sdk.GCObject) {
       if (val.$type.name.startsWith('::')) {
         return '<anonymous>';
       }
@@ -510,16 +510,16 @@ export class GuiObject extends GuiElement {
 
 function isStd(value: unknown): boolean {
   return (
-    value instanceof greycat.core.node ||
-    value instanceof greycat.core.nodeTime ||
-    value instanceof greycat.core.nodeList ||
-    value instanceof greycat.core.nodeIndex ||
-    value instanceof greycat.core.nodeGeo ||
-    value instanceof greycat.core.geo ||
-    value instanceof greycat.core.Date ||
-    value instanceof greycat.core.duration ||
-    value instanceof greycat.core.time ||
-    value instanceof greycat.core.str
+    value instanceof gc.core.node ||
+    value instanceof gc.core.nodeTime ||
+    value instanceof gc.core.nodeList ||
+    value instanceof gc.core.nodeIndex ||
+    value instanceof gc.core.nodeGeo ||
+    value instanceof gc.core.geo ||
+    value instanceof gc.core.Date ||
+    value instanceof gc.core.duration ||
+    value instanceof gc.core.time ||
+    value instanceof gc.core.str
   );
 }
 

@@ -2,7 +2,7 @@ import { IndexedDbCache, GuiFnSelect, GuiInputFn } from '@greycat/web';
 import '@/common';
 import './index.css';
 
-const g = await greycat.GreyCat.init({
+const g = await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

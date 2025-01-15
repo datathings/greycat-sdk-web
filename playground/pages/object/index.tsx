@@ -1,7 +1,7 @@
 import { GreyCat, runtime, type sl } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init();
+const greycat = await await gc.sdk.init();
 
 const objectEl = document.createElement('gui-object');
 objectEl.props.globalFilter = true;

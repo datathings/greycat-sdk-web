@@ -140,7 +140,7 @@ export class GuiInput extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputString extends GuiInputElement<string | greycat.core.String | null> {
+export class GuiInputString extends GuiInputElement<string | gc.core.String | null> {
   input: sl.SlInput;
 
   constructor() {
@@ -213,8 +213,8 @@ export class GuiInputString extends GuiInputElement<string | greycat.core.String
     return this.input.value;
   }
 
-  set value(value: string | greycat.core.String | null | undefined) {
-    if (value instanceof greycat.core.String) {
+  set value(value: string | gc.core.String | null | undefined) {
+    if (value instanceof gc.core.String) {
       value = value.value;
     }
     if (value === null || value === undefined) {
@@ -230,7 +230,7 @@ export class GuiInputString extends GuiInputElement<string | greycat.core.String
   }
 }
 
-export class GuiInputStr extends GuiInputElement<string | greycat.core.str | null> {
+export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
   input: sl.SlInput;
 
   constructor() {
@@ -299,11 +299,11 @@ export class GuiInputStr extends GuiInputElement<string | greycat.core.str | nul
     this.input.size = size;
   }
 
-  get value(): greycat.core.str {
-    return greycat.core.str.fromString(this.input.value);
+  get value(): gc.core.str {
+    return gc.core.str.fromString(this.input.value);
   }
-  set value(value: string | greycat.core.str | null | undefined) {
-    if (value instanceof greycat.core.str) {
+  set value(value: string | gc.core.str | null | undefined) {
+    if (value instanceof gc.core.str) {
       value = value.toString();
     }
     if (value === null || value === undefined) {
@@ -350,7 +350,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   }
 
   set value(
-    value: number | bigint | greycat.sdk.std_n.core.int | greycat.sdk.std_n.core.float | null | undefined,
+    value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined,
   ) {
     if (value === null || value === undefined) {
       this.input.value = '';
@@ -433,8 +433,8 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     return this.input.checked;
   }
 
-  set value(value: boolean | greycat.sdk.std_n.core.bool | null | undefined) {
-    if (value instanceof greycat.sdk.std_n.core.bool) {
+  set value(value: boolean | gc.sdk.std_n.core.bool | null | undefined) {
+    if (value instanceof gc.sdk.std_n.core.bool) {
       this.input.checked = value.value;
     } else {
       this.input.checked = Boolean(value);
@@ -479,8 +479,8 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
   }
 }
 
-export class GuiInputTime extends GuiInputElement<greycat.core.time | null> {
-  private _value: greycat.core.time | null = null;
+export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
+  private _value: gc.core.time | null = null;
   input: sl.SlInput;
 
   constructor() {
@@ -496,7 +496,7 @@ export class GuiInputTime extends GuiInputElement<greycat.core.time | null> {
       if (isNaN(epochMs)) {
         this._value = null;
       } else {
-        this._value = greycat.core.time.fromMs(epochMs);
+        this._value = gc.core.time.fromMs(epochMs);
       }
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -508,11 +508,11 @@ export class GuiInputTime extends GuiInputElement<greycat.core.time | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value(): greycat.core.time | null {
+  get value(): gc.core.time | null {
     return this._value;
   }
 
-  set value(value: greycat.core.time | null | undefined) {
+  set value(value: gc.core.time | null | undefined) {
     this._value = value ?? null;
     this.update();
   }
@@ -585,8 +585,8 @@ export class GuiInputTime extends GuiInputElement<greycat.core.time | null> {
   }
 }
 
-export class GuiInputType extends GuiInputElement<greycat.core.type | null> {
-  private _value: greycat.core.type | null = null;
+export class GuiInputType extends GuiInputElement<gc.core.type | null> {
+  private _value: gc.core.type | null = null;
   input: sl.SlInput;
 
   constructor() {
@@ -596,9 +596,9 @@ export class GuiInputType extends GuiInputElement<greycat.core.type | null> {
     this.input.placeholder = `Specify a type fqn (eg. 'runtime::User')`;
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      const type = greycat.$.default.findType(this.input.value);
+      const type = gc.$.default.findType(this.input.value);
       if (type) {
-        this._value = greycat.core.type.create(type.offset);
+        this._value = gc.core.type.create(type.offset);
       } else {
         this._value = null;
       }
@@ -612,11 +612,11 @@ export class GuiInputType extends GuiInputElement<greycat.core.type | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value(): greycat.core.type | null {
+  get value(): gc.core.type | null {
     return this._value;
   }
 
-  set value(value: greycat.core.type | null | undefined) {
+  set value(value: gc.core.type | null | undefined) {
     this._value = value ?? null;
     this.update();
   }
@@ -689,8 +689,8 @@ export class GuiInputType extends GuiInputElement<greycat.core.type | null> {
   }
 }
 
-export class GuiInputField extends GuiInputElement<greycat.core.field | null> {
-  private _value: greycat.core.field | null = null;
+export class GuiInputField extends GuiInputElement<gc.core.field | null> {
+  private _value: gc.core.field | null = null;
   input: sl.SlInput;
 
   constructor() {
@@ -706,11 +706,11 @@ export class GuiInputField extends GuiInputElement<greycat.core.field | null> {
       } else {
         const type_fqn = this.input.value.slice(0, index);
         const field_name = this.input.value.slice(index + 2);
-        const type = greycat.$.default.findType(type_fqn);
+        const type = gc.$.default.findType(type_fqn);
         if (type) {
           const offset = type.attrs.findIndex((a) => a.name === field_name);
           if (offset >= 0) {
-            this._value = greycat.core.field.create(type.offset, offset);
+            this._value = gc.core.field.create(type.offset, offset);
           } else {
             this._value = null;
           }
@@ -728,11 +728,11 @@ export class GuiInputField extends GuiInputElement<greycat.core.field | null> {
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value(): greycat.core.field | null {
+  get value(): gc.core.field | null {
     return this._value;
   }
 
-  set value(value: greycat.core.field | null | undefined) {
+  set value(value: gc.core.field | null | undefined) {
     this._value = value ?? null;
     this.update();
   }
@@ -804,9 +804,9 @@ export class GuiInputField extends GuiInputElement<greycat.core.field | null> {
   }
 }
 
-export class GuiInputEnum extends GuiInputElement<greycat.sdk.GCEnum | null> {
+export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
   input: GuiSearchableSelect;
-  private _type: greycat.sdk.AbiType | undefined;
+  private _type: gc.sdk.AbiType | undefined;
 
   constructor() {
     super();
@@ -825,9 +825,9 @@ export class GuiInputEnum extends GuiInputElement<greycat.sdk.GCEnum | null> {
     return this._type;
   }
 
-  set type(type: greycat.sdk.AbiType | string | undefined) {
+  set type(type: gc.sdk.AbiType | string | undefined) {
     if (typeof type === 'string') {
-      type = greycat.$.default.findType(type);
+      type = gc.$.default.findType(type);
     }
 
     if (type) {
@@ -851,11 +851,11 @@ export class GuiInputEnum extends GuiInputElement<greycat.sdk.GCEnum | null> {
     }
   }
 
-  get value(): greycat.sdk.GCEnum | null {
+  get value(): gc.sdk.GCEnum | null {
     return this._type?.enum_values?.[this.input.value as number] ?? null;
   }
 
-  set value(value: greycat.sdk.GCEnum | null | undefined) {
+  set value(value: gc.sdk.GCEnum | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = undefined;
       return;
@@ -933,7 +933,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
     this._select.setAttribute('exportparts', 'base');
     this._select.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
-      const type = greycat.$.default.findType(this._select.value as string);
+      const type = gc.$.default.findType(this._select.value as string);
       if (!type) {
         throw new Error(`Unable to find type '${this._select.value}' in ABI`);
       }
@@ -995,14 +995,14 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
     this._select.size = size;
   }
 
-  set type(type: greycat.sdk.AbiType | string | null) {
+  set type(type: gc.sdk.AbiType | string | null) {
     if (type === null) {
       this._select.placeholder = 'No type';
       this._select.disabled = true;
       this._select.replaceChildren();
       return;
     } else if (typeof type === 'string') {
-      const ty = greycat.$.default.findType(type);
+      const ty = gc.$.default.findType(type);
       if (!ty) {
         this._select.placeholder = `Unknown type '${type}'`;
         this._select.disabled = true;
@@ -1032,7 +1032,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
     return this.input.value;
   }
 
-  set value(value: greycat.sdk.GCObject | undefined) {
+  set value(value: gc.sdk.GCObject | undefined) {
     this.input.value = value;
   }
 
@@ -1042,16 +1042,16 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputObject extends GuiInputElement<greycat.sdk.GCObject | undefined> {
+export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined> {
   static override styles = [...GuiInputElement.styles, css(ObjectStyle)];
 
-  protected _value: greycat.sdk.GCObject | undefined;
+  protected _value: gc.sdk.GCObject | undefined;
 
   get value() {
     return this._value;
   }
 
-  set value(value: greycat.sdk.GCObject | undefined) {
+  set value(value: gc.sdk.GCObject | undefined) {
     if (!value) {
       this.shadowRoot.replaceChildren();
       return;
@@ -1105,11 +1105,11 @@ export class GuiInputObject extends GuiInputElement<greycat.sdk.GCObject | undef
   }
 
   private _createAttr(
-    abi: greycat.sdk.Abi,
+    abi: gc.sdk.Abi,
     factory: GuiInputFactory,
-    object: greycat.sdk.GCObject,
-    type: greycat.sdk.AbiType,
-    attr: greycat.sdk.AbiAttribute,
+    object: gc.sdk.GCObject,
+    type: gc.sdk.AbiType,
+    attr: gc.sdk.AbiAttribute,
     value: unknown,
   ): [Node, Element | null] {
     const attrType = abi.types[attr.abi_type];
@@ -1211,7 +1211,7 @@ export class GuiInputObject extends GuiInputElement<greycat.sdk.GCObject | undef
   /**
    * Returns the attribute's type fqn, shortens to only the type symbol if the type is a core type
    */
-  private _attrType(attr: greycat.sdk.AbiAttribute, abi: greycat.sdk.Abi): string {
+  private _attrType(attr: gc.sdk.AbiAttribute, abi: gc.sdk.Abi): string {
     const type = abi.types[attr.abi_type];
     const name = type.is_core ? abi.symbols[type.symbol] : type.name;
     return attr.nullable ? `${name}?` : name;
@@ -1228,7 +1228,7 @@ export class GuiInputFn extends GuiInputObject {
     return super.value;
   }
 
-  override set value(value: greycat.sdk.GCObject | undefined) {
+  override set value(value: gc.sdk.GCObject | undefined) {
     super.value = value;
   }
 
@@ -1240,12 +1240,12 @@ export class GuiInputFn extends GuiInputObject {
   }
 }
 
-export class GuiInputDuration extends GuiInputElement<greycat.core.duration | null> {
+export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   static override styles = [...GuiInputElement.styles, css(DurationStyle)];
 
   readonly input: sl.SlInput;
   readonly select: sl.SlSelect;
-  private readonly _units: greycat.core.DurationUnit[];
+  private readonly _units: gc.core.DurationUnit[];
 
   constructor() {
     super();
@@ -1272,11 +1272,11 @@ export class GuiInputDuration extends GuiInputElement<greycat.core.duration | nu
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    const durationUnit = greycat.$.default.findType(greycat.core.DurationUnit._type);
+    const durationUnit = gc.$.default.findType(gc.core.DurationUnit._type);
     if (!durationUnit || !durationUnit.enum_values) {
       throw new Error('Unable to find core.DurationUnit in ABI');
     }
-    this._units = durationUnit.enum_values as greycat.core.DurationUnit[];
+    this._units = durationUnit.enum_values as gc.core.DurationUnit[];
     for (const field of durationUnit.enum_values) {
       this.select.appendChild(<sl-option value={`${field.offset}`}>{field.key}</sl-option>);
     }
@@ -1284,7 +1284,7 @@ export class GuiInputDuration extends GuiInputElement<greycat.core.duration | nu
     this.shadowRoot.append(this.input, this.select);
   }
 
-  get value(): greycat.core.duration | null {
+  get value(): gc.core.duration | null {
     const durationValue = Number(this.input.value);
     const durationUnit = this.durationUnit;
 
@@ -1292,15 +1292,15 @@ export class GuiInputDuration extends GuiInputElement<greycat.core.duration | nu
       return null;
     }
 
-    return greycat.core.duration.from_unit(durationValue, durationUnit);
+    return gc.core.duration.from_unit(durationValue, durationUnit);
   }
 
-  set value(value: greycat.core.duration | null | undefined) {
+  set value(value: gc.core.duration | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = '';
       this.select.value = '';
     } else {
-      const [val, unit] = greycat.sdk.decomposeDuration(value);
+      const [val, unit] = gc.sdk.decomposeDuration(value);
       this.input.value = `${val}`;
       this.select.value = unit.key;
     }
@@ -1318,7 +1318,7 @@ export class GuiInputDuration extends GuiInputElement<greycat.core.duration | nu
     return this._units[+(this.select.value as string)];
   }
 
-  set durationUnit(value: greycat.core.DurationUnit | null) {
+  set durationUnit(value: gc.core.DurationUnit | null) {
     if (value) {
       this.select.value = value.key;
     } else {
@@ -1392,15 +1392,15 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       if (ev.detail === null) {
         this.input.value = null;
       } else {
-        const type = greycat.$.default.abi.types[ev.detail];
+        const type = gc.$.default.abi.types[ev.detail];
         this.value = new type.ctor();
       }
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    const opts: SearchableOption[] = Array.from({ length: greycat.$.default.abi.types.length - 1 });
-    for (let index = 1; index < greycat.$.default.abi.types.length; index++) {
-      const t = greycat.$.default.abi.types[index];
+    const opts: SearchableOption[] = Array.from({ length: gc.$.default.abi.types.length - 1 });
+    for (let index = 1; index < gc.$.default.abi.types.length; index++) {
+      const t = gc.$.default.abi.types[index];
       opts[index - 1] = { text: t.name, value: t.offset };
     }
 
@@ -1425,7 +1425,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   set value(value: unknown) {
     this._value = value;
     const factory = GuiInputFactory.closest(this);
-    const abi = greycat.$.default.abi;
+    const abi = gc.$.default.abi;
     let input: GuiInputElement<unknown>;
     switch (typeof value) {
       case 'bigint':
@@ -1448,9 +1448,9 @@ export class GuiInputAny extends GuiInputElement<unknown> {
           this.select.value = abi.core.array;
           input = factory.createElement(value, abi.types[abi.core.array]);
         } else if (value instanceof Map) {
-          this.select.value = greycat.$.default.abi.core.map;
+          this.select.value = gc.$.default.abi.core.map;
           input = factory.createElement(value, abi.types[abi.core.map]);
-        } else if (value instanceof greycat.sdk.GCObject) {
+        } else if (value instanceof gc.sdk.GCObject) {
           if (value.$type.offset === 0) {
             this.select.value = abi.core.string;
             input = document.createElement('gui-input-string');
@@ -1487,7 +1487,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     this.input.addEventListener('gui-change', () => {
       this._value = this.input.value;
     });
-    if (!(value instanceof greycat.sdk.GCObject && value.$type.offset === 0)) {
+    if (!(value instanceof gc.sdk.GCObject && value.$type.offset === 0)) {
       this.input.value = value;
     }
   }
@@ -1504,10 +1504,10 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     if (this.select.value === null) {
       return null;
     }
-    return greycat.$.default.abi.types[this.select.value];
+    return gc.$.default.abi.types[this.select.value];
   }
 
-  set type(value: greycat.sdk.AbiType | null) {
+  set type(value: gc.sdk.AbiType | null) {
     if (value) {
       this.select.value = value.offset;
       this.input.value = new value.ctor();
@@ -1531,10 +1531,10 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputArray extends GuiInputElement<unknown[] | greycat.core.Array> {
+export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
   static override styles = [...GuiInputElement.styles, css(ArrayStyle)];
 
-  private _generic_param: greycat.sdk.AbiType | undefined;
+  private _generic_param: gc.sdk.AbiType | undefined;
   private _generic_param_nullable = false;
   private _value: unknown[] = [];
 
@@ -1547,8 +1547,8 @@ export class GuiInputArray extends GuiInputElement<unknown[] | greycat.core.Arra
     return this._value;
   }
 
-  set value(value: unknown[] | greycat.core.Array | null | undefined) {
-    if (value instanceof greycat.core.Array) {
+  set value(value: unknown[] | gc.core.Array | null | undefined) {
+    if (value instanceof gc.core.Array) {
       if (value.$type.generic_abi_type !== 0) {
         this._generic_param = value.$type.abi.types[value.$type.g1()];
         this._generic_param_nullable = value.$type.g1Nullable();
@@ -1567,7 +1567,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | greycat.core.Arra
     return this._generic_param;
   }
 
-  set genericParam(type: greycat.sdk.AbiType | undefined) {
+  set genericParam(type: gc.sdk.AbiType | undefined) {
     this._generic_param = type;
     this.update();
   }
@@ -1740,13 +1740,13 @@ export class GuiInputArray extends GuiInputElement<unknown[] | greycat.core.Arra
   }
 }
 
-export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | greycat.core.Map> {
+export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core.Map> {
   static override styles = [...GuiInputElement.styles, css(MapStyle)];
 
   private _value: Map<unknown, unknown> = new Map();
-  private _key_type: greycat.sdk.AbiType | undefined;
+  private _key_type: gc.sdk.AbiType | undefined;
   private _key_type_nullable = false;
-  private _value_type: greycat.sdk.AbiType | undefined;
+  private _value_type: gc.sdk.AbiType | undefined;
   private _value_type_nullable = false;
   private _entries: HTMLElement;
 
@@ -1766,8 +1766,8 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | greycat
     return this._value;
   }
 
-  set value(value: Map<unknown, unknown> | greycat.core.Map | null | undefined) {
-    if (value instanceof greycat.core.Map) {
+  set value(value: Map<unknown, unknown> | gc.core.Map | null | undefined) {
+    if (value instanceof gc.core.Map) {
       if (value.$type.generic_abi_type != 0) {
         this._key_type = value.$type.abi.types[value.$type.g1()];
         this._key_type_nullable = value.$type.g1Nullable();
@@ -1788,7 +1788,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | greycat
     return this._key_type;
   }
 
-  set keyType(type: greycat.sdk.AbiType | undefined) {
+  set keyType(type: gc.sdk.AbiType | undefined) {
     this._key_type = type;
     this.update();
   }
@@ -1806,7 +1806,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | greycat
     return this._value_type;
   }
 
-  set valueType(type: greycat.sdk.AbiType | undefined) {
+  set valueType(type: gc.sdk.AbiType | undefined) {
     this._value_type = type;
     this.update();
   }
@@ -2004,7 +2004,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | greycat
   }
 }
 
-export class GuiInputNode extends GuiInputElement<greycat.core.node | null> {
+export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
   input: GuiInputString;
 
   constructor() {
@@ -2023,10 +2023,10 @@ export class GuiInputNode extends GuiInputElement<greycat.core.node | null> {
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): greycat.core.node | null {
+  get value(): gc.core.node | null {
     if (this.input.value !== null) {
       try {
-        return greycat.core.node.fromRef(this.input.value);
+        return gc.core.node.fromRef(this.input.value);
       } catch {
         return null;
       }
@@ -2034,7 +2034,7 @@ export class GuiInputNode extends GuiInputElement<greycat.core.node | null> {
     return null;
   }
 
-  set value(value: greycat.core.node | null | undefined) {
+  set value(value: gc.core.node | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2092,7 +2092,7 @@ export class GuiInputNode extends GuiInputElement<greycat.core.node | null> {
   }
 }
 
-export class GuiInputNodeIndex extends GuiInputElement<greycat.core.nodeIndex | null> {
+export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null> {
   input: GuiInputString;
 
   constructor() {
@@ -2111,10 +2111,10 @@ export class GuiInputNodeIndex extends GuiInputElement<greycat.core.nodeIndex | 
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): greycat.core.nodeIndex | null {
+  get value(): gc.core.nodeIndex | null {
     if (this.input.value !== null) {
       try {
-        return greycat.core.nodeIndex.fromRef(this.input.value);
+        return gc.core.nodeIndex.fromRef(this.input.value);
       } catch {
         return null;
       }
@@ -2122,7 +2122,7 @@ export class GuiInputNodeIndex extends GuiInputElement<greycat.core.nodeIndex | 
     return null;
   }
 
-  set value(value: greycat.core.nodeIndex | null | undefined) {
+  set value(value: gc.core.nodeIndex | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2180,7 +2180,7 @@ export class GuiInputNodeIndex extends GuiInputElement<greycat.core.nodeIndex | 
   }
 }
 
-export class GuiInputNodeTime extends GuiInputElement<greycat.core.nodeTime | null> {
+export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
   input: GuiInputString;
 
   constructor() {
@@ -2199,10 +2199,10 @@ export class GuiInputNodeTime extends GuiInputElement<greycat.core.nodeTime | nu
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): greycat.core.nodeTime | null {
+  get value(): gc.core.nodeTime | null {
     if (this.input.value !== null) {
       try {
-        return greycat.core.nodeTime.fromRef(this.input.value);
+        return gc.core.nodeTime.fromRef(this.input.value);
       } catch {
         return null;
       }
@@ -2210,7 +2210,7 @@ export class GuiInputNodeTime extends GuiInputElement<greycat.core.nodeTime | nu
     return null;
   }
 
-  set value(value: greycat.core.nodeTime | null | undefined) {
+  set value(value: gc.core.nodeTime | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2268,7 +2268,7 @@ export class GuiInputNodeTime extends GuiInputElement<greycat.core.nodeTime | nu
   }
 }
 
-export class GuiInputNodeList extends GuiInputElement<greycat.core.nodeList | null> {
+export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
   input: GuiInputString;
 
   constructor() {
@@ -2287,10 +2287,10 @@ export class GuiInputNodeList extends GuiInputElement<greycat.core.nodeList | nu
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): greycat.core.nodeList | null {
+  get value(): gc.core.nodeList | null {
     if (this.input.value !== null) {
       try {
-        return greycat.core.nodeList.fromRef(this.input.value);
+        return gc.core.nodeList.fromRef(this.input.value);
       } catch {
         return null;
       }
@@ -2298,7 +2298,7 @@ export class GuiInputNodeList extends GuiInputElement<greycat.core.nodeList | nu
     return null;
   }
 
-  set value(value: greycat.core.nodeList | null | undefined) {
+  set value(value: gc.core.nodeList | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2356,7 +2356,7 @@ export class GuiInputNodeList extends GuiInputElement<greycat.core.nodeList | nu
   }
 }
 
-export class GuiInputNodeGeo extends GuiInputElement<greycat.core.nodeGeo | null> {
+export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
   input: GuiInputString;
 
   constructor() {
@@ -2375,10 +2375,10 @@ export class GuiInputNodeGeo extends GuiInputElement<greycat.core.nodeGeo | null
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): greycat.core.nodeGeo | null {
+  get value(): gc.core.nodeGeo | null {
     if (this.input.value !== null) {
       try {
-        return greycat.core.nodeGeo.fromRef(this.input.value);
+        return gc.core.nodeGeo.fromRef(this.input.value);
       } catch {
         return null;
       }
@@ -2386,7 +2386,7 @@ export class GuiInputNodeGeo extends GuiInputElement<greycat.core.nodeGeo | null
     return null;
   }
 
-  set value(value: greycat.core.nodeGeo | null | undefined) {
+  set value(value: gc.core.nodeGeo | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2444,7 +2444,7 @@ export class GuiInputNodeGeo extends GuiInputElement<greycat.core.nodeGeo | null
   }
 }
 
-export class GuiInputGeo extends GuiInputElement<greycat.core.geo | null> {
+export class GuiInputGeo extends GuiInputElement<gc.core.geo | null> {
   static override styles = [...GuiInputElement.styles, css(GeoStyle)];
 
   latInput: GuiInputNumber;
@@ -2488,7 +2488,7 @@ export class GuiInputGeo extends GuiInputElement<greycat.core.geo | null> {
     this.setAttribute('part', 'input-geo');
   }
 
-  get value(): greycat.core.geo | null {
+  get value(): gc.core.geo | null {
     let lat = this.latInput.value;
     let lng = this.lngInput.value;
     if (lat === null || lng === null) {
@@ -2499,10 +2499,10 @@ export class GuiInputGeo extends GuiInputElement<greycat.core.geo | null> {
     if (isNaN(lat) || isNaN(lng)) {
       return null;
     }
-    return greycat.core.geo.fromLatLng(lat, lng);
+    return gc.core.geo.fromLatLng(lat, lng);
   }
 
-  set value(value: greycat.core.geo | null | undefined) {
+  set value(value: gc.core.geo | null | undefined) {
     if (value === null || value === undefined) {
       this.latInput.value = null;
       this.lngInput.value = null;
@@ -2513,7 +2513,7 @@ export class GuiInputGeo extends GuiInputElement<greycat.core.geo | null> {
   }
 }
 
-export class GuiInputFnPtr extends GuiInputElement<greycat.core.function_ | null> {
+export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
   input: sl.SlInput;
 
   constructor() {
@@ -2534,17 +2534,17 @@ export class GuiInputFnPtr extends GuiInputElement<greycat.core.function_ | null
     this.shadowRoot.replaceChildren(this.input);
   }
 
-  get value(): greycat.core.function_ | null {
+  get value(): gc.core.function_ | null {
     if (this.input.value.length === 0) {
       return null;
     }
     try {
-      return greycat.$.default.createFunctionByFqn(this.input.value) ?? null;
+      return gc.$.default.createFunctionByFqn(this.input.value) ?? null;
     } catch {
       return null;
     }
   }
-  set value(fn: greycat.core.function_ | null | undefined) {
+  set value(fn: gc.core.function_ | null | undefined) {
     if (fn) {
       this.input.value = fn.fqn;
     } else {

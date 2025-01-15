@@ -1,7 +1,7 @@
 // import { GreyCat } from '@greycat/web';
 // import '@/common';
 
-// const greycat = await GreyCat.init();
+// const greycat = await await gc.sdk.init();
 
 // const evolutions = greycat.evolutions();
 // console.log(evolutions.map((e) => e.head.data.name));

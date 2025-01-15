@@ -1,9 +1,7 @@
-import { GreyCat, IndexedDbCache, toast } from '@greycat/web';
+import { toast } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+const greycat = await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="Toast">

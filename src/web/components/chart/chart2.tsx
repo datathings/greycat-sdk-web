@@ -54,7 +54,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
   cursorCrosshairOpts: ShapeOptions = {
     color: 'gray',
   };
-  private _table: greycat.core.Table;
+  private _table: gc.core.Table;
   private _config: ChartConfig;
   private _cache: CachedState;
   private _colors: string[] = [];
@@ -79,7 +79,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
 
     this.selectionOpts.opacity = 0.06;
 
-    this._table = greycat.core.Table.create();
+    this._table = gc.core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
     this._cache = {
       leftAxes: 0,

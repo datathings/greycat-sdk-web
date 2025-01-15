@@ -118,49 +118,49 @@ export type TableColumnMeta = {
  */
 export type TableLike =
   | Map<unknown, unknown>
-  | greycat.core.Map
-  | greycat.core.Table
+  | gc.core.Map
+  | gc.core.Table
   | { cols: unknown[][] }
   | { rows: unknown[][] }
   | Array<object>;
 
-export function convertToTable(table: TableLike | undefined | null): greycat.core.Table {
+export function convertToTable(table: TableLike | undefined | null): gc.core.Table {
   if (table === undefined || table === null) {
-    return greycat.core.Table.create();
+    return gc.core.Table.create();
   }
-  if (table instanceof greycat.core.Table) {
+  if (table instanceof gc.core.Table) {
     return table;
   }
   if (table instanceof Map) {
-    return greycat.core.Table.fromMap(table);
+    return gc.core.Table.fromMap(table);
   }
-  if (table instanceof greycat.core.Map) {
-    return greycat.core.Table.fromMap(table.map);
+  if (table instanceof gc.core.Map) {
+    return gc.core.Table.fromMap(table.map);
   }
   if (Array.isArray(table)) {
     if (table.length > 0) {
       if (Array.isArray(table[0])) {
-        return greycat.core.Table.fromRows(table as unknown[][]);
+        return gc.core.Table.fromRows(table as unknown[][]);
       }
       if (typeof table[0] === 'object') {
-        return greycat.core.Table.fromObjects(table);
+        return gc.core.Table.fromObjects(table);
       }
-      const new_table = greycat.core.Table.fromCols([table]);
+      const new_table = gc.core.Table.fromCols([table]);
       new_table.headers = ['Element'];
       return new_table;
     }
-    return greycat.core.Table.create();
+    return gc.core.Table.create();
   }
   if (table && typeof table === 'object') {
     if ('cols' in table) {
-      return greycat.core.Table.create(table.cols);
+      return gc.core.Table.create(table.cols);
     }
     if ('rows' in table) {
-      return greycat.core.Table.fromRows(table.rows);
+      return gc.core.Table.fromRows(table.rows);
     }
-    return greycat.core.Table.fromObjects([table]);
+    return gc.core.Table.fromObjects([table]);
   }
-  return greycat.core.Table.create();
+  return gc.core.Table.create();
 }
 
 export type IDisposable = () => void;
@@ -186,7 +186,7 @@ export class Disposer {
 const CORE_MOD_PREFIX = 'core::';
 const CORE_MOD_LEN = CORE_MOD_PREFIX.length;
 
-export function displayType(type: greycat.sdk.AbiType, nullable = false): string {
+export function displayType(type: gc.sdk.AbiType, nullable = false): string {
   if (type.name.startsWith(CORE_MOD_PREFIX)) {
     const ty = type.name.slice(CORE_MOD_LEN);
     return nullable ? `${ty}?` : ty;

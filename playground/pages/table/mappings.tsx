@@ -1,13 +1,13 @@
 import '@/common';
-import { core, GreyCat, type GuiTable } from '@greycat/web';
+import { type GuiTable } from '@greycat/web';
 
-const greycat = await GreyCat.init();
+await gc.sdk.init();
 const { actions } = await import('./actions');
 
 const tableEl = (<gui-table headers={['Time', 'KLine']} />) as GuiTable;
 
 async function fetchTable() {
-  const table = await greycat.call<core.Table>('project::serie_of_obj');
+  const table = (await gc.project.serie_of_obj()) as gc.Table;
   return tableEl.applyMappings(table);
 }
 

@@ -13,9 +13,9 @@ export class GuiFnSelect extends sl.SlSelect {
   override connectedCallback(): void {
     super.connectedCallback();
 
-    const groups: Map<string, greycat.sdk.AbiFunction[]> = new Map();
-    for (let i = 0; i < greycat.$.default.abi.functions.length; i++) {
-      const fn = greycat.$.default.abi.functions[i];
+    const groups: Map<string, gc.sdk.AbiFunction[]> = new Map();
+    for (let i = 0; i < gc.$.default.abi.functions.length; i++) {
+      const fn = gc.$.default.abi.functions[i];
       const key = `${fn.lib}::${fn.module}`;
       let group = groups.get(key);
       if (!group) {

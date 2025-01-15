@@ -208,7 +208,7 @@ export class GuiTableConfig extends GuiElement {
     return this._mappings.value;
   }
 
-  set mappings(mappings: greycat.core.TableColumnMapping[]) {
+  set mappings(mappings: gc.core.TableColumnMapping[]) {
     this._mappings.value = mappings;
   }
 

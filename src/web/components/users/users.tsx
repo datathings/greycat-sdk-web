@@ -15,7 +15,7 @@ import style from './users.css?inline';
 type GroupItem = {
   id: number | bigint;
   name: string;
-  policy: greycat.runtime.UserGroupPolicy;
+  policy: gc.runtime.UserGroupPolicy;
 };
 
 export class GuiUsers extends GuiElement {
@@ -52,7 +52,7 @@ export class GuiUsers extends GuiElement {
       const external = this._table.table.cols[6][ev.detail.rowIdx] as boolean;
       const groups = this._table.table.cols[7][ev.detail.rowIdx] as GroupItem[];
 
-      const user = new greycat.runtime.User(
+      const user = new gc.runtime.User(
         user_id,
         name,
         activated,
@@ -91,11 +91,11 @@ export class GuiUsers extends GuiElement {
 
   async update(): Promise<void> {
     try {
-      const entities = await greycat.runtime.SecurityEntity.all();
-      const groups: greycat.runtime.UserGroup[] = [];
-      const users: greycat.runtime.User[] = [];
+      const entities = await gc.runtime.SecurityEntity.all();
+      const groups: gc.runtime.UserGroup[] = [];
+      const users: gc.runtime.User[] = [];
       for (const entity of entities) {
-        if (entity instanceof greycat.runtime.User) {
+        if (entity instanceof gc.runtime.User) {
           users.push(entity);
         } else {
           groups.push(entity);
@@ -133,13 +133,13 @@ export class GuiUsers extends GuiElement {
         ];
       }
 
-      this._table.value = greycat.core.Table.fromRows(rows);
+      this._table.value = gc.core.Table.fromRows(rows);
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::SecurityEntity::all'`, err);
     }
   }
 
-  private _onEdit = (user: greycat.runtime.User) => {
+  private _onEdit = (user: gc.runtime.User) => {
     // update the form value
     this._userForm.value = user;
     // update the dialog
@@ -169,7 +169,7 @@ export class GuiUsers extends GuiElement {
 
   private _onCreate = () => {
     // update the form value
-    this._userForm.value = new greycat.runtime.User(
+    this._userForm.value = new gc.runtime.User(
       -1,
       '',
       false,

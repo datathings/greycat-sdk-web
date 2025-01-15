@@ -38,7 +38,7 @@
     "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
     "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
-    "build:playground": "./playground/gen.sh && tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
+    "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare-test.sh",
     "test": "./test/test.sh",
     "dev": "vite -c playground/vite.config.ts",

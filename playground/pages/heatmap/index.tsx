@@ -2,7 +2,7 @@ import { type GuiHeatmap, type core, $, GreyCat, IndexedDbCache, sl } from '@gre
 import '@/common';
 import './index.css';
 
-await GreyCat.init({
+await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

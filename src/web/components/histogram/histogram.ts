@@ -4,18 +4,18 @@ import { ChartConfig, GuiHeatmap, HeatmapConfig } from '../../exports.js';
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
-  private _value?: greycat.util.Histogram;
+  private _value?: gc.util.Histogram;
 
   constructor() {
     super();
   }
 
-  set value(val: greycat.util.Histogram) {
+  set value(val: gc.util.Histogram) {
     this._value = val;
     this.render();
   }
 
-  get value(): greycat.util.Histogram | undefined {
+  get value(): gc.util.Histogram | undefined {
     return this._value;
   }
 
@@ -23,21 +23,21 @@ export class GuiHistogram extends HTMLElement {
     if (!this._value?.bins) return;
     const quant = this._value.quantizer;
 
-    if (quant instanceof greycat.util.LinearQuantizer || quant instanceof greycat.util.LogQuantizer) {
+    if (quant instanceof gc.util.LinearQuantizer || quant instanceof gc.util.LogQuantizer) {
       this._render_histogram(this._value.bins, quant);
-    } else if (quant instanceof greycat.util.MultiQuantizer) {
+    } else if (quant instanceof gc.util.MultiQuantizer) {
       if (
         quant.quantizers.length === 1 &&
-        (quant.quantizers[0] instanceof greycat.util.LinearQuantizer ||
-          quant.quantizers[0] instanceof greycat.util.LogQuantizer)
+        (quant.quantizers[0] instanceof gc.util.LinearQuantizer ||
+          quant.quantizers[0] instanceof gc.util.LogQuantizer)
       ) {
         this._render_histogram(this._value.bins, quant.quantizers[0]);
       } else if (
         quant.quantizers.length === 2 &&
-        (quant.quantizers[0] instanceof greycat.util.LinearQuantizer ||
-          quant.quantizers[0] instanceof greycat.util.LogQuantizer) &&
-        (quant.quantizers[1] instanceof greycat.util.LinearQuantizer ||
-          quant.quantizers[1] instanceof greycat.util.LogQuantizer)
+        (quant.quantizers[0] instanceof gc.util.LinearQuantizer ||
+          quant.quantizers[0] instanceof gc.util.LogQuantizer) &&
+        (quant.quantizers[1] instanceof gc.util.LinearQuantizer ||
+          quant.quantizers[1] instanceof gc.util.LogQuantizer)
       ) {
         this._render_heatmap(this._value.bins, [quant.quantizers[0], quant.quantizers[1]]);
       } else {
@@ -50,10 +50,10 @@ export class GuiHistogram extends HTMLElement {
 
   private _render_histogram(
     bins: (number | bigint | null)[],
-    quantizer: greycat.util.LogQuantizer | greycat.util.LinearQuantizer,
+    quantizer: gc.util.LogQuantizer | gc.util.LinearQuantizer,
   ) {
     let xAxisScale: 'linear' | 'log' = 'linear';
-    if (quantizer instanceof greycat.util.LogQuantizer) {
+    if (quantizer instanceof gc.util.LogQuantizer) {
       xAxisScale = 'log';
     }
     const config: ChartConfig = {
@@ -82,7 +82,7 @@ export class GuiHistogram extends HTMLElement {
 
   private _render_heatmap(
     bins: (number | bigint | null)[],
-    quantizer: (greycat.util.LinearQuantizer | greycat.util.LogQuantizer)[],
+    quantizer: (gc.util.LinearQuantizer | gc.util.LogQuantizer)[],
   ) {
     const heatmap = document.createElement('gui-heatmap');
 
@@ -137,7 +137,7 @@ export class GuiHistogram extends HTMLElement {
     this.replaceChildren(heatmap);
   }
 
-  /*   private _get_multi_bounds(slot: number, quantizer: greycat.util.MultiQuantizer): [number, number][] {
+  /*   private _get_multi_bounds(slot: number, quantizer: gc.util.MultiQuantizer): [number, number][] {
     const result = Array.from({ length: quantizer.quantizers.length });
     let multiplier = 1;
     let slotId = 0;
@@ -156,10 +156,10 @@ export class GuiHistogram extends HTMLElement {
     return result as [number, number][];
   } */
 
-  /*   private _get_quantize_size(quantizer: greycat.util.Quantizer): number {
-    if (quantizer instanceof greycat.util.LinearQuantizer || quantizer instanceof greycat.util.LogQuantizer) {
+  /*   private _get_quantize_size(quantizer: gc.util.Quantizer): number {
+    if (quantizer instanceof gc.util.LinearQuantizer || quantizer instanceof gc.util.LogQuantizer) {
       return Number(quantizer.bins);
-    } else if (quantizer instanceof greycat.util.MultiQuantizer) {
+    } else if (quantizer instanceof gc.util.MultiQuantizer) {
       let slots = 1;
       for (let index = 0; index < quantizer.quantizers.length; index++) {
         const qt = quantizer.quantizers[index];
@@ -181,15 +181,15 @@ class Bounds {
     public max = 1,
   ) {}
 
-  compute(slot: number, quantizer: greycat.util.Quantizer): this {
-    if (quantizer instanceof greycat.util.LinearQuantizer) {
+  compute(slot: number, quantizer: gc.util.Quantizer): this {
+    if (quantizer instanceof gc.util.LinearQuantizer) {
       const step = (quantizer.max - quantizer.min) / Number(quantizer.bins);
       this.min = quantizer.min + slot * step;
       this.max = quantizer.min + (slot + 1) * step;
       return this;
     }
 
-    if (quantizer instanceof greycat.util.LogQuantizer) {
+    if (quantizer instanceof gc.util.LogQuantizer) {
       const bins = Number(quantizer.bins);
       let min = quantizer.min;
       let max = quantizer.max;

@@ -24,7 +24,7 @@ object.value = 'Hello world!';
 ## Complex example
 ::: code-group
 ```tsx [view.tsx]
-const result = await greycat.call('project::complex_object');
+const result = await gc.call('project::complex_object');
 <gui-object value={result} />
 ```
 ```gcl [project.gcl]

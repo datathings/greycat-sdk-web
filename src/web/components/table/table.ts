@@ -89,7 +89,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   static override styles = [css(style)];
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
-  private _table = greycat.core.Table.create();
+  private _table = gc.core.Table.create();
   private _filter = document.createElement('gui-search-input');
   private _tableContainer = document.createElement('div');
   private _thead = document.createElement('gui-thead');
@@ -201,11 +201,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
    *
    * **This is only a getter, if you want to set the table use the `value` setter**
    */
-  get table(): greycat.core.Table {
+  get table(): gc.core.Table {
     return this._table;
   }
 
-  set table(_: greycat.core.Table) {
+  set table(_: gc.core.Table) {
     throw new Error(`use the 'value' setter to update the table`);
   }
 
@@ -227,7 +227,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     return this._configEl.mappings;
   }
 
-  set mappings(mappings: greycat.core.TableColumnMapping[]) {
+  set mappings(mappings: gc.core.TableColumnMapping[]) {
     this._configEl.mappings = mappings;
   }
 
@@ -259,11 +259,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
    * el.applyMappings(myTable); // only one update
    * ```
    */
-  async applyMappings(table: greycat.core.Table = this._table): Promise<void> {
+  async applyMappings(table: gc.core.Table = this._table): Promise<void> {
     try {
       const mappings = this._configEl.mappings;
       if (mappings.length > 0) {
-        this._table = await greycat.core.Table.applyMappings(table, mappings);
+        this._table = await gc.core.Table.applyMappings(table, mappings);
       } else {
         this._table = table;
       }
@@ -722,13 +722,13 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           if (needsSep) {
             csv += sep;
           }
-          csv += greycat.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
+          csv += gc.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
           needsSep = true;
         }
         csv += '\n';
       }
     } else {
-      const props: greycat.sdk.StringifyProps = Object.assign(
+      const props: gc.sdk.StringifyProps = Object.assign(
         { value: undefined },
         this._cellProps,
       );
@@ -742,7 +742,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             csv += sep;
           }
           props.value = this._table.cols[c][r];
-          csv += greycat.sdk.stringify(props);
+          csv += gc.sdk.stringify(props);
           needsSep = true;
         }
         csv += '\n';
@@ -758,7 +758,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this._sortCol.reset();
       return;
     }
-    const ord = this._sortCol.ord === 'desc' ? greycat.sdk.SortOrd.desc : greycat.sdk.SortOrd.asc;
+    const ord = this._sortCol.ord === 'desc' ? gc.sdk.SortOrd.desc : gc.sdk.SortOrd.asc;
     this._table.sort(this._sortCol.index, ord);
   }
 
@@ -817,7 +817,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
 export class GuiTableHead extends HTMLElement {
   update(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     ignoreCols: number[] | undefined,
     calc: WidthCalculator,
     sortCol: SortCol,
@@ -1096,7 +1096,7 @@ export class GuiTableBody extends HTMLElement {
   }
 
   async computeRowHeight(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     ignoreCols: number[] | undefined,
     columnFactory: CleanColumnFactory | undefined,
   ) {
@@ -1132,7 +1132,7 @@ export class GuiTableBody extends HTMLElement {
 
   async update(
     fromRowIdx: number,
-    table: greycat.core.Table,
+    table: gc.core.Table,
     ignoreCols: number[] | undefined,
     filterText: string,
     filterColumns: Array<string | undefined | null>,
@@ -1247,7 +1247,7 @@ export class GuiTableBody extends HTMLElement {
    * Returns `true` for a match, `false` means no cell match.
    */
   private _rowMatchesFilters(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     filterText: string,
     filterColumns: Array<string | undefined | null>,
     rowIdx: number,
@@ -1259,11 +1259,11 @@ export class GuiTableBody extends HTMLElement {
       const colFilter = filterColumns[colIdx];
       if (colFilter && colFilter.length > 0) {
         if (typeof cellProps === 'function') {
-          cells[colIdx] = greycat.sdk
+          cells[colIdx] = gc.sdk
             .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
             .toLowerCase();
         } else {
-          cells[colIdx] = greycat.sdk
+          cells[colIdx] = gc.sdk
             .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
             .toLowerCase();
         }
@@ -1280,11 +1280,11 @@ export class GuiTableBody extends HTMLElement {
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       if (cells[colIdx] === undefined) {
         if (typeof cellProps === 'function') {
-          cells[colIdx] = greycat.sdk
+          cells[colIdx] = gc.sdk
             .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
             .toLowerCase();
         } else {
-          cells[colIdx] = greycat.sdk
+          cells[colIdx] = gc.sdk
             .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
             .toLowerCase();
         }
@@ -1330,7 +1330,7 @@ export class GuiTableBodyRow extends HTMLElement {
   idx = -1;
 
   async update(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     ignoreCols: number[] | undefined,
     rowIdx: number,
     wCalc: WidthCalculator,
@@ -1370,7 +1370,7 @@ export class GuiTableBodyRow extends HTMLElement {
     return this.children[index] as GuiTableBodyCell;
   }
 
-  private _getOrCreateCell(table: greycat.core.Table, index: number): GuiTableBodyCell {
+  private _getOrCreateCell(table: gc.core.Table, index: number): GuiTableBodyCell {
     if (this.children[index]) {
       return this.children[index] as GuiTableBodyCell;
     }
@@ -1442,7 +1442,7 @@ export class GuiTableBodyCell extends HTMLElement {
    * render and we get proper height reporting post-update.
    */
   async update(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     rowIdx: number,
     colIdx: number,
     cellProps: CellPropsFactory,

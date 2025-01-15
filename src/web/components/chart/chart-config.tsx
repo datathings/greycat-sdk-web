@@ -538,7 +538,7 @@ export class GuiChartAxisInput extends HTMLElement {
    */
   private _updateValue(
     input: sl.SlInput,
-    value: number | bigint | greycat.core.time | Date | greycat.core.Date | undefined,
+    value: number | bigint | gc.core.time | Date | gc.core.Date | undefined,
   ): void {
     if (value === undefined) {
       input.value = '';
@@ -554,13 +554,13 @@ export class GuiChartAxisInput extends HTMLElement {
   /**
    * Gets the value of the given `input` based on the type of the given `scale`
    */
-  private _getValue(input: sl.SlInput, scale: ScaleType): number | greycat.core.time | undefined {
+  private _getValue(input: sl.SlInput, scale: ScaleType): number | gc.core.time | undefined {
     const value = input.value;
     if (value.length === 0) {
       return undefined;
     }
     if (scale === 'time') {
-      return greycat.core.time.fromDate(new Date(value));
+      return gc.core.time.fromDate(new Date(value));
     }
     return +value;
   }

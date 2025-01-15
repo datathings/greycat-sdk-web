@@ -2,16 +2,14 @@ import HighIcon from '@tabler/icons/temperature-sun.svg?raw';
 import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
-import { $, GCEnum, GreyCat, GuiValueElement, IndexedDbCache, TableLike } from '@greycat/web';
+import { GuiValueElement, TableLike } from '@greycat/web';
 import '@/common';
 
-await GreyCat.init({
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-export class AppConfidence extends HTMLElement implements GuiValueElement<GCEnum> {
+export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk.GCEnum> {
   private static HIGH: SVGSVGElement;
   private static MEDIUM: SVGSVGElement;
   private static LOW: SVGSVGElement;

@@ -28,7 +28,7 @@ export class GuiRoles extends GuiElement {
         ongui-click={(ev) => {
           const name = this._table.table.cols[0][ev.detail.rowIdx] as string;
           const permissions = this._table.table.cols[1][ev.detail.rowIdx] as string[];
-          const role = new greycat.runtime.UserRole(name, permissions);
+          const role = new gc.runtime.UserRole(name, permissions);
           this._onEdit(role);
         }}
       />
@@ -61,8 +61,8 @@ export class GuiRoles extends GuiElement {
 
   async update(): Promise<void> {
     try {
-      const roles = await greycat.runtime.UserRole.all();
-      this._form.permissions = await greycat.runtime.SecurityPolicy.permissions();
+      const roles = await gc.runtime.UserRole.all();
+      this._form.permissions = await gc.runtime.SecurityPolicy.permissions();
 
       const rows: Array<[string, string[]]> = Array.from({ length: roles.length });
 
@@ -71,7 +71,7 @@ export class GuiRoles extends GuiElement {
         rows[i] = [role.name, role.permissions];
       }
 
-      const table = greycat.core.Table.fromRows(rows);
+      const table = gc.core.Table.fromRows(rows);
       table.headers = ['Name', 'Permissions'];
       this._table.value = table;
     } catch (err) {
@@ -79,7 +79,7 @@ export class GuiRoles extends GuiElement {
     }
   }
 
-  private _onEdit = (role: greycat.runtime.UserRole) => {
+  private _onEdit = (role: gc.runtime.UserRole) => {
     // update the form value
     this._form.value = role;
     // update the dialog

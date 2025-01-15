@@ -59,7 +59,7 @@ export class GuiChart extends GuiElement {
   static override styles = [css(style)];
 
   private _disposer: Disposer;
-  private _table: greycat.core.Table;
+  private _table: gc.core.Table;
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
@@ -85,13 +85,13 @@ export class GuiChart extends GuiElement {
 
   private _canvasEntered = false;
 
-  private _userXAxisMin: number | Date | greycat.core.time | greycat.core.Date | undefined;
-  private _userXAxisMax: number | Date | greycat.core.time | greycat.core.Date | undefined;
+  private _userXAxisMin: number | Date | gc.core.time | gc.core.Date | undefined;
+  private _userXAxisMax: number | Date | gc.core.time | gc.core.Date | undefined;
   private _userYAxes: Record<
     string,
     {
-      min: number | Date | greycat.core.time | greycat.core.Date | undefined;
-      max: number | Date | greycat.core.time | greycat.core.Date | undefined;
+      min: number | Date | gc.core.time | gc.core.Date | undefined;
+      max: number | Date | gc.core.time | gc.core.Date | undefined;
     }
   > = {};
   private _computed: ComputedState | undefined;
@@ -102,7 +102,7 @@ export class GuiChart extends GuiElement {
     super();
 
     this._disposer = new Disposer();
-    this._table = greycat.core.Table.create();
+    this._table = gc.core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
 
     // main canvas

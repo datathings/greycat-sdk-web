@@ -2,7 +2,7 @@ import '../../table/index.js'; // ensures table is defined
 
 export class GuiCsvStatistics extends HTMLElement {
   private static readonly MAX_CONTENT_LENGTH = 50;
-  private _stats: greycat.io.CsvStatistics | null | undefined;
+  private _stats: gc.io.CsvStatistics | null | undefined;
   private _main = document.createElement('div');
   private _dialog = document.createElement('sl-dialog');
 
@@ -20,7 +20,7 @@ export class GuiCsvStatistics extends HTMLElement {
     return this._stats;
   }
 
-  set value(value: greycat.io.CsvStatistics | null | undefined) {
+  set value(value: gc.io.CsvStatistics | null | undefined) {
     this._stats = value;
     this.render();
   }
@@ -267,7 +267,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  showWordList(column: greycat.io.CsvColumnStatistics): void {
+  showWordList(column: gc.io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
     let wTotal = 0;
@@ -290,7 +290,7 @@ export class GuiCsvStatistics extends HTMLElement {
             <gui-table
               globalFilter
               headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
-              value={greycat.core.Table.create([words, counts])}
+              value={gc.core.Table.create([words, counts])}
             />
           </gui-panel>
           <gui-panel slot="panel" tab="Enumerable Count (Donut)">
@@ -302,7 +302,7 @@ export class GuiCsvStatistics extends HTMLElement {
     this._dialog.show();
   }
 
-  private _countValues(col: greycat.io.CsvColumnStatistics): number {
+  private _countValues(col: gc.io.CsvColumnStatistics): number {
     return (
       Number(col.bool_count) +
       Number(col.date_count) +
@@ -313,7 +313,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleInt(col: greycat.io.CsvColumnStatistics): boolean {
+  private _possibleInt(col: gc.io.CsvColumnStatistics): boolean {
     return (
       col.int_count > col.bool_count &&
       col.int_count > col.date_count &&
@@ -322,7 +322,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleFloat(col: greycat.io.CsvColumnStatistics): boolean {
+  private _possibleFloat(col: gc.io.CsvColumnStatistics): boolean {
     return (
       col.float_count > col.bool_count &&
       col.float_count > col.date_count &&
@@ -331,7 +331,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleString(col: greycat.io.CsvColumnStatistics): boolean {
+  private _possibleString(col: gc.io.CsvColumnStatistics): boolean {
     return (
       col.string_count > col.bool_count &&
       col.string_count > col.date_count &&
@@ -340,7 +340,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleBool(col: greycat.io.CsvColumnStatistics): boolean {
+  private _possibleBool(col: gc.io.CsvColumnStatistics): boolean {
     return (
       col.bool_count > col.string_count &&
       col.bool_count > col.date_count &&
@@ -349,7 +349,7 @@ export class GuiCsvStatistics extends HTMLElement {
     );
   }
 
-  private _possibleDate(col: greycat.io.CsvColumnStatistics): boolean {
+  private _possibleDate(col: gc.io.CsvColumnStatistics): boolean {
     return (
       col.date_count > col.string_count &&
       col.date_count > col.bool_count &&

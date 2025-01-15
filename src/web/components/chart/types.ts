@@ -71,8 +71,8 @@ export type Tooltip = {
 
 export type CommonAxis = {
   title?: string;
-  min?: number | Date | greycat.core.time | greycat.core.Date;
-  max?: number | Date | greycat.core.time | greycat.core.Date;
+  min?: number | Date | gc.core.time | gc.core.Date;
+  max?: number | Date | gc.core.time | gc.core.Date;
   cursorAlign?: 'start' | 'center' | 'end';
   cursorBaseline?: CanvasTextBaseline;
   cursorPadding?: number;
@@ -154,7 +154,7 @@ export type TimeAxis = {
   /**
    * Time axis can also leverage `d3.TimeInterval` by specifying for instance `d3.utcHour.every(24)`
    */
-  ticks?: d3.TimeInterval | (greycat.core.time | greycat.core.Date | Date | number)[] | null;
+  ticks?: d3.TimeInterval | (gc.core.time | gc.core.Date | Date | number)[] | null;
 
   /**
    * Formats the ticks text on the axis depending on the axis type and this parameter type:

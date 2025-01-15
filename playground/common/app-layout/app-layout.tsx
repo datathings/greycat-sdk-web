@@ -5,7 +5,7 @@ import './main.css';
 
 import style from './app-layout.css?inline';
 
-greycat.registerDebugLogger();
+gc.sdk.registerDebugLogger();
 
 export class AppLayout extends HTMLElement {
   // prettier-ignore

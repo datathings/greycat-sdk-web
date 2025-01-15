@@ -3,7 +3,7 @@ import { ChartConfig, GreyCat, IndexedDbCache } from '@greycat/web';
 import '@/common';
 import data from './data.json';
 
-await GreyCat.init({
+await gc.sdk.init{
   cache: new IndexedDbCache('sdk-web-playground'),
 });
 

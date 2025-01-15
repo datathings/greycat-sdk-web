@@ -100,7 +100,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  line(table: greycat.core.Table, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+  line(table: gc.core.Table, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
@@ -213,7 +213,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  step(table: greycat.core.Table, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
+  step(table: gc.core.Table, serie: SerieWithOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }
@@ -283,7 +283,7 @@ export class CanvasContext {
   }
 
   bar(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     serie: BarSerie<string> & SerieOptions,
     xScale: Scale,
     yScale: Scale,
@@ -361,7 +361,7 @@ export class CanvasContext {
   }
 
   scatter(
-    table: greycat.core.Table,
+    table: gc.core.Table,
     serie: (ScatterSerie<unknown> | LineScatterSerie<unknown>) & SerieOptions,
     xScale: Scale,
     yScale: Scale,
@@ -419,7 +419,7 @@ export class CanvasContext {
     this.ctx.restore();
   }
 
-  area(table: greycat.core.Table, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
+  area(table: gc.core.Table, serie: LineSerieOptions, xScale: Scale, yScale: Scale): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
     }

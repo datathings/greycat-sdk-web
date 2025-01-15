@@ -4,7 +4,7 @@ import './index.css';
 import { GreyCat, runtime } from '@greycat/web';
 import '@greycat/sdk/greycat.css';
 
-await GreyCat.init();
+await await gc.sdk.init();
 
 function toggleTheme() {
   const is_dark = document.documentElement.classList.contains('sl-theme-dark');

@@ -1,7 +1,7 @@
 // import { ChartConfig, core, effect, GreyCat, Signal } from '@greycat/web';
 // import '@/common';
 
-// const greycat = await GreyCat.init();
+// const greycat = await await gc.sdk.init();
 
 // const root = await greycat.root();
 // const table = new Signal(core.Table.create());

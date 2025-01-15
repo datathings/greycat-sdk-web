@@ -7,7 +7,7 @@ import {
 } from '@greycat/web';
 import '@/common';
 
-const greycat = await GreyCat.init();
+const greycat = await await gc.sdk.init();
 
 class TxIdSelect extends GuiSearchableSelect {
   private _onChange = async (ev: GuiChangeEvent) => {
