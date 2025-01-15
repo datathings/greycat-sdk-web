@@ -32,7 +32,7 @@ export function displayValue(value) {
       o[key] = structuredClone(value);
     });
     console.dir(o, { depth: Infinity });
-  } else if (value instanceof greycat.GCObject) {
+  } else if (value instanceof gc.sdk.GCObject) {
     process.stdout.write(`${value.$type.name} `);
     // cloning for pretty display
     console.dir(structuredClone(value), { depth: Infinity });

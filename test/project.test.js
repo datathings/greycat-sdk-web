@@ -3,7 +3,7 @@ import { describe, before, it } from 'node:test';
 import { readFile } from 'node:fs/promises';
 
 import '@greycat/web/sdk';
-const { Abi, AbiReader, AbiWriter, GCEnum, GreyCat } = greycat;
+const { Abi, AbiReader, AbiWriter, GCEnum } = gc.sdk;
 
 describe('project', () => {
   let abi, reader;
@@ -467,59 +467,59 @@ describe('project', () => {
 describe('std', () => {
   before(async () => {
     const buffer = (await readFile('project.test.abi')).buffer;
-    GreyCat.initWithAbi({
+    gc.sdk.initWithAbi({
       abi: new Abi(buffer),
     });
   });
 
   it('time + duration => time', () => {
     assert.deepStrictEqual(
-      greycat.core.time.create(40).add(greycat.core.duration.create(2)),
-      greycat.core.time.create(42),
+      gc.core.time.create(40).add(gc.core.duration.create(2)),
+      gc.core.time.create(42),
     );
   });
 
   it('time - duration => time', () => {
     assert.deepStrictEqual(
-      greycat.core.time.create(45).sub(greycat.core.duration.create(3)),
-      greycat.core.time.create(42),
+      gc.core.time.create(45).sub(gc.core.duration.create(3)),
+      gc.core.time.create(42),
     );
   });
 
   it('time - time => duration', () => {
     assert.deepStrictEqual(
-      greycat.core.time.create(42).sub(greycat.core.time.create(40)),
-      greycat.core.duration.create(2),
+      gc.core.time.create(42).sub(gc.core.time.create(40)),
+      gc.core.duration.create(2),
     );
   });
 
   describe('duration', () => {
     it('0n => 0us', () => {
-      assert.deepStrictEqual(greycat.core.duration.create(0n).toString(), '0us');
+      assert.deepStrictEqual(gc.core.duration.create(0n).toString(), '0us');
     });
 
     it('1_000_000_000n => 16min 40', () => {
-      assert.deepStrictEqual(greycat.core.duration.create(1_000_000_000n).toString(), '16min 40s');
+      assert.deepStrictEqual(gc.core.duration.create(1_000_000_000n).toString(), '16min 40s');
     });
 
     it('100_000_000_000_000n => 1157day 9hour 46min 40s', () => {
       assert.deepStrictEqual(
-        greycat.core.duration.create(100_000_000_000_000n).toString(),
+        gc.core.duration.create(100_000_000_000_000n).toString(),
         '1157day 9hour 46min 40s',
       );
     });
 
     it('1year > 2days', () => {
-      assert(greycat.core.duration.from_years(1) > greycat.core.duration.from_days(2));
+      assert(gc.core.duration.from_years(1) > gc.core.duration.from_days(2));
     });
 
     it('42us == 42', () => {
-      assert(greycat.core.duration.create(42).valueOf() == 42);
+      assert(gc.core.duration.create(42).valueOf() == 42);
     });
   });
 
   it('42time == 42', () => {
-    assert(greycat.core.time.create(42).valueOf() == 42);
+    assert(gc.core.time.create(42).valueOf() == 42);
   });
 });
 

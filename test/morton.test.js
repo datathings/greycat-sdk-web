@@ -3,7 +3,7 @@ import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
 import '@greycat/web/sdk';
-const m = greycat.utils;
+const m = gc.sdk;
 
 const INT32_MIN = -2147483648;
 const INT32_MAX = 2147483647;

@@ -4,7 +4,7 @@ module.exports = {
     node: true,
   },
   globals: {
-    greycat: 'readonly',
+    gc: 'readonly',
   },
 
   extends: ['eslint:recommended', 'plugin:@typescript-eslint/recommended'],

@@ -7,7 +7,7 @@ if (args.length < 1) {
   process.exit(1);
 }
 
-const g = await greycat.GreyCat.init();
+const g = await gc.sdk.init();
 
 try {
   const fnArgs = args[1] ? readBytes(args[1]) : undefined;
