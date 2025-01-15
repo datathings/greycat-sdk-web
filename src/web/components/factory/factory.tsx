@@ -88,7 +88,7 @@ export class GuiFactory extends GuiElement {
     return createElement(this.objectTag, props) as Node;
   }
 
-  createAttrObject(type: greycat.AbiType, attrName: string, props: Props = {}): Node {
+  createAttrObject(type: greycat.sdk.AbiType, attrName: string, props: Props = {}): Node {
     const tagName = this.get(`${type.name}::${attrName}`);
     return createElement(tagName, props) as Node;
   }
@@ -97,7 +97,7 @@ export class GuiFactory extends GuiElement {
     return createElement(this.valueTag, props) as Node;
   }
 
-  createAttrValue(type: greycat.AbiType, attrName: string, props: Props = {}): Node {
+  createAttrValue(type: greycat.sdk.AbiType, attrName: string, props: Props = {}): Node {
     const tagName = this.getValue(`${type.name}::${attrName}`);
     return createElement(tagName, props) as Node;
   }
@@ -298,7 +298,7 @@ export class GuiInputFactory extends GuiElement {
     return GuiInputFactory.global;
   }
 
-  createElement(value: unknown, type?: greycat.AbiType): GuiInputElement<unknown> {
+  createElement(value: unknown, type?: greycat.sdk.AbiType): GuiInputElement<unknown> {
     if (type && type.offset === type.abi.core.any) {
       const tagName = this.get(type.name);
       if (tagName) {
@@ -306,7 +306,7 @@ export class GuiInputFactory extends GuiElement {
       }
       return document.createElement('gui-input-any');
     }
-    if (value instanceof greycat.GCEnum) {
+    if (value instanceof greycat.sdk.GCEnum) {
       const tagName = this.get(value.$type.name);
       if (tagName) {
         return document.createElement(tagName);
@@ -314,7 +314,7 @@ export class GuiInputFactory extends GuiElement {
       return document.createElement('gui-input-enum');
     }
 
-    if (value instanceof greycat.GCFunction) {
+    if (value instanceof greycat.sdk.GCFunction) {
       const tagName = this.get(value.$type.name);
       if (tagName) {
         return document.createElement(tagName);
@@ -322,7 +322,7 @@ export class GuiInputFactory extends GuiElement {
       return document.createElement('gui-input-fnptr');
     }
 
-    if (value instanceof greycat.GCObject) {
+    if (value instanceof greycat.sdk.GCObject) {
       return this.createElementFromType(value.$type);
     }
 
@@ -379,7 +379,7 @@ export class GuiInputFactory extends GuiElement {
     }
   }
 
-  createElementFromType(type: greycat.AbiType): GuiInputElement<unknown> {
+  createElementFromType(type: greycat.sdk.AbiType): GuiInputElement<unknown> {
     const abi = type.abi;
     const tagName = this.get(type.name);
     if (tagName) {

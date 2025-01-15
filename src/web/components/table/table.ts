@@ -722,13 +722,16 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           if (needsSep) {
             csv += sep;
           }
-          csv += greycat.utils.stringify(cellProps(this._table.cols[c][r], r, c));
+          csv += greycat.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
           needsSep = true;
         }
         csv += '\n';
       }
     } else {
-      const props: greycat.utils.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
+      const props: greycat.sdk.StringifyProps = Object.assign(
+        { value: undefined },
+        this._cellProps,
+      );
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
@@ -739,7 +742,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             csv += sep;
           }
           props.value = this._table.cols[c][r];
-          csv += greycat.utils.stringify(props);
+          csv += greycat.sdk.stringify(props);
           needsSep = true;
         }
         csv += '\n';
@@ -755,7 +758,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this._sortCol.reset();
       return;
     }
-    const ord = this._sortCol.ord === 'desc' ? greycat.utils.SortOrd.desc : greycat.utils.SortOrd.asc;
+    const ord = this._sortCol.ord === 'desc' ? greycat.sdk.SortOrd.desc : greycat.sdk.SortOrd.asc;
     this._table.sort(this._sortCol.index, ord);
   }
 
@@ -794,7 +797,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
               if (!this.isConnected) {
                 return;
               }
-              const node = cellFactory(this._value, (this.parentElement as GuiTableBodyCell).rowIdx, this);
+              const node = cellFactory(
+                this._value,
+                (this.parentElement as GuiTableBodyCell).rowIdx,
+                this,
+              );
               this.shadowRoot.replaceChildren(node);
             }
           },
@@ -1252,11 +1259,11 @@ export class GuiTableBody extends HTMLElement {
       const colFilter = filterColumns[colIdx];
       if (colFilter && colFilter.length > 0) {
         if (typeof cellProps === 'function') {
-          cells[colIdx] = greycat.utils
+          cells[colIdx] = greycat.sdk
             .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
             .toLowerCase();
         } else {
-          cells[colIdx] = greycat.utils
+          cells[colIdx] = greycat.sdk
             .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
             .toLowerCase();
         }
@@ -1273,11 +1280,11 @@ export class GuiTableBody extends HTMLElement {
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       if (cells[colIdx] === undefined) {
         if (typeof cellProps === 'function') {
-          cells[colIdx] = greycat.utils
+          cells[colIdx] = greycat.sdk
             .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
             .toLowerCase();
         } else {
-          cells[colIdx] = greycat.utils
+          cells[colIdx] = greycat.sdk
             .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
             .toLowerCase();
         }

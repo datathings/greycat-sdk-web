@@ -25,7 +25,7 @@ export class GuiFiles extends GuiElement {
             typeof this._table.table.cols[1][row] === 'bigint'
           ) {
             const size = this._table.table.cols[1][row];
-            (el.children[1].children[0] as GuiValue).value = greycat.utils.humanSize(Number(size));
+            (el.children[1].children[0] as GuiValue).value = greycat.sdk.humanSize(Number(size));
           } else {
             (el.children[1].children[0] as GuiValue).textContent = '';
           }

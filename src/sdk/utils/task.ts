@@ -1,5 +1,5 @@
-namespace greycat {
-  export namespace utils {
+namespace gc {
+  export namespace sdk {
     interface CancellableTaskPromise extends Promise<void> {
       /**
        * **Cancels the remote task** and polls one last time for updated info
@@ -70,18 +70,18 @@ namespace greycat {
       /**
        * Convenience method to download and deserialize this task's "result.gcb".
        *
-       * *This is wrapper around `greycat.getFile('<user_id>/tasks/<task_id>/result.gcb')`*
+       * *This is wrapper around `gc.sdk.getFile('<user_id>/tasks/<task_id>/result.gcb')`*
        */
-      result<T = unknown>(g: GreyCat = $.default): Promise<T> {
+      result<T = unknown>(g: GreyCat = gc.$.default): Promise<T> {
         return g.getFile(`${this.task.user_id}/tasks/${this.task.task_id}/result.gcb`);
       }
 
       /**
        * This will delete all the files related to the task and cannot be undone.
        *
-       * *This is wrapper around `greycat.deleteFile('<user_id>/tasks/<task_id>/')`*
+       * *This is wrapper around `gc.sdk.deleteFile('<user_id>/tasks/<task_id>/')`*
        */
-      delete(g: GreyCat = $.default): Promise<void> {
+      delete(g: GreyCat = gc.$.default): Promise<void> {
         return g.deleteFile(`${this.task.user_id}/tasks/${this.task.task_id}/`);
       }
 
@@ -94,10 +94,10 @@ namespace greycat {
        * ```
        * is equivalent to:
        * ```ts
-       * greycat.$.default.getFile(`${handler.task.user_id}/tasks/${handler.task.task_id}/some-file.txt`)
+       * gc.sdk.gc.$.default.getFile(`${handler.task.user_id}/tasks/${handler.task.task_id}/some-file.txt`)
        * ```
        */
-      getFile<T = unknown>(filepath: string, g: GreyCat = $.default): Promise<T> {
+      getFile<T = unknown>(filepath: string, g: GreyCat = gc.$.default): Promise<T> {
         return g.getFile(`${this.task.user_id}/tasks/${this.task.task_id}/${filepath}`);
       }
 

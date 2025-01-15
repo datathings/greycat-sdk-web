@@ -1,9 +1,20 @@
 import { GuiFactory, GuiInputFactory } from './exports';
 
-const oldInit = greycat.GreyCat.init;
-greycat.GreyCat.init = async function init(options = { url: greycat.DEFAULT_URL }) {
+const oldInit = greycat.sdk.init;
+greycat.sdk.init = async function init(options = { url: greycat.sdk.DEFAULT_URL }) {
   const g = await oldInit(options);
+  initWeb();
+  return g;
+};
 
+const oldInit2 = greycat.sdk.initWithAbi;
+greycat.sdk.initWithAbi = function initWithAbi(options: greycat.sdk.WithAbiOptions) {
+  const g = oldInit2(options);
+  initWeb();
+  return g;
+};
+
+function initWeb() {
   // both factories needs to be created after they are registered
   GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
     [greycat.core.Table._type]: 'gui-table',
@@ -33,6 +44,4 @@ greycat.GreyCat.init = async function init(options = { url: greycat.DEFAULT_URL 
     [greycat.core.nodeGeo._type]: 'gui-input-node-geo',
     [greycat.core.function_._type]: 'gui-input-fnptr',
   });
-
-  return g;
-};
+}

@@ -186,7 +186,7 @@ export class Disposer {
 const CORE_MOD_PREFIX = 'core::';
 const CORE_MOD_LEN = CORE_MOD_PREFIX.length;
 
-export function displayType(type: greycat.AbiType, nullable = false): string {
+export function displayType(type: greycat.sdk.AbiType, nullable = false): string {
   if (type.name.startsWith(CORE_MOD_PREFIX)) {
     const ty = type.name.slice(CORE_MOD_LEN);
     return nullable ? `${ty}?` : ty;

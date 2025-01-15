@@ -1,5 +1,5 @@
-namespace greycat {
-  export namespace utils {
+namespace gc {
+  export namespace sdk {
     export function prettyError(err: unknown, defaultMsg: string): string {
       if (err instanceof Error) {
         // native JS error
@@ -9,7 +9,7 @@ namespace greycat {
         // string error
         return err;
       }
-      if (err instanceof greycat.core.Error) {
+      if (err instanceof gc.core.Error) {
         // GreyCat error
         return err.message ?? defaultMsg;
       }

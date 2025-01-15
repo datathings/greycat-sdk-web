@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "rootDir": ".",
-    "outFile": "../../dist/greycat.js",
+    "outFile": "../../dist/gc.js",
     "declaration": true,
 
     "target": "ES2024",
@@ -60,12 +60,12 @@
     "std_n/core/Tensor.ts",
     "std_n/core/time.ts",
     "std_n/core/type.ts",
-    "greycat.ts",
     "utils/bytes.ts",
     "utils/duration.ts",
     "utils/error.ts",
     "utils/misc.ts",
     "utils/task.ts",
+    "greycat.ts",
     "global.ts",
   ],
 }

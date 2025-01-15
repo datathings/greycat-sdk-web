@@ -1,4 +1,4 @@
-export class IndexedDbCache implements greycat.Cache {
+export class IndexedDbCache implements greycat.sdk.Cache {
   private static _STORE_NAME = 'cache';
   private _db: IDBDatabase | undefined;
 
@@ -26,7 +26,7 @@ export class IndexedDbCache implements greycat.Cache {
     });
   }
 
-  async write(key: greycat.CacheKey, data: greycat.CacheData): Promise<void> {
+  async write(key: greycat.sdk.CacheKey, data: greycat.sdk.CacheData): Promise<void> {
     return new Promise((resolve, reject) => {
       return this.db().then((db) => {
         const transaction = db.transaction(IndexedDbCache._STORE_NAME, 'readwrite');
@@ -41,7 +41,7 @@ export class IndexedDbCache implements greycat.Cache {
     });
   }
 
-  read(key: greycat.CacheKey): Promise<greycat.CacheData | null> {
+  read(key: greycat.sdk.CacheKey): Promise<greycat.sdk.CacheData | null> {
     return new Promise((resolve, reject) => {
       return this.db().then((db) => {
         const transaction = db.transaction(IndexedDbCache._STORE_NAME, 'readonly');

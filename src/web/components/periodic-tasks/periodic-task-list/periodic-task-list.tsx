@@ -187,7 +187,7 @@ export class GuiPeriodicTaskList extends GuiElement {
       this._tasks = tasks;
       this.update();
     } catch (err) {
-      console.error(greycat.utils.prettyError(err, 'something went wrong while updating tasks'));
+      console.error(greycat.sdk.prettyError(err, 'something went wrong while updating tasks'));
     }
   }
 
@@ -205,7 +205,7 @@ export class GuiPeriodicTaskList extends GuiElement {
     this.update();
   }
 
-  set greycat(greycat: greycat.GreyCat) {
+  set greycat(greycat: greycat.sdk.GreyCat) {
     this._greycat = greycat;
     this.reloadTasks();
   }

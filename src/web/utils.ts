@@ -109,7 +109,7 @@ export function putFileProgress(
   file: File,
   filepath: string | null = file.name,
   progress: (ev: ProgressEvent<XMLHttpRequestEventTarget>) => void = () => void 0,
-  g: greycat.GreyCat = greycat.$.default,
+  g: greycat.sdk.GreyCat = greycat.$.default,
 ): Promise<void> & { abort: () => void } {
   const xhr = new XMLHttpRequest();
 
@@ -131,12 +131,12 @@ export function putFileProgress(
       } else if (xhr.status === 403) {
         // forbidden
         // unauthorized
-        const logger = greycat.getDebuggerLogger();
+        const logger = greycat.sdk.getDebuggerLogger();
         logger(xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
         // unauthorized
-        const logger = greycat.getDebuggerLogger();
+        const logger = greycat.sdk.getDebuggerLogger();
         logger(xhr.status, route);
         g.token = undefined;
         g.unauthorizedHandler?.();
@@ -196,7 +196,7 @@ export function greycatTypeFromValueStr(value: unknown, g = greycat.$.default): 
         return greycat.core.Array._type;
       } else if (value instanceof Map) {
         return greycat.core.Map._type;
-      } else if (value instanceof greycat.GCObject) {
+      } else if (value instanceof greycat.sdk.GCObject) {
         return g.abi.types[value.$type.mapped_type_off].name;
       }
       return 'core::any';

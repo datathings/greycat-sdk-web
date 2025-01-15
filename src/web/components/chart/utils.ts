@@ -165,7 +165,7 @@ export function createFormatter(
  */
 export function inferConfig(
   table: greycat.core.Table,
-  g: greycat.GreyCat = greycat.$.default,
+  g: greycat.sdk.GreyCat = greycat.$.default,
 ): ChartConfig {
   const config: ChartConfig = {
     xAxis: {},

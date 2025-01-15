@@ -1,5 +1,5 @@
-namespace greycat {
-  export namespace utils {
+namespace gc {
+  export namespace sdk {
     const buffer = new ArrayBuffer(8);
 
     // const u8view = new Uint8Array(buffer);
@@ -22,104 +22,104 @@ namespace greycat {
 
     // prettier-ignore
     export function interleave64_2d(x0: number, x1: number): bigint {
-  let x0o = BigInt(x0);
-  x0o = (x0o | (x0o << 16n)) & 0x0000ffff0000ffffn;
-  x0o = (x0o | (x0o << 8n)) & 0x00ff00ff00ff00ffn;
-  x0o = (x0o | (x0o << 4n)) & 0x0f0f0f0f0f0f0f0fn;
-  x0o = (x0o | (x0o << 2n)) & 0x3333333333333333n;
-  x0o = (x0o | (x0o << 1n)) & 0x5555555555555555n;
+      let x0o = BigInt(x0);
+      x0o = (x0o | (x0o << 16n)) & 0x0000ffff0000ffffn;
+      x0o = (x0o | (x0o << 8n)) & 0x00ff00ff00ff00ffn;
+      x0o = (x0o | (x0o << 4n)) & 0x0f0f0f0f0f0f0f0fn;
+      x0o = (x0o | (x0o << 2n)) & 0x3333333333333333n;
+      x0o = (x0o | (x0o << 1n)) & 0x5555555555555555n;
 
-  let x1o = BigInt(x1);
-  x1o = (x1o | (x1o << 16n)) & 0x0000ffff0000ffffn;
-  x1o = (x1o | (x1o << 8n)) & 0x00ff00ff00ff00ffn;
-  x1o = (x1o | (x1o << 4n)) & 0x0f0f0f0f0f0f0f0fn;
-  x1o = (x1o | (x1o << 2n)) & 0x3333333333333333n;
-  x1o = (x1o | (x1o << 1n)) & 0x5555555555555555n;
+      let x1o = BigInt(x1);
+      x1o = (x1o | (x1o << 16n)) & 0x0000ffff0000ffffn;
+      x1o = (x1o | (x1o << 8n)) & 0x00ff00ff00ff00ffn;
+      x1o = (x1o | (x1o << 4n)) & 0x0f0f0f0f0f0f0f0fn;
+      x1o = (x1o | (x1o << 2n)) & 0x3333333333333333n;
+      x1o = (x1o | (x1o << 1n)) & 0x5555555555555555n;
 
-  return x0o | (x1o << 1n);
-}
+      return x0o | (x1o << 1n);
+    }
 
     // prettier-ignore
     export function deinterleave64_2d(x: bigint): [number, number] {
-  u64view[0] = x;
-  u64view[0] = (u64view[0] | (u64view[0] >> 0n)) & 0x5555555555555555n;
-  u64view[0] = (u64view[0] | (u64view[0] >> 1n)) & 0x3333333333333333n;
-  u64view[0] = (u64view[0] | (u64view[0] >> 2n)) & 0x0f0f0f0f0f0f0f0fn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 4n)) & 0x00ff00ff00ff00ffn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 8n)) & 0x0000ffff0000ffffn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 16n)) & BI_MASK32;
-  const x0 = u32view[0];
+      u64view[0] = x;
+      u64view[0] = (u64view[0] | (u64view[0] >> 0n)) & 0x5555555555555555n;
+      u64view[0] = (u64view[0] | (u64view[0] >> 1n)) & 0x3333333333333333n;
+      u64view[0] = (u64view[0] | (u64view[0] >> 2n)) & 0x0f0f0f0f0f0f0f0fn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 4n)) & 0x00ff00ff00ff00ffn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 8n)) & 0x0000ffff0000ffffn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 16n)) & BI_MASK32;
+      const x0 = u32view[0];
 
-  u64view[0] = x >> 1n;
-  u64view[0] = (u64view[0] | (u64view[0] >> 0n)) & 0x5555555555555555n;
-  u64view[0] = (u64view[0] | (u64view[0] >> 1n)) & 0x3333333333333333n;
-  u64view[0] = (u64view[0] | (u64view[0] >> 2n)) & 0x0f0f0f0f0f0f0f0fn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 4n)) & 0x00ff00ff00ff00ffn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 8n)) & 0x0000ffff0000ffffn;
-  u64view[0] = (u64view[0] | (u64view[0] >> 16n)) & BI_MASK32;
-  const x1 = u32view[0];
+      u64view[0] = x >> 1n;
+      u64view[0] = (u64view[0] | (u64view[0] >> 0n)) & 0x5555555555555555n;
+      u64view[0] = (u64view[0] | (u64view[0] >> 1n)) & 0x3333333333333333n;
+      u64view[0] = (u64view[0] | (u64view[0] >> 2n)) & 0x0f0f0f0f0f0f0f0fn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 4n)) & 0x00ff00ff00ff00ffn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 8n)) & 0x0000ffff0000ffffn;
+      u64view[0] = (u64view[0] | (u64view[0] >> 16n)) & BI_MASK32;
+      const x1 = u32view[0];
 
-  return [x0, x1];
-}
+      return [x0, x1];
+    }
 
     // prettier-ignore
     export function interleave64_3d(x0: number, x1: number, x2: number): bigint {
-  let x0o = BigInt(x0) & 0x0001fffffn;
-  x0o = (x0o ^ (x0o << 32n)) & 0xffff00000000ffffn;
-  x0o = (x0o ^ (x0o << 16n)) & 0x001f0000ff0000ffn;
-  x0o = (x0o ^ (x0o << 8n)) & 0x100f00f00f00f00fn;
-  x0o = (x0o ^ (x0o << 4n)) & 0x10c30c30c30c30c3n;
-  x0o = (x0o ^ (x0o << 2n)) & 0x1249249249249249n;
+      let x0o = BigInt(x0) & 0x0001fffffn;
+      x0o = (x0o ^ (x0o << 32n)) & 0xffff00000000ffffn;
+      x0o = (x0o ^ (x0o << 16n)) & 0x001f0000ff0000ffn;
+      x0o = (x0o ^ (x0o << 8n)) & 0x100f00f00f00f00fn;
+      x0o = (x0o ^ (x0o << 4n)) & 0x10c30c30c30c30c3n;
+      x0o = (x0o ^ (x0o << 2n)) & 0x1249249249249249n;
 
-  let x1o = BigInt(x1) & 0x0001fffffn;
-  x1o = (x1o ^ (x1o << 32n)) & 0xffff00000000ffffn;
-  x1o = (x1o ^ (x1o << 16n)) & 0x001f0000ff0000ffn;
-  x1o = (x1o ^ (x1o << 8n)) & 0x100f00f00f00f00fn;
-  x1o = (x1o ^ (x1o << 4n)) & 0x10c30c30c30c30c3n;
-  x1o = (x1o ^ (x1o << 2n)) & 0x1249249249249249n;
+      let x1o = BigInt(x1) & 0x0001fffffn;
+      x1o = (x1o ^ (x1o << 32n)) & 0xffff00000000ffffn;
+      x1o = (x1o ^ (x1o << 16n)) & 0x001f0000ff0000ffn;
+      x1o = (x1o ^ (x1o << 8n)) & 0x100f00f00f00f00fn;
+      x1o = (x1o ^ (x1o << 4n)) & 0x10c30c30c30c30c3n;
+      x1o = (x1o ^ (x1o << 2n)) & 0x1249249249249249n;
 
-  let x2o = BigInt(x2) & 0x0001fffffn;
-  x2o = (x2o ^ (x2o << 32n)) & 0xffff00000000ffffn;
-  x2o = (x2o ^ (x2o << 16n)) & 0x001f0000ff0000ffn;
-  x2o = (x2o ^ (x2o << 8n)) & 0x100f00f00f00f00fn;
-  x2o = (x2o ^ (x2o << 4n)) & 0x10c30c30c30c30c3n;
-  x2o = (x2o ^ (x2o << 2n)) & 0x1249249249249249n;
+      let x2o = BigInt(x2) & 0x0001fffffn;
+      x2o = (x2o ^ (x2o << 32n)) & 0xffff00000000ffffn;
+      x2o = (x2o ^ (x2o << 16n)) & 0x001f0000ff0000ffn;
+      x2o = (x2o ^ (x2o << 8n)) & 0x100f00f00f00f00fn;
+      x2o = (x2o ^ (x2o << 4n)) & 0x10c30c30c30c30c3n;
+      x2o = (x2o ^ (x2o << 2n)) & 0x1249249249249249n;
 
-  return x0o | (x1o << 1n) | (x2o << 2n);
-}
+      return x0o | (x1o << 1n) | (x2o << 2n);
+    }
 
     // prettier-ignore
     export function deinterleave64_3d(x: bigint): [number, number, number] {
-  const unsigned_x = BigInt.asUintN(64, x);
-  let x0 = unsigned_x & 0x1249249249249249n;
-  x0 = (x0 ^ (x0 >> 2n)) & 0x10c30c30c30c30c3n;
-  x0 = (x0 ^ (x0 >> 4n)) & 0x100f00f00f00f00fn;
-  x0 = (x0 ^ (x0 >> 8n)) & 0x001f0000ff0000ffn;
-  x0 = (x0 ^ (x0 >> 16n)) & 0xffff00000000ffffn;
-  x0 = (x0 ^ (x0 >> 32n)) & BI_MASK21;
+      const unsigned_x = BigInt.asUintN(64, x);
+      let x0 = unsigned_x & 0x1249249249249249n;
+      x0 = (x0 ^ (x0 >> 2n)) & 0x10c30c30c30c30c3n;
+      x0 = (x0 ^ (x0 >> 4n)) & 0x100f00f00f00f00fn;
+      x0 = (x0 ^ (x0 >> 8n)) & 0x001f0000ff0000ffn;
+      x0 = (x0 ^ (x0 >> 16n)) & 0xffff00000000ffffn;
+      x0 = (x0 ^ (x0 >> 32n)) & BI_MASK21;
 
-  let x1 = (unsigned_x >> 1n) & 0x1249249249249249n;
-  x1 = (x1 ^ (x1 >> 2n)) & 0x10c30c30c30c30c3n;
-  x1 = (x1 ^ (x1 >> 4n)) & 0x100f00f00f00f00fn;
-  x1 = (x1 ^ (x1 >> 8n)) & 0x001f0000ff0000ffn;
-  x1 = (x1 ^ (x1 >> 16n)) & 0xffff00000000ffffn;
-  x1 = (x1 ^ (x1 >> 32n)) & BI_MASK21;
+      let x1 = (unsigned_x >> 1n) & 0x1249249249249249n;
+      x1 = (x1 ^ (x1 >> 2n)) & 0x10c30c30c30c30c3n;
+      x1 = (x1 ^ (x1 >> 4n)) & 0x100f00f00f00f00fn;
+      x1 = (x1 ^ (x1 >> 8n)) & 0x001f0000ff0000ffn;
+      x1 = (x1 ^ (x1 >> 16n)) & 0xffff00000000ffffn;
+      x1 = (x1 ^ (x1 >> 32n)) & BI_MASK21;
 
-  let x2 = (unsigned_x >> 2n) & 0x1249249249249249n;
-  x2 = (x2 ^ (x2 >> 2n)) & 0x10c30c30c30c30c3n;
-  x2 = (x2 ^ (x2 >> 4n)) & 0x100f00f00f00f00fn;
-  x2 = (x2 ^ (x2 >> 8n)) & 0x001f0000ff0000ffn;
-  x2 = (x2 ^ (x2 >> 16n)) & 0xffff00000000ffffn;
-  x2 = (x2 ^ (x2 >> 32n)) & BI_MASK21;
+      let x2 = (unsigned_x >> 2n) & 0x1249249249249249n;
+      x2 = (x2 ^ (x2 >> 2n)) & 0x10c30c30c30c30c3n;
+      x2 = (x2 ^ (x2 >> 4n)) & 0x100f00f00f00f00fn;
+      x2 = (x2 ^ (x2 >> 8n)) & 0x001f0000ff0000ffn;
+      x2 = (x2 ^ (x2 >> 16n)) & 0xffff00000000ffffn;
+      x2 = (x2 ^ (x2 >> 32n)) & BI_MASK21;
 
-  u64view[0] = x0;
-  const x0o = u32view[0];
-  u64view[0] = x1;
-  const x1o = u32view[0];
-  u64view[0] = x2;
-  const x2o = u32view[0];
-  return [x0o, x1o, x2o];
-}
+      u64view[0] = x0;
+      const x0o = u32view[0];
+      u64view[0] = x1;
+      const x1o = u32view[0];
+      u64view[0] = x2;
+      const x2o = u32view[0];
+      return [x0o, x1o, x2o];
+    }
 
     export function interleave64_4d(x0: number, x1: number, x2: number, x3: number): bigint {
       const x02 = interleave64_2d(x0, x2 & 0xffff);
@@ -136,80 +136,80 @@ namespace greycat {
 
     // prettier-ignore
     export function interleave64_5d(x0: number, x1: number, x2: number, x3: number, x4: number): bigint {
-  let x0o = BigInt(x0 & 0x0fff);
-  x0o = (x0o ^ (x0o << 32n)) & 0x0ff00000000ffn;
-  x0o = (x0o ^ (x0o << 16n)) & 0x00f0000f0000fn;
-  x0o = (x0o ^ (x0o << 8n)) & 0x0c0300c0300c03n;
-  x0o = (x0o ^ (x0o << 4n)) & 0x084210842108421n;
+      let x0o = BigInt(x0 & 0x0fff);
+      x0o = (x0o ^ (x0o << 32n)) & 0x0ff00000000ffn;
+      x0o = (x0o ^ (x0o << 16n)) & 0x00f0000f0000fn;
+      x0o = (x0o ^ (x0o << 8n)) & 0x0c0300c0300c03n;
+      x0o = (x0o ^ (x0o << 4n)) & 0x084210842108421n;
 
-  let x1o = BigInt(x1 & 0x0fff);
-  x1o = (x1o ^ (x1o << 32n)) & 0x0ff00000000ffn;
-  x1o = (x1o ^ (x1o << 16n)) & 0x00f0000f0000fn;
-  x1o = (x1o ^ (x1o << 8n)) & 0x0c0300c0300c03n;
-  x1o = (x1o ^ (x1o << 4n)) & 0x084210842108421n;
+      let x1o = BigInt(x1 & 0x0fff);
+      x1o = (x1o ^ (x1o << 32n)) & 0x0ff00000000ffn;
+      x1o = (x1o ^ (x1o << 16n)) & 0x00f0000f0000fn;
+      x1o = (x1o ^ (x1o << 8n)) & 0x0c0300c0300c03n;
+      x1o = (x1o ^ (x1o << 4n)) & 0x084210842108421n;
 
-  let x2o = BigInt(x2 & 0x0fff);
-  x2o = (x2o ^ (x2o << 32n)) & 0x0ff00000000ffn;
-  x2o = (x2o ^ (x2o << 16n)) & 0x00f0000f0000fn;
-  x2o = (x2o ^ (x2o << 8n)) & 0x0c0300c0300c03n;
-  x2o = (x2o ^ (x2o << 4n)) & 0x084210842108421n;
+      let x2o = BigInt(x2 & 0x0fff);
+      x2o = (x2o ^ (x2o << 32n)) & 0x0ff00000000ffn;
+      x2o = (x2o ^ (x2o << 16n)) & 0x00f0000f0000fn;
+      x2o = (x2o ^ (x2o << 8n)) & 0x0c0300c0300c03n;
+      x2o = (x2o ^ (x2o << 4n)) & 0x084210842108421n;
 
-  let x3o = BigInt(x3 & 0x0fff);
-  x3o = (x3o ^ (x3o << 32n)) & 0x0ff00000000ffn;
-  x3o = (x3o ^ (x3o << 16n)) & 0x00f0000f0000fn;
-  x3o = (x3o ^ (x3o << 8n)) & 0x0c0300c0300c03n;
-  x3o = (x3o ^ (x3o << 4n)) & 0x084210842108421n;
+      let x3o = BigInt(x3 & 0x0fff);
+      x3o = (x3o ^ (x3o << 32n)) & 0x0ff00000000ffn;
+      x3o = (x3o ^ (x3o << 16n)) & 0x00f0000f0000fn;
+      x3o = (x3o ^ (x3o << 8n)) & 0x0c0300c0300c03n;
+      x3o = (x3o ^ (x3o << 4n)) & 0x084210842108421n;
 
-  let x4o = BigInt(x4 & 0x0fff);
-  x4o = (x4o ^ (x4o << 32n)) & 0x0ff00000000ffn;
-  x4o = (x4o ^ (x4o << 16n)) & 0x00f0000f0000fn;
-  x4o = (x4o ^ (x4o << 8n)) & 0x0c0300c0300c03n;
-  x4o = (x4o ^ (x4o << 4n)) & 0x084210842108421n;
+      let x4o = BigInt(x4 & 0x0fff);
+      x4o = (x4o ^ (x4o << 32n)) & 0x0ff00000000ffn;
+      x4o = (x4o ^ (x4o << 16n)) & 0x00f0000f0000fn;
+      x4o = (x4o ^ (x4o << 8n)) & 0x0c0300c0300c03n;
+      x4o = (x4o ^ (x4o << 4n)) & 0x084210842108421n;
 
-  return x0o | (x1o << 1n) | (x2o << 2n) | (x3o << 3n) | (x4o << 4n);
-}
+      return x0o | (x1o << 1n) | (x2o << 2n) | (x3o << 3n) | (x4o << 4n);
+    }
 
     // prettier-ignore
     export function deinterleave64_5d(x: bigint): [number, number, number, number, number] {
-  // keep one every 5 bit:
-  let x0 = x & 0x1084210842108421n;
-  x0 = (x0 ^ (x0 >> 4n)) & 0x0c0300c0300c03n;
-  x0 = (x0 ^ (x0 >> 8n)) & 0x0f0000f0000fn;
-  x0 = (x0 ^ (x0 >> 16n)) & 0x00f00000000ffn;
-  x0 = (x0 ^ (x0 >> 32n)) & BI_MASK12;
+      // keep one every 5 bit:
+      let x0 = x & 0x1084210842108421n;
+      x0 = (x0 ^ (x0 >> 4n)) & 0x0c0300c0300c03n;
+      x0 = (x0 ^ (x0 >> 8n)) & 0x0f0000f0000fn;
+      x0 = (x0 ^ (x0 >> 16n)) & 0x00f00000000ffn;
+      x0 = (x0 ^ (x0 >> 32n)) & BI_MASK12;
 
-  let x1 = (x >> 1n) & 0x1084210842108421n;
-  x1 = (x1 ^ (x1 >> 4n)) & 0x0c0300c0300c03n;
-  x1 = (x1 ^ (x1 >> 8n)) & 0x0f0000f0000fn;
-  x1 = (x1 ^ (x1 >> 16n)) & 0x00f00000000ffn;
-  x1 = (x1 ^ (x1 >> 32n)) & BI_MASK12;
+      let x1 = (x >> 1n) & 0x1084210842108421n;
+      x1 = (x1 ^ (x1 >> 4n)) & 0x0c0300c0300c03n;
+      x1 = (x1 ^ (x1 >> 8n)) & 0x0f0000f0000fn;
+      x1 = (x1 ^ (x1 >> 16n)) & 0x00f00000000ffn;
+      x1 = (x1 ^ (x1 >> 32n)) & BI_MASK12;
 
-  let x2 = (x >> 2n) & 0x1084210842108421n;
-  x2 = (x2 ^ (x2 >> 4n)) & 0x0c0300c0300c03n;
-  x2 = (x2 ^ (x2 >> 8n)) & 0x0f0000f0000fn;
-  x2 = (x2 ^ (x2 >> 16n)) & 0x00f00000000ffn;
-  x2 = (x2 ^ (x2 >> 32n)) & BI_MASK12;
+      let x2 = (x >> 2n) & 0x1084210842108421n;
+      x2 = (x2 ^ (x2 >> 4n)) & 0x0c0300c0300c03n;
+      x2 = (x2 ^ (x2 >> 8n)) & 0x0f0000f0000fn;
+      x2 = (x2 ^ (x2 >> 16n)) & 0x00f00000000ffn;
+      x2 = (x2 ^ (x2 >> 32n)) & BI_MASK12;
 
-  let x3 = (x >> 3n) & 0x1084210842108421n;
-  x3 = (x3 ^ (x3 >> 4n)) & 0x0c0300c0300c03n;
-  x3 = (x3 ^ (x3 >> 8n)) & 0x0f0000f0000fn;
-  x3 = (x3 ^ (x3 >> 16n)) & 0x00f00000000ffn;
-  x3 = (x3 ^ (x3 >> 32n)) & BI_MASK12;
+      let x3 = (x >> 3n) & 0x1084210842108421n;
+      x3 = (x3 ^ (x3 >> 4n)) & 0x0c0300c0300c03n;
+      x3 = (x3 ^ (x3 >> 8n)) & 0x0f0000f0000fn;
+      x3 = (x3 ^ (x3 >> 16n)) & 0x00f00000000ffn;
+      x3 = (x3 ^ (x3 >> 32n)) & BI_MASK12;
 
-  let x4 = (x >> 4n) & 0x1084210842108421n;
-  x4 = (x4 ^ (x4 >> 4n)) & 0x0c0300c0300c03n;
-  x4 = (x4 ^ (x4 >> 8n)) & 0x0f0000f0000fn;
-  x4 = (x4 ^ (x4 >> 16n)) & 0x00f00000000ffn;
-  x4 = (x4 ^ (x4 >> 32n)) & BI_MASK12;
+      let x4 = (x >> 4n) & 0x1084210842108421n;
+      x4 = (x4 ^ (x4 >> 4n)) & 0x0c0300c0300c03n;
+      x4 = (x4 ^ (x4 >> 8n)) & 0x0f0000f0000fn;
+      x4 = (x4 ^ (x4 >> 16n)) & 0x00f00000000ffn;
+      x4 = (x4 ^ (x4 >> 32n)) & BI_MASK12;
 
-  return [
-    Number(x0),
-    Number(x1),
-    Number(x2),
-    Number(x3),
-    Number(x4),
-  ];
-}
+      return [
+        Number(x0),
+        Number(x1),
+        Number(x2),
+        Number(x3),
+        Number(x4),
+      ];
+    }
 
     export function interleave64_6d(
       x0: number,
@@ -238,40 +238,40 @@ namespace greycat {
 
     // prettier-ignore
     export function deinterleave64_6d(x: bigint): [number, number, number, number, number, number] {
-  let x30 = x & 0x1249249249249249n;
-  x30 = (x30 ^ (x30 >> 2n)) & 0x10c30c30c30c30c3n;
-  x30 = (x30 ^ (x30 >> 4n)) & 0x100f00f00f00f00fn;
-  x30 = (x30 ^ (x30 >> 8n)) & 0x001f0000ff0000ffn;
-  x30 = (x30 ^ (x30 >> 16n)) & 0xffff00000000ffffn;
-  x30 = (x30 ^ (x30 >> 32n)) & BI_MASK21;
-  const [hi30, lo30] = deinterleave64_2d(x30);
+      let x30 = x & 0x1249249249249249n;
+      x30 = (x30 ^ (x30 >> 2n)) & 0x10c30c30c30c30c3n;
+      x30 = (x30 ^ (x30 >> 4n)) & 0x100f00f00f00f00fn;
+      x30 = (x30 ^ (x30 >> 8n)) & 0x001f0000ff0000ffn;
+      x30 = (x30 ^ (x30 >> 16n)) & 0xffff00000000ffffn;
+      x30 = (x30 ^ (x30 >> 32n)) & BI_MASK21;
+      const [hi30, lo30] = deinterleave64_2d(x30);
 
-  let x41 = (x >> 1n) & 0x1249249249249249n;
-  x41 = (x41 ^ (x41 >> 2n)) & 0x10c30c30c30c30c3n;
-  x41 = (x41 ^ (x41 >> 4n)) & 0x100f00f00f00f00fn;
-  x41 = (x41 ^ (x41 >> 8n)) & 0x001f0000ff0000ffn;
-  x41 = (x41 ^ (x41 >> 16n)) & 0xffff00000000ffffn;
-  x41 = (x41 ^ (x41 >> 32n)) & BI_MASK21;
-  const [hi41, lo41] = deinterleave64_2d(x41);
+      let x41 = (x >> 1n) & 0x1249249249249249n;
+      x41 = (x41 ^ (x41 >> 2n)) & 0x10c30c30c30c30c3n;
+      x41 = (x41 ^ (x41 >> 4n)) & 0x100f00f00f00f00fn;
+      x41 = (x41 ^ (x41 >> 8n)) & 0x001f0000ff0000ffn;
+      x41 = (x41 ^ (x41 >> 16n)) & 0xffff00000000ffffn;
+      x41 = (x41 ^ (x41 >> 32n)) & BI_MASK21;
+      const [hi41, lo41] = deinterleave64_2d(x41);
 
-  let x52 = (x >> 2n) & 0x1249249249249249n;
-  x52 = (x52 ^ (x52 >> 2n)) & 0x10c30c30c30c30c3n;
-  x52 = (x52 ^ (x52 >> 4n)) & 0x100f00f00f00f00fn;
-  x52 = (x52 ^ (x52 >> 8n)) & 0x001f0000ff0000ffn;
-  x52 = (x52 ^ (x52 >> 16n)) & 0xffff00000000ffffn;
-  x52 = (x52 ^ (x52 >> 32n)) & BI_MASK21;
-  const [hi52, lo52] = deinterleave64_2d(x52);
+      let x52 = (x >> 2n) & 0x1249249249249249n;
+      x52 = (x52 ^ (x52 >> 2n)) & 0x10c30c30c30c30c3n;
+      x52 = (x52 ^ (x52 >> 4n)) & 0x100f00f00f00f00fn;
+      x52 = (x52 ^ (x52 >> 8n)) & 0x001f0000ff0000ffn;
+      x52 = (x52 ^ (x52 >> 16n)) & 0xffff00000000ffffn;
+      x52 = (x52 ^ (x52 >> 32n)) & BI_MASK21;
+      const [hi52, lo52] = deinterleave64_2d(x52);
 
-  // cast to u10
-  return [
-    hi30,
-    hi41,
-    hi52,
-    lo30,
-    lo41,
-    lo52,
-  ]
-}
+      // cast to u10
+      return [
+        hi30,
+        hi41,
+        hi52,
+        lo30,
+        lo41,
+        lo52,
+      ]
+    }
 
     export function interleave64_10d(
       x0: number,
@@ -312,26 +312,26 @@ namespace greycat {
 
     // prettier-ignore
     export function deinterleave64_10d(x: bigint): [number, number, number, number, number, number, number, number, number, number] {
-  const [x0, x1, x2, x3, x4] = deinterleave64_5d(x);
-  const [x0hi, x0lo] = deinterleave64_2d(BigInt(x0));
-  const [x1hi, x1lo] = deinterleave64_2d(BigInt(x1));
-  const [x2hi, x2lo] = deinterleave64_2d(BigInt(x2));
-  const [x3hi, x3lo] = deinterleave64_2d(BigInt(x3));
-  const [x4hi, x4lo] = deinterleave64_2d(BigInt(x4));
-  // return casted to u6
-  return [
-    Number(x0hi),
-    Number(x1hi),
-    Number(x2hi),
-    Number(x3hi),
-    Number(x4hi),
-    Number(x0lo),
-    Number(x1lo),
-    Number(x2lo),
-    Number(x3lo),
-    Number(x4lo),
-  ]
-}
+      const [x0, x1, x2, x3, x4] = deinterleave64_5d(x);
+      const [x0hi, x0lo] = deinterleave64_2d(BigInt(x0));
+      const [x1hi, x1lo] = deinterleave64_2d(BigInt(x1));
+      const [x2hi, x2lo] = deinterleave64_2d(BigInt(x2));
+      const [x3hi, x3lo] = deinterleave64_2d(BigInt(x3));
+      const [x4hi, x4lo] = deinterleave64_2d(BigInt(x4));
+      // return casted to u6
+      return [
+        Number(x0hi),
+        Number(x1hi),
+        Number(x2hi),
+        Number(x3hi),
+        Number(x4hi),
+        Number(x0lo),
+        Number(x1lo),
+        Number(x2lo),
+        Number(x3lo),
+        Number(x4lo),
+      ]
+    }
 
     export function interleave64_2di(x0: number, x1: number): bigint {
       u32view[0] = x0;

@@ -1,1 +1,1 @@
-Object.assign(globalThis, { greycat });
+Object.assign(globalThis, { gc });

@@ -52,7 +52,7 @@ export class GuiTableMappings extends GuiElement {
         if (col instanceof greycat.core.node) {
           // nested node
           const [value] = await greycat.core.node.resolve_all([col]);
-          if (value instanceof greycat.GCObject && !value.$type.is_native) {
+          if (value instanceof greycat.sdk.GCObject && !value.$type.is_native) {
             for (let j = 0; j < value.$type.attrs.length; j++) {
               const attr = value.$type.attrs[j];
               mappings.push(new greycat.core.TableColumnMapping(i, [attr.name]));
@@ -60,7 +60,7 @@ export class GuiTableMappings extends GuiElement {
           } else {
             mappings.push(new greycat.core.TableColumnMapping(i, ['*']));
           }
-        } else if (col instanceof greycat.GCObject && !col.$type.is_native) {
+        } else if (col instanceof greycat.sdk.GCObject && !col.$type.is_native) {
           for (let j = 0; j < col.$type.attrs.length; j++) {
             const attr = col.$type.attrs[j];
             mappings.push(new greycat.core.TableColumnMapping(i, [attr.name]));

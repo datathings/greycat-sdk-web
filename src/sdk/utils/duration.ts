@@ -1,5 +1,5 @@
-namespace greycat {
-  export namespace utils {
+namespace gc {
+  export namespace sdk {
     /**
      * Based on the current duration value, returns an approximation of the better human "processable" value
      * and the unit for it.

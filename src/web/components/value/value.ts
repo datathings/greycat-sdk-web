@@ -207,7 +207,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       const len = Math.min(this._value.length, 15);
       for (let i = 0; i < len; i++) {
         const value = this._value[i];
-        const content = greycat.utils.stringify({
+        const content = greycat.sdk.stringify({
           value,
           name: this._name,
           tiny: this._tiny,
@@ -232,7 +232,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
             link.removeEventListener('auxclick', onclick);
           };
           link.textContent = content;
-          link.title = greycat.utils.stringify({
+          link.title = greycat.sdk.stringify({
             value,
             dateFmt: this._dateFmt,
             numFmt,
@@ -248,12 +248,12 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       }
       children.appendChild(document.createTextNode(']'));
       element = children;
-    } else if (this._value instanceof greycat.AbiType) {
+    } else if (this._value instanceof greycat.sdk.AbiType) {
       this.shadowRoot.replaceChildren(document.createTextNode(`<${this._value.name}>`));
       this.title = this._value.name;
       return;
     } else {
-      const text = greycat.utils.stringify({
+      const text = greycat.sdk.stringify({
         value: this._value,
         name: this._name,
         tiny: this._tiny,

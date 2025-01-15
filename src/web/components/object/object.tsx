@@ -179,7 +179,7 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.GCEnum) {
+    if (value instanceof greycat.sdk.GCEnum) {
       this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
@@ -253,7 +253,7 @@ export class GuiObject extends GuiElement {
       return;
     }
 
-    if (value instanceof greycat.GCObject) {
+    if (value instanceof greycat.sdk.GCObject) {
       const tagName = this._factory.getMapping(value.$type.name);
       if (tagName) {
         this.shadowRoot.replaceChildren(createElement(tagName, { ...this._props, value }) as Node);
@@ -272,7 +272,7 @@ export class GuiObject extends GuiElement {
     this._renderAsJsObject(value);
   }
 
-  private _renderAsGCObject(value: greycat.GCObject): void {
+  private _renderAsGCObject(value: greycat.sdk.GCObject): void {
     if (value.$fields === undefined || value.$fields?.length === 0) {
       this.shadowRoot.replaceChildren(<em>empty object</em>);
       return;
@@ -354,7 +354,7 @@ export class GuiObject extends GuiElement {
           'sl-show',
           () => {
             attrVal.resolve().then((resolved) => {
-              if (resolved instanceof greycat.GCObject) {
+              if (resolved instanceof greycat.sdk.GCObject) {
                 details.summary = `${resolved.$type.name} (${attrVal})`;
               }
               content.value = resolved;
@@ -486,14 +486,14 @@ export class GuiObject extends GuiElement {
       val !== null &&
       typeof val === 'object' &&
       !isStd(val) &&
-      !(val instanceof greycat.GCEnum) &&
+      !(val instanceof greycat.sdk.GCEnum) &&
       !(val instanceof Node) &&
       !(val instanceof Date)
     );
   }
 
   private _typeName(val: unknown): string | undefined {
-    if (val instanceof greycat.GCObject) {
+    if (val instanceof greycat.sdk.GCObject) {
       if (val.$type.name.startsWith('::')) {
         return '<anonymous>';
       }

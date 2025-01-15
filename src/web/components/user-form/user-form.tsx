@@ -212,7 +212,7 @@ export class GuiUserForm extends GuiElement {
 
     await greycat.runtime.SecurityEntity.set(user);
     if (password.length > 0) {
-      await greycat.runtime.User.setPassword(user.name, greycat.sha256hex(password));
+      await greycat.runtime.User.setPassword(user.name, greycat.sdk.sha256hex(password));
     }
   }
 
@@ -244,7 +244,7 @@ export class GuiUserForm extends GuiElement {
     }
 
     await greycat.runtime.SecurityEntity.set(user);
-    await greycat.runtime.User.setPassword(user.name, greycat.sha256hex(password));
+    await greycat.runtime.User.setPassword(user.name, greycat.sdk.sha256hex(password));
   }
 }
 

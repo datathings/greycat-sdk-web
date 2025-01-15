@@ -1,5 +1,5 @@
-namespace greycat {
-  export namespace utils {
+namespace gc {
+  export namespace sdk {
     const NUM = '0123456789';
     const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
     const UPPER_ALPHA = LOWER_ALPHA.toUpperCase();
@@ -215,7 +215,7 @@ namespace greycat {
           return `${type}/${encodeURIComponent(name)}`;
         }
         return value.toString();
-      } else if (value instanceof greycat.core.geo) {
+      } else if (value instanceof gc.core.geo) {
         if (tiny) {
           return `${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}`;
         } else {

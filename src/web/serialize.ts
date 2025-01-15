@@ -1,8 +1,8 @@
-const JS_OBJECT = 254 as greycat.PrimitiveType;
-const JS_UNDEFINED = 253 as greycat.PrimitiveType;
+const JS_OBJECT = 254 as greycat.sdk.PrimitiveType;
+const JS_UNDEFINED = 253 as greycat.sdk.PrimitiveType;
 
-export class BinaryWriter extends greycat.AbiWriter {
-  constructor(abi: greycat.Abi = greycat.$.default.abi) {
+export class BinaryWriter extends greycat.sdk.AbiWriter {
+  constructor(abi: greycat.sdk.Abi = greycat.$.default.abi) {
     super(abi);
   }
 
@@ -12,7 +12,7 @@ export class BinaryWriter extends greycat.AbiWriter {
 
   override js_object(value: object): void {
     try {
-      greycat.GCObject.from(value, this.abi).save(this);
+      greycat.sdk.GCObject.from(value, this.abi).save(this);
     } catch {
       this.write_u8(JS_OBJECT);
       const entries = Object.entries(value);
@@ -26,23 +26,23 @@ export class BinaryWriter extends greycat.AbiWriter {
 
   toHex(value: unknown): string {
     this.clear();
-    this.serialize(value as greycat.Value);
+    this.serialize(value as greycat.sdk.Value);
     return bytesToHex(this.buffer);
   }
 }
 
-export class BinaryReader extends greycat.AbiReader {
-  constructor(buf: ArrayBuffer, abi: greycat.Abi = greycat.$.default.abi) {
+export class BinaryReader extends greycat.sdk.AbiReader {
+  constructor(buf: ArrayBuffer, abi: greycat.sdk.Abi = greycat.$.default.abi) {
     super(abi, buf);
     this.deserializers[JS_OBJECT] = (r) => {
       const len = r.read_vu32();
-      const object: { [key: string]: greycat.Value } = {};
+      const object: { [key: string]: greycat.sdk.Value } = {};
       for (let i = 0; i < len; i++) {
         const key = r.deserialize() as string;
         const value = r.deserialize();
         object[key] = value;
       }
-      return object as unknown as greycat.Value;
+      return object as unknown as greycat.sdk.Value;
     };
     this.deserializers[JS_UNDEFINED] = () => undefined;
   }
@@ -56,7 +56,7 @@ export class BinaryReader extends greycat.AbiReader {
 
 export function serializeToHex(value: unknown): string {
   const writer = new BinaryWriter();
-  writer.serialize(value as greycat.Value);
+  writer.serialize(value as greycat.sdk.Value);
   return bytesToHex(writer.buffer);
 }
 

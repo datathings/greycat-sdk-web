@@ -1,4 +1,4 @@
-declare namespace greycat {
+declare namespace gc {
   namespace runtime {
     interface Task {
       /**
@@ -13,7 +13,7 @@ declare namespace greycat {
        */
       getFile<T = unknown>(
         filepath: `${string}.gcb`,
-        g?: greycat.GreyCat,
+        g?: gc.sdk.GreyCat,
         signal?: AbortSignal,
       ): Promise<T[]>;
       /**
@@ -29,7 +29,7 @@ declare namespace greycat {
        */
       getFile<T = unknown>(
         filepath: string,
-        g?: greycat.GreyCat,
+        g?: gc.sdk.GreyCat,
         signal?: AbortSignal,
       ): Promise<T | T[]>;
 
@@ -38,7 +38,7 @@ declare namespace greycat {
        *
        * *This is equivalent to `task.getFile('result.gcb')`*
        */
-      result<T = unknown>(g?: greycat.GreyCat, signal?: AbortSignal): Promise<T>;
+      result<T = unknown>(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
 
       /**
        * Awaits for the completion of the task.
@@ -49,14 +49,18 @@ declare namespace greycat {
        * @param g
        * @param signal
        */
-      await<T = unknown>(pollEvery?: number, g?: greycat.GreyCat, signal?: AbortSignal): Promise<T>;
+      await<T = unknown>(
+        pollEvery?: number,
+        g?: gc.sdk.GreyCat,
+        signal?: AbortSignal,
+      ): Promise<T>;
 
       /**
        * Whether or not this task is live or completed.
        * @param g
        * @param signal
        */
-      is_running(g?: greycat.GreyCat, signal?: AbortSignal): Promise<boolean>;
+      is_running(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
     }
   }
 
@@ -69,12 +73,12 @@ declare namespace greycat {
        *
        * If this file is not a directory, returns `undefined`.
        */
-      list(g?: greycat.GreyCat, signal?: AbortSignal): Promise<File[] | undefined>;
+      list(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<File[] | undefined>;
 
       /**
        * Resolves this file's children recursively to a maximum depth of `maxDepth` (defaults to `5`)
        */
-      resolve(maxDepth?: number, g?: greycat.GreyCat, signal?: AbortSignal): Promise<void>;
+      resolve(maxDepth?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<void>;
     }
   }
 

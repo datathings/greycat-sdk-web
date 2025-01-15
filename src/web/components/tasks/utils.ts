@@ -9,8 +9,8 @@ export enum TaskStatusEnum {
   ended,
 }
 
-export async function parseTaskArgs(g: greycat.GreyCat, t: TaskInfoLike): Promise<greycat.Value[]> {
-  const params: greycat.Value[] = [];
+export async function parseTaskArgs(g: greycat.sdk.GreyCat, t: TaskInfoLike): Promise<greycat.sdk.Value[]> {
+  const params: greycat.sdk.Value[] = [];
 
   const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`);
   if (!response.ok) {
@@ -18,7 +18,7 @@ export async function parseTaskArgs(g: greycat.GreyCat, t: TaskInfoLike): Promis
   }
 
   const data = await response.arrayBuffer();
-  const reader = new greycat.AbiReader(g.abi, data);
+  const reader = new greycat.sdk.AbiReader(g.abi, data);
   reader.headers();
   while (!reader.is_empty) {
     params.push(reader.deserialize());

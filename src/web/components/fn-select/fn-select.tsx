@@ -13,7 +13,7 @@ export class GuiFnSelect extends sl.SlSelect {
   override connectedCallback(): void {
     super.connectedCallback();
 
-    const groups: Map<string, greycat.AbiFunction[]> = new Map();
+    const groups: Map<string, greycat.sdk.AbiFunction[]> = new Map();
     for (let i = 0; i < greycat.$.default.abi.functions.length; i++) {
       const fn = greycat.$.default.abi.functions[i];
       const key = `${fn.lib}::${fn.module}`;
