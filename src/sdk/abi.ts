@@ -799,6 +799,10 @@ namespace gc {
           enumerable: false,
         });
 
+        if (type.mapped_type_off != this.offset) {
+          return;
+        }
+
         // Dynamically store the constructor
         if (!Object.hasOwn(gc, module_name)) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
