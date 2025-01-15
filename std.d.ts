@@ -2108,8 +2108,6 @@ declare namespace greycat {
 
   }
 
-}
-declare namespace greycat {
   interface GreyCat {
       call(method: 'core::nodeTime::info', args: [globalThis.Array<greycat.core.nodeTime>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<greycat.core.NodeInfo<greycat.core.time>>>;
       spawn(method: 'core::nodeTime::info', args: [globalThis.Array<greycat.core.nodeTime>], signal?: globalThis.AbortSignal): Promise<greycat.runtime.Task>;

@@ -223,6 +223,8 @@ namespace greycat {
       this.permissions = permissions;
 
       // initialize runtime RPCs based on Abi
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gc = ((globalThis as any)['gc'] = ((globalThis as any)['gc'] || {}));
       for (const fn of this.abi.functions) {
         const theFn = (...args: unknown[]) => {
           const method_args = args.slice(0, fn.params.length);
@@ -231,18 +233,28 @@ namespace greycat {
           return greycat.call(fn.fqn, method_args, signal);
         };
         Object.defineProperty(theFn, 'name', { value: fn.fqn, writable: false, enumerable: false });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!(greycat as any)[fn.module]) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (greycat as any)[fn.module] = {};
+        }
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (!(gc as any)[fn.module]) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (gc as any)[fn.module] = {};
+        }
         if (fn.type) {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (!(greycat as any)[fn.module][fn.type][fn.name]) {
+          if (!(greycat as any)[fn.module][fn.type]) {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (greycat as any)[fn.module][fn.type][fn.name] = theFn;
+            (greycat as any)[fn.module][fn.type] = {};
           }
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (greycat as any)[fn.module][fn.type][fn.name] = theFn;
         } else {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (!(greycat as any)[fn.module][fn.name]) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (greycat as any)[fn.module][fn.name] = theFn;
-          }
+          (greycat as any)[fn.module][fn.name] = theFn;
+          gc[fn.name] = theFn;
         }
       }
     }

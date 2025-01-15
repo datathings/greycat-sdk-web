@@ -218,12 +218,6 @@ namespace greycat {
         const module_name = this.symbols[module];
         const type_name = this.symbols[name];
 
-        // dynamically create a class for that type
-        if (!Object.hasOwn(greycat, module_name)) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          (greycat as any)[module_name] = {};
-        }
-
         const key = `${module_name}::${type_name}`;
         const type = new AbiType(
           i,
@@ -744,7 +738,7 @@ namespace greycat {
       // eslint-disable-next-line @typescript-eslint/no-this-alias
       const type = this;
       const module_name = abi.symbols[module];
-      const type_name = abi.symbols[symbol];
+      let type_name = abi.symbols[symbol];
       if (is_enum) {
         const GCEnum = class extends greycat.GCEnum {
           constructor(offset = 0, key = '', value?: Value) {
@@ -752,8 +746,7 @@ namespace greycat {
             Object.defineProperty(this, '$type', { value: type, enumerable: false });
           }
         };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.ctor = (greycat as any)[module_name][type_name] = GCEnum;
+        this.ctor = GCEnum;
         this.static_values = {};
         if (offset === mapped_type_off) {
           // initialize all enum fields
@@ -776,25 +769,25 @@ namespace greycat {
         if (module_name === 'core') {
           switch (type_name) {
             case 'function': {
+              type_name = 'function_';
               const GCObject = class extends greycat.std_n.core.function_ {
                 constructor(mod_off = 0, ty_off = 0, name_off = 0) {
                   super(mod_off, ty_off, name_off);
                   Object.defineProperty(this, '$type', { value: type, enumerable: false });
                 }
               };
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              this.ctor = (greycat as any)[module_name]['function_'] = GCObject;
+              this.ctor = GCObject;
               break;
             }
             case 'null': {
+              type_name = 'null_';
               const GCObject = class extends greycat.std_n.core.null_ {
                 constructor() {
                   super();
                   Object.defineProperty(this, '$type', { value: type, enumerable: false });
                 }
               };
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              this.ctor = (greycat as any)[module_name]['null_'] = GCObject;
+              this.ctor = GCObject;
               break;
             }
             case 'any': {
@@ -804,8 +797,7 @@ namespace greycat {
                   Object.defineProperty(this, '$type', { value: type, enumerable: false });
                 }
               };
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              this.ctor = (greycat as any)[module_name][type_name] = GCObject;
+              this.ctor = GCObject;
               break;
             }
             default: {
@@ -821,8 +813,7 @@ namespace greycat {
                   }
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
                 } as any;
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                this.ctor = (greycat as any)[module_name][type_name] = GCObject;
+                this.ctor = GCObject;
               } else {
                 const GCObject = class extends greycat.GCObject {
                   constructor() {
@@ -832,8 +823,7 @@ namespace greycat {
                     );
                   }
                 };
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                this.ctor = (greycat as any)[module_name][type_name] = GCObject;
+                this.ctor = GCObject;
               }
               break;
             }
@@ -869,8 +859,7 @@ namespace greycat {
             return new type.ctor(...Object.values(fields));
           }
         };
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        this.ctor = (greycat as any)[module_name][type_name] = GCObject;
+        this.ctor = GCObject;
       }
 
       Object.defineProperties(this.ctor, {
@@ -885,6 +874,37 @@ namespace greycat {
           writable: false,
         },
       });
+
+      // Dynamically store the constructor
+      if (!Object.hasOwn(greycat, module_name)) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (greycat as any)[module_name] = {};
+      }
+      // Store the constructor using its fqn
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (greycat as any)[module_name][type_name] = this.ctor;
+      // Store the constructor using the shortcut
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const gc = ((globalThis as any)['gc'] = ((globalThis as any)['gc'] || {}));
+      if (typeof gc[type_name] === 'function') {
+        const tmpType = gc[type_name];
+        delete gc[type_name];
+        // store new type with fqn
+        gc[module_name] = gc[module_name] || {};
+        gc[module_name][type_name] = this.ctor;
+        // store tmp
+        const idx = tmpType._type.indexOf(':');
+        const mod = tmpType._type.slice(0, idx);
+        gc[mod] = gc[mod] || {};
+        gc[mod][type_name] = tmpType;
+      } else if (type_name.indexOf('$') !== -1) {
+        // generate $args types are never global
+        gc[module_name] = gc[module_name] || {};
+        gc[module_name][type_name] = this.ctor;
+      } else {
+        gc[type_name] = this.ctor;
+      }
+
 
       if (this.is_native) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
