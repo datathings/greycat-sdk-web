@@ -1737,7 +1737,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-chart')) {
-  globalThis.customElements.define('gui-chart', GuiChart);
-}

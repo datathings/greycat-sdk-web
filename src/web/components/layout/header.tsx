@@ -1,4 +1,4 @@
-import { css, GuiElement, registerCustomElement } from '../../exports.js';
+import { css, GuiElement } from '../../exports.js';
 import style from './header.css?inline';
 
 export class GuiLayoutHeader extends GuiElement {
@@ -36,5 +36,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-layout-header', GuiLayoutHeader);

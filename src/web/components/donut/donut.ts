@@ -539,7 +539,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-donut')) {
-  globalThis.customElements.define('gui-donut', GuiDonut);
-}

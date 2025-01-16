@@ -2,7 +2,6 @@ import {
   css,
   GuiElement,
   GuiFactory,
-  registerCustomElement,
   type GuiValueElement,
   type sl,
 } from '../../exports.js';
@@ -523,7 +522,7 @@ function isStd(value: unknown): boolean {
   );
 }
 
-class GuiObjectFieldName extends HTMLElement {
+export class GuiObjectFieldName extends HTMLElement {
   private _value: string;
   // private _tooltip: sl.SlTooltip;
   private _span: HTMLSpanElement;
@@ -567,7 +566,7 @@ class GuiObjectFieldName extends HTMLElement {
   }
 }
 
-class GuiObjectFieldValue extends HTMLElement {}
+export class GuiObjectFieldValue extends HTMLElement {}
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -592,7 +591,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-object', GuiObject);
-registerCustomElement('gui-object-fieldname', GuiObjectFieldName);
-registerCustomElement('gui-object-fieldvalue', GuiObjectFieldValue);

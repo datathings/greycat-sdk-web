@@ -307,7 +307,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-value')) {
-  globalThis.customElements.define('gui-value', GuiValue);
-}

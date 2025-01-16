@@ -1,4 +1,4 @@
-import { css, registerCustomElement, sl } from '../../exports.js';
+import { css, sl } from '../../exports.js';
 import styles from './card.css?inline';
 
 export class GuiCard extends sl.SlCard {
@@ -19,5 +19,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-card', GuiCard);

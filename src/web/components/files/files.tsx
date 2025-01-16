@@ -134,7 +134,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-files')) {
-  customElements.define('gui-files', GuiFiles);
-}

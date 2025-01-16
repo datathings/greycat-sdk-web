@@ -261,7 +261,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-user-form')) {
-  customElements.define('gui-user-form', GuiUserForm);
-}

@@ -1,4 +1,4 @@
-import { css, registerCustomElement, sl, SlDetailsEventMap } from '../../exports.js';
+import { css, sl, SlDetailsEventMap } from '../../exports.js';
 import styles from './details.css?inline';
 
 export class GuiDetails extends sl.SlDetails {
@@ -19,5 +19,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-details', GuiDetails);

@@ -1,7 +1,6 @@
 import { createElement } from '@greycat/web/jsx-runtime';
 import {
   GuiElement,
-  registerCustomElement,
   css,
   GuiFactory,
   sl,
@@ -126,5 +125,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-object2', GuiObject2);

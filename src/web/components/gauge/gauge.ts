@@ -153,7 +153,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-gauge')) {
-  globalThis.customElements.define('gui-gauge', GuiGauge);
-}

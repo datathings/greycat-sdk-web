@@ -1,11 +1,4 @@
-import {
-  registerCustomElement,
-  GuiElement,
-  type sl,
-  GuiTable,
-  css,
-  toast,
-} from '../../exports.js';
+import { GuiElement, type sl, GuiTable, css, toast } from '../../exports.js';
 import Mappings from './table-mappings.css?inline';
 import Mapping from './table-mapping.css?inline';
 
@@ -305,6 +298,3 @@ function getSelectValue(select: sl.SlSelect): string | undefined {
   }
   return;
 }
-
-registerCustomElement('gui-table-mappings', GuiTableMappings);
-registerCustomElement('gui-table-mapping', GuiTableMapping);

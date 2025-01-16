@@ -1,4 +1,4 @@
-import { css, GuiChangeEvent, GuiElement, registerCustomElement } from '../../exports.js';
+import { css, GuiChangeEvent, GuiElement } from '../../exports.js';
 import tabsStyle from './tabs.css?inline';
 import tabStyle from './tab.css?inline';
 import panelStyle from './panel.css?inline';
@@ -205,7 +205,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-tabs', GuiTabs);
-registerCustomElement('gui-tab', GuiTab);
-registerCustomElement('gui-panel', GuiPanel);

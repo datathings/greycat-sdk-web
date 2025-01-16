@@ -89,6 +89,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   static override styles = [css(style)];
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
 
+  private _value: TableLike = [];
   private _table = gc.core.Table.create();
   private _filter = document.createElement('gui-search-input');
   private _tableContainer = document.createElement('div');
@@ -210,10 +211,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }
 
   get value(): TableLike {
-    return this._table;
+    return this._value;
   }
 
   set value(table: TableLike) {
+    this._value = table;
     this._setValue(table);
     this.update();
   }
@@ -1754,28 +1756,4 @@ declare global {
       }
     }
   }
-}
-
-if (!globalThis.customElements.get('gui-thead-cell')) {
-  globalThis.customElements.define('gui-thead-cell', GuiTableHeadCell);
-}
-
-if (!globalThis.customElements.get('gui-tbody-cell')) {
-  globalThis.customElements.define('gui-tbody-cell', GuiTableBodyCell);
-}
-
-if (!globalThis.customElements.get('gui-tbody-row')) {
-  globalThis.customElements.define('gui-tbody-row', GuiTableBodyRow);
-}
-
-if (!globalThis.customElements.get('gui-thead')) {
-  globalThis.customElements.define('gui-thead', GuiTableHead);
-}
-
-if (!globalThis.customElements.get('gui-tbody')) {
-  globalThis.customElements.define('gui-tbody', GuiTableBody);
-}
-
-if (!globalThis.customElements.get('gui-table')) {
-  globalThis.customElements.define('gui-table', GuiTable);
 }

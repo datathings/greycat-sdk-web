@@ -1,6 +1,5 @@
 import {
   type GuiTable,
-  registerCustomElement,
   GuiElement,
   css,
   GuiDialog,
@@ -236,8 +235,6 @@ const stdDeviation = (c: gc.io.CsvColumnStatistics) => {
   }
   return '';
 };
-
-registerCustomElement('gui-csv-statistics2', GuiCsvStatistics2);
 
 declare global {
   interface Window {

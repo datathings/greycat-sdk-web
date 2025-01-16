@@ -359,10 +359,6 @@ export class GuiCsvStatistics extends HTMLElement {
   }
 }
 
-if (!customElements.get('gui-csv-statistics')) {
-  customElements.define('gui-csv-statistics', GuiCsvStatistics);
-}
-
 declare global {
   interface Window {
     GuiCsvStatistics: typeof GuiCsvStatistics;

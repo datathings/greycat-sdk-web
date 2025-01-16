@@ -5,7 +5,7 @@ import {
   GuiChangeEvent,
   GuiInputEvent,
 } from '../../exports.js';
-import { css, GuiElement, registerCustomElement } from '../common.js';
+import { css, GuiElement } from '../common.js';
 import '../searchable-select/index.js';
 import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 
@@ -2729,29 +2729,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-input', GuiInput);
-registerCustomElement('gui-input-string', GuiInputString);
-registerCustomElement('gui-input-str', GuiInputStr);
-registerCustomElement('gui-input-number', GuiInputNumber);
-registerCustomElement('gui-input-bool', GuiInputBool);
-registerCustomElement('gui-input-time', GuiInputTime);
-registerCustomElement('gui-input-enum', GuiInputEnum);
-registerCustomElement('gui-input-object', GuiInputObject);
-registerCustomElement('gui-input-abstract', GuiInputAbstract);
-registerCustomElement('gui-input-fn', GuiInputFn);
-registerCustomElement('gui-input-duration', GuiInputDuration);
-registerCustomElement('gui-input-any', GuiInputAny);
-registerCustomElement('gui-input-array', GuiInputArray);
-registerCustomElement('gui-input-map', GuiInputMap);
-registerCustomElement('gui-input-node', GuiInputNode);
-registerCustomElement('gui-input-node-time', GuiInputNodeTime);
-registerCustomElement('gui-input-node-index', GuiInputNodeIndex);
-registerCustomElement('gui-input-node-list', GuiInputNodeList);
-registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
-registerCustomElement('gui-input-geo', GuiInputGeo);
-registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
-registerCustomElement('gui-input-unsupported', GuiInputUnsupported);
-registerCustomElement('gui-input-null', GuiInputNull);
-registerCustomElement('gui-input-type', GuiInputType);
-registerCustomElement('gui-input-field', GuiInputField);

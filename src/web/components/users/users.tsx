@@ -1,6 +1,5 @@
 import {
   toast,
-  registerCustomElement,
   GuiElement,
   type GuiTable,
   GuiDialog,
@@ -220,5 +219,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-users', GuiUsers);

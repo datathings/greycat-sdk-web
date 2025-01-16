@@ -33,7 +33,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-user-group-policy')) {
-  customElements.define('gui-user-group-policy', GuiUserGroupPolicy);
-}

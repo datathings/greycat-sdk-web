@@ -1,4 +1,4 @@
-import { css, GuiElement, registerCustomElement } from '../../exports.js';
+import { css, GuiElement } from '../../exports.js';
 import style from './role-permissions.css?inline';
 
 export class GuiRolePermissions extends GuiElement {
@@ -31,5 +31,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-role-permissions', GuiRolePermissions);

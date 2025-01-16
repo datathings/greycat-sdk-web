@@ -1,4 +1,4 @@
-import { registerCustomElement, sl, SlInputEventMap } from '../../exports.js';
+import { sl, SlInputEventMap } from '../../exports.js';
 
 export class GuiSearchInput extends sl.SlInput {
   override connectedCallback() {
@@ -22,5 +22,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-search-input', GuiSearchInput);

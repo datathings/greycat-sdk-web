@@ -60,7 +60,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-fn-select')) {
-  customElements.define('gui-fn-select', GuiFnSelect);
-}

@@ -238,7 +238,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-periodic-task-list')) {
-  customElements.define('gui-periodic-task-list', GuiPeriodicTaskList);
-}

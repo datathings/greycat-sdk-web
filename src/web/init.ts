@@ -1,4 +1,86 @@
-import { GuiFactory, GuiInputFactory } from './exports';
+import {
+  GuiFactory,
+  GuiInputFactory,
+  GuiTable,
+  GuiTableBody,
+  GuiTableBodyCell,
+  GuiTableBodyRow,
+  GuiTableConfig,
+  GuiTableHead,
+  GuiTableHeadCell,
+  GuiTableMapping,
+  GuiTableMappings,
+  GuiValue,
+  GuiCard,
+  registerCustomElement,
+  GuiObject,
+  GuiObjectFieldName,
+  GuiObjectFieldValue,
+  GuiChart,
+  GuiChart2,
+  GuiChartConfig,
+  GuiChartYAxesInput,
+  GuiChartAxisInput,
+  GuiChartOrdinateInput,
+  GuiChartSelectionInput,
+  GuiChartSerieInput,
+  GuiChartSeriesInput,
+  GuiCsvStatistics,
+  GuiCsvStatistics2,
+  GuiDashboard,
+  GuiDetails,
+  GuiDialog,
+  GuiDonut,
+  GuiFiles,
+  GuiFnSelect,
+  GuiGauge,
+  GuiHeatmap,
+  GuiHistogram,
+  GuiInput,
+  GuiInputString,
+  GuiInputStr,
+  GuiInputNumber,
+  GuiInputBool,
+  GuiInputTime,
+  GuiInputEnum,
+  GuiInputObject,
+  GuiInputAbstract,
+  GuiInputFn,
+  GuiInputDuration,
+  GuiInputAny,
+  GuiInputArray,
+  GuiInputMap,
+  GuiInputNode,
+  GuiInputNodeTime,
+  GuiInputNodeIndex,
+  GuiInputNodeList,
+  GuiInputNodeGeo,
+  GuiInputGeo,
+  GuiInputFnPtr,
+  GuiInputUnsupported,
+  GuiInputNull,
+  GuiInputType,
+  GuiInputField,
+  GuiLayout2,
+  GuiLayout,
+  GuiLayoutHeader,
+  GuiLayoutMenu,
+  GuiMultiSelectCheckbox,
+  GuiObject2,
+  GuiPeriodicTaskList,
+  GuiRoles,
+  GuiRoleForm,
+  GuiRolePermissions,
+  GuiSearchInput,
+  GuiUsers,
+  GuiUserGroupPolicy,
+  GuiUserForm,
+  GuiTasks,
+  GuiTabs,
+  GuiTab,
+  GuiPanel,
+  GuiSearchableSelect,
+} from './exports';
 
 const oldInit = gc.sdk.init;
 gc.sdk.init = async function init(options = { url: gc.sdk.DEFAULT_URL }) {
@@ -15,6 +97,9 @@ gc.sdk.initWithAbi = function initWithAbi(options: gc.sdk.WithAbiOptions) {
 };
 
 function initWeb() {
+  registerCustomElement('gui-factory', GuiFactory);
+  registerCustomElement('gui-input-factory', GuiInputFactory);
+
   // both factories needs to be created after they are registered
   GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
     [gc.core.Table._type]: 'gui-table',
@@ -44,4 +129,171 @@ function initWeb() {
     [gc.core.nodeGeo._type]: 'gui-input-node-geo',
     [gc.core.function_._type]: 'gui-input-fnptr',
   });
+
+  registerCustomElement('gui-thead-cell', GuiTableHeadCell);
+  registerCustomElement('gui-tbody-cell', GuiTableBodyCell);
+  registerCustomElement('gui-tbody-row', GuiTableBodyRow);
+  registerCustomElement('gui-thead', GuiTableHead);
+  registerCustomElement('gui-tbody', GuiTableBody);
+  registerCustomElement('gui-table', GuiTable);
+  registerCustomElement('gui-value', GuiValue);
+  registerCustomElement('gui-table-mappings', GuiTableMappings);
+  registerCustomElement('gui-table-mapping', GuiTableMapping);
+  registerCustomElement('gui-table-config', GuiTableConfig);
+  registerCustomElement('gui-card', GuiCard);
+  registerCustomElement('gui-object', GuiObject);
+  registerCustomElement('gui-object-fieldname', GuiObjectFieldName);
+  registerCustomElement('gui-object-fieldvalue', GuiObjectFieldValue);
+  registerCustomElement('gui-chart', GuiChart);
+  registerCustomElement('gui-chart-config', GuiChartConfig);
+  registerCustomElement('gui-chart-yaxes-input', GuiChartYAxesInput);
+  registerCustomElement('gui-chart-axis-input', GuiChartAxisInput);
+  registerCustomElement('gui-chart-ordinate-input', GuiChartOrdinateInput);
+  registerCustomElement('gui-chart-selection-input', GuiChartSelectionInput);
+  registerCustomElement('gui-chart-serie-input', GuiChartSerieInput);
+  registerCustomElement('gui-chart-series-input', GuiChartSeriesInput);
+  registerCustomElement('gui-chart2', GuiChart2);
+  registerCustomElement('gui-csv-statistics', GuiCsvStatistics);
+  registerCustomElement('gui-csv-statistics2', GuiCsvStatistics2);
+  registerCustomElement('gui-dashboard', GuiDashboard);
+  registerCustomElement('gui-details', GuiDetails);
+  registerCustomElement('gui-dialog', GuiDialog);
+  registerCustomElement('gui-donut', GuiDonut);
+  registerCustomElement('gui-files', GuiFiles);
+  registerCustomElement('gui-fn-select', GuiFnSelect);
+  registerCustomElement('gui-gauge', GuiGauge);
+  registerCustomElement('gui-heatmap', GuiHeatmap);
+  registerCustomElement('gui-histogram', GuiHistogram);
+  registerCustomElement('gui-input', GuiInput);
+  registerCustomElement('gui-input-string', GuiInputString);
+  registerCustomElement('gui-input-str', GuiInputStr);
+  registerCustomElement('gui-input-number', GuiInputNumber);
+  registerCustomElement('gui-input-bool', GuiInputBool);
+  registerCustomElement('gui-input-time', GuiInputTime);
+  registerCustomElement('gui-input-enum', GuiInputEnum);
+  registerCustomElement('gui-input-object', GuiInputObject);
+  registerCustomElement('gui-input-abstract', GuiInputAbstract);
+  registerCustomElement('gui-input-fn', GuiInputFn);
+  registerCustomElement('gui-input-duration', GuiInputDuration);
+  registerCustomElement('gui-input-any', GuiInputAny);
+  registerCustomElement('gui-input-array', GuiInputArray);
+  registerCustomElement('gui-input-map', GuiInputMap);
+  registerCustomElement('gui-input-node', GuiInputNode);
+  registerCustomElement('gui-input-node-time', GuiInputNodeTime);
+  registerCustomElement('gui-input-node-index', GuiInputNodeIndex);
+  registerCustomElement('gui-input-node-list', GuiInputNodeList);
+  registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
+  registerCustomElement('gui-input-geo', GuiInputGeo);
+  registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
+  registerCustomElement('gui-input-unsupported', GuiInputUnsupported);
+  registerCustomElement('gui-input-null', GuiInputNull);
+  registerCustomElement('gui-input-type', GuiInputType);
+  registerCustomElement('gui-input-field', GuiInputField);
+  registerCustomElement('gui-layout2', GuiLayout2);
+  registerCustomElement('gui-layout', GuiLayout);
+  registerCustomElement('gui-layout-header', GuiLayoutHeader);
+  registerCustomElement('gui-layout-menu', GuiLayoutMenu);
+  registerCustomElement('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
+  registerCustomElement('gui-object2', GuiObject2);
+  registerCustomElement('gui-periodic-task-list', GuiPeriodicTaskList);
+  registerCustomElement('gui-roles', GuiRoles);
+  registerCustomElement('gui-role-permissions', GuiRolePermissions);
+  registerCustomElement('gui-role-form', GuiRoleForm);
+  registerCustomElement('gui-search-input', GuiSearchInput);
+  registerCustomElement('gui-users', GuiUsers);
+  registerCustomElement('gui-user-group-policy', GuiUserGroupPolicy);
+  registerCustomElement('gui-user-form', GuiUserForm);
+  registerCustomElement('gui-tasks', GuiTasks);
+  registerCustomElement('gui-tabs', GuiTabs);
+  registerCustomElement('gui-tab', GuiTab);
+  registerCustomElement('gui-panel', GuiPanel);
+  registerCustomElement('gui-searchable-select', GuiSearchableSelect);
+}
+
+declare global {
+  namespace gc {
+    export type {
+      GuiFactory,
+      GuiInputFactory,
+      GuiTable,
+      GuiTableBody,
+      GuiTableBodyCell,
+      GuiTableBodyRow,
+      GuiTableConfig,
+      GuiTableHead,
+      GuiTableHeadCell,
+      GuiTableMapping,
+      GuiTableMappings,
+      GuiValue,
+      GuiCard,
+      registerCustomElement,
+      GuiObject,
+      GuiObjectFieldName,
+      GuiObjectFieldValue,
+      GuiChart,
+      GuiChart2,
+      GuiChartConfig,
+      GuiChartYAxesInput,
+      GuiChartAxisInput,
+      GuiChartOrdinateInput,
+      GuiChartSelectionInput,
+      GuiChartSerieInput,
+      GuiChartSeriesInput,
+      GuiCsvStatistics,
+      GuiCsvStatistics2,
+      GuiDashboard,
+      GuiDetails,
+      GuiDialog,
+      GuiDonut,
+      GuiFiles,
+      GuiFnSelect,
+      GuiGauge,
+      GuiHeatmap,
+      GuiHistogram,
+      GuiInput,
+      GuiInputString,
+      GuiInputStr,
+      GuiInputNumber,
+      GuiInputBool,
+      GuiInputTime,
+      GuiInputEnum,
+      GuiInputObject,
+      GuiInputAbstract,
+      GuiInputFn,
+      GuiInputDuration,
+      GuiInputAny,
+      GuiInputArray,
+      GuiInputMap,
+      GuiInputNode,
+      GuiInputNodeTime,
+      GuiInputNodeIndex,
+      GuiInputNodeList,
+      GuiInputNodeGeo,
+      GuiInputGeo,
+      GuiInputFnPtr,
+      GuiInputUnsupported,
+      GuiInputNull,
+      GuiInputType,
+      GuiInputField,
+      GuiLayout2,
+      GuiLayout,
+      GuiLayoutHeader,
+      GuiLayoutMenu,
+      GuiMultiSelectCheckbox,
+      GuiObject2,
+      GuiPeriodicTaskList,
+      GuiRoles,
+      GuiRoleForm,
+      GuiRolePermissions,
+      GuiSearchInput,
+      GuiUsers,
+      GuiUserGroupPolicy,
+      GuiUserForm,
+      GuiTasks,
+      GuiTabs,
+      GuiTab,
+      GuiPanel,
+      GuiSearchableSelect,
+    };
+  }
 }

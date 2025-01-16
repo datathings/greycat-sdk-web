@@ -663,7 +663,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-heatmap')) {
-  globalThis.customElements.define('gui-heatmap', GuiHeatmap);
-}

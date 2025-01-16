@@ -374,7 +374,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-searchable-select')) {
-  customElements.define('gui-searchable-select', GuiSearchableSelect);
-}

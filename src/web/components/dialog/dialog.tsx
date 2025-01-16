@@ -1,4 +1,4 @@
-import { css, registerCustomElement, sl, SlDialogEventMap } from '../../exports.js';
+import { css, sl, SlDialogEventMap } from '../../exports.js';
 import styles from './dialog.css?inline';
 
 export class GuiDialog extends sl.SlDialog {
@@ -19,5 +19,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-dialog', GuiDialog);

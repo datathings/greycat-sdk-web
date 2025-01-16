@@ -1,4 +1,4 @@
-import { css, GuiElement, registerCustomElement, sl } from '../../exports.js';
+import { css, GuiElement, sl } from '../../exports.js';
 import style from './layout.css?inline';
 
 export class GuiLayout extends GuiElement {
@@ -68,5 +68,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-layout', GuiLayout);

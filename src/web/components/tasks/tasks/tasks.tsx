@@ -206,7 +206,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-tasks')) {
-  customElements.define('gui-tasks', GuiTasks);
-}

@@ -1,11 +1,5 @@
 import { createElement } from '@greycat/web/jsx-runtime';
-import {
-  GuiInputElement,
-  AnyValueElement,
-  registerCustomElement,
-  GuiElement,
-  css,
-} from '../../exports.js';
+import { GuiInputElement, AnyValueElement, GuiElement, css } from '../../exports.js';
 
 type Props = {
   [key: string]: unknown;
@@ -455,6 +449,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-factory', GuiFactory);
-registerCustomElement('gui-input-factory', GuiInputFactory);

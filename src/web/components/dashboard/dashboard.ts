@@ -342,7 +342,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-dashboard')) {
-  globalThis.customElements.define('gui-dashboard', GuiDashboard);
-}

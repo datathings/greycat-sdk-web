@@ -1,10 +1,9 @@
+import '@greycat/web';
+import '@greycat/web/greycat.css';
 import '@/common';
 import './index.css';
 
-import { GreyCat, runtime } from '@greycat/web';
-import '@greycat/sdk/greycat.css';
-
-await await gc.sdk.init();
+await gc.sdk.init();
 
 function toggleTheme() {
   const is_dark = document.documentElement.classList.contains('sl-theme-dark');
@@ -65,7 +64,7 @@ document.body.appendChild(
           gap: 'var(--spacing)',
         }}
       >
-        <gui-input-object value={await runtime.Runtime.info()} />
+        <gui-input-object value={await gc.runtime.Runtime.info()} />
       </div>
     </gui-layout>
   </app-layout>,

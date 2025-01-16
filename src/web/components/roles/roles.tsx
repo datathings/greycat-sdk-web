@@ -162,7 +162,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-roles')) {
-  customElements.define('gui-roles', GuiRoles);
-}

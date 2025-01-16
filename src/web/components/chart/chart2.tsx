@@ -1088,7 +1088,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-chart2')) {
-  customElements.define('gui-chart2', GuiChart2);
-}

@@ -71,7 +71,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-multi-select-checkbox')) {
-  globalThis.customElements.define('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
-}

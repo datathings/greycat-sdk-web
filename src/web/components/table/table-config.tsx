@@ -1,6 +1,5 @@
 import { sl } from '../../shoelace.js';
 import {
-  registerCustomElement,
   GuiTable,
   GuiTableProps,
   modal,
@@ -244,5 +243,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-table-config', GuiTableConfig);

@@ -1,7 +1,6 @@
 import {
   Axis,
   Ordinate,
-  registerCustomElement,
   SelectionOptions,
   sl,
   TooltipPosition,
@@ -1255,11 +1254,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-chart-config', GuiChartConfig);
-registerCustomElement('gui-chart-yaxes-input', GuiChartYAxesInput);
-registerCustomElement('gui-chart-axis-input', GuiChartAxisInput);
-registerCustomElement('gui-chart-ordinate-input', GuiChartOrdinateInput);
-registerCustomElement('gui-chart-selection-input', GuiChartSelectionInput);
-registerCustomElement('gui-chart-serie-input', GuiChartSerieInput);
-registerCustomElement('gui-chart-series-input', GuiChartSeriesInput);

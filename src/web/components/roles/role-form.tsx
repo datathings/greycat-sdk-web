@@ -66,7 +66,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-role-form')) {
-  customElements.define('gui-role-form', GuiRoleForm);
-}

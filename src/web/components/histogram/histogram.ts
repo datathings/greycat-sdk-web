@@ -269,7 +269,3 @@ declare global {
     }
   }
 }
-
-if (!globalThis.customElements.get('gui-histogram')) {
-  globalThis.customElements.define('gui-histogram', GuiHistogram);
-}
