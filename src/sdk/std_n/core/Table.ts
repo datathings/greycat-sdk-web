@@ -260,16 +260,10 @@ namespace gc {
             indices.sort((a, b) => Table.compare(this.cols[col][a], this.cols[col][b], ord));
 
             // Rearrange each column in-place based on sorted indices
-            const tempRow = globalThis.Array.from({ length: this.cols.length });
-            for (let i = 0; i < indices.length; i++) {
-              const sourceRowIndex = indices[i];
-              if (i !== sourceRowIndex) {
-                // Swap rows for all columns
-                for (let c = 0; c < this.cols.length; c++) {
-                  tempRow[c] = this.cols[c][i];
-                  this.cols[c][i] = this.cols[c][sourceRowIndex];
-                  this.cols[c][sourceRowIndex] = tempRow[c];
-                }
+            for (let col = 0; col < this.cols.length; col++) {
+              const sortedColumn = indices.map((index) => this.cols[col][index]);
+              for (let row = 0; row < sortedColumn.length; row++) {
+                this.cols[col][row] = sortedColumn[row];
               }
             }
 
