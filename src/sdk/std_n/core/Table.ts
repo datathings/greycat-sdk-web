@@ -217,7 +217,25 @@ namespace gc {
             for (let col = 0; col < nb_cols; col++) {
               cols[col] = r.read_array(nb_rows);
             }
-            return new ty.ctor(cols) as gc.core.Table<T>;
+            const table = new ty.ctor(cols) as gc.core.Table<T>;
+            // // Automatically create rows based on generic type if possible
+            // if (ty.generic_abi_type != 0) {
+            //   const rowType = r.abi.types[ty.g1()];
+            //   const rows = new globalThis.Array(nb_rows);
+            //   for (let row = 0; row < nb_rows; row++) {
+            //     const fields = new globalThis.Array(nb_cols);
+            //     for (let col = 0; col < nb_cols; col++) {
+            //       fields[col] = cols[col][row];
+            //     }
+            //     if (rowType.offset === r.abi.core.array || rowType.generic_abi_type === r.abi.core.array) {
+            //       rows[row] = new rowType.ctor(fields);
+            //     } else {
+            //       rows[row] = new rowType.ctor(...fields);
+            //     }
+            //   }
+            //   table._initial_value = rows;
+            // }
+            return table;
           }
 
           override saveContent(w: AbiWriter): void {

@@ -786,8 +786,14 @@ namespace gc {
               Object.defineProperties(this, properties);
             }
 
-            static createFrom(fields: object) {
-              return new type.ctor(...Object.values(fields));
+            static createFrom(o: object) {
+              const fields = new globalThis.Array(type.attrs.length);
+              for (let i = 0; i < type.attrs.length; i++) {
+                const attr = type.attrs[i];
+                // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                fields[i] = (o as any)[attr.name];
+              }
+              return new type.ctor(...fields);
             }
           };
           this.ctor = GCObject;

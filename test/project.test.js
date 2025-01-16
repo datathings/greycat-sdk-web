@@ -361,28 +361,6 @@ describe('project', () => {
       sum: 7,
       sumsq: 29,
     },
-    // {
-    //   _type: 'util::Quantizer',
-    //   dimensions: [{ _type: 'util::DenseScale', max: 10, min: 0, step: 1 }],
-    // },
-    // {
-    //   _type: 'util::Histogram',
-    //   bins: null,
-    //   quantizer: {
-    //     _type: 'util::Quantizer',
-    //     dimensions: [{ _type: 'util::DenseScale', max: 10, min: 0, step: 1 }],
-    //   },
-    // },
-    // {
-    //   _type: 'util::GaussianProfile',
-    //   bins: null,
-    //   min: null,
-    //   precision: { _type: 'core::FloatPrecision', field: 'p100' },
-    //   quantizer: {
-    //     _type: 'util::Quantizer',
-    //     dimensions: [{ _type: 'util::DenseScale', max: 10, min: 0, step: 1 }],
-    //   },
-    // },
     {
       _type: 'util::TimeWindow',
       field: null,

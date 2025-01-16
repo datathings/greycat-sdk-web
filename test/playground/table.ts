@@ -2,7 +2,7 @@
 // deno -A playground/table.ts
 // or
 // esbuild playground/table.ts | node --input-type=module
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 const { core, GreyCat } = greycat;
 import assert from 'node:assert';
 // import { displayValue } from './_utils.js';

@@ -1,6 +1,6 @@
 // @ts-check
 /// <reference path="./project.d.ts" />
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 
 const g = await greycat.GreyCat.init();
 

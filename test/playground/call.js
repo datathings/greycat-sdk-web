@@ -1,4 +1,4 @@
-import '@greycat/sdk';
+import '@greycat/web/sdk';
 import { readBytes, displayValue } from './_utils.js';
 
 const args = process.argv.slice(2);
