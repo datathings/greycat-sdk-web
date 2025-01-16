@@ -99,15 +99,11 @@ describe('project', () => {
     { _type: 'core::TensorType', field: 'c128' },
     {
       _type: 'core::Table',
-      cols: [
-        [0, 1, 2, 3],
-        [0.5, 1.5, 2.5, 3.5],
-        [
-          { _type: 'project::Named', name: 'one' },
-          { _type: 'project::Named', name: 'two' },
-          { _type: 'project::Named', name: 'three' },
-          { _type: 'project::Named', name: 'four' },
-        ],
+      rows: [
+        [0, 0.5, { _type: 'project::Named', name: 'one' }],
+        [1, 1.5, { _type: 'project::Named', name: 'two' }],
+        [2, 2.5, { _type: 'project::Named', name: 'three' }],
+        [3, 3.5, { _type: 'project::Named', name: 'four' }],
       ],
     },
     {
@@ -394,15 +390,12 @@ describe('project', () => {
       sumsq: 1000000008001001900,
       values: {
         _type: 'core::Table',
-        cols: [
-          [
-            '1970-01-01T00:00:00.000Z',
-            '1970-01-01T00:00:00.000Z',
-            '1970-01-01T00:00:00.000Z',
-            '1970-01-01T00:00:00.000Z',
-            '1970-01-01T00:00:00.000Z',
-          ],
-          [1, 1000, 100000, 999999999, 42],
+        rows: [
+          ['1970-01-01T00:00:00.000Z', 1],
+          ['1970-01-01T00:00:00.000Z', 1000],
+          ['1970-01-01T00:00:00.000Z', 100000],
+          ['1970-01-01T00:00:00.000Z', 999999999],
+          ['1970-01-01T00:00:00.000Z', 42],
         ],
       },
       span: { _type: 'core::duration', s: 3, us: 0 },
