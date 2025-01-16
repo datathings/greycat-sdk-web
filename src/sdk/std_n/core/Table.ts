@@ -32,6 +32,7 @@ namespace gc {
            */
           public headers: string[] | undefined;
           public subheaders: string[] | undefined;
+          private _initial_value: unknown[] | undefined;
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           constructor(public cols: any[][] = []) {
@@ -56,7 +57,8 @@ namespace gc {
             g: GreyCat = gc.$.default,
           ): gc.core.Table<unknown[]> {
             const ty = g.abi.types[g.abi.core.table];
-            return new ty.ctor(cols) as gc.core.Table;
+            const table = new ty.ctor(cols) as gc.core.Table;
+            return table;
           }
 
           /**
@@ -136,7 +138,9 @@ namespace gc {
               }
             }
 
-            return new ty.ctor(cols) as gc.core.Table;
+            const table = new ty.ctor(cols) as gc.core.Table;
+            table._initial_value = rows;
+            return table;
           }
 
           /**
@@ -187,6 +191,7 @@ namespace gc {
             const ty = g.abi.types[g.abi.core.table];
             const table = new ty.ctor(cols) as gc.core.Table<unknown[]>;
             table.headers = keys;
+            table._initial_value = rows;
             return table;
           }
 
@@ -202,7 +207,10 @@ namespace gc {
             return table;
           }
 
-          static override load<T extends Value = unknown>(r: AbiReader, ty: AbiType): gc.core.Table<T> {
+          static override load<T extends Value = unknown>(
+            r: AbiReader,
+            ty: AbiType,
+          ): gc.core.Table<T> {
             const nb_rows = r.read_vu32();
             const nb_cols = r.read_vu32();
             const cols = new globalThis.Array(nb_cols);
@@ -234,10 +242,25 @@ namespace gc {
             indices.sort((a, b) => Table.compare(this.cols[col][a], this.cols[col][b], ord));
 
             // Rearrange each column in-place based on sorted indices
-            for (let k = 0; k < this.cols.length; k++) {
-              const sortedColumn = indices.map((index) => this.cols[k][index]);
-              for (let i = 0; i < sortedColumn.length; i++) {
-                this.cols[k][i] = sortedColumn[i];
+            const tempRow = globalThis.Array.from({ length: this.cols.length });
+            for (let i = 0; i < indices.length; i++) {
+              const sourceRowIndex = indices[i];
+              if (i !== sourceRowIndex) {
+                // Swap rows for all columns
+                for (let c = 0; c < this.cols.length; c++) {
+                  tempRow[c] = this.cols[c][i];
+                  this.cols[c][i] = this.cols[c][sourceRowIndex];
+                  this.cols[c][sourceRowIndex] = tempRow[c];
+                }
+              }
+            }
+
+            // Also rearrange the initial_value array if defined
+            if (this._initial_value !== undefined) {
+              const initial_value = this._initial_value;
+              const sortedInitialValue = indices.map((index) => initial_value[index]);
+              for (let r = 0; r < sortedInitialValue.length; r++) {
+                initial_value[r] = sortedInitialValue[r];
               }
             }
           }
@@ -250,6 +273,9 @@ namespace gc {
            * @returns
            */
           getRow(index: number): T | undefined {
+            if (this._initial_value !== undefined) {
+              return this._initial_value[index] as T | undefined;
+            }
             const nb_rows = this.cols[0]?.length ?? 0;
             if (index >= nb_rows) {
               return undefined;
@@ -311,7 +337,7 @@ namespace gc {
           override toJSON() {
             return {
               _type: Table._type,
-              cols: this.cols,
+              rows: this._initial_value ? this._initial_value : globalThis.Array.from(this),
             };
           }
         }
