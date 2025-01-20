@@ -419,64 +419,77 @@ namespace gc {
           this.fn_by_fqn.set(fqn, this.functions[i]);
         }
 
+        const create_monomorphic_class = (
+          type: AbiType,
+          supertype: IGCObjectClass,
+        ): IGCObjectClass => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const GCObject = class extends (supertype as any) {
+            static _type = type.name;
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            constructor(values: any[]) {
+              super(values);
+              Object.defineProperty(this, '$type', {
+                value: type,
+                enumerable: false,
+                writable: false,
+              });
+              this.$init?.();
+            }
+          };
+          return GCObject as IGCObjectClass;
+        };
+
         // link monomorphized types to there known native generic type
         for (let i = 0; i < nb_types; i++) {
           const type = this.types[i];
           switch (type.generic_abi_type) {
             case this.core.array: {
-              type.ctor = gc.core.Array;
+              type.ctor = create_monomorphic_class(type, gc.core.Array);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.Array;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.table: {
-              type.ctor = gc.core.Table;
+              type.ctor = create_monomorphic_class(type, gc.core.Table);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.Table;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.map: {
-              type.ctor = gc.core.Map;
+              type.ctor = create_monomorphic_class(type, gc.core.Map);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.Map;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.node: {
-              type.ctor = gc.core.node;
+              type.ctor = create_monomorphic_class(type, gc.core.node);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.node;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.node_time: {
-              type.ctor = gc.core.nodeTime;
+              type.ctor = create_monomorphic_class(type, gc.core.nodeTime);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.nodeTime;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.node_list: {
-              type.ctor = gc.core.nodeList;
+              type.ctor = create_monomorphic_class(type, gc.core.nodeList);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.nodeList;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.node_index: {
-              type.ctor = gc.core.nodeIndex;
+              type.ctor = create_monomorphic_class(type, gc.core.nodeIndex);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.nodeIndex;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             case this.core.node_geo: {
-              type.ctor = gc.core.nodeGeo;
+              type.ctor = create_monomorphic_class(type, gc.core.nodeGeo);
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] =
-                gc.core.nodeGeo;
+              (gc as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
               break;
             }
             default:
@@ -732,7 +745,11 @@ namespace gc {
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     constructor(...args: any[]) {
                       super(...args);
-                      Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                      Object.defineProperty(this, '$type', {
+                        value: type,
+                        enumerable: false,
+                        writable: true,
+                      });
                       this.$init?.();
                     }
                   } as IGCObjectClass;

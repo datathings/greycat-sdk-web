@@ -1,11 +1,9 @@
-import { core, GreyCat, GuiFactory, IndexedDbCache, io } from '@greycat/web';
+import { GuiFactory } from '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
-const format = io.CsvFormat.createFrom({
+const format = gc.io.CsvFormat.createFrom({
   separator: ',',
   columns: null,
   columns_size: null,
@@ -14,7 +12,7 @@ const format = io.CsvFormat.createFrom({
   string_delimiter: null,
   thousands_separator: null,
 });
-const table = await io.CsvFormat.sample('files/1/log.csv', format, null, 1000);
+const table = await gc.io.CsvFormat.sample('files/1/log.csv', format, null, 1000);
 console.log(table);
 
 document.body.appendChild(
@@ -24,7 +22,7 @@ document.body.appendChild(
       headers={['Level', 'Time', 'Type', 'User', 'Task/Req', 'Tag', 'Context', 'Data']}
       columnsWidths={[100, 250, 100, 100, 120, 100, 200]}
       columnFactory={{
-        1: GuiFactory.defineFromFn((v) => <gui-value value={core.time.create(v)} />),
+        1: GuiFactory.defineFromFn((v) => <gui-value value={gc.core.time.create(v)} />),
       }}
       globalFilter
     />

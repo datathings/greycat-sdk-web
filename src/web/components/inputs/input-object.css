@@ -26,6 +26,9 @@
   line-height: var(--sl-font-size-small);
   color: var(--sl-color-gray-500);
 }
+.field-type.hide {
+  display: none;
+}
 .nullable {
   display: grid;
   grid-template-columns: auto auto 1fr;
@@ -35,4 +38,24 @@
 .sep {
   height: 100%;
   border-right: var(--border-width) solid var(--border-color);
+}
+
+.root.inline {
+  & {
+    grid-template-rows: auto;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    width: 100%;
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .label {
+    flex-direction: row;
+    align-items: center;
+    gap: var(--spacing);
+    min-height: var(--line-height);
+  }
 }

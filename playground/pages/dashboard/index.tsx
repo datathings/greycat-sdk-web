@@ -1,10 +1,8 @@
-import { GreyCat, IndexedDbCache, defineComp, greycatFetcher } from '@greycat/web';
+import { defineComp, greycatFetcher } from '@greycat/web';
 import '@/common';
 import './custom-comp';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const chart = defineComp({
   component: 'gui-chart',

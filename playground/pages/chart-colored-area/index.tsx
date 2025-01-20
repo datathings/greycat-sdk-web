@@ -1,9 +1,7 @@
-import { $, core, GreyCat, IndexedDbCache } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 
@@ -11,8 +9,8 @@ const chart = document.createElement('gui-chart');
 
 chart.addEventListener('gui-selection', (e) => {
   if (e.detail) {
-    const from = core.time.fromMs(e.detail.from as number);
-    const to = core.time.fromMs(e.detail.to as number);
+    const from = gc.core.time.fromMs(e.detail.from as number);
+    const to = gc.core.time.fromMs(e.detail.to as number);
     console.log(`selection from ${from} to ${to}`);
   } else {
     console.log(`reset selection`);
@@ -24,7 +22,7 @@ const colors = {
   normal: 'orange', //'#2ecc71',
   high: 'green', //'#e74c3c',
 };
-chart.value = await $.default.call<core.Table>('project::chart_colored_area');
+chart.value = await gc.project.chart_colored_area();
 chart.setConfig({
   tooltip: {
     // Override default tooltip

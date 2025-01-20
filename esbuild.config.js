@@ -25,6 +25,7 @@ buildSync({
   format: 'esm',
   target: 'esnext',
   sourcemap: true,
+  sourcesContent: false,
   minifySyntax: true,
   minifyWhitespace: true,
   loader: {

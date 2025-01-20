@@ -1042,21 +1042,79 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
   }
 }
 
-export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined> {
+export type ExcludeFunctions<T> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  [K in keyof T as T[K] extends Function ? never : K]: T[K];
+};
+
+export type ExcludeInternalKeys<T> = {
+  [K in keyof T as K extends `$${string}` ? never : K]: K;
+};
+
+export type FilterKeys<T> = ExcludeInternalKeys<ExcludeFunctions<T>>;
+export type FieldElement<T> = { value: T };
+export type FieldElements<T extends object> = Partial<{
+  readonly [K in keyof FilterKeys<T>]: TypedHtmlElement<T[K]> | undefined;
+}>;
+/**
+ * Serves no purpose other than giving the developper the type of the field as a generic param hint.
+ * At runtime the element can be anything, that is why it is typed as `Node`.
+ *
+ * Though, if you know what the element is, you can downcast it with eg. `el.fields.myField as GuiInputObject<boolean>`.
+ */
+export type TypedHtmlElement<T> = Node & { __phantom: T };
+
+// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<
+  T | undefined
+> {
   static override styles = [...GuiInputElement.styles, css(ObjectStyle)];
 
-  protected _value: gc.sdk.GCObject | undefined;
+  protected _value: T | undefined;
+
+  /**
+   * Convenient way to access the fields elements.
+   *
+   * **Do not use this to update a field value manually it WILL NOT reflect on this `element.value`**
+   */
+  readonly fields: FieldElements<T> = {};
+  private _inline = false;
+  private _noTypes = false;
 
   get value() {
     return this._value;
   }
 
-  set value(value: gc.sdk.GCObject | undefined) {
+  set value(value: T | undefined) {
     if (!value) {
       this.shadowRoot.replaceChildren();
       return;
     }
     this._value = value;
+    this.update();
+  }
+
+  /**
+   * Whether or not to inline the input in a column-based manner. By default all inputs are row-based, this will make it column-based.
+   */
+  get inline() {
+    return this._inline;
+  }
+
+  set inline(inline: boolean) {
+    this._inline = inline;
+    this.update();
+  }
+
+  /**
+   * Whether or not to display the field types next to the name
+   */
+  get noTypes() {
+    return this._noTypes;
+  }
+
+  set noTypes(noTypes: boolean) {
+    this._noTypes = noTypes;
     this.update();
   }
 
@@ -1074,7 +1132,7 @@ export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined>
     const fields = document.createDocumentFragment();
     const abi = this._value.$type.abi;
     for (const attr of this._value.$type.attrs) {
-      const [attrEl] = this._createAttr(
+      const [attrEl, inputEl] = this._createAttr(
         abi,
         factory,
         this._value,
@@ -1083,9 +1141,19 @@ export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined>
         this._value[attr.name],
       );
       fields.appendChild(attrEl);
+      if (inputEl) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        this.fields[attr.name as keyof FilterKeys<T>] = inputEl as any;
+      }
+    }
+    // cleanup no longer defined fields
+    for (const name in this.fields) {
+      if (!this._value.$type.attrs.find((a) => a.name === name)) {
+        delete this.fields[name];
+      }
     }
     this.shadowRoot.replaceChildren(
-      <div className="root" part="root">
+      <div className={{ root: true, inline: this._inline }} part="root">
         {fields}
       </div>,
     );
@@ -1111,40 +1179,45 @@ export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined>
     type: gc.sdk.AbiType,
     attr: gc.sdk.AbiAttribute,
     value: unknown,
-  ): [Node, Element | null] {
+  ): [Node, Node | null] {
     const attrType = abi.types[attr.abi_type];
-    if (attr.nullable && (value === null || value === undefined)) {
-      object[attr.name] = null; // ensures the value is 'null' rather than maybe 'undefined'
-      const field = (
-        <div className="field" part={`field ${attr.name}`}>
-          <label className="label" part="label">
-            <span className="field-name" part="field-name">
-              {attr.name}
-            </span>
-            <span className="field-type" part="field-type">
-              {this._attrType(attr, abi)}
-            </span>
-          </label>
-          <div>
-            <sl-button
-              variant="text"
-              size="small"
-              onclick={() => {
-                const value = new attrType.ctor();
-                const [node, input] = this._createAttr(abi, factory, object, type, attr, value);
-                field.replaceWith(node);
-                if (input instanceof GuiInputElement) {
-                  object[attr.name] = input.value;
-                }
-                this.dispatchEvent(new GuiChangeEvent(this.value));
-              }}
-            >
-              Set a value
-            </sl-button>
+    if (attr.nullable) {
+      if (value === null || value === undefined) {
+        object[attr.name] = null; // ensures the value is 'null' rather than maybe 'undefined'
+        const field = (
+          <div className="field" part={`field ${attr.name}`}>
+            <label className="label" part="label">
+              <span className="field-name" part="field-name">
+                {attr.name}
+              </span>
+              <span className={{ 'field-type': true, hide: this.noTypes }} part="field-type">
+                {this._attrType(attr, abi)}
+              </span>
+            </label>
+            <div>
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={() => {
+                  const value = new attrType.ctor();
+                  const [node, input] = this._createAttr(abi, factory, object, type, attr, value);
+                  field.replaceWith(node);
+                  if (input instanceof GuiInputElement) {
+                    object[attr.name] = input.value;
+                  }
+                  this.dispatchEvent(new GuiChangeEvent(this.value));
+                }}
+              >
+                Set a value
+              </sl-button>
+            </div>
           </div>
-        </div>
-      ) as HTMLElement;
-      return [field, null];
+        ) as HTMLElement;
+        return [field, null];
+      }
+    } else if (value === null || value === undefined) {
+      // default initialization
+      value = object[attr.name] = new attrType.ctor();
     }
 
     const slottedAttr = this.querySelector(`[slot="${attr.name}"]`);
@@ -1175,7 +1248,7 @@ export class GuiInputObject extends GuiInputElement<gc.sdk.GCObject | undefined>
           <span className="field-name" part="field-name">
             {attr.name}
           </span>
-          <span className="field-type" part="field-type">
+          <span className={{ 'field-type': true, hide: this.noTypes }} part="field-type">
             {this._attrType(attr, abi)}
           </span>
         </label>
@@ -1739,7 +1812,6 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
     return [item, input];
   }
 }
-
 export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core.Map> {
   static override styles = [...GuiInputElement.styles, css(MapStyle)];
 

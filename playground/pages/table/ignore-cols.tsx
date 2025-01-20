@@ -2,14 +2,14 @@ import HighIcon from '@tabler/icons/temperature-sun.svg?raw';
 import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
-import { GuiValueElement, TableLike } from '@greycat/web';
+import { GuiValueElement } from '@greycat/web';
 import '@/common';
 
 await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk.GCEnum> {
+export class AppConfidence extends GuiValueElement<gc.sdk.GCEnum> {
   private static HIGH: SVGSVGElement;
   private static MEDIUM: SVGSVGElement;
   private static LOW: SVGSVGElement;
@@ -21,7 +21,7 @@ export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk
     this.LOW = parser.parseFromString(LowIcon, 'image/svg+xml').children[0] as SVGSVGElement;
   }
 
-  connectedCallback() {
+  override connectedCallback() {
     this.style.display = 'flex';
     this.style.alignItems = 'center';
     this.style.gap = 'var(--spacing)';
@@ -31,10 +31,10 @@ export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk
     this.style.color = color;
   }
 
-  set value(value: GCEnum) {
+  set value(value: gc.sdk.GCEnum) {
     switch (value.key) {
       case 'High':
-        this.replaceChildren(
+        this.shadowRoot.replaceChildren(
           <>
             {AppConfidence.HIGH.cloneNode(true)}
             <span> {value.key}</span>
@@ -42,7 +42,7 @@ export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk
         );
         break;
       case 'Medium':
-        this.replaceChildren(
+        this.shadowRoot.replaceChildren(
           <>
             {AppConfidence.MEDIUM.cloneNode(true)}
             <span> {value.key}</span>
@@ -50,7 +50,7 @@ export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk
         );
         break;
       case 'Low':
-        this.replaceChildren(
+        this.shadowRoot.replaceChildren(
           <>
             {AppConfidence.LOW.cloneNode(true)}
             <span> {value.key}</span>
@@ -58,7 +58,7 @@ export class AppConfidence extends HTMLElement implements GuiValueElement<gc.sdk
         );
         break;
       default:
-        this.replaceChildren(document.createTextNode('??'));
+        this.shadowRoot.replaceChildren(document.createTextNode('??'));
         break;
     }
   }
@@ -92,7 +92,7 @@ document.body.appendChild(
   <app-layout title="Table (ignore columns)">
     {actions}
     <gui-table
-      value={await $.default.call<TableLike>('project::chart', [100])}
+      value={await gc.project.chart(100)}
       ignoreCols={[3, 4]}
       columnFactory={{
         5: 'app-confidence',

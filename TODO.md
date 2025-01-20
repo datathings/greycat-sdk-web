@@ -1,0 +1,8 @@
+- GuiTable generic (post-poned)
+- Think about event listener typing
+- GuiSearchableInput should be more flexible
+  - options.selected = true => take it
+  - if options > 0 && !nullable => take first, remove clearable
+  - if options == 0 && !nullable => add empty string option, remove clearable
+  - if options > 0 && nullable => add empty string null option
+- GuiInput vertical=true (CSS styling)

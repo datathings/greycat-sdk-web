@@ -3,16 +3,13 @@ import { GuiInputElement } from '../inputs/index.js';
 
 import style from './searchable-select.css?inline';
 
-export interface SearchableOption {
-  text: string;
-  /** If the `value` is not defined, `text` will be used */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value?: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type SearchableOption<T = any> = {
+  value: T;
+  /** If defined this is the text of the option, otherwise `value.toString()` will be used */
+  text?: string;
   selected?: boolean;
-}
-export interface GuiSearchableInputConfig {
-  nullable?: boolean;
-}
+};
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined> {
@@ -20,7 +17,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
 
   input: sl.SlInput;
   private _list: HTMLElement;
-  private _options: SearchableOption[];
+  private _options: SearchableOption<T>[];
 
   constructor() {
     super();
@@ -36,7 +33,8 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this.input.type = 'search';
     this.input.placeholder = 'Search...';
     this.input.autocomplete = 'off';
-    this.input.clearable = true;
+    this.input.clearable = false;
+    this.input.disabled = true;
     const icon = document.createElement('sl-icon');
     icon.setAttribute('slot', 'prefix');
     this.input.appendChild(icon);
@@ -158,9 +156,11 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     for (let i = 0; i < this._options.length; i++) {
       const opt = this._options[i];
       if (opt.selected) {
-        this.input.value = opt.text;
+        this.input.value = opt.text ?? `${opt.value}`;
       }
     }
+
+    this.update();
   }
 
   override get name() {
@@ -235,45 +235,27 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     if (value === undefined) {
       this.input.value = '';
     }
-
-    for (let i = 0; i < this._list.children.length; i++) {
-      const item = this._list.children.item(i) as HTMLElement;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      if ((item as any).__value === value) {
-        item.classList.add('selected');
-        this.input.value = item.textContent as string;
+    for (let i = 0; i < this._options.length; i++) {
+      const opt = this._options[i];
+      if (opt.value === value) {
+        opt.selected = true;
       } else {
-        item.classList.remove('selected');
+        delete opt.selected;
       }
     }
+    this.update();
   }
 
   get options() {
     return this._options;
   }
 
-  set options(options: SearchableOption[]) {
-    if (this.value !== undefined) {
-      // if we do not find the value in the given options we reset the current value
-      let found = false;
-      for (const o of options) {
-        if ('value' in o) {
-          if (o.value === this.value) {
-            found = true;
-            break;
-          }
-        } else {
-          if (o.text === this.value) {
-            found = true;
-            break;
-          }
-        }
-      }
-      if (!found) {
-        this.value = undefined;
-      }
+  set options(options: SearchableOption<T>[]) {
+    const selected = this.value;
+    if (selected !== undefined && !options.find((o) => selected === o.value)) {
+      // reset the current selection if the options no longer contains it
+      this.value = undefined;
     }
-    // TODO reset value if options no longer contains it
     this._options = options;
     this.update();
   }
@@ -292,31 +274,42 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     const empty = document.createElement('small');
     empty.className = 'color-muted';
     empty.textContent = 'Empty';
+    this.input.value = '';
+    this.input.disabled = true;
+    this.input.clearable = false;
     this._list.replaceChildren(empty);
   }
 
   override update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
     const options = this.options;
     if (options.length === 0) {
       this._emptyList();
       return;
     }
 
+    this.input.disabled = false;
+    this.input.clearable = true;
+
     const fragment = document.createDocumentFragment();
 
     for (let i = 0; i < options.length; i++) {
       const opt = options[i];
       const itemEl = document.createElement('div');
-      const value = 'value' in opt ? opt.value : opt.text;
+      const value = opt.value;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (itemEl as any).__value = value;
-      itemEl.textContent = opt.text;
+      itemEl.textContent = opt.text ?? `${opt.value}`;
       if (opt.selected) {
+        this.input.value = itemEl.textContent;
         itemEl.classList.add('selected');
       }
       itemEl.addEventListener('mousedown', (ev) => {
         ev.preventDefault();
-        this.input.value = opt.text;
+        this.input.value = opt.text ?? `${opt.value}`;
         const selected = this._list.querySelector('div.selected');
         if (selected) {
           selected.classList.remove('selected');

@@ -1,11 +1,9 @@
-import { $, GreyCat, IndexedDbCache, type core } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
-const table = await $.default.call<core.Table>('project::donut');
+const table = await gc.project.donut();
 
 document.body.appendChild(
   <app-layout title="Donut">

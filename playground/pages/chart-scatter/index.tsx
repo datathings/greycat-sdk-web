@@ -1,14 +1,12 @@
 import * as d3 from 'd3';
-import { GreyCat, IndexedDbCache, core } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 let nbPoints = 100;
 const randomTable = () => {
-  return core.Table.create([
+  return gc.core.Table.create([
     Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
     Array.from({ length: nbPoints }, d3.randomNormal(5, 1)),
   ]);
@@ -18,8 +16,8 @@ const chart = document.createElement('gui-chart');
 
 chart.addEventListener('gui-selection', (e) => {
   if (e.detail) {
-    const from = core.time.fromMs(e.detail.from as number);
-    const to = core.time.fromMs(e.detail.to as number);
+    const from = gc.core.time.fromMs(e.detail.from as number);
+    const to = gc.core.time.fromMs(e.detail.to as number);
     console.log(`selection from ${from} to ${to}`);
   } else {
     console.log(`reset selection`);

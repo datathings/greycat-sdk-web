@@ -1,9 +1,7 @@
-import { GreyCat, IndexedDbCache } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="Files">

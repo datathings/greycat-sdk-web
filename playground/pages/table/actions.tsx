@@ -63,7 +63,7 @@ export const actions = (
     </sl-button>
     <gui-input-enum
       slot="action"
-      type={greycat.core.TimeZone._type}
+      type={gc.core.TimeZone._type}
       ongui-change={(ev) => {
         if (ev.detail) {
           const dateFmt = setGlobalDateTimeFormatTimezone(ev.detail);

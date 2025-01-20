@@ -150,10 +150,10 @@ namespace gc {
           static fromObjects<T extends object | null | undefined>(
             rows: T[],
             g: GreyCat = gc.$.default,
-          ): gc.core.Table<unknown[]> {
+          ): gc.core.Table<T> {
             if (rows.length === 0) {
               const ty = g.abi.types[g.abi.core.table];
-              return new ty.ctor([]) as gc.core.Table<unknown[]>;
+              return new ty.ctor([]) as gc.core.Table<T>;
             }
 
             const keys_dict = new Set<string>();
@@ -189,7 +189,7 @@ namespace gc {
             }
 
             const ty = g.abi.types[g.abi.core.table];
-            const table = new ty.ctor(cols) as gc.core.Table<unknown[]>;
+            const table = new ty.ctor(cols) as gc.core.Table<T>;
             table.headers = keys;
             table._initial_value = rows;
             return table;
@@ -340,7 +340,7 @@ namespace gc {
           }
 
           [Symbol.iterator](): Iterator<T> {
-            if (this.$type.generic_abi_type == 0) {
+            if (this.$type.generic_abi_type == 0 || this.$type.g1() === this.$type.abi.core.any) {
               return new TableArrayIterator(0, this as Table<unknown[]>) as Iterator<T>;
             }
             return new TableObjectIterator(0, this);

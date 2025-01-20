@@ -9,6 +9,10 @@
   display: grid;
 }
 
+.field {
+  display: contents;
+}
+
 .gui-object-card {
   display: grid;
   grid-template-rows: auto 1fr;

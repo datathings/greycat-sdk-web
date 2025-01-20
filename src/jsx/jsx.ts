@@ -16,11 +16,27 @@ declare global {
       ) => any;
     };
 
-    type WrapElement<T> = T; // noop type for now
+    type WritableKeys<T> = {
+      [K in keyof T]-?: IfEquals<{ [P in K]: T[K] }, { -readonly [P in K]: T[K] }, K>;
+    }[keyof T];
+    type ExcludeFunctions<T> = {
+      // eslint-disable-next-line @typescript-eslint/ban-types
+      [K in keyof T as T[K] extends Function ? never : K]: T[K];
+    };
+
+    type IfEquals<X, Y, A = X, B = never> =
+      (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+
+    type WrapElement<T> = Pick<T, WritableKeys<ExcludeFunctions<T>>>;
 
     // eslint-disable-next-line @typescript-eslint/ban-types
     type Element<T, EventMap = {}> = Partial<
-      WrapElement<Omit<T, 'style' | 'className' | 'children' | 'onclick' | 'exportparts' | 'part'>>
+      WrapElement<
+        Omit<
+          T,
+          'style' | 'className' | 'children' | 'onclick' | 'exportparts' | 'part' | 'shadowRoot'
+        >
+      >
     > &
       ExtendedHTMLProperties &
       ElementEventMap<T, EventMap> & {
@@ -30,9 +46,6 @@ declare global {
         /** A space-separated list of the part names of the element */
         part?: string;
       };
-    // & {
-    //   value?: 'value' extends keyof T ? T['value'] | Signal<T['value']> : never;
-    // }
 
     namespace JSX {
       type IntrinsicElement = IntrinsicElements[keyof IntrinsicElements];

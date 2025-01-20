@@ -1,19 +1,40 @@
-import { TableLike } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
 await gc.sdk.init();
 
-const { actions } = await import('./actions');
-
 document.body.appendChild(
-  <app-layout title="Table (map)">
-    {actions}
+  <app-layout title="Table">
+    {/* from a Table */}
+    <gui-table value={await gc.project.table()} />
+
+    {/* from an Array */}
     <gui-table
-      value={(await gc.project.mapTest()) as TableLike}
-      columnFactory={{ 1: 'gui-object' }}
-      ongui-click={(ev) => {
-        console.log(ev.detail);
-      }}
+      value={gc.core.Table.fromRows([
+        ['a', 0],
+        ['b', 1],
+        ['c', 2],
+      ])}
+    />
+
+    {/* from an array of Objects */}
+    <gui-table
+      value={gc.core.Table.fromObjects([
+        { a: 'a', v: 0 },
+        { b: 'a', v: 1 },
+        { c: 'a', v: 2 },
+      ])}
+    />
+
+    {/* from a Map */}
+    <gui-table
+      value={gc.core.Table.fromMap(
+        new Map([
+          ['a', 0],
+          ['b', 1],
+          ['c', 2],
+        ]),
+      )}
     />
   </app-layout>,
 );

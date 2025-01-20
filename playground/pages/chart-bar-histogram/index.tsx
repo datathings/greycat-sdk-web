@@ -1,12 +1,11 @@
-import { $, type core, GreyCat, IndexedDbCache } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const chart = document.createElement('gui-chart');
-chart.value = await $.default.call<core.Table>('project::histogram_table');
+// TODO fix
+// chart.value = await gc.project.histogram_table();
 chart.setConfig({
   xAxis: {
     scale: 'linear',
@@ -46,7 +45,8 @@ document.body.appendChild(
       slot="action"
       href="#"
       onclick={async () => {
-        chart.value = await $.default.call<core.Table>('project::histogram_table');
+        // TODO fix
+        // chart.value = await gc.project.histogram_table();
         chart.setConfig(chart.config);
       }}
     >

@@ -120,7 +120,7 @@ enum Confidence {
 // }
 
 @expose
-fn chart(nbRows: int) {
+fn chart(nbRows: int): Table<any> {
   if (nbRows < 5) {
     throw "min nbRows 5";
   }
@@ -135,7 +135,7 @@ fn chart(nbRows: int) {
   var prev1 = 100_f;
   var prev2 = 80_f;
 
-  var table = Table {};
+  var table = Table<any> {};
 
   var rand = Random {};
 
@@ -320,7 +320,7 @@ enum TrafficLight {
 
 // pages/heatmap start
 @expose
-fn heatmap() {
+fn heatmap(): Table<any?> {
   var table = Table {};
 
   //                           ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -676,7 +676,7 @@ fn anything(v: any?) {
 
 
 @expose
-fn mapTest() {
+fn mapTest(): Map<DurationUnit, Tuple<String, int>> {
   var map = Map<DurationUnit, Tuple<String, int>> {};
   map.set(DurationUnit::seconds, Tuple<String, int> { x: "seconds", y: 1 });
   map.set(DurationUnit::minutes, Tuple<String, int> { x: "minutes", y: 2 });

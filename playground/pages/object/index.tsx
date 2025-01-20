@@ -1,7 +1,7 @@
-import { GreyCat, runtime, type sl } from '@greycat/web';
+import { type sl } from '@greycat/web';
 import '@/common';
 
-const greycat = await await gc.sdk.init();
+const greycat = await gc.sdk.init();
 
 const objectEl = document.createElement('gui-object');
 objectEl.props.globalFilter = true;
@@ -39,7 +39,7 @@ document.body.appendChild(
     <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>
     {objectEl}
     <sl-divider />
-    <gui-object header value={await runtime.Runtime.info()} />
+    <gui-object header value={await gc.runtime.Runtime.info()} />
     <gui-object value={['One', 'Two', 'Three']} />
   </app-layout>,
 );

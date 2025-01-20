@@ -1,10 +1,8 @@
-import { GreyCat, IndexedDbCache, type GuiChart2 } from '@greycat/web';
+import { type GuiChart2 } from '@greycat/web';
 import '@/common';
 import './index.css';
 
-const greycat = await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+const greycat = await gc.sdk.init();
 
 const chart = (
   <gui-chart2

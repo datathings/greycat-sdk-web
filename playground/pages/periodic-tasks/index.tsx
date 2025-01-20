@@ -1,19 +1,19 @@
-import { GreyCat, IndexedDbCache, runtime } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-const greycat = await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+const greycat = await gc.sdk.init();
 
-const periodicTaskType = greycat.abi.type_by_fqn.get(runtime.PeriodicTask._type);
+const periodicTaskType = greycat.abi.type_by_fqn.get(gc.runtime.PeriodicTask._type);
 if (!periodicTaskType) {
   throw new Error('missing ABI type runtime::PeriodicTask');
 }
 
-let pTask: runtime.PeriodicTask | null = null;
+let pTask: gc.runtime.PeriodicTask | null = null;
 const periodicTaskInput = (
   <gui-input-object
-    type="runtime::PeriodicTask"
+    value={
+      new gc.runtime.PeriodicTask(null, 0, null, gc.core.time.now(), gc.core.duration.from_mins(1))
+    }
     ongui-change={(ev) => {
       pTask = ev.detail;
       console.log('onchange', ev.detail);

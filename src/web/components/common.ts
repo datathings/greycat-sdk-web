@@ -44,6 +44,7 @@ export function attr() {
   };
 }
 
+// eslint-disable-next-line @typescript-eslint/ban-types
 export abstract class GuiElement extends HTMLElement {
   static readonly styles = [css(componentStyle)];
 
@@ -54,7 +55,10 @@ export abstract class GuiElement extends HTMLElement {
     super();
 
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.adoptedStyleSheets = [...GuiElement.styles, ...(this.constructor as typeof GuiElement).styles];
+    this.shadowRoot.adoptedStyleSheets = [
+      ...GuiElement.styles,
+      ...(this.constructor as typeof GuiElement).styles,
+    ];
   }
 }
 
@@ -109,12 +113,10 @@ export type TableColumnMeta = {
 };
 
 /**
- * `TableLike` handles different shapes of tables to essentially produce a `TableLikeColumnBased` instance.
+ * `TableLike` handles different shapes of tables to essentially produce a `gc.core.Table` instance.
  *
  * Most table-based components will accept this type instead of the `std::core::Table` type
  * so that more than just the standard table can be used.
- *
- * *This is mainly useful for in-mem usage of the components in JavaScript*
  */
 export type TableLike =
   | Map<unknown, unknown>
@@ -137,6 +139,15 @@ export function convertToTable(table: TableLike | undefined | null): gc.core.Tab
   if (table instanceof gc.core.Map) {
     return gc.core.Table.fromMap(table.map);
   }
+  if (table instanceof gc.core.Array) {
+    const new_table = convertToTable(table.values);
+    if (table.$type.generic_abi_type === table.$type.abi.core.array) {
+      const paramType = table.$type.abi.types[table.$type.g1()];
+      new_table.headers = paramType.attrs.map((a) => a.name);
+      new_table.subheaders = paramType.attrs.map((a) => table.$type.abi.types[a.abi_type].name);
+    }
+    return new_table;
+  }
   if (Array.isArray(table)) {
     if (table.length > 0) {
       if (Array.isArray(table[0])) {
@@ -150,15 +161,6 @@ export function convertToTable(table: TableLike | undefined | null): gc.core.Tab
       return new_table;
     }
     return gc.core.Table.create();
-  }
-  if (table && typeof table === 'object') {
-    if ('cols' in table) {
-      return gc.core.Table.create(table.cols);
-    }
-    if ('rows' in table) {
-      return gc.core.Table.fromRows(table.rows);
-    }
-    return gc.core.Table.fromObjects([table]);
   }
   return gc.core.Table.create();
 }

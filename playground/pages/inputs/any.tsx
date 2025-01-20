@@ -1,14 +1,12 @@
 import '@greycat/web';
 import '@/common';
 
-await await gc.sdk.init();
-
-const value = new greycat.any.AnyInput('');
+await gc.sdk.init();
 
 document.body.appendChild(
   <app-layout title="Input (Any)">
-    <gui-input-object
-      value={value}
+    <gui-input-fn
+      value={new gc.runtime.PeriodicTask$set$args([])}
       ongui-change={function () {
         console.log(structuredClone(this.value));
       }}

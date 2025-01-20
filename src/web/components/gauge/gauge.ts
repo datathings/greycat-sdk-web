@@ -1,59 +1,43 @@
 import * as d3 from 'd3';
-import { Disposable } from '../../internals.js';
+import { css, GuiElement } from '../../exports.js';
+import style from './gauge.css?inline';
 
 /**
  * Displays a given value into a gauge
  */
-export class GuiGauge extends HTMLElement {
+export class GuiGauge extends GuiElement {
+  static override styles = [css(style)];
+
   private _value = 0;
   private _width = 150;
   private _thickness = 10;
-  private _disposables: Disposable[] = [];
+  private _svg: d3.Selection<SVGSVGElement, undefined, null, undefined>;
+  private _g: d3.Selection<SVGGElement, undefined, null, undefined>;
+  private _path: d3.Selection<SVGPathElement, undefined, null, undefined>;
+  private _text: d3.Selection<SVGTextElement, undefined, null, undefined>;
+  private _resizeObs: ResizeObserver;
+
+  constructor() {
+    super();
+
+    this._svg = d3.create('svg');
+    this._g = this._svg.append('g');
+    this._path = this._g.append('path').attr('stroke-width', 1);
+    this._text = this._g
+      .append('text')
+      .attr('transform', 'translate(0, 5)')
+      .attr('text-anchor', 'middle');
+    this.shadowRoot.replaceChildren(this._svg.node() as SVGSVGElement);
+
+    this._resizeObs = new ResizeObserver(() => this.update());
+  }
 
   connectedCallback() {
-    if (this.style.display === '') {
-      this.style.display = 'block';
-    }
-
-    this._initialize();
-    this.render();
-
-    const oResize = new ResizeObserver(() => {
-      this.innerHTML = '';
-      this._initialize();
-      this.render();
-    });
-    oResize.observe(this);
-    this._disposables.push(() => oResize.disconnect());
+    this._resizeObs.observe(this);
   }
 
   disconnectedCallback() {
-    for (const d of this._disposables) {
-      d();
-    }
-    this.replaceChildren(); // cleanup
-  }
-
-  private _initialize() {
-    const style = getComputedStyle(this);
-    const color = style.getPropertyValue('--color-0') || 'var(--color)';
-    const { width, height } = this.getBoundingClientRect();
-    // try to fit in
-    this._width = width > height ? height : width;
-    const svg = d3
-      .select(this)
-      .append('svg')
-      .attr('class', 'gui-gauge')
-      .attr('width', this._width)
-      .attr('height', this._width);
-    const g = svg
-      .append('g')
-      .attr('transform', `translate(${this._width / 2}, ${this._width / 2})`);
-    g.append('path').attr('fill', color).attr('stroke-width', 1);
-    g.append('text')
-      .attr('transform', 'translate(0, 5)')
-      .attr('fill', color)
-      .attr('text-anchor', 'middle');
+    this._resizeObs.disconnect();
   }
 
   get value(): number {
@@ -62,7 +46,7 @@ export class GuiGauge extends HTMLElement {
 
   set value(value: number) {
     this._setValue(value);
-    this.render();
+    this.update();
   }
 
   get thickness() {
@@ -71,7 +55,7 @@ export class GuiGauge extends HTMLElement {
 
   set thickness(value: number) {
     this._setThickness(value);
-    this.render();
+    this.update();
   }
 
   setAttrs({
@@ -83,7 +67,7 @@ export class GuiGauge extends HTMLElement {
   }) {
     this._setValue(value);
     this._setThickness(thickness);
-    this.render();
+    this.update();
   }
 
   getAttrs(): {
@@ -96,17 +80,25 @@ export class GuiGauge extends HTMLElement {
     };
   }
 
-  render() {
-    d3.select(this)
-      .select('g path')
-      .data([{ value: this._value, thickness: this._thickness, width: this._width }])
-      .join('path')
-      .attr('d', (d) => computePath(d.width, d.thickness, d.value));
+  update() {
+    if (!this.isConnected) {
+      return;
+    }
 
-    d3.select(this)
-      .select('g text')
+    const style = getComputedStyle(this);
+    const color = style.getPropertyValue('--color-0') || 'var(--color)';
+    const rect = this.getBoundingClientRect();
+    const width = rect.width > rect.height ? rect.height : rect.width;
+
+    this._svg.attr('width', width).attr('height', width);
+    this._g.attr('transform', `translate(${width / 2}, ${width / 2})`);
+    this._path
+      .attr('fill', color)
+      .data([{ value: this._value, thickness: this._thickness, width }])
+      .attr('d', (d) => computePath(d.width, d.thickness, d.value));
+    this._text
+      .attr('fill', color)
       .data([this._value])
-      .join('text')
       .text((value) => `${value}%`);
   }
 

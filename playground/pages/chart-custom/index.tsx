@@ -1,11 +1,9 @@
 import * as d3 from 'd3';
-import { ChartConfig, GreyCat, IndexedDbCache } from '@greycat/web';
+import { ChartConfig } from '@greycat/web';
 import '@/common';
 import data from './data.json';
 
-await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const chart = document.createElement('gui-chart');
 chart.style.height = '80vh';

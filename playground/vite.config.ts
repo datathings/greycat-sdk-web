@@ -22,10 +22,15 @@ export default defineConfig(({ mode }) => ({
   resolve: {
     alias: {
       '@': resolve(__dirname),
+      '@greycat/web/jsx-dev-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
+      '@greycat/web/jsx-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
+      '@greycat/web/sdk': resolve(__dirname, '../dist/greycat.js'),
+      '@greycat/web/greycat.css': resolve(__dirname, '../css/greycat.css'),
+      '@greycat/web': resolve(__dirname, '../src/web'),
     },
   },
   build: {
-    outDir: resolve(__dirname, '..', 'dist', 'playground'),
+    outDir: resolve(__dirname, '../dist/playground'),
     emptyOutDir: true,
     target: 'esnext',
     rollupOptions: {
@@ -92,44 +97,3 @@ function greycatProxy(): Plugin {
     },
   };
 }
-
-// proxyPort, req and res are passed here
-// proxyPort: 5000
-// req: incoming expressjs request
-// res: incoming expressjs response
-
-// function genEntrypointsSchema(outDir: string): Plugin {
-//   type Entrypoint = { href: string; title: string; filepath: string };
-//   const outDirName = basename(outDir);
-//   const entrypoints: Array<Entrypoint> = [];
-
-//   return {
-//     name: 'vite-plugin-entrypoints',
-//     enforce: 'pre',
-//     buildStart(options) {
-//       if (Array.isArray(options.input)) {
-//         return;
-//       }
-
-//       for (const name in options.input) {
-//         const filename = basename(options.input[name]);
-//         entrypoints.push({
-//           href: join(outDirName, name, filename),
-//           title: name,
-//           filepath: options.input[name],
-//         });
-//       }
-//     },
-//     writeBundle() {
-//       // sort entry points alphabetically
-//       entrypoints.sort((a, b) => a.title.localeCompare(b.title));
-
-//       // write the file to publicDir
-//       this.emitFile({
-//         type: 'asset',
-//         fileName: 'entrypoints.json',
-//         source: JSON.stringify(entrypoints),
-//       });
-//     },
-//   };
-// }

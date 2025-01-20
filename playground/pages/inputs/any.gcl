@@ -1,3 +1,11 @@
 type AnyInput {
   idk: any;
 }
+
+type Filters {
+  a: int;
+  b: String;
+}
+
+@expose
+fn filter_something(f: Filters) {}

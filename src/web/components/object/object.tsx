@@ -1,16 +1,10 @@
-import {
-  css,
-  GuiElement,
-  GuiFactory,
-  type GuiValueElement,
-  type sl,
-} from '../../exports.js';
+import { css, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
 export type ObjectProps = Record<string | number | symbol, unknown>;
-export type GuiObjectProps = {
-  value: unknown;
+export type GuiObjectProps<T = unknown> = {
+  value: T;
   /**
    * Whether or not to display a header with the type name for struct objects.
    *
@@ -31,10 +25,13 @@ export interface GuiObject {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export class GuiObject extends GuiElement {
+export class GuiObject<T = unknown> extends GuiElement {
   static override styles = [css(style)];
+  static get observedAttributes() {
+    return ['header', 'resolve', 'expanded', 'nested'];
+  }
 
-  private _value: unknown;
+  private _value: T | undefined;
   private _header: string | boolean = false;
   private _expanded = false;
   private _nested = false;
@@ -55,7 +52,7 @@ export class GuiObject extends GuiElement {
     expanded = this._expanded,
     resolve = this._resolve,
     ...props
-  }: Partial<GuiObjectProps>): void {
+  }: Partial<GuiObjectProps<T>>): void {
     for (const key in props) {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       (this._props as any)[key] = (props as any)[key];
@@ -68,7 +65,7 @@ export class GuiObject extends GuiElement {
     this.update();
   }
 
-  getAttrs(): Partial<GuiObjectProps> {
+  getAttrs(): Partial<GuiObjectProps<T>> {
     return {
       value: this._value,
       header: this._header,
@@ -92,7 +89,7 @@ export class GuiObject extends GuiElement {
     return this._value;
   }
 
-  set value(value: unknown) {
+  set value(value: T | undefined) {
     this._value = value;
     this.update();
   }
@@ -141,7 +138,53 @@ export class GuiObject extends GuiElement {
     this.update();
   }
 
+  attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null) {
+    let needsUpdate = false;
+    switch (name) {
+      case 'header': {
+        if (oldValue !== newValue) {
+          if (newValue === null) {
+            this._header = false;
+          } else if (newValue === '') {
+            this._header = true;
+          } else {
+            this._header = newValue;
+          }
+          needsUpdate = true;
+        }
+        break;
+      }
+      case 'expanded': {
+        if (oldValue !== newValue) {
+          this._expanded = newValue === '';
+          needsUpdate = true;
+        }
+        break;
+      }
+      case 'nested': {
+        if (oldValue !== newValue) {
+          this._nested = newValue === '';
+          needsUpdate = true;
+        }
+        break;
+      }
+      case 'resolve': {
+        if (oldValue !== newValue) {
+          this._resolve = newValue === '';
+          needsUpdate = true;
+        }
+        break;
+      }
+    }
+    if (needsUpdate) {
+      this.update();
+    }
+  }
+
   update() {
+    if (!this.isConnected) {
+      return;
+    }
     this._render(this._value);
   }
 
@@ -397,16 +440,20 @@ export class GuiObject extends GuiElement {
     //
     // the above selectors rely on the below structure to work properly
     let header: Node | undefined;
-    if (this._header) {
-      if (this._value === value) {
-        header = <header slot="header">{this._typeName(this._value)}</header>;
-      } else {
-        header = (
-          <header slot="header">
-            {this._typeName(this._value)}&lt;{value.$type.name}&gt;
-          </header>
-        );
+    if (typeof this._header === 'boolean') {
+      if (this._header) {
+        if (this._value === value) {
+          header = <header slot="header">{this._typeName(this._value)}</header>;
+        } else {
+          header = (
+            <header slot="header">
+              {this._typeName(this._value)}&lt;{value.$type.name}&gt;
+            </header>
+          );
+        }
       }
+    } else {
+      header = <header slot="header">{this._header}</header>;
     }
     this.shadowRoot.replaceChildren(
       <sl-card className="gui-object-card" part="base">

@@ -1,4 +1,4 @@
-import { GreyCat, type GuiChart, type SerieStyle, IndexedDbCache, type core, $ } from '@greycat/web';
+import { type GuiChart, type SerieStyle } from '@greycat/web';
 import '@/common';
 
 const LINE_COL = 0;
@@ -20,13 +20,11 @@ const styleMapping: Record<string, SerieStyle> = {
   },
 };
 
-const greycat = await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
-});
+await gc.sdk.init();
 
 const chart = (
   <gui-chart
-    value={await greycat.call<core.Table>('project::chart', [150])}
+    value={await gc.project.chart(150)}
     config={{
       cursor: true,
       selection: {
@@ -172,7 +170,7 @@ document.body.appendChild(
 
 // eslint-disable-next-line no-inner-declarations
 async function randomize() {
-  const table = await $.default.call<core.Table>('project::chart', [+nbRows.value]);
+  const table = await gc.project.chart(+nbRows.value);
   console.log({ table });
   chart.value = table;
   chart.compute();

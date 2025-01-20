@@ -1,35 +1,16 @@
-import { GreyCat, IndexedDbCache, type SearchableOption } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
+import { GuiSearchableSelect } from '@greycat/web';
 
-const greycat = await gc.sdk.init{
-  cache: new IndexedDbCache('sdk-web-playground'),
+await gc.sdk.init();
+
+const selected = document.querySelector('gui-object')!;
+const select = document.querySelector('gui-searchable-select')! as GuiSearchableSelect<gc.Person>;
+select.options = [
+  { text: 'John', value: new gc.Person('John', 42, true) },
+  { text: 'Maria', value: new gc.Person('Maria', 45, true), selected: true },
+  { text: 'Paul', value: new gc.Person('Paul', 27, false) },
+];
+select.addEventListener('gui-change', () => {
+  selected.value = select.value;
 });
-
-const options: SearchableOption[] = [];
-greycat.abi.types.forEach((ty, i) => {
-  if (!ty.name.startsWith('::')) {
-    options.push({
-      value: i,
-      text: ty.name,
-    });
-  }
-});
-
-const container = (<div className="grid" />) as HTMLElement;
-container.appendChild(
-  <>
-    <gui-searchable-select
-      options={options}
-      placeholder="Search for a type, eg. core::String, core::int..."
-      ongui-change={(ev) => {
-        container.children[1].remove();
-        container.appendChild(
-          <div>You have selected: {greycat.abi.types[ev.detail as number]?.name}</div>,
-        );
-      }}
-    />
-    <div>No selection</div>
-  </>,
-);
-
-document.body.appendChild(<app-layout title="Searchable Select">{container}</app-layout>);

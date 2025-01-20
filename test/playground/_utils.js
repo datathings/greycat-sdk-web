@@ -20,9 +20,12 @@ export function writeBytes(filepath, bytes) {
 
 /**
  * @param {unknown} value
+ * @param {boolean=} json
  */
-export function displayValue(value) {
-  if (Array.isArray(value)) {
+export function displayValue(value, json = false) {
+  if (json) {
+    console.dir(JSON.parse(JSON.stringify(value)), { depth: Infinity });
+  } else if (Array.isArray(value)) {
     // cloning for pretty display
     console.dir(structuredClone(value), { depth: Infinity });
   } else if (value instanceof Map) {

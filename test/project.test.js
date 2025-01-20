@@ -369,11 +369,15 @@ describe('project', () => {
       values: {
         _type: 'core::Table',
         rows: [
-          ['1970-01-01T00:00:00.000Z', 1],
-          ['1970-01-01T00:00:00.000Z', 1000],
-          ['1970-01-01T00:00:00.000Z', 100000],
-          ['1970-01-01T00:00:00.000Z', 999999999],
-          ['1970-01-01T00:00:00.000Z', 42],
+          { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 1 },
+          { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 1000 },
+          { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 100000 },
+          {
+            _type: 'core::Tuple<core::time,core::any?>',
+            x: '1970-01-01T00:00:00.000Z',
+            y: 999999999,
+          },
+          { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 42 },
         ],
       },
       span: { _type: 'core::duration', s: 3, us: 0 },
@@ -407,12 +411,12 @@ describe('project', () => {
     let testName;
     if (typeof expected === 'object') {
       if ('_type' in expected) {
-        testName += `#${i} ${expected} (${expected._type})`;
+        testName = `#${i} ${expected._type}`;
       } else {
-        testName = `#${i} ${JSON.stringify(expected)}`;
+        testName = `#${i} ${typeof expected} (${JSON.stringify(expected)})`;
       }
     } else {
-      testName = `#${i} ${expected} (${typeof expected})`;
+      testName = `#${i} ${typeof expected} (${expected})`;
     }
     it(testName, () => {
       // deserialize value from actual 'out.gcb' bytes

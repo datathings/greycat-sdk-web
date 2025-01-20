@@ -1,5 +1,14 @@
 import { createElement } from '@greycat/web/jsx-runtime';
-import { GuiInputElement, AnyValueElement, GuiElement, css } from '../../exports.js';
+import {
+  GuiInputElement,
+  AnyValueElement,
+  GuiElement,
+  css,
+  GuiInputEnum,
+  GuiInputAbstract,
+  GuiInputArray,
+  GuiInputMap,
+} from '../../exports.js';
 
 type Props = {
   [key: string]: unknown;
@@ -376,54 +385,90 @@ export class GuiInputFactory extends GuiElement {
   createElementFromType(type: gc.sdk.AbiType): GuiInputElement<unknown> {
     const abi = type.abi;
     const tagName = this.get(type.name);
+    let input: GuiInputElement<unknown> | undefined;
     if (tagName) {
-      return document.createElement(tagName);
+      input = document.createElement(tagName);
     }
     if (type.is_enum) {
-      const input = document.createElement('gui-input-enum');
-      input.type = type;
+      if (!input) {
+        input = document.createElement('gui-input-enum');
+      }
+      if (input instanceof GuiInputEnum) {
+        input.type = type;
+      }
       return input;
     }
     if (type.is_abstract) {
-      const input = document.createElement('gui-input-abstract');
-      input.type = type;
+      if (!input) {
+        input = document.createElement('gui-input-abstract');
+      }
+      if (input instanceof GuiInputAbstract) {
+        input.type = type;
+      }
       return input;
     }
-
     if (type.offset === abi.core.array || type.generic_abi_type === abi.core.array) {
-      const input = document.createElement('gui-input-array');
-      input.genericParam = abi.types[type.g1()];
-      input.genericParamNullable = type.g1Nullable();
+      if (!input) {
+        input = document.createElement('gui-input-array');
+      }
+      if (input instanceof GuiInputArray && type.generic_abi_type === abi.core.array) {
+        input.genericParam = abi.types[type.g1()];
+        input.genericParamNullable = type.g1Nullable();
+      }
       return input;
     }
-    if (type.offset === abi.core.map || type.generic_abi_type === abi.core.map) {
-      const input = document.createElement('gui-input-map');
-      input.keyType = abi.types[type.g1()];
-      input.keyTypeNullable = type.g1Nullable();
-      input.valueType = abi.types[type.g2()];
-      input.valueTypeNullable = type.g2Nullable();
+    if (type.offset === abi.core.map && type.generic_abi_type === abi.core.map) {
+      if (!input) {
+        input = document.createElement('gui-input-map');
+      }
+      if (input instanceof GuiInputMap && type.generic_abi_type === abi.core.map) {
+        input.keyType = abi.types[type.g1()];
+        input.keyTypeNullable = type.g1Nullable();
+        input.valueType = abi.types[type.g2()];
+        input.valueTypeNullable = type.g2Nullable();
+      }
       return input;
     }
     if (type.offset === abi.core.table || type.generic_abi_type === abi.core.table) {
-      return document.createElement('gui-input-unsupported');
+      if (!input) {
+        input = document.createElement('gui-input-unsupported');
+      }
+      return input;
     }
     if (type.offset === abi.core.node || type.generic_abi_type === abi.core.node) {
-      return document.createElement('gui-input-node');
+      if (!input) {
+        input = document.createElement('gui-input-node');
+      }
+      return input;
     }
     if (type.offset === abi.core.node_time || type.generic_abi_type === abi.core.node_time) {
-      return document.createElement('gui-input-node-time');
+      if (!input) {
+        input = document.createElement('gui-input-node-time');
+      }
+      return input;
     }
     if (type.offset === abi.core.node_list || type.generic_abi_type === abi.core.node_list) {
-      return document.createElement('gui-input-node-list');
+      if (!input) {
+        input = document.createElement('gui-input-node-list');
+      }
+      return input;
     }
     if (type.offset === abi.core.node_index || type.generic_abi_type === abi.core.node_index) {
-      return document.createElement('gui-input-node-index');
+      if (!input) {
+        input = document.createElement('gui-input-node-index');
+      }
+      return input;
     }
     if (type.offset === abi.core.node_geo || type.generic_abi_type === abi.core.node_geo) {
-      return document.createElement('gui-input-node-geo');
+      if (!input) {
+        input = document.createElement('gui-input-node-geo');
+      }
+      return input;
     }
-
-    return document.createElement('gui-input-object');
+    if (!input) {
+      input = document.createElement('gui-input-object');
+    }
+    return input;
   }
 }
 

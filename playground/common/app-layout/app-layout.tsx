@@ -24,6 +24,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Csv (analysis)',          href: 'csv-analysis/' },
     { title: 'Csv (column-input)',      href: 'csv-column-input/' },
     { title: 'Dashboard',               href: 'dashboard/' },
+    { title: 'Gauge',                   href: 'gauge/' },
     { title: 'Donut',                   href: 'donut/' },
     { title: 'Files',                   href: 'files/' },
     { title: 'Fn Call',                 href: 'fn-call/' },

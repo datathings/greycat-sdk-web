@@ -7,7 +7,7 @@ import {
   registerCustomElement,
 } from '@greycat/web';
 
-export class ProjectSensorForm extends GuiInputElement<greycat.project.Sensor> {
+export class ProjectSensorForm extends GuiInputElement<gc.project.Sensor> {
   private _id: GuiInputNumber;
   private _kind: GuiInputEnum;
 
@@ -21,7 +21,7 @@ export class ProjectSensorForm extends GuiInputElement<greycat.project.Sensor> {
       this.dispatchEvent(new GuiChangeEvent(this.value)),
     );
     this._kind = document.createElement('gui-input-enum');
-    this._kind.value = greycat.project.SensorKind.Temp;
+    this._kind.value = gc.project.SensorKind.Temp;
     this._kind.addEventListener('gui-input', () =>
       this.dispatchEvent(new GuiInputEvent(this.value)),
     );
@@ -32,13 +32,13 @@ export class ProjectSensorForm extends GuiInputElement<greycat.project.Sensor> {
     this.shadowRoot.replaceChildren(this._id, this._kind);
   }
 
-  set value(sensor: greycat.project.Sensor) {
+  set value(sensor: gc.project.Sensor) {
     this._id.value = Number(sensor.id);
     this._kind.value = sensor.kind;
   }
 
   get value() {
-    return new greycat.project.Sensor(this._id.value!, this._kind.value as greycat.project.SensorKind);
+    return new gc.project.Sensor(this._id.value!, this._kind.value as gc.project.SensorKind);
   }
 }
 
