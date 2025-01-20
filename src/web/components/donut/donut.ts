@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import { getColors } from '../../utils.js';
+import { GuiElement, getColors, css } from '../../exports.js';
+import style from './donut.css?inline';
 
 const DEFAULT_SIZE = { height: 450, width: 450 };
 const MARGIN = 5;
@@ -29,7 +30,9 @@ interface GuiDoughnutProps {
 /**
  * Displays a given `core.Table` into a doughnut chart
  */
-export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
+export class GuiDonut extends GuiElement implements GuiDoughnutProps {
+  static override styles = [css(style)];
+
   private _table: DonutTable | null = null;
   private _dataColumn = 1;
   private _labelColumn = 0;
@@ -49,7 +52,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   private _info?: HTMLDivElement;
   private _svgWrapper: d3.Selection<SVGSVGElement, unknown, null, undefined> | null = null;
   private _svg: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
-  private _resizeObserver?: ResizeObserver;
+  private _resizeObserver: ResizeObserver;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _pie = d3
@@ -65,6 +68,33 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
   private _outerArc = d3.arc<any>();
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   private _breakArc = d3.arc<any>();
+
+  constructor() {
+    super();
+
+    const container = document.createElement('div');
+    container.className = 'pie-container';
+
+    const info = document.createElement('div');
+    info.className = 'pie-info';
+    this._info = info;
+
+    this._resizeObserver = new ResizeObserver((e) => this._handleResize(e));
+
+    container.appendChild(info);
+    this._container = d3.select(container);
+
+    const width = this._container.node()?.clientWidth;
+    const height = this._container.node()?.clientHeight;
+    this._width = width ? width : DEFAULT_SIZE.width;
+    this._height = height ? height : DEFAULT_SIZE.height;
+
+    this._svgWrapper = this._container.append('svg:svg');
+    this._svgWrapper.attr('class', 'svg-plot');
+    this._svg = this._svgWrapper.append('g');
+
+    this.shadowRoot.appendChild(container);
+  }
 
   get value() {
     return this._table;
@@ -204,7 +234,7 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
     this._withLabels = withLabels;
     this._withLabelInfo = withLabelInfo;
     this._name = name;
-    this.render();
+    this.update();
   }
 
   getAttrs(): {
@@ -239,40 +269,11 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
 
   connectedCallback() {
     this._colors = getColors(this);
-
-    const container = document.createElement('div');
-    container.className = 'pie-container';
-
-    const info = document.createElement('div');
-    info.className = 'pie-info';
-    this._info = info;
-
-    this._resizeObserver = new ResizeObserver((e) => this._handleResize(e));
-
-    container.appendChild(info);
-    this.appendChild(container);
-    this._container = d3.select(container);
-    this._resizeObserver.observe(container);
-
-    const width = this._container.node()?.clientWidth;
-    const height = this._container.node()?.clientHeight;
-    this._width = width ? width : DEFAULT_SIZE.width;
-    this._height = height ? height : DEFAULT_SIZE.height;
-
-    this._svgWrapper = this._container.append('svg:svg');
-    this._svgWrapper.attr('class', 'svg-plot');
-    this._svg = this._svgWrapper.append('g');
-
-    this._updateDimensions();
-    this.render();
+    this._resizeObserver.observe(this);
   }
 
   disconnectedCallback() {
-    const node = this._container?.node();
-    if (node) {
-      this._resizeObserver?.unobserve(node);
-    }
-    this.replaceChildren(); // cleanup
+    this._resizeObserver.unobserve(this);
   }
 
   private _handleResize(event: ResizeObserverEntry[]) {
@@ -282,7 +283,83 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
       this._width = newWidth;
       this._height = newHeight;
       this._updateDimensions();
-      this.render();
+      this.update();
+    }
+  }
+
+  update() {
+    if (!this.isConnected) {
+      return;
+    }
+    this._updateDimensions();
+    this._drawDoughnut();
+  }
+
+  private _drawDoughnut() {
+    let dimension = this._width <= this._height ? this._width : this._height;
+    if (this._thickness != null && dimension < this._thickness * 2) {
+      dimension = this._thickness * 2;
+    }
+    const radius = this._radius ? this._radius : dimension / 2 - 2 * MARGIN;
+    const arcRadius = this._radius ? radius : radius * OUTARCMULT;
+    const innerRadius = this._withLabels
+      ? this._thickness != null
+        ? arcRadius - this._thickness
+        : arcRadius * 0.7
+      : this._thickness != null
+        ? radius - this._thickness
+        : radius * 0.7;
+    this._arc.innerRadius(innerRadius).outerRadius(this._withLabels ? arcRadius : radius);
+    if (this._rotation != null) {
+      const radian = this._rotation * (Math.PI / 180);
+      this._pie.startAngle(radian).endAngle(radian + 2 * Math.PI);
+    }
+
+    const total = this._getTableData().reduce((sum, v) => sum + Number(v), 0);
+
+    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    const ref = this;
+    const pieData = this._pie(this._getTableData());
+    this._svg?.selectAll('path').remove();
+
+    if (total > 0) {
+      const labels = this._labelColumn != null ? this._getTableLabels(this._labelColumn) : null;
+      this._svg
+        ?.selectAll('path')
+        .data(pieData)
+        .join('path')
+        .attr('d', this._arc)
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .attr('value', (d: any) => Number(d.data))
+        .attr('label', (_, index: number) => (labels ? `${labels[index]}` : null))
+        .attr('fill', (_, idx: number) => this._colors[idx % this._colors.length])
+        .attr('index', (_, idx: number) => idx)
+        .on('mouseover', function () {
+          if (ref._withInfo) {
+            const partial = d3.select(this).attr('value');
+            const partialColor = d3.select(this).attr('fill');
+            const label = `${d3.select(this).attr('label')}`;
+            ref._drawInfo(true, total, innerRadius, Number(partial), label, partialColor);
+          }
+        })
+        .on('mouseout', function (_) {
+          ref._drawDefaultInfo(total, innerRadius);
+        })
+        .attr('class', 'pie-piece');
+
+      this._drawDefaultInfo(total, innerRadius);
+
+      if (this._withLabels) {
+        this._svg?.selectAll('.pie-label-line').remove();
+        this._svg?.selectAll('.pie-label').remove();
+
+        this._drawLabels(ref, radius);
+      } else {
+        this._svg?.selectAll('.pie-label').remove();
+      }
+    } else if (this._info) {
+      this._info.innerHTML = 'Data column is empty or composed of only 0s.';
+      this._info.classList.add('no-data');
     }
   }
 
@@ -447,79 +524,6 @@ export class GuiDonut extends HTMLElement implements GuiDoughnutProps {
       this._info.innerHTML = '';
       this._info.classList.remove('no-data');
     }
-  }
-
-  private _drawDoughnut() {
-    let dimension = this._width <= this._height ? this._width : this._height;
-    if (this._thickness != null && dimension < this._thickness * 2) {
-      dimension = this._thickness * 2;
-    }
-    const radius = this._radius ? this._radius : dimension / 2 - 2 * MARGIN;
-    const arcRadius = this._radius ? radius : radius * OUTARCMULT;
-    const innerRadius = this._withLabels
-      ? this._thickness != null
-        ? arcRadius - this._thickness
-        : arcRadius * 0.7
-      : this._thickness != null
-        ? radius - this._thickness
-        : radius * 0.7;
-    this._arc.innerRadius(innerRadius).outerRadius(this._withLabels ? arcRadius : radius);
-    if (this._rotation != null) {
-      const radian = this._rotation * (Math.PI / 180);
-      this._pie.startAngle(radian).endAngle(radian + 2 * Math.PI);
-    }
-
-    const total = this._getTableData().reduce((sum, v) => sum + Number(v), 0);
-
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
-    const ref = this;
-    const pieData = this._pie(this._getTableData());
-    this._svg?.selectAll('path').remove();
-
-    if (total > 0) {
-      const labels = this._labelColumn != null ? this._getTableLabels(this._labelColumn) : null;
-      this._svg
-        ?.selectAll('path')
-        .data(pieData)
-        .join('path')
-        .attr('d', this._arc)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        .attr('value', (d: any) => Number(d.data))
-        .attr('label', (_, index: number) => (labels ? `${labels[index]}` : null))
-        .attr('fill', (_, idx: number) => this._colors[idx % this._colors.length])
-        .attr('index', (_, idx: number) => idx)
-        .on('mouseover', function () {
-          if (ref._withInfo) {
-            const partial = d3.select(this).attr('value');
-            const partialColor = d3.select(this).attr('fill');
-            const label = `${d3.select(this).attr('label')}`;
-            ref._drawInfo(true, total, innerRadius, Number(partial), label, partialColor);
-          }
-        })
-        .on('mouseout', function (_) {
-          ref._drawDefaultInfo(total, innerRadius);
-        })
-        .attr('class', 'pie-piece');
-
-      this._drawDefaultInfo(total, innerRadius);
-
-      if (this._withLabels) {
-        this._svg?.selectAll('.pie-label-line').remove();
-        this._svg?.selectAll('.pie-label').remove();
-
-        this._drawLabels(ref, radius);
-      } else {
-        this._svg?.selectAll('.pie-label').remove();
-      }
-    } else if (this._info) {
-      this._info.innerHTML = 'Data column is empty or composed of only 0s.';
-      this._info.classList.add('no-data');
-    }
-  }
-
-  render() {
-    this._updateDimensions();
-    this._drawDoughnut();
   }
 }
 

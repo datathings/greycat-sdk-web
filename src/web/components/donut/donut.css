@@ -1,12 +1,13 @@
-gui-donut {
+:host {
+  display: block;
   width: 100%;
   height: 100%;
   position: relative;
 }
-gui-donut .svg-plot {
+.svg-plot {
   position: absolute;
 }
-gui-donut .pie-info {
+.pie-info {
   user-select: none;
   display: flex;
   flex-direction: column;
@@ -15,19 +16,19 @@ gui-donut .pie-info {
   color: inherit;
   border-radius: 50%;
 }
-gui-donut .pie-info.no-data {
+.pie-info.no-data {
   color: var(--gui-color-9, "inherit");
 }
-gui-donut .pie-info .pie-info-percent {
+.pie-info .pie-info-percent {
   color: rgba(var(--text-0), 0.3);
 }
-gui-donut .pie-label {
+.pie-label {
   fill: rgb(var(--text-0));
 }
-gui-donut .pie-label-line {
+.pie-label-line {
   stroke: rgb(var(--text-0));
 }
-gui-donut .pie-container {
+.pie-container {
   width: 100%;
   height: 100%;
   display: flex;
