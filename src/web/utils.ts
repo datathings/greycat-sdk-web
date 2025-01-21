@@ -205,3 +205,28 @@ export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): strin
       return 'core::any';
   }
 }
+
+/**
+ * Toggles the current `document`'s theme from/to dark to light
+ */
+export function toggleTheme() {
+  const is_dark = document.documentElement.classList.contains('sl-theme-dark');
+  const is_light = document.documentElement.classList.contains('sl-theme-light');
+  if ((!is_dark && !is_light) || is_dark) {
+    document.documentElement.classList.remove('sl-theme-dark');
+    document.documentElement.classList.add('sl-theme-light');
+  } else {
+    document.documentElement.classList.remove('sl-theme-light');
+    document.documentElement.classList.add('sl-theme-dark');
+  }
+}
+
+export function svg(svg: string, className?: string): SVGSVGElement {
+  const parser = new DOMParser();
+  const d = parser.parseFromString(svg, 'image/svg+xml');
+  const el = d.children[0] as SVGSVGElement;
+  if (className) {
+    el.classList.add(className);
+  }
+  return el;
+}

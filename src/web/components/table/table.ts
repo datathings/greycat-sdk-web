@@ -730,10 +730,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
         csv += '\n';
       }
     } else {
-      const props: gc.sdk.StringifyProps = Object.assign(
-        { value: undefined },
-        this._cellProps,
-      );
+      const props: gc.sdk.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
@@ -777,19 +774,22 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
     const cleanFactory: CleanColumnFactory = {};
     for (const index in factory) {
-      cleanFactory[index] = this._sanitizeCellFactory(factory[index]);
+      cleanFactory[index] = this._sanitizeCellFactory(index, factory[index]);
     }
 
     return cleanFactory;
   }
 
-  private _sanitizeCellFactory(cellFactory: CleanCellFactory | CellFactory): CleanCellFactory {
+  private _sanitizeCellFactory(
+    index: string,
+    cellFactory: CleanCellFactory | CellFactory,
+  ): CleanCellFactory {
     switch (typeof cellFactory) {
       case 'string': {
         return { tag: cellFactory };
       }
       case 'function': {
-        const tagName = `gui-table-value-${Date.now()}`;
+        const tagName = `gui-table-col-${index}-${Date.now()}`;
         customElements.define(
           tagName,
           class extends GuiValue implements AnyValueElement {

@@ -1,7 +1,6 @@
-import { css, GuiClickEvent, GuiElement } from '../../exports.js';
-import '../table/table.js';
-import type { GuiTable } from '../table/table.js';
-import type { GuiValue } from '../value/value.js';
+import { css, GuiClickEvent, GuiElement, type GuiTable } from '../../exports.js';
+import '../table/index.js';
+import '../value/index.js';
 import style from './files.css?inline';
 
 export class GuiFiles extends GuiElement {
@@ -17,18 +16,32 @@ export class GuiFiles extends GuiElement {
 
     this._table = (
       <gui-table
-        headers={['Path', 'Size', 'Last Modification']}
         columnsWidths={[]}
-        onrowupdate={(el, row) => {
-          if (
-            typeof this._table.table.cols[1][row] === 'number' ||
-            typeof this._table.table.cols[1][row] === 'bigint'
-          ) {
-            const size = this._table.table.cols[1][row];
-            (el.children[1].children[0] as GuiValue).value = gc.sdk.humanSize(Number(size));
-          } else {
-            (el.children[1].children[0] as GuiValue).textContent = '';
-          }
+        columnFactory={{
+          0: (value) => {
+            if (typeof value === 'string') {
+              if (value.endsWith('/')) {
+                return <>📁 {value}</>;
+              }
+              if (value === '..') {
+                return <>↩️ ..</>;
+              }
+              return <>📄 {value}</>;
+            }
+            return document.createTextNode('');
+          },
+          1: (value) => {
+            if (typeof value === 'number' || typeof value === 'bigint') {
+              return document.createTextNode(gc.sdk.humanSize(Number(value)));
+            }
+            return document.createTextNode('');
+          },
+          2: (value) => {
+            if (value instanceof gc.core.time) {
+              return <gui-value value={value} />;
+            }
+            return document.createTextNode('');
+          },
         }}
         ongui-click={async (ev) => {
           ev.stopPropagation();
@@ -111,7 +124,9 @@ export class GuiFiles extends GuiElement {
       files.unshift(new gc.io.File('..'));
     }
     // update table
-    this._table.value = gc.core.Table.fromObjects(files);
+    const table = gc.core.Table.fromObjects(files);
+    table.headers = ['Filepath', 'Size', 'Last Modification'];
+    this._table.value = table;
   }
 }
 

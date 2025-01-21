@@ -1,16 +1,113 @@
 :host {
-  display: grid;
-  grid-template-rows: auto 1fr;
-  grid-template-columns: 1fr;
+  --gui-layout-gap: 0;
+  --gui-layout-padding: var(--spacing);
+  --gui-layout-navigation-padding: var(--gui-layout-padding);
+  --gui-layout-navigation-width: 250px;
+  --gui-layout-aside-width: 150px;
+  --gui-layout-border-width: var(--border-width);
+  --gui-layout-border-color: var(--border-color);
+
+  width: 100%;
   height: 100%;
-}
-
-.splitPanel {
-  overflow: hidden;
-}
-
-.content {
   display: grid;
-  overflow: auto;
-  background-color: var(--bg-2);
+  grid-template-areas:
+    'header     header      header'
+    'navigation main-header aside'
+    'navigation main        aside'
+    'navigation main-footer aside'
+    'footer     footer      footer';
+  grid-template-rows: auto auto 1fr auto;
+  grid-template-columns: auto 1fr auto;
+  gap: var(--gui-layout-gap);
+}
+
+.hide {
+  display: none;
+}
+
+.header {
+  grid-area: header;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--gui-layout-gap);
+  background-color: var(--bg-0);
+  padding: var(--gui-layout-padding);
+  border-bottom: var(--border-width) solid var(--gui-layout-border-color);
+}
+
+::slotted([slot='main-header']) {
+  grid-area: main-header;
+  padding: var(--gui-layout-padding);
+}
+
+::slotted([slot='main']) {
+  grid-area: main;
+  padding: var(--gui-layout-padding);
+}
+
+::slotted([slot='main-footer']) {
+  grid-area: main-footer;
+  padding: var(--gui-layout-padding);
+}
+
+::slotted([slot='footer']) {
+  grid-area: footer;
+  background-color: var(--bg-0);
+  padding: var(--gui-layout-padding);
+  border-top: var(--gui-layout-border-width) solid var(--gui-layout-border-color);
+}
+
+.navigation-drawer {
+  --size: 100%;
+  height: 100%;
+  width: var(--gui-layout-navigation-width);
+  position: relative;
+  grid-area: navigation;
+}
+
+.navigation-drawer sl-drawer {
+  --body-spacing: 0;
+}
+
+.navigation-drawer-body {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--gui-layout-gap);
+}
+
+.navigation-header,
+.navigation-footer {
+  flex-shrink: 0;
+}
+
+.navigation {
+  flex-grow: 1;
+  padding: var(--gui-layout-navigation-padding);
+}
+
+.navigation-drawer > sl-drawer::part(panel) {
+  border-right: var(--gui-layout-border-width) solid var(--gui-layout-border-color);
+}
+
+.aside-drawer sl-drawer {
+  --body-spacing: var(--gui-layout-padding);
+}
+
+.aside-drawer > sl-drawer::part(panel) {
+  border-left: var(--gui-layout-border-width) solid var(--gui-layout-border-color);
+}
+
+.aside-drawer {
+  --size: 100%;
+  height: 100%;
+  width: var(--gui-layout-aside-width);
+  position: relative;
+  grid-area: aside;
+}
+
+::slotted(*) {
+  display: initial;
 }

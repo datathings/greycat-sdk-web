@@ -61,10 +61,7 @@ import {
   GuiInputNull,
   GuiInputType,
   GuiInputField,
-  GuiLayout2,
   GuiLayout,
-  GuiLayoutHeader,
-  GuiLayoutMenu,
   GuiMultiSelectCheckbox,
   GuiObject2,
   GuiPeriodicTaskList,
@@ -189,10 +186,7 @@ function initWeb() {
   registerCustomElement('gui-input-null', GuiInputNull);
   registerCustomElement('gui-input-type', GuiInputType);
   registerCustomElement('gui-input-field', GuiInputField);
-  registerCustomElement('gui-layout2', GuiLayout2);
   registerCustomElement('gui-layout', GuiLayout);
-  registerCustomElement('gui-layout-header', GuiLayoutHeader);
-  registerCustomElement('gui-layout-menu', GuiLayoutMenu);
   registerCustomElement('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
   registerCustomElement('gui-object2', GuiObject2);
   registerCustomElement('gui-periodic-task-list', GuiPeriodicTaskList);
@@ -275,10 +269,7 @@ declare global {
       GuiInputNull,
       GuiInputType,
       GuiInputField,
-      GuiLayout2,
       GuiLayout,
-      GuiLayoutHeader,
-      GuiLayoutMenu,
       GuiMultiSelectCheckbox,
       GuiObject2,
       GuiPeriodicTaskList,
