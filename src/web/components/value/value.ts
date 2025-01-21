@@ -1,4 +1,4 @@
-import { getGlobalNumberFormat, GuiElement, css } from '../../exports.js';
+import { getGlobalNumberFormat, GuiElement, css, getGlobalDateTimeFormat } from '../../exports.js';
 import { Disposable } from '../../internals.js';
 import style from './value.css?inline';
 
@@ -198,6 +198,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     }
 
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
+    const dateFmt = this._dateFmt ?? getGlobalDateTimeFormat();
     let element: Node;
 
     if (Array.isArray(this._value)) {
@@ -211,7 +212,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
           value,
           name: this._name,
           tiny: this._tiny,
-          dateFmt: this._dateFmt,
+          dateFmt,
           numFmt,
         });
 
@@ -234,7 +235,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
           link.textContent = content;
           link.title = gc.sdk.stringify({
             value,
-            dateFmt: this._dateFmt,
+            dateFmt,
             numFmt,
             pretty: true,
           });
@@ -258,7 +259,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
         name: this._name,
         tiny: this._tiny,
         text: this._text,
-        dateFmt: this._dateFmt,
+        dateFmt,
         numFmt,
       });
 

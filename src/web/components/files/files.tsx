@@ -16,27 +16,31 @@ export class GuiFiles extends GuiElement {
 
     this._table = (
       <gui-table
-        columnsWidths={[]}
+        sortBy={[0]}
         columnFactory={{
-          0: (value) => {
-            if (typeof value === 'string') {
-              if (value.endsWith('/')) {
-                return <>📁 {value}</>;
-              }
-              if (value === '..') {
-                return <>↩️ ..</>;
-              }
-              return <>📄 {value}</>;
+          0: (value: string | undefined) => {
+            if (value === undefined) {
+              return document.createTextNode('');
             }
-            return document.createTextNode('');
+            if (value.endsWith('/')) {
+              return <>📁 {this._filename(value)}</>;
+            }
+            if (value === '..') {
+              return <>↩️ ..</>;
+            }
+            return (
+              <>
+                📄 <a href={`${gc.$.default.api}/files/${value}`}>{this._filename(value)}</a>
+              </>
+            );
           },
-          1: (value) => {
+          1: (value: number | bigint | null) => {
             if (typeof value === 'number' || typeof value === 'bigint') {
               return document.createTextNode(gc.sdk.humanSize(Number(value)));
             }
             return document.createTextNode('');
           },
-          2: (value) => {
+          2: (value: gc.core.time | null) => {
             if (value instanceof gc.core.time) {
               return <gui-value value={value} />;
             }
@@ -46,23 +50,19 @@ export class GuiFiles extends GuiElement {
         ongui-click={async (ev) => {
           ev.stopPropagation();
           const path = this._table.table.cols[0][ev.detail.rowIdx] as string;
-          if (path !== '..' && !path.endsWith('/')) {
-            // clicked on an actual file
-            this.dispatchEvent(
-              new GuiClickEvent(
-                new gc.io.File(
-                  path,
-                  this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
-                  this._table.table.cols[2][ev.detail.rowIdx] as gc.core.time | null,
-                ),
+          this.dispatchEvent(
+            new GuiClickEvent(
+              new gc.io.File(
+                path,
+                this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
+                this._table.table.cols[2][ev.detail.rowIdx] as gc.core.time | null,
               ),
-            );
+            ),
+          );
+          if (path !== '..' && !path.endsWith('/')) {
             return;
           }
-          const changed = this.change_dir(path);
-          if (changed) {
-            this.update();
-          }
+          this.change_dir(path);
         }}
         globalFilter
       />
@@ -84,15 +84,15 @@ export class GuiFiles extends GuiElement {
     this.update();
   }
 
-  change_dir(path: string): boolean {
+  change_dir(path: string): Promise<void> {
     if (path === this._current_dir) {
-      return false;
+      return Promise.resolve();
     }
 
     if (path === '..') {
       if (this._current_dir === '/') {
         // noop: already at root
-        return false;
+        return Promise.resolve();
       } else {
         const parts = this._current_dir.split('/');
         parts.pop();
@@ -103,14 +103,17 @@ export class GuiFiles extends GuiElement {
         } else if (!this._current_dir.endsWith('/')) {
           this._current_dir += '/';
         }
-        return true;
+        return this.update();
       }
+    } else if (path === '/') {
+      this._current_dir = path;
+      return this.update();
     } else if (path.endsWith('/')) {
       this._current_dir = `/${path}`;
-      return true;
+      return this.update();
     } else {
       // noop: file
-      return false;
+      return Promise.resolve();
     }
   }
 
@@ -120,13 +123,29 @@ export class GuiFiles extends GuiElement {
     }
 
     const files = (await new gc.io.File(this._current_dir).list()) ?? [];
+    const rows: Array<[string, number | bigint | null, gc.core.time | null]> = files.map((file) => [
+      file.path,
+      file.size,
+      file.last_modification,
+    ]);
     if (this._current_dir !== '/') {
-      files.unshift(new gc.io.File('..'));
+      rows.unshift(['..', null, null]);
     }
     // update table
-    const table = gc.core.Table.fromObjects(files);
+    const table = gc.core.Table.fromRows(rows);
     table.headers = ['Filepath', 'Size', 'Last Modification'];
     this._table.value = table;
+  }
+
+  private _filename(filepath: string): string {
+    if (filepath.endsWith('/')) {
+      filepath = filepath.slice(0, -1);
+    }
+    const lastSlash = filepath.lastIndexOf('/');
+    if (lastSlash === -1) {
+      return filepath;
+    }
+    return filepath.slice(lastSlash + 1);
   }
 }
 

@@ -79,16 +79,16 @@ import {
   GuiSearchableSelect,
 } from './exports';
 
-const oldInit = gc.sdk.init;
-gc.sdk.init = async function init(options = { url: gc.sdk.DEFAULT_URL }) {
-  const g = await oldInit(options);
+const sdkInit = gc.sdk.init;
+gc.sdk.init = async function webInit(options: gc.sdk.WithoutAbiOptions = { url: gc.sdk.DEFAULT_URL }) {
+  const g = await sdkInit(options);
   initWeb();
   return g;
 };
 
-const oldInit2 = gc.sdk.initWithAbi;
-gc.sdk.initWithAbi = function initWithAbi(options: gc.sdk.WithAbiOptions) {
-  const g = oldInit2(options);
+const sdkInitWithAbi = gc.sdk.initWithAbi;
+gc.sdk.initWithAbi = function webInitWithAbi(options: gc.sdk.WithAbiOptions) {
+  const g = sdkInitWithAbi(options);
   initWeb();
   return g;
 };

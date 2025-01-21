@@ -839,10 +839,12 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
       }
       this._type = type;
       this.input.placeholder = this._type.name;
-      this.input.options = this._type.enum_values!.map((v) => ({
-        text: v.key,
-        value: v.offset,
-      }));
+      this.input.options = this._type
+        .enum_values!.map((v) => ({
+          text: v.key,
+          value: v.offset,
+        }))
+        .sort((a, b) => a.text.localeCompare(b.text));
     } else {
       this._type = undefined;
       this.input.placeholder = '';

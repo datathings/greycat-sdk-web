@@ -230,3 +230,30 @@ export function svg(svg: string, className?: string): SVGSVGElement {
   }
   return el;
 }
+
+export function querySelectorAllWithShadow<K extends keyof HTMLElementTagNameMap>(
+  selectors: K,
+  root?: Document | HTMLElement | ShadowRoot,
+): Array<HTMLElementTagNameMap[K]>;
+export function querySelectorAllWithShadow<K extends keyof SVGElementTagNameMap>(
+  selectors: K,
+  root?: Document | HTMLElement | ShadowRoot,
+): Array<SVGElementTagNameMap[K]>;
+export function querySelectorAllWithShadow<E extends Element = Element>(
+  selectors: string,
+  root?: Document | HTMLElement | ShadowRoot,
+): Array<E>;
+export function querySelectorAllWithShadow(
+  selector: string,
+  root: Document | HTMLElement | ShadowRoot = document,
+) {
+  // TODO this should not allocate, it should return an iterator over all the iterators to prevent heavy allocations
+  const elements: Element[] = [];
+  root.querySelectorAll(selector).forEach((el) => elements.push(el));
+  root.querySelectorAll('*').forEach((el) => {
+    if (el.shadowRoot) {
+      elements.push(...querySelectorAllWithShadow(selector, el.shadowRoot));
+    }
+  });
+  return elements;
+}

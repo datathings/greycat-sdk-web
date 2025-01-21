@@ -630,7 +630,7 @@ namespace gc {
     }
 
     type AbiTypeProperties = {
-      [name: PropertyKey]: PropertyDescriptor & ThisType<{ $fields: Value[] }>;
+      [name: PropertyKey]: PropertyDescriptor & ThisType<GCObject>;
     };
 
     export class AbiType {
@@ -787,19 +787,19 @@ namespace gc {
             properties[attr.name] = {
               enumerable: true,
               get() {
-                return this.$fields[i];
+                return this.$fields![i];
               },
               set(v) {
-                this.$fields[i] = v;
+                this.$fields![i] = v;
               },
             };
           }
           const GCObject = class extends gc.sdk.GCObject {
             static readonly _type = type.name;
-            constructor(...$fields: unknown[]) {
+            constructor(...fields: unknown[]) {
               super();
               Object.defineProperty(this, '$type', { value: type, enumerable: false });
-              Object.defineProperty(this, '$fields', { value: $fields, enumerable: false });
+              Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
               Object.defineProperties(this, properties);
             }
 

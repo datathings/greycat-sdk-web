@@ -1,7 +1,7 @@
 import { svg, toggleTheme } from '@greycat/web';
 import '@greycat/web/greycat.css';
-import './complex.css';
-import LogoIcon from './complex_assets/logo.svg?raw';
+import './styles.css';
+import LogoIcon from './logo.svg?raw';
 
 await gc.sdk.init();
 
@@ -15,9 +15,7 @@ document.body.appendChild(
     </sl-button>
 
     <div slot="navigation" className="list">
-      {Array.from({ length: 100 }).map((_, i) => (
-        <sl-button variant="text">{`Link ${i}`}</sl-button>
-      ))}
+      TODO navigation
     </div>
 
     <div slot="main-header">
@@ -167,7 +165,7 @@ document.body.appendChild(
     </div>
 
     <div slot="footer">
-      <div style="text-align: center; padding: var(--spacing); font-size: 0.9em; color: #666;">
+      <div style="text-align: center; font-size: 0.9em; color: var(--color-muted);">
         <p>
           <span>&copy; 2025 DataThings. All rights reserved.</span>
           &nbsp;

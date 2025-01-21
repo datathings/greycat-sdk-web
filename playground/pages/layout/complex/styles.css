@@ -43,3 +43,9 @@ gui-layout [slot='main'] {
   overflow: auto;
   padding: 12px 24px;
 }
+
+/* Optional for HTML and body to ensure scrollbars are styled consistently */
+html, body {
+  scroll-behavior: smooth; /* Optional for smooth scrolling */
+}
+

@@ -22,6 +22,21 @@
   visibility: hidden;
 }
 
+::-webkit-scrollbar {
+  width: 4px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-bg);
+  border-radius: 2px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-bg-hover);
+  opacity: 1;
+}
+
 gui-search-input > sl-icon[slot='prefix'] {
   background-size: contain;
   background-image: var(--icon-search);
@@ -199,4 +214,13 @@ sl-dialog::part(footer) {
 sl-button,
 sl-checkbox {
   min-width: auto;
+}
+
+a:hover, a:focus {
+  color: var(--primary-hover);
+}
+
+a, a:visited {
+  color: var(--sl-color-primary-600);
+  text-decoration: none;
 }

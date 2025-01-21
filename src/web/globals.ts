@@ -21,11 +21,12 @@ export function setGlobalDateTimeFormat(fmt: Intl.DateTimeFormat) {
 }
 
 export function setGlobalDateTimeFormatTimezone(tz: gc.core.TimeZone): Intl.DateTimeFormat {
-  const opts = dateFmt.resolvedOptions();
-  dateFmt = new Intl.DateTimeFormat(opts.locale, {
-    ...(opts as Intl.DateTimeFormatOptions),
+  const { locale, ...resolved } = dateFmt.resolvedOptions();
+  const options: Intl.DateTimeFormatOptions = {
+    ...(resolved as Intl.DateTimeFormatOptions),
     timeZone: tz.key.replace('_', '/'),
-  });
+  };
+  dateFmt = new Intl.DateTimeFormat(locale, options);
   return dateFmt;
 }
 
