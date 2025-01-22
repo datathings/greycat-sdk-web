@@ -9,6 +9,7 @@
 
   --scrollbar-bg: rgba(var(--accent-0), 0.45);
   --scrollbar-bg-hover: rgba(var(--accent-0), 0.75);
+  --scrollbar-size: 4px;
 
   --spacing: 6px; /* keep 'spacing' an even value */
   --line-height: 20px;
@@ -228,8 +229,8 @@
 }
 
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 6px;
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
 }
 
 ::-webkit-scrollbar-thumb {
