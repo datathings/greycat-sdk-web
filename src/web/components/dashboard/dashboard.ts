@@ -38,7 +38,7 @@ export class GuiDashboardUpdateEvent extends CustomEvent<GuiDashboard> {
   static readonly NAME = 'gui-dashboard-update';
 
   constructor(el: GuiDashboard) {
-    super(GuiDashboardUpdateEvent.NAME, { detail: el, bubbles: true });
+    super(GuiDashboardUpdateEvent.NAME, { detail: el, bubbles: true, composed: true });
   }
 }
 

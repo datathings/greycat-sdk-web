@@ -101,7 +101,7 @@ export abstract class GuiValueElement<T = unknown> extends GuiElement {
 
 export class GuiRenderEvent extends CustomEvent<number> {
   constructor(startTimeInMs: number) {
-    super('render', { detail: Date.now() - startTimeInMs });
+    super('render', { detail: Date.now() - startTimeInMs, composed: true });
   }
 }
 

@@ -215,7 +215,7 @@ export class GuiPeriodicTaskListClickEvent extends CustomEvent<gc.runtime.Period
   static readonly NAME = 'periodic-task-list-click'; // TODO use 'gui-click' in v7
 
   constructor(task: gc.runtime.PeriodicTask) {
-    super(GuiPeriodicTaskListClickEvent.NAME, { detail: task, bubbles: true });
+    super(GuiPeriodicTaskListClickEvent.NAME, { detail: task, bubbles: true, composed: true });
   }
 }
 

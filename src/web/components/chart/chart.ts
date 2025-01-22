@@ -1677,7 +1677,7 @@ export class GuiChart extends GuiElement {
 export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unknown } | null> {
   static readonly NAME = 'gui-selection';
   constructor(detail: { from: unknown; to: unknown } | null = null) {
-    super(GuiChartSelectionEvent.NAME, { detail, bubbles: true });
+    super(GuiChartSelectionEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }
 
@@ -1688,7 +1688,7 @@ export class GuiChartSelectionEvent extends CustomEvent<{ from: unknown; to: unk
 export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor: Cursor }> {
   static readonly NAME = 'gui-chart-cursor';
   constructor(data: SerieData[], cursor: Cursor) {
-    super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
+    super(GuiChartCursorEvent.NAME, { detail: { data, cursor }, bubbles: true, composed: true });
   }
 }
 
@@ -1698,7 +1698,7 @@ export class GuiChartCursorEvent extends CustomEvent<{ data: SerieData[]; cursor
 export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
   static readonly NAME = 'gui-chart-enter';
   constructor() {
-    super(GuiChartCanvasEnterEvent.NAME, { bubbles: true });
+    super(GuiChartCanvasEnterEvent.NAME, { bubbles: true, composed: true });
   }
 }
 
@@ -1708,7 +1708,7 @@ export class GuiChartCanvasEnterEvent extends CustomEvent<void> {
 export class GuiChartCanvasLeaveEvent extends CustomEvent<void> {
   static readonly NAME = 'gui-chart-leave';
   constructor() {
-    super(GuiChartCanvasLeaveEvent.NAME, { bubbles: true });
+    super(GuiChartCanvasLeaveEvent.NAME, { bubbles: true, composed: true });
   }
 }
 

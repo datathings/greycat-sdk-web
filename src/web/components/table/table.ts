@@ -1519,14 +1519,14 @@ export class GuiTableSortEvent extends CustomEvent<number> {
   static readonly NAME = 'gui-table-sort';
 
   constructor(colIdx: number) {
-    super(GuiTableSortEvent.NAME, { detail: colIdx, bubbles: true });
+    super(GuiTableSortEvent.NAME, { detail: colIdx, bubbles: true, composed: true });
   }
 }
 
 export class GuiTableFilterEvent extends CustomEvent<void> {
   static readonly NAME = 'gui-table-filter';
   constructor() {
-    super(GuiTableFilterEvent.NAME, { bubbles: true });
+    super(GuiTableFilterEvent.NAME, { bubbles: true, composed: true });
   }
 }
 
@@ -1537,7 +1537,7 @@ export class GuiTableFilterColumnEvent extends CustomEvent<{ index: number; text
   static readonly NAME = 'gui-table-filter-column';
 
   constructor(index: number, text: string) {
-    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true });
+    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true, composed: true });
   }
 }
 

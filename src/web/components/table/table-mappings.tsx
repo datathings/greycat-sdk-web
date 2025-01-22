@@ -18,7 +18,7 @@ export class GuiTableMappings extends GuiElement {
     this._mappings.appendChild(mapping);
     this._value.push(mapping.value);
     this._applyBtn.disabled = false;
-    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
   };
   private _automaticDestructuring = async () => {
     const table = this.table.table;
@@ -74,11 +74,11 @@ export class GuiTableMappings extends GuiElement {
       }),
     );
     this._applyBtn.disabled = mappings.length === 0;
-    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
   };
   private _applyMappings = () => {
     this.dispatchEvent(
-      new CustomEvent('gui-table-apply-mappings', { detail: this.value, bubbles: true }),
+      new CustomEvent('gui-table-apply-mappings', { detail: this.value, bubbles: true, composed: true }),
     );
   };
 
@@ -93,7 +93,7 @@ export class GuiTableMappings extends GuiElement {
       ev.stopPropagation();
       ev.detail.remove();
       this._value = this.value;
-      this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+      this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
     });
     this._mappings.addEventListener('sl-change', (ev) => {
       // swallow change event so that they do not bubble up to GuiTableConfig
@@ -204,7 +204,11 @@ export class GuiTableMapping extends GuiElement {
         size="small"
         onclick={() => {
           this.dispatchEvent(
-            new CustomEvent('gui-table-mapping-delete', { detail: this, bubbles: true }),
+            new CustomEvent('gui-table-mapping-delete', {
+              detail: this,
+              bubbles: true,
+              composed: true,
+            }),
           );
         }}
       >

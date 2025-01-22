@@ -637,7 +637,7 @@ export class GuiHeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; curs
   static readonly NAME = 'gui-heatmap-cursor';
 
   constructor(data: HeatmapData, cursor: Cursor) {
-    super(GuiHeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true });
+    super(GuiHeatmapCursorEvent.NAME, { detail: { data, cursor }, bubbles: true, composed: true });
   }
 }
 

@@ -1192,7 +1192,7 @@ export class GuiChartConfigDeleteEvent extends CustomEvent<{ name: string; el: E
   static readonly NAME = 'gui-chart-config-delete';
 
   constructor(name: string, el: Element) {
-    super(GuiChartConfigDeleteEvent.NAME, { detail: { name, el }, bubbles: true });
+    super(GuiChartConfigDeleteEvent.NAME, { detail: { name, el }, bubbles: true, composed: true });
   }
 }
 

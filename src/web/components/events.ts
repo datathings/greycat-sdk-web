@@ -1,11 +1,3 @@
-// export class GuiConnectedEvent extends CustomEvent<void> {
-//   static readonly NAME = 'gui-connected';
-
-//   constructor() {
-//     super(GuiConnectedEvent.NAME, { bubbles: true, composed: true });
-//   }
-// }
-
 /**
  * Bound to the underlying 'input' events
  */
