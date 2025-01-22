@@ -1,19 +1,19 @@
-import { GreyCat, type GuiCsvStatistics2, io, $, type GuiTable, sl } from '@greycat/web';
+import { type GuiCsvStatistics2, type GuiTable, sl } from '@greycat/web';
 import '@/common';
 
-await await gc.sdk.init();
+const greycat = await gc.sdk.init();
 
 async function runAnalysis(filepath: string) {
-  const task = await $.default.spawn('io::CsvAnalysis::analyze', [
+  const task = await greycat.spawn('io::CsvAnalysis::analyze', [
     filepath,
-    io.CsvAnalysisConfig.createFrom({
+    gc.io.CsvAnalysisConfig.createFrom({
       header_lines: 1,
       enumerable_limit: 10_000,
     }),
   ]);
 
-  sample.value = await io.CsvFormat.sample(filepath, io.CsvFormat.create(1));
-  return (await task.await()) as io.CsvStatistics;
+  sample.value = await gc.io.CsvFormat.sample(filepath, new gc.io.CsvFormat(1));
+  return (await task.await()) as gc.io.CsvStatistics;
 }
 
 const sample = (<gui-table globalFilter style={{ height: '650px' }} />) as GuiTable;

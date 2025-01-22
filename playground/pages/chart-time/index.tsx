@@ -1,15 +1,15 @@
-import { $, GreyCat, core } from '@greycat/web';
+import '@greycat/web';
 import '@/common';
 
-await await gc.sdk.init();
+await gc.sdk.init();
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');
 
 chart.addEventListener('gui-selection', (e) => {
   if (e.detail) {
-    const from = core.time.fromMs(e.detail.from as number);
-    const to = core.time.fromMs(e.detail.to as number);
+    const from = gc.core.time.fromMs(e.detail.from as number);
+    const to = gc.core.time.fromMs(e.detail.to as number);
     console.log(`selection from ${from} to ${to}`);
   } else {
     console.log(`reset selection`);
@@ -97,6 +97,6 @@ document.body.appendChild(
 randomize();
 
 async function randomize() {
-  chart.value = await $.default.call<core.Table>('project::chart_time');
+  chart.value = await gc.project.chart_time();
   console.log({ table: chart.value });
 }

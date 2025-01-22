@@ -1,0 +1,19 @@
+{
+  "compilerOptions": {
+    "rootDir": ".",
+    "outDir": "../../dist/vite-plugin",
+    "declaration": true,
+
+    "target": "ES2024",
+    "module": "NodeNext",
+    "moduleResolution": "nodenext",
+
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitOverride": true,
+  },
+  "include": ["**/*"]
+}

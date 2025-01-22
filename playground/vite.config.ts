@@ -1,12 +1,12 @@
 import { basename, resolve } from 'node:path';
-import { Plugin, defineConfig } from 'vite';
-import httpProxy from 'http-proxy';
+import { defineConfig } from 'vite';
 import { readdirSync, statSync } from 'node:fs';
+import greycat from '@greycat/web/vite-plugin';
 
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),
   base: '',
-  plugins: [greycatProxy()],
+  plugins: [greycat()],
   define: {
     'process.env.NODE_ENV': JSON.stringify(mode),
   },
@@ -65,35 +65,4 @@ function inputsFromDirectories(rootDir: string, prefix = '') {
   walkDir(rootDir);
 
   return inputs;
-}
-
-function greycatProxy(): Plugin {
-  const proxy = httpProxy.createProxyServer({ target: 'http://127.0.0.1:8080' });
-
-  return {
-    name: 'vite-plugin-greycat-proxy',
-    configureServer(server) {
-      server.middlewares.use((req, res, next) => {
-        if (req.originalUrl && req.headers.upgrade !== 'websocket') {
-          const isFileApi =
-            req.originalUrl.match(/^\/files\//) &&
-            (req.method === 'GET' || req.method === 'PUT' || req.method === 'DELETE');
-          const isRpc =
-            (!isFileApi && req.method === 'POST') ||
-            (req.method === 'HEAD' && req.originalUrl === '/runtime::Runtime::abi');
-          if (isFileApi || isRpc) {
-            // proxy to GreyCat
-            proxy.web(req, res, {}, (err) => {
-              console.error(
-                `${err.code}: make sure GreyCat is started and listening at ${proxy.options.target}`,
-              );
-              return;
-            });
-            return;
-          }
-        }
-        next();
-      });
-    },
-  };
 }

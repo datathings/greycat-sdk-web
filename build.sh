@@ -18,6 +18,7 @@ mkdir -p dist/sdk/web
 mv greycat-*.tgz dist/sdk/web/package.tgz
 mv \
   dist/jsx \
+  dist/vite-plugin \
   dist/types \
   dist/greycat.css \
   dist/greycat.js \
