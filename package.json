@@ -19,7 +19,6 @@
       "types": "./dist/jsx/jsx-runtime.d.ts",
       "import": "./dist/jsx/jsx-runtime.js"
     },
-
     "./vite-plugin": {
       "types": "./dist/vite-plugin/index.d.ts",
       "import": "./dist/vite-plugin/index.js"
@@ -65,12 +64,14 @@
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.24.2",
     "eslint": "8.46.0",
-    "http-proxy": "1.18.1",
     "lightningcss": "1.25.1",
     "lightningcss-cli": "1.25.1",
     "prettier": "3.3.3",
     "tslib": "2.6.3",
     "typescript": "5.7.2",
     "vite": "6.0.7"
+  },
+  "optionalDependencies": {
+    "http-proxy": "1.18.1"
   }
 }
