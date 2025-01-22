@@ -25,12 +25,14 @@
     },
     "./*.css": "./dist/*.css",
     "./*.ttf": "./fonts/*.ttf",
-    "./*.woff": "./fonts/*.woff"
+    "./*.woff": "./fonts/*.woff",
+    "./icons/*.svg": "./icons/*.svg"
   },
   "license": "Apache-2.0",
   "files": [
     "dist",
     "fonts",
+    "icons",
     "src",
     "css"
   ],

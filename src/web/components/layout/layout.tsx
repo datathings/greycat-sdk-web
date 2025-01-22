@@ -1,5 +1,6 @@
-import { css, GuiElement, sl } from '../../exports.js';
+import { css, GuiElement, sl, svg } from '../../exports.js';
 import style from './layout.css?inline';
+import MenuIcon from './menu.svg?raw';
 
 export class GuiLayout extends GuiElement {
   static override styles = [css(style)];
@@ -24,16 +25,23 @@ export class GuiLayout extends GuiElement {
     this._menu = (
       <div className={['menu', 'hide']} part="menu">
         <slot name="menu">
-          <sl-button variant="text" onclick={this._toggleMenu}>
-            Menu
-          </sl-button>
+          <a
+            className="menu-btn"
+            onclick={this._toggleMenu}
+            onkeyup={(ev) => {
+              ev.key === 'Enter' && this._toggleMenu();
+            }}
+            tabIndex={0}
+          >
+            {svg(MenuIcon)}
+          </a>
         </slot>
       </div>
     ) as HTMLElement;
 
     this._navDrawer = (
       <sl-drawer contained placement="start" noHeader part="navigation-drawer">
-        <div className="navigation-drawer-body" part="navigation-body">
+        <div className="navigation-base-body" part="navigation-body">
           <div className="navigation-header" part="navigation-header">
             <slot name="navigation-header" />
           </div>
@@ -48,28 +56,30 @@ export class GuiLayout extends GuiElement {
     ) as sl.SlDrawer;
 
     this._nav = (
-      <div className="navigation-drawer" part="navigation-base">
+      <div className="navigation-base" part="navigation-base">
         {this._navDrawer}
       </div>
     ) as HTMLElement;
 
     this._asideDrawer = (
-      <sl-drawer contained placement="end" noHeader>
+      <sl-drawer contained placement="end" noHeader part="aside-drawer">
         <slot name="aside" />
       </sl-drawer>
     ) as sl.SlDrawer;
 
     this._aside = (
-      <div className="aside-drawer" part="aside-drawer">
+      <div className="aside-base" part="aside-base">
         {this._asideDrawer}
       </div>
     ) as HTMLElement;
 
     this.shadowRoot.appendChild(
       <>
-        <div className="header" part="header">
+        <div className="header-base" part="header-base">
           {this._menu}
-          <slot name="header" />
+          <div className="header">
+            <slot name="header" />
+          </div>
         </div>
         {this._nav}
         <slot name="main-header" />
@@ -94,8 +104,26 @@ export class GuiLayout extends GuiElement {
     this._navDrawer.show();
   }
 
+  hideNavigation(): void {
+    if (this._navDrawer.contained) {
+      // when the drawer is 'contained' we are not in responsive mode
+      // so we do not allow hiding the nav
+      return;
+    }
+    this._navDrawer.hide();
+  }
+
   showAside(): void {
     this._asideDrawer.show();
+  }
+
+  hideAside(): void {
+    if (this._asideDrawer.contained) {
+      // when the drawer is 'contained' we are not in responsive mode
+      // so we do not allow hiding the nav
+      return;
+    }
+    this._asideDrawer.hide();
   }
 
   connectedCallback() {
@@ -117,10 +145,8 @@ export class GuiLayout extends GuiElement {
   private _toggleMenu = () => {
     if (this._navDrawer.open) {
       this._navDrawer.hide();
-      console.log('hide navigation');
     } else {
       this._navDrawer.show();
-      console.log('show navigation');
     }
   };
 
@@ -152,8 +178,8 @@ export class GuiLayout extends GuiElement {
           grid-template-areas: ${gridTemplateAreas.join('\n')};
           grid-template-columns: auto 1fr;
         }
-        .navigation-drawer,
-        .aside-drawer {
+        .navigation-base,
+        .aside-base {
           grid-area: unset;
         }
       `);

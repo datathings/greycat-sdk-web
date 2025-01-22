@@ -15,10 +15,35 @@ document.body.appendChild(
     </sl-button>
 
     <div slot="navigation" className="list">
-      TODO navigation
+      <sl-tree selection="leaf">
+        <sl-tree-item>
+          Getting Started
+          <sl-tree-item>Products</sl-tree-item>
+          <sl-tree-item>Installation</sl-tree-item>
+          <sl-tree-item>Hello World</sl-tree-item>
+        </sl-tree-item>
+        <sl-divider />
+        <sl-tree-item>
+          Concepts
+          <sl-tree-item>Syntax</sl-tree-item>
+          <sl-tree-item>Control-Flow</sl-tree-item>
+          <sl-tree-item>Types</sl-tree-item>
+          <sl-tree-item>Nodes</sl-tree-item>
+          <sl-tree-item>Ownership</sl-tree-item>
+        </sl-tree-item>
+        <sl-divider />
+        <sl-tree-item>
+          Project
+          <sl-tree-item>Module</sl-tree-item>
+          <sl-tree-item>Test</sl-tree-item>
+          <sl-tree-item>Server</sl-tree-item>
+          <sl-tree-item>IDE</sl-tree-item>
+          <sl-tree-item>Explorer</sl-tree-item>
+        </sl-tree-item>
+      </sl-tree>
     </div>
 
-    <div slot="main-header">
+    <div slot="main-header" className="bottom-shadow">
       <sl-breadcrumb>
         <sl-breadcrumb-item>Catalog</sl-breadcrumb-item>
         <sl-breadcrumb-item>Clothing</sl-breadcrumb-item>
@@ -164,16 +189,26 @@ document.body.appendChild(
       </sl-tree>
     </div>
 
-    <div slot="footer">
-      <div style="text-align: center; font-size: 0.9em; color: var(--color-muted);">
+    <div slot="footer" className="footer">
+      <div style="text-align: center; font-size: 0.9em; color: var(--muted-color);">
         <p>
-          <span>&copy; 2025 DataThings. All rights reserved.</span>
-          &nbsp;
-          <span>Powered by GreyCat: The next-gen graph database solution.</span>
+          &copy; 2025{' '}
+          <a href="https://datathings.com" target="_blank">
+            DataThings
+          </a>{' '}
+          - Powered by{' '}
+          <a href="https://greycat.io" target="_blank">
+            GreyCat
+          </a>
         </p>
         <p>
-          <a href="#">LinkedIn</a>&nbsp;|&nbsp;<a href="#">Twitter</a>&nbsp;|&nbsp;
-          <a href="#">GitLab</a>
+          <a href="https://www.linkedin.com/company/datathings" target="_blank">
+            LinkedIn
+          </a>{' '}
+          -{' '}
+          <a href="https://hub.datathings.com/" target="_blank">
+            GitLab
+          </a>
         </p>
       </div>
     </div>

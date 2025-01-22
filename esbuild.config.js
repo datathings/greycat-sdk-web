@@ -1,5 +1,12 @@
 import { buildSync } from 'esbuild';
 
+const loaders = {
+  '.css': 'text',
+  '.css?inline': 'text',
+  '.svg': 'text',
+  '.svg?raw': 'text',
+};
+
 // iife bundle
 buildSync({
   entryPoints: ['src/web/index.ts'],
@@ -10,10 +17,7 @@ buildSync({
   globalName: 'greycat',
   minifySyntax: true,
   minifyWhitespace: true,
-  loader: {
-    '.css': 'text',
-    '.css?inline': 'text',
-  },
+  loader: loaders,
   logLevel: 'info',
 });
 
@@ -28,9 +32,6 @@ buildSync({
   sourcesContent: false,
   minifySyntax: true,
   minifyWhitespace: true,
-  loader: {
-    '.css': 'text',
-    '.css?inline': 'text',
-  },
+  loader: loaders,
   logLevel: 'info',
 });

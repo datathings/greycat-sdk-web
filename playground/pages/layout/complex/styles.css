@@ -18,21 +18,17 @@ gui-layout::part(navigation) {
 
   > svg {
     fill: #77777a;
-    width: 50px;
+    width: 42px;
     height: auto;
   }
 }
 
-gui-layout::part(navigation-header) {
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
-}
-
-gui-layout::part(navigation-footer) {
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.3);
-}
-
 [slot='navigation'] {
   --spacing: 0;
+}
+
+sl-tree {
+  --indent-guide-width: 1px;
 }
 
 [slot='navigation'] sl-button::part(base) {
@@ -44,8 +40,18 @@ gui-layout [slot='main'] {
   padding: 12px 24px;
 }
 
-/* Optional for HTML and body to ensure scrollbars are styled consistently */
-html, body {
-  scroll-behavior: smooth; /* Optional for smooth scrolling */
+.footer {
+  & a {
+    color: var(--sl-color-neutral-700);
+  }
+
+  & p {
+    margin: var(--spacing) 0;
+  }
 }
 
+/* Optional for HTML and body to ensure scrollbars are styled consistently */
+html,
+body {
+  scroll-behavior: smooth; /* Optional for smooth scrolling */
+}
