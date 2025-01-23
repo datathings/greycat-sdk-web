@@ -207,17 +207,34 @@ export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): strin
 }
 
 /**
+ * Returns either `'dark'` or `'light'` depending on the current document's theme.
+ *
+ * @returns the current theme of the document
+ */
+export function currentTheme(): 'dark' | 'light' {
+  const is_dark = document.documentElement.classList.contains('sl-theme-dark');
+  const is_light = document.documentElement.classList.contains('sl-theme-light');
+  if (is_dark || (!is_dark && !is_light)) {
+    return 'dark';
+  }
+  return 'light';
+}
+
+/**
  * Toggles the current `document`'s theme from/to dark to light
  */
 export function toggleTheme() {
-  const is_dark = document.documentElement.classList.contains('sl-theme-dark');
-  const is_light = document.documentElement.classList.contains('sl-theme-light');
-  if ((!is_dark && !is_light) || is_dark) {
-    document.documentElement.classList.remove('sl-theme-dark');
-    document.documentElement.classList.add('sl-theme-light');
-  } else {
-    document.documentElement.classList.remove('sl-theme-light');
-    document.documentElement.classList.add('sl-theme-dark');
+  switch (currentTheme()) {
+    case 'dark': {
+      document.documentElement.classList.remove('sl-theme-dark');
+      document.documentElement.classList.add('sl-theme-light');
+      break;
+    }
+    case 'light': {
+      document.documentElement.classList.remove('sl-theme-light');
+      document.documentElement.classList.add('sl-theme-dark');
+      break;
+    }
   }
 }
 

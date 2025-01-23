@@ -1,4 +1,4 @@
-import './init';
+import './init.js';
 
 export { html, render } from 'lit-html';
 export * from './cache.js';

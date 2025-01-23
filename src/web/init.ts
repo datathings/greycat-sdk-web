@@ -80,7 +80,9 @@ import {
 } from './exports';
 
 const sdkInit = gc.sdk.init;
-gc.sdk.init = async function webInit(options: gc.sdk.WithoutAbiOptions = { url: gc.sdk.DEFAULT_URL }) {
+gc.sdk.init = async function webInit(
+  options: gc.sdk.WithoutAbiOptions = { url: gc.sdk.DEFAULT_URL },
+) {
   const g = await sdkInit(options);
   initWeb();
   return g;

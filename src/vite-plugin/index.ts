@@ -1,5 +1,4 @@
 import httpProxy, { ServerOptions } from 'http-proxy';
-import type { PluginOption } from 'vite';
 
 const DEFAULT_TARGET = 'http://127.0.0.1:8080';
 
@@ -7,7 +6,7 @@ const DEFAULT_TARGET = 'http://127.0.0.1:8080';
  * This plugin ensures '^/files' and POST requests are proxied to GreyCat rather
  * than trying to be answered by vitejs's dev server.
  */
-export default function greycat(options: ServerOptions = {}): PluginOption {
+export default function greycat(options: ServerOptions = {}): import('vite').Plugin {
   options = Object.assign(options, { target: DEFAULT_TARGET });
   const proxy = httpProxy.createProxyServer(options);
 

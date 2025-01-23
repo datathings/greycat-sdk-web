@@ -6,22 +6,22 @@
 // then in VSCode: `ctrl+shift+p` > `Debug: Attach to Node Process`
 //
 import { readFileSync } from 'node:fs';
-import { Abi, AbiReader, stdlib, AbiWriter } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 const [filepath] = process.argv.slice(2);
 if (!filepath) {
   throw new Error('usage: <filepath>');
 }
 
-const abi = new Abi(readFile('./gcdata/store/abi'), [stdlib]);
-const reader = new AbiReader(abi, readFile(filepath));
+const abi = new gc.sdk.Abi(readFile('./gcdata/store/abi'));
+const reader = new gc.sdk.AbiReader(abi, readFile(filepath));
 
 const value = reader.deserializeWithHeaders();
 console.log(structuredClone(value));
 
-const writer = new AbiWriter(abi);
+const writer = new gc.sdk.AbiWriter(abi);
 writer.serialize(value);
 
-const value2 = new AbiReader(abi, writer.buffer.buffer).deserialize();
+const value2 = new gc.sdk.AbiReader(abi, writer.buffer.buffer).deserialize();
 console.log(structuredClone(value2));
 
 /**

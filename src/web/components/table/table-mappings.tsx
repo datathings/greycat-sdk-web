@@ -78,7 +78,11 @@ export class GuiTableMappings extends GuiElement {
   };
   private _applyMappings = () => {
     this.dispatchEvent(
-      new CustomEvent('gui-table-apply-mappings', { detail: this.value, bubbles: true, composed: true }),
+      new CustomEvent('gui-table-apply-mappings', {
+        detail: this.value,
+        bubbles: true,
+        composed: true,
+      }),
     );
   };
 
@@ -277,7 +281,7 @@ declare global {
     'gui-table-apply-mappings': CustomEvent<gc.core.TableColumnMapping[]>;
   }
 
-  interface HTMLElementEventMap extends GuiTableMappingEventMap {}
+  interface HTMLElementEventMap extends GuiTableMappingEventMap, GuiTableMappingsEventMap {}
 
   namespace GreyCat {
     namespace JSX {

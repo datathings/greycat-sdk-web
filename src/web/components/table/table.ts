@@ -254,8 +254,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
    *
    * Eg.
    * ```ts
-   * el.value = myTable; // update the table
-   * el.applyMappings(); // update the table again with the result of the mappings
+   * el.value = myTable; // updates the table
+   * el.applyMappings(); // updates the table again with the result of the mappings
    *
    * // The above "double update" can be prevented by doing:
    * el.applyMappings(myTable); // only one update
@@ -266,10 +266,13 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       const mappings = this._configEl.mappings;
       if (mappings.length > 0) {
         this._table = await gc.core.Table.applyMappings(table, mappings);
-      } else {
+        await this.update();
+        this.dispatchEvent(new GuiChangeEvent(this._table));
+      } else if (table !== this._table) {
         this._table = table;
+        await this.update();
+        this.dispatchEvent(new GuiChangeEvent(this._table));
       }
-      this.update();
     } catch (err) {
       toast.error(err);
     }
