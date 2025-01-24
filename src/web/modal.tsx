@@ -1,55 +1,57 @@
 import { type sl, type GuiDialog } from './exports.js';
 
-export type ModalInfoProps = {
-  message: string | Node;
+export type ModalBaseProps = {
   /** The modal title label */
   title?: string;
+  /** The modal width (eg. `50vw`) */
+  width?: string;
 };
+
+export type ModalInfoProps = {
+  message: string | Node;
+} & ModalBaseProps;
 
 export type ModalConfirmProps = {
   message: string | Node;
-  /** The modal title label */
-  title?: string;
   /** The confirm button text */
   confirm?: string;
   /** The cancel button text */
   cancel?: string;
-};
+} & ModalBaseProps;
 
 export type ModalInputProps = {
-  /** The modal title label */
-  title?: string;
   /** The confirm button text */
   confirm?: string;
   /** Properties to pass to the underlying sl-input */
   inputProps?: SlInputProps;
-};
+} & ModalBaseProps;
 
 export type ModalSelectProps = {
   options: string[];
-  /** The modal title label */
-  title?: string;
   /** The confirm button text */
   confirm?: string;
   /** Properties to pass to the underlying sl-input */
   selectProps?: SlSelectProps;
-};
+} & ModalBaseProps;
 
 export const modal = {
-  info({ message, title = 'Information' }: ModalInfoProps): void {
+  info({ message, title = 'Information', width }: ModalInfoProps): void {
     const dialog = (
       <gui-dialog>
         <header slot="label">{title}</header>
         {message}
       </gui-dialog>
     ) as GuiDialog;
+    if (width !== undefined) {
+      dialog.style.setProperty('--width', width);
+    }
 
     document.body.appendChild(dialog);
-    setTimeout(() => {
-      dialog.show();
-    });
-    dialog.addEventListener('sl-after-hide', () => {
-      dialog.remove();
+    dialog.updateComplete.then(() => dialog.show());
+    dialog.addEventListener('sl-after-hide', (ev) => {
+      if (ev.target === dialog) {
+        dialog.remove();
+      }
     });
   },
 
@@ -58,6 +60,7 @@ export const modal = {
     title = 'Confirm',
     confirm = 'Yes',
     cancel = 'No',
+    width,
   }: ModalConfirmProps): Promise<boolean> {
     let resolved = false;
     const promise = new Promise<boolean>((resolve) => {
@@ -89,15 +92,18 @@ export const modal = {
           </sl-button>
         </gui-dialog>
       ) as GuiDialog;
+      if (width !== undefined) {
+        dialog.style.setProperty('--width', width);
+      }
 
       document.body.appendChild(dialog);
-      setTimeout(() => {
-        dialog.show();
-      });
-      dialog.addEventListener('sl-after-hide', () => {
-        dialog.remove();
-        if (!resolved) {
-          resolve(false);
+      dialog.updateComplete.then(() => dialog.show());
+      dialog.addEventListener('sl-after-hide', (ev) => {
+        if (ev.target === dialog) {
+          dialog.remove();
+          if (!resolved) {
+            resolve(false);
+          }
         }
       });
     });
@@ -113,6 +119,7 @@ export const modal = {
     title = 'Input',
     confirm = 'Ok',
     inputProps,
+    width,
   }: ModalInputProps): Promise<string | undefined> {
     let resolved = false;
 
@@ -141,30 +148,33 @@ export const modal = {
           </sl-button>
         </gui-dialog>
       ) as GuiDialog;
-
-      dialog.addEventListener('sl-after-hide', () => {
-        dialog.remove();
-        if (!resolved) {
-          resolve(undefined);
-        }
-      });
-
-      dialog.addEventListener('sl-after-show', () => {
-        input.focus();
-        input.addEventListener('keydown', (ev) => {
-          if (ev.key === 'Enter' && input.value.length > 0) {
-            resolved = true;
-            dialog.hide().then(() => {
-              resolve(input.value);
-            });
-          }
-        });
-      });
+      if (width !== undefined) {
+        dialog.style.setProperty('--width', width);
+      }
 
       document.body.appendChild(dialog);
-      setTimeout(() => {
-        dialog.show();
-      }, 0);
+      dialog.updateComplete.then(() => dialog.show());
+      dialog.addEventListener('sl-after-show', (ev) => {
+        if (ev.target === dialog) {
+          input.focus();
+          input.addEventListener('keydown', (ev) => {
+            if (ev.key === 'Enter' && input.value.length > 0) {
+              resolved = true;
+              dialog.hide().then(() => {
+                resolve(input.value);
+              });
+            }
+          });
+        }
+      });
+      dialog.addEventListener('sl-after-hide', (ev) => {
+        if (ev.target === dialog) {
+          dialog.remove();
+          if (!resolved) {
+            resolve(undefined);
+          }
+        }
+      });
     });
 
     return promise;
@@ -179,6 +189,7 @@ export const modal = {
     title = 'Select',
     confirm = 'Ok',
     selectProps,
+    width,
   }: ModalSelectProps): Promise<string | string[] | undefined> {
     let resolved = false;
 
@@ -210,7 +221,12 @@ export const modal = {
           </sl-button>
         </gui-dialog>
       ) as GuiDialog;
+      if (width !== undefined) {
+        dialog.style.setProperty('--width', width);
+      }
 
+      document.body.appendChild(dialog);
+      dialog.updateComplete.then(() => dialog.show());
       dialog.addEventListener('sl-after-hide', (ev) => {
         if (ev.target === dialog) {
           // sl-select bubbles the same events, so we need to check
@@ -220,19 +236,12 @@ export const modal = {
           }
         }
       });
-
       dialog.addEventListener('sl-after-show', (ev) => {
         if (ev.target === dialog) {
           // sl-select bubbles the same events, so we need to check
           select.focus();
         }
       });
-
-      document.body.appendChild(dialog);
-
-      setTimeout(() => {
-        dialog.show();
-      }, 0);
     });
 
     return promise;

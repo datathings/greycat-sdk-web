@@ -1,9 +1,4 @@
-import {
-  type GuiTable,
-  GuiElement,
-  css,
-  GuiDialog,
-} from '../../../exports.js';
+import { type GuiTable, GuiElement, css, GuiDialog } from '../../../exports.js';
 import '../../table/index.js'; // ensures table is defined
 import '../../tabs/index.js';
 // import ../../donut/index.js;
@@ -21,11 +16,16 @@ export class GuiCsvStatistics2 extends GuiElement {
 
     this._table = document.createElement('gui-table');
     this._dialog = document.createElement('gui-dialog');
-    this.shadowRoot.append(this._table, this._dialog);
+    this.shadowRoot.append(this._table);
   }
 
   connectedCallback() {
+    document.body.appendChild(this._dialog);
     this.update();
+  }
+
+  disconnectedCallback() {
+    this._dialog.remove();
   }
 
   get value() {
@@ -207,7 +207,9 @@ const nullCount = (c: gc.io.CsvColumnStatistics) => {
   return `${c.null_count} (${percentage}%)`;
 };
 
-type NullMapper = (prop: keyof gc.io.CsvColumnStatistics) => (c: gc.io.CsvColumnStatistics) => string;
+type NullMapper = (
+  prop: keyof gc.io.CsvColumnStatistics,
+) => (c: gc.io.CsvColumnStatistics) => string;
 const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : (c[prop] as string));
 
 const example = (c: gc.io.CsvColumnStatistics) => {

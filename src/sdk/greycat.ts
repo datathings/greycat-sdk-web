@@ -267,8 +267,18 @@ namespace gc {
        */
       await<T = unknown>(task: sdk.TaskLike, pollEvery?: number, signal?: AbortSignal): Promise<T>;
 
-      getFile<T = unknown>(filepath: `${string}.gcb`, signal?: AbortSignal): Promise<T[]>;
-      getFile<T = unknown>(filepath: string, signal?: AbortSignal): Promise<T | T[]>;
+      getFile<T = unknown>(
+        filepath: `${string}.gcb`,
+        offset?: number,
+        max?: number,
+        signal?: AbortSignal,
+      ): Promise<T[]>;
+      getFile<T = unknown>(
+        filepath: string,
+        offset?: number,
+        max?: number,
+        signal?: AbortSignal,
+      ): Promise<T | T[]>;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -312,11 +322,14 @@ namespace gc {
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const fn of this.abi.functions) {
-          const theFn = (...args: unknown[]) => {
-            const method_args = args.slice(0, fn.params.length);
-            const g = (args[fn.params.length] as GreyCat | undefined) ?? this;
-            const signal = args[fn.params.length + 1] as AbortSignal | undefined;
-            return g.call(fn.fqn, method_args, signal);
+          const theFn = (...raw_args: unknown[]) => {
+            const args = new Array(fn.params.length);
+            for (let i = 0; i < fn.params.length; i++) {
+              args[i] = raw_args[i];
+            }
+            const g = (raw_args[fn.params.length] as GreyCat | undefined) ?? this;
+            const signal = raw_args[fn.params.length + 1] as AbortSignal | undefined;
+            return g.call(fn.fqn, args, signal);
           };
           Object.defineProperty(theFn, 'name', {
             value: fn.fqn,
@@ -394,6 +407,8 @@ namespace gc {
         }
         const [result] = await this.getFile<T>(
           `${task.user_id}/tasks/${task.task_id}/result.gcb`,
+          undefined,
+          undefined,
           signal,
         );
         if (result instanceof core.Error) {
@@ -629,12 +644,14 @@ namespace gc {
        * *This uses `getFileResponse(filepath, signal)` under-the-hood*.
        *
        * @param filepath eg. `path/to/file` *(do not include `/files/` in the path)*
+       * @param offset download the file starting at this offset
+       * @param max download as much as `max` bytes (might be less than or equal to)
        * @param signal optional `AbortSignal` to cancel the request prematurely
        * @returns
        */
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      async getFile(filepath: string, signal?: AbortSignal) {
-        const res = await this.getFileResponse(filepath, signal);
+      async getFile(filepath: string, offset?: number, max?: number, signal?: AbortSignal) {
+        const res = await this.getFileResponse(filepath, offset, max, signal);
         if (filepath.endsWith('.json')) {
           return res.json();
         } else if (filepath.endsWith('.gcb')) {
@@ -655,26 +672,40 @@ namespace gc {
        * *This method should be used when you want to keep control over "how" to read the body bytes (eg. `res.text()`, `res.arrayBuffer()`, etc.).*
        *
        * @param filepath eg. `path/to/file` *(do not include `/files/` in the path)*
+       * @param offset download the file starting at this offset
+       * @param max download as much as `max` bytes (might be less than or equal to)
        * @param signal optional `AbortSignal` to cancel the request prematurely
        * @returns
        */
-      async getFileResponse(filepath: string, signal?: AbortSignal): Promise<Response> {
+      async getFileResponse(
+        filepath: string,
+        offset?: number,
+        max?: number,
+        signal?: AbortSignal,
+      ): Promise<Response> {
         const route = `files/${filepath}`;
-        const res = await fetch(`${this.api}/${route}`, { signal });
+        const url = new URL(`${this.api}/${route}`);
+        if (offset !== undefined) {
+          url.searchParams.set('offset', `${offset}`);
+        }
+        if (max !== undefined) {
+          url.searchParams.set('max', `${max}`);
+        }
+        const res = await fetch(url, { signal });
         if (res.ok) {
-          debugLogger(res.status, route);
+          debugLogger(res.status, url.pathname + url.search);
           return res;
         }
         if (res.status === 404) {
-          debugLogger(res.status, route);
+          debugLogger(res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' not found`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, route);
+          debugLogger(res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' access forbidden`);
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, route);
+          debugLogger(res.status, url.pathname + url.search);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');

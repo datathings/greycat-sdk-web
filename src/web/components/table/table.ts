@@ -652,15 +652,19 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }
 
   toggleConfig(): void {
-    this._drawer.open = !this._drawer.open;
+    if (this._drawer.open) {
+      this._drawer.hide();
+    } else {
+      this._drawer.show();
+    }
   }
 
   openConfig(): void {
-    this._drawer.open = true;
+    this._drawer.show();
   }
 
   closeConfig(): void {
-    this._drawer.open = false;
+    this._drawer.hide();
   }
 
   async update(): Promise<void> {

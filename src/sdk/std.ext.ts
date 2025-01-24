@@ -19,7 +19,12 @@ namespace gc {
           g: GreyCat = gc.$.default,
           signal?: AbortSignal,
         ): Promise<T | T[]> {
-          return g.getFile<T>(`${this.user_id}/tasks/${this.task_id}/${filepath}`, signal);
+          return g.getFile<T>(
+            `${this.user_id}/tasks/${this.task_id}/${filepath}`,
+            undefined,
+            undefined,
+            signal,
+          );
         },
         await(
           this: runtime.Task,
@@ -36,6 +41,8 @@ namespace gc {
         ): Promise<T> {
           const results = await g.getFile<T>(
             `${this.user_id}/tasks/${this.task_id}/result.gcb`,
+            undefined,
+            undefined,
             signal,
           );
           return results[0];
