@@ -61,17 +61,17 @@ export class GuiTabs extends GuiElement {
         if (panel instanceof GuiPanel) {
           const tabName = panel.tab;
           this.panels.set(tabName, panel);
+          panel.setAttribute('data-tab', tabName);
           panel.remove();
         } else {
           console.warn(`Only 'gui-panel' elements can be used as panels with 'gui-tabs'`);
         }
       }
     }
-    this.shadowRoot.replaceChildren(<div className="tabs">{this._tabs}</div>);
     if (activeTab && activeTab.textContent) {
       const activePanel = this.panels.get(activeTab.textContent);
       if (activePanel) {
-        this.shadowRoot.appendChild(activePanel);
+        this.appendChild(activePanel);
       }
     } else if (this._tabs.length > 0) {
       const firstTab = this._tabs[0];
@@ -81,7 +81,7 @@ export class GuiTabs extends GuiElement {
           const tab = panel.tab;
           if (tab === tabName) {
             firstTab.active = true;
-            this.shadowRoot.appendChild(panel);
+            this.appendChild(panel);
             break;
           }
         }
@@ -91,7 +91,6 @@ export class GuiTabs extends GuiElement {
 
   disconnectedCallback() {
     this.panels.clear();
-    this.shadowRoot.replaceChildren();
   }
 
   selectTab(name: string): void {
@@ -116,7 +115,7 @@ export class GuiTabs extends GuiElement {
     }
     const panel = this.panels.get(tabName);
     if (panel) {
-      this.shadowRoot.appendChild(panel);
+      this.appendChild(panel);
       this.dispatchEvent(new GuiChangeEvent(tab));
     }
   }

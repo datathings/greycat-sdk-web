@@ -1054,6 +1054,31 @@ namespace gc {
         }
       }
 
+      object_with_type(value: object): void {
+        if (value instanceof GCObject) {
+          this.write_vu32(value.$type.offset);
+          value.saveContent(this);
+        } else if (value instanceof String) {
+          this.write_vu32(this.abi.core.string);
+          this.raw_string(value.valueOf());
+        } else if (value instanceof Symbol) {
+          this.write_vu32(this.abi.core.string);
+          this.raw_symbol(value.valueOf());
+        } else if (value instanceof Array) {
+          this.write_vu32(this.abi.core.array);
+          this.write_vu32(value.length);
+          this.write_array(value);
+        } else if (value instanceof Map) {
+          this.write_vu32(this.abi.core.map);
+          this.write_vu32(value.size);
+          this.write_map(value);
+        } else if (value === null) {
+          throw new Error(`unexpected 'null' value in 'object_with_type'`);
+        } else {
+          this.object_with_type(GCObject.from(value, this.abi));
+        }
+      }
+
       js_object(value: object): void {
         try {
           GCObject.from(value, this.abi).save(this);
@@ -1267,11 +1292,10 @@ namespace gc {
         }
 
         const slot_type = slot_type_and === slot_type_or ? slot_type_and : PrimitiveType.undefined;
+        const object_type_id = object_type_and === object_type_or ? BigInt(object_type_and) : 4294967295n;
         this.write_u8(slot_type);
-        object_type =
-          object_type_and === object_type_or ? this.abi.types[object_type_and] : undefined;
-        if (object_type && (slot_type == PrimitiveType.object || slot_type == PrimitiveType.enum)) {
-          this.write_vu32(object_type.mapped_type_off);
+        if (slot_type == PrimitiveType.object || slot_type == PrimitiveType.enum) {
+          this.write_vu64(object_type_id);
         }
         if (slot_type !== PrimitiveType.undefined && slot_type !== PrimitiveType.object) {
           // in JS we never check if the array is monotonic
@@ -1285,18 +1309,18 @@ namespace gc {
             }
           }
         } else if (slot_type === PrimitiveType.object || slot_type === PrimitiveType.enum) {
-          if (object_type) {
+          if (object_type_id === 4294967295n) {
             for (let i = 0; i < arr.length; i++) {
               const elem = arr[i];
               if (elem !== null && elem !== undefined) {
-                this.raw_object(elem);
+                this.object_with_type(elem);
               }
             }
           } else {
             for (let i = 0; i < arr.length; i++) {
-              const elem = arr[i];
+              const elem = arr[i] as GCObject | null | undefined;
               if (elem !== null && elem !== undefined) {
-                this.object(elem);
+                this.serializeRaw(elem);
               }
             }
           }

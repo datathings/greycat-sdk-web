@@ -1,5 +1,6 @@
 /node_modules
-gcdata
+/gcdata
+/files
 /pages/gcdata
 /playground/gcdata/
 /dist

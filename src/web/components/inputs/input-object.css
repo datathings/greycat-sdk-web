@@ -35,6 +35,9 @@
   column-gap: var(--spacing);
   align-items: center;
 }
+.nullable sl-button.del {
+  align-self: start;
+}
 .sep {
   height: 100%;
   border-right: var(--border-width) solid var(--border-color);
