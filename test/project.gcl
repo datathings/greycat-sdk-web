@@ -873,3 +873,20 @@ fn ambiguous() {
 fn ambiguous2() {
   return ([], false);
 }
+
+@expose
+fn potato2(arr: Array<CsvColumn>): Array<CsvColumn> {
+  println(arr);
+  return arr;
+}
+
+type Baz {
+  a: int?;
+  b: String;
+}
+
+@expose
+fn something(foo: Baz): Baz {
+  pprint(foo);
+  return foo;
+}
