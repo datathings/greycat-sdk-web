@@ -4,7 +4,7 @@
     "module": "NodeNext",
     "moduleResolution": "nodenext",
     "checkJs": true,
-    "types": ["../dist/greycat.d.ts"]
+    "types": ["../dist/greycat.d.ts", "./project.d.ts"]
   },
   "include": ["**/*.js"],
   "exclude": []

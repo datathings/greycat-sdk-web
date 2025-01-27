@@ -691,8 +691,13 @@ namespace gc {
               const en = new this.ctor(offset, en_field_name) as GCEnum;
               this.static_values[en_field_name] = en;
               this.enum_values[offset] = en;
+              Object.defineProperty(this.ctor, en_field_name, {
+                value: en,
+                writable: false,
+                enumerable: true,
+              });
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (this.ctor as any)[en_field_name] = en;
+              // (this.ctor as any)[en_field_name] = en;
             }
             Object.defineProperty(this.ctor, '$fields', {
               value: this.enum_values,
@@ -816,7 +821,7 @@ namespace gc {
           this.ctor = GCObject;
         }
 
-        Object.defineProperty(this.ctor, 'name', {
+        Object.defineProperty(this.ctor.constructor, 'name', {
           value: abi.symbols[symbol],
           writable: false,
           enumerable: false,

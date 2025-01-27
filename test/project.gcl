@@ -4,6 +4,10 @@ var nl: nodeList<String>;
 var ni: nodeIndex<String, float>;
 var ng: nodeGeo<String>;
 
+enum NameConflict {
+  name;
+}
+
 type FloatPrecisionTest {
   normal: float;
   @precision(0.01)
