@@ -1,10 +1,4 @@
-import {
-  toast,
-  GuiElement,
-  type GuiTable,
-  GuiDialog,
-  css,
-} from '../../exports.js';
+import { toast, GuiElement, type GuiTable, GuiDialog, css } from '../../exports.js';
 import '../table/table.js'; // ensure gui-table is defined
 import '../user-form/user-form.js'; // ensure gui-user-form is defined
 import './user-group-policy.js';
@@ -29,7 +23,6 @@ export class GuiUsers extends GuiElement {
 
     this._table = document.createElement('gui-table');
     this._table.setAttrs({
-      headers: ['Id', 'Name', 'Full Name', 'Email', 'Role', 'Activated', 'External', 'Groups'],
       sortBy: [0, 'asc'],
       columnsWidths: [80, undefined, undefined, undefined, 150, 130, 120],
       globalFilter: true,
@@ -132,7 +125,18 @@ export class GuiUsers extends GuiElement {
         ];
       }
 
-      this._table.value = gc.core.Table.fromRows(rows);
+      const table = gc.core.Table.fromRows(rows);
+      table.headers = [
+        'Id',
+        'Name',
+        'Full Name',
+        'Email',
+        'Role',
+        'Activated',
+        'External',
+        'Groups',
+      ];
+      this._table.value = table;
     } catch (err) {
       console.warn(`Unable to fetch 'runtime::SecurityEntity::all'`, err);
     }

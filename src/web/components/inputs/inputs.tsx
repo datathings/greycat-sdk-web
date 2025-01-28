@@ -1064,7 +1064,7 @@ export type FieldElements<T extends object> = Partial<{
  *
  * Though, if you know what the element is, you can downcast it with eg. `el.fields.myField as GuiInputObject<boolean>`.
  */
-export type TypedHtmlElement<T> = Node & { __phantom: T };
+export type TypedHtmlElement<T> = Node & { value: T };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
 export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<
