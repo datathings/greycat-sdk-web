@@ -1,4 +1,5 @@
-image: oci.datathings.com/greycat/build/js:1.0.8-main
+default:
+  tags: [linux]
 
 variables:
   GIT_STRATEGY: clone

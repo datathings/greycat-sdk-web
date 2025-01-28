@@ -9,8 +9,8 @@ importers:
   .:
     dependencies:
       '@greycat/sdk':
-        specifier: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.21-stable.tgz
-        version: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.21-stable.tgz
+        specifier: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.25-stable.tgz
+        version: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.25-stable.tgz
       d3:
         specifier: 7.8.5
         version: 7.8.5
@@ -340,9 +340,9 @@ packages:
     version: 6.10.49-stable
     engines: {node: '>=16.17.0'}
 
-  '@greycat/sdk@https://get.greycat.io/files/sdk/js/stable/6.10/6.10.21-stable.tgz':
-    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.21-stable.tgz}
-    version: 6.10.21-stable
+  '@greycat/sdk@https://get.greycat.io/files/sdk/js/stable/6.10/6.10.25-stable.tgz':
+    resolution: {tarball: https://get.greycat.io/files/sdk/js/stable/6.10/6.10.25-stable.tgz}
+    version: 6.10.25-stable
     engines: {node: '>=18'}
 
   '@humanwhocodes/config-array@0.11.14':
@@ -1869,7 +1869,7 @@ snapshots:
       vscode-languageserver-textdocument: 1.0.11
       vscode-languageserver-types: 3.17.5
 
-  '@greycat/sdk@https://get.greycat.io/files/sdk/js/stable/6.10/6.10.21-stable.tgz':
+  '@greycat/sdk@https://get.greycat.io/files/sdk/js/stable/6.10/6.10.25-stable.tgz':
     dependencies:
       slugify: 1.6.6
 
