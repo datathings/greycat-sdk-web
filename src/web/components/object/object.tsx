@@ -1,4 +1,10 @@
-import { css, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
+import {
+  css,
+  GuiElement,
+  GuiFactory,
+  type GuiValueElement,
+  type sl,
+} from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
