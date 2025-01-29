@@ -12,6 +12,8 @@ export function vMap(x: unknown): number {
         return Math.round(x.epochMs);
       } else if (x instanceof gc.core.Date) {
         return new Date(x.toString()).getTime();
+      } else if (x instanceof BigInt) {
+        return Number(x);
       }
       return +x;
     }
