@@ -100,6 +100,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
           this.input.value = item.textContent!;
           const index = getIndexInParent(item);
           const value = this._options[index].value;
+          this._setValue(value);
           this.dispatchEvent(new GuiChangeEvent(value));
           this.dispatchEvent(new GuiInputEvent(value));
         }
@@ -318,6 +319,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
       itemEl.addEventListener('mousedown', (ev) => {
         ev.preventDefault();
         this.input.value = opt.text ?? `${opt.value}`;
+        this._setValue(opt.value);
         const selected = this._list.querySelector('div.selected');
         if (selected) {
           selected.classList.remove('selected');
