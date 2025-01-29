@@ -128,7 +128,7 @@ document.body.appendChild(
         <gui-input value={gc.core.duration.from_mins(42)} />
       </input-viewer>
       <input-viewer header="Enum">
-        <gui-input-enum value={gc.core.TimeZone.Europe_Paris} />
+        <gui-input-enum value={gc.core.TimeZone["Europe/Paris"]} />
       </input-viewer>
       <input-viewer header="Object">
         <gui-input-object value={new gc.project.Person('John', 42, true)}>

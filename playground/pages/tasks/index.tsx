@@ -1,4 +1,4 @@
-import { GuiSearchableSelect, GuiInputFn, sl } from '@greycat/web';
+import { GuiInputFn, sl, GuiSelect } from '@greycat/web';
 import '@/common';
 import actions from './actions';
 
@@ -6,7 +6,7 @@ await gc.sdk.init();
 
 const fnInput = (<gui-input-fn />) as GuiInputFn;
 const fnSelector = (
-  <gui-searchable-select
+  <gui-select
     placeholder="Select a function to run as a task"
     options={gc.$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
@@ -14,7 +14,7 @@ const fnSelector = (
       spawnBtn.disabled = ev.detail === null;
     }}
   />
-) as GuiSearchableSelect;
+) as GuiSelect;
 const spawnBtn = (
   <sl-button
     variant="text"

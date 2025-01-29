@@ -1,11 +1,11 @@
 import '@greycat/web';
 import '@/common';
-import { GuiSearchableSelect } from '@greycat/web';
+import { GuiSelect } from '@greycat/web';
 
 await gc.sdk.init();
 
 const selected = document.querySelector('gui-object')!;
-const select = document.querySelector('gui-searchable-select')! as GuiSearchableSelect<gc.Person>;
+const select = document.querySelector('gui-select')! as GuiSelect<gc.Person>;
 select.options = [
   { text: 'John', value: new gc.Person('John', 42, true) },
   { text: 'Maria', value: new gc.Person('Maria', 45, true), selected: true },

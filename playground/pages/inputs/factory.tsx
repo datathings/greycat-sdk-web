@@ -1,14 +1,9 @@
-import {
-  findParentInputElement,
-  GuiChangeEvent,
-  GuiInputObject,
-  GuiSearchableSelect,
-} from '@greycat/web';
+import { findParentInputElement, GuiChangeEvent, GuiInputObject, GuiSelect } from '@greycat/web';
 import '@/common';
 
 const greycat = await gc.sdk.init();
 
-class TxIdSelect extends GuiSearchableSelect {
+class TxIdSelect extends GuiSelect {
   private _onChange = async (ev: GuiChangeEvent) => {
     if (ev.target === this) {
       return;

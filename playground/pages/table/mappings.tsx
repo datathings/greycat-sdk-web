@@ -1,13 +1,14 @@
+import '@greycat/web';
 import '@/common';
-import { type GuiTable } from '@greycat/web';
 
 await gc.sdk.init();
 const { actions } = await import('./actions');
 
-const tableEl = (<gui-table headers={['Time', 'KLine']} />) as GuiTable;
+const tableEl = document.createElement('gui-table');
 
 async function fetchTable() {
   const table = (await gc.project.serie_of_obj()) as gc.Table;
+  table.headers = ['Time', 'KLine'];
   return tableEl.applyMappings(table);
 }
 
