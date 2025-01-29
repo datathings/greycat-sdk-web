@@ -1717,7 +1717,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
               variant="text"
               size="small"
               onclick={() => {
-                const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                const index = getIndexInParent(item);
                 this._value.splice(index, 1);
                 item.remove();
                 this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1733,7 +1733,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
             onclick={() => {
               const value = new generic_param.ctor();
               const [node, input] = this._createItem(factory, items, value);
-              const index = getIndexInParent(item) - 1;
+              const index = getIndexInParent(item);
               this._value[index] = input?.value;
               items.replaceChild(node, item);
               this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1749,7 +1749,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
     const input = factory.createElement(value);
     input.value = value;
     input.addEventListener('gui-change', () => {
-      const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+      const index = getIndexInParent(item);
       this._value[index] = input.value;
     });
     const item = (
@@ -1762,7 +1762,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
                 variant="text"
                 size="small"
                 onclick={() => {
-                  const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                  const index = getIndexInParent(item);
                   this._value.splice(index, 1);
                   item.remove();
                   this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1778,7 +1778,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
                 variant="text"
                 size="small"
                 onclick={() => {
-                  const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                  const index = getIndexInParent(item);
                   this._value[index] = null;
                   const [node] = this._createItem(factory, items, null);
                   item.replaceWith(node);
@@ -1796,7 +1796,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
               variant="text"
               size="small"
               onclick={() => {
-                const index = getIndexInParent(item) - 1; // -1 to account for the "Add" button
+                const index = getIndexInParent(item);
                 this._value.splice(index, 1);
                 item.remove();
                 this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -2100,7 +2100,7 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
   get value(): gc.core.node | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.node.fromRef(this.input.value);
+        return gc.core.node.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2112,7 +2112,7 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
-      this.input.value = value.ref;
+      this.input.value = `${value.value}`;
     }
   }
 
@@ -2188,7 +2188,7 @@ export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null>
   get value(): gc.core.nodeIndex | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.nodeIndex.fromRef(this.input.value);
+        return gc.core.nodeIndex.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2200,7 +2200,7 @@ export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null>
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
-      this.input.value = value.ref;
+      this.input.value = `${value.value}`;
     }
   }
 
@@ -2276,7 +2276,7 @@ export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
   get value(): gc.core.nodeTime | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.nodeTime.fromRef(this.input.value);
+        return gc.core.nodeTime.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2288,7 +2288,7 @@ export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
-      this.input.value = value.ref;
+      this.input.value = `${value.value}`;
     }
   }
 
@@ -2364,7 +2364,7 @@ export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
   get value(): gc.core.nodeList | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.nodeList.fromRef(this.input.value);
+        return gc.core.nodeList.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2376,7 +2376,7 @@ export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
-      this.input.value = value.ref;
+      this.input.value = `${value.value}`;
     }
   }
 
@@ -2452,7 +2452,7 @@ export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
   get value(): gc.core.nodeGeo | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.nodeGeo.fromRef(this.input.value);
+        return gc.core.nodeGeo.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2464,7 +2464,7 @@ export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
-      this.input.value = value.ref;
+      this.input.value = `${value.value}`;
     }
   }
 

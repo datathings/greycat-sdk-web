@@ -14,10 +14,6 @@ namespace gc {
             return new ty.ctor(value) as gc.core.nodeTime;
           }
 
-          static fromRef(ref: string, g: GreyCat = gc.$.default): gc.core.nodeTime {
-            return nodeTime.create(BigInt(`0x${ref}`), g);
-          }
-
           static override load(r: AbiReader, ty: AbiType): gc.core.nodeTime {
             const value = r.read_vu64_bigint();
             return new ty.ctor(value) as gc.core.nodeTime;
@@ -48,15 +44,8 @@ namespace gc {
             w.write_vu64(this.value);
           }
 
-          /**
-           * Hexedecimal representation of the nodeTime's reference
-           */
-          get ref(): string {
-            return this.value.toString(16);
-          }
-
           override toString() {
-            return `nodeTime:${this.ref}`;
+            return `${this.value}_nodeTime`;
           }
 
           override valueOf() {
@@ -66,7 +55,7 @@ namespace gc {
           override toJSON() {
             return {
               _type: this.$type.name,
-              ref: this.ref,
+              value: this.value,
             };
           }
         }

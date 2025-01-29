@@ -14,10 +14,6 @@ namespace gc {
             return new ty.ctor(value) as core.nodeIndex;
           }
 
-          static fromRef(ref: string, g: GreyCat = gc.$.default): core.nodeIndex {
-            return nodeIndex.create(BigInt(`0x${ref}`), g);
-          }
-
           static override load(r: AbiReader, ty: AbiType): core.nodeIndex {
             const value = r.read_vu64_bigint();
             return new ty.ctor(value) as core.nodeIndex;
@@ -41,15 +37,8 @@ namespace gc {
             w.write_vu64(this.value);
           }
 
-          /**
-           * Hexedecimal representation of the nodeIndex's reference
-           */
-          get ref(): string {
-            return this.value.toString(16);
-          }
-
           override toString() {
-            return `nodeIndex:${this.ref}`;
+            return `${this.value}_nodeIndex`;
           }
 
           override valueOf() {
@@ -59,7 +48,7 @@ namespace gc {
           override toJSON() {
             return {
               _type: this.$type.name,
-              ref: this.ref,
+              value: this.value,
             };
           }
         }
