@@ -52,9 +52,9 @@
   display: flex;
   gap: var(--spacing);
   background-color: var(--bg-0);
+  align-items: center;
   padding: var(--gui-layout-padding);
   border-bottom: var(--border-width) solid var(--gui-layout-border-color);
-  align-items: center;
 }
 
 .header {

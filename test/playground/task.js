@@ -1,8 +1,8 @@
 // @ts-check
-import { GreyCat } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 import { displayValue } from './_utils.js';
 
-const greycat = await GreyCat.init();
+const greycat = await gc.sdk.init();
 
 // spawns a task
 const task = await greycat.spawn('project::task_with_params', ['Hello world', 42]);

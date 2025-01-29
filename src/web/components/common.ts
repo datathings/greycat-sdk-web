@@ -220,3 +220,8 @@ export function registerCustomElement<K extends keyof HTMLElementTagNameMap>(
     customElements.define(tagName, constructor, options);
   }
 }
+
+export function getBooleanAttribute(el: Element, name: string): boolean {
+  const attr = el.getAttribute(name);
+  return (attr !== null) && (attr !== 'false');
+}

@@ -8,6 +8,7 @@ export class GuiLayout extends GuiElement {
   private _resizeObs: ResizeObserver;
   private _breakpoint: number;
   private _responsiveSheet: CSSStyleSheet;
+  private _header: HTMLElement;
   private _menu: HTMLElement;
   private _nav: HTMLElement;
   private _navDrawer: sl.SlDrawer;
@@ -36,6 +37,15 @@ export class GuiLayout extends GuiElement {
             {svg(MenuIcon)}
           </a>
         </slot>
+      </div>
+    ) as HTMLElement;
+
+    this._header = (
+      <div className="header-base" part="header-base">
+        {this._menu}
+        <div className="header">
+          <slot name="header" />
+        </div>
       </div>
     ) as HTMLElement;
 
@@ -75,12 +85,7 @@ export class GuiLayout extends GuiElement {
 
     this.shadowRoot.appendChild(
       <>
-        <div className="header-base" part="header-base">
-          {this._menu}
-          <div className="header">
-            <slot name="header" />
-          </div>
-        </div>
+        {this._header}
         {this._nav}
         <slot name="main-header" />
         <slot name="main" />
@@ -127,6 +132,10 @@ export class GuiLayout extends GuiElement {
   }
 
   connectedCallback() {
+    const header = this.querySelector('[slot="header"]');
+    if (header === null) {
+      this._header.remove();
+    }
     const nav = this.querySelectorAll('[slot*="navigation"]');
     if (nav.length === 0) {
       this._nav.remove();
@@ -135,10 +144,37 @@ export class GuiLayout extends GuiElement {
     if (!aside) {
       this._aside.remove();
     }
+    const mainHeader = this.querySelector('[slot="main-header"]');
+    if (!mainHeader) {
+      this.shadowRoot.querySelector('slot[name="main-header"]')?.remove();
+    }
+    const main = this.querySelector('[slot="main"]');
+    if (!main) {
+      this.shadowRoot.querySelector('slot[name="main"]')?.remove();
+    }
+    const mainFooter = this.querySelector('[slot="main-footer"]');
+    if (!mainFooter) {
+      this.shadowRoot.querySelector('slot[name="main-footer"]')?.remove();
+    }
+    const footer = this.querySelector('[slot="footer"]');
+    if (!footer) {
+      this.shadowRoot.querySelector('slot[name="footer"]')?.remove();
+    }
     this._resizeObs.observe(this);
   }
 
   disconnectedCallback() {
+    this.shadowRoot.replaceChildren(
+      <>
+        {this._header}
+        {this._nav}
+        <slot name="main-header" />
+        <slot name="main" />
+        <slot name="main-footer" />
+        {this._aside}
+        <slot name="footer" />
+      </>,
+    );
     this._resizeObs.disconnect();
   }
 
@@ -187,7 +223,9 @@ export class GuiLayout extends GuiElement {
       this._navDrawer.contained = false;
       this._asideDrawer.hide();
       this._asideDrawer.contained = false;
-      this._menu.classList.remove('hide');
+      if (this._nav.isConnected) {
+        this._menu.classList.remove('hide');
+      }
     } else {
       const gridTemplateAreas = [
         `'header     header      header'`,
