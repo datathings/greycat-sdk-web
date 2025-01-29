@@ -1,18 +1,10 @@
 import '@greycat/web';
-import { LayoutHeader, LayoutMenu } from '@/common';
+import '@/common';
 
-const g = await await gc.sdk.init();
-
-const table = await g.call('project::persons');
-console.log(table);
+await gc.sdk.init();
 
 document.body.appendChild(
-  <gui-layout>
-    {LayoutHeader({
-      homePath: '../..',
-      items: ['Hello'],
-    })}
-    {LayoutMenu({ current: 'hello' })}
+  <app-layout title="Hello">
     <gui-value value="Hello, world!" />
-  </gui-layout>,
+  </app-layout>,
 );

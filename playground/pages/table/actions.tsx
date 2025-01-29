@@ -1,66 +1,24 @@
 import { setGlobalDateTimeFormatTimezone } from '@greycat/web';
 
+function link(name: string, page: string) {
+  return (
+    <sl-button slot="action" variant="text" onclick={() => location.assign(`/pages/table/${page}`)}>
+      {name}
+    </sl-button>
+  );
+}
+
 export const actions = (
   <>
-    <sl-button slot="action" variant="text" onclick={() => location.assign('/pages/table/')}>
-      Table
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/ignore-cols.html')}
-    >
-      Ignore Cols
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/many-cols.html')}
-    >
-      Many cols
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/map.html')}
-    >
-      Map
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/mappings.html')}
-    >
-      Mappings
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/row-based.html')}
-    >
-      Row-based
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/array-of-objects.html')}
-    >
-      Array-of-objects
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/table-of-objects.html')}
-    >
-      Table-of-objects
-    </sl-button>
-    <sl-button
-      slot="action"
-      variant="text"
-      onclick={() => location.assign('/pages/table/column-factories.html')}
-    >
-      Column Factories
-    </sl-button>
+    {link('Table', 'index.html')}
+    {link('Ignore Cols', 'ignore-cols.html')}
+    {link('Editable', 'editable.html')}
+    {link('Map', 'map.html')}
+    {link('Mappings', 'mappings.html')}
+    {link('Row-based', 'row-based.html')}
+    {link('Array-of-objects', 'array-of-objects.html')}
+    {link('Table-of-objects', 'table-of-objects.html')}
+    {link('Column Factories', 'column-factories.html')}
     <gui-input-enum
       slot="action"
       type={gc.core.TimeZone._type}

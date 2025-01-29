@@ -37,7 +37,7 @@ document.body.appendChild(
           return document.createTextNode(getGlobalNumberFormat().format(value));
         },
       }}
-      ongui-dblclick={(ev) => {
+      ongui-table-dblclick={(ev) => {
         const { rowIdx, colIdx } = ev.detail;
         window.alert(`Col ${colIdx}, Row ${rowIdx}, Value "${table.cols[colIdx][rowIdx]}"`);
       }}

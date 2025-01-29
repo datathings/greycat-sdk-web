@@ -38,13 +38,13 @@ namespace gc {
           };
           static readonly _type = 'core::time' as const;
 
-          constructor(public value: bigint | number = Date.now() * 1000) {
+          constructor(public value: bigint | number = globalThis.Date.now() * 1000) {
             super();
           }
 
           static now(g: GreyCat = gc.$.default): gc.core.time {
             const ty = g.abi.types[g.abi.core.time];
-            return new ty.ctor(Date.now() * 1000) as gc.core.time;
+            return new ty.ctor(globalThis.Date.now() * 1000) as gc.core.time;
           }
 
           static create(value: bigint | number, g: GreyCat = gc.$.default): gc.core.time {
@@ -52,7 +52,7 @@ namespace gc {
             return new ty.ctor(value) as gc.core.time;
           }
 
-          static fromDate(date: Date, g: GreyCat = gc.$.default): gc.core.time {
+          static fromDate(date: globalThis.Date, g: GreyCat = gc.$.default): gc.core.time {
             return time.fromMs(date.getTime(), g);
           }
 
@@ -101,8 +101,8 @@ namespace gc {
             return this.value % 1_000_000;
           }
 
-          toDate(): Date {
-            return new Date(this.epochMs);
+          toDate(): globalThis.Date {
+            return new globalThis.Date(this.epochMs);
           }
 
           equals(other: gc.core.time): boolean {
@@ -155,7 +155,7 @@ namespace gc {
             formatOrOptions: Intl.DateTimeFormat | Intl.DateTimeFormatOptions = time.FORMAT_OPTIONS,
             locales = globalThis.navigator ? globalThis.navigator.language : time.LOCALE,
           ): string {
-            const date = new Date(this.epochMs);
+            const date = new globalThis.Date(this.epochMs);
             if (isNaN(date.getTime())) {
               return `${this.value}_time`;
             }
@@ -171,7 +171,7 @@ namespace gc {
           }
 
           override toString(): string {
-            const date = new Date(this.epochMs);
+            const date = new globalThis.Date(this.epochMs);
             if (isNaN(date.getTime())) {
               return `${this.value}_time`;
             }

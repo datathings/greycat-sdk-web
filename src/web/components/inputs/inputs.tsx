@@ -4,10 +4,11 @@ import {
   getIndexInParent,
   GuiChangeEvent,
   GuiInputEvent,
+  GuiSelect,
+  GuiOption,
 } from '../../exports.js';
 import { css, GuiElement } from '../common.js';
 import '../searchable-select/index.js';
-import type { GuiSearchableSelect, SearchableOption } from '../searchable-select/index.js';
 
 import InputStyle from './input.css?inline';
 import ArrayStyle from './input-array.css?inline';
@@ -805,13 +806,13 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
 }
 
 export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
-  input: GuiSearchableSelect;
+  input: GuiSelect;
   private _type: gc.sdk.AbiType | undefined;
 
   constructor() {
     super();
 
-    this.input = document.createElement('gui-searchable-select');
+    this.input = document.createElement('gui-select');
     this.input.setAttribute('exportparts', 'base');
     this.input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
@@ -1454,13 +1455,13 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   static override styles = [...GuiInputElement.styles, css(AnyStyle)];
 
   private _value: unknown;
-  readonly select: GuiSearchableSelect;
+  readonly select: GuiSelect;
   input: GuiInputElement<unknown>;
 
   constructor() {
     super();
 
-    this.select = document.createElement('gui-searchable-select');
+    this.select = document.createElement('gui-select');
     this.select.part.add('select');
     this.select.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
@@ -1473,7 +1474,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    const opts: SearchableOption[] = Array.from({ length: gc.$.default.abi.types.length - 1 });
+    const opts: GuiOption[] = Array.from({ length: gc.$.default.abi.types.length - 1 });
     for (let index = 1; index < gc.$.default.abi.types.length; index++) {
       const t = gc.$.default.abi.types[index];
       opts[index - 1] = { text: t.name, value: t.offset };
@@ -1567,7 +1568,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     }
   }
 
-  set options(options: SearchableOption[]) {
+  set options(options: GuiOption[]) {
     this.select.options = options;
   }
 

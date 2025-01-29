@@ -3,8 +3,11 @@ import '@/common';
 
 await gc.sdk.init();
 
+const { actions } = await import('./actions');
+
 document.body.appendChild(
   <app-layout title="Table">
+    {actions}
     {/* from a Table */}
     <gui-table value={await gc.project.table()} />
 

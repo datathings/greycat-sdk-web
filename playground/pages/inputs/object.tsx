@@ -1,7 +1,7 @@
-import { GreyCat, GuiInputElement, GuiInputFn, runtime } from '@greycat/web';
+import { GuiInputElement, GuiInputFn } from '@greycat/web';
 import '@/common';
 
-await await gc.sdk.init();
+await gc.sdk.init();
 
 function printValue(this: GuiInputElement<unknown>) {
   console.log('update', this.value);
@@ -14,7 +14,7 @@ function validate() {
 
 const is_valid = document.createTextNode('true');
 
-const value = await runtime.Runtime.info();
+const value = await gc.runtime.Runtime.info();
 // const start = core.time.now();
 // const value = core.nodeTime_sample_args.create(
 //   [],

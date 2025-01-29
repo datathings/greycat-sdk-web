@@ -1,0 +1,65 @@
+:host {
+  --gui-select-list-z-index: 1000;
+  --gui-select-list-bg: var(--bg-2);
+  --gui-select-list-item-hover: var(--bg-1);
+  --gui-select-list-item-selected-color: var(--primary);
+  --gui-select-list-item-selected-bg: var(--bg-0);
+
+  position: relative;
+  display: block;
+
+  :is(sl-icon) {
+    background-size: contain;
+    background-image: var(--icon-search);
+  }
+
+  &.open {
+    > sl-input::part(base) {
+      border-bottom-left-radius: 0;
+    }
+  }
+
+  .gui-select-list {
+    z-index: var(--gui-select-list-z-index);
+    position: absolute;
+    width: 100%;
+    max-height: 400px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    background-color: var(--gui-select-list-bg);
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto;
+    border: var(--border-width) solid var(--border-color);
+    box-shadow: -3px 0 3px rgb(var(--base-0)),
+             3px 0 3px rgb(var(--base-0)),
+             0 3px 3px rgb(var(--base-0));
+
+    > div {
+      font-weight: normal;
+      line-height: normal;
+      pointer-events: auto;
+      border-bottom: 1px solid var(--border-color);
+      padding: calc(var(--spacing) / 2) var(--spacing);
+      width: 100%;
+
+      &:hover {
+        background-color: var(--gui-select-list-item-hover);
+        cursor: pointer;
+      }
+
+      &.hidden {
+        display: none;
+      }
+
+      &.selected {
+        color: var(--gui-select-list-item-selected-color);
+        background-color: var(--gui-select-list-item-selected-bg);
+      }
+
+      &:last-child {
+        border-bottom: none;
+      }
+    }
+  }
+}

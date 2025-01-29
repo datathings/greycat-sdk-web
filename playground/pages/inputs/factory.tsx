@@ -1,13 +1,12 @@
 import {
   findParentInputElement,
-  GreyCat,
   GuiChangeEvent,
   GuiInputObject,
   GuiSearchableSelect,
 } from '@greycat/web';
 import '@/common';
 
-const greycat = await await gc.sdk.init();
+const greycat = await gc.sdk.init();
 
 class TxIdSelect extends GuiSearchableSelect {
   private _onChange = async (ev: GuiChangeEvent) => {
@@ -23,8 +22,8 @@ class TxIdSelect extends GuiSearchableSelect {
         this.dispatchEvent(new GuiChangeEvent(this.value));
       }
       this.options = values
-        .map((value) => ({ text: value }))
-        .sort((a, b) => a.text.localeCompare(b.text));
+        .map((value) => ({ value }))
+        .sort((a, b) => a.value.localeCompare(b.value));
     } catch {
       this.value = undefined;
       this.options = [];

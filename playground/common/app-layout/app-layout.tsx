@@ -40,7 +40,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Periodic Tasks',          href: 'periodic-tasks/' },
     { title: 'Roles',                   href: 'roles/' },
     { title: 'Root',                    href: 'root/' },
-    { title: 'Searchable Select',       href: 'searchable-select/' },
+    { title: 'Select',                  href: 'select/' },
     { title: 'Table',                   href: 'table/' },
     { title: 'Tabs',                    href: 'tabs/' },
     { title: 'Tasks',                   href: 'tasks/' },

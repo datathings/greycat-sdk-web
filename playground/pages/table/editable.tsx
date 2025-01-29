@@ -1,5 +1,6 @@
 import '@/common';
 import '@greycat/web';
+import { GuiChangeEvent, GuiTable, sl } from '@greycat/web';
 
 await gc.sdk.init();
 
@@ -15,8 +16,10 @@ interface User {
   permission_flags: number;
   groups: string[] | null;
   is_admin: boolean;
+  action: null;
 }
 
+const groups = ['devs', 'editors', 'moderators', 'users', 'admin'];
 const table = gc.core.Table.fromObjects<User>([
   {
     id: 3,
@@ -28,6 +31,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 6144,
     groups: ['devs'],
     is_admin: true,
+    action: null,
   },
   {
     id: 5,
@@ -39,6 +43,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 7168,
     groups: ['editors'],
     is_admin: false,
+    action: null,
   },
   {
     id: 7,
@@ -50,6 +55,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 5120,
     groups: ['moderators'],
     is_admin: true,
+    action: null,
   },
   {
     id: 9,
@@ -61,6 +67,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 6144,
     groups: ['users'],
     is_admin: false,
+    action: null,
   },
   {
     id: 8,
@@ -72,6 +79,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 4096,
     groups: null,
     is_admin: false,
+    action: null,
   },
   {
     id: 2,
@@ -83,6 +91,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 4096,
     groups: null,
     is_admin: false,
+    action: null,
   },
   {
     id: 1,
@@ -94,6 +103,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 8192,
     groups: ['admins', 'devs'],
     is_admin: false,
+    action: null,
   },
   {
     id: 6,
@@ -105,6 +115,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 4096,
     groups: null,
     is_admin: false,
+    action: null,
   },
   {
     id: 4,
@@ -116,6 +127,7 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 4096,
     groups: null,
     is_admin: false,
+    action: null,
   },
   {
     id: 10,
@@ -127,9 +139,9 @@ const table = gc.core.Table.fromObjects<User>([
     permission_flags: 4096,
     groups: null,
     is_admin: false,
+    action: null,
   },
 ]);
-
 table.headers = [
   'id',
   'username',
@@ -140,27 +152,67 @@ table.headers = [
   'permission_flags',
   'groups',
   'is_admin',
+  'action',
 ];
 
+function deleteRow(rowIdx: number) {
+  return () => {
+    // TODO
+    console.log('delete row', rowIdx);
+    tableEl.value = table;
+  };
+}
+
+const tableEl = (
+  <gui-table
+    value={table}
+    globalFilter
+    sortBy={[0, 'asc']}
+    rowHeight={30}
+    columnsWidths={[100, 100, 100]}
+    columnFactory={{
+      2: { tag: 'gui-input-bool', props: { size: 'small' } },
+      3: { tag: 'gui-input-bool', props: { size: 'small' } },
+      4: { tag: 'gui-input-string', props: { size: 'small' } },
+      5: { tag: 'gui-input-string', props: { size: 'small' } },
+      7: (value: string[], _, el) => {
+        return (
+          <sl-select
+            size="small"
+            value={(value ?? []).join(' ')}
+            maxOptionsVisible={2}
+            multiple
+            clearable
+            hoist
+            onsl-change={(ev) => {
+              ev.stopPropagation();
+              el.dispatchEvent(new GuiChangeEvent((ev.target as sl.SlSelect).value));
+            }}
+          >
+            {groups.map((group) => (
+              <sl-option value={group}>{group}</sl-option>
+            ))}
+          </sl-select>
+        );
+      },
+      9: (_, rowIdx) => {
+        return (
+          <sl-button variant="text" size="small" onclick={deleteRow(rowIdx)}>
+            Delete
+          </sl-button>
+        );
+      },
+    }}
+    ongui-table-change={(ev) => {
+      console.log('event.detail', ev.detail);
+      console.log('table', table);
+    }}
+  />
+) as GuiTable;
+
 document.body.appendChild(
-  <app-layout title="Table (many cols)" mainStyle={{ display: 'flex', gap: 'var(--spacing)' }}>
+  <app-layout title="Table (editable)">
     {actions}
-    <gui-table
-      value={table}
-      globalFilter
-      columnsWidths={[100, 100, 100]}
-      columnFactory={{
-        2: { tag: 'gui-input-string', props: { size: 'small' } },
-        3: { tag: 'gui-input-bool', props: { size: 'small' } },
-        4: { tag: 'gui-input-string', props: { size: 'small' } },
-        5: { tag: 'gui-input-string', props: { size: 'small' } },
-      }}
-      ongui-change={function (ev) {
-        console.log('ongui-change', {
-          detail: ev.detail,
-          value: this.table.cols[ev.detail.colIdx][ev.detail.rowIdx],
-        });
-      }}
-    />
+    {tableEl}
   </app-layout>,
 );

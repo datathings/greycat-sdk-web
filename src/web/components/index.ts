@@ -29,3 +29,4 @@ export * from './card/index.js';
 export * from './details/index.js';
 export * from './dialog/index.js';
 export * from './search-input/index.js';
+export * from './select/index.js';

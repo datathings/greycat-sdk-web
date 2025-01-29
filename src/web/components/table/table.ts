@@ -1,7 +1,4 @@
 import {
-  GuiInputEvent,
-  GuiClickEvent,
-  GuiDblClickEvent,
   GuiChangeEvent,
   GuiFactory,
   GuiElement,
@@ -26,7 +23,6 @@ export interface GuiTableProps {
   filterColumns: Array<string | undefined | null>;
   sortBy: readonly [number] | readonly [number, SortOrd];
   cellProps: CellPropsFactory;
-  headers: string[] | undefined;
   columnsWidths: Array<number | undefined>;
   minColWidth: number;
   ignoreCols: number[] | undefined;
@@ -117,11 +113,13 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._filter.className = 'gui-table-filter';
     this._filter.clearable = true;
     this._filter.placeholder = 'Filter the table';
+    this._filter.part.add('filter');
     this._filter.oninput = () => (this.filter = this._filter.value);
     this._filter.addEventListener('sl-clear', () => (this.filter = ''));
 
     this._tableContainer = document.createElement('div');
     this._tableContainer.className = 'gui-table';
+    this._tableContainer.part.add('table');
     this._tableContainer.append(this._thead, this._tbody);
 
     this._drawer = document.createElement('sl-drawer');
@@ -463,20 +461,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this.update();
   }
 
-  get headers() {
-    return this._table.headers;
-  }
-
-  /**
-   * Defines headers for the table columns.
-   *
-   * *NB: this will mutate the headers of the underlying `core.Table`*
-   */
-  set headers(headers: string[] | undefined) {
-    this._table.headers = headers;
-    this.update();
-  }
-
   get sortBy() {
     return [this._sortCol.index, this._sortCol.ord] as const;
   }
@@ -525,7 +509,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     filterColumns = this._filterColumns,
     sortBy = [this._sortCol.index, this._sortCol.ord],
     cellProps = this._cellProps,
-    headers = this._table.headers,
     ignoreCols = this._ignoreCols,
     columnFactory = this._columnFactory,
     // defaultCellFactory = this._defaultCellFactory,
@@ -541,7 +524,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._filterText = filter;
     this._filterColumns = filterColumns;
     this._cellProps = cellProps;
-    this._table.headers = headers;
     this._columnFactory = this._sanitizeColumnFactory(columnFactory);
     // this._defaultCellFactory = this._sanitizeCellFactory(defaultCellFactory);
     this.globalFilter = globalFilter;
@@ -567,7 +549,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       filterColumns: this._filterColumns,
       sortBy: [this._sortCol.index, this._sortCol.ord],
       cellProps: this._cellProps,
-      headers: this._table.headers,
       columnsWidths: this._wCalc.getWidths(),
       ignoreCols: this._ignoreCols,
       // defaultCellFactory: this._defaultCellFactory,
@@ -930,6 +911,7 @@ export class GuiTableHeadCell extends HTMLElement {
     this._dropdown.classList.add('gui-thead-dropdown');
     this._input.clearable = true;
     this._input.placeholder = 'Filter column';
+    this._input.part.add('col-filter');
     this._dropdown.appendChild(this._input);
 
     this._input.addEventListener('input', (e) => {
@@ -991,11 +973,14 @@ export class GuiTableHeadCell extends HTMLElement {
     this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
+    this._filter.part.add('col-filter-icon');
 
     this._title.classList.add('gui-thead-title');
+    this._title.part.add('title');
     this._container.appendChild(this._title);
 
     this._sorter.classList.add('gui-thead-sorter');
+    this._sorter.part.add('sorter');
     this._sorter.textContent = this._icons.default;
     this._container.appendChild(this._sorter);
 
@@ -1384,15 +1369,18 @@ export class GuiTableBodyRow extends HTMLElement {
       return this.children[index] as GuiTableBodyCell;
     }
     const cell = document.createElement('gui-tbody-cell');
+    // cell.part.add('cell', `cell-${index}`);
     cell.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+      this.dispatchEvent(
+        new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
+      );
     });
     cell.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+      this.dispatchEvent(
+        new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
+      );
     });
     this.appendChild(cell);
     return cell;
@@ -1544,11 +1532,15 @@ export class GuiTableFilterColumnEvent extends CustomEvent<{ index: number; text
   static readonly NAME = 'gui-table-filter-column';
 
   constructor(index: number, text: string) {
-    super(GuiTableFilterColumnEvent.NAME, { detail: { index, text }, bubbles: true, composed: true });
+    super(GuiTableFilterColumnEvent.NAME, {
+      detail: { index, text },
+      bubbles: true,
+      composed: true,
+    });
   }
 }
 
-export type GuiTableClickDetail = {
+export type GuiTableEventDetail = {
   /** The clicked row index */
   rowIdx: number;
   /** The clicked column index */
@@ -1699,10 +1691,35 @@ class WidthCalculator {
   }
 }
 
-export class GuiTableClickEvent extends GuiClickEvent<GuiTableClickDetail> {}
-export class GuiTableDblClickEvent extends GuiDblClickEvent<GuiTableClickDetail> {}
-export class GuiTableInputEvent extends GuiInputEvent<{ rowIdx: number; colIdx: number }> {}
-export class GuiTableChangeEvent extends GuiChangeEvent<{ rowIdx: number; colIdx: number }> {}
+export class GuiTableClickEvent extends CustomEvent<GuiTableEventDetail> {
+  static readonly NAME = 'gui-table-click';
+
+  constructor(detail: GuiTableEventDetail) {
+    super(GuiTableClickEvent.NAME, { detail, bubbles: true, composed: true });
+  }
+}
+export class GuiTableDblClickEvent extends CustomEvent<GuiTableEventDetail> {
+  static readonly NAME = 'gui-table-dblclick';
+
+  constructor(detail: GuiTableEventDetail) {
+    super(GuiTableDblClickEvent.NAME, { detail, bubbles: true, composed: true });
+  }
+}
+
+export class GuiTableInputEvent extends CustomEvent<GuiTableEventDetail & { value: unknown }> {
+  static readonly NAME = 'gui-table-input';
+
+  constructor(detail: GuiTableEventDetail & { value: unknown }) {
+    super(GuiTableInputEvent.NAME, { detail, bubbles: true, composed: true });
+  }
+}
+export class GuiTableChangeEvent extends CustomEvent<GuiTableEventDetail> {
+  static readonly NAME = 'gui-table-change';
+
+  constructor(detail: GuiTableEventDetail & { value: unknown }) {
+    super(GuiTableChangeEvent.NAME, { detail, bubbles: true, composed: true });
+  }
+}
 
 declare global {
   interface HTMLElementTagNameMap {
@@ -1721,10 +1738,10 @@ declare global {
   }
 
   interface GuiTableEventMap {
-    [GuiInputEvent.NAME]: GuiTableInputEvent;
-    [GuiChangeEvent.NAME]: GuiTableChangeEvent;
-    [GuiClickEvent.NAME]: GuiTableClickEvent;
-    [GuiDblClickEvent.NAME]: GuiTableDblClickEvent;
+    [GuiTableInputEvent.NAME]: GuiTableInputEvent;
+    [GuiTableChangeEvent.NAME]: GuiTableChangeEvent;
+    [GuiTableClickEvent.NAME]: GuiTableClickEvent;
+    [GuiTableDblClickEvent.NAME]: GuiTableDblClickEvent;
   }
 
   interface GuiTableEventMap extends GuiTableHeadCellEventMap {

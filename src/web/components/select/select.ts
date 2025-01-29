@@ -1,24 +1,24 @@
 import { css, getIndexInParent, GuiChangeEvent, GuiInputEvent, type sl } from '../../exports.js';
 import { GuiInputElement } from '../inputs/index.js';
 
-import style from './searchable-select.css?inline';
+import style from './select.css?inline';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type SearchableOption<T = any> = {
+export type GuiOption<T = any> = {
   value: T;
   /** If defined this is the text of the option, otherwise `value.toString()` will be used */
   text?: string;
   selected?: boolean;
 };
-export type ISearchableOption<T = any> = SearchableOption<T> | string;
+export type IOption<T = any> = GuiOption<T> | string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined> {
+export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
   static override styles = [...GuiInputElement.styles, css(style)];
 
   readonly input: sl.SlInput;
   private _list: HTMLElement;
-  private _options: SearchableOption<T>[];
+  private _options: GuiOption<T>[];
   private _nullable = false;
 
   constructor() {
@@ -143,7 +143,7 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     });
 
     this._list = document.createElement('div');
-    this._list.classList.add('gui-searchable-select-list');
+    this._list.classList.add('gui-select-list');
     this.hideDropdown();
 
     this.shadowRoot.append(this.input, this._list);
@@ -243,17 +243,17 @@ export class GuiSearchableSelect<T = any> extends GuiInputElement<T | undefined>
     this.update();
   }
 
-  get options(): SearchableOption<T>[] {
+  get options(): GuiOption<T>[] {
     return this._options;
   }
 
-  set options(options: ISearchableOption<T>[]) {
+  set options(options: IOption<T>[]) {
     for (let i = 0; i < options.length; i++) {
       if (typeof options[i] === 'string') {
         options[i] = { value: options[i] as T };
       }
     }
-    this._options = options as SearchableOption<T>[];
+    this._options = options as GuiOption<T>[];
     this.update();
   }
 
@@ -378,8 +378,7 @@ function isElementOutOfView(element: Element): boolean {
 
 declare global {
   interface HTMLElementTagNameMap {
-    /** @deprecated use `gui-select` instead */
-    'gui-searchable-select': GuiSearchableSelect;
+    'gui-select': GuiSelect;
   }
 
   interface GuiSelectEventMap {
@@ -394,10 +393,8 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
-         * 
-         * @deprecated use `gui-select` instead
          */
-        'gui-searchable-select': GreyCat.Element<GuiSearchableSelect, GuiSelectEventMap>;
+        'gui-select': GreyCat.Element<GuiSelect, GuiSelectEventMap>;
       }
     }
   }

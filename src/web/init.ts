@@ -77,6 +77,7 @@ import {
   GuiTab,
   GuiPanel,
   GuiSearchableSelect,
+  GuiSelect,
 } from './exports';
 
 const sdkInit = gc.sdk.init;
@@ -204,6 +205,7 @@ function initWeb() {
   registerCustomElement('gui-tab', GuiTab);
   registerCustomElement('gui-panel', GuiPanel);
   registerCustomElement('gui-searchable-select', GuiSearchableSelect);
+  registerCustomElement('gui-select', GuiSelect);
 }
 
 declare global {
@@ -287,6 +289,7 @@ declare global {
       GuiTab,
       GuiPanel,
       GuiSearchableSelect,
+      GuiSelect,
     };
   }
 }

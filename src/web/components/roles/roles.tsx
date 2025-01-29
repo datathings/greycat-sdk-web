@@ -25,7 +25,7 @@ export class GuiRoles extends GuiElement {
         columnFactory={{
           1: 'gui-role-permissions',
         }}
-        ongui-click={(ev) => {
+        ongui-table-click={(ev) => {
           const name = this._table.table.cols[0][ev.detail.rowIdx] as string;
           const permissions = this._table.table.cols[1][ev.detail.rowIdx] as string[];
           const role = new gc.runtime.UserRole(name, permissions);

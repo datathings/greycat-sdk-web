@@ -47,7 +47,7 @@ export class GuiFiles extends GuiElement {
             return document.createTextNode('');
           },
         }}
-        ongui-click={async (ev) => {
+        ongui-table-click={async (ev) => {
           ev.stopPropagation();
           const path = this._table.table.cols[0][ev.detail.rowIdx] as string;
           this.dispatchEvent(

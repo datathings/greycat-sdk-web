@@ -99,7 +99,7 @@ document.body.appendChild(
       }}
       rowHeight={30}
       style={{ backgroundColor: 'var(--bg-1)' }}
-      ongui-click={(ev) => {
+      ongui-table-click={(ev) => {
         console.log(ev.detail);
       }}
     />
