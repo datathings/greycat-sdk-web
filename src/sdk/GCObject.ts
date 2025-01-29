@@ -116,12 +116,13 @@ namespace gc {
                   w.write_map(value);
                 } else if (typeof value === 'string') {
                   w.raw_string(value);
-                } else {
-                  const object = value as GCObject;
+                } else if (value instanceof GCObject) {
                   if (w.abi.types[att.abi_type].is_abstract) {
-                    w.write_vu32(object.$type.offset);
+                    w.write_vu32(value.$type.offset);
                   }
-                  object.saveContent(w);
+                  value.saveContent(w);
+                } else {
+                  throw new Error(`unable to serialize object, expecting a GCObject for '${att.name}: ${w.abi.types[att.abi_type].name}', got ${typeof value}`);
                 }
                 break;
               }
