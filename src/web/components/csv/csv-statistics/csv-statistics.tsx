@@ -279,19 +279,19 @@ export class GuiCsvStatistics extends HTMLElement {
       cTotal += BigInt(count);
     }
 
+    const table = gc.core.Table.create([words, counts]);
+    table.headers = [`Word (${wTotal})`, `Count (${cTotal})`];
     this._dialog.replaceChildren(
       <>
         <header slot="label">{column.name}</header>
         <gui-tabs>
-          <gui-tab slot="tab" active>Enumerable Count</gui-tab>
+          <gui-tab slot="tab" active>
+            Enumerable Count
+          </gui-tab>
           <gui-tab slot="tab">Enumerable Count (Donut)</gui-tab>
 
           <gui-panel slot="panel" tab="Enumerable Count">
-            <gui-table
-              globalFilter
-              headers={[`Word (${wTotal})`, `Count (${cTotal})`]}
-              value={gc.core.Table.create([words, counts])}
-            />
+            <gui-table globalFilter value={table} />
           </gui-panel>
           <gui-panel slot="panel" tab="Enumerable Count (Donut)">
             <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />

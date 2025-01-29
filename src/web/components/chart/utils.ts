@@ -74,7 +74,7 @@ export function createFormatter(
           minute: '2-digit',
           second: '2-digit',
           fractionalSecondDigits: 3,
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -83,7 +83,7 @@ export function createFormatter(
           hour: '2-digit',
           minute: '2-digit',
           second: '2-digit',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -91,7 +91,7 @@ export function createFormatter(
         const fmt = new Intl.DateTimeFormat(locale, {
           hour: '2-digit',
           minute: '2-digit',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -100,7 +100,7 @@ export function createFormatter(
           weekday: 'short',
           hour: '2-digit',
           minute: '2-digit',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -110,7 +110,7 @@ export function createFormatter(
           // weekday: 'short',
           day: '2-digit',
           month: '2-digit',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -119,7 +119,7 @@ export function createFormatter(
           year: '2-digit',
           month: '2-digit',
           day: '2-digit',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
@@ -127,13 +127,13 @@ export function createFormatter(
         const fmt = new Intl.DateTimeFormat(locale, {
           year: 'numeric',
           month: 'short',
-          timeZone: timeZone?.key.replace('_', '/'),
+          timeZone: timeZone?.key,
         });
         return (d) => fmt.format(d);
       }
       const fmt = new Intl.DateTimeFormat(locale, {
         year: 'numeric',
-        timeZone: timeZone?.key.replace('_', '/'),
+        timeZone: timeZone?.key,
       });
       return (d) => fmt.format(d);
     } else {

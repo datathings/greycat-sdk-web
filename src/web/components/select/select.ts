@@ -10,6 +10,7 @@ export type GuiOption<T = any> = {
   text?: string;
   selected?: boolean;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type IOption<T = any> = GuiOption<T> | string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

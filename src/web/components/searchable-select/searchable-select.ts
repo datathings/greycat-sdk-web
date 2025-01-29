@@ -10,6 +10,7 @@ export type SearchableOption<T = any> = {
   text?: string;
   selected?: boolean;
 };
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type ISearchableOption<T = any> = SearchableOption<T> | string;
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any

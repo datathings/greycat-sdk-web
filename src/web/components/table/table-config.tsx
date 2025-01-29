@@ -1,12 +1,5 @@
 import { sl } from '../../shoelace.js';
-import {
-  GuiTable,
-  GuiTableProps,
-  modal,
-  toast,
-  GuiElement,
-  css,
-} from '../../exports.js';
+import { GuiTable, GuiTableProps, modal, toast, GuiElement, css } from '../../exports.js';
 import style from './table-config.css?inline';
 import type { GuiTableMappings } from './table-mappings.js';
 
@@ -143,14 +136,7 @@ export class GuiTableConfig extends GuiElement {
 
     const headers = this._headers.value;
     if (headers) {
-      value.headers = headers.split(',').map((header) => {
-        if (header) {
-          return header;
-        }
-        return '';
-      });
-    } else if (value.headers) {
-      value.headers.length = 0;
+      this.table.table.headers = headers.split(',');
     }
 
     const rowHeight = this._rowHeight.valueAsNumber;
@@ -217,7 +203,7 @@ export class GuiTableConfig extends GuiElement {
     }
 
     this._globalFilter.checked = !!this._value.globalFilter;
-    this._headers.value = this._value.headers?.join(',') ?? '';
+    this._headers.value = this.table.table.headers?.join(',') ?? '';
     this._rowHeight.value =
       typeof this._value.rowHeight === 'number' ? `${this._value.rowHeight}` : '';
     this._ignoreCols.value = this._value.ignoreCols?.join(',') ?? '';

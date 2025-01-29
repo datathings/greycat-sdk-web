@@ -74,7 +74,7 @@ describe('project', () => {
       float: 3.14,
       bool: true,
       char: 'c',
-      enum: { _type: 'core::TimeZone', field: 'Europe_Luxembourg' },
+      enum: { _type: 'core::TimeZone', field: 'Europe/Luxembourg' },
     },
     {
       _type: 'core::GeoBox',
@@ -90,7 +90,7 @@ describe('project', () => {
       },
     },
     { _type: 'core::nodeList', ref: '1800000' },
-    { _type: 'core::TimeZone', field: 'Europe_Luxembourg' },
+    { _type: 'core::TimeZone', field: 'Europe/Luxembourg' },
     { _type: 'core::node', ref: '1c00000' },
     { _type: 'core::Error', message: 'an error', stack: [] },
     { _type: 'core::ErrorCode', field: 'none' },
@@ -247,7 +247,7 @@ describe('project', () => {
       version: '',
       program_version: null,
       arch: '',
-      timezone: { _type: 'core::TimeZone', field: 'Europe_Luxembourg' },
+      timezone: { _type: 'core::TimeZone', field: 'Europe/Luxembourg' },
       license: {
         _type: 'runtime::License',
         start: '1970-01-01T00:00:00.000Z',

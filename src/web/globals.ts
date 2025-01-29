@@ -24,7 +24,7 @@ export function setGlobalDateTimeFormatTimezone(tz: gc.core.TimeZone): Intl.Date
   const { locale, ...resolved } = dateFmt.resolvedOptions();
   const options: Intl.DateTimeFormatOptions = {
     ...(resolved as Intl.DateTimeFormatOptions),
-    timeZone: tz.key.replace('_', '/'),
+    timeZone: tz.key,
   };
   dateFmt = new Intl.DateTimeFormat(locale, options);
   return dateFmt;

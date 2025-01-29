@@ -124,11 +124,11 @@ fn write_std_core(out: GcbWriter) {
     float: 3.14,
     bool: true,
     char: 'c',
-    enum: TimeZone::Europe_Luxembourg,
+    enum: TimeZone::"Europe/Luxembourg",
   });
   out.write(GeoBox { sw: geo {1, 2}, ne: geo {1.5, -0.5} });
   out.write(nodeList<int> {});
-  out.write(TimeZone::Europe_Luxembourg);
+  out.write(TimeZone::"Europe/Luxembourg");
   out.write(node<float> { 13.37 });
   out.write(Error { message: "an error", stack: Array<ErrorFrame> {} });
   out.write(ErrorCode::none);
@@ -218,7 +218,7 @@ fn write_std_runtime(out: GcbWriter) {
   out.write(RuntimeInfo {
       version: "",
       arch: "",
-      timezone: TimeZone::Europe_Luxembourg,
+      timezone: TimeZone::"Europe/Luxembourg",
       license: License {
         start: 13_time,
         end: 37_time,
@@ -481,7 +481,7 @@ enum Confidence {
 
 @expose
 fn enum() {
-  return TimeZone::Europe_Andorra;
+  return TimeZone::"Europe/Andorra";
 }
 
 @expose
@@ -526,7 +526,7 @@ fn blockingFn() {
 
 @expose
 fn enumValue() {
-  return TimeZone::Europe_Luxembourg;
+  return TimeZone::"Europe/Luxembourg";
 }
 
 type FooBar {
@@ -540,11 +540,11 @@ type FooBar {
 @expose
 fn foobar() {
   return FooBar {
-    tz: TimeZone::Europe_Lisbon,
+    tz: TimeZone::"Europe/Lisbon",
     name: "John",
     int: 42,
     foo: FooBar {
-      tz: TimeZone::Africa_Algiers,
+      tz: TimeZone::"Africa/Algiers",
       name: "Nested",
       int: 1337,
       foo: null,
