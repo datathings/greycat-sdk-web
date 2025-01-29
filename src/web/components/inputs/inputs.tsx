@@ -8,7 +8,7 @@ import {
   GuiOption,
 } from '../../exports.js';
 import { css, GuiElement } from '../common.js';
-import '../searchable-select/index.js';
+import '../select/index.js';
 
 import InputStyle from './input.css?inline';
 import ArrayStyle from './input-array.css?inline';

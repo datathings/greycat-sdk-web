@@ -76,7 +76,6 @@ import {
   GuiTabs,
   GuiTab,
   GuiPanel,
-  GuiSearchableSelect,
   GuiSelect,
 } from './exports';
 
@@ -204,7 +203,6 @@ function initWeb() {
   registerCustomElement('gui-tabs', GuiTabs);
   registerCustomElement('gui-tab', GuiTab);
   registerCustomElement('gui-panel', GuiPanel);
-  registerCustomElement('gui-searchable-select', GuiSearchableSelect);
   registerCustomElement('gui-select', GuiSelect);
 }
 
@@ -288,7 +286,6 @@ declare global {
       GuiTabs,
       GuiTab,
       GuiPanel,
-      GuiSearchableSelect,
       GuiSelect,
     };
   }

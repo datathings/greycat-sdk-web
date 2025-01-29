@@ -553,7 +553,7 @@ fn obj() {
 fn complex_object() {
   var map = Map<String, any> {};
   map.set("first", ("BAR", 42));
-  map.set("second", TimeZone::Africa_Abidjan);
+  map.set("second", TimeZone::"Africa/Abidjan");
 
   var array = [42, 3.14, "hello world"];
   for (var i = 0; i < 100; i++) {
@@ -568,7 +568,7 @@ fn complex_object() {
     char: 'd',
     geo: geo { 1.4, -0.85 },
     null: null,
-    enum: TimeZone::Europe_Paris,
+    enum: TimeZone::"Europe/Paris",
     array: array,
     nodeTime: nodeTime {},
     nodeIndex: nodeIndex {},
@@ -590,7 +590,7 @@ fn complex_object() {
       nodeIndex: nodeIndex {},
       nodeList: nodeList {},
       nodeGeo: nodeGeo {},
-      enum: TimeZone::Europe_Luxembourg,
+      enum: TimeZone::"Europe/Luxembourg",
     },
     map: map,
   };
@@ -691,10 +691,10 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 fn now() {
   var now = time::now();
   return TimeZones {
-    azores: Date::fromTime(now, TimeZone::Atlantic_Azores),
+    azores: Date::fromTime(now, TimeZone::"Atlantic/Azores"),
     utc: Date::fromTime(now, TimeZone::UTC),
-    paris: Date::fromTime(now, TimeZone::Europe_Paris),
-    athens: Date::fromTime(now, TimeZone::Europe_Athens),
+    paris: Date::fromTime(now, TimeZone::"Europe/Paris"),
+    athens: Date::fromTime(now, TimeZone::"Europe/Athens"),
   };
 }
 
@@ -804,7 +804,7 @@ fn init_float() {
   serie_float ?= nodeTime<float> {};
 
   var now = time::now();
-  var start = now.calendar_add(-1, CalendarUnit::year, TimeZone::Europe_Paris);
+  var start = now.calendar_add(-1, CalendarUnit::year, TimeZone::"Europe/Paris");
 
   var random = Random {};
   var curr = start;
@@ -813,7 +813,7 @@ fn init_float() {
     var value = nextValueFloat(prev, random, 0.05);
     serie_float.setAt(curr, value);
     prev = value;
-    curr = curr.calendar_add(1, CalendarUnit::minute, TimeZone::Europe_Paris);
+    curr = curr.calendar_add(1, CalendarUnit::minute, TimeZone::"Europe/Paris");
   }
 }
 
@@ -821,7 +821,7 @@ fn init_kline() {
   kline = nodeTime<KLine> {};
 
   var now = time::now();
-  var start = now.calendar_add(-1, CalendarUnit::month, TimeZone::Europe_Paris);
+  var start = now.calendar_add(-1, CalendarUnit::month, TimeZone::"Europe/Paris");
 
   var random = Random {};
   var curr = start;
@@ -833,7 +833,7 @@ fn init_kline() {
     open = nextValueFloat(open, random, 0.05);
     close = nextValueFloat(close, random, 0.05);
     volume = nextValueInt(volume, random, 10_000);
-    curr = curr.calendar_add(1, CalendarUnit::day, TimeZone::Europe_Paris);
+    curr = curr.calendar_add(1, CalendarUnit::day, TimeZone::"Europe/Paris");
   }
 }
 

@@ -12,7 +12,6 @@ export * from './chart/index.js';
 export * from './tasks/task-info/index.js';
 export * from './tasks/tasks/index.js';
 export * from './object/index.js';
-export * from './searchable-select/index.js';
 export * from './inputs/index.js';
 export * from './periodic-tasks/periodic-task-list/index.js';
 export * from './tabs/index.js';

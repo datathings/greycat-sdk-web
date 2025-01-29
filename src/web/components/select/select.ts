@@ -29,10 +29,6 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
     // Create an input element for searching
     this.input = document.createElement('sl-input');
-    // this.input.setAttribute(
-    //   'exportparts',
-    //   'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
-    // );
     this.input.type = 'search';
     this.input.placeholder = 'Search...';
     this.input.autocomplete = 'off';
@@ -103,10 +99,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
           this.hideDropdown();
           this.input.value = item.textContent!;
           const index = getIndexInParent(item);
-          const value =
-            this._options[index].value === undefined
-              ? this._options[index].text
-              : this._options[index].value;
+          const value = this._options[index].value;
           this.dispatchEvent(new GuiChangeEvent(value));
           this.dispatchEvent(new GuiInputEvent(value));
         }
