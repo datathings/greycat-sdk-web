@@ -141,7 +141,7 @@ export class GuiInput extends GuiInputElement<unknown> {
 }
 
 export class GuiInputString extends GuiInputElement<string | gc.core.String | null> {
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -231,7 +231,7 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
 }
 
 export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -320,7 +320,7 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
 }
 
 export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -415,7 +415,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
 }
 
 export class GuiInputBool extends GuiInputElement<boolean | null> {
-  input: sl.SlCheckbox;
+  readonly input: sl.SlCheckbox;
 
   constructor() {
     super();
@@ -481,7 +481,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
 export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
   private _value: gc.core.time | null = null;
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -587,7 +587,7 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
 
 export class GuiInputType extends GuiInputElement<gc.core.type | null> {
   private _value: gc.core.type | null = null;
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -691,7 +691,7 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
 
 export class GuiInputField extends GuiInputElement<gc.core.field | null> {
   private _value: gc.core.field | null = null;
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
@@ -2590,7 +2590,7 @@ export class GuiInputGeo extends GuiInputElement<gc.core.geo | null> {
 }
 
 export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
-  input: sl.SlInput;
+  readonly input: sl.SlInput;
 
   constructor() {
     super();
