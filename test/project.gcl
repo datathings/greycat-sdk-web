@@ -182,21 +182,12 @@ fn write_std_io(out: GcbWriter) {
   // out.write(out); // unsupported
   // out.write(AbiReader::new("out.gcb")); // segfault
   out.write(TextEncoder::plain);
-  out.write(CsvColumnString {});
-  out.write(CsvColumnInteger {});
-  out.write(CsvColumnFloat {});
-  out.write(CsvColumnBoolean {});
-  out.write(CsvColumnTime {});
-  out.write(CsvColumnDate {});
-  out.write(CsvColumnIgnored {});
   out.write(CsvFormat {
       header_lines: 12,
       separator: ',',
       string_delimiter: '"',
       decimal_separator: '.',
       thousands_separator: '_',
-      columns: Array<CsvColumn> {},
-      // columns_size: null,
     });
   // out.write(File::open("project.gcl")); // unsupported
   // out.write(Directory::open(".")); // unsupported
@@ -872,12 +863,6 @@ fn ambiguous() {
 @expose
 fn ambiguous2() {
   return ([], false);
-}
-
-@expose
-fn potato2(arr: Array<CsvColumn>): Array<CsvColumn> {
-  println(arr);
-  return arr;
 }
 
 type Baz {

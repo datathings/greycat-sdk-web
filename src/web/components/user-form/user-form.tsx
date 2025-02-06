@@ -182,7 +182,6 @@ export class GuiUserForm extends GuiElement {
       this.full_name,
       this.email,
       this.user_role,
-      null,
       this.user_groups,
       null,
       this.external,

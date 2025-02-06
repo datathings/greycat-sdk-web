@@ -28,6 +28,14 @@ namespace gc {
             const value = r.read_char();
             return new ty.ctor(value) as char;
           }
+
+          override toString(): string {
+            return this.value;
+          }
+
+          override toJSON() {
+            return { _type: this.$type.name, value: this.value };
+          }
         }
       }
     }
