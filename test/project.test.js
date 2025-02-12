@@ -194,10 +194,12 @@ describe('project', () => {
       _type: 'io::CsvFormat',
       header_lines: 12,
       separator: ',',
+      format: null,
       string_delimiter: '"',
       decimal_separator: '.',
       thousands_separator: '_',
       trim: null,
+      tz: null,
     },
 
     // std::runtime
@@ -252,7 +254,7 @@ describe('project', () => {
     },
     { _type: 'runtime::UserGroup', id: 12, name: '', activated: false },
     { _type: 'runtime::OpenIDConnect', url: '', clientId: '' },
-    { _type: 'runtime::UserRole', name: '', permissions: [] },
+    { _type: 'runtime::Role', name: '', permissions: [] },
     {
       _type: 'runtime::PeriodicTask',
       function: { _type: 'core::function', fqn: 'project::float_f' },

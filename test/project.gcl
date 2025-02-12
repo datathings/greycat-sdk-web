@@ -232,7 +232,7 @@ fn write_std_runtime(out: GcbWriter) {
       url: "",
       clientId: "",
     });
-  out.write(UserRole {
+  out.write(runtime::Role {
       name: "",
       permissions: Array<String> {},
     });
