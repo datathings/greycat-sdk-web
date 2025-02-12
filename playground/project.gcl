@@ -1,3 +1,6 @@
+@permission("foo", "the foo permission");
+@permission("bar", "the bar permission");
+
 @include("pages");
 
 var sensor: nodeTime<SensorData>;

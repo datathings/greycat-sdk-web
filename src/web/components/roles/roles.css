@@ -2,11 +2,11 @@
   display: contents;
 }
 
-sl-card::part(header) {
+gui-card::part(header) {
   --border-width: 0;
 }
 
-sl-card::part(body) {
+gui-card::part(body) {
   padding: 0;
 }
 

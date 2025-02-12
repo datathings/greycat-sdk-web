@@ -53,7 +53,7 @@ export class GuiUserForm extends GuiElement {
    * Fetches the roles from the server and updates the select list
    */
   async update(): Promise<void> {
-    const roles = await gc.runtime.UserRole.all();
+    const roles = await gc.runtime.Role.all();
     this.roles = roles.map((r) => r.name);
   }
 

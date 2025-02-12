@@ -66,7 +66,6 @@ import {
   GuiObject2,
   GuiPeriodicTaskList,
   GuiRoles,
-  GuiRoleForm,
   GuiRolePermissions,
   GuiSearchInput,
   GuiUsers,
@@ -194,7 +193,6 @@ function initWeb() {
   registerCustomElement('gui-periodic-task-list', GuiPeriodicTaskList);
   registerCustomElement('gui-roles', GuiRoles);
   registerCustomElement('gui-role-permissions', GuiRolePermissions);
-  registerCustomElement('gui-role-form', GuiRoleForm);
   registerCustomElement('gui-search-input', GuiSearchInput);
   registerCustomElement('gui-users', GuiUsers);
   registerCustomElement('gui-user-group-policy', GuiUserGroupPolicy);
@@ -276,7 +274,6 @@ declare global {
       GuiObject2,
       GuiPeriodicTaskList,
       GuiRoles,
-      GuiRoleForm,
       GuiRolePermissions,
       GuiSearchInput,
       GuiUsers,

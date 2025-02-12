@@ -4,12 +4,17 @@ import style from './role-permissions.css?inline';
 export class GuiRolePermissions extends GuiElement {
   static override styles = [css(style)];
 
-  set value(value: string[]) {
-    if (value.length > 0) {
-      value.sort();
+  set value(permissions: gc.runtime.Permission[]) {
+    if (permissions.length > 0) {
+      permissions.sort();
       const fragment = document.createDocumentFragment();
-      for (let i = 0; i < value.length; i++) {
-        fragment.appendChild(<sl-tag size="small">{value[i]}</sl-tag>);
+      for (let i = 0; i < permissions.length; i++) {
+        const perm = permissions[i];
+        fragment.appendChild(
+          <sl-tooltip content={perm.description}>
+            <sl-tag size="small">{perm.name}</sl-tag>
+          </sl-tooltip>,
+        );
       }
       this.shadowRoot.replaceChildren(fragment);
     } else {
