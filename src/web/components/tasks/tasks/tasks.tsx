@@ -17,7 +17,6 @@ export class GuiTasks extends GuiElement {
   readonly table: GuiTable;
   private _updateId: number;
   private _updateDelay: number;
-  private _tasks: TaskInfoLike[];
 
   constructor() {
     super();
@@ -30,7 +29,10 @@ export class GuiTasks extends GuiElement {
       columnFactory: {
         8: (_value, rowIdx, _el) => {
           const [task_id] = this.table.table.getRowArray(rowIdx) as [number];
-          const task = this._tasks.find((t) => t.task_id === task_id)!;
+          const task = gc.$.default.tasks.find((t) => t.task_id === task_id);
+          if (!task) {
+            return document.createTextNode(`Unknown task ${task_id}`);
+          }
           const cancellable =
             task.status === gc.runtime.TaskStatus.waiting ||
             task.status === gc.runtime.TaskStatus.running;
@@ -81,8 +83,6 @@ export class GuiTasks extends GuiElement {
 
     this._updateId = -1;
     this._updateDelay = 5000;
-
-    this._tasks = [];
 
     this.shadowRoot.appendChild(this.table);
   }
@@ -136,24 +136,12 @@ export class GuiTasks extends GuiElement {
     }
 
     try {
-      const history = await gc.runtime.Task.history(0, 1);
-      const maxHistory = history.length > 0 ? Number(history[0].task_id) : 0;
-
-      this._tasks = await gc.runtime.Task.history(0, maxHistory);
-      const running = await gc.runtime.Task.running();
-      for (const t of running) {
-        this._tasks.push(t);
-      }
-
-      const rows = this._tasks.map((task) => {
+      const rows = gc.$.default.tasks.map((task) => {
         const user_id = Number(task.user_id);
         let name_or_id: string | number = users[user_id];
         if (!name_or_id) {
           name_or_id = user_id;
         }
-        // const cancellable =
-        //   task.status === std.runtime.TaskStatus.waiting() ||
-        //   task.status === std.runtime.TaskStatus.running();
 
         return {
           Task: task.task_id,
@@ -165,18 +153,6 @@ export class GuiTasks extends GuiElement {
           Status: task.status.key,
           Progress: task.progress ? `${(task.progress * 100).toFixed(1)}%` : '',
           Action: undefined,
-          // Action: cancellable ? (
-          //   <sl-button
-          //     variant="text"
-          //     size="small"
-          //     onclick={(ev) => {
-          //       std.runtime.Task.cancel(task.task_id);
-          //       (ev.target as sl.SlButton).textContent = 'Cancelling...';
-          //     }}
-          //   >
-          //     Cancel
-          //   </sl-button>
-          // ) : undefined,
         };
       });
 

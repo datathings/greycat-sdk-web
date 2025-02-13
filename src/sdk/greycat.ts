@@ -42,10 +42,12 @@ namespace gc {
     }
 
     /**
-     * Unregisters the global debug logger by replacing it with a no-op function.
+     * Unregisters the global debug logger by replacing it with a no-op function and returns it.
      */
-    export function unregisterDebugLogger(): void {
+    export function unregisterDebugLogger(): DebugLogger {
+      const logger = debugLogger;
       debugLogger = NOOP;
+      return logger;
     }
 
     export function getDebuggerLogger(): DebugLogger {
@@ -141,6 +143,8 @@ namespace gc {
         url = DEFAULT_URL,
         capacity,
         cache,
+        tasksPollingDelay,
+        maxTasks,
         signal,
         auth,
         unauthorizedHandler,
@@ -152,6 +156,8 @@ namespace gc {
         auth,
         capacity,
         cache,
+        tasksPollingDelay,
+        maxTasks,
         unauthorizedHandler,
         abiMismatchHandler,
         signal,
@@ -164,17 +170,26 @@ namespace gc {
         abi,
         capacity,
         cache,
-        [],
+        tasksPollingDelay,
+        maxTasks,
+        undefined,
         token,
         unauthorizedHandler,
         abiMismatchHandler,
       );
 
       try {
+        g.roles = await runtime.Role.all(g);
+      } catch (err) {
+        // in case we cannot process the permissions, let's just warn about it and go on
+        console.warn(err);
+      }
+
+      try {
         g.permissions = await runtime.User.permissions(g);
       } catch (err) {
         // in case we cannot process the permissions, let's just warn about it and go on
-        console.warn('unable to fetch User::permissions()', err);
+        console.warn(err);
       }
 
       // register the instance
@@ -188,6 +203,8 @@ namespace gc {
       url = DEFAULT_URL,
       capacity,
       cache,
+      tasksPollingDelay,
+      maxTasks,
       abi,
       token,
       unauthorizedHandler,
@@ -199,6 +216,8 @@ namespace gc {
         abi,
         capacity,
         cache,
+        tasksPollingDelay,
+        maxTasks,
         permissions,
         token,
         unauthorizedHandler,
@@ -291,6 +310,10 @@ namespace gc {
       readonly capacity: number;
       /** cache layer for request/response. Defaults to the `NoopCache`. */
       readonly cache: Cache;
+      /** program roles & permissions */
+      roles: gc.runtime.Role[] = [];
+      /** server tasks, this list is automatically updated periodically */
+      tasks: gc.runtime.Task[] = [];
       /** currently connected user permissions */
       permissions: string[];
       /** used when making authenticated requests */
@@ -300,12 +323,18 @@ namespace gc {
       /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
       abiMismatchHandler: (() => void) | undefined;
 
+      private _tasks_polling: number | undefined;
+      private _tasks_polling_delay: number;
+      private _max_tasks: number;
+
       constructor(
         api: string,
         abi: Abi,
         capacity = 4096,
         cache: Cache = new NoopCache(),
-        permissions: string[],
+        taskPollingDelay = 2000,
+        maxTasks = 100,
+        permissions: string[] = [],
         token?: string,
         unauthorizedHandler?: () => void,
         abiMismatchHandler?: () => void,
@@ -314,10 +343,12 @@ namespace gc {
         this.abi = abi;
         this.capacity = capacity;
         this.cache = cache;
+        this._tasks_polling_delay = taskPollingDelay;
+        this._max_tasks = maxTasks;
         this.token = token;
+        this.permissions = permissions;
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
-        this.permissions = permissions;
 
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -361,6 +392,53 @@ namespace gc {
             (gc as any)[fn.name] = theFn;
           }
         }
+
+        this.startPollingTasks();
+      }
+
+      stopPollingTasks(): void {
+        clearInterval(this._tasks_polling);
+      }
+
+      startPollingTasks(): void {
+        if (this._tasks_polling_delay <= 0) {
+          return;
+        }
+        // trigger a poll right away
+        this.pollTasks().catch(() => {
+          // ignore errors
+        });
+        // and setup the interval
+        this._tasks_polling = setInterval(() => {
+          this.pollTasks().catch(() => {
+            // ignore errors
+          });
+        }, this._tasks_polling_delay);
+      }
+
+      /**
+       * Returns the latest known information about a task.
+       *
+       * @param id the `task_id` of a `gc.runtime.Task` object
+       */
+      getTask(id: number | bigint): gc.runtime.Task | undefined {
+        for (let i = 0; i < this.tasks.length; i++) {
+          if (this.tasks[i].task_id === id) {
+            return this.tasks[i];
+          }
+        }
+        return;
+      }
+
+      async pollTasks(): Promise<void> {
+        const logger = unregisterDebugLogger();
+        const history = await gc.runtime.Task.history(0, this._max_tasks);
+        const running = await gc.runtime.Task.running();
+        registerDebugLogger(logger);
+
+        this.tasks.length = 0;
+        this.tasks.push(...history);
+        this.tasks.push(...running);
       }
 
       hasPermission(permission: string): boolean {

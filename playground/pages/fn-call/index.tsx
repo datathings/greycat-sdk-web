@@ -39,7 +39,7 @@ document.body.appendChild(
               if (fn) {
                 method = fn.fqn;
                 resultEl.value = undefined;
-                input.value = new fn.args_type.ctor(fn.args_type);
+                input.value = new fn.args_type.ctor();
               }
               argumentsEl.value = undefined;
             }}

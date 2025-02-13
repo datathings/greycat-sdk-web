@@ -108,6 +108,20 @@ namespace gc {
        */
       cache?: Cache;
       /**
+       * The delay in milliseconds between refreshes of the tasks information.
+       * 
+       * If the value is less or equal to `0` then polling is disabled.
+       * 
+       * Defaults to `2000` (2 seconds)
+       */
+      tasksPollingDelay?: number;
+      /**
+       * The maximum number of tasks polled from the history.
+       * 
+       * Defaults to `100`
+       */
+      maxTasks?: number;
+      /**
        * Called when a request (from `gc.sdk.call(...)`) returns a status code 401.
        *
        * *You can also set this handler directly on the `GreyCat` instance after creating it*

@@ -10,8 +10,14 @@ const fnSelector = (
     placeholder="Select a function to run as a task"
     options={gc.$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
     ongui-change={(ev) => {
-      fnInput.value = new ev.detail.attr_type.factory(ev.detail.attr_type);
-      spawnBtn.disabled = ev.detail === null;
+      const fn = ev.detail as gc.sdk.AbiFunction | undefined;
+      if (fn) {
+        fnInput.value = new fn.args_type.ctor();
+        spawnBtn.disabled = false;
+      } else {
+        fnInput.value = undefined;
+        spawnBtn.disabled = true;
+      }
     }}
   />
 ) as GuiSelect;
