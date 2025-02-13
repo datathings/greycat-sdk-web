@@ -418,6 +418,7 @@ describe('std', () => {
     const buffer = (await readFile('project.test.abi')).buffer;
     gc.sdk.initWithAbi({
       abi: new Abi(buffer),
+      tasksPollingDelay: -1,
     });
   });
 
