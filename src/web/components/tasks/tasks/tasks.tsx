@@ -136,6 +136,9 @@ export class GuiTasks extends GuiElement {
     }
 
     try {
+      // force a task refresh
+      await gc.$.default.pollTasks();
+      // post-process tasks
       const rows = gc.$.default.tasks.map((task) => {
         const user_id = Number(task.user_id);
         let name_or_id: string | number = users[user_id];

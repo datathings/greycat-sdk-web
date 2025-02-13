@@ -1,11 +1,11 @@
 // @ts-check
-import { GreyCat } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 
-const g = await GreyCat.init();
-_print_types_with_supertype(g);
+const greycat = await gc.sdk.init({ tasksPollingDelay: 0 });
+_print_types_with_supertype(greycat);
 
 /**
- * @param {GreyCat} g 
+ * @param {gc.sdk.GreyCat} g 
  */
 function _print_symbols(g) {
   for (const symbol of g.abi.symbols) {
@@ -14,7 +14,7 @@ function _print_symbols(g) {
 }
 
 /**
- * @param {GreyCat} g 
+ * @param {gc.sdk.GreyCat} g 
  */
 function _print_types_with_supertype(g) {
   for (const ty of g.abi.types) {
