@@ -167,6 +167,13 @@ export class GuiPanel extends GuiElement {
     this.shadowRoot.appendChild(<slot />);
   }
 
+  connectedCallback(): void {
+    const tab = this.getAttribute('tab');
+    if (tab !== null) {
+      this.tab = tab;
+    }
+  }
+
   /**
    * The associated `gui-tab` name (it's `textContent`)
    */
