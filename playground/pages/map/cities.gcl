@@ -1,0 +1,41 @@
+var cities: nodeGeo<City>;
+
+type City {
+  country: String;
+  name: String;
+  location: geo;
+  population: int;
+  type: CapitalType;
+}
+
+enum CapitalType {
+  Others,
+  "Administrative Capital",
+  "Seat of Government",
+  Capital,
+  "Legislative Capital",
+  "Economic Capital",
+}
+
+fn analyze() {
+  var stats = CsvAnalysis::analyze(Array<File> { File { path: "pages/map/cities.csv" }}, CsvAnalysisConfig { header_lines: 1 });
+  var code = CsvStatistics::generate(stats);
+  println(code);
+}
+
+fn import() {
+  if (cities.size() != 0) {
+    return;
+  }
+  var reader = CsvReader<City> {
+    path: "pages/map/cities.csv",
+    format: CsvFormat {
+      header_lines: 1,
+    },
+  };
+
+  while (reader.can_read()) {
+    var record = reader.read();
+    cities.set(record.location, record);
+  }
+}

@@ -104,6 +104,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   private _columnFactory: CleanColumnFactory | undefined;
   private _drawer: sl.SlDrawer;
   private _configEl: GuiTableConfig;
+  /** if `true` update should recompute the filters */
+  private _dirtyFilter: boolean = true;
 
   constructor() {
     super();
@@ -114,7 +116,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._filter.clearable = true;
     this._filter.placeholder = 'Filter the table';
     this._filter.part.add('filter');
-    this._filter.oninput = () => (this.filter = this._filter.value);
+    this._filter.oninput = () => {
+      this.filter = this._filter.value;
+      this._dirtyFilter = true;
+    };
     this._filter.addEventListener('sl-clear', () => (this.filter = ''));
 
     this._tableContainer = document.createElement('div');
@@ -143,7 +148,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
     this._thead.addEventListener('gui-table-filter-column', (ev) => {
       this._filterColumns[ev.detail.index] = ev.detail.text;
-      // this._thead.showColumnFilters();
+      this._dirtyFilter = true;
       this.update();
     });
 
@@ -241,6 +246,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._wCalc.reset();
     this._wCalc.setNbCols(this._table.cols.length);
     this._sortTable();
+    this._dirtyFilter = true;
   }
 
   /**
@@ -427,6 +433,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     } else {
       this._filterText = '';
     }
+    this._dirtyFilter = true;
     this.update();
   }
 
@@ -444,6 +451,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
       header.filter = filters[i];
     });
+    this._dirtyFilter = true;
     this.update();
   }
 
@@ -670,17 +678,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this._ignoreCols,
       this._filterText,
       this._filterColumns,
+      this._dirtyFilter,
       this._wCalc,
       this._cellProps,
-      // this._rowUpdateCallback,
-      // this._defaultCellFactory,
       this._columnFactory,
     );
+    this._dirtyFilter = false;
 
     this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth || this._tbody.scrollWidth);
     this._wCalc.update();
+
     this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
-    this._tbody.updateWidths(this._wCalc);
+    this._tbody.updateWidths(this._wCalc, nb_cols);
 
     this._configEl.value = this.getAttrs();
 
@@ -774,7 +783,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   ): CleanCellFactory {
     switch (typeof cellFactory) {
       case 'string': {
-        return { tag: cellFactory };
+        return { tag: cellFactory.toUpperCase() };
       }
       case 'function': {
         const tagName = `gui-table-col-${index}-${Date.now()}`;
@@ -796,10 +805,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             }
           },
         );
-        return { tag: tagName };
+        return { tag: tagName.toUpperCase() };
       }
       case 'object': {
-        return { tag: cellFactory.tag, props: cellFactory.props };
+        return { tag: cellFactory.tag.toUpperCase(), props: cellFactory.props };
       }
     }
   }
@@ -1069,6 +1078,7 @@ export class GuiTableHeadCell extends HTMLElement {
 export class GuiTableBody extends HTMLElement {
   rowHeight = -1;
   maxVirtualRows = 0;
+  total_unfiltered = 0;
   filtered_rows: number[] = [];
   virtual_rows: number[] = [];
   virtualScroller: HTMLDivElement;
@@ -1130,6 +1140,7 @@ export class GuiTableBody extends HTMLElement {
     ignoreCols: number[] | undefined,
     filterText: string,
     filterColumns: Array<string | undefined | null>,
+    dirtyFilters: boolean,
     wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
     columnFactory?: CleanColumnFactory,
@@ -1154,19 +1165,22 @@ export class GuiTableBody extends HTMLElement {
     // remove virtual scroller while updating
     this.virtualScroller.remove();
 
-    let total_unfiltered = 0;
-    this.virtual_rows.length = 0;
-    this.filtered_rows.length = nb_rows;
-    for (let i = 0; i < nb_rows; i++) {
-      if (total_unfiltered > maxRowIdx) {
-        break;
-      }
-      if (this._rowMatchesFilters(table, filterText, filterColumns, i, cellProps)) {
-        this.filtered_rows[i] = total_unfiltered;
-        total_unfiltered += 1;
-        this.virtual_rows.push(i);
-      } else {
-        this.filtered_rows[i] = -1;
+    if (dirtyFilters) {
+      this.total_unfiltered = 0;
+      this.virtual_rows.length = 0;
+      this.filtered_rows.length = nb_rows;
+      const no_filter = filterText.length === 0 && filterColumns.length === 0;
+      for (let i = 0; i < nb_rows; i++) {
+        if (this.total_unfiltered > maxRowIdx) {
+          break;
+        }
+        if (no_filter || this._rowMatchesFilters(table, filterText, filterColumns, i, cellProps)) {
+          this.filtered_rows[i] = this.total_unfiltered;
+          this.total_unfiltered += 1;
+          this.virtual_rows.push(i);
+        } else {
+          this.filtered_rows[i] = -1;
+        }
       }
     }
 
@@ -1208,7 +1222,7 @@ export class GuiTableBody extends HTMLElement {
     this._removeExceedingRows(rendered - 1);
 
     // update virtual scroller height to reflect the number of unfiltered rows
-    this.virtualScroller.style.height = `${total_unfiltered * this.rowHeight}px`;
+    this.virtualScroller.style.height = `${this.total_unfiltered * this.rowHeight}px`;
 
     // and add it back to the DOM if necessary
     if (rendered > 0) {
@@ -1216,20 +1230,27 @@ export class GuiTableBody extends HTMLElement {
     }
   }
 
-  updateWidths(wCalc: WidthCalculator) {
-    this.childNodes.forEach((row) => {
-      row.childNodes.forEach((cell, i) => {
-        (cell as HTMLElement).style.width = `${wCalc.getWidth(i)}px`;
-      });
-    });
+  updateWidths(wCalc: WidthCalculator, nb_cols: number) {
+    const widths = Array.from({ length: nb_cols }, (_, i) => wCalc.getWidth(i));
+    for (let i = 0; i < this.children.length; i++) {
+      const row = this.children[i];
+      if (row instanceof GuiTableBodyRow) {
+        for (let j = 0; j < row.children.length; j++) {
+          const cell = row.children[j];
+          if (cell instanceof GuiTableBodyCell) {
+            cell.style.width = `${widths[j]}px`;
+          }
+        }
+      }
+    }
   }
 
   resizeColumn(colIdx: number, width: number): void {
     for (let i = 0; i < this.children.length; i++) {
-      if (this.children[i] instanceof GuiTableBodyRow) {
-        const row = this.children[i];
-        if (row.children[colIdx] instanceof GuiTableBodyCell) {
-          const cell = row.children[colIdx] as GuiTableBodyCell;
+      const row = this.children[i];
+      if (row instanceof GuiTableBodyRow) {
+        const cell = row.children[colIdx];
+        if (cell instanceof GuiTableBodyCell) {
           cell.style.width = `${width}px`;
         }
       }
@@ -1247,48 +1268,46 @@ export class GuiTableBody extends HTMLElement {
     rowIdx: number,
     cellProps: CellPropsFactory,
   ): boolean {
-    const cells: string[] = Array.from({ length: table.cols.length });
-
-    for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
-      const colFilter = filterColumns[colIdx];
-      if (colFilter && colFilter.length > 0) {
-        if (typeof cellProps === 'function') {
-          cells[colIdx] = gc.sdk
-            .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
-            .toLowerCase();
-        } else {
-          cells[colIdx] = gc.sdk
-            .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
-            .toLowerCase();
-        }
-        if (!cells[colIdx].includes(colFilter)) {
-          return false;
-        }
-      }
-    }
-
-    if (filterText.length === 0) {
+    // If no filters are applied, always match.
+    if (
+      filterText.length === 0 &&
+      filterColumns.every((filter) => !filter || filter.length === 0)
+    ) {
       return true;
     }
 
+    let globalMatchFound = false;
+
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
-      if (cells[colIdx] === undefined) {
-        if (typeof cellProps === 'function') {
-          cells[colIdx] = gc.sdk
-            .stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx))
-            .toLowerCase();
-        } else {
-          cells[colIdx] = gc.sdk
-            .stringify(Object.assign({}, cellProps, { value: table.cols[colIdx][rowIdx] }))
-            .toLowerCase();
+      const colFilter = filterColumns[colIdx];
+      let cellText: string | undefined;
+
+      // Only compute cell text if needed (for col filter or global filter)
+      if ((colFilter && colFilter.length > 0) || filterText.length > 0) {
+        cellText =
+          typeof cellProps === 'function'
+            ? gc.sdk.stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx)).toLowerCase()
+            : gc.sdk.stringify({ ...cellProps, value: table.cols[colIdx][rowIdx] }).toLowerCase();
+      }
+
+      // Column-specific filter must match.
+      if (colFilter && colFilter.length > 0) {
+        if (!cellText?.includes(colFilter)) {
+          return false;
         }
       }
-      if (cells[colIdx].includes(filterText)) {
-        return true;
+
+      // For global filter, at least one cell must match.
+      if (!globalMatchFound && filterText.length > 0 && cellText?.includes(filterText)) {
+        globalMatchFound = true;
       }
     }
 
-    return false;
+    if (filterText.length > 0 && !globalMatchFound) {
+      return false;
+    }
+
+    return true;
   }
 
   private _getOrCreateRow(index: number): GuiTableBodyRow {
@@ -1330,18 +1349,23 @@ export class GuiTableBodyRow extends HTMLElement {
     wCalc: WidthCalculator,
     cellProps: CellPropsFactory,
     factory: GuiFactory,
-    // defaultCellFactory: CleanCellFactory,
     columnFactory?: CleanColumnFactory,
   ): Promise<void> {
     this.idx = rowIdx;
     this.setAttribute('data-row', `${rowIdx}`);
 
     let index = 0;
+    const children = this.children;
+    let cell: GuiTableBodyCell;
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
       if (ignoreCols?.includes(colIdx)) {
         continue;
       }
-      const cell = this._getOrCreateCell(table, index);
+      if (children[index]) {
+        cell = children[index] as GuiTableBodyCell;
+      } else {
+        cell = this._createCell(table);
+      }
       // SAFETY:
       // `originalColIndex` is optional for backward-compatibility reason, which means
       // it is safe to assert it as a 'number' here
@@ -1364,10 +1388,7 @@ export class GuiTableBodyRow extends HTMLElement {
     return this.children[index] as GuiTableBodyCell;
   }
 
-  private _getOrCreateCell(table: gc.core.Table, index: number): GuiTableBodyCell {
-    if (this.children[index]) {
-      return this.children[index] as GuiTableBodyCell;
-    }
+  private _createCell(table: gc.core.Table): GuiTableBodyCell {
     const cell = document.createElement('gui-tbody-cell');
     // cell.part.add('cell', `cell-${index}`);
     cell.addEventListener('gui-input', (ev) => {
@@ -1408,6 +1429,7 @@ export class GuiTableBodyRow extends HTMLElement {
 }
 
 export class GuiTableBodyCell extends HTMLElement {
+  private _prevWidth: number | undefined;
   rowIdx = -1;
   colIdx = -1;
   /** By default the cell is displayed by a GuiValueElement (`'gui-value'`) */
@@ -1447,8 +1469,10 @@ export class GuiTableBodyCell extends HTMLElement {
     factory: CleanCellFactory,
   ): Promise<void> {
     this.rowIdx = rowIdx;
-    this.colIdx = colIdx;
-    this.setAttribute('data-col', `${colIdx}`);
+    if (this.colIdx != colIdx) {
+      this.colIdx = colIdx;
+      this.setAttribute('data-col', `${colIdx}`);
+    }
     const value = table.cols[colIdx][rowIdx];
     if (value instanceof Node) {
       this.replaceChildren(value);
@@ -1456,7 +1480,7 @@ export class GuiTableBodyCell extends HTMLElement {
       return Promise.resolve();
     }
 
-    if (this._cell.tagName !== factory.tag.toUpperCase()) {
+    if (this._cell.tagName !== factory.tag) {
       // different tag: create+replace
       this._cell = document.createElement(factory.tag) as AnyValueElement;
       this.replaceChildren(this._cell);
@@ -1484,7 +1508,11 @@ export class GuiTableBodyCell extends HTMLElement {
       Object.assign(this._cell, factory.props);
       this._cell.value = value;
     }
-    this.style.width = `${colWidth}px`;
+
+    if (this._prevWidth != colWidth) {
+      this._prevWidth = colWidth;
+      this.style.width = `${colWidth}px`;
+    }
     return Promise.resolve();
   }
 }

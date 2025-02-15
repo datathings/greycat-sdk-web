@@ -14,8 +14,19 @@ namespace gc {
             return new ty.ctor(value) as gc.core.geo;
           }
 
-          static fromLatLng(lat: number, lng: number): gc.core.geo {
-            return geo.create(geoEncode(lat, lng));
+          static fromLatLng(latlng: { lat: number; lng: number }): gc.core.geo;
+          static fromLatLng(lat: number, lng: number): gc.core.geo;
+
+          static fromLatLng(lat: number | { lat: number; lng: number }, lng?: number): gc.core.geo {
+            if (typeof lat === 'number' && typeof lng === 'number') {
+              return geo.create(geoEncode(lat, lng));
+            }
+            if (lng === undefined && typeof lat === 'object') {
+              return geo.create(geoEncode(lat.lat, lat.lng));
+            }
+            throw new Error(
+              'core.geo.fromLatLng(...) expects either 2 numbers arguments, or 1 latlng object',
+            );
           }
 
           /**

@@ -76,6 +76,7 @@ import {
   GuiTab,
   GuiPanel,
   GuiSelect,
+  GuiMap,
 } from './exports';
 
 const sdkInit = gc.sdk.init;
@@ -202,6 +203,10 @@ function initWeb() {
   registerCustomElement('gui-tab', GuiTab);
   registerCustomElement('gui-panel', GuiPanel);
   registerCustomElement('gui-select', GuiSelect);
+
+  // if ('maplibre-gl' in window) {
+    registerCustomElement('gui-map', GuiMap);
+  // }
 }
 
 declare global {
@@ -284,6 +289,7 @@ declare global {
       GuiTab,
       GuiPanel,
       GuiSelect,
+      GuiMap,
     };
   }
 }

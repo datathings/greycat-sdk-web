@@ -147,7 +147,7 @@ fn chart(nbRows: int): Table<any> {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -169,7 +169,7 @@ fn chart(nbRows: int): Table<any> {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -555,7 +555,7 @@ fn obj() {
 @expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first", ("BAR", 42));
+  map.set("first",("BAR", 42));
   map.set("second", TimeZone::"Africa/Abidjan");
 
   var array = [42, 3.14, "hello world"];
@@ -862,4 +862,25 @@ fn serie_of_obj() {
     return Table {};
   }
   return nodeTime::sample(Array<nodeTime> { kline }, null, null, 1000, SamplingMode::adaptative, null, null);
+}
+
+var huge_table: node<Table?>;
+
+@expose
+fn sample_huge_csv(): Table? {
+  var table = *huge_table;
+  if (table != null) {
+    info("load from cache");
+    return table;
+  }
+  info("sampling...");
+  var reader = CsvReader {
+    path: "files/output.csv",
+    format: CsvFormat {
+      header_lines: 1,
+    },
+  };
+  huge_table.set(CsvReader::sample(reader, null));
+  info("updated cache");
+  return *huge_table;
 }

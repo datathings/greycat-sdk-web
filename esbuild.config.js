@@ -1,11 +1,13 @@
 import { buildSync } from 'esbuild';
 
+const minify = false;
 const loaders = {
   '.css': 'text',
   '.css?inline': 'text',
   '.svg': 'text',
   '.svg?raw': 'text',
 };
+const external = ['maplibre-gl'];
 
 // iife bundle
 buildSync({
@@ -15,8 +17,9 @@ buildSync({
   format: 'iife',
   target: 'esnext',
   globalName: 'greycat',
-  minifySyntax: true,
-  minifyWhitespace: true,
+  minifySyntax: minify,
+  minifyWhitespace: minify,
+  external,
   loader: loaders,
   logLevel: 'info',
 });
@@ -30,8 +33,9 @@ buildSync({
   target: 'esnext',
   sourcemap: true,
   sourcesContent: false,
-  minifySyntax: true,
-  minifyWhitespace: true,
+  minifySyntax: minify,
+  minifyWhitespace: minify,
+  external,
   loader: loaders,
   logLevel: 'info',
 });

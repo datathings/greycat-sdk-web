@@ -35,6 +35,7 @@ export class AppLayout extends HTMLElement {
     { title: 'Inputs',                  href: 'inputs/' },
     { title: 'Layout',                  href: 'layout/' },
     { title: 'Logs',                    href: 'logs/' },
+    { title: 'Map',                     href: 'map/' },
     { title: 'Modal',                   href: 'modal/' },
     { title: 'Node Time',               href: 'node-time/' },
     { title: 'Object',                  href: 'object/' },

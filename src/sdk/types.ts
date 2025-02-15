@@ -112,9 +112,9 @@ namespace gc {
        * 
        * If the value is less or equal to `0` then polling is disabled.
        * 
-       * Defaults to `2000` (2 seconds)
+       * Defaults to `0` (deactivated)
        */
-      tasksPollingDelay?: number;
+      pollTasks?: number;
       /**
        * The maximum number of tasks polled from the history.
        * 

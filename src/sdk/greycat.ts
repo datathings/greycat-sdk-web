@@ -143,7 +143,7 @@ namespace gc {
         url = DEFAULT_URL,
         capacity,
         cache,
-        tasksPollingDelay,
+        pollTasks,
         maxTasks,
         signal,
         auth,
@@ -156,7 +156,7 @@ namespace gc {
         auth,
         capacity,
         cache,
-        tasksPollingDelay,
+        pollTasks,
         maxTasks,
         unauthorizedHandler,
         abiMismatchHandler,
@@ -170,7 +170,7 @@ namespace gc {
         abi,
         capacity,
         cache,
-        tasksPollingDelay,
+        pollTasks,
         maxTasks,
         undefined,
         token,
@@ -203,7 +203,7 @@ namespace gc {
       url = DEFAULT_URL,
       capacity,
       cache,
-      tasksPollingDelay,
+      pollTasks,
       maxTasks,
       abi,
       token,
@@ -216,7 +216,7 @@ namespace gc {
         abi,
         capacity,
         cache,
-        tasksPollingDelay,
+        pollTasks,
         maxTasks,
         permissions,
         token,
@@ -332,7 +332,7 @@ namespace gc {
         abi: Abi,
         capacity = 4096,
         cache: Cache = new NoopCache(),
-        taskPollingDelay = 2000,
+        pollTasks = 0,
         maxTasks = 100,
         permissions: string[] = [],
         token?: string,
@@ -343,7 +343,7 @@ namespace gc {
         this.abi = abi;
         this.capacity = capacity;
         this.cache = cache;
-        this._tasks_polling_delay = taskPollingDelay;
+        this._tasks_polling_delay = pollTasks;
         this._max_tasks = maxTasks;
         this.token = token;
         this.permissions = permissions;

@@ -74,6 +74,7 @@
     "vite": "6.0.7"
   },
   "optionalDependencies": {
-    "http-proxy": "1.18.1"
+    "http-proxy": "1.18.1",
+    "maplibre-gl": "5.1.0"
   }
 }
