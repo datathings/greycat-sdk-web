@@ -1,10 +1,11 @@
-import maplibregl from 'maplibre-gl';
-// import { css } from '../../exports.js';
-// import style from './map.css?inline';
+/// <reference types="maplibre-gl" />
 
 export type GuiMapValue = gc.core.nodeGeo;
 export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
 
+/**
+ * This component is only available if `maplibre-gl` is globally available
+ */
 export class GuiMap extends HTMLElement {
   private _options: maplibregl.MapOptions | undefined;
   private _map: maplibregl.Map | undefined;

@@ -204,9 +204,9 @@ function initWeb() {
   registerCustomElement('gui-panel', GuiPanel);
   registerCustomElement('gui-select', GuiSelect);
 
-  // if ('maplibre-gl' in window) {
+  if ('maplibregl' in globalThis) {
     registerCustomElement('gui-map', GuiMap);
-  // }
+  }
 }
 
 declare global {
