@@ -199,9 +199,9 @@ function initWeb() {
   registerCustomElement('gui-user-group-policy', GuiUserGroupPolicy);
   registerCustomElement('gui-user-form', GuiUserForm);
   registerCustomElement('gui-tasks', GuiTasks);
-  registerCustomElement('gui-tabs', GuiTabs);
-  registerCustomElement('gui-tab', GuiTab);
   registerCustomElement('gui-panel', GuiPanel);
+  registerCustomElement('gui-tab', GuiTab);
+  registerCustomElement('gui-tabs', GuiTabs);
   registerCustomElement('gui-select', GuiSelect);
 
   if ('maplibregl' in globalThis) {
