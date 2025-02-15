@@ -1,4 +1,4 @@
-import { css, GuiChangeEvent, GuiElement } from '../../exports.js';
+import { css, getBooleanAttribute, GuiChangeEvent, GuiElement } from '../../exports.js';
 import tabsStyle from './tabs.css?inline';
 import tabStyle from './tab.css?inline';
 import panelStyle from './panel.css?inline';
@@ -152,6 +152,7 @@ export class GuiTab extends GuiElement {
     if (!this.hasAttribute('tabindex')) {
       this.tabIndex = 0;
     }
+    this.active = getBooleanAttribute(this, 'active');
   }
 }
 
