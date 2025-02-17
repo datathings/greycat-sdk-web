@@ -1,34 +1,30 @@
-/// <reference types="maplibre-gl" />
+import { GuiMapLayer } from './map-layer';
+import { GuiMapSource } from './map-source';
 
-export type GuiMapValue = gc.core.nodeGeo;
 export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
 
 /**
  * This component is only available if `maplibre-gl` is globally available
  */
 export class GuiMap extends HTMLElement {
+  private _observer: MutationObserver;
   private _options: maplibregl.MapOptions | undefined;
-  private _map: maplibregl.Map | undefined;
-  private _value: GuiMapValue | undefined;
-  private _layers: Map<string, Map<bigint, maplibregl.Marker>>;
+  /** The current MapLibre-GL instance */
+  map: maplibregl.Map | undefined;
 
   constructor() {
     super();
 
-    this._layers = new Map();
+    this._observer = new MutationObserver(this._onMutations);
   }
 
   connectedCallback(): void {
     this.update();
+    this._observer.observe(this, { childList: true });
   }
 
-  get value() {
-    return this._value;
-  }
-
-  set value(value: GuiMapValue | undefined) {
-    this._value = value;
-    this.updateValue();
+  disconnectedCallback(): void {
+    this._observer.disconnect();
   }
 
   get options() {
@@ -44,59 +40,62 @@ export class GuiMap extends HTMLElement {
     if (!this.isConnected) {
       return;
     }
-
+    if (this.map) {
+      // map already initialized
+      return;
+    }
     if (!this._options) {
-      if (this._map) {
-        this._map.remove();
-        this._map = undefined;
-      }
-      this.replaceChildren();
+      // no options defined
       return;
     }
 
-    this._map = new maplibregl.Map(this._options);
-    this._map.on('zoomend', this.updateValue);
-    this._map.on('dragend', this.updateValue);
-    this.updateValue();
+    const map = (this.map = new maplibregl.Map(this._options));
+    const sources = this.querySelectorAll('gui-map-source');
+    const layers = this.querySelectorAll('gui-map-layer');
+    console.log({ sources, layers });
+    this.map.once('load', () => {
+      sources.forEach((source) => {
+        if (source.value) {
+          map.addSource(source.name, source.value);
+        }
+      });
+      layers.forEach((layer) => {
+        if (layer.value) {
+          map.addLayer(layer.value, layer.beforeId);
+        }
+      });
+    });
+    // this.map.on('zoomend', this.updateValue);
+    // this.map.on('dragend', this.updateValue);
   }
 
-  updateValue = async (): Promise<void> => {
-    if (!this.isConnected || !this._map) {
+  private _onMutations: MutationCallback = (mutations) => {
+    if (!this.map) {
       return;
     }
-
-    let values_layer = this._layers.get('values');
-    if (!values_layer) {
-      values_layer = new Map();
-      this._layers.set('values', values_layer);
-    }
-
-    const bounds = this._map.getBounds();
-    const sw = gc.core.geo.fromLatLng(bounds.getSouthWest());
-    const ne = gc.core.geo.fromLatLng(bounds.getNorthEast());
-
-    if (this._value instanceof gc.core.nodeGeo) {
-      const table = (await gc.core.nodeGeo.sample(
-        [this._value],
-        sw,
-        ne,
-        1000,
-        gc.core.SamplingMode.dense,
-      )) as gc.core.Table<[gc.core.geo, unknown]>;
-      for (const [location, data] of table) {
-        if (values_layer.get(location.value) === undefined) {
-          const marker = new maplibregl.Marker().setLngLat(location);
-          const popup = new maplibregl.Popup();
-          const object = document.createElement('gui-object');
-          object.value = data;
-          popup.setDOMContent(object);
-          marker.setPopup(popup);
-          marker.addTo(this._map);
-          values_layer.set(location.value, marker);
+    const map = this.map;
+    for (const mutation of mutations) {
+      mutation.addedNodes.forEach((node) => {
+        if (node instanceof GuiMapSource) {
+          if (node.value) {
+            map.addSource(node.name, node.value);
+          }
+        } else if (node instanceof GuiMapLayer) {
+          if (node.value) {
+            map.addLayer(node.value, node.beforeId);
+          }
         }
-      }
+      });
+      mutation.removedNodes.forEach((node) => {
+        if (node instanceof GuiMapSource) {
+          map.removeSource(node.name);
+        } else if (node instanceof GuiMapLayer) {
+          if (node.value) {
+            map.removeLayer(node.value.id);
+          }
+        }
+      });
     }
-    // TODO handle more types from std lib
   };
 }
 

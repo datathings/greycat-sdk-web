@@ -1,22 +1,23 @@
-import { type GuiCsvStatistics2, type GuiTable, sl } from '@greycat/web';
+import { modal, type GuiCsvStatistics2, type GuiTable } from '@greycat/web';
 import '@/common';
 
 const greycat = await gc.sdk.init();
 
 async function runAnalysis(filepath: string) {
   const task = await greycat.spawn('io::CsvAnalysis::analyze', [
-    filepath,
+    [new gc.io.File(filepath)],
     gc.io.CsvAnalysisConfig.createFrom({
       header_lines: 1,
-      enumerable_limit: 10_000,
+      enumerable_limit: 1_000,
     }),
   ]);
 
-  sample.value = await gc.io.CsvFormat.sample(filepath, new gc.io.CsvFormat(1));
+  const reader = new gc.io.CsvReader(filepath, undefined, new gc.io.CsvFormat(1));
+  sample.value = await gc.io.CsvReader.sample(reader);
   return (await task.await()) as gc.io.CsvStatistics;
 }
 
-const sample = (<gui-table globalFilter style={{ height: '650px' }} />) as GuiTable;
+const sample = (<gui-table globalFilter />) as GuiTable;
 const stats = await runAnalysis('./pages/csv-analysis/data/small.csv');
 const csvStatistics = (<gui-csv-statistics2 value={stats} />) as GuiCsvStatistics2;
 
@@ -28,10 +29,25 @@ document.body.appendChild(
     <sl-select
       label="Dataset"
       placeholder="Select a CSV file to analyze"
-      onsl-change={async function (this: sl.SlSelect) {
-        csvStatistics.value = await runAnalysis(this.value as string);
+      onsl-change={async function (this) {
+        if (this.value === '__DOWNLOAD_FROM_URL__') {
+          const url = await modal.input({
+            title: 'Specify the URL to a .csv file',
+            confirm: 'Download',
+          });
+          if (url) {
+            const res = await fetch(url);
+            const data = await res.blob();
+            const filename = url.slice(url.lastIndexOf('/') + 1);
+            await greycat.putFile(filename, new File([data], filename));
+            csvStatistics.value = await runAnalysis(filename);
+          }
+        } else {
+          csvStatistics.value = await runAnalysis(this.value as string);
+        }
       }}
     >
+      <sl-option value="__DOWNLOAD_FROM_URL__">Download from URL</sl-option>
       <sl-option value="./pages/csv-analysis/data/small.csv" selected>
         Small Dataset
       </sl-option>

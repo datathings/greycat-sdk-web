@@ -77,6 +77,9 @@ import {
   GuiPanel,
   GuiSelect,
   GuiMap,
+  GuiMapLayer,
+  GuiMapSource,
+  GuiMapNodeGeo,
 } from './exports';
 
 const sdkInit = gc.sdk.init;
@@ -104,6 +107,7 @@ function initWeb() {
     [gc.core.Table._type]: 'gui-table',
     [gc.core.Map._type]: 'gui-table',
     [gc.core.Array._type]: 'gui-table',
+    [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
   });
   GuiInputFactory.global = new GuiInputFactory({
     ['core::any']: 'gui-input-any',
@@ -205,6 +209,9 @@ function initWeb() {
   registerCustomElement('gui-select', GuiSelect);
 
   if ('maplibregl' in globalThis) {
+    registerCustomElement('gui-map-source', GuiMapSource);
+    registerCustomElement('gui-map-layer', GuiMapLayer);
+    registerCustomElement('gui-map-nodegeo', GuiMapNodeGeo);
     registerCustomElement('gui-map', GuiMap);
   }
 }
@@ -290,6 +297,9 @@ declare global {
       GuiPanel,
       GuiSelect,
       GuiMap,
+      GuiMapLayer,
+      GuiMapSource,
+      GuiMapNodeGeo,
     };
   }
 }

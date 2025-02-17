@@ -1,23 +1,63 @@
 import '@greycat/web';
 import '@/common';
+import maplibregl from 'maplibre-gl';
 import 'maplibre-gl/dist/maplibre-gl.css';
+
+globalThis.maplibregl = maplibregl;
 
 const greycat = await gc.sdk.init();
 
 const root = await greycat.root();
-const geo_index = root['cities::cities'] as gc.core.nodeGeo;
+const cities = root['cities::cities'] as gc.core.nodeGeo;
 
 document.body.appendChild(
   <app-layout title="Map" mainStyle={{ display: 'grid' }}>
     <gui-map
-      value={geo_index}
       options={{
         style: 'https://demotiles.maplibre.org/style.json',
         center: gc.core.geo.fromLatLng(49.6181, 6.162),
-        zoom: 7,
+        zoom: 5,
       }}
     >
-      {/* <gui-map-nodegeo value={geo_index} /> */}
+      <gui-map-source
+        name="national-park"
+        value={{
+          type: 'geojson',
+          data: 'https://www.data.gouv.fr/fr/datasets/r/bb4cda9a-9036-4458-9113-e05b923f0656',
+        }}
+      />
+      <gui-map-source
+        name="urban-areas"
+        value={{
+          type: 'geojson',
+          data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_urban_areas.geojson',
+        }}
+      />
+      <gui-map-layer
+        value={{
+          id: 'national-parks-layer',
+          type: 'fill',
+          source: 'national-park',
+          layout: {},
+          paint: {
+            'fill-color': '#507',
+            'fill-opacity': 1,
+          },
+        }}
+      />
+      <gui-map-layer
+        value={{
+          id: 'urban-areas-fill',
+          type: 'fill',
+          source: 'urban-areas',
+          layout: {},
+          paint: {
+            'fill-color': '#f08',
+            'fill-opacity': 0.4,
+          },
+        }}
+      />
+      <gui-map-nodegeo value={cities} />
     </gui-map>
   </app-layout>,
 );

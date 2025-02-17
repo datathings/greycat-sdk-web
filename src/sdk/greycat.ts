@@ -798,7 +798,7 @@ namespace gc {
        * @param file the file to upload
        * @param signal optional `AbortSignal` to cancel the request prematurely
        */
-      async putFile(filepath: string, file: File, signal?: AbortSignal): Promise<void> {
+      async putFile(filepath: string, file: globalThis.File, signal?: AbortSignal): Promise<void> {
         const route = `files/${filepath}`;
         const res = await fetch(`${this.api}/${route}`, { method: 'PUT', body: file, signal });
         if (res.ok) {
