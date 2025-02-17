@@ -141,18 +141,28 @@ export class GuiTab extends GuiElement {
 
   set active(active: boolean) {
     this._active = active;
-    if (this._active) {
-      this.shadowRoot.children[0].classList.add('active');
-    } else {
-      this.shadowRoot.children[0].classList.remove('active');
-    }
+    this.update();
   }
 
   connectedCallback() {
     if (!this.hasAttribute('tabindex')) {
       this.tabIndex = 0;
     }
-    this.active = getBooleanAttribute(this, 'active');
+    if (this.hasAttribute('active')) {
+      this.active = getBooleanAttribute(this, 'active');
+    }
+    this.update();
+  }
+
+  update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+    if (this._active) {
+      this.shadowRoot.children[0].classList.add('active');
+    } else {
+      this.shadowRoot.children[0].classList.remove('active');
+    }
   }
 }
 
