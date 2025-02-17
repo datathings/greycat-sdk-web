@@ -59,8 +59,8 @@ export class GuiCsvStatistics2 extends GuiElement {
       ['Bool count', ...this._stats.columns.map(typeCount('bool_count'))],
       ['Date count', ...this._stats.columns.map(typeCount('date_count'))],
       ['Example', ...this._stats.columns.map(example)],
-      ['Minimum', ...this._stats.columns.map((c) => c.profile.min?.toFixed(1))],
-      ['Maximum', ...this._stats.columns.map((c) => c.profile.max?.toFixed(1))],
+      ['Minimum', ...this._stats.columns.map((c) => c.profile.min?.toFixed(1) ?? '')],
+      ['Maximum', ...this._stats.columns.map((c) => c.profile.max?.toFixed(1) ?? '')],
       ['Average', ...this._stats.columns.map(average)],
       ['Standard deviation', ...this._stats.columns.map(stdDeviation)],
       [
