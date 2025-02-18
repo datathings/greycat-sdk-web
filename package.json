@@ -38,7 +38,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen . && mv project.d.ts std.d.ts",
+    "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
     "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",

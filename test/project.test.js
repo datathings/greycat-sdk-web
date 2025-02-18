@@ -89,9 +89,9 @@ describe('project', () => {
         lng: 2.000000006519258,
       },
     },
-    { _type: 'core::nodeList', value: 25165824 },
+    { _type: 'core::nodeList', value: 53248 },
     { _type: 'core::TimeZone', field: 'Europe/Luxembourg' },
-    { _type: 'core::node', value: 29360128 },
+    { _type: 'core::node', value: 57344 },
     { _type: 'core::Error', message: 'an error', stack: [] },
     { _type: 'core::ErrorCode', field: 'none' },
     { _type: 'core::SamplingMode', field: 'adaptative' },
@@ -139,11 +139,11 @@ describe('project', () => {
       second: 12,
       microsecond: 120012,
     },
-    { _type: 'core::nodeTime', value: 33554432 },
+    { _type: 'core::nodeTime', value: 61440 },
     [],
     // { _type: 'core::Tuple', x: [], y: {} },
     { _type: 'core::Tuple', x: 42, y: 'hello' },
-    { _type: 'core::nodeIndex', value: 37748736 },
+    { _type: 'core::nodeIndex', value: 65536 },
     {
       _type: 'core::GeoPoly',
       points: [
@@ -165,7 +165,7 @@ describe('project', () => {
       ],
     },
     { _type: 'core::CalendarUnit', field: 'day' },
-    { _type: 'core::nodeGeo', value: 41943040 },
+    { _type: 'core::nodeGeo', value: 69632 },
     { _type: 'core::t2', x0: 13, x1: 37 },
     { _type: 'core::t3', x0: 13, x1: 37, x2: 42 },
     { _type: 'core::t4', x0: 13, x1: 37, x2: 42, x3: 12 },
@@ -200,6 +200,7 @@ describe('project', () => {
       thousands_separator: '_',
       trim: null,
       tz: null,
+      strict: null,
     },
 
     // std::runtime
