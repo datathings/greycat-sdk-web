@@ -1,7 +1,7 @@
 import {
   AddPanelOptions,
   DockviewComponent,
-  GroupPanelContentPartInitParameters,
+  GroupPanelPartInitParameters,
   IContentRenderer,
   IDockviewPanel,
   PanelUpdateEvent,
@@ -96,10 +96,10 @@ export class GuiDashboard extends GuiElement {
     // const container = document.createElement('div');
     // this.shadowRoot.appendChild(container);
 
-    this._dockview = new DockviewComponent({
-      parentElement: this.shadowRoot as unknown as HTMLElement,
-      components: {
-        default: DashboardPanel,
+    this._dockview = new DockviewComponent(this.shadowRoot as unknown as HTMLElement, {
+      createComponent(_options) {
+        console.log('create component', _options);
+        return new DashboardPanel();
       },
     });
 
@@ -292,31 +292,31 @@ class DashboardPanel implements IContentRenderer {
 
   constructor() {
     this._root = document.createElement('div');
+    this._root.style.display = 'contents';
     this.inner = document.createElement('div');
+    this.inner.style.display = 'contents';
   }
 
   get element() {
     return this._root;
   }
 
-  async init(parameters: GroupPanelContentPartInitParameters) {
+  async init(parameters: GroupPanelPartInitParameters) {
+    console.log('DashboardPanel.init', parameters);
     const params = parameters.params as DashboardPanelParams;
     this.inner = createElement(params.component, params.attrs ?? {}) as HTMLElement;
     this._root.appendChild(this.inner);
   }
 
   update(event: PanelUpdateEvent<Parameters>): void {
-    for (const name in event.params.params.attrs) {
-      const value = event.params.params.attrs[name];
+    console.log('DashboardPanel.update', event);
+    for (const name in event.params.attrs) {
+      const value = event.params.attrs[name];
       if (name in this.inner) {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (this.inner as any)[name] = value;
       }
     }
-  }
-
-  focus(): void {
-    // noop
   }
 }
 
