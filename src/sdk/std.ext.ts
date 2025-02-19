@@ -73,6 +73,15 @@ namespace gc {
         ): Promise<void> {
           return resolveFileChildrenRecursively(this, maxDepth, 0, g, signal);
         },
+        download<T = unknown>(
+          this: io.File,
+          offset = 0,
+          max?: number,
+          g: GreyCat = gc.$.default,
+          signal?: AbortSignal,
+        ): Promise<T> {
+          return g.getFile(this.path, offset, max, signal);
+        },
       });
 
       // extend core.Date

@@ -49,11 +49,7 @@ declare namespace gc {
        * @param g
        * @param signal
        */
-      await<T = unknown>(
-        pollEvery?: number,
-        g?: gc.sdk.GreyCat,
-        signal?: AbortSignal,
-      ): Promise<T>;
+      await<T = unknown>(pollEvery?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
 
       /**
        * Whether or not this task is live or completed.
@@ -66,19 +62,36 @@ declare namespace gc {
 
   namespace io {
     interface File {
-      children?: File[];
+      children?: gc.io.File[];
 
       /**
        * Lists the current children of this file.
        *
        * If this file is not a directory, returns `undefined`.
        */
-      list(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<File[] | undefined>;
+      list(g?: gc.sdk.GreyCat, signal?: globalThis.AbortSignal): Promise<gc.io.File[] | undefined>;
 
       /**
        * Resolves this file's children recursively to a maximum depth of `maxDepth` (defaults to `5`)
        */
-      resolve(maxDepth?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<void>;
+      resolve(
+        maxDepth?: number,
+        g?: gc.sdk.GreyCat,
+        signal?: globalThis.AbortSignal,
+      ): Promise<void>;
+
+      /**
+       * Downloads the content of this file. This method interprets the extension in order to
+       * call the appropriate deserializer.
+       * 
+       * *This is nothing more than sugar on top of `gc.$.default.getFile(this.path)`*
+       */
+      download<T = unknown>(
+        offset?: number,
+        max?: number,
+        g?: gc.sdk.GreyCat,
+        signal?: globalThis.AbortSignal,
+      ): Promise<T>;
     }
   }
 

@@ -1218,12 +1218,14 @@ declare namespace gc {
     class Frame extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Frame';
       module: string | null;
-      function: gc.core.function_ | null;
+      type: string | null;
+      function: string | null;
+      src: string | null;
       line: number | bigint;
       column: number | bigint;
       scope: globalThis.Array<gc.runtime.Variable>;
-      constructor(module: string | null, function_: gc.core.function_ | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>);
-      static createFrom(fields: {module?: string | null, function_?: gc.core.function_ | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>}): Frame;
+      constructor(module: string | null, type: string | null, function_: string | null, src: string | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>);
+      static createFrom(fields: {module?: string | null, type?: string | null, function_?: string | null, src?: string | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>}): Frame;
     }
 
     class SecurityEntity$set$args extends gc.sdk.GCObject {
@@ -2135,11 +2137,7 @@ declare namespace gc {
        * @param g
        * @param signal
        */
-      await<T = unknown>(
-        pollEvery?: number,
-        g?: gc.sdk.GreyCat,
-        signal?: AbortSignal,
-      ): Promise<T>;
+      await<T = unknown>(pollEvery?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
 
       /**
        * Whether or not this task is live or completed.
@@ -2152,19 +2150,30 @@ declare namespace gc {
 
   namespace io {
     interface File {
-      children?: File[];
+      children?: gc.io.File[];
 
       /**
        * Lists the current children of this file.
        *
        * If this file is not a directory, returns `undefined`.
        */
-      list(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<File[] | undefined>;
+      list(g?: gc.sdk.GreyCat, signal?: globalThis.AbortSignal): Promise<gc.io.File[] | undefined>;
 
       /**
        * Resolves this file's children recursively to a maximum depth of `maxDepth` (defaults to `5`)
        */
-      resolve(maxDepth?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<void>;
+      resolve(
+        maxDepth?: number,
+        g?: gc.sdk.GreyCat,
+        signal?: globalThis.AbortSignal,
+      ): Promise<void>;
+
+      download<T = unknown>(
+        offset?: number,
+        max?: number,
+        g?: gc.sdk.GreyCat,
+        signal?: globalThis.AbortSignal,
+      ): Promise<T>;
     }
   }
 

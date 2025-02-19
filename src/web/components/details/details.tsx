@@ -1,8 +1,13 @@
 import { css, sl, SlDetailsEventMap } from '../../exports.js';
 import styles from './details.css?inline';
+import componentStyles from '../styles.component.css?inline';
 
 export class GuiDetails extends sl.SlDetails {
-  static override styles = [sl.SlDetails.styles as CSSStyleSheet, css(styles)];
+  static override styles = [
+    sl.SlDetails.styles as CSSStyleSheet,
+    css(componentStyles),
+    css(styles),
+  ];
 }
 
 declare global {
