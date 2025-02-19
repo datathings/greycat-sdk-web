@@ -2,10 +2,6 @@
 /* eslint-disable */
 declare namespace gc {
   namespace core {
-    class t4 extends gc.sdk.std_n.core.t4 {}
-
-    class Buffer extends gc.sdk.std_n.core.Buffer {}
-
     class Date extends gc.sdk.GCObject {
       static readonly _type = 'core::Date';
       year: number | bigint;
@@ -20,11 +16,15 @@ declare namespace gc {
       static fromTime(time: gc.core.time, tz?: gc.core.TimeZone | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Date>;
     }
 
-    class nodeTime$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeTime$info$args';
-      nodes: globalThis.Array<gc.core.nodeTime>;
-      constructor(nodes: globalThis.Array<gc.core.nodeTime>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeTime>}): nodeTime$info$args;
+    class t4 extends gc.sdk.std_n.core.t4 {}
+
+    class Buffer extends gc.sdk.std_n.core.Buffer {}
+
+    class node$resolve_all$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::node$resolve_all$args';
+      n: globalThis.Array<gc.core.node | null>;
+      constructor(n: globalThis.Array<gc.core.node | null>);
+      static createFrom(fields: {n: globalThis.Array<gc.core.node | null>}): node$resolve_all$args;
     }
 
     class nodeTimeCursor<T = any> extends gc.sdk.GCObject {
@@ -652,13 +652,18 @@ declare namespace gc {
 
     class t3 extends gc.sdk.std_n.core.t3 {}
 
-    class Table$applyMappings$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::Table$applyMappings$args';
-      table: gc.core.Table;
-      mappings: globalThis.Array<gc.core.TableColumnMapping>;
-      constructor(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>);
-      static createFrom(fields: {table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>}): Table$applyMappings$args;
+    class nodeGeo$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeGeo$sample$args';
+      refs: globalThis.Array<gc.core.nodeGeo>;
+      from: gc.core.geo | null;
+      to: gc.core.geo | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      constructor(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeGeo>, from?: gc.core.geo | null, to?: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeGeo$sample$args;
     }
+
+    class int extends gc.sdk.std_n.core.int {}
 
     class SortOrder extends gc.sdk.GCEnum {
       static readonly _type = 'core::SortOrder';
@@ -671,8 +676,6 @@ declare namespace gc {
     namespace SortOrder  {
       type Field = 'asc'|'desc';
     }
-
-    class int extends gc.sdk.std_n.core.int {}
 
     class FloatPrecision extends gc.sdk.GCEnum {
       static readonly _type = 'core::FloatPrecision';
@@ -695,11 +698,14 @@ declare namespace gc {
       type Field = 'p1'|'p10'|'p100'|'p1000'|'p10000'|'p100000'|'p1000000'|'p10000000'|'p100000000'|'p1000000000'|'p10000000000';
     }
 
-    class node$resolve_all$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::node$resolve_all$args';
-      n: globalThis.Array<gc.core.node | null>;
-      constructor(n: globalThis.Array<gc.core.node | null>);
-      static createFrom(fields: {n: globalThis.Array<gc.core.node | null>}): node$resolve_all$args;
+    class nodeIndex$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeIndex$sample$args';
+      refs: globalThis.Array<gc.core.nodeIndex>;
+      from: any | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      constructor(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeIndex>, from?: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeIndex$sample$args;
     }
 
     class DurationUnit extends gc.sdk.GCEnum {
@@ -765,18 +771,24 @@ declare namespace gc {
 
     class Array<T = any> extends gc.sdk.std_n.core.Array<T> {}
 
-    class nodeList$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeList$info$args';
-      nodes: globalThis.Array<gc.core.nodeList>;
-      constructor(nodes: globalThis.Array<gc.core.nodeList>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeList>}): nodeList$info$args;
+    class Table$applyMappings$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::Table$applyMappings$args';
+      table: gc.core.Table;
+      mappings: globalThis.Array<gc.core.TableColumnMapping>;
+      constructor(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>);
+      static createFrom(fields: {table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>}): Table$applyMappings$args;
     }
 
-    class nodeIndex$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeIndex$info$args';
-      nodes: globalThis.Array<gc.core.nodeIndex>;
-      constructor(nodes: globalThis.Array<gc.core.nodeIndex>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeIndex>}): nodeIndex$info$args;
+    class nodeList$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeList$sample$args';
+      refs: globalThis.Array<gc.core.nodeList>;
+      from: number | bigint | null;
+      to: number | bigint | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      maxDephasing: number | bigint | null;
+      constructor(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeList>, from?: number | bigint | null, to?: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null}): nodeList$sample$args;
     }
 
     class ErrorFrame extends gc.sdk.GCObject {
@@ -799,6 +811,19 @@ declare namespace gc {
       static createFrom<T, U>(fields: {x?: T | null, y?: U | null}): Tuple;
     }
 
+    class nodeTime$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeTime$info$args';
+      nodes: globalThis.Array<gc.core.nodeTime>;
+      constructor(nodes: globalThis.Array<gc.core.nodeTime>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeTime>}): nodeTime$info$args;
+    }
+
+    class String extends gc.sdk.std_n.core.String {}
+
+    class Map<K = any, V = any> extends gc.sdk.std_n.core.Map<K, V> {}
+
+    class field extends gc.sdk.std_n.core.field {}
+
     class nodeTime$sample$args extends gc.sdk.GCObject {
       static readonly _type = 'core::nodeTime$sample$args';
       refs: globalThis.Array<gc.core.nodeTime>;
@@ -812,19 +837,14 @@ declare namespace gc {
       static createFrom(fields: {refs: globalThis.Array<gc.core.nodeTime>, from?: gc.core.time | null, to?: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null}): nodeTime$sample$args;
     }
 
-    class Map<K = any, V = any> extends gc.sdk.std_n.core.Map<K, V> {}
-
-    class String extends gc.sdk.std_n.core.String {}
-
-    class field extends gc.sdk.std_n.core.field {}
-
     class geo extends gc.sdk.std_n.core.geo {}
 
-    class nodeGeo$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeGeo$info$args';
-      nodes: globalThis.Array<gc.core.nodeGeo>;
-      constructor(nodes: globalThis.Array<gc.core.nodeGeo>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeGeo>}): nodeGeo$info$args;
+    class Date$fromTime$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::Date$fromTime$args';
+      time: gc.core.time;
+      tz: gc.core.TimeZone | null;
+      constructor(time: gc.core.time, tz?: gc.core.TimeZone | null);
+      static createFrom(fields: {time: gc.core.time, tz?: gc.core.TimeZone | null}): Date$fromTime$args;
     }
 
     class float extends gc.sdk.std_n.core.float {}
@@ -839,26 +859,18 @@ declare namespace gc {
       static createFrom(fields: {column: number | bigint, extractors: globalThis.Array<any>}): TableColumnMapping;
     }
 
-    class nodeList$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeList$sample$args';
-      refs: globalThis.Array<gc.core.nodeList>;
-      from: number | bigint | null;
-      to: number | bigint | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      maxDephasing: number | bigint | null;
-      constructor(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeList>, from?: number | bigint | null, to?: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null}): nodeList$sample$args;
+    class nodeList$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeList$info$args';
+      nodes: globalThis.Array<gc.core.nodeList>;
+      constructor(nodes: globalThis.Array<gc.core.nodeList>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeList>}): nodeList$info$args;
     }
 
-    class nodeIndex$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeIndex$sample$args';
-      refs: globalThis.Array<gc.core.nodeIndex>;
-      from: any | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      constructor(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeIndex>, from?: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeIndex$sample$args;
+    class nodeIndex$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeIndex$info$args';
+      nodes: globalThis.Array<gc.core.nodeIndex>;
+      constructor(nodes: globalThis.Array<gc.core.nodeIndex>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeIndex>}): nodeIndex$info$args;
     }
 
     class time extends gc.sdk.std_n.core.time {}
@@ -923,26 +935,14 @@ declare namespace gc {
       type Field = 'year'|'month'|'day'|'hour'|'minute'|'second'|'microsecond';
     }
 
-    class nodeGeo$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeGeo$sample$args';
-      refs: globalThis.Array<gc.core.nodeGeo>;
-      from: gc.core.geo | null;
-      to: gc.core.geo | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      constructor(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeGeo>, from?: gc.core.geo | null, to?: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeGeo$sample$args;
+    class nodeGeo$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeGeo$info$args';
+      nodes: globalThis.Array<gc.core.nodeGeo>;
+      constructor(nodes: globalThis.Array<gc.core.nodeGeo>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeGeo>}): nodeGeo$info$args;
     }
 
     class char extends gc.sdk.std_n.core.char {}
-
-    class Date$fromTime$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::Date$fromTime$args';
-      time: gc.core.time;
-      tz: gc.core.TimeZone | null;
-      constructor(time: gc.core.time, tz?: gc.core.TimeZone | null);
-      static createFrom(fields: {time: gc.core.time, tz?: gc.core.TimeZone | null}): Date$fromTime$args;
-    }
 
     class node<T = any> extends gc.sdk.std_n.core.node<T> {
       static resolve_all(n: globalThis.Array<gc.core.node | null>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<any | null>>;
@@ -1008,12 +1008,20 @@ declare namespace gc {
   }
 
   namespace runtime {
-    class Task$running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$running$args';
+    class Task$history$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$history$args';
+      offset: number | bigint;
+      max: number | bigint;
+      constructor(offset: number | bigint, max: number | bigint);
+      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
     }
 
-    class User$permissions$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$permissions$args';
+    class User$setPassword$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$setPassword$args';
+      name: string;
+      pass: string;
+      constructor(name: string, pass: string);
+      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
     }
 
     class TaskStatus extends gc.sdk.GCEnum {
@@ -1034,8 +1042,11 @@ declare namespace gc {
       type Field = 'empty'|'waiting'|'running'|'await'|'cancelled'|'error'|'ended'|'ended_with_errors';
     }
 
-    class PeriodicTask$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::PeriodicTask$all$args';
+    class PeriodicTask$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::PeriodicTask$set$args';
+      tasks: globalThis.Array<gc.runtime.PeriodicTask>;
+      constructor(tasks: globalThis.Array<gc.runtime.PeriodicTask>);
+      static createFrom(fields: {tasks: globalThis.Array<gc.runtime.PeriodicTask>}): PeriodicTask$set$args;
     }
 
     class Task extends gc.sdk.GCObject {
@@ -1110,19 +1121,12 @@ declare namespace gc {
       static createFrom(fields: {version: string, program_version?: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, bg_threads: number | bigint, fg_threads: number | bigint, mem_total: number | bigint, mem_worker: number | bigint, nb_ctx: number | bigint, store_stats?: gc.runtime.StoreStat | null}): RuntimeInfo;
     }
 
-    class Task$is_running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$is_running$args';
-      task_id: number | bigint;
-      constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
+    class PeriodicTask$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::PeriodicTask$all$args';
     }
 
-    class User$setPassword$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$setPassword$args';
-      name: string;
-      pass: string;
-      constructor(name: string, pass: string);
-      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
+    class Debug$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$all$args';
     }
 
     class User extends gc.sdk.GCObject {
@@ -1148,8 +1152,11 @@ declare namespace gc {
       static login(credentials: string, use_cookie: boolean, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
     }
 
-    class User$logout$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$logout$args';
+    class User$renew$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$renew$args';
+      use_cookie: boolean;
+      constructor(use_cookie: boolean);
+      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
     }
 
     class UserCredential extends gc.sdk.GCObject {
@@ -1160,16 +1167,16 @@ declare namespace gc {
       static createFrom(fields: {offset: number | bigint, pass?: string | null}): UserCredential;
     }
 
-    class User$login$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$login$args';
-      credentials: string;
+    class User$tokenLogin$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$tokenLogin$args';
+      token: string;
       use_cookie: boolean;
-      constructor(credentials: string, use_cookie: boolean);
-      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
+      constructor(token: string, use_cookie: boolean);
+      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
     }
 
-    class Permission$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Permission$all$args';
+    class Role$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Role$all$args';
     }
 
     class Permission extends gc.sdk.GCObject {
@@ -1198,21 +1205,23 @@ declare namespace gc {
       static config($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
     }
 
-    class PeriodicTask$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::PeriodicTask$set$args';
-      tasks: globalThis.Array<gc.runtime.PeriodicTask>;
-      constructor(tasks: globalThis.Array<gc.runtime.PeriodicTask>);
-      static createFrom(fields: {tasks: globalThis.Array<gc.runtime.PeriodicTask>}): PeriodicTask$set$args;
+    class SecurityFields$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$set$args';
+      f: gc.runtime.SecurityFields;
+      constructor(f: gc.runtime.SecurityFields);
+      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
     }
 
-    class Checkpoint extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Checkpoint';
-      worker_id: number | bigint;
+    class Debug extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug';
+      id: number | bigint;
       frames: globalThis.Array<gc.runtime.Frame>;
       root: any;
-      constructor(worker_id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any);
-      static createFrom(fields: {worker_id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any}): Checkpoint;
-      static resume(worker_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+      constructor(id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any);
+      static createFrom(fields: {id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any}): Debug;
+      static resume(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+      static get(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
+      static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
     }
 
     class Frame extends gc.sdk.GCObject {
@@ -1228,19 +1237,16 @@ declare namespace gc {
       static createFrom(fields: {module?: string | null, type?: string | null, function_?: string | null, src?: string | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>}): Frame;
     }
 
-    class SecurityEntity$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$set$args';
-      entity: gc.runtime.SecurityEntity;
-      constructor(entity: gc.runtime.SecurityEntity);
-      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
+    class OpenIDConnect$config$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::OpenIDConnect$config$args';
     }
 
     class System extends gc.sdk.GCObject {
       static readonly _type = 'runtime::System';
     }
 
-    class Runtime$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$info$args';
+    class Runtime$abi$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$abi$args';
     }
 
     class License extends gc.sdk.GCObject {
@@ -1272,8 +1278,8 @@ declare namespace gc {
       static createFrom(fields: {capacity_bytes: number | bigint, allocated_bytes: number | bigint, allocated_ratio: number, remained_bytes: number | bigint, remained_ratio: number, used_bytes: number | bigint, used_ratio: number, available_bytes: number | bigint, available_ratio: number}): StoreStat;
     }
 
-    class SecurityFields$get$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$get$args';
+    class SecurityEntity$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$all$args';
     }
 
     class Log extends gc.sdk.GCObject {
@@ -1290,8 +1296,8 @@ declare namespace gc {
       static createFrom(fields: {level: gc.runtime.LogLevel, time: gc.core.time, user_id?: number | bigint | null, id?: number | bigint | null, id2?: number | bigint | null, src?: string | null, tag?: string | null, data?: any | null}): Log;
     }
 
-    class Runtime$root$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$root$args';
+    class Task$running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$running$args';
     }
 
     class SecurityEntity extends gc.sdk.GCObject {
@@ -1303,8 +1309,8 @@ declare namespace gc {
       static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.SecurityEntity>>;
     }
 
-    class User$current$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$current$args';
+    class User$me$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$me$args';
     }
 
     class UserGroupPolicyType extends gc.sdk.GCEnum {
@@ -1320,30 +1326,31 @@ declare namespace gc {
       type Field = 'read'|'write'|'execute';
     }
 
-    class Checkpoint$resume$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Checkpoint$resume$args';
-      worker_id: number | bigint;
-      constructor(worker_id: number | bigint);
-      static createFrom(fields: {worker_id: number | bigint}): Checkpoint$resume$args;
+    class Debug$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$get$args';
+      id: number | bigint;
+      constructor(id: number | bigint);
+      static createFrom(fields: {id: number | bigint}): Debug$get$args;
     }
 
-    class Role$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Role$all$args';
+    class Runtime$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$info$args';
     }
 
-    class User$renew$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$renew$args';
+    class User$current$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$current$args';
+    }
+
+    class User$login$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$login$args';
+      credentials: string;
       use_cookie: boolean;
-      constructor(use_cookie: boolean);
-      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
+      constructor(credentials: string, use_cookie: boolean);
+      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
     }
 
-    class OpenIDConnect$config$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::OpenIDConnect$config$args';
-    }
-
-    class User$me$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$me$args';
+    class User$permissions$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$permissions$args';
     }
 
     class Runtime extends gc.sdk.GCObject {
@@ -1377,8 +1384,8 @@ declare namespace gc {
       static createFrom(fields: {id: number | bigint, name: string, activated: boolean}): UserGroup;
     }
 
-    class Runtime$abi$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$abi$args';
+    class Runtime$root$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$root$args';
     }
 
     class PeriodicTask extends gc.sdk.GCObject {
@@ -1416,6 +1423,24 @@ declare namespace gc {
       static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Role>>;
     }
 
+    class Permission$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Permission$all$args';
+    }
+
+    class Task$is_running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$is_running$args';
+      task_id: number | bigint;
+      constructor(task_id: number | bigint);
+      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
+    }
+
+    class SecurityEntity$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$set$args';
+      entity: gc.runtime.SecurityEntity;
+      constructor(entity: gc.runtime.SecurityEntity);
+      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
+    }
+
     class Task$cancel$args extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Task$cancel$args';
       task_id: number | bigint;
@@ -1423,16 +1448,11 @@ declare namespace gc {
       static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
     }
 
-    class SecurityEntity$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$all$args';
-    }
-
-    class Task$history$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$history$args';
-      offset: number | bigint;
-      max: number | bigint;
-      constructor(offset: number | bigint, max: number | bigint);
-      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
+    class Debug$resume$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$resume$args';
+      id: number | bigint;
+      constructor(id: number | bigint);
+      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
     }
 
     class Job<T = any> extends gc.sdk.GCObject {
@@ -1454,36 +1474,35 @@ declare namespace gc {
       static createFrom(fields: {entities?: globalThis.Array<gc.runtime.SecurityEntity> | null, credentials?: globalThis.Map<string, gc.runtime.UserCredential> | null, fields?: gc.runtime.SecurityFields | null, keys?: globalThis.Map<string, string> | null, keys_last_refresh?: gc.core.time | null}): SecurityPolicy;
     }
 
-    class SecurityFields$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$set$args';
-      f: gc.runtime.SecurityFields;
-      constructor(f: gc.runtime.SecurityFields);
-      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
+    class SecurityFields$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$get$args';
     }
 
-    class User$tokenLogin$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$tokenLogin$args';
-      token: string;
-      use_cookie: boolean;
-      constructor(token: string, use_cookie: boolean);
-      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
+    class User$logout$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$logout$args';
     }
 
   }
 
   namespace io {
-    class JsonWriter<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::JsonWriter';
-      path: string;
-      append: boolean | null;
-      constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): JsonWriter;
-    }
-
-    class Reader<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::Reader';
+    class JsonReader<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::JsonReader';
       path: string;
       pos: number | bigint | null;
+      constructor(path: string, pos?: number | bigint | null);
+      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): JsonReader;
+    }
+
+    class HttpHeader extends gc.sdk.GCObject {
+      static readonly _type = 'io::HttpHeader';
+      name: string;
+      value: string;
+      constructor(name: string, value: string);
+      static createFrom(fields: {name: string, value: string}): HttpHeader;
+    }
+
+    class Json<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::Json';
     }
 
     class SmtpMode extends gc.sdk.GCEnum {
@@ -1499,64 +1518,13 @@ declare namespace gc {
       type Field = 'plain'|'ssl_tls'|'starttls';
     }
 
-    class JsonReader<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::JsonReader';
-      path: string;
-      pos: number | bigint | null;
-      constructor(path: string, pos?: number | bigint | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): JsonReader;
-    }
-
-    class Url extends gc.sdk.GCObject {
-      static readonly _type = 'io::Url';
-      protocol: string | null;
-      host: string | null;
-      port: number | bigint | null;
-      path: string | null;
-      params: globalThis.Map<string, string> | null;
-      hash: string | null;
-      constructor(protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null);
-      static createFrom(fields: {protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null}): Url;
-    }
-
-    class CsvFormat extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvFormat';
-      header_lines: number | bigint | null;
-      separator: string | null;
-      string_delimiter: string | null;
-      decimal_separator: string | null;
-      thousands_separator: string | null;
-      trim: boolean | null;
-      format: string | null;
-      tz: gc.core.TimeZone | null;
-      strict: boolean | null;
-      constructor(header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null);
-      static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null}): CsvFormat;
-    }
-
-    class GcbWriter<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::GcbWriter';
-      path: string;
-      append: boolean | null;
-      constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): GcbWriter;
-    }
-
-    class CsvColumnStatistics extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvColumnStatistics';
-      name: string | null;
-      example: any | null;
-      null_count: number | bigint;
-      bool_count: number | bigint;
-      int_count: number | bigint;
-      float_count: number | bigint;
-      string_count: number | bigint;
-      date_count: number | bigint;
-      date_format_count: globalThis.Map<string, number | bigint>;
-      enumerable_count: globalThis.Map<any, number | bigint>;
-      profile: gc.util.Gaussian;
-      constructor(name: string | null, example: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian);
-      static createFrom(fields: {name?: string | null, example?: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian}): CsvColumnStatistics;
+    class CsvSharding extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvSharding';
+      id: number | bigint;
+      column: number | bigint;
+      modulo: number | bigint;
+      constructor(id: number | bigint, column: number | bigint, modulo: number | bigint);
+      static createFrom(fields: {id: number | bigint, column: number | bigint, modulo: number | bigint}): CsvSharding;
     }
 
     class GcbReader<T = any> extends gc.sdk.GCObject {
@@ -1565,23 +1533,6 @@ declare namespace gc {
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
       static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): GcbReader;
-    }
-
-    class Http extends gc.sdk.GCObject {
-      static readonly _type = 'io::Http';
-    }
-
-    class CsvAnalysis extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvAnalysis';
-      static analyze(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.io.CsvStatistics>;
-    }
-
-    class CsvAnalysis$analyze$args extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvAnalysis$analyze$args';
-      files: globalThis.Array<gc.io.File>;
-      config: gc.io.CsvAnalysisConfig | null;
-      constructor(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null);
-      static createFrom(fields: {files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null}): CsvAnalysis$analyze$args;
     }
 
     class CsvAnalysisConfig extends gc.sdk.GCObject {
@@ -1601,6 +1552,11 @@ declare namespace gc {
       static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, row_limit?: number | bigint | null, enumerable_limit?: number | bigint | null, date_check_limit?: number | bigint | null, date_formats?: globalThis.Array<string> | null}): CsvAnalysisConfig;
     }
 
+    class CsvAnalysis extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvAnalysis';
+      static analyze(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.io.CsvStatistics>;
+    }
+
     class CsvReader<T = any> extends gc.sdk.GCObject {
       static readonly _type = 'io::CsvReader';
       path: string;
@@ -1612,81 +1568,10 @@ declare namespace gc {
       static sample(reader: gc.io.CsvReader, max_lines?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
     }
 
-    class Smtp extends gc.sdk.GCObject {
-      static readonly _type = 'io::Smtp';
-      host: string;
-      port: number | bigint;
-      mode: gc.io.SmtpMode | null;
-      authenticate: gc.io.SmtpAuth | null;
-      user: string | null;
-      pass: string | null;
-      constructor(host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null);
-      static createFrom(fields: {host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null}): Smtp;
-    }
-
-    class CsvSharding extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvSharding';
-      id: number | bigint;
-      column: number | bigint;
-      modulo: number | bigint;
-      constructor(id: number | bigint, column: number | bigint, modulo: number | bigint);
-      static createFrom(fields: {id: number | bigint, column: number | bigint, modulo: number | bigint}): CsvSharding;
-    }
-
-    class FileWalker extends gc.sdk.GCObject {
-      static readonly _type = 'io::FileWalker';
+    class Reader<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::Reader';
       path: string;
-      constructor(path: string);
-      static createFrom(fields: {path: string}): FileWalker;
-    }
-
-    class SmtpAuth extends gc.sdk.GCEnum {
-      static readonly _type = 'io::SmtpAuth';
-      static readonly $fields: SmtpAuth[];
-      key: SmtpAuth.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: SmtpAuth.Field, value?: unknown);
-      static none: SmtpAuth;
-      static plain: SmtpAuth;
-      static login: SmtpAuth;
-    }
-    namespace SmtpAuth  {
-      type Field = 'none'|'plain'|'login';
-    }
-
-    class Writer<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::Writer';
-      path: string;
-      append: boolean | null;
-    }
-
-    class CsvValidateResult extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvValidateResult';
-      line_count: number | bigint;
-      fail_count: number | bigint;
-      invalid_count: globalThis.Array<number | bigint>;
-      constructor(line_count: number | bigint, fail_count: number | bigint, invalid_count: globalThis.Array<number | bigint>);
-      static createFrom(fields: {line_count: number | bigint, fail_count: number | bigint, invalid_count: globalThis.Array<number | bigint>}): CsvValidateResult;
-    }
-
-    class Json<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::Json';
-    }
-
-    class File extends gc.sdk.GCObject {
-      static readonly _type = 'io::File';
-      path: string;
-      size: number | bigint | null;
-      last_modification: gc.core.time | null;
-      constructor(path: string, size?: number | bigint | null, last_modification?: gc.core.time | null);
-      static createFrom(fields: {path: string, size?: number | bigint | null, last_modification?: gc.core.time | null}): File;
-    }
-
-    class TextWriter<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::TextWriter';
-      path: string;
-      append: boolean | null;
-      constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): TextWriter;
+      pos: number | bigint | null;
     }
 
     class TextEncoder extends gc.sdk.GCEnum {
@@ -1719,29 +1604,52 @@ declare namespace gc {
       static generate(stats: gc.io.CsvStatistics, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
     }
 
-    class TextReader extends gc.sdk.GCObject {
-      static readonly _type = 'io::TextReader';
-      path: string;
-      pos: number | bigint | null;
-      constructor(path: string, pos?: number | bigint | null);
-      static createFrom(fields: {path: string, pos?: number | bigint | null}): TextReader;
-    }
-
-    class CsvWriter<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvWriter';
+    class GcbWriter<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::GcbWriter';
       path: string;
       append: boolean | null;
-      format: gc.io.CsvFormat | null;
-      constructor(path: string, append?: boolean | null, format?: gc.io.CsvFormat | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null, format?: gc.io.CsvFormat | null}): CsvWriter;
+      constructor(path: string, append?: boolean | null);
+      static createFrom<T>(fields: {path: string, append?: boolean | null}): GcbWriter;
     }
 
-    class CsvReader$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'io::CsvReader$sample$args';
-      reader: gc.io.CsvReader;
-      max_lines: number | bigint | null;
-      constructor(reader: gc.io.CsvReader, max_lines?: number | bigint | null);
-      static createFrom(fields: {reader: gc.io.CsvReader, max_lines?: number | bigint | null}): CsvReader$sample$args;
+    class TextWriter<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::TextWriter';
+      path: string;
+      append: boolean | null;
+      constructor(path: string, append?: boolean | null);
+      static createFrom<T>(fields: {path: string, append?: boolean | null}): TextWriter;
+    }
+
+    class FileWalker extends gc.sdk.GCObject {
+      static readonly _type = 'io::FileWalker';
+      path: string;
+      constructor(path: string);
+      static createFrom(fields: {path: string}): FileWalker;
+    }
+
+    class SmtpAuth extends gc.sdk.GCEnum {
+      static readonly _type = 'io::SmtpAuth';
+      static readonly $fields: SmtpAuth[];
+      key: SmtpAuth.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: SmtpAuth.Field, value?: unknown);
+      static none: SmtpAuth;
+      static plain: SmtpAuth;
+      static login: SmtpAuth;
+    }
+    namespace SmtpAuth  {
+      type Field = 'none'|'plain'|'login';
+    }
+
+    class Url extends gc.sdk.GCObject {
+      static readonly _type = 'io::Url';
+      protocol: string | null;
+      host: string | null;
+      port: number | bigint | null;
+      path: string | null;
+      params: globalThis.Map<string, string> | null;
+      hash: string | null;
+      constructor(protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null);
+      static createFrom(fields: {protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null}): Url;
     }
 
     class CsvStatistics$generate$args extends gc.sdk.GCObject {
@@ -1749,14 +1657,6 @@ declare namespace gc {
       stats: gc.io.CsvStatistics;
       constructor(stats: gc.io.CsvStatistics);
       static createFrom(fields: {stats: gc.io.CsvStatistics}): CsvStatistics$generate$args;
-    }
-
-    class HttpHeader extends gc.sdk.GCObject {
-      static readonly _type = 'io::HttpHeader';
-      name: string;
-      value: string;
-      constructor(name: string, value: string);
-      static createFrom(fields: {name: string, value: string}): HttpHeader;
     }
 
     class Email extends gc.sdk.GCObject {
@@ -1772,69 +1672,124 @@ declare namespace gc {
       static createFrom(fields: {from: string, subject: string, body: string, body_is_html: boolean, to: globalThis.Array<string>, cc?: globalThis.Array<string> | null, bcc?: globalThis.Array<string> | null}): Email;
     }
 
+    class CsvAnalysis$analyze$args extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvAnalysis$analyze$args';
+      files: globalThis.Array<gc.io.File>;
+      config: gc.io.CsvAnalysisConfig | null;
+      constructor(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null);
+      static createFrom(fields: {files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null}): CsvAnalysis$analyze$args;
+    }
+
+    class Smtp extends gc.sdk.GCObject {
+      static readonly _type = 'io::Smtp';
+      host: string;
+      port: number | bigint;
+      mode: gc.io.SmtpMode | null;
+      authenticate: gc.io.SmtpAuth | null;
+      user: string | null;
+      pass: string | null;
+      constructor(host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null);
+      static createFrom(fields: {host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null}): Smtp;
+    }
+
+    class File extends gc.sdk.GCObject {
+      static readonly _type = 'io::File';
+      path: string;
+      size: number | bigint | null;
+      last_modification: gc.core.time | null;
+      constructor(path: string, size?: number | bigint | null, last_modification?: gc.core.time | null);
+      static createFrom(fields: {path: string, size?: number | bigint | null, last_modification?: gc.core.time | null}): File;
+    }
+
+    class CsvWriter<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvWriter';
+      path: string;
+      append: boolean | null;
+      format: gc.io.CsvFormat | null;
+      constructor(path: string, append?: boolean | null, format?: gc.io.CsvFormat | null);
+      static createFrom<T>(fields: {path: string, append?: boolean | null, format?: gc.io.CsvFormat | null}): CsvWriter;
+    }
+
+    class Writer<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::Writer';
+      path: string;
+      append: boolean | null;
+    }
+
+    class JsonWriter<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'io::JsonWriter';
+      path: string;
+      append: boolean | null;
+      constructor(path: string, append?: boolean | null);
+      static createFrom<T>(fields: {path: string, append?: boolean | null}): JsonWriter;
+    }
+
+    class TextReader extends gc.sdk.GCObject {
+      static readonly _type = 'io::TextReader';
+      path: string;
+      pos: number | bigint | null;
+      constructor(path: string, pos?: number | bigint | null);
+      static createFrom(fields: {path: string, pos?: number | bigint | null}): TextReader;
+    }
+
+    class CsvFormat extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvFormat';
+      header_lines: number | bigint | null;
+      separator: string | null;
+      string_delimiter: string | null;
+      decimal_separator: string | null;
+      thousands_separator: string | null;
+      trim: boolean | null;
+      format: string | null;
+      tz: gc.core.TimeZone | null;
+      strict: boolean | null;
+      constructor(header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null);
+      static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null}): CsvFormat;
+    }
+
+    class CsvReader$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvReader$sample$args';
+      reader: gc.io.CsvReader;
+      max_lines: number | bigint | null;
+      constructor(reader: gc.io.CsvReader, max_lines?: number | bigint | null);
+      static createFrom(fields: {reader: gc.io.CsvReader, max_lines?: number | bigint | null}): CsvReader$sample$args;
+    }
+
+    class CsvColumnStatistics extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvColumnStatistics';
+      name: string | null;
+      example: any | null;
+      null_count: number | bigint;
+      bool_count: number | bigint;
+      int_count: number | bigint;
+      float_count: number | bigint;
+      string_count: number | bigint;
+      date_count: number | bigint;
+      date_format_count: globalThis.Map<string, number | bigint>;
+      enumerable_count: globalThis.Map<any, number | bigint>;
+      profile: gc.util.Gaussian;
+      constructor(name: string | null, example: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian);
+      static createFrom(fields: {name?: string | null, example?: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian}): CsvColumnStatistics;
+    }
+
+    class Http extends gc.sdk.GCObject {
+      static readonly _type = 'io::Http';
+    }
+
+    class CsvValidateResult extends gc.sdk.GCObject {
+      static readonly _type = 'io::CsvValidateResult';
+      line_count: number | bigint;
+      fail_count: number | bigint;
+      invalid_count: globalThis.Array<number | bigint>;
+      constructor(line_count: number | bigint, fail_count: number | bigint, invalid_count: globalThis.Array<number | bigint>);
+      static createFrom(fields: {line_count: number | bigint, fail_count: number | bigint, invalid_count: globalThis.Array<number | bigint>}): CsvValidateResult;
+    }
+
   }
 
   namespace util {
-    class SlidingWindow<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::SlidingWindow';
-      values: globalThis.Array<T> | null;
-      span: number | bigint;
-      sum: number | null;
-      sumsq: number | null;
-      field: gc.core.field | null;
-      constructor(values: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
-      static createFrom<T>(fields: {values?: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): SlidingWindow;
-    }
-
-    class Random extends gc.sdk.GCObject {
-      static readonly _type = 'util::Random';
-      seed: number | bigint | null;
-      v: number | null;
-      constructor(seed?: number | bigint | null, v?: number | null);
-      static createFrom(fields: {seed?: number | bigint | null, v?: number | null}): Random;
-    }
-
-    class LogQuantizer<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::LogQuantizer';
-      min: T | null;
-      max: T | null;
-      bins: number | bigint;
-      open: boolean | null;
-      constructor(min: T | null, max: T | null, bins: number | bigint, open?: boolean | null);
-      static createFrom<T>(fields: {min?: T | null, max?: T | null, bins: number | bigint, open?: boolean | null}): LogQuantizer;
-    }
-
-    class TimeWindow<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::TimeWindow';
-      values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null;
-      span: gc.core.duration;
-      sum: number | null;
-      sumsq: number | null;
-      field: gc.core.field | null;
-      constructor(values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
-      static createFrom<T>(fields: {values?: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): TimeWindow;
-    }
-
-    class Plot extends gc.sdk.GCObject {
-      static readonly _type = 'util::Plot';
-    }
-
-    class Stack<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::Stack';
-      values: globalThis.Array<T> | null;
-      constructor(values?: globalThis.Array<T> | null);
-      static createFrom<T>(fields: {values?: globalThis.Array<T> | null}): Stack;
-    }
-
-    class Gaussian extends gc.sdk.GCObject {
-      static readonly _type = 'util::Gaussian';
-      sum: number | null;
-      sumsq: number | null;
-      count: number | bigint | null;
-      min: number | null;
-      max: number | null;
-      constructor(sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: number | null, max?: number | null);
-      static createFrom(fields: {sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: number | null, max?: number | null}): Gaussian;
+    class Crypto extends gc.sdk.GCObject {
+      static readonly _type = 'util::Crypto';
     }
 
     class CustomQuantizer<T = any> extends gc.sdk.GCObject {
@@ -1847,22 +1802,19 @@ declare namespace gc {
       static createFrom<T>(fields: {min?: T | null, max?: T | null, step_starts: globalThis.Array<T>, open?: boolean | null}): CustomQuantizer;
     }
 
-    class GaussianProfile<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::GaussianProfile';
-      quantizer: gc.util.Quantizer<T>;
-      precision: gc.core.FloatPrecision;
-      bins: gc.core.Table<gc.util.GaussianProfileSlot | null> | null;
-      value_min: number | null;
-      nb_rejected: number | bigint | null;
-      constructor(quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null);
-      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null}): GaussianProfile;
+    class Assert extends gc.sdk.GCObject {
+      static readonly _type = 'util::Assert';
     }
 
-    class MultiQuantizer<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::MultiQuantizer';
-      quantizers: globalThis.Array<gc.util.Quantizer<T>>;
-      constructor(quantizers: globalThis.Array<gc.util.Quantizer<T>>);
-      static createFrom<T>(fields: {quantizers: globalThis.Array<gc.util.Quantizer<T>>}): MultiQuantizer;
+    class SlidingWindow<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::SlidingWindow';
+      values: globalThis.Array<T> | null;
+      span: number | bigint;
+      sum: number | null;
+      sumsq: number | null;
+      field: gc.core.field | null;
+      constructor(values: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
+      static createFrom<T>(fields: {values?: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): SlidingWindow;
     }
 
     class QuantizerSlotBound<T = any> extends gc.sdk.GCObject {
@@ -1874,23 +1826,18 @@ declare namespace gc {
       static createFrom<T>(fields: {min?: T | null, max?: T | null, center?: T | null}): QuantizerSlotBound;
     }
 
-    class LinearQuantizer<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::LinearQuantizer';
-      min: T | null;
-      max: T | null;
-      bins: number | bigint;
-      open: boolean | null;
-      constructor(min: T | null, max: T | null, bins: number | bigint, open?: boolean | null);
-      static createFrom<T>(fields: {min?: T | null, max?: T | null, bins: number | bigint, open?: boolean | null}): LinearQuantizer;
+    class Histogram<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::Histogram';
+      quantizer: gc.util.Quantizer<T>;
+      bins: globalThis.Array<number | bigint | null> | null;
+      nb_rejected: number | bigint | null;
+      nb_accepted: number | bigint | null;
+      constructor(quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null);
+      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null}): Histogram;
     }
 
-    class GaussianProfileSlot extends gc.sdk.GCObject {
-      static readonly _type = 'util::GaussianProfileSlot';
-      sum: number | bigint;
-      sumsq: number | bigint;
-      count: number | bigint;
-      constructor(sum: number | bigint, sumsq: number | bigint, count: number | bigint);
-      static createFrom(fields: {sum: number | bigint, sumsq: number | bigint, count: number | bigint}): GaussianProfileSlot;
+    class Quantizer<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::Quantizer';
     }
 
     class HistogramStats extends gc.sdk.GCObject {
@@ -1918,12 +1865,77 @@ declare namespace gc {
       static createFrom(fields: {min: number, max: number, whisker_low: number, whisker_high: number, percentile1: number, percentile5: number, percentile25: number, percentile50: number, percentile75: number, percentile95: number, percentile99: number, count_outliers_low: number | bigint, count_outliers_high: number | bigint, percentage_outliers_low: number, percentage_outliers_high: number, sum: number, avg: number, std: number, size: number | bigint}): HistogramStats;
     }
 
-    class Quantizer<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::Quantizer';
+    class LogQuantizer<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::LogQuantizer';
+      min: T | null;
+      max: T | null;
+      bins: number | bigint;
+      open: boolean | null;
+      constructor(min: T | null, max: T | null, bins: number | bigint, open?: boolean | null);
+      static createFrom<T>(fields: {min?: T | null, max?: T | null, bins: number | bigint, open?: boolean | null}): LogQuantizer;
     }
 
-    class Crypto extends gc.sdk.GCObject {
-      static readonly _type = 'util::Crypto';
+    class Random extends gc.sdk.GCObject {
+      static readonly _type = 'util::Random';
+      seed: number | bigint | null;
+      v: number | null;
+      constructor(seed?: number | bigint | null, v?: number | null);
+      static createFrom(fields: {seed?: number | bigint | null, v?: number | null}): Random;
+    }
+
+    class LinearQuantizer<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::LinearQuantizer';
+      min: T | null;
+      max: T | null;
+      bins: number | bigint;
+      open: boolean | null;
+      constructor(min: T | null, max: T | null, bins: number | bigint, open?: boolean | null);
+      static createFrom<T>(fields: {min?: T | null, max?: T | null, bins: number | bigint, open?: boolean | null}): LinearQuantizer;
+    }
+
+    class GaussianProfile<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::GaussianProfile';
+      quantizer: gc.util.Quantizer<T>;
+      precision: gc.core.FloatPrecision;
+      bins: gc.core.Table<gc.util.GaussianProfileSlot | null> | null;
+      value_min: number | null;
+      nb_rejected: number | bigint | null;
+      constructor(quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null);
+      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null}): GaussianProfile;
+    }
+
+    class MultiQuantizer<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::MultiQuantizer';
+      quantizers: globalThis.Array<gc.util.Quantizer<T>>;
+      constructor(quantizers: globalThis.Array<gc.util.Quantizer<T>>);
+      static createFrom<T>(fields: {quantizers: globalThis.Array<gc.util.Quantizer<T>>}): MultiQuantizer;
+    }
+
+    class Stack<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::Stack';
+      values: globalThis.Array<T> | null;
+      constructor(values?: globalThis.Array<T> | null);
+      static createFrom<T>(fields: {values?: globalThis.Array<T> | null}): Stack;
+    }
+
+    class TimeWindow<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'util::TimeWindow';
+      values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null;
+      span: gc.core.duration;
+      sum: number | null;
+      sumsq: number | null;
+      field: gc.core.field | null;
+      constructor(values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
+      static createFrom<T>(fields: {values?: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): TimeWindow;
+    }
+
+    class GaussianProfileSlot extends gc.sdk.GCObject {
+      static readonly _type = 'util::GaussianProfileSlot';
+      sum: number | bigint;
+      sumsq: number | bigint;
+      count: number | bigint;
+      constructor(sum: number | bigint, sumsq: number | bigint, count: number | bigint);
+      static createFrom(fields: {sum: number | bigint, sumsq: number | bigint, count: number | bigint}): GaussianProfileSlot;
     }
 
     class ProgressTracker extends gc.sdk.GCObject {
@@ -1939,18 +1951,8 @@ declare namespace gc {
       static createFrom(fields: {start: gc.core.time, total?: number | bigint | null, counter?: number | bigint | null, duration?: gc.core.duration | null, progress?: number | null, speed?: number | null, remaining?: gc.core.duration | null}): ProgressTracker;
     }
 
-    class Assert extends gc.sdk.GCObject {
-      static readonly _type = 'util::Assert';
-    }
-
-    class Histogram<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'util::Histogram';
-      quantizer: gc.util.Quantizer<T>;
-      bins: globalThis.Array<number | bigint | null> | null;
-      nb_rejected: number | bigint | null;
-      nb_accepted: number | bigint | null;
-      constructor(quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null);
-      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null}): Histogram;
+    class Plot extends gc.sdk.GCObject {
+      static readonly _type = 'util::Plot';
     }
 
     class Queue<T = any> extends gc.sdk.GCObject {
@@ -1959,6 +1961,17 @@ declare namespace gc {
       capacity: number | bigint | null;
       constructor(values?: globalThis.Array<T> | null, capacity?: number | bigint | null);
       static createFrom<T>(fields: {values?: globalThis.Array<T> | null, capacity?: number | bigint | null}): Queue;
+    }
+
+    class Gaussian extends gc.sdk.GCObject {
+      static readonly _type = 'util::Gaussian';
+      sum: number | null;
+      sumsq: number | null;
+      count: number | bigint | null;
+      min: number | null;
+      max: number | null;
+      constructor(sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: number | null, max?: number | null);
+      static createFrom(fields: {sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: number | null, max?: number | null}): Gaussian;
     }
 
   }
@@ -2046,9 +2059,15 @@ declare namespace gc {
         call(method: 'runtime::OpenIDConnect::config', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
         spawn(method: 'runtime::OpenIDConnect::config', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'runtime::OpenIDConnect::config', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
-        call(method: 'runtime::Checkpoint::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::Checkpoint::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Checkpoint::resume', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'runtime::Debug::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'runtime::Debug::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'runtime::Debug::resume', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'runtime::Debug::get', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
+        spawn(method: 'runtime::Debug::get', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'runtime::Debug::get', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
+        call(method: 'runtime::Debug::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
+        spawn(method: 'runtime::Debug::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'runtime::Debug::all', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
         call(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], signal?: globalThis.AbortSignal): Promise<number | bigint | null>;
         spawn(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<number | bigint | null>;
@@ -2168,6 +2187,12 @@ declare namespace gc {
         signal?: globalThis.AbortSignal,
       ): Promise<void>;
 
+      /**
+       * Downloads the content of this file. This method interprets the extension in order to
+       * call the appropriate deserializer.
+       * 
+       * *This is nothing more than sugar on top of `gc.$.default.getFile(this.path)`*
+       */
       download<T = unknown>(
         offset?: number,
         max?: number,
