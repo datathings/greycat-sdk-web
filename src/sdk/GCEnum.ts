@@ -35,10 +35,7 @@ namespace gc {
       }
 
       override toJSON() {
-        return {
-          _type: this.$type.name,
-          field: this.key,
-        };
+        return `${this.$type.name}::${this.key}`;
       }
     }
   }

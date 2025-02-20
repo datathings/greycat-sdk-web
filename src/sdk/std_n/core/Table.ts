@@ -347,10 +347,7 @@ namespace gc {
           }
 
           override toJSON() {
-            return {
-              _type: Table._type,
-              rows: this._initial_value ? this._initial_value : globalThis.Array.from(this),
-            };
+            return this._initial_value ? this._initial_value : globalThis.Array.from(this);
           }
         }
 

@@ -32,12 +32,7 @@ namespace gc {
           }
 
           override toJSON() {
-            return {
-              _type: this.$type.name,
-              x0: this.x0,
-              x1: this.x1,
-              x2: this.x2,
-            };
+            return [this.x0, this.x1, this.x2];
           }
         }
       }

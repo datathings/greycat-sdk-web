@@ -62,10 +62,7 @@ namespace gc {
           }
 
           override toJSON() {
-            return {
-              _type: this.$type.name,
-              fqn: this.fqn,
-            };
+            return this.fqn;
           }
         }
       }

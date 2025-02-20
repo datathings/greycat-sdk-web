@@ -53,8 +53,7 @@ namespace gc {
             if (this.value >= Number.MIN_SAFE_INTEGER && this.value <= Number.MAX_SAFE_INTEGER) {
               return Number(this.value);
             }
-            const value = this.value ? Number(this.value) : this.value;
-            return value;
+            return `${this.value}`;
           }
         }
       }

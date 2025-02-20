@@ -58,7 +58,7 @@ namespace gc {
             return lng;
           }
 
-          get latlng(): readonly [number, number] {
+          get latlng(): [number, number] {
             return geoDecode(this.value);
           }
 
@@ -81,11 +81,7 @@ namespace gc {
 
           override toJSON() {
             const [lat, lng] = geoDecode(this.value);
-            return {
-              _type: this.$type.name,
-              lat,
-              lng,
-            };
+            return { lat, lng };
           }
         }
 
@@ -132,13 +128,13 @@ namespace gc {
         /**
          * Decodes a `bigint` to a `lat`, `lng` using Morton z-curve.
          */
-        export function geoDecode(geo: bigint): readonly [number, number] {
+        export function geoDecode(geo: bigint): [number, number] {
           const [ilato, ilono] = sdk.deinterleave64_2d(geo);
 
           const lat = LAT_MIN + ((ilato + 0.5) / Number(1n << STEP_MAX)) * (LAT_MAX - LAT_MIN);
           const lng = LNG_MIN + ((ilono + 0.5) / Number(1n << STEP_MAX)) * (LNG_MAX - LNG_MIN);
 
-          return [lat, lng] as const;
+          return [lat, lng];
         }
       }
     }

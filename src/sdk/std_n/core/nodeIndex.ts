@@ -46,10 +46,10 @@ namespace gc {
           }
 
           override toJSON() {
-            return {
-              _type: this.$type.name,
-              value: this.value,
-            };
+            if (this.value >= Number.MIN_SAFE_INTEGER && this.value <= Number.MAX_SAFE_INTEGER) {
+              return Number(this.value);
+            }
+            return `${this.value}`;
           }
         }
       }

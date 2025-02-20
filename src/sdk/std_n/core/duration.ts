@@ -230,18 +230,10 @@ namespace gc {
           }
 
           override toJSON() {
-            let us: number;
-            if (typeof this.value === 'bigint') {
-              us = Number(this.value % duration.SECOND);
-            } else {
-              us = this.value % Number(duration.SECOND);
+            if (this.value >= Number.MIN_SAFE_INTEGER && this.value <= Number.MAX_SAFE_INTEGER) {
+              return Number(this.value);
             }
-
-            return {
-              _type: this.$type.name,
-              s: Math.round(this.s),
-              us,
-            };
+            return `${this.value}`;
           }
 
           override valueOf() {

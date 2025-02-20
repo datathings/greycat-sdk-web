@@ -34,7 +34,7 @@ namespace gc {
           }
 
           override toJSON() {
-            return { _type: this.$type.name, value: this.value };
+            return this.value;
           }
         }
       }

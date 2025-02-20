@@ -31,6 +31,10 @@ namespace gc {
             }
             return r.read_string(len >> 1);
           }
+
+          override toJSON() {
+            return this.value;
+          }
         }
       }
     }

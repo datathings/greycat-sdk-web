@@ -83,7 +83,7 @@ namespace gc {
               } else if (key instanceof GCEnum) {
                 json[`${key.$type.name}::${key.key}`] = value;
               } else {
-                json[key.toString()] = value;
+                json[`${key}`] = value;
               }
             });
 
