@@ -1702,7 +1702,10 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
       }
     } else if (value === undefined) {
       // we are completely in the dark, the value is not set, and we are not monomorphized
-      throw new Error('not implemented yet');
+      // so let's fallback to 'any'
+      this._generic_param = gc.$.default.abi.types[gc.$.default.abi.core.any];
+      // and give a default value of an empty string
+      value = '';
     }
 
     if (
@@ -1748,7 +1751,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
       return [item, null];
     }
 
-    const input = factory.createElement(value);
+    const input = factory.createElement(value, this._generic_param);
     input.value = value;
     input.addEventListener('gui-change', () => {
       const index = getIndexInParent(item);
@@ -1940,11 +1943,23 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
       if ((key === null || key === undefined) && !this._key_type_nullable) {
         key = new this._key_type.ctor();
       }
+    } else if (value === undefined) {
+      // we are completely in the dark, the value is not set, and we are not monomorphized
+      // so let's fallback to 'any'
+      this._key_type = gc.$.default.abi.types[gc.$.default.abi.core.any];
+      // and give a default value of an empty string
+      key = '';
     }
     if (this._value_type) {
       if ((value === null || value === undefined) && !this._value_type_nullable) {
         value = new this._value_type.ctor();
       }
+    } else if (value === undefined) {
+      // we are completely in the dark, the value is not set, and we are not monomorphized
+      // so let's fallback to 'any'
+      this._value_type = gc.$.default.abi.types[gc.$.default.abi.core.any];
+      // and give a default value of an empty string
+      value = '';
     }
 
     const keyInput = factory.createElement(key, this._key_type);
