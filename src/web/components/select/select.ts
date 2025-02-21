@@ -238,7 +238,12 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
     this.update();
   }
 
-  get options(): GuiOption<T>[] {
+  /**
+   * Always returns a `GuiOption<T>[]`. This can be safely cast into `GuiOption<T>[]`.
+   * 
+   * Though the setter accepts the broader `IOption<T>[]` type.
+   */
+  get options(): IOption<T>[] {
     return this._options;
   }
 

@@ -54,6 +54,8 @@ document.body.appendChild(
       <gui-card>
         <header slot="header">Override gui-object with gui-select</header>
       </gui-card>
+
+      <gui-select options={['Foo', 'Bar', 'Baz']} />
     </div>
   </app-layout>,
 );

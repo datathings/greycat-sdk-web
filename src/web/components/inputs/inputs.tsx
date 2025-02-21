@@ -1574,7 +1574,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   }
 
   get options() {
-    return this.select.options;
+    return this.select.options as GuiOption[];
   }
 
   get type() {
