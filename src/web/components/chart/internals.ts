@@ -15,7 +15,7 @@ export function vMap(x: unknown): number {
       } else if (x instanceof BigInt) {
         return Number(x);
       }
-      return +x;
+      return Number(x);
     }
     default:
       return NaN;

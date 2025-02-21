@@ -207,9 +207,9 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       children.appendChild(document.createTextNode('['));
       const len = Math.min(this._value.length, 15);
       for (let i = 0; i < len; i++) {
-        const value = this._value[i];
-        const content = gc.sdk.stringify({
-          value,
+        const item = this._value[i];
+        const itemText = gc.sdk.stringify({
+          value: item,
           name: this._name,
           tiny: this._tiny,
           dateFmt,
@@ -218,30 +218,30 @@ export class GuiValue extends GuiElement implements GuiValueProps {
 
         let linkify = false;
         if (typeof this._linkify === 'function') {
-          linkify = this._linkify(value);
+          linkify = this._linkify(item);
         } else if (this._linkify) {
           linkify = true;
         }
 
         if (linkify) {
           const link = document.createElement('a');
-          const onclick = (e: MouseEvent) => this._onClick?.(e, value, content, this._data);
-          link.addEventListener('auxclick', onclick);
-          link.addEventListener('click', onclick);
-          this._disposeClickHandler = () => {
-            link.removeEventListener('click', onclick);
-            link.removeEventListener('auxclick', onclick);
-          };
-          link.textContent = content;
+          // const onclick = (e: MouseEvent) => this._onClick?.(e, value, content, this._data);
+          // link.addEventListener('auxclick', onclick);
+          // link.addEventListener('click', onclick);
+          // this._disposeClickHandler = () => {
+          //   link.removeEventListener('click', onclick);
+          //   link.removeEventListener('auxclick', onclick);
+          // };
+          link.textContent = itemText;
           link.title = gc.sdk.stringify({
-            value,
+            value: item,
             dateFmt,
             numFmt,
             pretty: true,
           });
           children.appendChild(link);
         } else {
-          children.appendChild(document.createTextNode(content));
+          children.appendChild(document.createTextNode(itemText));
         }
         if (i < this._value.length - 1) {
           children.appendChild(document.createTextNode(', '));
@@ -273,13 +273,13 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       }
       if (linkify) {
         const link = document.createElement('a');
-        const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, text, this._data);
-        link.addEventListener('auxclick', onclick);
-        link.addEventListener('click', onclick);
-        this._disposeClickHandler = () => {
-          link.removeEventListener('click', onclick);
-          link.removeEventListener('auxclick', onclick);
-        };
+        // const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, text, this._data);
+        // link.addEventListener('auxclick', onclick);
+        // link.addEventListener('click', onclick);
+        // this._disposeClickHandler = () => {
+        //   link.removeEventListener('click', onclick);
+        //   link.removeEventListener('auxclick', onclick);
+        // };
         link.textContent = text;
         this.shadowRoot.appendChild(link);
         element = link;

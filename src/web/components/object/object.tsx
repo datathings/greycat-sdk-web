@@ -59,10 +59,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     resolve = this._resolve,
     ...props
   }: Partial<GuiObjectProps<T>>): void {
-    for (const key in props) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      (this._props as any)[key] = (props as any)[key];
-    }
+    Object.assign(this._props, props);
     this._value = value;
     this._header = header;
     this._nested = nested;

@@ -170,12 +170,12 @@ namespace gc {
             }).format(date);
           }
 
-          override toString(): string {
+          override toString(fmt?: Intl.DateTimeFormat): string {
             const date = new globalThis.Date(this.epochMs);
             if (isNaN(date.getTime())) {
               return `${this.value}_time`;
             }
-            return date.toISOString();
+            return fmt?.format(date) ?? date.toISOString();
           }
 
           override toJSON() {

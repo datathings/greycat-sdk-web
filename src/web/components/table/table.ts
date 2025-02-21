@@ -8,7 +8,6 @@ import {
   AnyValueElement,
   convertToTable,
   Disposer,
-  GuiRenderEvent,
   TableLike,
   GuiValue,
   GuiValueProps,
@@ -106,10 +105,12 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   private _configEl: GuiTableConfig;
   /** if `true` update should recompute the filters */
   private _dirtyFilter: boolean = true;
+  updateComplete: Promise<void>;
 
   constructor() {
     super();
 
+    this.updateComplete = Promise.resolve();
     this._wCalc = new WidthCalculator(0, 0, 100);
 
     this._filter.className = 'gui-table-filter';
@@ -152,14 +153,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this.update();
     });
 
-    this._tbody.addEventListener('click', (e) => {
+    const onClick = (e: MouseEvent) => {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+          this.dispatchEvent(
+            new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, mouseEvent: e }),
+          );
         }
       }
-    });
+    };
+    this._tbody.addEventListener('click', onClick);
+    this._tbody.addEventListener('auxclick', onClick);
 
     this._tbody.addEventListener('dblclick', (e) => {
       if (e.target instanceof Element) {
@@ -660,7 +665,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     if (!this.isConnected) {
       return;
     }
-    const start = Date.now();
+    const { promise, resolve } = Promise.withResolvers<void>();
+    this.updateComplete = promise;
 
     let nb_cols = 0;
     for (let i = 0; i < this._table.cols.length; i++) {
@@ -693,7 +699,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
     this._configEl.value = this.getAttrs();
 
-    this.dispatchEvent(new GuiRenderEvent(start));
+    resolve();
   }
 
   asCsv(sep = ';'): string {
@@ -1719,10 +1725,14 @@ class WidthCalculator {
   }
 }
 
-export class GuiTableClickEvent extends CustomEvent<GuiTableEventDetail> {
+export type GuiTableClickEventDetail = {
+  mouseEvent: MouseEvent;
+} & GuiTableEventDetail;
+
+export class GuiTableClickEvent extends CustomEvent<GuiTableClickEventDetail> {
   static readonly NAME = 'gui-table-click';
 
-  constructor(detail: GuiTableEventDetail) {
+  constructor(detail: GuiTableClickEventDetail) {
     super(GuiTableClickEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }

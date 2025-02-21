@@ -31,8 +31,8 @@ namespace gc {
             return this.value === other.value;
           }
 
-          override toString() {
-            return `${this.value}`;
+          override toString(fmt?: Intl.NumberFormat) {
+            return fmt?.format(this.value) ?? `${this.value}`;
           }
 
           override valueOf() {

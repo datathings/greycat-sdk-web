@@ -45,8 +45,8 @@ namespace gc {
           //   return 1;
           // }
 
-          override toString() {
-            return `${this.value}`;
+          override toString(fmt?: Intl.NumberFormat) {
+            return fmt?.format(this.value) ?? `${this.value}`;
           }
 
           override toJSON() {
