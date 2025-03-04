@@ -1,3 +1,4 @@
+import '@greycat/web';
 import '@greycat/web/greycat.css';
 import '@/common';
 import s from './index.module.css';

@@ -21,7 +21,7 @@ const table = document.createElement('gui-table');
 
 async function sample() {
   try {
-    table.value = await gc.nodeTime.sample(...form.args);
+    table.value = await gc.nodeTime.sample.apply(null, form.args);
   } catch (err) {
     toast.error(err);
   }

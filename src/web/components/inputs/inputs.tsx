@@ -1309,7 +1309,8 @@ export class GuiInputFn extends GuiInputObject {
     super.value = value;
   }
 
-  get args() {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  get args(): any {
     if (this._value && this._value.$fields) {
       return this._value.$fields;
     }

@@ -1,0 +1,216 @@
+[
+  {
+    "label": "Index",
+    "route": "pages/index/"
+  },
+  {
+    "label": "Chart",
+    "route": "pages/chart/",
+    "children": [
+      {
+        "label": "Bar histogram",
+        "route": "chart-bar-histogram/"
+      },
+      {
+        "label": "Bar",
+        "route": "chart-bar/"
+      },
+      {
+        "label": "Colored area",
+        "route": "chart-colored-area/"
+      },
+      {
+        "label": "Custom",
+        "route": "chart-custom/"
+      },
+      {
+        "label": "In-mem",
+        "route": "chart-in-mem/"
+      },
+      {
+        "label": "line+scatter",
+        "route": "chart-line-scatter/"
+      },
+      {
+        "label": "Scatter",
+        "route": "chart-scatter/"
+      },
+      {
+        "label": "Step",
+        "route": "chart-step/"
+      },
+      {
+        "label": "Time",
+        "route": "chart-time/"
+      },
+      {
+        "label": "Chart 2",
+        "route": "chart-2/"
+      },
+      {
+        "label": "Chart",
+        "route": "chart/"
+      }
+    ]
+  },
+  {
+    "label": "Csv",
+    "route": "pages/csv/",
+    "children": [
+      {
+        "label": "Analysis",
+        "route": "analysis/"
+      },
+      {
+        "label": "Column Input",
+        "route": "column-input/"
+      }
+    ]
+  },
+  {
+    "label": "Dashboard",
+    "route": "pages/dashboard/"
+  },
+  {
+    "label": "Gauge",
+    "route": "pages/gauge/"
+  },
+  {
+    "label": "Donut",
+    "route": "pages/donut/"
+  },
+  {
+    "label": "Files",
+    "route": "pages/files/"
+  },
+  {
+    "label": "Fn Call",
+    "route": "pages/fn-call/"
+  },
+  {
+    "label": "Heatmap",
+    "route": "pages/heatmap/"
+  },
+  {
+    "label": "Hello",
+    "route": "pages/hello/"
+  },
+  {
+    "label": "Histogram",
+    "route": "pages/histogram/"
+  },
+  {
+    "label": "Inputs",
+    "route": "pages/inputs/"
+  },
+  {
+    "label": "Layout",
+    "route": "pages/layout/",
+    "link": true,
+    "children": [
+      {
+        "label": "Complex",
+        "route": "complex"
+      }
+    ]
+  },
+  {
+    "label": "Logs",
+    "route": "pages/logs/"
+  },
+  {
+    "label": "Map",
+    "route": "pages/map/"
+  },
+  {
+    "label": "Modal",
+    "route": "pages/modal/"
+  },
+  {
+    "label": "Nav",
+    "route": "pages/nav/"
+  },
+  {
+    "label": "Node Time",
+    "route": "pages/node-time/"
+  },
+  {
+    "label": "Object",
+    "route": "pages/object/"
+  },
+  {
+    "label": "Periodic Tasks",
+    "route": "pages/periodic-tasks/"
+  },
+  {
+    "label": "Roles",
+    "route": "pages/roles/"
+  },
+  {
+    "label": "Root",
+    "route": "pages/root/"
+  },
+  {
+    "label": "Select",
+    "route": "pages/select/"
+  },
+  {
+    "label": "Table",
+    "route": "pages/table/",
+    "link": true,
+    "children": [
+      {
+        "label": "Ignore Cols",
+        "route": "ignore-cols.html"
+      },
+      {
+        "label": "Array of Objects",
+        "route": "array-of-objects.html"
+      },
+      {
+        "label": "Column Factories",
+        "route": "column-factories.html"
+      },
+      {
+        "label": "Editable",
+        "route": "editable.html"
+      },
+      {
+        "label": "Huge table",
+        "route": "huge-table.html"
+      },
+      {
+        "label": "Map",
+        "route": "map.html"
+      },
+      {
+        "label": "Mappings",
+        "route": "mappings.html"
+      },
+      {
+        "label": "Row based",
+        "route": "row-based.html"
+      },
+      {
+        "label": "Table of Objects",
+        "route": "table-of-objects.html"
+      }
+    ]
+  },
+  {
+    "label": "Tabs",
+    "route": "pages/tabs/"
+  },
+  {
+    "label": "Tasks",
+    "route": "pages/tasks/"
+  },
+  {
+    "label": "Toast",
+    "route": "pages/toast/"
+  },
+  {
+    "label": "Users",
+    "route": "pages/users/"
+  }
+]

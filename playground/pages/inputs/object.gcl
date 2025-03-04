@@ -1,0 +1,5 @@
+@volatile
+private type Filter {
+  a: int;
+  b: String?;
+}

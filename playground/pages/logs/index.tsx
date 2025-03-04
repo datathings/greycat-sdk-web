@@ -3,16 +3,8 @@ import '@/common';
 
 await gc.sdk.init();
 
-const format = gc.io.CsvFormat.createFrom({
-  separator: ',',
-  columns: null,
-  columns_size: null,
-  decimal_separator: null,
-  header_lines: null,
-  string_delimiter: null,
-  thousands_separator: null,
-});
-const table = await gc.io.CsvFormat.sample('files/1/log.csv', format, null, 1000);
+const reader = new gc.io.CsvReader("files/1/log.csv");
+const table = await gc.io.CsvReader.sample(reader);
 table.headers = ['Level', 'Time', 'Type', 'User', 'Task/Req', 'Tag', 'Context', 'Data'];
 console.log(table);
 

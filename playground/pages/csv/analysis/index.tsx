@@ -1,7 +1,7 @@
 import { modal, type GuiCsvStatistics2, type GuiTable } from '@greycat/web';
 import '@/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ pollTasks: 1000 });
 
 async function runAnalysis(filepath: string) {
   const task = await greycat.spawn('io::CsvAnalysis::analyze', [
@@ -17,8 +17,10 @@ async function runAnalysis(filepath: string) {
   return (await task.await()) as gc.io.CsvStatistics;
 }
 
+const defaultValue = 'pages/csv/analysis/data/small.csv';
 const sample = (<gui-table globalFilter />) as GuiTable;
-const stats = await runAnalysis('./pages/csv-analysis/data/small.csv');
+const stats = await runAnalysis(defaultValue);
+console.log(stats);
 const csvStatistics = (<gui-csv-statistics2 value={stats} />) as GuiCsvStatistics2;
 
 document.body.appendChild(
@@ -29,6 +31,7 @@ document.body.appendChild(
     <sl-select
       label="Dataset"
       placeholder="Select a CSV file to analyze"
+      value={defaultValue}
       onsl-change={async function (this) {
         if (this.value === '__DOWNLOAD_FROM_URL__') {
           const url = await modal.input({
@@ -48,15 +51,17 @@ document.body.appendChild(
       }}
     >
       <sl-option value="__DOWNLOAD_FROM_URL__">Download from URL</sl-option>
-      <sl-option value="./pages/csv-analysis/data/small.csv" selected>
+      <sl-option value="pages/csv/analysis/data/small.csv" selected>
         Small Dataset
       </sl-option>
-      <sl-option value="./pages/csv-analysis/data/large.csv">Large Dataset</sl-option>
-      <sl-option value="./pages/csv-analysis/data/people-100.csv">People 100</sl-option>
-      <sl-option value="./pages/csv-analysis/data/people-10000.csv">People 10k</sl-option>
+      <sl-option value="pages/csv/analysis/data/large.csv">Large Dataset</sl-option>
+      <sl-option value="pages/csv/analysis/data/people-100.csv">People 100</sl-option>
+      <sl-option value="pages/csv/analysis/data/people-10000.csv">People 10k</sl-option>
     </sl-select>
     <gui-tabs>
-      <gui-tab slot="tab">CSV</gui-tab>
+      <gui-tab slot="tab" active>
+        CSV
+      </gui-tab>
       <gui-tab slot="tab">Statistics</gui-tab>
 
       <gui-panel slot="panel" tab="CSV">

@@ -80,7 +80,8 @@ import {
   GuiMapLayer,
   GuiMapSource,
   GuiMapNodeGeo,
-} from './exports';
+  GuiNav,
+} from './exports.js';
 
 const sdkInit = gc.sdk.init;
 gc.sdk.init = async function webInit(
@@ -207,6 +208,7 @@ function initWeb() {
   registerCustomElement('gui-tab', GuiTab);
   registerCustomElement('gui-tabs', GuiTabs);
   registerCustomElement('gui-select', GuiSelect);
+  registerCustomElement('gui-nav', GuiNav);
 
   if ('maplibregl' in globalThis) {
     registerCustomElement('gui-map-source', GuiMapSource);
@@ -300,6 +302,7 @@ declare global {
       GuiMapLayer,
       GuiMapSource,
       GuiMapNodeGeo,
+      GuiNav,
     };
   }
 }

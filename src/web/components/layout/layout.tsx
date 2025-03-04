@@ -160,6 +160,15 @@ export class GuiLayout extends GuiElement {
     if (!footer) {
       this.shadowRoot.querySelector('slot[name="footer"]')?.remove();
     }
+
+    {
+      // this prevents open/close animations of drawers when loading the component
+      const { width } = this.getBoundingClientRect();
+      const bigScreen = width > this._breakpoint;
+      this._navDrawer.open = bigScreen;
+      this._asideDrawer.open = bigScreen;
+    }
+
     this._resizeObs.observe(this);
   }
 

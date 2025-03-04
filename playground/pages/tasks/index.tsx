@@ -43,7 +43,7 @@ document.body.appendChild(
     mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}
   >
     {actions}
-    <sl-card>
+    <gui-card>
       <header slot="header">
         Create a task
         {spawnBtn}
@@ -55,7 +55,7 @@ document.body.appendChild(
           {fnInput}
         </fieldset>
       </div>
-    </sl-card>
+    </gui-card>
     {tasks}
   </app-layout>,
 );

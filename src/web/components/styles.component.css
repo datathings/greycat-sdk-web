@@ -216,11 +216,11 @@ sl-checkbox {
   min-width: auto;
 }
 
-a:hover, a:focus {
+a[href]:hover, a[href]:focus {
   color: var(--primary-hover);
 }
 
-a, a:visited {
+a[href], a[href]:visited {
   color: var(--sl-color-primary-600);
   text-decoration: none;
 }
