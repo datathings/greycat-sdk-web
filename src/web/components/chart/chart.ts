@@ -131,7 +131,7 @@ export class GuiChart extends GuiElement {
 
     // tooltip
     this._tooltip.style.position = 'absolute';
-    this._tooltip.classList.add('gui-chart-tooltip');
+    this._tooltip.classList.add('tooltip');
 
     // config drawer
     this._drawer = document.createElement('sl-drawer');
@@ -659,7 +659,7 @@ export class GuiChart extends GuiElement {
       }
 
       // make tooltip visible and located properly
-      this.appendChild(this._tooltip);
+      this.shadowRoot.appendChild(this._tooltip);
       switch (this._config.tooltip?.position ?? 'top-left') {
         case 'top-left':
           this._tooltip.style.left = `${xRange[0] + 10}px`;
@@ -951,7 +951,7 @@ export class GuiChart extends GuiElement {
           nameEl.textContent =
             serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
           const valueEl = document.createElement('div');
-          valueEl.classList.add('gui-chart-tooltip-value');
+          valueEl.classList.add('tooltip-value');
           if (
             this._config.tooltip?.position === 'bottom-right' ||
             this._config.tooltip?.position === 'top-right'
@@ -968,7 +968,7 @@ export class GuiChart extends GuiElement {
             nameEl.textContent =
               serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
             const valueEl = document.createElement('div');
-            valueEl.classList.add('gui-chart-tooltip-value');
+            valueEl.classList.add('tooltip-value');
             if (
               this._config.tooltip?.position === 'bottom-right' ||
               this._config.tooltip?.position === 'top-right'
@@ -1064,7 +1064,7 @@ export class GuiChart extends GuiElement {
         nameEl.textContent = 'Selection:';
         const valueEl = document.createElement('div');
         valueEl.style.color = style['text-0'];
-        valueEl.classList.add('gui-chart-tooltip-value');
+        valueEl.classList.add('tooltip-value');
         if (
           this._config.tooltip?.position === 'bottom-right' ||
           this._config.tooltip?.position === 'top-right'

@@ -19,7 +19,7 @@
   position: relative;
 }
 
-.gui-chart-tooltip {
+.tooltip {
   font-size: 10px;
 
   display: grid;
@@ -32,11 +32,11 @@
   /* border: 1px solid rgb(var(--neutral-0)); */
 }
 
-.gui-chart-tooltip-value {
+.tooltip-value {
   padding-left: 1em;
   justify-self: start;
 }
 
-.gui-chart-tooltip-value.right {
+.tooltip-value.right {
   justify-self: end;
 }

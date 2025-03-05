@@ -6,6 +6,7 @@
   {
     "label": "Chart",
     "route": "pages/chart/",
+    "link": true,
     "children": [
       {
         "label": "Bar histogram",
@@ -46,10 +47,6 @@
       {
         "label": "Chart 2",
         "route": "chart-2/"
-      },
-      {
-        "label": "Chart",
-        "route": "chart/"
       }
     ]
   },

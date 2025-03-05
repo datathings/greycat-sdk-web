@@ -22,6 +22,7 @@
   },
   // ORDER IS IMPORTANT
   "files": [
+    "polyfill.ts",
     "GCObject.ts",
     "GCEnum.ts",
     "GCFunction.ts",
