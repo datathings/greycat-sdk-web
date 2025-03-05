@@ -884,3 +884,12 @@ fn sample_huge_csv(): Table? {
   info("updated cache");
   return *huge_table;
 }
+
+@expose
+fn destructuring_table(): Table {
+  var table = Table {};
+  table.set_cell(0, 0, Person { name: "John", age: 42, activated: true });
+  table.set_cell(1, 0, Person { name: "Paul", age: 36, activated: false });
+  table.set_cell(2, 0, Person { name: "Maria", age: 27, activated: true });
+  return table;
+}

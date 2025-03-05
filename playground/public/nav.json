@@ -157,10 +157,6 @@
     "link": true,
     "children": [
       {
-        "label": "Ignore Cols",
-        "route": "ignore-cols.html"
-      },
-      {
         "label": "Array of Objects",
         "route": "array-of-objects.html"
       },
@@ -169,12 +165,20 @@
         "route": "column-factories.html"
       },
       {
+        "label": "Destructuring",
+        "route": "destructuring.html"
+      },
+      {
         "label": "Editable",
         "route": "editable.html"
       },
       {
         "label": "Huge table",
         "route": "huge-table.html"
+      },
+      {
+        "label": "Ignore Cols",
+        "route": "ignore-cols.html"
       },
       {
         "label": "Map",

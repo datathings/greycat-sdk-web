@@ -274,7 +274,13 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     try {
       const mappings = this._configEl.mappings;
       if (mappings.length > 0) {
+        const offset = this._table.cols.length;
         this._table = await gc.core.Table.applyMappings(table, mappings);
+        const headers = new Array(this._table.cols.length);
+        for (let i = offset; i < this._table.cols.length; i++) {
+          headers[i] = mappings[i - offset].extractors.join('.');
+        }
+        this._table.headers = headers;
         await this.update();
         this.dispatchEvent(new GuiChangeEvent(this._table));
       } else if (table !== this._table) {

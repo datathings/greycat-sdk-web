@@ -66,14 +66,15 @@ export class GuiTableMappings extends GuiElement {
       toast.error(err);
     }
     this._value = mappings;
-    this._mappings.replaceChildren(
-      ...mappings.map((value) => {
-        const mapping = (<gui-table-mapping value={value} />) as GuiTableMapping;
-        mapping.table = this.table;
-        return mapping;
-      }),
-    );
-    this._applyBtn.disabled = mappings.length === 0;
+    const new_mappings = document.createDocumentFragment();
+    for (const mapping of mappings) {
+      const el = document.createElement('gui-table-mapping');
+      el.table = this.table;
+      el.value = mapping;
+      new_mappings.appendChild(el);
+    }
+    this._mappings.replaceChildren(new_mappings);
+    // this._applyBtn.disabled = mappings.length === 0;
     this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
   };
   private _applyMappings = () => {
@@ -155,7 +156,7 @@ export class GuiTableMappings extends GuiElement {
       return;
     }
 
-    this._applyBtn.disabled = this._value.length === 0;
+    // this._applyBtn.disabled = this._value.length === 0;
 
     if (this._value.length === this._mappings.children.length) {
       // same number of elements
