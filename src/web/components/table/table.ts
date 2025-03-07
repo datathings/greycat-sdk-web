@@ -16,6 +16,11 @@ import '../search-input/index.js';
 import type { GuiTableConfig } from './table-config.js';
 import style from './table.css?inline';
 
+export type TableCsvOptions = {
+  sep: string;
+  quoted: boolean;
+};
+
 export interface GuiTableProps {
   value: TableLike;
   filter: string;
@@ -708,19 +713,25 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     resolve();
   }
 
-  asCsv(sep = ';'): string {
+  asCsv(options: TableCsvOptions): string {
     if (!this._table) {
       return '';
     }
 
+    const nb_cols = this._table.cols.length;
     let csv = '';
 
     if (this._table.headers) {
-      csv += this._table.headers.filter((h) => h.length > 0).join(sep);
+      for (let i = 0; i < nb_cols; i++) {
+        const h = this._table.headers[i] || `column_${i}`;
+        csv += options.quoted ? JSON.stringify(h) : h;
+        if (i < nb_cols - 1) {
+          csv += options.sep;
+        }
+      }
       csv += '\n';
     }
 
-    const nb_cols = this._table.cols.length;
     const nb_rows = this._table.nbRows();
     if (typeof this._cellProps === 'function') {
       const cellProps = this._cellProps;
@@ -731,9 +742,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             continue;
           }
           if (needsSep) {
-            csv += sep;
+            csv += options.sep;
           }
-          csv += gc.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
+          if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
+            const cell = gc.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
+            if (options.quoted && cell.length > 0) {
+              csv += '"';
+              csv += cell;
+              csv += '"';
+            } else {
+              csv += cell;
+            }
+          }
           needsSep = true;
         }
         csv += '\n';
@@ -747,10 +767,19 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             continue;
           }
           if (needsSep) {
-            csv += sep;
+            csv += options.sep;
           }
-          props.value = this._table.cols[c][r];
-          csv += gc.sdk.stringify(props);
+          if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
+            props.value = this._table.cols[c][r];
+            const cell = gc.sdk.stringify(props);
+            if (options.quoted && cell.length > 0) {
+              csv += '"';
+              csv += cell;
+              csv += '"';
+            } else {
+              csv += cell;
+            }
+          }
           needsSep = true;
         }
         csv += '\n';

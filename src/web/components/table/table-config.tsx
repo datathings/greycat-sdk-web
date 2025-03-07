@@ -1,5 +1,5 @@
 import { sl } from '../../shoelace.js';
-import { GuiTable, GuiTableProps, modal, toast, GuiElement, css } from '../../exports.js';
+import { GuiTable, GuiTableProps, modal, toast, GuiElement, css, TableCsvOptions } from '../../exports.js';
 import style from './table-config.css?inline';
 import type { GuiTableMappings } from './table-mappings.js';
 
@@ -21,12 +21,43 @@ export class GuiTableConfig extends GuiElement {
   private _mappings: GuiTableMappings;
   private _downloadAsCsv = async () => {
     try {
-      const sep = await modal.input({ title: 'Csv separator', inputProps: { value: ';' } });
-      if (!sep) {
+      const options: TableCsvOptions = {
+        sep: ';',
+        quoted: false,
+      };
+      const proceed = await modal.confirm({
+        title: 'Csv Options',
+        message: (
+          <div className="list">
+            <sl-input
+              label="Separator"
+              helpText="Column delimiter"
+              size="small"
+              value={options.sep}
+              onsl-change={function () {
+                options.sep = this.value;
+              }}
+            />
+            <sl-checkbox
+              helpText="Whether or not to use double-quote for every cells"
+              size="small"
+              checked={options.quoted}
+              onsl-change={function () {
+                options.quoted = this.checked;
+              }}
+            >
+              Quoted
+            </sl-checkbox>
+          </div>
+        ),
+        cancel: 'Cancel',
+        confirm: 'Download',
+      });
+      if (!proceed) {
         // if closing the modal, abort the operation
         return;
       }
-      const csv = this.table.asCsv(sep ?? ';');
+      const csv = this.table.asCsv(options);
 
       const blob = new Blob([csv], {
         type: 'text/csv',

@@ -15,8 +15,24 @@ type Ok<T> = { ok: true; value: T };
 type Err<E> = { ok: false; err: E };
 type Result<T, E> = Ok<T> | Err<E>;
 
+/**
+ * A navigation tree that displays links.
+ *
+ * By default this component does not need any properties to be set for it to work. It just needs a `nav.json` file
+ * to be present in the current route.
+ *
+ * Eg:
+ * If we are currently at `/some/path`, this component will try to locate `nav.json` in this order:
+ * - `/some/path/nav.json`
+ * - `/some/nav.json`
+ * - `nav.json`
+ *
+ * You can also bypass the dynamic resolution by directly providing the tree structure with the `value` property.
+ */
 export class GuiNav extends GuiElement {
   static override styles = [css(style)];
+  private _root: string | undefined;
+  private _value: NavTree | undefined;
 
   constructor() {
     super();
@@ -24,48 +40,98 @@ export class GuiNav extends GuiElement {
     this.shadowRoot.appendChild(<em>Loading nav.json...</em>);
   }
 
+  get value() {
+    return this._value;
+  }
+
+  /**
+   * The navigation tree to display.
+   *
+   * If `undefined`, the component will try to find a `nav.json` to resolve
+   * starting from `root` (defaults to `location.pathname`) and going upwards
+   * until the root of the domain.
+   *
+   * This means `gui-nav` works without any properties set `<gui-nav></gui-nav>` if
+   * a `nav.json` file is found somewhere in the current route.
+   */
+  set value(tree: NavTree | undefined) {
+    this._value = tree;
+    this.update();
+  }
+
+  /**
+   * The root path of resolution of the tree links.
+   *
+   * Defaults to the pathname of the found `nav.json` if no `value` given
+   */
+  get root() {
+    return this._root;
+  }
+
+  set root(root: string | undefined) {
+    this._root = root;
+    this.update();
+  }
+
   async connectedCallback(): Promise<void> {
+    if (this._value !== undefined) {
+      this.update();
+      return;
+    }
+
     try {
-      const [path, tree] = await this._loadConfig();
-      const treeEl = (
-        <sl-tree
-          selection="leaf"
-          onsl-selection-change={(ev) => {
-            if (ev.detail.selection.length === 1) {
-              const selected = ev.detail.selection[0];
-              if (selected.children[0] instanceof HTMLAnchorElement) {
-                selected.children[0].click();
-              }
-            }
-          }}
-        >
-          {this._createNavChildren(tree, path)}
-        </sl-tree>
-      ) as sl.SlTree;
-      this.shadowRoot.replaceChildren(treeEl);
-      await treeEl.updateComplete;
-      treeEl.querySelectorAll('a').forEach((link) => {
-        try {
-          const url = new URL(link.href);
-          if (url.pathname === location.pathname) {
-            const item = link.parentElement;
-            if (item instanceof sl.SlTreeItem) {
-              item.selected = true;
-              let parent = item.parentElement;
-              while (parent instanceof sl.SlTreeItem) {
-                parent.expanded = true;
-                parent = parent.parentElement;
-              }
-            }
-          }
-        } catch {
-          // ignore
-        }
-      });
+      const [path, tree] = await this._loadConfig(this._root);
+      this._root = path;
+      this._value = tree;
+      this.update();
     } catch (err) {
       this.shadowRoot.replaceChildren(<em>Missing nav.json...</em>);
       toast.error(err);
     }
+  }
+
+  async update(): Promise<void> {
+    if (!this.isConnected) {
+      return;
+    }
+
+    const root = this._root ?? location.pathname;
+
+    const treeEl = (
+      <sl-tree
+        selection="leaf"
+        onsl-selection-change={(ev) => {
+          if (ev.detail.selection.length === 1) {
+            const selected = ev.detail.selection[0];
+            if (selected.children[0] instanceof HTMLAnchorElement) {
+              selected.children[0].click();
+            }
+          }
+        }}
+      >
+        {this._createNavChildren(this._value, root)}
+      </sl-tree>
+    ) as sl.SlTree;
+    this.shadowRoot.replaceChildren(treeEl);
+    await treeEl.updateComplete;
+    treeEl.querySelectorAll('a').forEach((link) => {
+      try {
+        const url = new URL(link.href);
+        if (url.pathname === location.pathname) {
+          const item = link.parentElement;
+          if (item instanceof sl.SlTreeItem) {
+            item.selected = true;
+            let parent = item.parentElement;
+            while (parent instanceof sl.SlTreeItem) {
+              parent.expanded = true;
+              parent = parent.parentElement;
+            }
+          }
+        }
+      } catch {
+        // ignore
+      }
+    });
   }
 
   private _createNavChildren(children: NavItem[] | undefined, parentRoute = ''): Node {
@@ -110,9 +176,11 @@ export class GuiNav extends GuiElement {
     return <a>{item.label}</a>;
   }
 
-  private async _loadConfig(): Promise<[string, NavTree]> {
-    const filename = 'nav.json';
-    let path = join(location.pathname, filename);
+  private async _loadConfig(
+    root = location.pathname,
+    filename = 'nav.json',
+  ): Promise<[string, NavTree]> {
+    let path = join(root, filename);
 
     for (let i = 0; i < 15; i++) {
       const res = await this._fetchConfig(path);
@@ -197,6 +265,20 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /**
+         * A navigation tree that displays links.
+         *
+         * By default this component does not need any properties to be set for it to work. It just needs a `nav.json` file
+         * to be present in the current route.
+         *
+         * Eg:
+         * If we are currently at `/some/path`, this component will try to locate `nav.json` in this order:
+         * - `/some/path/nav.json`
+         * - `/some/nav.json`
+         * - `nav.json`
+         *
+         * You can also bypass the dynamic resolution by directly providing the tree structure with the `value` property.
+         */
         'gui-nav': GreyCat.Element<GuiNav>;
       }
     }

@@ -25,12 +25,6 @@ export class AppLayout extends GuiElement {
       </div>
     ) as HTMLElement;
 
-    // const nb_pathname_parts = window.location.pathname
-    //   .split('/')
-    //   .filter((s) => s.length != 0).length;
-
-    // const buttons: HTMLElement[] = [];
-
     this.shadowRoot.appendChild(
       <gui-layout>
         <sl-breadcrumb slot="header">

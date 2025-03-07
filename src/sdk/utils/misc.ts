@@ -246,6 +246,8 @@ namespace gc {
         } else {
           return `${value.$type.name}::${value.key}`;
         }
+      } else if ('Node' in globalThis && value instanceof globalThis['Node']) {
+        return value.textContent ?? '';
       } else if (typeof value === 'object') {
         if (value) {
           if (tiny) {
