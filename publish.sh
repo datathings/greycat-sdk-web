@@ -19,7 +19,6 @@ file="dist.zip"
 zip -r $file sdk
 
 curl -s -X PUT -H "Authorization: $token" -T $file                               "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T $file                               "${ROOT_URL}/sdk/web/${BRANCH}/latest.zip"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/package.tgz                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.tgz"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.css                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.css"
 curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
@@ -31,4 +30,5 @@ cd ../libweb
 lib="lib.zip"
 zip -r $lib .
 
+curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/web/${BRANCH}/latest"
 curl -s -X PUT -H "Authorization: $token" -T $lib                                "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/noarch/${VERSION}.zip"
