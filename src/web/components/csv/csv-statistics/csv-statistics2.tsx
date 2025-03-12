@@ -64,26 +64,63 @@ export class GuiCsvStatistics2 extends GuiElement {
       ['Average', ...this._stats.columns.map(average)],
       ['Standard deviation', ...this._stats.columns.map(stdDeviation)],
       [
-        'Word list',
-        ...this._stats.columns.map((c) => (
-          <sl-button
-            variant="text"
-            size="small"
-            onclick={(ev) => {
-              ev.preventDefault();
-              this.showWordList(c);
-            }}
-          >
-            Show
-          </sl-button>
-        )),
+        'Others',
+        ...this._stats.columns.map((c, offset) => {
+          if (c.enumerable_count.size > 0) {
+            return (
+              <div>
+                <sl-button
+                  variant="text"
+                  size="small"
+                  onclick={(ev) => {
+                    ev.preventDefault();
+                    this.showEnumerables(offset, c);
+                  }}
+                >
+                  Enumerables
+                </sl-button>
+              </div>
+            );
+          } else if (c.date_format_count.size > 0) {
+            return (
+              <div>
+                <sl-button
+                  variant="text"
+                  size="small"
+                  onclick={(ev) => {
+                    ev.preventDefault();
+                    this.showDateFormats(offset, c);
+                  }}
+                >
+                  Date Formats
+                </sl-button>
+              </div>
+            );
+          } else if (c.profile.sum != null) {
+            return (
+              <div>
+                <sl-button
+                  variant="text"
+                  size="small"
+                  onclick={(ev) => {
+                    ev.preventDefault();
+                    this.showProfile(offset, c);
+                  }}
+                >
+                  Profile
+                </sl-button>
+              </div>
+            );
+          }
+          return '';
+        }),
       ],
     ]);
     table.headers = ['Property / Column Name', ...this._stats.columns.map((c) => c.name ?? '')];
     this._table.value = table;
   }
 
-  showWordList(column: gc.io.CsvColumnStatistics): void {
+  showEnumerables(offset: number, column: gc.io.CsvColumnStatistics): void {
     const words: string[] = [];
     const counts: (number | bigint)[] = [];
     let wTotal = 0;
@@ -97,22 +134,23 @@ export class GuiCsvStatistics2 extends GuiElement {
 
     const table = gc.core.Table.create([words, counts]);
     table.headers = [`Word (${wTotal})`, `Count (${cTotal})`];
-    this._dialog.label = `Column: ${column.name ?? '<unknown>'}`;
-    this._dialog.replaceChildren(
-      <gui-tabs className="tabs">
-        <gui-tab slot="tab" active>
-          Enumerable Count
-        </gui-tab>
-        {/* <gui-tab slot="tab">Enumerable Count (Donut)</gui-tab> */}
+    this._dialog.label = `Column: ${column.name ?? offset}`;
+    this._dialog.replaceChildren(<gui-table globalFilter value={table} />);
+    this._dialog.show();
+  }
 
-        <gui-panel slot="panel" tab="Enumerable Count">
-          <gui-table globalFilter value={table} />
-        </gui-panel>
-        {/* <gui-panel slot="panel" tab="Enumerable Count (Donut)">
-          <gui-donut value={column.enumerable_count} withInfo withLabelInfo withLabels />
-        </gui-panel> */}
-      </gui-tabs>,
-    );
+  showDateFormats(offset: number, column: gc.io.CsvColumnStatistics): void {
+    this._dialog.label = `Column: ${column.name ?? offset}`;
+    const table = gc.core.Table.fromMap(column.date_format_count);
+    table.headers = ['Format', 'Occurrences'];
+    this._dialog.replaceChildren(<gui-table value={table} globalFilter />);
+    this._dialog.show();
+  }
+
+  showProfile(offset: number, column: gc.io.CsvColumnStatistics): void {
+    this._dialog.label = `Column: ${column.name ?? offset}`;
+    console.log(column.profile);
+    this._dialog.replaceChildren(<gui-gaussian value={column.profile} />);
     this._dialog.show();
   }
 }

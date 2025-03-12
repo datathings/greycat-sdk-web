@@ -81,6 +81,7 @@ import {
   GuiMapSource,
   GuiMapNodeGeo,
   GuiNav,
+  // GuiGaussian,
 } from './exports.js';
 
 const sdkInit = gc.sdk.init;
@@ -209,6 +210,7 @@ function initWeb() {
   registerCustomElement('gui-tabs', GuiTabs);
   registerCustomElement('gui-select', GuiSelect);
   registerCustomElement('gui-nav', GuiNav);
+  // registerCustomElement('gui-gaussian', GuiGaussian);
 
   if ('maplibregl' in globalThis) {
     registerCustomElement('gui-map-source', GuiMapSource);
@@ -303,6 +305,7 @@ declare global {
       GuiMapSource,
       GuiMapNodeGeo,
       GuiNav,
+      // GuiGaussian,
     };
   }
 }

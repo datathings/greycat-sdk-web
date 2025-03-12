@@ -1,0 +1,4 @@
+gui-chart::part(tooltip-value),
+gui-chart::part(tooltip-name) {
+  font-size: 12px;
+}

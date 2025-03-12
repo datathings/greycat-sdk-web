@@ -55,6 +55,8 @@ export type SelectionOptions = {
 };
 
 export type Tooltip = {
+  /** Always display the tooltip when `true`. Defaults to `false` */
+  always?: boolean;
   position: TooltipPosition;
   /**
    * Called whenever the tooltip should update its content.
@@ -73,6 +75,8 @@ export type CommonAxis = {
   title?: string;
   min?: number | Date | gc.core.time | gc.core.Date;
   max?: number | Date | gc.core.time | gc.core.Date;
+  /** Disables the cursor marker for that axis if `false`. Defaults to `true` */
+  cursor?: boolean;
   cursorAlign?: 'start' | 'center' | 'end';
   cursorBaseline?: CanvasTextBaseline;
   cursorPadding?: number;
@@ -266,6 +270,10 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * Optional title used to name the serie.
    */
   title?: string;
+  /**
+   * Overrides the tooltip value
+   */
+  value?: { toString(): string };
   /**
    * A hook to customize canvas drawing. This is called before the serie has been drawn.
    */

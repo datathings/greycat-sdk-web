@@ -73,6 +73,10 @@
     "route": "pages/gauge/"
   },
   {
+    "label": "Gaussian",
+    "route": "pages/gaussian/"
+  },
+  {
     "label": "Donut",
     "route": "pages/donut/"
   },

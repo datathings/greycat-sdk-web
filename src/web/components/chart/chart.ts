@@ -659,7 +659,10 @@ export class GuiChart extends GuiElement {
       }
 
       // make tooltip visible and located properly
-      this.shadowRoot.appendChild(this._tooltip);
+      if (!this._tooltip.isConnected) {
+        this.shadowRoot.appendChild(this._tooltip);
+      }
+      this._tooltip.replaceChildren();
       switch (this._config.tooltip?.position ?? 'top-left') {
         case 'top-left':
           this._tooltip.style.left = `${xRange[0] + 10}px`;
@@ -682,51 +685,66 @@ export class GuiChart extends GuiElement {
       // The dashed lines, cursor, and axis texts could arguably be configured by the user
       // if cursor: true, then display cursor info in realtime
       if (this._config.cursor) {
-        // cursor horizontal dashed
-        this._uxCtx.simpleLine(
-          xRange[0],
-          this._cursor.y,
-          rightAxes === 0 ? this._cursor.x : xRange[1],
-          this._cursor.y,
-          {
-            color: style.cursor.lineColor,
-            dashed: true,
-          },
-        );
         // cursor vertical dashed
         this._uxCtx.simpleLine(this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
           color: style.cursor.lineColor,
           dashed: true,
         });
-        // cursor cross
-        this._uxCtx.cross(this._cursor.x, this._cursor.y, 12, {
-          color: style.cursor.color,
-          thickness: 2,
-        });
+
+        let noCursorOnYAxes = true;
+        for (const yAxisName in yScales) {
+          const yAxis = this._config.yAxes[yAxisName];
+          if (yAxis.cursor !== false) {
+            noCursorOnYAxes = false;
+          }
+        }
+        if (!noCursorOnYAxes) {
+          // cursor horizontal dashed
+          this._uxCtx.simpleLine(
+            xRange[0],
+            this._cursor.y,
+            rightAxes === 0 ? this._cursor.x : xRange[1],
+            this._cursor.y,
+            {
+              color: style.cursor.lineColor,
+              dashed: true,
+            },
+          );
+          // cursor cross
+          this._uxCtx.cross(this._cursor.x, this._cursor.y, 12, {
+            color: style.cursor.color,
+            thickness: 2,
+          });
+        }
 
         const defaultCursorPadding = 10;
 
         // bottom axis text
-        const xValue = +xScale.invert(this._cursor.x);
-        const formatter = createFormatter(this._config.xAxis, xScale, true);
-        // TODO clip on boundaries
-        this._uxCtx.text(
-          this._cursor.x,
-          yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding),
-          formatter(xValue),
-          {
-            color: style.cursor.color,
-            backgroundColor: style.cursor.bgColor,
-            align: this._config.xAxis.cursorAlign ?? 'center',
-            baseline: this._config.xAxis.cursorBaseline ?? 'top',
-          },
-        );
+        if (this._config.xAxis.cursor !== false) {
+          const xValue = +xScale.invert(this._cursor.x);
+          const formatter = createFormatter(this._config.xAxis, xScale, true);
+          // TODO clip on boundaries
+          this._uxCtx.text(
+            this._cursor.x,
+            yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding),
+            formatter(xValue),
+            {
+              color: style.cursor.color,
+              backgroundColor: style.cursor.bgColor,
+              align: this._config.xAxis.cursorAlign ?? 'center',
+              baseline: this._config.xAxis.cursorBaseline ?? 'top',
+            },
+          );
+        }
         let leftAxesIdx = -1;
         let rightAxesIdx = -1;
 
         // y axes texts
         for (const yAxisName in yScales) {
           const yAxis = this._config.yAxes[yAxisName];
+          if (yAxis.cursor === false) {
+            continue;
+          }
           const formatter = createFormatter(yAxis, yScales[yAxisName], true);
           if (yAxis.position === undefined || yAxis.position === 'left') {
             leftAxesIdx++;
@@ -950,8 +968,10 @@ export class GuiChart extends GuiElement {
           nameEl.style.color = color;
           nameEl.textContent =
             serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
+          nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol}`);
           const valueEl = document.createElement('div');
           valueEl.classList.add('tooltip-value');
+          valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol}`);
           if (
             this._config.tooltip?.position === 'bottom-right' ||
             this._config.tooltip?.position === 'top-right'
@@ -959,7 +979,7 @@ export class GuiChart extends GuiElement {
             valueEl.classList.add('right');
           }
           valueEl.style.color = color;
-          valueEl.textContent = formatter(yValue);
+          valueEl.textContent = serie.value !== undefined ? serie.value.toString() : formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
           if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
@@ -967,8 +987,10 @@ export class GuiChart extends GuiElement {
             nameEl.style.color = color;
             nameEl.textContent =
               serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
+            nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol2}`);
             const valueEl = document.createElement('div');
             valueEl.classList.add('tooltip-value');
+            valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol2}`);
             if (
               this._config.tooltip?.position === 'bottom-right' ||
               this._config.tooltip?.position === 'top-right'
@@ -1218,7 +1240,9 @@ export class GuiChart extends GuiElement {
     // clear ux canvas
     this._uxCtx.ctx.clearRect(0, 0, this._uxCanvas.width, this._uxCanvas.height);
     // clear tooltip
-    this._tooltip.replaceChildren();
+    if (this._config.tooltip?.always) {
+      return;
+    }
     this._tooltip.style.top = '';
     this._tooltip.style.right = '';
     this._tooltip.style.bottom = '';

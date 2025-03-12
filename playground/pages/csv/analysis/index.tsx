@@ -16,6 +16,7 @@ async function runAnalysis(filepath: string) {
   sample.value = await gc.io.CsvReader.sample(reader);
 
   const stats = (await task.await()) as gc.io.CsvStatistics;
+  console.log(stats);
   return stats;
 }
 

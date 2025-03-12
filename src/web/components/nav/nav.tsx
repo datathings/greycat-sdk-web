@@ -167,11 +167,29 @@ export class GuiNav extends GuiElement {
     if (item.route !== undefined) {
       if (item.children) {
         if (item.link) {
-          return <a href={join(parentRoute, item.route)}>{item.label}</a>;
+          return (
+            <a
+              href={join(parentRoute, item.route)}
+              onclick={(ev) => {
+                ev.stopPropagation();
+              }}
+            >
+              {item.label}
+            </a>
+          );
         }
         return <a>{item.label}</a>;
       }
-      return <a href={join(parentRoute, item.route)}>{item.label}</a>;
+      return (
+        <a
+          href={join(parentRoute, item.route)}
+          onclick={(ev) => {
+            ev.stopPropagation();
+          }}
+        >
+          {item.label}
+        </a>
+      );
     }
     return <a>{item.label}</a>;
   }
