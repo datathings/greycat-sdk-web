@@ -76,5 +76,11 @@
   "optionalDependencies": {
     "http-proxy": "1.18.1",
     "maplibre-gl": "5.1.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "esbuild",
+      "lightningcss-cli"
+    ]
   }
 }
