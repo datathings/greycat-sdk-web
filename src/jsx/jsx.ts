@@ -5,6 +5,8 @@ declare global {
     type ExtendedHTMLProperties = {
       className?: string | string[] | { [className: string]: boolean };
       style?: Partial<CSSStyleDeclaration & { [key: `--${string}`]: string }> | string;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      children?: any;
     };
 
     type ElementEventMap<T, EventMap> = {
