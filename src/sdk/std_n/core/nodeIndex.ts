@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class nodeIndex<K = unknown, V = unknown> extends GCObject {
+        export class nodeIndex<K = unknown, V = unknown> extends GCPrimitive {
           static readonly _type = 'core::nodeIndex' as const;
 
           constructor(public value: bigint = 0n) {

@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class nodeGeo<T = unknown> extends GCObject {
+        export class nodeGeo<T = unknown> extends GCPrimitive {
           static readonly _type = 'core::nodeGeo' as const;
 
           constructor(public value: bigint = 0n) {

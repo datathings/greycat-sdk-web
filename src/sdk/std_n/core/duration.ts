@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class duration extends GCObject {
+        export class duration extends GCPrimitive {
           static readonly _type = 'core::duration' as const;
           static readonly YEAR = 31_536_000_000_000n as const;
           static readonly MONTH = 2_630_016_000_000n as const;

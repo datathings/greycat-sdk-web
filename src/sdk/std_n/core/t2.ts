@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class t2 extends GCObject {
+        export class t2 extends GCPrimitive {
           static readonly _type = 'core::t2' as const;
 
           constructor(

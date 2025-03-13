@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class float extends GCObject {
+        export class float extends GCPrimitive {
           static readonly _type = 'core::float' as const;
 
           constructor(public value: number = 0) {

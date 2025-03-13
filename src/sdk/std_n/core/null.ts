@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class null_ extends GCObject {
+        export class null_ extends GCPrimitive {
           static readonly _type = 'core::null' as const;
 
           static create(g: GreyCat = gc.$.default): null_ {
