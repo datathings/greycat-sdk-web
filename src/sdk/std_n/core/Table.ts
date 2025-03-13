@@ -145,21 +145,39 @@ namespace gc {
 
           /**
            * Creates a table using an array of rows, rows being objects. Each fields will be destructured
-           * and end-up as columns of fields.
+           * and end-up as columns of fields, unless the objects are `GCPrimitive`s in which case it creates a
+           * table of one column.
            */
           static fromObjects<T extends object | null | undefined>(
-            rows: T[],
+            objects: T[],
             g: GreyCat = gc.$.default,
           ): gc.core.Table<T> {
-            if (rows.length === 0) {
+            if (objects.length === 0) {
               const ty = g.abi.types[g.abi.core.table];
               return new ty.ctor([]) as gc.core.Table<T>;
             }
 
+            let allPrimitives = true;
+            for (let i = 0; i < objects.length; i++) {
+              const item = objects[i];
+              if (!(item instanceof GCPrimitive)) {
+                allPrimitives = false;
+                break;
+              }
+            }
+            if (allPrimitives) {
+              const ty = g.abi.types[g.abi.core.table];
+              const table = new ty.ctor([objects]) as gc.core.Table<T>;
+              table.headers = ['Value'];
+              table.subheaders = [(objects[0] as GCPrimitive).$type.name];
+              table._initial_value = objects;
+              return table;
+            }
+
             const keys_dict = new Set<string>();
-            for (let i = 0; i < rows.length; i++) {
-              const obj = rows[i];
-              if (obj) {
+            for (let i = 0; i < objects.length; i++) {
+              const obj = objects[i];
+              if (obj instanceof GCPrimitive) {
                 for (const key in obj) {
                   if (Object.hasOwn(obj, key)) {
                     keys_dict.add(key);
@@ -171,11 +189,11 @@ namespace gc {
 
             const cols = new globalThis.Array(keys.length);
             for (let i = 0; i < keys.length; i++) {
-              cols[i] = new globalThis.Array(rows.length);
+              cols[i] = new globalThis.Array(objects.length);
             }
 
-            for (let row = 0; row < rows.length; row++) {
-              const obj = rows[row];
+            for (let row = 0; row < objects.length; row++) {
+              const obj = objects[row];
               if (typeof obj === 'object' && obj !== null) {
                 for (let col = 0; col < cols.length; col++) {
                   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -191,7 +209,7 @@ namespace gc {
             const ty = g.abi.types[g.abi.core.table];
             const table = new ty.ctor(cols) as gc.core.Table<T>;
             table.headers = keys;
-            table._initial_value = rows;
+            table._initial_value = objects;
             return table;
           }
 

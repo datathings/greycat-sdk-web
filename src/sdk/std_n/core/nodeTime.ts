@@ -2,7 +2,7 @@ namespace gc {
   export namespace sdk {
     export namespace std_n {
       export namespace core {
-        export class nodeTime<T = unknown> extends GCObject {
+        export class nodeTime<T = unknown> extends GCPrimitive {
           static readonly _type = 'core::nodeTime' as const;
 
           constructor(public value: bigint = 0n) {

@@ -122,7 +122,9 @@ namespace gc {
                   }
                   value.saveContent(w);
                 } else {
-                  throw new Error(`unable to serialize object, expecting a GCObject for '${att.name}: ${w.abi.types[att.abi_type].name}', got ${typeof value}`);
+                  throw new Error(
+                    `unable to serialize object, expecting a GCObject for '${att.name}: ${w.abi.types[att.abi_type].name}', got ${typeof value}`,
+                  );
                 }
                 break;
               }
@@ -267,6 +269,9 @@ namespace gc {
         return new programType.ctor(...fields);
       }
     }
+
+    /** A marker class to distinguish between primitives and objects */
+    export abstract class GCPrimitive extends GCObject {}
 
     export function serialize_object(
       w: AbiWriter,

@@ -24,7 +24,7 @@ namespace gc {
         }
 
         // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-        export class time extends GCObject {
+        export class time extends GCPrimitive {
           private static readonly LOCALE = 'fr-FR';
           private static readonly FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {
             year: '2-digit',
