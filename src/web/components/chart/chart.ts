@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 
-import { closest, debounce, throttle } from '../../internals.js';
+import { debounce, throttle } from '../../utils.js';
+import { closest } from '../../internals.js';
 import type {
   Scale,
   ChartConfig,

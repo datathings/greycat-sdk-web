@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { debounce } from '../../internals.js';
+import { debounce } from '../../utils.js';
 import {
   Disposer,
   TableLike,

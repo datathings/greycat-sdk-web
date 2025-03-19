@@ -163,10 +163,7 @@ export function createFormatter(
  * @param greycat
  * @returns
  */
-export function inferConfig(
-  table: gc.core.Table,
-  g: gc.sdk.GreyCat = gc.$.default,
-): ChartConfig {
+export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.default): ChartConfig {
   const config: ChartConfig = {
     xAxis: {},
     yAxes: {},
@@ -191,18 +188,28 @@ export function inferConfig(
     const col = table.cols[c];
     for (let r = 0; r < col.length; r++) {
       const cell = col[0];
-      if (cell === null) {
+      if (cell === null || cell === undefined) {
         continue;
       }
       if (!isPotentiallyChartable(cell)) {
         break;
       }
-      const columnName =
-        table.headers?.[c] ?? greycatTypeFromValueStr(cell, g).replaceAll(/[- :]+/g, '_');
-      const yAxis = `c${c}_${columnName}`;
-      config.yAxes[yAxis] = { scale: cell instanceof gc.core.time ? 'time' : 'linear' };
+      let axisName: string;
+      let columnName: string;
+      if (table.headers && table.headers[c] !== undefined) {
+        axisName = table.headers[c];
+        if (table.subheaders && table.subheaders[c]) {
+          columnName = `${table.headers[c]} ${table.subheaders[c]}`;
+        } else {
+          columnName = table.headers[c];
+        }
+      } else {
+        axisName = columnName = greycatTypeFromValueStr(cell, g);
+      }
+      const yAxis = axisName.replaceAll(/[- :]+/g, '_');
+      config.yAxes[yAxis] = { scale: 'linear' };
       config.series.push({
-        title: table.headers?.[c] ?? `c${c}`,
+        title: columnName,
         type: 'line',
         xCol: 0,
         yCol: c,
@@ -210,6 +217,11 @@ export function inferConfig(
       });
       break;
     }
+  }
+
+  const yAxes = Object.keys(config.yAxes);
+  if (yAxes.length === 2) {
+    config.yAxes[yAxes[1]].position = 'right';
   }
 
   return config;
@@ -220,10 +232,8 @@ function isPotentiallyChartable(value: unknown): boolean {
   return (
     type === 'number' ||
     type === 'bigint' ||
-    value instanceof gc.core.time ||
     value instanceof gc.core.duration ||
     value instanceof gc.core.int ||
-    value instanceof gc.core.float ||
-    value instanceof gc.core.geo
+    value instanceof gc.core.float
   );
 }

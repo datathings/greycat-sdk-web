@@ -694,10 +694,10 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 fn now() {
   var now = time::now();
   return TimeZones {
-    azores: Date::fromTime(now, TimeZone::"Atlantic/Azores"),
-    utc: Date::fromTime(now, TimeZone::UTC),
-    paris: Date::fromTime(now, TimeZone::"Europe/Paris"),
-    athens: Date::fromTime(now, TimeZone::"Europe/Athens"),
+    azores: Date::from_time(now, TimeZone::"Atlantic/Azores"),
+    utc: Date::from_time(now, TimeZone::UTC),
+    paris: Date::from_time(now, TimeZone::"Europe/Paris"),
+    athens: Date::from_time(now, TimeZone::"Europe/Athens"),
   };
 }
 
@@ -880,7 +880,7 @@ fn sample_huge_csv(): Table? {
       header_lines: 1,
     },
   };
-  huge_table.set(CsvReader::sample(reader, null));
+  huge_table.set(Csv::sample(reader, null));
   info("updated cache");
   return *huge_table;
 }

@@ -277,3 +277,37 @@ export function querySelectorAllWithShadow(
   });
   return elements;
 }
+
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
+  let enableCall = true;
+
+  return function <U>(this: U, ...args: Parameters<typeof callback>) {
+    if (!enableCall) {
+      return;
+    }
+
+    enableCall = false;
+    callback.apply(this, args);
+    setTimeout(() => (enableCall = true), interval);
+  };
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function debounce<T extends (...args: any[]) => void>(
+  callback: T,
+  delay: number,
+  immediate = false,
+) {
+  let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
+
+  return function <U>(this: U, ...args: Parameters<typeof callback>) {
+    clearTimeout(debounceTimeoutId);
+    debounceTimeoutId = setTimeout(() => callback.apply(this, args), delay);
+
+    if (immediate) {
+      callback.apply(this, args);
+    }
+  };
+}
