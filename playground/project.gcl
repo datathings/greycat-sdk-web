@@ -976,3 +976,12 @@ fn destructuring_table(): Table {
   table.set_cell(2, 0, Person { name: "Maria", age: 27, activated: true });
   return table;
 }
+
+@expose
+fn this_is_boom() {
+  do_something();
+}
+
+fn do_something() {
+  throw "rekt";
+}

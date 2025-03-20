@@ -4,7 +4,7 @@ namespace gc {
       Object.assign(core.Error.prototype, {
         toString(this: core.Error) {
           let err_msg = `${this.message ?? 'RuntimeError'}\n`;
-          for (const frame of this.stack) {
+          for (const frame of this.stack.reverse()) {
             err_msg += `    at ${frame.function} (${frame.module}.gcl:${frame.line}:${frame.column})\n`;
           }
           return err_msg;
