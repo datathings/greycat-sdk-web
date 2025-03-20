@@ -16,23 +16,22 @@ pnpm pack
 mkdir -p dist/sdk/web
 
 mv greycat-*.tgz dist/sdk/web/package.tgz
-mv \
-  dist/jsx \
-  dist/vite-plugin \
-  dist/types \
-  dist/greycat.css \
-  dist/greycat.js \
-  dist/greycat.d.ts \
-  dist/greycat.web.js \
-  dist/greycat.web.esm.js \
-  dist/sdk/web/
+mv dist/jsx                dist/sdk/web/
+mv dist/vite-plugin        dist/sdk/web/
+mv dist/types              dist/sdk/web/
+mv dist/greycat.css        dist/sdk/web/
+mv dist/greycat.js         dist/sdk/web/
+mv dist/greycat.d.ts       dist/sdk/web/
+mv dist/greycat.web.js     dist/sdk/web/
+mv dist/greycat.web.esm.js dist/sdk/web/
 
 mkdir -p libweb/lib/web
 mkdir -p libweb/webroot/web
-cp dist/sdk/web/greycat.d.ts libweb/lib/web/
-cp -r dist/sdk/types libweb/lib/web/
-cp vendor/* libweb/lib/web/
-cp dist/sdk/web/greycat.css libweb/webroot/web/
+
+cp dist/sdk/web/greycat.d.ts       libweb/lib/web/
+cp -r dist/sdk/types               libweb/lib/web/
+cp vendor/*                        libweb/lib/web/
+cp dist/sdk/web/greycat.css        libweb/webroot/web/
 cp dist/sdk/web/greycat.web.esm.js libweb/webroot/web/greycat.js
 
 rm -rf dist/jsx dist/types **/*.map
