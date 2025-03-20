@@ -1,5 +1,5 @@
-import { GuiMapLayer } from './map-layer';
-import { GuiMapSource } from './map-source';
+import { GuiMapLayer } from './map-layer.js';
+import { GuiMapSource } from './map-source.js';
 
 export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
 

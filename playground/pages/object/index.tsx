@@ -1,10 +1,40 @@
-import { type sl } from '@greycat/web';
+import { GuiFactory, GuiObject, GuiObjectFieldValue, type sl } from '@greycat/web';
 import '@/common';
+import './index.css';
 
 const greycat = await gc.sdk.init();
 
-const objectEl = document.createElement('gui-object');
-objectEl.props.globalFilter = true;
+GuiFactory.global.mappings['core::Tuple<core::String,core::String>'] = GuiFactory.defineFromFn(
+  (tuple: gc.core.Tuple<string, string>) => {
+    return document.createTextNode(`(${JSON.stringify(tuple.x)}, ${JSON.stringify(tuple.y)})`);
+  },
+);
+GuiFactory.global.mappings['project::ComplexObject::tuple'] = GuiFactory.defineFromFn(
+  (tuple: gc.core.Tuple<string, string>) => {
+    return document.createTextNode(`(${JSON.stringify(tuple.x)}, ${JSON.stringify(tuple.y)})`);
+  },
+);
+
+const objectEl = (
+  <gui-object
+    props={{ globalFilter: true }}
+    linkify={(v: unknown) => gc.sdk.isNode(v) || !gc.sdk.isScalar(v)}
+    onclick={function (e) {
+      e.stopPropagation();
+      const path = e.composedPath();
+      const leaf = path[0];
+      if (leaf instanceof HTMLAnchorElement) {
+        const data = [];
+        for (const node of path) {
+          if (node instanceof GuiObjectFieldValue) {
+            data.push({ node, name: node.previousSibling?.textContent });
+          }
+        }
+        console.log('clicked', data);
+      }
+    }}
+  />
+) as GuiObject;
 
 async function changeObject(this: sl.SlSelect) {
   objectEl.value = await greycat.call(this.value as string);
@@ -25,7 +55,6 @@ document.body.appendChild(
   >
     <sl-select label="Select an object" placeholder="Select an object" onsl-change={changeObject}>
       <sl-option value="project::chart_time">project::chart_time</sl-option>
-      <sl-option value="project::complex_object">project::complex_object</sl-option>
       <sl-option value="project::get_person">project::get_person</sl-option>
       <sl-option value="project::mapTest">project::mapTest</sl-option>
       <sl-option value="project::now">project::now</sl-option>
@@ -34,12 +63,10 @@ document.body.appendChild(
       <sl-option value="project::objects_table">project::objects_table</sl-option>
       <sl-option value="project::persons">project::persons</sl-option>
       <sl-option value="project::tree">project::tree</sl-option>
+      <sl-option value="project::real_example">project::real_example</sl-option>
     </sl-select>
     <sl-checkbox onsl-change={toggleObjectHeader}>Object with header</sl-checkbox>
     <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>
     {objectEl}
-    <sl-divider />
-    <gui-object header value={await gc.runtime.Runtime.info()} />
-    <gui-object value={['One', 'Two', 'Three']} />
   </app-layout>,
 );

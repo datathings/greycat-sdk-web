@@ -527,6 +527,14 @@ type ComplexObject {
   nested: any?;
   map: Map<String, any>;
   tuple: Tuple<any, any>;
+  t2: t2;
+  t2f: t2f;
+  t3: t3;
+  t3f: t3f;
+  t4: t4;
+  t4f: t4f;
+  str: str;
+  date: Date;
 }
 
 type Obj {
@@ -577,6 +585,14 @@ fn complex_object() {
     nodeIndex: nodeIndex {},
     nodeList: nodeList {},
     nodeGeo: nodeGeo {},
+    t2: t2 {1,2},
+    t2f: t2f {1.42,2.42},
+    t3: t3 {1,2,3},
+    t3f: t3f {1.42,2.42,3.42},
+    t4: t4 {1,2,3,4},
+    t4f: t4f {1.42,2.42,3.42,4.42},
+    str: str { "hello" },
+    date: time::now().toDate(null),
     tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
     nested: ComplexObject {
       string: "Hello, world!",
@@ -594,6 +610,14 @@ fn complex_object() {
       nodeList: nodeList {},
       nodeGeo: nodeGeo {},
       enum: TimeZone::"Europe/Luxembourg",
+      t2: t2 {1,2},
+      t2f: t2f {1.42,2.42},
+      t3: t3 {1,2,3},
+      t3f: t3f {1.42,2.42,3.42},
+      t4: t4 {1,2,3,4},
+      t4f: t4f {1.42,2.42,3.42,4.42},
+      str: str { "hello" },
+      date: time::now().toDate(null),
     },
     map: map,
   };
@@ -752,6 +776,65 @@ fn one_d_histo_example(): Histogram {
   }
 
   return histo;
+}
+
+type Country {
+  name: String;
+  timezone: TimeZone;
+  operating_stats: node;
+  last_updated_stats: time?;
+  governorates: nodeIndex;
+  meteo: node<Meteo>;
+}
+
+type Meteo {
+  ideal_solar: node<SolarRadiation>;
+  visual_crossing: node<VisualCrossingProvider>;
+}
+
+type SolarRadiation {
+  is_enabled: bool;
+  radiance: nodeTime;
+  instant_power: nodeTime;
+}
+
+type VisualCrossingProvider {
+  name: String;
+  solar: node<SolarRadiation>;
+}
+
+@expose
+fn real_example(): Country {
+  return Country {
+    name: "France",
+    timezone: TimeZone::"Europe/Paris",
+    operating_stats: node<String> { "i don't know" },
+    last_updated_stats: null,
+    governorates: nodeIndex {},
+    meteo: node<Meteo> {
+      Meteo {
+        ideal_solar: node<SolarRadiation> {
+          SolarRadiation {
+            is_enabled: true,
+            instant_power: nodeTime {},
+            radiance: nodeTime {},
+          },
+        },
+        visual_crossing: node<VisualCrossingProvider> {
+          VisualCrossingProvider {
+            name: "VisualCrossing",
+            solar: node<SolarRadiation> {
+              SolarRadiation {
+                is_enabled: true,
+                instant_power: nodeTime {},
+                radiance: nodeTime {},
+              },
+            },
+          },
+        },
+      },
+    },
+  };
 }
 
 // @expose

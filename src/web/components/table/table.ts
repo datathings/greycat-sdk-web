@@ -13,6 +13,7 @@ import {
   GuiValueProps,
 } from '../../exports.js';
 import '../search-input/index.js';
+import { stringify, StringifyProps } from '../value/utils.js';
 import type { GuiTableConfig } from './table-config.js';
 import style from './table.css?inline';
 
@@ -745,7 +746,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             csv += options.sep;
           }
           if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
-            const cell = gc.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
+            const cell = stringify(cellProps(this._table.cols[c][r], r, c));
             if (options.quoted && cell.length > 0) {
               csv += '"';
               csv += cell;
@@ -759,7 +760,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
         csv += '\n';
       }
     } else {
-      const props: gc.sdk.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
+      const props: StringifyProps = Object.assign({ value: undefined }, this._cellProps);
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
@@ -771,7 +772,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           }
           if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
             props.value = this._table.cols[c][r];
-            const cell = gc.sdk.stringify(props);
+            const cell = stringify(props);
             if (options.quoted && cell.length > 0) {
               csv += '"';
               csv += cell;
@@ -1327,8 +1328,8 @@ export class GuiTableBody extends HTMLElement {
       if ((colFilter && colFilter.length > 0) || filterText.length > 0) {
         cellText =
           typeof cellProps === 'function'
-            ? gc.sdk.stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx)).toLowerCase()
-            : gc.sdk.stringify({ ...cellProps, value: table.cols[colIdx][rowIdx] }).toLowerCase();
+            ? stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx)).toLowerCase()
+            : stringify({ ...cellProps, value: table.cols[colIdx][rowIdx] }).toLowerCase();
       }
 
       // Column-specific filter must match.

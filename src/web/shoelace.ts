@@ -1,4 +1,4 @@
-import type * as sl from '@shoelace-style/shoelace';
+import * as sl from '@shoelace-style/shoelace';
 
 import '@shoelace-style/shoelace/dist/components/alert/alert.js';
 import '@shoelace-style/shoelace/dist/components/animated-image/animated-image.js';
@@ -281,5 +281,3 @@ declare global {
     }
   }
 }
-
-export * as sl from '@shoelace-style/shoelace';

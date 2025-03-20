@@ -1,10 +1,5 @@
 import { createElement } from '@greycat/web/jsx-runtime';
-import {
-  GuiElement,
-  css,
-  GuiFactory,
-  sl,
-} from '../../exports.js';
+import { GuiElement, css, GuiFactory, sl } from '../../exports.js';
 import style from './object2.css?inline';
 
 export interface GuiObject2Attrs {
@@ -84,7 +79,12 @@ export class GuiObject2 extends GuiElement {
     this.shadowRoot.replaceChildren(<>{value.toString()}</>);
   }
 
-  private _createObjField(objType: gc.sdk.AbiType, attrName: string, _attrType: gc.sdk.AbiType, value: unknown) {
+  private _createObjField(
+    objType: gc.sdk.AbiType,
+    attrName: string,
+    attrType: gc.sdk.AbiType,
+    value: unknown,
+  ) {
     const slottedField = this.querySelector(`[slot="${attrName}"]`);
     let field: Node;
     if (slottedField) {
@@ -99,7 +99,7 @@ export class GuiObject2 extends GuiElement {
         field.textContent = value?.toString() ?? `${value}`;
       }
     } else {
-      field = this._factory.createAttrObject(objType, attrName, { value });
+      field = this._factory.createAttrObject(objType, attrName, attrType, { value });
     }
     return (
       <div className="field">

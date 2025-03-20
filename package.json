@@ -37,14 +37,15 @@
     "css"
   ],
   "scripts": {
-    "clean": "rm -rf dist",
+    "clean": "rm -rf dist *.tsbuildinfo",
     "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
-    "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
+    "build:sdk": "rm -rf dist/greycat.d.ts sdk.tsbuildinfo && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
     "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
     "build:vite-plugin": "tsc -p src/vite-plugin/tsconfig.json",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
+    "build:vendor": "NODE_OPTIONS=\"--max-old-space-size=12000\" rollup -c rollup.vendor.js",
     "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare-test.sh",
     "test": "./test/test.sh",
@@ -59,6 +60,7 @@
     "lit-html": "3.2.1"
   },
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "16.0.1",
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
     "@types/http-proxy": "1.17.15",
@@ -69,6 +71,8 @@
     "lightningcss": "1.29.2",
     "lightningcss-cli": "1.29.2",
     "prettier": "3.3.3",
+    "rollup": "4.36.0",
+    "rollup-plugin-dts": "6.2.0",
     "tslib": "2.6.3",
     "typescript": "5.7.2",
     "vite": "6.0.7"

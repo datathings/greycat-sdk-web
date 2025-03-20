@@ -30,7 +30,8 @@ mv \
 mkdir -p libweb/lib/web
 mkdir -p libweb/webroot/web
 cp dist/sdk/web/greycat.d.ts libweb/lib/web/
-cp -r dist/sdk/web/types libweb/lib/web/
+cp -r types libweb/lib/web/
+cp -r vendor libweb/lib/web/
 cp dist/sdk/web/greycat.css libweb/webroot/web/
 cp dist/sdk/web/greycat.web.esm.js libweb/webroot/web/greycat.js
 

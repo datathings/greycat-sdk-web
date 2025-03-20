@@ -33,6 +33,12 @@ namespace gc {
           override toJSON() {
             return [this.x0, this.x1];
           }
+
+          override toString(fmt?: Intl.NumberFormat): string {
+            const x0 = fmt?.format(this.x0) ?? `${this.x0}`;
+            const x1 = fmt?.format(this.x1) ?? `${this.x1}`;
+            return `[${x0}, ${x1}]`;
+          }
         }
       }
     }

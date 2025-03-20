@@ -91,8 +91,19 @@ export class GuiFactory extends GuiElement {
     return createElement(this.objectTag, props) as Node;
   }
 
-  createAttrObject(type: gc.sdk.AbiType, attrName: string, props: Props = {}): Node {
-    const tagName = this.get(`${type.name}::${attrName}`);
+  createAttrObject(
+    type: gc.sdk.AbiType,
+    attrName: string,
+    attrType: gc.sdk.AbiType,
+    props: Props = {},
+  ): Node {
+    let tagName = this.get(`${type.name}::${attrName}`);
+    if (tagName === undefined) {
+      tagName = this.get(attrType.name);
+    }
+    if (tagName === undefined) {
+      tagName = this.objectTag;
+    }
     return createElement(tagName, props) as Node;
   }
 
@@ -107,11 +118,10 @@ export class GuiFactory extends GuiElement {
 
   create(type: string, props: Props = {}): Node {
     const tagName = this.get(type);
+    if (tagName === undefined) {
+      return createElement(this.objectTag, props);
+    }
     return createElement(tagName, props) as Node;
-  }
-
-  getMapping(type: string): keyof HTMLElementTagNameMap | undefined {
-    return this.mappings[type];
   }
 
   /**
@@ -119,18 +129,17 @@ export class GuiFactory extends GuiElement {
    * If found, returns it.
    * If not found, asks the parent factory.
    * When the global factory is reached, it tries to look for the type in the global mappings,
-   * if unable to find it, fallbacks to `global.objectTag`
+   * if unable to find it, returns `undefined`.
    */
-  get(type: string): keyof HTMLElementTagNameMap {
+  get(type: string): keyof HTMLElementTagNameMap | undefined {
     const tagName = this.mappings[type];
     if (tagName) {
       return tagName;
     }
     if (this === GuiFactory.global) {
-      return this.objectTag;
+      return;
     }
-    const parentFactory = GuiFactory.closest(this);
-    return parentFactory.get(type);
+    return GuiFactory.closest(this).get(type);
   }
 
   getValue(type: string): keyof HTMLElementTagNameMap {
@@ -179,8 +188,7 @@ export class GuiFactory extends GuiElement {
   }
 
   static getMapping(node: Node, type: string): keyof HTMLElementTagNameMap | undefined {
-    const factory = GuiFactory.closest(node);
-    return factory.getMapping(type);
+    return GuiFactory.closest(node).get(type);
   }
 
   /**
@@ -193,7 +201,9 @@ export class GuiFactory extends GuiElement {
    */
   static defineFromFn(update: CustomElementFn): keyof HTMLElementTagNameMap {
     return GuiFactory.defineFromClass(
-      class extends HTMLElement {
+      class extends GuiElement {
+        static override styles = [css(':host { display: contents; }')];
+
         private _value: unknown;
 
         get value() {
@@ -202,7 +212,7 @@ export class GuiFactory extends GuiElement {
 
         set value(value: unknown) {
           this._value = value;
-          this.replaceChildren(update(value, this));
+          this.shadowRoot.replaceChildren(update(value, this));
         }
       },
     );

@@ -1,10 +1,4 @@
-import {
-  css,
-  GuiElement,
-  GuiFactory,
-  type GuiValueElement,
-  type sl,
-} from '../../exports.js';
+import { css, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
@@ -201,7 +195,6 @@ export class GuiObject<T = unknown> extends GuiElement {
 
   private _renderAsValue(value: unknown): void {
     if (this._factory.valueTag.toUpperCase() === this.tagName) {
-      // debugger;
       const el = document.createElement('gui-value');
       el.setAttrs({ ...this._props, value });
       el.part.add('base');
@@ -238,7 +231,7 @@ export class GuiObject<T = unknown> extends GuiElement {
       const table = this._factory.create(gc.core.Table._type, {
         ...this._props,
         value,
-        headers: ['Array'],
+        headers: ['Element'],
         style: { minHeight: 'var(--gui-object-table-min-height)' },
       }) as Element;
       table.part.add('base');
@@ -264,7 +257,7 @@ export class GuiObject<T = unknown> extends GuiElement {
       return;
     }
 
-    if (isStd(value)) {
+    if (gc.sdk.isScalar(value)) {
       this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
       return;
     }
@@ -299,7 +292,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     if (value instanceof gc.sdk.GCObject) {
-      const tagName = this._factory.getMapping(value.$type.name);
+      const tagName = this._factory.get(value.$type.name);
       if (tagName) {
         this.shadowRoot.replaceChildren(createElement(tagName, { ...this._props, value }) as Node);
         return;
@@ -317,23 +310,23 @@ export class GuiObject<T = unknown> extends GuiElement {
     this._renderAsJsObject(value);
   }
 
-  private _renderAsGCObject(value: gc.sdk.GCObject): void {
-    if (value.$fields === undefined || value.$fields?.length === 0) {
+  private _renderAsGCObject(obj: gc.sdk.GCObject): void {
+    if (obj.$fields === undefined || obj.$fields?.length === 0) {
       this.shadowRoot.replaceChildren(<em>empty object</em>);
       return;
     }
 
     const fragment = document.createDocumentFragment();
 
-    for (let i = 0; i < value.$type.attrs.length; i++) {
-      const attr = value.$type.attrs[i];
-      const attrVal = value.$fields![i];
+    for (let i = 0; i < obj.$type.attrs.length; i++) {
+      const attr = obj.$type.attrs[i];
+      const attrVal = obj.$fields![i];
       if (attrVal === null) {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
             <gui-object-fieldvalue>
-              {this._factory.createAttrValue(value.$type, attr.name, {
+              {this._factory.createAttrValue(obj.$type, attr.name, {
                 ...this._props,
                 value: attrVal,
               })}
@@ -345,6 +338,7 @@ export class GuiObject<T = unknown> extends GuiElement {
 
       // nested object
       if (this._needsCollapsible(attrVal)) {
+        console.log({ obj, field: attr.name, attr, attrVal });
         const open =
           (
             this.shadowRoot.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
@@ -358,7 +352,7 @@ export class GuiObject<T = unknown> extends GuiElement {
           details.open = this._expanded || open;
         });
         const child = this._factory.create(
-          value.$type.abi.types[attr.abi_type].name,
+          obj.$type.abi.types[attr.abi_type].name,
           Object.assign(this.getAttrs(), this._props, {
             header: false, // past level 0 this is no longer needed
             value: undefined,
@@ -420,7 +414,12 @@ export class GuiObject<T = unknown> extends GuiElement {
           value: attrVal,
           data: attr.name,
         });
-        const child = this._factory.createAttrObject(value.$type, attr.name, props);
+        const child = this._factory.createAttrObject(
+          obj.$type,
+          attr.name,
+          obj.$type.abi.types[attr.abi_type],
+          props,
+        );
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
@@ -445,12 +444,12 @@ export class GuiObject<T = unknown> extends GuiElement {
     let header: Node | undefined;
     if (typeof this._header === 'boolean') {
       if (this._header) {
-        if (this._value === value) {
+        if (this._value === obj) {
           header = <header slot="header">{this._typeName(this._value)}</header>;
         } else {
           header = (
             <header slot="header">
-              {this._typeName(this._value)}&lt;{value.$type.name}&gt;
+              {this._typeName(this._value)}&lt;{obj.$type.name}&gt;
             </header>
           );
         }
@@ -530,15 +529,10 @@ export class GuiObject<T = unknown> extends GuiElement {
    * Returns `true` if the given `val` is a "complex" object
    */
   private _needsCollapsible(val: unknown): boolean {
-    return (
-      val !== undefined &&
-      val !== null &&
-      typeof val === 'object' &&
-      !isStd(val) &&
-      !(val instanceof gc.sdk.GCEnum) &&
-      !(val instanceof Node) &&
-      !(val instanceof Date)
-    );
+    if (gc.sdk.isScalar(val) || gc.sdk.isNode(val) || val instanceof Node || val instanceof Date) {
+      return false;
+    }
+    return true;
   }
 
   private _typeName(val: unknown): string | undefined {
@@ -555,21 +549,6 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
     return undefined;
   }
-}
-
-function isStd(value: unknown): boolean {
-  return (
-    value instanceof gc.core.node ||
-    value instanceof gc.core.nodeTime ||
-    value instanceof gc.core.nodeList ||
-    value instanceof gc.core.nodeIndex ||
-    value instanceof gc.core.nodeGeo ||
-    value instanceof gc.core.geo ||
-    value instanceof gc.core.Date ||
-    value instanceof gc.core.duration ||
-    value instanceof gc.core.time ||
-    value instanceof gc.core.str
-  );
 }
 
 export class GuiObjectFieldName extends HTMLElement {

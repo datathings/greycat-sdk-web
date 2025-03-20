@@ -1,4 +1,4 @@
-import { GuiMap } from './map';
+import { GuiMap } from './map.js';
 
 export class GuiMapNodeGeo extends HTMLElement {
   private _value: gc.core.nodeGeo | undefined;
