@@ -26,7 +26,18 @@ const config = [
       footer: '}',
     },
     plugins: [dts({ respectExternal: true })],
-    external: ['lit-html'],
+    external: ['lit-html', 'lit'],
+  },
+  {
+    input: 'src/vendor/lit.ts',
+    output: {
+      file: 'vendor/lit.d.ts',
+      format: 'es',
+      banner: `declare module 'lit' {`,
+      footer: '}',
+    },
+    plugins: [dts({ respectExternal: true })],
+    external: [],
   },
   {
     input: 'src/vendor/lit-html.ts',
@@ -34,17 +45,6 @@ const config = [
       file: 'vendor/lit-html.d.ts',
       format: 'es',
       banner: `declare module 'lit-html' {`,
-      footer: '}',
-    },
-    plugins: [dts({ respectExternal: true })],
-    external: [],
-  },
-  {
-    input: 'src/vendor/d3.ts',
-    output: {
-      file: 'vendor/d3.d.ts',
-      format: 'es',
-      banner: `declare module 'd3' {`,
       footer: '}',
     },
     plugins: [dts({ respectExternal: true })],

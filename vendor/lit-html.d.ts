@@ -1,6 +1,4 @@
 declare module 'lit-html' {
-import type { TrustedHTML } from 'trusted-types/lib';
-
 /**
  * @license
  * Copyright 2017 Google LLC
@@ -45,6 +43,11 @@ declare abstract class Directive implements Disconnectable {
     get _$isConnected(): boolean;
     abstract render(...props: Array<unknown>): unknown;
     update(_part: Part, props: Array<unknown>): unknown;
+}
+
+declare class TrustedHTML {
+    private constructor(); // To prevent instantiting with 'new'.
+    private brand: true; // To prevent structural typing.
 }
 
 /**

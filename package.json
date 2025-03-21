@@ -26,15 +26,14 @@
     "./*.css": "./dist/*.css",
     "./*.ttf": "./fonts/*.ttf",
     "./*.woff": "./fonts/*.woff",
-    "./icons/*.svg": "./icons/*.svg"
+    "./assets/*.svg": "./assets/*.svg"
   },
   "license": "Apache-2.0",
   "files": [
     "dist",
     "fonts",
-    "icons",
-    "src",
-    "css"
+    "assets",
+    "src"
   ],
   "scripts": {
     "clean": "rm -rf dist *.tsbuildinfo",
@@ -57,10 +56,10 @@
     "@shoelace-style/shoelace": "2.20.0",
     "d3": "7.9.0",
     "dockview-core": "3.2.0",
+    "lit": "3.2.1",
     "lit-html": "3.2.1"
   },
   "devDependencies": {
-    "@rollup/plugin-node-resolve": "16.0.1",
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
     "@types/http-proxy": "1.17.15",
