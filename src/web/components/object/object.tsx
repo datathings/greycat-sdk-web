@@ -325,7 +325,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
-            <gui-object-fieldvalue value={attrVal}>
+            <gui-object-fieldvalue>
               {this._factory.createAttrValue(obj.$type, attr.name, {
                 ...this._props,
                 value: attrVal,
@@ -372,7 +372,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
-            <gui-object-fieldvalue value={attrVal}>{details}</gui-object-fieldvalue>
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
           </>,
         );
       } else if (attrVal instanceof gc.core.node && this._resolve) {
@@ -405,7 +405,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
-            <gui-object-fieldvalue value={attrVal}>{details}</gui-object-fieldvalue>
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
           </>,
         );
       } else {
@@ -423,7 +423,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
-            <gui-object-fieldvalue value={attrVal}>{child}</gui-object-fieldvalue>
+            <gui-object-fieldvalue>{child}</gui-object-fieldvalue>
           </>,
         );
       }
@@ -492,7 +492,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={key} />
-            <gui-object-fieldvalue value={val}>{details}</gui-object-fieldvalue>
+            <gui-object-fieldvalue>{details}</gui-object-fieldvalue>
           </>,
         );
       } else {
@@ -505,7 +505,7 @@ export class GuiObject<T = unknown> extends GuiElement {
         fragment.appendChild(
           <>
             <gui-object-fieldname value={key} />
-            <gui-object-fieldvalue value={val}>{child}</gui-object-fieldvalue>
+            <gui-object-fieldvalue>{child}</gui-object-fieldvalue>
           </>,
         );
       }
@@ -595,9 +595,7 @@ export class GuiObjectFieldName extends HTMLElement {
   }
 }
 
-export class GuiObjectFieldValue extends HTMLElement {
-  value: unknown;
-}
+export class GuiObjectFieldValue extends HTMLElement {}
 
 declare global {
   interface HTMLElementTagNameMap {
