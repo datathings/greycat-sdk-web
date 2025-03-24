@@ -1,5 +1,5 @@
 import { GuiFnSelect, GuiInputFn } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './index.css';
 
 const g = await gc.sdk.init();

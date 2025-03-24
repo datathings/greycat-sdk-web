@@ -1,5 +1,5 @@
 import { type GuiChart, type SerieStyle } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 const LINE_COL = 0;
 const SCATTER_COL = 1;

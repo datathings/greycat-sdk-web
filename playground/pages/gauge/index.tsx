@@ -1,5 +1,5 @@
 import { type GuiGauge } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 await gc.sdk.init();
 

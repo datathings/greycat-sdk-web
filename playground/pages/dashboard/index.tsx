@@ -1,5 +1,5 @@
 import { defineComp, greycatFetcher } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './custom-comp';
 
 await gc.sdk.init();

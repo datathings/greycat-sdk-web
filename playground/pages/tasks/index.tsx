@@ -1,5 +1,5 @@
 import { GuiInputFn, sl, GuiSelect } from '@greycat/web';
-import '@/common';
+import '~/common';
 import actions from './actions';
 
 await gc.sdk.init();

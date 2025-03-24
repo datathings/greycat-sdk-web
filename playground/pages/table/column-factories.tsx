@@ -1,6 +1,6 @@
 import '@greycat/web';
-import '@/common';
-import { books } from '@/common/data';
+import '~/common';
+import { books } from '~/common/data';
 
 await gc.sdk.init();
 

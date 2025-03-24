@@ -1,5 +1,5 @@
 import { GuiFactory, GuiObject, GuiObjectFieldValue, type sl } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './index.css';
 
 const greycat = await gc.sdk.init();

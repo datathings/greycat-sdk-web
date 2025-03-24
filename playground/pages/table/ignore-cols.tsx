@@ -3,7 +3,7 @@ import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
 import { GuiValueElement } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 await gc.sdk.init();
 

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '@/common';
+import '~/common';
 
 await gc.sdk.init();
 const { actions } = await import('./actions');

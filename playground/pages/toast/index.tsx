@@ -1,5 +1,5 @@
 import { toast } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 const greycat = await gc.sdk.init();
 

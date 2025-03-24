@@ -11,7 +11,7 @@
     "lib": ["DOM", "ES2024"],
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./*"],
+      "~/*": ["./*"],
       "@greycat/web/jsx-dev-runtime": ["../src/jsx/jsx-runtime.ts"],
       "@greycat/web/jsx-runtime": ["../src/jsx/jsx-runtime.ts"],
       "@greycat/web/sdk": ["../src/sdk"],

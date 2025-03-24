@@ -1,4 +1,4 @@
-import '@/common';
+import '~/common';
 import { GuiTable, TableLike } from '@greycat/web';
 
 await gc.sdk.init();

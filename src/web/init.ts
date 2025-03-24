@@ -79,7 +79,7 @@ import {
   GuiMap,
   GuiMapLayer,
   GuiMapSource,
-  GuiMapNodeGeo,
+  GuiMapMarkers,
   GuiNav,
   // GuiGaussian,
 } from './exports.js';
@@ -228,7 +228,7 @@ function initWeb() {
   if ('maplibregl' in globalThis) {
     registerCustomElement('gui-map-source', GuiMapSource);
     registerCustomElement('gui-map-layer', GuiMapLayer);
-    registerCustomElement('gui-map-nodegeo', GuiMapNodeGeo);
+    registerCustomElement('gui-map-markers', GuiMapMarkers);
     registerCustomElement('gui-map', GuiMap);
   }
 }
@@ -316,7 +316,7 @@ declare global {
       GuiMap,
       GuiMapLayer,
       GuiMapSource,
-      GuiMapNodeGeo,
+      GuiMapMarkers,
       GuiNav,
       // GuiGaussian,
     };

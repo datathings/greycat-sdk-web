@@ -3,6 +3,36 @@
 }
 
 .container {
-  width: 100%;
+  position: relative;
   height: 100%;
+  width: 100%;
+}
+
+.maplibregl-popup-content {
+  background: transparent;
+  padding: 0;
+}
+
+.maplibregl-popup-anchor-bottom .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-bottom-right .maplibregl-popup-tip {
+  border-top-color: var(--bg-0);
+}
+
+.maplibregl-popup-anchor-top .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-left .maplibregl-popup-tip,
+.maplibregl-popup-anchor-top-right .maplibregl-popup-tip {
+  border-bottom-color: var(--bg-0);
+}
+
+.maplibregl-popup-anchor-left .maplibregl-popup-tip {
+  border-right-color: var(--bg-0);
+}
+
+.maplibregl-popup-anchor-right .maplibregl-popup-tip {
+  border-left-color: var(--bg-0);
+}
+
+.maplibregl-popup-close-button:focus-visible {
+  outline: var(--border-width) solid var(--border-color);
 }
