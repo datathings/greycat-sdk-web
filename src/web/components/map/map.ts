@@ -1,3 +1,4 @@
+import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline'
 import { css, GuiElement } from '../../exports.js';
 import { GuiMapLayer } from './map-layer.js';
 import { GuiMapSource } from './map-source.js';
@@ -10,7 +11,7 @@ export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
  * This component is only available if `maplibre-gl` is globally available
  */
 export class GuiMap extends GuiElement {
-  static override styles = [css(style)];
+  static override styles = [css(maplibreStyle), css(style)];
 
   private _container: HTMLDivElement;
   private _observer: MutationObserver;

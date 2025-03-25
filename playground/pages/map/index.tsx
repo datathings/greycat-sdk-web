@@ -1,7 +1,6 @@
 import '@greycat/web';
 import '~/common';
 import maplibregl from 'maplibre-gl';
-import maplibreStyles from 'maplibre-gl/dist/maplibre-gl.css?inline';
 import { GeoData, GuiMap } from '@greycat/web';
 
 globalThis.maplibregl = maplibregl;
@@ -12,7 +11,6 @@ const markers = document.createElement('gui-map-markers');
 
 const map = (
   <gui-map
-    stylesheet={maplibreStyles}
     options={{
       style: 'https://demotiles.maplibre.org/style.json',
       center: gc.core.geo.fromLatLng(49.6181, 6.162),
