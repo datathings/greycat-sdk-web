@@ -185,6 +185,7 @@ export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.defau
   }
 
   for (let c = 1; c < table.cols.length; c++) {
+    // const prevCol = table.cols[c - 1];
     const col = table.cols[c];
     for (let r = 0; r < col.length; r++) {
       const cell = col[0];

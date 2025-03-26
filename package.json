@@ -36,11 +36,11 @@
     "src"
   ],
   "scripts": {
-    "clean": "rm -rf dist *.tsbuildinfo",
-    "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen std.d.ts",
+    "clean": "rm -rf dist",
+    "gen": "GREYCAT_CORE=1 greycat codegen ts && mv project.d.ts std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
-    "build:sdk": "rm -rf dist/greycat.d.ts sdk.tsbuildinfo && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
+    "build:sdk": "rm -rf dist/greycat.d.ts && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts && cat std.ext.d.ts >> dist/greycat.d.ts",
     "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
     "build:vite-plugin": "tsc -p src/vite-plugin/tsconfig.json",
     "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",

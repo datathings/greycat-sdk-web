@@ -2,123 +2,49 @@
 /* eslint-disable */
 declare namespace gc {
   namespace project {
-    class FooBar extends gc.sdk.GCObject {
-      static readonly _type = 'project::FooBar';
+    class Node extends gc.sdk.GCObject {
+      static readonly _type = 'project::Node';
+      id: string;
+      value: any;
+      link: gc.core.node<gc.project.Node> | null;
+      constructor(id: string, value: any, link?: gc.core.node<gc.project.Node> | null);
+      static createFrom(fields: {id: string, value: any, link?: gc.core.node<gc.project.Node> | null}): Node;
     }
 
-    class sample_huge_csv$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::sample_huge_csv$args';
+    class real_example$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::real_example$args';
     }
 
-    class SolarRadiation extends gc.sdk.GCObject {
-      static readonly _type = 'project::SolarRadiation';
-      is_enabled: boolean;
-      radiance: gc.core.nodeTime;
-      instant_power: gc.core.nodeTime;
-      constructor(is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime);
-      static createFrom(fields: {is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime}): SolarRadiation;
+    class TimeZones extends gc.sdk.GCObject {
+      static readonly _type = 'project::TimeZones';
+      azores: gc.core.Date;
+      utc: gc.core.Date;
+      paris: gc.core.Date;
+      athens: gc.core.Date;
+      constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
+      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
     }
 
-    class Obj extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj';
-      field: any | null;
-      tuple: gc.core.Tuple<any, any>;
-      constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
-      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
-    }
-
-    class Root extends gc.sdk.GCObject {
-      static readonly _type = 'project::Root';
-      "project::sensor": gc.core.nodeTime<project.SensorData>;
-      "project::serie_float": gc.core.nodeTime<number>;
-      "project::kline": gc.core.nodeTime<project.KLine>;
-      "project::nt": gc.core.nodeTime;
-      "project::person": gc.core.node<project.Person2 | null>;
-      "project::huge_table": gc.core.node<gc.core.Table | null>;
-      "cities::cities": gc.core.nodeGeo<gc.cities.City>;
+    class obj$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj$args';
     }
 
     class chart_time$args extends gc.sdk.GCObject {
       static readonly _type = 'project::chart_time$args';
     }
 
-    class get_person$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_person$args';
-    }
-
-    class hello$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::hello$args';
+    class Person2 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Person2';
+      id: number | bigint;
       name: string;
-      constructor(name: string);
-      static createFrom(fields: {name: string}): hello$args;
+      age: number | bigint;
+      children: number | bigint;
+      constructor(id: number | bigint, name: string, age: number | bigint, children: number | bigint);
+      static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
     }
 
-    class SensorKind extends gc.sdk.GCEnum {
-      static readonly _type = 'project::SensorKind';
-      static readonly $fields: SensorKind[];
-      key: SensorKind.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: SensorKind.Field, value?: unknown);
-      static Temp: SensorKind;
-      static Pressure: SensorKind;
-    }
-    namespace SensorKind  {
-      type Field = 'Temp'|'Pressure';
-    }
-
-    class add$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::add$args';
-      a: number | bigint;
-      b: number | bigint;
-      constructor(a: number | bigint, b: number | bigint);
-      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
-    }
-
-    class foo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::foo$args';
-    }
-
-    class now$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::now$args';
-    }
-
-    class Obj1 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj1';
-      prop1: string;
-      prop2: gc.runtime.User;
-      prop3: gc.runtime.RuntimeInfo;
-      constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
-      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
-    }
-
-    class obj2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj2$args';
-    }
-
-    class anything$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::anything$args';
-      v: any | null;
-      constructor(v?: any | null);
-      static createFrom(fields: {v?: any | null}): anything$args;
-    }
-
-    class task_long_running$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_long_running$args';
-    }
-
-    class task_long_running2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_long_running2$args';
-    }
-
-    class donut$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::donut$args';
-    }
-
-    class objects_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::objects_table$args';
-    }
-
-    class mainTask$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::mainTask$args';
+    class obj1$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj1$args';
     }
 
     class task_with_params$args extends gc.sdk.GCObject {
@@ -129,78 +55,144 @@ declare namespace gc {
       static createFrom(fields: {name: string, age: number | bigint}): task_with_params$args;
     }
 
-    class mapTest$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::mapTest$args';
+    class VisualCrossingProvider extends gc.sdk.GCObject {
+      static readonly _type = 'project::VisualCrossingProvider';
+      name: string;
+      solar: gc.core.node<gc.project.SolarRadiation>;
+      constructor(name: string, solar: gc.core.node<gc.project.SolarRadiation>);
+      static createFrom(fields: {name: string, solar: gc.core.node<gc.project.SolarRadiation>}): VisualCrossingProvider;
     }
 
-    class serie_of_obj$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::serie_of_obj$args';
+    class FooBar extends gc.sdk.GCObject {
+      static readonly _type = 'project::FooBar';
     }
 
-    class Triangle extends gc.sdk.GCObject {
-      static readonly _type = 'project::Triangle';
-      base: number;
-      height: number;
-      constructor(base: number, height: number);
-      static createFrom(fields: {base: number, height: number}): Triangle;
+    class add$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::add$args';
+      a: number | bigint;
+      b: number | bigint;
+      constructor(a: number | bigint, b: number | bigint);
+      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
     }
 
-    class big_map$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::big_map$args';
+    class obj2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj2$args';
     }
 
-    class obj$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj$args';
+    class bar$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::bar$args';
     }
 
-    class Confidence extends gc.sdk.GCEnum {
-      static readonly _type = 'project::Confidence';
-      static readonly $fields: Confidence[];
-      key: Confidence.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field, value?: unknown);
-      static High: Confidence;
-      static Medium: Confidence;
-      static Low: Confidence;
-    }
-    namespace Confidence  {
-      type Field = 'High'|'Medium'|'Low';
+    class Root extends gc.sdk.GCObject {
+      static readonly _type = 'project::Root';
+      "project::sensor": gc.core.nodeTime<gc.project.SensorData>;
+      "project::serie_float": gc.core.nodeTime<number>;
+      "project::kline": gc.core.nodeTime<gc.project.KLine>;
+      "project::nt": gc.core.nodeTime;
+      "project::person": gc.core.node<gc.project.Person2 | null>;
+      "project::huge_table": gc.core.node<gc.core.Table | null>;
+      "cities::cities": gc.core.nodeGeo<gc.cities.City>;
     }
 
-    class heatmap$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::heatmap$args';
+    class table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table$args';
     }
 
-    class tree$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tree$args';
+    class SensorData extends gc.sdk.GCObject {
+      static readonly _type = 'project::SensorData';
+      temperature: number;
+      pression: number;
+      humidity: number;
+      constructor(temperature: number, pression: number, humidity: number);
+      static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
     }
 
-    class one_d_histo_example$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::one_d_histo_example$args';
+    class objects_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::objects_table$args';
+    }
+
+    class this_is_boom$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::this_is_boom$args';
     }
 
     class persons$args extends gc.sdk.GCObject {
       static readonly _type = 'project::persons$args';
     }
 
-    class Book extends gc.sdk.GCObject {
-      static readonly _type = 'project::Book';
-      name: string;
-      owner: project.Person | null;
-      constructor(name: string, owner?: project.Person | null);
-      static createFrom(fields: {name: string, owner?: project.Person | null}): Book;
+    class donut$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::donut$args';
     }
 
-    class Person extends gc.sdk.GCObject {
-      static readonly _type = 'project::Person';
-      name: string;
-      age: number | bigint;
-      activated: boolean;
-      constructor(name: string, age: number | bigint, activated: boolean);
-      static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
+    class task_without_params$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_without_params$args';
     }
 
-    class destructuring_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::destructuring_table$args';
+    class Sensor extends gc.sdk.GCObject {
+      static readonly _type = 'project::Sensor';
+      id: number | bigint;
+      kind: gc.project.SensorKind;
+      constructor(id: number | bigint, kind: gc.project.SensorKind);
+      static createFrom(fields: {id: number | bigint, kind: gc.project.SensorKind}): Sensor;
+    }
+
+    class hello$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::hello$args';
+      name: string;
+      constructor(name: string);
+      static createFrom(fields: {name: string}): hello$args;
+    }
+
+    class KLine extends gc.sdk.GCObject {
+      static readonly _type = 'project::KLine';
+      open: number;
+      close: number;
+      volume: number | bigint;
+      constructor(open: number, close: number, volume: number | bigint);
+      static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
+    }
+
+    class get_person$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_person$args';
+    }
+
+    class one_d_histo_example$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::one_d_histo_example$args';
+    }
+
+    class Circle extends gc.sdk.GCObject {
+      static readonly _type = 'project::Circle';
+      radius: number;
+      constructor(radius: number);
+      static createFrom(fields: {radius: number}): Circle;
+    }
+
+    class goodFnForTestingFnCallInput$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::goodFnForTestingFnCallInput$args';
+      name: string;
+      flag: boolean;
+      item: gc.core.DurationUnit;
+      optionalFlag: boolean | null;
+      constructor(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null);
+      static createFrom(fields: {name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null}): goodFnForTestingFnCallInput$args;
+    }
+
+    class task_long_running2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_long_running2$args';
+    }
+
+    class Rect extends gc.sdk.GCObject {
+      static readonly _type = 'project::Rect';
+      width: number;
+      height: number;
+      constructor(width: number, height: number);
+      static createFrom(fields: {width: number, height: number}): Rect;
+    }
+
+    class chart$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::chart$args';
+      nbRows: number | bigint;
+      constructor(nbRows: number | bigint);
+      static createFrom(fields: {nbRows: number | bigint}): chart$args;
     }
 
     class Country extends gc.sdk.GCObject {
@@ -210,9 +202,32 @@ declare namespace gc {
       operating_stats: gc.core.node;
       last_updated_stats: gc.core.time | null;
       governorates: gc.core.nodeIndex;
-      meteo: gc.core.node<project.Meteo>;
-      constructor(name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<project.Meteo>);
-      static createFrom(fields: {name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats?: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<project.Meteo>}): Country;
+      meteo: gc.core.node<gc.project.Meteo>;
+      constructor(name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>);
+      static createFrom(fields: {name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats?: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>}): Country;
+    }
+
+    class complex_object$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::complex_object$args';
+    }
+
+    class now$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::now$args';
+    }
+
+    class RelayApp extends gc.sdk.GCEnum {
+      static readonly _type = 'project::RelayApp';
+      static readonly $fields: RelayApp[];
+      key: RelayApp.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: RelayApp.Field, value?: unknown);
+      static pv: RelayApp;
+      static pv_shelly: RelayApp;
+      static ev: RelayApp;
+      static ev_shelly: RelayApp;
+      static empty: RelayApp;
+    }
+    namespace RelayApp  {
+      type Field = 'pv'|'pv_shelly'|'ev'|'ev_shelly'|'empty';
     }
 
     class ComplexObject extends gc.sdk.GCObject {
@@ -245,62 +260,6 @@ declare namespace gc {
       static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: gc.core.geo, null_?: any | null, enum_: gc.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: gc.core.nodeTime, nodeIndex: gc.core.nodeIndex, nodeList: gc.core.nodeList, nodeGeo: gc.core.nodeGeo, nested?: any | null, map: globalThis.Map<string, any>, tuple: gc.core.Tuple<any, any>, t2: gc.core.t2, t2f: gc.core.t2f, t3: gc.core.t3, t3f: gc.core.t3f, t4: gc.core.t4, t4f: gc.core.t4f, str: gc.core.str, date: gc.core.Date}): ComplexObject;
     }
 
-    class KLine extends gc.sdk.GCObject {
-      static readonly _type = 'project::KLine';
-      open: number;
-      close: number;
-      volume: number | bigint;
-      constructor(open: number, close: number, volume: number | bigint);
-      static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
-    }
-
-    class Meteo extends gc.sdk.GCObject {
-      static readonly _type = 'project::Meteo';
-      ideal_solar: gc.core.node<project.SolarRadiation>;
-      visual_crossing: gc.core.node<project.VisualCrossingProvider>;
-      constructor(ideal_solar: gc.core.node<project.SolarRadiation>, visual_crossing: gc.core.node<project.VisualCrossingProvider>);
-      static createFrom(fields: {ideal_solar: gc.core.node<project.SolarRadiation>, visual_crossing: gc.core.node<project.VisualCrossingProvider>}): Meteo;
-    }
-
-    class real_example$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::real_example$args';
-    }
-
-    class complex_object$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::complex_object$args';
-    }
-
-    class Obj2 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj2';
-      prop1: string;
-      prop2: globalThis.Array<gc.runtime.User | null>;
-      prop3: globalThis.Map<string, project.Person | null>;
-      prop4: any | null;
-      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null);
-      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, project.Person | null>, prop4?: any | null}): Obj2;
-    }
-
-    class Person2 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Person2';
-      id: number | bigint;
-      name: string;
-      age: number | bigint;
-      children: number | bigint;
-      constructor(id: number | bigint, name: string, age: number | bigint, children: number | bigint);
-      static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
-    }
-
-    class table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table$args';
-    }
-
-    class link_whatever$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::link_whatever$args';
-      l: gc.core.node<project.Link>;
-      constructor(l: gc.core.node<project.Link>);
-      static createFrom(fields: {l: gc.core.node<project.Link>}): link_whatever$args;
-    }
-
     class TrafficLight extends gc.sdk.GCEnum {
       static readonly _type = 'project::TrafficLight';
       static readonly $fields: TrafficLight[];
@@ -314,25 +273,6 @@ declare namespace gc {
       type Field = 'Green'|'Yellow'|'Red';
     }
 
-    class Rect extends gc.sdk.GCObject {
-      static readonly _type = 'project::Rect';
-      width: number;
-      height: number;
-      constructor(width: number, height: number);
-      static createFrom(fields: {width: number, height: number}): Rect;
-    }
-
-    class task_without_params$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_without_params$args';
-    }
-
-    class Link$whatever$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::Link$whatever$args';
-      link: gc.core.node<project.Link>;
-      constructor(link: gc.core.node<project.Link>);
-      static createFrom(fields: {link: gc.core.node<project.Link>}): Link$whatever$args;
-    }
-
     class array_of_ints$args extends gc.sdk.GCObject {
       static readonly _type = 'project::array_of_ints$args';
       arr: globalThis.Array<number | bigint>;
@@ -340,146 +280,210 @@ declare namespace gc {
       static createFrom(fields: {arr: globalThis.Array<number | bigint>}): array_of_ints$args;
     }
 
-    class chart$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::chart$args';
-      nbRows: number | bigint;
-      constructor(nbRows: number | bigint);
-      static createFrom(fields: {nbRows: number | bigint}): chart$args;
+    class sample_huge_csv$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::sample_huge_csv$args';
     }
 
-    class resolve_person$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::resolve_person$args';
-    }
-
-    class chart_colored_area$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::chart_colored_area$args';
-    }
-
-    class bar$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::bar$args';
-    }
-
-    class Node extends gc.sdk.GCObject {
-      static readonly _type = 'project::Node';
-      id: string;
-      value: any;
-      link: gc.core.node<project.Node> | null;
-      constructor(id: string, value: any, link?: gc.core.node<project.Node> | null);
-      static createFrom(fields: {id: string, value: any, link?: gc.core.node<project.Node> | null}): Node;
-    }
-
-    class init_foo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::init_foo$args';
-    }
-
-    class Link extends gc.sdk.GCObject {
-      static readonly _type = 'project::Link';
-      name: string;
-      next: project.Link | null;
-      constructor(name: string, next?: project.Link | null);
-      static createFrom(fields: {name: string, next?: project.Link | null}): Link;
-      static whatever(link: gc.core.node<project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    }
-
-    class Sensor extends gc.sdk.GCObject {
-      static readonly _type = 'project::Sensor';
-      id: number | bigint;
-      kind: project.SensorKind;
-      constructor(id: number | bigint, kind: project.SensorKind);
-      static createFrom(fields: {id: number | bigint, kind: project.SensorKind}): Sensor;
-    }
-
-    class ComplexForm extends gc.sdk.GCObject {
-      static readonly _type = 'project::ComplexForm';
-      shapes: globalThis.Array<project.Shape>;
-      shape: project.Shape;
-      constructor(shapes: globalThis.Array<project.Shape>, shape: project.Shape);
-      static createFrom(fields: {shapes: globalThis.Array<project.Shape>, shape: project.Shape}): ComplexForm;
-    }
-
-    class Shape extends gc.sdk.GCObject {
-      static readonly _type = 'project::Shape';
+    class SemiRecursive extends gc.sdk.GCObject {
+      static readonly _type = 'project::SemiRecursive';
+      sub: gc.project.SemiRecursive | null;
+      constructor(sub?: gc.project.SemiRecursive | null);
+      static createFrom(fields: {sub?: gc.project.SemiRecursive | null}): SemiRecursive;
     }
 
     class MapContainer extends gc.sdk.GCObject {
       static readonly _type = 'project::MapContainer';
       a: globalThis.Map<number | bigint, string>;
       b: globalThis.Map<gc.core.TimeZone, string>;
-      c: globalThis.Map<gc.core.SamplingMode, project.Person | null>;
-      d: globalThis.Array<project.Person | null>;
+      c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>;
+      d: globalThis.Array<gc.project.Person | null>;
       e: globalThis.Map<string, string | null>;
-      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>);
-      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, project.Person | null>, d: globalThis.Array<project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
+      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>);
+      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
     }
 
-    class RelayApp extends gc.sdk.GCEnum {
-      static readonly _type = 'project::RelayApp';
-      static readonly $fields: RelayApp[];
-      key: RelayApp.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: RelayApp.Field, value?: unknown);
-      static pv: RelayApp;
-      static pv_shelly: RelayApp;
-      static ev: RelayApp;
-      static ev_shelly: RelayApp;
-      static empty: RelayApp;
-    }
-    namespace RelayApp  {
-      type Field = 'pv'|'pv_shelly'|'ev'|'ev_shelly'|'empty';
+    class Link$whatever$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::Link$whatever$args';
+      link: gc.core.node<gc.project.Link>;
+      constructor(link: gc.core.node<gc.project.Link>);
+      static createFrom(fields: {link: gc.core.node<gc.project.Link>}): Link$whatever$args;
     }
 
-    class obj1$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj1$args';
+    class mainTask$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::mainTask$args';
     }
 
-    class TimeZones extends gc.sdk.GCObject {
-      static readonly _type = 'project::TimeZones';
-      azores: gc.core.Date;
-      utc: gc.core.Date;
-      paris: gc.core.Date;
-      athens: gc.core.Date;
-      constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
-      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
+    class chart_colored_area$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::chart_colored_area$args';
     }
 
-    class SemiRecursive extends gc.sdk.GCObject {
-      static readonly _type = 'project::SemiRecursive';
-      sub: project.SemiRecursive | null;
-      constructor(sub?: project.SemiRecursive | null);
-      static createFrom(fields: {sub?: project.SemiRecursive | null}): SemiRecursive;
+    class Meteo extends gc.sdk.GCObject {
+      static readonly _type = 'project::Meteo';
+      ideal_solar: gc.core.node<gc.project.SolarRadiation>;
+      visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>;
+      constructor(ideal_solar: gc.core.node<gc.project.SolarRadiation>, visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>);
+      static createFrom(fields: {ideal_solar: gc.core.node<gc.project.SolarRadiation>, visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>}): Meteo;
     }
 
-    class VisualCrossingProvider extends gc.sdk.GCObject {
-      static readonly _type = 'project::VisualCrossingProvider';
+    class mapTest$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::mapTest$args';
+    }
+
+    class Shape extends gc.sdk.GCObject {
+      static readonly _type = 'project::Shape';
+    }
+
+    class heatmap$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::heatmap$args';
+    }
+
+    class Triangle extends gc.sdk.GCObject {
+      static readonly _type = 'project::Triangle';
+      base: number;
+      height: number;
+      constructor(base: number, height: number);
+      static createFrom(fields: {base: number, height: number}): Triangle;
+    }
+
+    class anything$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::anything$args';
+      v: any | null;
+      constructor(v?: any | null);
+      static createFrom(fields: {v?: any | null}): anything$args;
+    }
+
+    class link_whatever$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::link_whatever$args';
+      l: gc.core.node<gc.project.Link>;
+      constructor(l: gc.core.node<gc.project.Link>);
+      static createFrom(fields: {l: gc.core.node<gc.project.Link>}): link_whatever$args;
+    }
+
+    class destructuring_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::destructuring_table$args';
+    }
+
+    class big_map$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::big_map$args';
+    }
+
+    class init_foo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::init_foo$args';
+    }
+
+    class task_long_running$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_long_running$args';
+    }
+
+    class ComplexForm extends gc.sdk.GCObject {
+      static readonly _type = 'project::ComplexForm';
+      shapes: globalThis.Array<gc.project.Shape>;
+      shape: gc.project.Shape;
+      constructor(shapes: globalThis.Array<gc.project.Shape>, shape: gc.project.Shape);
+      static createFrom(fields: {shapes: globalThis.Array<gc.project.Shape>, shape: gc.project.Shape}): ComplexForm;
+    }
+
+    class SolarRadiation extends gc.sdk.GCObject {
+      static readonly _type = 'project::SolarRadiation';
+      is_enabled: boolean;
+      radiance: gc.core.nodeTime;
+      instant_power: gc.core.nodeTime;
+      constructor(is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime);
+      static createFrom(fields: {is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime}): SolarRadiation;
+    }
+
+    class Person extends gc.sdk.GCObject {
+      static readonly _type = 'project::Person';
       name: string;
-      solar: gc.core.node<project.SolarRadiation>;
-      constructor(name: string, solar: gc.core.node<project.SolarRadiation>);
-      static createFrom(fields: {name: string, solar: gc.core.node<project.SolarRadiation>}): VisualCrossingProvider;
+      age: number | bigint;
+      activated: boolean;
+      constructor(name: string, age: number | bigint, activated: boolean);
+      static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
     }
 
-    class Circle extends gc.sdk.GCObject {
-      static readonly _type = 'project::Circle';
-      radius: number;
-      constructor(radius: number);
-      static createFrom(fields: {radius: number}): Circle;
+    class Obj extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj';
+      field: any | null;
+      tuple: gc.core.Tuple<any, any>;
+      constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
+      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
     }
 
-    class goodFnForTestingFnCallInput$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::goodFnForTestingFnCallInput$args';
+    class foo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::foo$args';
+    }
+
+    class Obj1 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj1';
+      prop1: string;
+      prop2: gc.runtime.User;
+      prop3: gc.runtime.RuntimeInfo;
+      constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
+      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
+    }
+
+    class serie_of_obj$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::serie_of_obj$args';
+    }
+
+    class resolve_person$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::resolve_person$args';
+    }
+
+    class Obj2 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj2';
+      prop1: string;
+      prop2: globalThis.Array<gc.runtime.User | null>;
+      prop3: globalThis.Map<string, gc.project.Person | null>;
+      prop4: any | null;
+      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null);
+      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null}): Obj2;
+    }
+
+    class tree$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tree$args';
+    }
+
+    class Book extends gc.sdk.GCObject {
+      static readonly _type = 'project::Book';
       name: string;
-      flag: boolean;
-      item: gc.core.DurationUnit;
-      optionalFlag: boolean | null;
-      constructor(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null);
-      static createFrom(fields: {name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null}): goodFnForTestingFnCallInput$args;
+      owner: gc.project.Person | null;
+      constructor(name: string, owner?: gc.project.Person | null);
+      static createFrom(fields: {name: string, owner?: gc.project.Person | null}): Book;
     }
 
-    class SensorData extends gc.sdk.GCObject {
-      static readonly _type = 'project::SensorData';
-      temperature: number;
-      pression: number;
-      humidity: number;
-      constructor(temperature: number, pression: number, humidity: number);
-      static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
+    class Link extends gc.sdk.GCObject {
+      static readonly _type = 'project::Link';
+      name: string;
+      next: gc.project.Link | null;
+      constructor(name: string, next?: gc.project.Link | null);
+      static createFrom(fields: {name: string, next?: gc.project.Link | null}): Link;
+      static whatever(link: gc.core.node<gc.project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    }
+
+    class Confidence extends gc.sdk.GCEnum {
+      static readonly _type = 'project::Confidence';
+      static readonly $fields: Confidence[];
+      key: Confidence.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field, value?: unknown);
+      static High: Confidence;
+      static Medium: Confidence;
+      static Low: Confidence;
+    }
+    namespace Confidence  {
+      type Field = 'High'|'Medium'|'Low';
+    }
+
+    class SensorKind extends gc.sdk.GCEnum {
+      static readonly _type = 'project::SensorKind';
+      static readonly $fields: SensorKind[];
+      key: SensorKind.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: SensorKind.Field, value?: unknown);
+      static Temp: SensorKind;
+      static Pressure: SensorKind;
+    }
+    namespace SensorKind  {
+      type Field = 'Temp'|'Pressure';
     }
 
     function init_foo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -491,7 +495,7 @@ declare namespace gc {
     function heatmap($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
     function hello(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
     function table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-    function objects_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+    function objects_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Person>>;
     function task_without_params($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function task_with_params(name: string, age: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function task_long_running($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -510,36 +514,22 @@ declare namespace gc {
     function mapTest($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Map<gc.core.DurationUnit, gc.core.Tuple<string, number | bigint>>>;
     function goodFnForTestingFnCallInput(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function now($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function link_whatever(l: gc.core.node<project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function link_whatever(l: gc.core.node<gc.project.Link>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function big_map($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
     function one_d_histo_example($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
-    function real_example($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<project.Country>;
+    function real_example($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.project.Country>;
     function array_of_ints(arr: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
     function resolve_person($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function serie_of_obj($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function sample_huge_csv($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table | null>;
     function destructuring_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+    function this_is_boom($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
   }
 
   namespace tx {
   }
 
   namespace any {
-    class Filters extends gc.sdk.GCObject {
-      static readonly _type = 'any::Filters';
-      a: number | bigint;
-      b: string;
-      constructor(a: number | bigint, b: string);
-      static createFrom(fields: {a: number | bigint, b: string}): Filters;
-    }
-
-    class AnyInput extends gc.sdk.GCObject {
-      static readonly _type = 'any::AnyInput';
-      idk: any;
-      constructor(idk: any);
-      static createFrom(fields: {idk: any}): AnyInput;
-    }
-
     class array_any_map_any$args extends gc.sdk.GCObject {
       static readonly _type = 'any::array_any_map_any$args';
       arr: globalThis.Array<any | null>;
@@ -553,6 +543,21 @@ declare namespace gc {
       f: gc.any.Filters;
       constructor(f: gc.any.Filters);
       static createFrom(fields: {f: gc.any.Filters}): filter_something$args;
+    }
+
+    class AnyInput extends gc.sdk.GCObject {
+      static readonly _type = 'any::AnyInput';
+      idk: any;
+      constructor(idk: any);
+      static createFrom(fields: {idk: any}): AnyInput;
+    }
+
+    class Filters extends gc.sdk.GCObject {
+      static readonly _type = 'any::Filters';
+      a: number | bigint;
+      b: string;
+      constructor(a: number | bigint, b: string);
+      static createFrom(fields: {a: number | bigint, b: string}): Filters;
     }
 
     function filter_something(f: gc.any.Filters, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -571,6 +576,17 @@ declare namespace gc {
   }
 
   namespace cities {
+    class City extends gc.sdk.GCObject {
+      static readonly _type = 'cities::City';
+      country: string;
+      name: string;
+      location: gc.core.geo;
+      population: number | bigint;
+      type: gc.cities.CapitalType;
+      constructor(country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType);
+      static createFrom(fields: {country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType}): City;
+    }
+
     class CapitalType extends gc.sdk.GCEnum {
       static readonly _type = 'cities::CapitalType';
       static readonly $fields: CapitalType[];
@@ -587,24 +603,13 @@ declare namespace gc {
       type Field = 'Others'|'Administrative Capital'|'Seat of Government'|'Capital'|'Legislative Capital'|'Economic Capital';
     }
 
-    class City extends gc.sdk.GCObject {
-      static readonly _type = 'cities::City';
-      country: string;
-      name: string;
-      location: gc.core.geo;
-      population: number | bigint;
-      type: gc.cities.CapitalType;
-      constructor(country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType);
-      static createFrom(fields: {country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType}): City;
-    }
-
   }
 
   namespace sdk {
     interface GreyCat {
-        call(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::Link::whatever', args: [gc.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::Link::whatever', args: [gc.core.node<gc.project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::Link::whatever', args: [gc.core.node<gc.project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::Link::whatever', args: [gc.core.node<gc.project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
         call(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::init_foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::init_foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -632,9 +637,9 @@ declare namespace gc {
         call(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
         spawn(method: 'project::table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+        call(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Person>>;
         spawn(method: 'project::objects_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::objects_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Person>>;
+        spawnAwait(method: 'project::objects_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Person>>;
         call(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::task_without_params', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::task_without_params', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -689,18 +694,18 @@ declare namespace gc {
         call(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::now', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::now', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'project::link_whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'project::link_whatever', args: [gc.core.node<project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::link_whatever', args: [gc.core.node<project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::link_whatever', args: [gc.core.node<gc.project.Link>], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::link_whatever', args: [gc.core.node<gc.project.Link>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::link_whatever', args: [gc.core.node<gc.project.Link>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
         call(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
         spawn(method: 'project::big_map', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::big_map', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
         call(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
         spawn(method: 'project::one_d_histo_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::one_d_histo_example', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.util.Histogram>;
-        call(method: 'project::real_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<project.Country>;
+        call(method: 'project::real_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.project.Country>;
         spawn(method: 'project::real_example', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::real_example', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<project.Country>;
+        spawnAwait(method: 'project::real_example', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.project.Country>;
         call(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
         spawn(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::array_of_ints', args: [globalThis.Array<number | bigint>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
@@ -716,6 +721,9 @@ declare namespace gc {
         call(method: 'project::destructuring_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
         spawn(method: 'project::destructuring_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::destructuring_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+        call(method: 'project::this_is_boom', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::this_is_boom', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::this_is_boom', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
         call(method: 'any::filter_something', args: [gc.any.Filters], signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'any::filter_something', args: [gc.any.Filters], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'any::filter_something', args: [gc.any.Filters], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -728,16 +736,16 @@ declare namespace gc {
   export import Date = gc.core.Date;
   export import nodeTimeCursor = gc.core.nodeTimeCursor;
   export import TimeZone = gc.core.TimeZone;
-  export import int = gc.core.int;
   export import SortOrder = gc.core.SortOrder;
+  export import int = gc.core.int;
   export import FloatPrecision = gc.core.FloatPrecision;
   export import t3f = gc.core.t3f;
   export import Array = gc.core.Array;
   export import Tuple = gc.core.Tuple;
-  export import Map = gc.core.Map;
   export import String = gc.core.String;
-  export import t2 = gc.core.t2;
+  export import Map = gc.core.Map;
   export import field = gc.core.field;
+  export import t2 = gc.core.t2;
   export import Tensor = gc.core.Tensor;
   export import NodeInfo = gc.core.NodeInfo;
   export import char = gc.core.char;
@@ -754,8 +762,8 @@ declare namespace gc {
   export import nodeTime = gc.core.nodeTime;
   export import nodeList = gc.core.nodeList;
   export import GeoCircle = gc.core.GeoCircle;
-  export import Error = gc.core.Error;
   export import GeoPoly = gc.core.GeoPoly;
+  export import Error = gc.core.Error;
   export import ErrorFrame = gc.core.ErrorFrame;
   export import t3 = gc.core.t3;
   export import duration = gc.core.duration;
@@ -773,101 +781,101 @@ declare namespace gc {
   export import node = gc.core.node;
   export import nodeGeo = gc.core.nodeGeo;
   export import ErrorCode = gc.core.ErrorCode;
-  export import UserGroup = gc.runtime.UserGroup;
-  export import SecurityEntity = gc.runtime.SecurityEntity;
-  export import PeriodicTask = gc.runtime.PeriodicTask;
-  export import Log = gc.runtime.Log;
-  export import Task = gc.runtime.Task;
-  export import SecurityFields = gc.runtime.SecurityFields;
-  export import CallPerf = gc.runtime.CallPerf;
-  export import RuntimeInfo = gc.runtime.RuntimeInfo;
-  export import System = gc.runtime.System;
-  export import LogLevel = gc.runtime.LogLevel;
-  export import OpenIDConnect = gc.runtime.OpenIDConnect;
-  export import User = gc.runtime.User;
-  export import UserGroupPolicyType = gc.runtime.UserGroupPolicyType;
-  export import Runtime = gc.runtime.Runtime;
-  export import Job = gc.runtime.Job;
-  export import License = gc.runtime.License;
   export import UserGroupPolicy = gc.runtime.UserGroupPolicy;
-  export import TaskStatus = gc.runtime.TaskStatus;
-  export import LicenseType = gc.runtime.LicenseType;
+  export import License = gc.runtime.License;
+  export import RuntimeInfo = gc.runtime.RuntimeInfo;
+  export import LogLevel = gc.runtime.LogLevel;
+  export import Task = gc.runtime.Task;
+  export import Runtime = gc.runtime.Runtime;
+  export import System = gc.runtime.System;
+  export import CallPerf = gc.runtime.CallPerf;
   export import SecurityPolicy = gc.runtime.SecurityPolicy;
+  export import UserGroupPolicyType = gc.runtime.UserGroupPolicyType;
+  export import Log = gc.runtime.Log;
+  export import SecurityEntity = gc.runtime.SecurityEntity;
+  export import UserGroup = gc.runtime.UserGroup;
+  export import User = gc.runtime.User;
+  export import Job = gc.runtime.Job;
+  export import SecurityFields = gc.runtime.SecurityFields;
+  export import LicenseType = gc.runtime.LicenseType;
+  export import PeriodicTask = gc.runtime.PeriodicTask;
+  export import TaskStatus = gc.runtime.TaskStatus;
+  export import OpenIDConnect = gc.runtime.OpenIDConnect;
+  export import JsonReader = gc.io.JsonReader;
+  export import Url = gc.io.Url;
+  export import SmtpMode = gc.io.SmtpMode;
+  export import GcbWriter = gc.io.GcbWriter;
+  export import CsvFormat = gc.io.CsvFormat;
   export import FileWalker = gc.io.FileWalker;
-  export import Json = gc.io.Json;
+  export import JsonWriter = gc.io.JsonWriter;
+  export import CsvWriter = gc.io.CsvWriter;
+  export import TextWriter = gc.io.TextWriter;
   export import Reader = gc.io.Reader;
+  export import Smtp = gc.io.Smtp;
   export import GcbReader = gc.io.GcbReader;
   export import CsvColumnStatistics = gc.io.CsvColumnStatistics;
-  export import File = gc.io.File;
-  export import JsonReader = gc.io.JsonReader;
-  export import CsvFormat = gc.io.CsvFormat;
-  export import CsvSharding = gc.io.CsvSharding;
+  export import SmtpAuth = gc.io.SmtpAuth;
+  export import HttpHeader = gc.io.HttpHeader;
   export import Email = gc.io.Email;
   export import Csv = gc.io.Csv;
-  export import CsvAnalysisConfig = gc.io.CsvAnalysisConfig;
-  export import GcbWriter = gc.io.GcbWriter;
-  export import SmtpAuth = gc.io.SmtpAuth;
-  export import Url = gc.io.Url;
-  export import Writer = gc.io.Writer;
-  export import SmtpMode = gc.io.SmtpMode;
-  export import TextWriter = gc.io.TextWriter;
-  export import Smtp = gc.io.Smtp;
-  export import CsvStatistics = gc.io.CsvStatistics;
-  export import HttpHeader = gc.io.HttpHeader;
-  export import Http = gc.io.Http;
-  export import CsvWriter = gc.io.CsvWriter;
-  export import JsonWriter = gc.io.JsonWriter;
+  export import Json = gc.io.Json;
   export import TextReader = gc.io.TextReader;
+  export import Http = gc.io.Http;
+  export import CsvStatistics = gc.io.CsvStatistics;
+  export import Writer = gc.io.Writer;
+  export import CsvSharding = gc.io.CsvSharding;
   export import CsvReader = gc.io.CsvReader;
-  export import Random = gc.util.Random;
-  export import LogQuantizer = gc.util.LogQuantizer;
-  export import Stack = gc.util.Stack;
-  export import Plot = gc.util.Plot;
-  export import GaussianProfileSlot = gc.util.GaussianProfileSlot;
-  export import HistogramStats = gc.util.HistogramStats;
-  export import TimeWindow = gc.util.TimeWindow;
-  export import GaussianProfile = gc.util.GaussianProfile;
-  export import QuantizerSlotBound = gc.util.QuantizerSlotBound;
+  export import CsvAnalysisConfig = gc.io.CsvAnalysisConfig;
+  export import File = gc.io.File;
   export import ProgressTracker = gc.util.ProgressTracker;
-  export import Histogram = gc.util.Histogram;
+  export import Random = gc.util.Random;
   export import SlidingWindow = gc.util.SlidingWindow;
-  export import Assert = gc.util.Assert;
   export import Crypto = gc.util.Crypto;
-  export import LinearQuantizer = gc.util.LinearQuantizer;
+  export import GaussianProfileSlot = gc.util.GaussianProfileSlot;
   export import Gaussian = gc.util.Gaussian;
-  export import CustomQuantizer = gc.util.CustomQuantizer;
-  export import Quantizer = gc.util.Quantizer;
   export import MultiQuantizer = gc.util.MultiQuantizer;
+  export import LinearQuantizer = gc.util.LinearQuantizer;
+  export import Quantizer = gc.util.Quantizer;
+  export import Histogram = gc.util.Histogram;
+  export import Plot = gc.util.Plot;
+  export import Stack = gc.util.Stack;
+  export import HistogramStats = gc.util.HistogramStats;
+  export import Assert = gc.util.Assert;
+  export import GaussianProfile = gc.util.GaussianProfile;
   export import Queue = gc.util.Queue;
-  export import FooBar = gc.project.FooBar;
-  export import SolarRadiation = gc.project.SolarRadiation;
-  export import Obj = gc.project.Obj;
-  export import SensorKind = gc.project.SensorKind;
-  export import Obj1 = gc.project.Obj1;
-  export import Triangle = gc.project.Triangle;
-  export import Confidence = gc.project.Confidence;
-  export import Book = gc.project.Book;
-  export import Person = gc.project.Person;
-  export import Country = gc.project.Country;
-  export import ComplexObject = gc.project.ComplexObject;
-  export import KLine = gc.project.KLine;
-  export import Meteo = gc.project.Meteo;
-  export import Obj2 = gc.project.Obj2;
-  export import Person2 = gc.project.Person2;
-  export import TrafficLight = gc.project.TrafficLight;
-  export import Rect = gc.project.Rect;
+  export import LogQuantizer = gc.util.LogQuantizer;
+  export import CustomQuantizer = gc.util.CustomQuantizer;
+  export import TimeWindow = gc.util.TimeWindow;
+  export import QuantizerSlotBound = gc.util.QuantizerSlotBound;
   export import Node = gc.project.Node;
-  export import Link = gc.project.Link;
-  export import Sensor = gc.project.Sensor;
-  export import ComplexForm = gc.project.ComplexForm;
-  export import Shape = gc.project.Shape;
-  export import MapContainer = gc.project.MapContainer;
-  export import RelayApp = gc.project.RelayApp;
   export import TimeZones = gc.project.TimeZones;
-  export import SemiRecursive = gc.project.SemiRecursive;
+  export import Person2 = gc.project.Person2;
   export import VisualCrossingProvider = gc.project.VisualCrossingProvider;
-  export import Circle = gc.project.Circle;
+  export import FooBar = gc.project.FooBar;
   export import SensorData = gc.project.SensorData;
+  export import Sensor = gc.project.Sensor;
+  export import KLine = gc.project.KLine;
+  export import Circle = gc.project.Circle;
+  export import Rect = gc.project.Rect;
+  export import Country = gc.project.Country;
+  export import RelayApp = gc.project.RelayApp;
+  export import ComplexObject = gc.project.ComplexObject;
+  export import TrafficLight = gc.project.TrafficLight;
+  export import SemiRecursive = gc.project.SemiRecursive;
+  export import MapContainer = gc.project.MapContainer;
+  export import Meteo = gc.project.Meteo;
+  export import Shape = gc.project.Shape;
+  export import Triangle = gc.project.Triangle;
+  export import ComplexForm = gc.project.ComplexForm;
+  export import SolarRadiation = gc.project.SolarRadiation;
+  export import Person = gc.project.Person;
+  export import Obj = gc.project.Obj;
+  export import Obj1 = gc.project.Obj1;
+  export import Obj2 = gc.project.Obj2;
+  export import Book = gc.project.Book;
+  export import Link = gc.project.Link;
+  export import Confidence = gc.project.Confidence;
+  export import SensorKind = gc.project.SensorKind;
   export import init_foo = gc.project.init_foo;
   export import persons = gc.project.persons;
   export import chart = gc.project.chart;
@@ -905,10 +913,11 @@ declare namespace gc {
   export import serie_of_obj = gc.project.serie_of_obj;
   export import sample_huge_csv = gc.project.sample_huge_csv;
   export import destructuring_table = gc.project.destructuring_table;
-  export import Filters = gc.any.Filters;
+  export import this_is_boom = gc.project.this_is_boom;
   export import AnyInput = gc.any.AnyInput;
+  export import Filters = gc.any.Filters;
   export import filter_something = gc.any.filter_something;
   export import array_any_map_any = gc.any.array_any_map_any;
-  export import CapitalType = gc.cities.CapitalType;
   export import City = gc.cities.City;
+  export import CapitalType = gc.cities.CapitalType;
 }

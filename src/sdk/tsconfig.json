@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "incremental": true,
-    "tsBuildInfoFile": "../../sdk.tsbuildinfo",
-
     "rootDir": ".",
     "outFile": "../../dist/greycat.js",
     "declaration": true,
@@ -25,7 +21,7 @@
     // This empty array IS important to prevent TypeScript
     // from including all the .d.ts files it finds in the
     // common resolution directories (node_modules, etc.)
-    "types": [],
+    "types": []
   },
   // ORDER IS IMPORTANT
   "files": [
@@ -38,6 +34,7 @@
     "io.ts",
     "crypto.ts",
     "../../std.d.ts",
+    "../../std.ext.d.ts",
     "std.ext.ts",
     "std_n/core/Array.ts",
     "std_n/core/bool.ts",

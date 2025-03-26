@@ -1,9 +1,5 @@
 {
   "compilerOptions": {
-    "composite": true,
-    "incremental": true,
-    "tsBuildInfoFile": "../../web.tsbuildinfo",
-
     "rootDir": ".",
     "outDir": "../../dist/types",
     "declaration": true,
@@ -31,7 +27,6 @@
     "jsxImportSource": "@greycat/web",
     "types": ["maplibre-gl"]
   },
-  "references": [{ "path": "../sdk" }],
   "include": ["**/*", "ambient.d.ts"],
   "exclude": ["../sdk"]
 }

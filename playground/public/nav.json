@@ -47,6 +47,10 @@
       {
         "label": "Chart 2",
         "route": "chart-2/"
+      },
+      {
+        "label": "Non-overlapping",
+        "route": "non-overlapping/"
       }
     ]
   },

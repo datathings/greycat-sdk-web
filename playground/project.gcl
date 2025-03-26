@@ -7,6 +7,9 @@ var sensor: nodeTime<SensorData>;
 var serie_float: nodeTime<float>;
 var kline: nodeTime<KLine>;
 var nt: nodeTime;
+var non_overlapping_1: nodeTime<float>;
+var non_overlapping_2: nodeTime<float>;
+var non_overlapping_3: nodeTime<float>;
 
 type KLine {
   open: float;
@@ -49,6 +52,7 @@ type ComplexForm {
 
 fn main() {
   cities::import();
+  init_non_overlapping();
 
   if (serie_float.size() == 0) {
     init_float();
@@ -984,4 +988,32 @@ fn this_is_boom() {
 
 fn do_something() {
   throw "rekt";
+}
+
+
+fn init_non_overlapping() {
+  if (non_overlapping_1.size() == 0) {
+    var t1 = time::parse("01/01/2020", "%d/%M/%Y");
+    var t2 = time::parse("02/01/2020", "%d/%M/%Y");
+    var t3 = time::parse("03/01/2020", "%d/%M/%Y");
+    var t4 = time::parse("04/01/2020", "%d/%M/%Y");
+
+    var i = 0;
+    for (var t = t1; t < t2; t = t + 1_hour) {
+      non_overlapping_1.setAt(t, 10.0 + i * 0.01);
+      i = i + 1;
+    }
+
+    i = 0;
+    for (var t = t2; t < t3; t = t + 1_hour) {
+      non_overlapping_2.setAt(t, 15.0 - i * 0.01);
+      i = i + 1;
+    }
+
+    i = 0;
+    for (var t = t3; t < t4; t = t + 1_hour) {
+      non_overlapping_3.setAt(t, 20.0 + i * 0.02);
+      i = i + 1;
+    }
+  }
 }
