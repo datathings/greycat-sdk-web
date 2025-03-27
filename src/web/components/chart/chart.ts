@@ -60,6 +60,7 @@ export class GuiChart extends GuiElement {
   static override styles = [css(style)];
 
   private _disposer: Disposer;
+  private _resizeObs: ResizeObserver;
   private _table: gc.core.Table;
   private _config: ChartConfig;
   private _colors: string[] = [];
@@ -103,6 +104,7 @@ export class GuiChart extends GuiElement {
     super();
 
     this._disposer = new Disposer();
+    this._resizeObs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._table = gc.core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
 
@@ -401,9 +403,7 @@ export class GuiChart extends GuiElement {
     this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
     this.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
 
-    const obs = new ResizeObserver(debounce(() => this._resize(), 50));
-    this._disposer.disposables.push(() => obs.disconnect());
-    obs.observe(this);
+    this._resizeObs.observe(this);
 
     const animRef = { id: -1 };
     const animationCallback = () => {
@@ -416,6 +416,7 @@ export class GuiChart extends GuiElement {
 
   disconnectedCallback() {
     this._disposer.dispose();
+    this._resizeObs.disconnect();
   }
 
   private _onmouseup = (ev: MouseEvent) => {
@@ -519,7 +520,6 @@ export class GuiChart extends GuiElement {
     this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
     // recompute state
     this.compute();
-
     this.update();
   }
 
@@ -579,9 +579,10 @@ export class GuiChart extends GuiElement {
     config = this._config,
     value = this._table,
   }: Partial<{ config: ChartConfig; value: TableLike }>) {
+    let recompute = false;
     if (this._table !== value) {
       this._table = convertToTable(value);
-      this.compute();
+      recompute = true;
     }
     this._config = config;
 
@@ -594,7 +595,9 @@ export class GuiChart extends GuiElement {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
 
-    this.compute();
+    if (recompute) {
+      this.compute();
+    }
     this.update();
   }
 
@@ -980,7 +983,8 @@ export class GuiChart extends GuiElement {
             valueEl.classList.add('right');
           }
           valueEl.style.color = color;
-          valueEl.textContent = serie.value !== undefined ? serie.value.toString() : formatter(yValue);
+          valueEl.textContent =
+            serie.value !== undefined ? serie.value.toString() : formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
           if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
