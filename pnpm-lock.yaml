@@ -30,9 +30,6 @@ importers:
       '@types/d3':
         specifier: 7.4.0
         version: 7.4.0
-      '@types/http-proxy':
-        specifier: 1.17.15
-        version: 1.17.15
       '@types/node':
         specifier: 22.5.0
         version: 22.5.0
@@ -70,6 +67,9 @@ importers:
         specifier: 6.0.7
         version: 6.0.7(@types/node@22.5.0)(lightningcss@1.29.2)(terser@5.39.0)
     optionalDependencies:
+      '@types/http-proxy':
+        specifier: 1.17.16
+        version: 1.17.16
       http-proxy:
         specifier: 1.18.1
         version: 1.18.1
@@ -563,8 +563,8 @@ packages:
   '@types/geojson@7946.0.16':
     resolution: {integrity: sha512-6C8nqWur3j98U6+lXDfTUWIfgvZU+EumvpHKcYjujKH7woYyLj2sUmff0tRhrqM7BohUw7Pz3ZB1jj2gW9Fvmg==}
 
-  '@types/http-proxy@1.17.15':
-    resolution: {integrity: sha512-25g5atgiVNTIv0LBDTg1H74Hvayx0ajtJPLLcYE3whFv75J0pWNtOBzaXJQgDTmrX1bx5U9YC2w/n65BN1HwRQ==}
+  '@types/http-proxy@1.17.16':
+    resolution: {integrity: sha512-sdWoUajOB1cd0A8cRRQ1cfyWNbmFKLAqBB89Y8x5iYyG/mkJHc0YUH8pdWBy2omi9qtCpiIgGjuwO0dQST2l5w==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -2028,9 +2028,10 @@ snapshots:
 
   '@types/geojson@7946.0.16': {}
 
-  '@types/http-proxy@1.17.15':
+  '@types/http-proxy@1.17.16':
     dependencies:
       '@types/node': 22.5.0
+    optional: true
 
   '@types/json-schema@7.0.15': {}
 
