@@ -1,15 +1,12 @@
 import { basename, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { readdirSync, statSync } from 'node:fs';
-import greycat from '@greycat/web/vite-plugin';
+import { greycat, gzip } from '@greycat/web/vite-plugin';
 
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),
   base: '',
-  plugins: [greycat()],
-  define: {
-    'process.env.NODE_ENV': JSON.stringify(mode),
-  },
+  plugins: [greycat(), gzip({ removeOriginal: true })],
   css: {
     transformer: 'lightningcss',
     lightningcss: {
