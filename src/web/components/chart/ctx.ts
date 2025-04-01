@@ -42,6 +42,7 @@ export type TextOptions = {
   baseline?: CanvasTextBaseline;
   align?: CanvasTextAlign;
   opacity?: number;
+  padding?: number;
 };
 
 const SEGMENTS: Record<number, number[]> = {
@@ -630,50 +631,59 @@ export class CanvasContext {
   }
 
   text(x: number, y: number, text: string, opts: TextOptions): void {
-    const mx = this.ctx.measureText(text);
+    this.ctx.font = opts.font ?? `bold 10px monospace`;
+
     if (opts.backgroundColor) {
-      const xPadding = 4;
-      const yPadding = 4;
+      const mx = this.ctx.measureText(text);
+      const padding = opts.padding ?? 5;
+      const textHeight = mx.actualBoundingBoxAscent + mx.actualBoundingBoxDescent;
+      const textWidth = mx.width;
+
+      let baselineOffset = 0;
+      switch (opts.baseline) {
+        case 'top':
+        case 'hanging':
+          baselineOffset = 0 - padding / 2;
+          break;
+        case 'middle':
+          baselineOffset = textHeight / 2;
+          break;
+        case 'bottom':
+        case 'ideographic':
+          baselineOffset = textHeight + padding / 2;
+          break;
+        case 'alphabetic':
+        default:
+          baselineOffset = textHeight;
+          break;
+      }
+
+      let rectX = x - padding;
+      const rectY = y - baselineOffset - padding;
+      const rectWidth = textWidth + padding * 2;
+      const rectHeight = textHeight + padding * 2;
 
       switch (opts.align) {
-        case 'start': {
-          this.rectangle(
-            x + mx.width / 2,
-            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
+        case 'center':
+          rectX = x - rectWidth / 2;
           break;
-        }
-        case 'end': {
-          this.rectangle(
-            x - mx.width / 2,
-            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
+        case 'end':
+          rectX = x - rectWidth + padding;
           break;
-        }
+        case 'start':
         default:
-        case 'center': {
-          this.rectangle(
-            x,
-            y + mx.fontBoundingBoxAscent / 2,
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
           break;
-        }
       }
+
+      this.rectangle(rectX, rectY, rectWidth, rectHeight, {
+        color: opts.backgroundColor,
+        fill: opts.backgroundColor,
+      });
     }
 
     this.ctx.save();
 
     this.ctx.fillStyle = opts.color;
-    this.ctx.font = opts.font ?? `bold 10px monospace`;
     this.ctx.textBaseline = opts.baseline ?? 'bottom';
     this.ctx.textAlign = opts.align ?? 'start';
     this.ctx.globalAlpha = opts.opacity ?? 1;
