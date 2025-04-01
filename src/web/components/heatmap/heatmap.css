@@ -1,4 +1,4 @@
-gui-heatmap {
+:host {
   /* margin variables, can only be pixels */
   --m-top: 10px;
   --m-right: 60px;
@@ -13,7 +13,6 @@ gui-heatmap {
   display: block;
   width: 100%;
   height: var(--gui-heatmap-height);
-  position: relative;
   overflow: hidden;
 }
 
@@ -25,17 +24,13 @@ gui-heatmap-tooltip {
 
   display: grid;
   grid-template-columns: 1fr auto;
-  grid-auto-rows: auto;
+  grid-auto-rows: min-content;
   grid-auto-flow: row;
-  column-gap: var(--spacing);
+  gap: var(--spacing);
 
   position: absolute;
   background-color: rgb(var(--base-1));
   padding: var(--spacing);
   border: var(--border-width) solid var(--border-color);
   overflow: hidden;
-
-  .gui-heatmap-tooltip-value {
-    justify-self: end;
-  }
 }

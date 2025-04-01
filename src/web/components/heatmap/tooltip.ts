@@ -32,12 +32,7 @@ export class GuiHeatmapTooltip extends HTMLElement {
     this.replaceChildren();
   }
 
-  update(
-    config: HeatmapConfig,
-    data: HeatmapData,
-    colorScale: d3.ScaleSequential<string, string>,
-    style: HeatmapStyle,
-  ): void {
+  update(config: HeatmapConfig, data: HeatmapData, style: HeatmapStyle): void {
     if (data.title) {
       this._name.textContent = data.title;
     }
@@ -46,7 +41,7 @@ export class GuiHeatmapTooltip extends HTMLElement {
     } else {
       this._value.textContent = `${data.value}`;
     }
-    this._value.style.color = colorScale(data.value);
+    this._value.style.color = style['text-0'];
 
     if (config.xAxis.title) {
       this._xName.textContent = config.xAxis.title;
