@@ -1,8 +1,6 @@
-// import { basename, extname, join, resolve } from 'node:path';
 import type { Plugin } from 'vite';
 import httpProxy, { type ServerOptions } from 'http-proxy';
 import { type GzipPluginOptions, gzipWriteBundle } from './gzip.js';
-// import { readdirSync, statSync } from 'node:fs';
 
 const DEFAULT_TARGET = 'http://127.0.0.1:8080';
 
@@ -28,7 +26,9 @@ export interface GreyCatPluginOptions {
  */
 export function greycat(options: GreyCatPluginOptions = {}): Plugin {
   const { proxy = {}, gzip } = options;
-  const { target = DEFAULT_TARGET } = proxy;
+  if (proxy.target === undefined) {
+    proxy.target = DEFAULT_TARGET;
+  }
   let skip_compression = false;
   let gzip_options: GzipPluginOptions | undefined;
   if (typeof gzip === 'boolean') {
@@ -38,40 +38,9 @@ export function greycat(options: GreyCatPluginOptions = {}): Plugin {
   }
 
   const proxy_server = httpProxy.createProxyServer(proxy);
-  // const cwd = process.cwd();
-  // const pages_dir = resolve(cwd, 'frontend/pages');
 
   return {
     name: 'greycat',
-    // config(_config, _env) {
-    //   return {
-    //     base: './',
-    //     root: pages_dir,
-    //     appType: 'mpa',
-    //     resolve: {
-    //       alias: {
-    //         '~': resolve(cwd, 'frontend'),
-    //       },
-    //     },
-    //     build: {
-    //       outDir: resolve(cwd, 'dist'),
-    //       target: 'esnext',
-    //       chunkSizeWarningLimit: Infinity,
-    //       emptyOutDir: true,
-    //       rollupOptions: {
-    //         input: discover_pages(pages_dir),
-    //         output: {
-    //           entryFileNames: '[name].js',
-    //           chunkFileNames: 'assets/[name].js',
-    //           assetFileNames: 'assets/[name].[ext]',
-    //           manualChunks: {
-    //             greycat: ['@greycat/web'],
-    //           },
-    //         },
-    //       },
-    //     },
-    //   };
-    // },
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         if (req.originalUrl && req.headers.upgrade !== 'websocket') {
@@ -83,7 +52,7 @@ export function greycat(options: GreyCatPluginOptions = {}): Plugin {
             // proxy to GreyCat
             proxy_server.web(req, res, {}, (err) => {
               console.error(
-                `${err.message}: make sure GreyCat is started and listening at ${target}`,
+                `${err.message}: make sure GreyCat is started and listening at ${proxy.target}`,
               );
               return;
             });
