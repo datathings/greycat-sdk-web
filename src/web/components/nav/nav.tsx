@@ -4,10 +4,15 @@ import style from './nav.css?inline';
 export type NavTree = NavItem[];
 
 export type NavItem = {
+  /** The link label */
   label: string;
+  /** The href route */
   route?: string;
+  /** Whether or not to make collapsible item clickable */
   link?: boolean;
+  /** Whether or not to expand the item on load */
   expanded?: boolean;
+  /** The list of children items for this item */
   children?: NavItem[];
 };
 
