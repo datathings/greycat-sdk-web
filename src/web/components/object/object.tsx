@@ -1,4 +1,11 @@
-import { css, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
+import {
+  css,
+  GuiCard,
+  GuiElement,
+  GuiFactory,
+  type GuiValueElement,
+  type sl,
+} from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
@@ -338,7 +345,6 @@ export class GuiObject<T = unknown> extends GuiElement {
 
       // nested object
       if (this._needsCollapsible(attrVal)) {
-        console.log({ obj, field: attr.name, attr, attrVal });
         const open =
           (
             this.shadowRoot.children?.[0]?.children?.[0]?.children?.[i * 2 + 1]?.children?.[0] as
@@ -430,6 +436,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     if (this._nested) {
+      this.part.add('grid');
       this.classList.add('gui-object-grid');
       this.shadowRoot.replaceChildren(fragment);
       return;
@@ -458,10 +465,10 @@ export class GuiObject<T = unknown> extends GuiElement {
       header = <header slot="header">{this._header}</header>;
     }
     this.shadowRoot.replaceChildren(
-      <sl-card className="gui-object-card" part="base">
+      <gui-card className="gui-object-card" part="base">
         {header}
-        <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-      </sl-card>,
+        <div className={['gui-object', 'gui-object-grid']} part="grid">{fragment}</div>
+      </gui-card>,
     );
     return;
   }
@@ -513,10 +520,12 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     const card = (
-      <sl-card className="gui-object-card" part="base">
-        <div className={['gui-object', 'gui-object-grid']}>{fragment}</div>
-      </sl-card>
-    ) as sl.SlCard;
+      <gui-card className="gui-object-card" part="base">
+        <div className={['gui-object', 'gui-object-grid']} part="grid">
+          {fragment}
+        </div>
+      </gui-card>
+    ) as GuiCard;
     if (typeof this._header === 'string') {
       card.prepend(<header slot="header">{this._header}</header>);
     } else if (this._header) {
