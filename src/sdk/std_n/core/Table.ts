@@ -43,9 +43,13 @@ namespace gc {
             if (this.$type.generic_abi_type != 0) {
               const generic_param_type = this.$type.abi.types[this.$type.g1()];
               this.headers = generic_param_type.attrs.map((a) => a.name);
-              this.subheaders = generic_param_type.attrs.map(
-                (a) => this.$type.abi.types[a.abi_type].name,
-              );
+              this.subheaders = generic_param_type.attrs.map((a) => {
+                const type = this.$type.abi.types[a.abi_type].name;
+                if (a.nullable) {
+                  return `${type}?`;
+                }
+                return type;
+              });
             }
           }
 
