@@ -676,8 +676,8 @@ namespace gc {
         if (is_enum) {
           const GCEnum = class extends gc.sdk.GCEnum {
             static readonly _type = type.name;
-            constructor(offset = 0, key = '', value?: Value) {
-              super(offset, key, value);
+            constructor(offset = 0, key = '') {
+              super(offset, key);
               Object.defineProperty(this, '$type', { value: type, enumerable: false });
             }
           };

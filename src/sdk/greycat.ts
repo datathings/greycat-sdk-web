@@ -1033,12 +1033,6 @@ namespace gc {
       }
     }
 
-    export class TaskCancelled extends Error {
-      constructor(readonly task: sdk.TaskLike) {
-        super(`task ${task.task_id} from user ${task.user_id} cancelled`);
-      }
-    }
-
     /**
      * Sleeps for `delay` milliseconds. Returns `true` if aborted; `false` otherwise.
      */

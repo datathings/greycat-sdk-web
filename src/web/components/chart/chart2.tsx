@@ -44,6 +44,9 @@ type CachedState = {
   yScales: Record<string, Scale>;
 };
 
+/**
+ * WIP component. Don't use it.
+ */
 export class GuiChart2 extends Resizable(GestureDrawer) {
   cursorLineOpts: ShapeOptions = {
     dashed: true,

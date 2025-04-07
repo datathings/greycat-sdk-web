@@ -70,7 +70,6 @@
     "utils/duration.ts",
     "utils/error.ts",
     "utils/misc.ts",
-    "utils/task.ts",
     "greycat.ts",
     "global.ts"
   ]

@@ -151,7 +151,7 @@ fn chart(nbRows: int): Table<any> {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -173,7 +173,7 @@ fn chart(nbRows: int): Table<any> {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -491,6 +491,21 @@ fn task_long_running2() {
 }
 
 @expose
+fn controlled_task(duration: duration) {
+  var steps = 100;
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: steps,
+  };
+  var sleep = duration::new(duration.to(DurationUnit::milliseconds) / 100, DurationUnit::milliseconds);
+  for (var i = 0; i < steps; i++) {
+    progress.update(i);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(sleep);
+  }
+}
+
+@expose
 fn mainTask() {
   await(Array<Job> {
       Job { function: project::subTask, arguments: Array<any?> {0} },
@@ -567,7 +582,7 @@ fn obj() {
 @expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first", ("BAR", 42));
+  map.set("first",("BAR", 42));
   map.set("second", TimeZone::"Africa/Abidjan");
 
   var array = [42, 3.14, "hello world"];
@@ -589,12 +604,12 @@ fn complex_object() {
     nodeIndex: nodeIndex {},
     nodeList: nodeList {},
     nodeGeo: nodeGeo {},
-    t2: t2 {1,2},
-    t2f: t2f {1.42,2.42},
-    t3: t3 {1,2,3},
-    t3f: t3f {1.42,2.42,3.42},
-    t4: t4 {1,2,3,4},
-    t4f: t4f {1.42,2.42,3.42,4.42},
+    t2: t2 {1, 2},
+    t2f: t2f {1.42, 2.42},
+    t3: t3 {1, 2, 3},
+    t3f: t3f {1.42, 2.42, 3.42},
+    t4: t4 {1, 2, 3, 4},
+    t4f: t4f {1.42, 2.42, 3.42, 4.42},
     str: str { "hello" },
     date: time::now().toDate(null),
     tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
@@ -614,12 +629,12 @@ fn complex_object() {
       nodeList: nodeList {},
       nodeGeo: nodeGeo {},
       enum: TimeZone::"Europe/Luxembourg",
-      t2: t2 {1,2},
-      t2f: t2f {1.42,2.42},
-      t3: t3 {1,2,3},
-      t3f: t3f {1.42,2.42,3.42},
-      t4: t4 {1,2,3,4},
-      t4f: t4f {1.42,2.42,3.42,4.42},
+      t2: t2 {1, 2},
+      t2f: t2f {1.42, 2.42},
+      t3: t3 {1, 2, 3},
+      t3f: t3f {1.42, 2.42, 3.42},
+      t4: t4 {1, 2, 3, 4},
+      t4f: t4f {1.42, 2.42, 3.42, 4.42},
       str: str { "hello" },
       date: time::now().toDate(null),
     },
