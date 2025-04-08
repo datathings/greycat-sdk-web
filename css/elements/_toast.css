@@ -1,4 +1,5 @@
-.sl-toast-stack {
+.sl-toast-stack,
+.gui-toast-stack {
   z-index: 1001;
   position: absolute;
   right: var(--spacing);

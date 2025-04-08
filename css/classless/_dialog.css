@@ -17,17 +17,15 @@ dialog::backdrop {
   background: var(--dialog-backdrop-background);
 }
 
-dialog {
-  > article {
-    > footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--spacing);
+dialog > article > footer {
+  & {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing);
+  }
 
-      button {
-        width: fit-content;
-        margin-bottom: 0;
-      }
-    }
+  button {
+    width: fit-content;
+    margin-bottom: 0;
   }
 }

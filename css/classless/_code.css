@@ -1,0 +1,9 @@
+code,
+kbd {
+  padding: 0.25rem 0.35rem;
+}
+
+pre,
+pre > code {
+  color: var(--text-0);
+}

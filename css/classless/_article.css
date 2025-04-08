@@ -1,0 +1,25 @@
+dialog > article,
+article {
+  --block-spacing-horizontal: 0;
+  --block-spacing-vertical: 0;
+
+  > header {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--spacing);
+    font-weight: bold;
+
+    a {
+      font-weight: normal;
+    }
+
+    button {
+      width: fit-content;
+      margin-bottom: 0;
+    }
+  }
+
+  > :is(header, footer) {
+    padding: var(--spacing);
+  }
+}

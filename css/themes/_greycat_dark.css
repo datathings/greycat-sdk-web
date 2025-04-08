@@ -1,3 +1,4 @@
+/* Shoelace specific dark overrides */
 :root,
 :host,
 .sl-theme-dark {
@@ -245,4 +246,146 @@
   --sl-input-focus-ring-color: rgb(192, 248, 95, 0.4);
 
   --sl-overlay-background-color: hsl(120, 3.8%, 0%, 50%);
+}
+
+/* GreyCat Dark Theme */
+:root,
+:host {
+  --font-size: 14px;
+  --font-size-sm: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 14px;
+  --font-size-xl: 14px;
+  --font-weight: normal;
+
+  --scrollbar-bg: rgba(var(--accent-0), 0.45);
+  --scrollbar-bg-hover: rgba(var(--accent-0), 0.75);
+  --scrollbar-size: 4px;
+
+  --spacing: 6px; /* keep 'spacing' an even value */
+  --line-height: 20px;
+  --outline-width: 2px;
+
+  --form-element-active-border-color: var(--primary);
+  --form-element-spacing-vertical: calc(var(--spacing) / 2);
+  --form-element-spacing-horizontal: var(--spacing);
+  --form-element-background-color: var(--bg-1);
+  --form-element-border-color: #374956;
+  --form-element-disabled-background-color: var(--bg-0);
+  --form-element-disabled-border-color: #415462;
+  --form-element-disabled-opacity: 0.3;
+
+  --switch-color: var(--primary-inverse);
+  --switch-checked-background-color: var(--primary);
+
+  --nav-link-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-link-spacing-horizontal: var(--spacing);
+  --nav-element-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-element-spacing-horizontal: var(--spacing);
+
+  --card-background-color: var(--bg-0);
+  --card-sectionning-background-color: var(--bg-1);
+
+  --code-color: var(--primary);
+  --code-background-color: var(--bg-1);
+
+  --table-border-color: rgba(var(--text-2), 0.2);
+
+  --block-spacing-vertical: var(--spacing);
+  --block-spacing-horizontal: var(--spacing);
+
+  --accordion-border-color: rgba(var(--text-2), 0.2);
+  --accordion-open-summary-color: var(--primary);
+
+  --dropdown-background-color: var(--bg-1);
+  --dropdown-hover-background-color: var(--bg-0);
+
+  --modal-overlay-background-color: rgba(var(--base-2), 0.35);
+
+  --grid-spacing-vertical: var(--spacing);
+
+  --typography-spacing-vertical: calc(var(--spacing) * 3);
+
+  --range-thumb-color: var(--primary);
+  --range-thumb-hover-color: var(--primary-hover);
+
+  --border-width: 1px;
+  --border-radius: 4px;
+
+  --gui-fieldset-border-width: var(--border-width);
+  --gui-fieldset-border-color: var(--border-color);
+  --gui-fieldset-background-color: var(--bg-2);
+  --gui-fieldset-legend-background-color: var(--bg-0);
+
+  --gui-table-min-height: 400px;
+}
+
+/* Dark colors (default) */
+:host,
+:host.sl-theme-dark,
+:root,
+:root[data-theme='dark'],
+:root.sl-theme-dark {
+  color-scheme: dark;
+
+  --primary: rgb(var(--accent-0));
+  --primary-hover: rgb(148, 224, 17);
+  --primary-focus: rgba(205, 249, 127, 0.2);
+  --primary-inverse: #000;
+
+  --secondary: #5684f1;
+  --secondary-hover: #3b6ee4;
+  --secondary-focus: rgba(205, 249, 127, 0.2);
+  --secondary-inverse: #fff;
+
+  --bg-0: #101010;
+  --bg-1: #181818;
+  --bg-2: #252525;
+
+  --color: #eaeaea;
+  --background-color: var(--bg-2);
+
+  --text-0: 255, 255, 255;
+  --text-1: 215, 215, 215;
+  --text-2: 156, 160, 164;
+  --text-inverse: 0, 0, 0;
+
+  --muted-color: var(--sl-color-neutral-500);
+
+  --base-0: 20, 20, 20;
+  --base-1: 40, 40, 40;
+  --base-2: 61, 61, 61;
+
+  --accent-0: 192, 248, 95;
+  --accent-1: 198, 249, 111;
+  --accent-2: 205, 249, 127;
+
+  --neutral-0: 119, 119, 122;
+  --neutral-1: 116, 124, 133;
+  --neutral-2: 132, 138, 147;
+
+  --color-0: #c0f85f;
+  --color-1: #cb9cf8;
+  --color-2: #779ef7;
+  --color-3: #37c43e;
+  --color-4: #5737c4;
+  --color-5: #8c1fab;
+  --color-6: #4fc0e8;
+  --color-7: #f7458e;
+  --color-8: #fe7e6d;
+  --color-9: #ffe35b;
+  --color-10: #fc7db7;
+  --color-11: #2237c4;
+  --color-12: #3b254c;
+
+  --color-error: #f74318;
+
+  --shadow: 0px 1px 1px 0px rgb(var(--base-1));
+
+  --icon-checkbox: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(0,0,0)' stroke-width='4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(234,234,234)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+
+  --fieldset-group-label-color: var(--color);
+
+  --border-color: #404040;
 }

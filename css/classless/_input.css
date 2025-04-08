@@ -1,0 +1,35 @@
+[type='file']::file-selector-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::file-selector-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-webkit-file-upload-button {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-webkit-file-upload-button:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+[type='file']::-ms-browse {
+  --background-color: var(--primary);
+  --border-color: var(--primary);
+  --color: var(--primary-inverse);
+}
+[type='file']::-ms-browse:is(:hover, :active, :focus) {
+  --background-color: var(--primary-hover);
+  --border-color: var(--primary-hover);
+}
+
+input:not([type='submit'], [type='button'], [type='reset'])[disabled],
+select[disabled],
+textarea[disabled],
+:where(fieldset[disabled])
+  :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
+  pointer-events: initial;
+}
