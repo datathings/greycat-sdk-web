@@ -49,6 +49,10 @@
         "route": "chart-2/"
       },
       {
+        "label": "Table of objects",
+        "route": "table-of-objects/"
+      },
+      {
         "label": "Non-overlapping",
         "route": "non-overlapping/"
       }

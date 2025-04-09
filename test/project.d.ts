@@ -2,49 +2,61 @@
 /* eslint-disable */
 declare namespace gc {
   namespace project {
-    class std_int_max_number$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_int_max_number$args';
+    class CustomType extends gc.sdk.GCObject {
+      static readonly _type = 'project::CustomType';
+      string: string;
+      int: number | bigint;
+      float: number;
+      bool: boolean;
+      char: string;
+      enum: gc.core.TimeZone;
+      constructor(string: string, int: number | bigint, float: number, bool: boolean, char: string, enum_: gc.core.TimeZone);
+      static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, enum_: gc.core.TimeZone}): CustomType;
     }
 
-    class ambiguous2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::ambiguous2$args';
+    class read_stringlit$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::read_stringlit$args';
+      arr: globalThis.Array<string>;
+      constructor(arr: globalThis.Array<string>);
+      static createFrom(fields: {arr: globalThis.Array<string>}): read_stringlit$args;
     }
 
-    class vtable_test$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::vtable_test$args';
+    class Sensor extends gc.sdk.GCObject {
+      static readonly _type = 'project::Sensor';
+      id: string;
+      temp: number;
+      humidity: number;
+      constructor(id: string, temp: number, humidity: number);
+      static createFrom(fields: {id: string, temp: number, humidity: number}): Sensor;
     }
 
-    class print_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::print_table$args';
-      table: gc.core.Table;
-      constructor(table: gc.core.Table);
-      static createFrom(fields: {table: gc.core.Table}): print_table$args;
+    class blockingFn$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::blockingFn$args';
     }
 
-    class Foo extends gc.sdk.GCObject {
-      static readonly _type = 'project::Foo';
-      a: number | bigint | null;
-      constructor(a?: number | bigint | null);
-      static createFrom(fields: {a?: number | bigint | null}): Foo;
+    class enum$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::enum$args';
     }
 
-    class float_f$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::float_f$args';
-      f: number | null;
-      constructor(f?: number | null);
-      static createFrom(fields: {f?: number | null}): float_f$args;
+    class Confidence extends gc.sdk.GCEnum {
+      static readonly _type = 'project::Confidence';
+      static readonly $fields: Confidence[];
+      key: Confidence.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field);
+      static High: Confidence;
+      static Medium: Confidence;
+      static Low: Confidence;
+    }
+    namespace Confidence  {
+      type Field = 'High'|'Medium'|'Low';
     }
 
-    class array$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array$args';
+    class slowTask$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::slowTask$args';
     }
 
-    class an_error$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::an_error$args';
-    }
-
-    class computeTask$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::computeTask$args';
+    class table3$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table3$args';
     }
 
     class Root extends gc.sdk.GCObject {
@@ -56,15 +68,8 @@ declare namespace gc {
       "project::ng": gc.core.nodeGeo<string>;
     }
 
-    class Bar<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'project::Bar';
-      attr: T | null;
-      constructor(attr?: T | null);
-      static createFrom<T>(fields: {attr?: T | null}): Bar;
-    }
-
-    class std_int_min_number$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_int_min_number$args';
+    class longTask$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::longTask$args';
     }
 
     class table2$args extends gc.sdk.GCObject {
@@ -75,6 +80,243 @@ declare namespace gc {
       static readonly _type = 'project::get_node_index$args';
     }
 
+    class identity$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::identity$args';
+      v: any | null;
+      constructor(v?: any | null);
+      static createFrom(fields: {v?: any | null}): identity$args;
+    }
+
+    class create_nodeTimes$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::create_nodeTimes$args';
+    }
+
+    class ArrayContainer extends gc.sdk.GCObject {
+      static readonly _type = 'project::ArrayContainer';
+      arr: globalThis.Array<number | bigint>;
+      constructor(arr: globalThis.Array<number | bigint>);
+      static createFrom(fields: {arr: globalThis.Array<number | bigint>}): ArrayContainer;
+    }
+
+    class array2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array2$args';
+    }
+
+    class std_int_min_bigint$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_int_min_bigint$args';
+    }
+
+    class sensor_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::sensor_table$args';
+    }
+
+    class map$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::map$args';
+    }
+
+    class array_container$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array_container$args';
+      ac: gc.project.ArrayContainer;
+      constructor(ac: gc.project.ArrayContainer);
+      static createFrom(fields: {ac: gc.project.ArrayContainer}): array_container$args;
+    }
+
+    class gonna_timeout$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::gonna_timeout$args';
+    }
+
+    class table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table$args';
+    }
+
+    class FooBar extends gc.sdk.GCObject {
+      static readonly _type = 'project::FooBar';
+      tz: gc.core.TimeZone;
+      name: string;
+      int: number | bigint;
+      foo: gc.project.FooBar | null;
+      values: globalThis.Array<any>;
+      constructor(tz: gc.core.TimeZone, name: string, int: number | bigint, foo: gc.project.FooBar | null, values: globalThis.Array<any>);
+      static createFrom(fields: {tz: gc.core.TimeZone, name: string, int: number | bigint, foo?: gc.project.FooBar | null, values: globalThis.Array<any>}): FooBar;
+    }
+
+    class vtable_test$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::vtable_test$args';
+    }
+
+    class std_int$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_int$args';
+    }
+
+    class std_bool$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_bool$args';
+    }
+
+    class contacts$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::contacts$args';
+      contacts: gc.core.Table<gc.project.Contact>;
+      constructor(contacts: gc.core.Table<gc.project.Contact>);
+      static createFrom(fields: {contacts: gc.core.Table<gc.project.Contact>}): contacts$args;
+    }
+
+    class periodic_task$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::periodic_task$args';
+    }
+
+    class get_node_list$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_node_list$args';
+    }
+
+    class Person extends gc.sdk.GCObject {
+      static readonly _type = 'project::Person';
+      name: string;
+      age: number | bigint;
+      constructor(name: string, age: number | bigint);
+      static createFrom(fields: {name: string, age: number | bigint}): Person;
+    }
+
+    class Contact extends gc.sdk.GCObject {
+      static readonly _type = 'project::Contact';
+      firstname: string;
+      lastname: string;
+      age: number | bigint;
+      constructor(firstname: string, lastname: string, age: number | bigint);
+      static createFrom(fields: {firstname: string, lastname: string, age: number | bigint}): Contact;
+    }
+
+    class array3$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array3$args';
+    }
+
+    class time$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::time$args';
+    }
+
+    class array_mono$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array_mono$args';
+    }
+
+    class testTensor$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::testTensor$args';
+    }
+
+    class std_int_max_bigint$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_int_max_bigint$args';
+    }
+
+    class FloatPrecisionTest extends gc.sdk.GCObject {
+      static readonly _type = 'project::FloatPrecisionTest';
+      normal: number;
+      precision: number;
+      constructor(normal: number, precision: number);
+      static createFrom(fields: {normal: number, precision: number}): FloatPrecisionTest;
+    }
+
+    class array_of_int$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array_of_int$args';
+      arr: globalThis.Array<number | bigint>;
+      constructor(arr: globalThis.Array<number | bigint>);
+      static createFrom(fields: {arr: globalThis.Array<number | bigint>}): array_of_int$args;
+    }
+
+    class boom$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::boom$args';
+    }
+
+    class ambiguous2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::ambiguous2$args';
+    }
+
+    class tensor2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor2$args';
+    }
+
+    class Obj extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj';
+      tuple: gc.core.Tuple<any, any>;
+      constructor(tuple: gc.core.Tuple<any, any>);
+      static createFrom(fields: {tuple: gc.core.Tuple<any, any>}): Obj;
+    }
+
+    class Bar<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'project::Bar';
+      attr: T | null;
+      constructor(attr?: T | null);
+      static createFrom<T>(fields: {attr?: T | null}): Bar;
+    }
+
+    class foo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::foo$args';
+    }
+
+    class get_node_geo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_node_geo$args';
+    }
+
+    class computeTask$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::computeTask$args';
+    }
+
+    class something$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::something$args';
+      foo: gc.project.Baz;
+      constructor(foo: gc.project.Baz);
+      static createFrom(fields: {foo: gc.project.Baz}): something$args;
+    }
+
+    class float_f$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::float_f$args';
+      f: number | null;
+      constructor(f?: number | null);
+      static createFrom(fields: {f?: number | null}): float_f$args;
+    }
+
+    class array_of_string$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array_of_string$args';
+      arr: globalThis.Array<string>;
+      constructor(arr: globalThis.Array<string>);
+      static createFrom(fields: {arr: globalThis.Array<string>}): array_of_string$args;
+    }
+
+    class enumValue$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::enumValue$args';
+    }
+
+    class get_node$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_node$args';
+    }
+
+    class ambiguous$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::ambiguous$args';
+    }
+
+    class fn_pointer$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::fn_pointer$args';
+    }
+
+    class geos$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::geos$args';
+    }
+
+    class tensor$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor$args';
+    }
+
+    class geo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::geo$args';
+    }
+
+    class std_int_min_number$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_int_min_number$args';
+    }
+
+    class Named extends gc.sdk.GCObject {
+      static readonly _type = 'project::Named';
+      name: string;
+      constructor(name: string);
+      static createFrom(fields: {name: string}): Named;
+    }
+
     class Baz extends gc.sdk.GCObject {
       static readonly _type = 'project::Baz';
       a: number | bigint | null;
@@ -83,19 +325,11 @@ declare namespace gc {
       static createFrom(fields: {a?: number | bigint | null, b: string}): Baz;
     }
 
-    class std_bool$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_bool$args';
-    }
-
-    class gonna_timeout$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::gonna_timeout$args';
-    }
-
     class NameConflict extends gc.sdk.GCEnum {
       static readonly _type = 'project::NameConflict';
       static readonly $fields: NameConflict[];
       key: NameConflict.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: NameConflict.Field, value?: unknown);
+      constructor(type: gc.sdk.AbiType, offset: number, key: NameConflict.Field);
       static name: NameConflict;
     }
     namespace NameConflict  {
@@ -110,281 +344,20 @@ declare namespace gc {
       static createFrom(fields: {different: string, age: number | bigint}): task_with_params$args;
     }
 
-    class foobar$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::foobar$args';
-    }
-
-    class geo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::geo$args';
-    }
-
-    class geos$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::geos$args';
-    }
-
-    class ambiguous$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::ambiguous$args';
-    }
-
-    class potato2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::potato2$args';
-      arr: globalThis.Array<gc.io.CsvColumn>;
-      constructor(arr: globalThis.Array<gc.io.CsvColumn>);
-      static createFrom(fields: {arr: globalThis.Array<gc.io.CsvColumn>}): potato2$args;
-    }
-
-    class MyRow extends gc.sdk.GCObject {
-      static readonly _type = 'project::MyRow';
-      id: number | bigint;
-      temp: number;
-      data: project.Named;
-      constructor(id: number | bigint, temp: number, data: project.Named);
-      static createFrom(fields: {id: number | bigint, temp: number, data: project.Named}): MyRow;
-    }
-
-    class Obj extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj';
-      tuple: gc.core.Tuple<any, any>;
-      constructor(tuple: gc.core.Tuple<any, any>);
-      static createFrom(fields: {tuple: gc.core.Tuple<any, any>}): Obj;
-    }
-
-    class tensor3$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor3$args';
-    }
-
-    class time$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::time$args';
-    }
-
-    class array_of_int$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array_of_int$args';
-      arr: globalThis.Array<number | bigint>;
-      constructor(arr: globalThis.Array<number | bigint>);
-      static createFrom(fields: {arr: globalThis.Array<number | bigint>}): array_of_int$args;
-    }
-
-    class ArrayContainer extends gc.sdk.GCObject {
-      static readonly _type = 'project::ArrayContainer';
-      arr: globalThis.Array<number | bigint>;
-      constructor(arr: globalThis.Array<number | bigint>);
-      static createFrom(fields: {arr: globalThis.Array<number | bigint>}): ArrayContainer;
-    }
-
-    class fn_pointer$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::fn_pointer$args';
-    }
-
-    class enumValue$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::enumValue$args';
+    class std_int_max_number$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::std_int_max_number$args';
     }
 
     class array_mono2$args extends gc.sdk.GCObject {
       static readonly _type = 'project::array_mono2$args';
     }
 
-    class Confidence extends gc.sdk.GCEnum {
-      static readonly _type = 'project::Confidence';
-      static readonly $fields: Confidence[];
-      key: Confidence.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field, value?: unknown);
-      static High: Confidence;
-      static Medium: Confidence;
-      static Low: Confidence;
-    }
-    namespace Confidence  {
-      type Field = 'High'|'Medium'|'Low';
+    class foobar$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::foobar$args';
     }
 
-    class std_int$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_int$args';
-    }
-
-    class enum$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::enum$args';
-    }
-
-    class Named extends gc.sdk.GCObject {
-      static readonly _type = 'project::Named';
-      name: string;
-      constructor(name: string);
-      static createFrom(fields: {name: string}): Named;
-    }
-
-    class sensor_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::sensor_table$args';
-    }
-
-    class get_node$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_node$args';
-    }
-
-    class blockingFn$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::blockingFn$args';
-    }
-
-    class FloatPrecisionTest extends gc.sdk.GCObject {
-      static readonly _type = 'project::FloatPrecisionTest';
-      normal: number;
-      precision: number;
-      constructor(normal: number, precision: number);
-      static createFrom(fields: {normal: number, precision: number}): FloatPrecisionTest;
-    }
-
-    class array2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array2$args';
-    }
-
-    class Contact extends gc.sdk.GCObject {
-      static readonly _type = 'project::Contact';
-      firstname: string;
-      lastname: string;
-      age: number | bigint;
-      constructor(firstname: string, lastname: string, age: number | bigint);
-      static createFrom(fields: {firstname: string, lastname: string, age: number | bigint}): Contact;
-    }
-
-    class identity$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::identity$args';
-      v: any | null;
-      constructor(v?: any | null);
-      static createFrom(fields: {v?: any | null}): identity$args;
-    }
-
-    class FooBar extends gc.sdk.GCObject {
-      static readonly _type = 'project::FooBar';
-      tz: gc.core.TimeZone;
-      name: string;
-      int: number | bigint;
-      foo: project.FooBar | null;
-      values: globalThis.Array<any>;
-      constructor(tz: gc.core.TimeZone, name: string, int: number | bigint, foo: project.FooBar | null, values: globalThis.Array<any>);
-      static createFrom(fields: {tz: gc.core.TimeZone, name: string, int: number | bigint, foo?: project.FooBar | null, values: globalThis.Array<any>}): FooBar;
-    }
-
-    class contacts$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::contacts$args';
-      contacts: gc.core.Table<project.Contact>;
-      constructor(contacts: gc.core.Table<project.Contact>);
-      static createFrom(fields: {contacts: gc.core.Table<project.Contact>}): contacts$args;
-    }
-
-    class table3$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table3$args';
-    }
-
-    class array_mono$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array_mono$args';
-    }
-
-    class array_of_string$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array_of_string$args';
-      arr: globalThis.Array<string>;
-      constructor(arr: globalThis.Array<string>);
-      static createFrom(fields: {arr: globalThis.Array<string>}): array_of_string$args;
-    }
-
-    class testTensor$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::testTensor$args';
-    }
-
-    class tensor2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor2$args';
-    }
-
-    class longTask$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::longTask$args';
-    }
-
-    class something$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::something$args';
-      foo: project.Baz;
-      constructor(foo: project.Baz);
-      static createFrom(fields: {foo: project.Baz}): something$args;
-    }
-
-    class boom$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::boom$args';
-    }
-
-    class foo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::foo$args';
-    }
-
-    class periodic_task$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::periodic_task$args';
-    }
-
-    class slowTask$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::slowTask$args';
-    }
-
-    class get_node_list$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_node_list$args';
-    }
-
-    class std_int_min_bigint$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_int_min_bigint$args';
-    }
-
-    class some_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::some_table$args';
-    }
-
-    class map$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::map$args';
-    }
-
-    class get_node_geo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_node_geo$args';
-    }
-
-    class get_node_time$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_node_time$args';
-    }
-
-    class std_int_max_bigint$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::std_int_max_bigint$args';
-    }
-
-    class create_nodeTimes$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::create_nodeTimes$args';
-    }
-
-    class Sensor extends gc.sdk.GCObject {
-      static readonly _type = 'project::Sensor';
-      id: string;
-      temp: number;
-      humidity: number;
-      constructor(id: string, temp: number, humidity: number);
-      static createFrom(fields: {id: string, temp: number, humidity: number}): Sensor;
-    }
-
-    class Person extends gc.sdk.GCObject {
-      static readonly _type = 'project::Person';
-      name: string;
-      age: number | bigint;
-      constructor(name: string, age: number | bigint);
-      static createFrom(fields: {name: string, age: number | bigint}): Person;
-    }
-
-    class array_container$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array_container$args';
-      ac: project.ArrayContainer;
-      constructor(ac: project.ArrayContainer);
-      static createFrom(fields: {ac: project.ArrayContainer}): array_container$args;
-    }
-
-    class array3$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array3$args';
-    }
-
-    class table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table$args';
-    }
-
-    class tensor$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor$args';
+    class an_error$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::an_error$args';
     }
 
     class array_of_float$args extends gc.sdk.GCObject {
@@ -394,23 +367,43 @@ declare namespace gc {
       static createFrom(fields: {arr: globalThis.Array<number>}): array_of_float$args;
     }
 
-    class read_stringlit$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::read_stringlit$args';
-      arr: globalThis.Array<string>;
-      constructor(arr: globalThis.Array<string>);
-      static createFrom(fields: {arr: globalThis.Array<string>}): read_stringlit$args;
+    class some_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::some_table$args';
     }
 
-    class CustomType extends gc.sdk.GCObject {
-      static readonly _type = 'project::CustomType';
-      string: string;
-      int: number | bigint;
-      float: number;
-      bool: boolean;
-      char: string;
-      enum: gc.core.TimeZone;
-      constructor(string: string, int: number | bigint, float: number, bool: boolean, char: string, enum_: gc.core.TimeZone);
-      static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, enum_: gc.core.TimeZone}): CustomType;
+    class print_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::print_table$args';
+      table: gc.core.Table;
+      constructor(table: gc.core.Table);
+      static createFrom(fields: {table: gc.core.Table}): print_table$args;
+    }
+
+    class array$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array$args';
+    }
+
+    class MyRow extends gc.sdk.GCObject {
+      static readonly _type = 'project::MyRow';
+      id: number | bigint;
+      temp: number;
+      data: gc.project.Named;
+      constructor(id: number | bigint, temp: number, data: gc.project.Named);
+      static createFrom(fields: {id: number | bigint, temp: number, data: gc.project.Named}): MyRow;
+    }
+
+    class get_node_time$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_node_time$args';
+    }
+
+    class Foo extends gc.sdk.GCObject {
+      static readonly _type = 'project::Foo';
+      a: number | bigint | null;
+      constructor(a?: number | bigint | null);
+      static createFrom(fields: {a?: number | bigint | null}): Foo;
+    }
+
+    class tensor3$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor3$args';
     }
 
     function map($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Map<any | null, any | null>>;
@@ -427,7 +420,7 @@ declare namespace gc {
     function tensor($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function tensor2($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function tensor3($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function foo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<project.Foo>;
+    function foo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.project.Foo>;
     function task_with_params(different: string, age: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
     function enum_($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function table2($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
@@ -441,14 +434,14 @@ declare namespace gc {
     function print_table(table: gc.core.Table, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function fn_pointer($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function identity(v?: any | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<any | null>;
-    function array_container(ac: project.ArrayContainer, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function array_container(ac: gc.project.ArrayContainer, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function read_stringlit(arr: globalThis.Array<string>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function contacts(contacts: gc.core.Table<project.Contact>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+    function contacts(contacts: gc.core.Table<gc.project.Contact>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function array_of_int(arr: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function array_of_float(arr: globalThis.Array<number>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function array_of_string(arr: globalThis.Array<string>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function boom($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function sensor_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Sensor>>;
+    function sensor_table($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Sensor>>;
     function geo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function geos($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function periodic_task($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.PeriodicTask>;
@@ -469,8 +462,7 @@ declare namespace gc {
     function get_node_geo($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function ambiguous($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     function ambiguous2($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-    function potato2(arr: globalThis.Array<gc.io.CsvColumn>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.io.CsvColumn>>;
-    function something(foo: project.Baz, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<project.Baz>;
+    function something(foo: gc.project.Baz, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.project.Baz>;
   }
 
   namespace sdk {
@@ -517,9 +509,9 @@ declare namespace gc {
         call(method: 'project::tensor3', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::tensor3', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::tensor3', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<project.Foo>;
+        call(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.project.Foo>;
         spawn(method: 'project::foo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<project.Foo>;
+        spawnAwait(method: 'project::foo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.project.Foo>;
         call(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<string>;
         spawn(method: 'project::task_with_params', args: [string, number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::task_with_params', args: [string, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
@@ -559,15 +551,15 @@ declare namespace gc {
         call(method: 'project::identity', args: [any | null], signal?: globalThis.AbortSignal): Promise<any | null>;
         spawn(method: 'project::identity', args: [any | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::identity', args: [any | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<any | null>;
-        call(method: 'project::array_container', args: [project.ArrayContainer], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'project::array_container', args: [project.ArrayContainer], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::array_container', args: [project.ArrayContainer], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::array_container', args: [gc.project.ArrayContainer], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::array_container', args: [gc.project.ArrayContainer], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::array_container', args: [gc.project.ArrayContainer], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
         call(method: 'project::read_stringlit', args: [globalThis.Array<string>], signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::read_stringlit', args: [globalThis.Array<string>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::read_stringlit', args: [globalThis.Array<string>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'project::contacts', args: [gc.core.Table<project.Contact>], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'project::contacts', args: [gc.core.Table<project.Contact>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::contacts', args: [gc.core.Table<project.Contact>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
+        call(method: 'project::contacts', args: [gc.core.Table<gc.project.Contact>], signal?: globalThis.AbortSignal): Promise<unknown>;
+        spawn(method: 'project::contacts', args: [gc.core.Table<gc.project.Contact>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::contacts', args: [gc.core.Table<gc.project.Contact>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
         call(method: 'project::array_of_int', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::array_of_int', args: [globalThis.Array<number | bigint>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::array_of_int', args: [globalThis.Array<number | bigint>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -580,9 +572,9 @@ declare namespace gc {
         call(method: 'project::boom', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::boom', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::boom', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'project::sensor_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Sensor>>;
+        call(method: 'project::sensor_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Sensor>>;
         spawn(method: 'project::sensor_table', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::sensor_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table<project.Sensor>>;
+        spawnAwait(method: 'project::sensor_table', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table<gc.project.Sensor>>;
         call(method: 'project::geo', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::geo', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::geo', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
@@ -643,162 +635,949 @@ declare namespace gc {
         call(method: 'project::ambiguous2', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
         spawn(method: 'project::ambiguous2', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
         spawnAwait(method: 'project::ambiguous2', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'project::potato2', args: [globalThis.Array<gc.io.CsvColumn>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.io.CsvColumn>>;
-        spawn(method: 'project::potato2', args: [globalThis.Array<gc.io.CsvColumn>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::potato2', args: [globalThis.Array<gc.io.CsvColumn>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.io.CsvColumn>>;
-        call(method: 'project::something', args: [project.Baz], signal?: globalThis.AbortSignal): Promise<project.Baz>;
-        spawn(method: 'project::something', args: [project.Baz], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'project::something', args: [project.Baz], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<project.Baz>;
+        call(method: 'project::something', args: [gc.project.Baz], signal?: globalThis.AbortSignal): Promise<gc.project.Baz>;
+        spawn(method: 'project::something', args: [gc.project.Baz], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
+        spawnAwait(method: 'project::something', args: [gc.project.Baz], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.project.Baz>;
     }
   }
+  interface $TypesMap {
+    'core::Array<core::NodeInfo<core::geo>>': 0,
+    'core::ErrorCode': 0,
+    'core::t4': 0,
+    'core::node<core::int>': 0,
+    'core::Table': 0,
+    'core::Map<core::String,runtime::UserCredential>': 0,
+    'core::t3': 0,
+    'core::nodeIndex': 0,
+    'core::GeoCircle': 0,
+    'core::Table<core::Array<core::any>>': 0,
+    'core::Table<project::Sensor>': 0,
+    'core::Array<runtime::Job>': 0,
+    'core::Array<core::node?>': 0,
+    'core::Array<core::nodeGeo>': 0,
+    'core::Array<runtime::UserGroupPolicy>': 0,
+    'core::TimeZone': 0,
+    'core::Tuple<core::time,core::String>': 0,
+    'core::nodeIndex$info$args': 0,
+    'core::Array<runtime::Task>': 0,
+    'core::nodeIndex$sample$args': 0,
+    'core::Date$from_time$args': 0,
+    'core::NodeInfo<core::time>': 0,
+    'core::t2': 0,
+    'core::Array<runtime::Role>': 0,
+    'core::Array<core::any?>': 0,
+    'core::nodeTime<core::nodeGeo>': 0,
+    'core::Tuple<core::time,core::int>': 0,
+    'core::String': 0,
+    'core::Array<runtime::Permission>': 0,
+    'core::node<core::String>': 0,
+    'core::nodeTime<core::String>': 0,
+    'core::GeoBox': 0,
+    'core::t4f': 0,
+    'core::field': 0,
+    'core::CalendarUnit': 0,
+    'core::Array<core::geo>': 0,
+    'core::Array<core::TableColumnMapping>': 0,
+    'core::Array<core::any>': 0,
+    'core::Buffer': 0,
+    'core::Array<core::bool>': 0,
+    'core::nodeList$sample$args': 0,
+    'core::nodeList': 0,
+    'core::nodeList$info$args': 0,
+    'core::Array<util::Quantizer>': 0,
+    'core::Array<core::String>': 0,
+    'core::node<core::float>': 0,
+    'core::nodeList<core::String>': 0,
+    'core::nodeTime': 0,
+    'core::nodeGeo$info$args': 0,
+    'core::Map<core::any,core::any?>': 0,
+    'core::duration': 0,
+    'core::Tensor': 0,
+    'core::Array<runtime::PeriodicTask>': 0,
+    'core::Map<core::String,core::int>': 0,
+    'core::Array<io::HttpHeader>': 0,
+    'core::Array<core::NodeInfo<core::time>>': 0,
+    'core::Map<core::String,core::String>': 0,
+    'core::Table<util::GaussianProfileSlot?>': 0,
+    'core::nodeTimeSingleton': 0,
+    'core::SortOrder': 0,
+    'core::NodeInfo': 0,
+    'core::Array<core::nodeIndex>': 0,
+    'core::node<core::String?>': 0,
+    'core::nodeIndex<core::String,core::float>': 0,
+    'core::t3f': 0,
+    'core::MathConstants': 0,
+    'core::null': 0,
+    'core::type': 0,
+    'core::SamplingMode': 0,
+    'core::geo': 0,
+    'core::Map': 0,
+    'core::Error': 0,
+    'core::Array<core::nodeList>': 0,
+    'core::Array<core::NodeInfo>': 0,
+    'core::nodeTimeCursor': 0,
+    'core::nodeGeo<core::CalendarUnit>': 0,
+    'core::nodeGeo': 0,
+    'core::Array<util::HistogramBin>': 0,
+    'core::Array<runtime::SecurityEntity>': 0,
+    'core::Array<core::NodeInfo<core::int>>': 0,
+    'core::Array<core::ErrorFrame>': 0,
+    'core::Array<project::Named>': 0,
+    'core::node': 0,
+    'core::DurationUnit': 0,
+    'core::Array<core::float>': 0,
+    'core::nodeList<core::int>': 0,
+    'core::Array<core::field>': 0,
+    'core::nodeTime$sample$args': 0,
+    'core::nodeTime<core::int>': 0,
+    'core::Table<project::MyRow>': 0,
+    'core::Array<runtime::UserCredential>': 0,
+    'core::TableColumnMapping': 0,
+    'core::TensorType': 0,
+    'core::nodeGeo<core::String>': 0,
+    'core::Array<runtime::Frame>': 0,
+    'core::nodeTime$info$args': 0,
+    'core::Tuple<core::time,core::any?>': 0,
+    'core::Tuple<core::String,core::String>': 0,
+    'core::Tuple': 0,
+    'core::time': 0,
+    'core::bool': 0,
+    'core::nodeIndex<core::Tuple,core::any?>': 0,
+    'core::Tuple<core::any,core::any>': 0,
+    'core::ErrorFrame': 0,
+    'core::NodeInfo<core::geo>': 0,
+    'core::Table<project::Contact>': 0,
+    'core::Tuple<core::time,core::nodeGeo>': 0,
+    'core::Array<core::nodeTime>': 0,
+    'core::Table$applyMappings$args': 0,
+    'core::Map<core::any,core::any>': 0,
+    'core::Array<io::CsvColumnStatistics>': 0,
+    'core::Array<core::int?>': 0,
+    'core::Array': 0,
+    'core::GeoPoly': 0,
+    'core::FloatPrecision': 0,
+    'core::Array<runtime::Variable>': 0,
+    'core::Table<core::any>': 0,
+    'core::char': 0,
+    'core::any': 0,
+    'core::Table<core::Tuple<core::time,core::any?>>': 0,
+    'core::float': 0,
+    'core::node$resolve_all$args': 0,
+    'core::int': 0,
+    'core::nodeGeo$sample$args': 0,
+    'core::t2f': 0,
+    'core::Date': 0,
+    'core::function': 0,
+    'core::NodeInfo<core::int>': 0,
+    'core::Map<core::any,core::int>': 0,
+    'core::str': 0,
+    'core::Array<io::File>': 0,
+    'core::Array<core::int>': 0,
+    'runtime::Task$running$args': 0,
+    'runtime::Variable': 0,
+    'runtime::User$logout$args': 0,
+    'runtime::SecurityEntity': 0,
+    'runtime::User$login$args': 0,
+    'runtime::Task$cancel$args': 0,
+    'runtime::User$setPassword$args': 0,
+    'runtime::PeriodicTask': 0,
+    'runtime::Runtime$root$args': 0,
+    'runtime::User$me$args': 0,
+    'runtime::SecurityFields$get$args': 0,
+    'runtime::SecurityFields$set$args': 0,
+    'runtime::Task': 0,
+    'runtime::Log': 0,
+    'runtime::Permission$all$args': 0,
+    'runtime::SecurityFields': 0,
+    'runtime::Permission': 0,
+    'runtime::CallPerf': 0,
+    'runtime::PeriodicTask$all$args': 0,
+    'runtime::RuntimeInfo': 0,
+    'runtime::Runtime$info$args': 0,
+    'runtime::Debug$resume$args': 0,
+    'runtime::SecurityEntity$all$args': 0,
+    'runtime::UserCredential': 0,
+    'runtime::Task$history$args': 0,
+    'runtime::System': 0,
+    'runtime::Debug$all$args': 0,
+    'runtime::LogLevel': 0,
+    'runtime::Debug$get$args': 0,
+    'runtime::OpenIDConnect': 0,
+    'runtime::User': 0,
+    'runtime::PeriodicTask$set$args': 0,
+    'runtime::UserGroupPolicyType': 0,
+    'runtime::Runtime': 0,
+    'runtime::Job': 0,
+    'runtime::Frame': 0,
+    'runtime::OpenIDConnect$config$args': 0,
+    'runtime::User$tokenLogin$args': 0,
+    'runtime::User$permissions$args': 0,
+    'runtime::License': 0,
+    'runtime::Task$is_running$args': 0,
+    'runtime::UserGroupPolicy': 0,
+    'runtime::User$current$args': 0,
+    'runtime::Role': 0,
+    'runtime::Debug': 0,
+    'runtime::SecurityEntity$set$args': 0,
+    'runtime::User$renew$args': 0,
+    'runtime::Role$all$args': 0,
+    'runtime::LicenseType': 0,
+    'runtime::TaskStatus': 0,
+    'runtime::SecurityPolicy': 0,
+    'runtime::Runtime$abi$args': 0,
+    'runtime::UserGroup': 0,
+    'io::FileWalker': 0,
+    'io::Json': 0,
+    'io::Reader': 0,
+    'io::GcbReader': 0,
+    'io::Csv$sample$args': 0,
+    'io::CsvColumnStatistics': 0,
+    'io::File': 0,
+    'io::JsonReader': 0,
+    'io::CsvFormat': 0,
+    'io::CsvSharding': 0,
+    'io::Email': 0,
+    'io::Csv': 0,
+    'io::CsvAnalysisConfig': 0,
+    'io::GcbWriter': 0,
+    'io::SmtpAuth': 0,
+    'io::Url': 0,
+    'io::Writer': 0,
+    'io::SmtpMode': 0,
+    'io::TextWriter': 0,
+    'io::Csv$generate$args': 0,
+    'io::Smtp': 0,
+    'io::HttpHeader': 0,
+    'io::CsvStatistics': 0,
+    'io::Http': 0,
+    'io::CsvWriter': 0,
+    'io::JsonWriter': 0,
+    'io::TextReader': 0,
+    'io::Reader<core::String>': 0,
+    'io::CsvReader': 0,
+    'io::Csv$analyze$args': 0,
+    'util::LinearQuantizer': 0,
+    'util::Stack': 0,
+    'util::GaussianProfile': 0,
+    'util::ProgressTracker': 0,
+    'util::Assert': 0,
+    'util::MultiQuantizer': 0,
+    'util::HistogramStats': 0,
+    'util::Crypto': 0,
+    'util::Quantizer<core::Array>': 0,
+    'util::TimeWindow': 0,
+    'util::Plot': 0,
+    'util::LogQuantizer': 0,
+    'util::QuantizerSlotBound': 0,
+    'util::GaussianProfileSlot': 0,
+    'util::QuantizerSlotBound<core::Array>': 0,
+    'util::Queue<core::int>': 0,
+    'util::SlidingWindow': 0,
+    'util::HistogramBin': 0,
+    'util::Random': 0,
+    'util::Stack<core::String>': 0,
+    'util::CustomQuantizer': 0,
+    'util::Gaussian': 0,
+    'util::Histogram': 0,
+    'util::Quantizer': 0,
+    'util::Queue': 0,
+    'project::CustomType': 0,
+    'project::read_stringlit$args': 0,
+    'project::Sensor': 0,
+    'project::blockingFn$args': 0,
+    'project::enum$args': 0,
+    'project::Confidence': 0,
+    'project::slowTask$args': 0,
+    'project::table3$args': 0,
+    'project::Root': 0,
+    'project::longTask$args': 0,
+    'project::table2$args': 0,
+    'project::get_node_index$args': 0,
+    'project::identity$args': 0,
+    'project::create_nodeTimes$args': 0,
+    'project::ArrayContainer': 0,
+    'project::array2$args': 0,
+    'project::std_int_min_bigint$args': 0,
+    'project::sensor_table$args': 0,
+    'project::map$args': 0,
+    'project::array_container$args': 0,
+    'project::gonna_timeout$args': 0,
+    'project::table$args': 0,
+    'project::FooBar': 0,
+    'project::vtable_test$args': 0,
+    'project::std_int$args': 0,
+    'project::std_bool$args': 0,
+    'project::contacts$args': 0,
+    'project::periodic_task$args': 0,
+    'project::get_node_list$args': 0,
+    'project::Person': 0,
+    'project::Contact': 0,
+    'project::array3$args': 0,
+    'project::time$args': 0,
+    'project::array_mono$args': 0,
+    'project::testTensor$args': 0,
+    'project::std_int_max_bigint$args': 0,
+    'project::FloatPrecisionTest': 0,
+    'project::array_of_int$args': 0,
+    'project::boom$args': 0,
+    'project::ambiguous2$args': 0,
+    'project::tensor2$args': 0,
+    'project::Obj': 0,
+    'project::Bar': 0,
+    'project::foo$args': 0,
+    'project::get_node_geo$args': 0,
+    'project::computeTask$args': 0,
+    'project::something$args': 0,
+    'project::float_f$args': 0,
+    'project::array_of_string$args': 0,
+    'project::enumValue$args': 0,
+    'project::get_node$args': 0,
+    'project::ambiguous$args': 0,
+    'project::fn_pointer$args': 0,
+    'project::geos$args': 0,
+    'project::tensor$args': 0,
+    'project::geo$args': 0,
+    'project::std_int_min_number$args': 0,
+    'project::Named': 0,
+    'project::Baz': 0,
+    'project::NameConflict': 0,
+    'project::task_with_params$args': 0,
+    'project::std_int_max_number$args': 0,
+    'project::array_mono2$args': 0,
+    'project::foobar$args': 0,
+    'project::an_error$args': 0,
+    'project::array_of_float$args': 0,
+    'project::some_table$args': 0,
+    'project::print_table$args': 0,
+    'project::array$args': 0,
+    'project::MyRow': 0,
+    'project::get_node_time$args': 0,
+    'project::Foo': 0,
+    'project::tensor3$args': 0,
+  }
 
-  export import t3f = gc.core.t3f;
-  export import str = gc.core.str;
-  export import int = gc.core.int;
-  export import function_ = gc.core.function_;
-  export import NodeInfo = gc.core.NodeInfo;
-  export import Tuple = gc.core.Tuple;
+  interface $FieldsMap {
+    'core::GeoCircle::center': 0,
+    'core::GeoCircle::radius': 0,
+    'core::nodeIndex$info$args::nodes': 0,
+    'core::nodeIndex$sample$args::refs': 0,
+    'core::nodeIndex$sample$args::from': 0,
+    'core::nodeIndex$sample$args::maxRows': 0,
+    'core::nodeIndex$sample$args::mode': 0,
+    'core::Date$from_time$args::time': 0,
+    'core::Date$from_time$args::tz': 0,
+    'core::GeoBox::sw': 0,
+    'core::GeoBox::ne': 0,
+    'core::nodeList$sample$args::refs': 0,
+    'core::nodeList$sample$args::from': 0,
+    'core::nodeList$sample$args::to': 0,
+    'core::nodeList$sample$args::maxRows': 0,
+    'core::nodeList$sample$args::mode': 0,
+    'core::nodeList$sample$args::maxDephasing': 0,
+    'core::nodeList$info$args::nodes': 0,
+    'core::nodeGeo$info$args::nodes': 0,
+    'core::nodeTimeSingleton::t': 0,
+    'core::nodeTimeSingleton::v': 0,
+    'core::NodeInfo::size': 0,
+    'core::NodeInfo::from': 0,
+    'core::NodeInfo::to': 0,
+    'core::Error::message': 0,
+    'core::Error::stack': 0,
+    'core::nodeTimeCursor::n': 0,
+    'core::nodeTimeCursor::req_time': 0,
+    'core::nodeTime$sample$args::refs': 0,
+    'core::nodeTime$sample$args::from': 0,
+    'core::nodeTime$sample$args::to': 0,
+    'core::nodeTime$sample$args::maxRows': 0,
+    'core::nodeTime$sample$args::mode': 0,
+    'core::nodeTime$sample$args::maxDephasing': 0,
+    'core::nodeTime$sample$args::tz': 0,
+    'core::TableColumnMapping::column': 0,
+    'core::TableColumnMapping::extractors': 0,
+    'core::nodeTime$info$args::nodes': 0,
+    'core::Tuple::x': 0,
+    'core::Tuple::y': 0,
+    'core::ErrorFrame::module': 0,
+    'core::ErrorFrame::function': 0,
+    'core::ErrorFrame::line': 0,
+    'core::ErrorFrame::column': 0,
+    'core::Table$applyMappings$args::table': 0,
+    'core::Table$applyMappings$args::mappings': 0,
+    'core::GeoPoly::points': 0,
+    'core::node$resolve_all$args::n': 0,
+    'core::nodeGeo$sample$args::refs': 0,
+    'core::nodeGeo$sample$args::from': 0,
+    'core::nodeGeo$sample$args::to': 0,
+    'core::nodeGeo$sample$args::maxRows': 0,
+    'core::nodeGeo$sample$args::mode': 0,
+    'core::Date::year': 0,
+    'core::Date::month': 0,
+    'core::Date::day': 0,
+    'core::Date::hour': 0,
+    'core::Date::minute': 0,
+    'core::Date::second': 0,
+    'core::Date::microsecond': 0,
+    'runtime::Variable::name': 0,
+    'runtime::Variable::value': 0,
+    'runtime::User$login$args::credentials': 0,
+    'runtime::User$login$args::use_cookie': 0,
+    'runtime::Task$cancel$args::task_id': 0,
+    'runtime::User$setPassword$args::name': 0,
+    'runtime::User$setPassword$args::pass': 0,
+    'runtime::PeriodicTask::function': 0,
+    'runtime::PeriodicTask::user_id': 0,
+    'runtime::PeriodicTask::arguments': 0,
+    'runtime::PeriodicTask::start': 0,
+    'runtime::PeriodicTask::every': 0,
+    'runtime::SecurityFields$set$args::f': 0,
+    'runtime::Task::user_id': 0,
+    'runtime::Task::task_id': 0,
+    'runtime::Task::mod': 0,
+    'runtime::Task::type': 0,
+    'runtime::Task::fun': 0,
+    'runtime::Task::creation': 0,
+    'runtime::Task::start': 0,
+    'runtime::Task::duration': 0,
+    'runtime::Task::status': 0,
+    'runtime::Task::progress': 0,
+    'runtime::Log::level': 0,
+    'runtime::Log::time': 0,
+    'runtime::Log::user_id': 0,
+    'runtime::Log::id': 0,
+    'runtime::Log::id2': 0,
+    'runtime::Log::src': 0,
+    'runtime::Log::tag': 0,
+    'runtime::Log::data': 0,
+    'runtime::SecurityFields::email': 0,
+    'runtime::SecurityFields::name': 0,
+    'runtime::SecurityFields::first_name': 0,
+    'runtime::SecurityFields::last_name': 0,
+    'runtime::SecurityFields::roles': 0,
+    'runtime::SecurityFields::groups': 0,
+    'runtime::Permission::name': 0,
+    'runtime::Permission::description': 0,
+    'runtime::CallPerf::duration': 0,
+    'runtime::CallPerf::bytes_write_disk': 0,
+    'runtime::CallPerf::bytes_write_disk_raw': 0,
+    'runtime::CallPerf::bytes_read_disk': 0,
+    'runtime::CallPerf::bytes_read_disk_raw': 0,
+    'runtime::CallPerf::bytes_read_cache': 0,
+    'runtime::RuntimeInfo::version': 0,
+    'runtime::RuntimeInfo::program_version': 0,
+    'runtime::RuntimeInfo::arch': 0,
+    'runtime::RuntimeInfo::timezone': 0,
+    'runtime::RuntimeInfo::license': 0,
+    'runtime::RuntimeInfo::io_threads': 0,
+    'runtime::RuntimeInfo::bg_threads': 0,
+    'runtime::RuntimeInfo::fg_threads': 0,
+    'runtime::RuntimeInfo::mem_total': 0,
+    'runtime::RuntimeInfo::mem_worker': 0,
+    'runtime::RuntimeInfo::disk_data_bytes': 0,
+    'runtime::Debug$resume$args::id': 0,
+    'runtime::UserCredential::offset': 0,
+    'runtime::UserCredential::pass': 0,
+    'runtime::Task$history$args::offset': 0,
+    'runtime::Task$history$args::max': 0,
+    'runtime::Debug$get$args::id': 0,
+    'runtime::OpenIDConnect::url': 0,
+    'runtime::OpenIDConnect::clientId': 0,
+    'runtime::User::id': 0,
+    'runtime::User::name': 0,
+    'runtime::User::activated': 0,
+    'runtime::User::full_name': 0,
+    'runtime::User::email': 0,
+    'runtime::User::role': 0,
+    'runtime::User::groups': 0,
+    'runtime::User::groups_flags': 0,
+    'runtime::User::external': 0,
+    'runtime::PeriodicTask$set$args::tasks': 0,
+    'runtime::Job::function': 0,
+    'runtime::Job::arguments': 0,
+    'runtime::Frame::module': 0,
+    'runtime::Frame::type': 0,
+    'runtime::Frame::function': 0,
+    'runtime::Frame::src': 0,
+    'runtime::Frame::line': 0,
+    'runtime::Frame::column': 0,
+    'runtime::Frame::scope': 0,
+    'runtime::User$tokenLogin$args::token': 0,
+    'runtime::User$tokenLogin$args::use_cookie': 0,
+    'runtime::License::name': 0,
+    'runtime::License::start': 0,
+    'runtime::License::end': 0,
+    'runtime::License::company': 0,
+    'runtime::License::max_memory': 0,
+    'runtime::License::extra_1': 0,
+    'runtime::License::extra_2': 0,
+    'runtime::License::type': 0,
+    'runtime::Task$is_running$args::task_id': 0,
+    'runtime::UserGroupPolicy::group_id': 0,
+    'runtime::UserGroupPolicy::type': 0,
+    'runtime::Role::name': 0,
+    'runtime::Role::permissions': 0,
+    'runtime::Debug::id': 0,
+    'runtime::Debug::frames': 0,
+    'runtime::Debug::root': 0,
+    'runtime::SecurityEntity$set$args::entity': 0,
+    'runtime::User$renew$args::use_cookie': 0,
+    'runtime::SecurityPolicy::entities': 0,
+    'runtime::SecurityPolicy::credentials': 0,
+    'runtime::SecurityPolicy::fields': 0,
+    'runtime::SecurityPolicy::keys': 0,
+    'runtime::SecurityPolicy::keys_last_refresh': 0,
+    'runtime::UserGroup::id': 0,
+    'runtime::UserGroup::name': 0,
+    'runtime::UserGroup::activated': 0,
+    'io::FileWalker::path': 0,
+    'io::GcbReader::path': 0,
+    'io::GcbReader::pos': 0,
+    'io::Csv$sample$args::reader': 0,
+    'io::Csv$sample$args::max_lines': 0,
+    'io::CsvColumnStatistics::name': 0,
+    'io::CsvColumnStatistics::example': 0,
+    'io::CsvColumnStatistics::null_count': 0,
+    'io::CsvColumnStatistics::bool_count': 0,
+    'io::CsvColumnStatistics::int_count': 0,
+    'io::CsvColumnStatistics::float_count': 0,
+    'io::CsvColumnStatistics::string_count': 0,
+    'io::CsvColumnStatistics::date_count': 0,
+    'io::CsvColumnStatistics::date_format_count': 0,
+    'io::CsvColumnStatistics::enumerable_count': 0,
+    'io::CsvColumnStatistics::profile': 0,
+    'io::File::path': 0,
+    'io::File::size': 0,
+    'io::File::last_modification': 0,
+    'io::JsonReader::path': 0,
+    'io::JsonReader::pos': 0,
+    'io::CsvFormat::header_lines': 0,
+    'io::CsvFormat::separator': 0,
+    'io::CsvFormat::string_delimiter': 0,
+    'io::CsvFormat::decimal_separator': 0,
+    'io::CsvFormat::thousands_separator': 0,
+    'io::CsvFormat::trim': 0,
+    'io::CsvFormat::format': 0,
+    'io::CsvFormat::tz': 0,
+    'io::CsvFormat::strict': 0,
+    'io::CsvFormat::nearest_time': 0,
+    'io::CsvSharding::id': 0,
+    'io::CsvSharding::column': 0,
+    'io::CsvSharding::modulo': 0,
+    'io::Email::from': 0,
+    'io::Email::subject': 0,
+    'io::Email::body': 0,
+    'io::Email::body_is_html': 0,
+    'io::Email::to': 0,
+    'io::Email::cc': 0,
+    'io::Email::bcc': 0,
+    'io::CsvAnalysisConfig::header_lines': 0,
+    'io::CsvAnalysisConfig::separator': 0,
+    'io::CsvAnalysisConfig::string_delimiter': 0,
+    'io::CsvAnalysisConfig::decimal_separator': 0,
+    'io::CsvAnalysisConfig::thousands_separator': 0,
+    'io::CsvAnalysisConfig::row_limit': 0,
+    'io::CsvAnalysisConfig::enumerable_limit': 0,
+    'io::CsvAnalysisConfig::date_check_limit': 0,
+    'io::CsvAnalysisConfig::date_formats': 0,
+    'io::GcbWriter::path': 0,
+    'io::GcbWriter::append': 0,
+    'io::Url::protocol': 0,
+    'io::Url::host': 0,
+    'io::Url::port': 0,
+    'io::Url::path': 0,
+    'io::Url::params': 0,
+    'io::Url::hash': 0,
+    'io::TextWriter::path': 0,
+    'io::TextWriter::append': 0,
+    'io::Csv$generate$args::stats': 0,
+    'io::Smtp::host': 0,
+    'io::Smtp::port': 0,
+    'io::Smtp::mode': 0,
+    'io::Smtp::authenticate': 0,
+    'io::Smtp::user': 0,
+    'io::Smtp::pass': 0,
+    'io::HttpHeader::name': 0,
+    'io::HttpHeader::value': 0,
+    'io::CsvStatistics::header_lines': 0,
+    'io::CsvStatistics::separator': 0,
+    'io::CsvStatistics::string_delimiter': 0,
+    'io::CsvStatistics::decimal_separator': 0,
+    'io::CsvStatistics::thousands_separator': 0,
+    'io::CsvStatistics::columns': 0,
+    'io::CsvStatistics::line_count': 0,
+    'io::CsvStatistics::fail_count': 0,
+    'io::CsvStatistics::file_count': 0,
+    'io::CsvWriter::path': 0,
+    'io::CsvWriter::append': 0,
+    'io::CsvWriter::format': 0,
+    'io::JsonWriter::path': 0,
+    'io::JsonWriter::append': 0,
+    'io::TextReader::path': 0,
+    'io::TextReader::pos': 0,
+    'io::CsvReader::path': 0,
+    'io::CsvReader::pos': 0,
+    'io::CsvReader::format': 0,
+    'io::CsvReader::sharding': 0,
+    'io::Csv$analyze$args::files': 0,
+    'io::Csv$analyze$args::config': 0,
+    'util::LinearQuantizer::min': 0,
+    'util::LinearQuantizer::max': 0,
+    'util::LinearQuantizer::bins': 0,
+    'util::LinearQuantizer::open': 0,
+    'util::Stack::values': 0,
+    'util::GaussianProfile::quantizer': 0,
+    'util::GaussianProfile::precision': 0,
+    'util::GaussianProfile::bins': 0,
+    'util::GaussianProfile::value_min': 0,
+    'util::GaussianProfile::nb_rejected': 0,
+    'util::ProgressTracker::start': 0,
+    'util::ProgressTracker::total': 0,
+    'util::ProgressTracker::counter': 0,
+    'util::ProgressTracker::duration': 0,
+    'util::ProgressTracker::progress': 0,
+    'util::ProgressTracker::speed': 0,
+    'util::ProgressTracker::remaining': 0,
+    'util::MultiQuantizer::quantizers': 0,
+    'util::HistogramStats::min': 0,
+    'util::HistogramStats::max': 0,
+    'util::HistogramStats::whisker_low': 0,
+    'util::HistogramStats::whisker_high': 0,
+    'util::HistogramStats::percentile1': 0,
+    'util::HistogramStats::percentile5': 0,
+    'util::HistogramStats::percentile10': 0,
+    'util::HistogramStats::percentile20': 0,
+    'util::HistogramStats::percentile25': 0,
+    'util::HistogramStats::percentile50': 0,
+    'util::HistogramStats::percentile75': 0,
+    'util::HistogramStats::percentile80': 0,
+    'util::HistogramStats::percentile90': 0,
+    'util::HistogramStats::percentile95': 0,
+    'util::HistogramStats::percentile99': 0,
+    'util::HistogramStats::sum': 0,
+    'util::HistogramStats::avg': 0,
+    'util::HistogramStats::std': 0,
+    'util::HistogramStats::size': 0,
+    'util::TimeWindow::values': 0,
+    'util::TimeWindow::span': 0,
+    'util::TimeWindow::sum': 0,
+    'util::TimeWindow::sumsq': 0,
+    'util::TimeWindow::field': 0,
+    'util::LogQuantizer::min': 0,
+    'util::LogQuantizer::max': 0,
+    'util::LogQuantizer::bins': 0,
+    'util::LogQuantizer::open': 0,
+    'util::QuantizerSlotBound::min': 0,
+    'util::QuantizerSlotBound::max': 0,
+    'util::QuantizerSlotBound::center': 0,
+    'util::GaussianProfileSlot::sum': 0,
+    'util::GaussianProfileSlot::sumsq': 0,
+    'util::GaussianProfileSlot::count': 0,
+    'util::SlidingWindow::values': 0,
+    'util::SlidingWindow::span': 0,
+    'util::SlidingWindow::sum': 0,
+    'util::SlidingWindow::sumsq': 0,
+    'util::SlidingWindow::field': 0,
+    'util::HistogramBin::bin': 0,
+    'util::HistogramBin::count': 0,
+    'util::HistogramBin::ratio': 0,
+    'util::HistogramBin::cumulative_count': 0,
+    'util::HistogramBin::cumulative_ratio': 0,
+    'util::Random::seed': 0,
+    'util::Random::v': 0,
+    'util::CustomQuantizer::min': 0,
+    'util::CustomQuantizer::max': 0,
+    'util::CustomQuantizer::step_starts': 0,
+    'util::CustomQuantizer::open': 0,
+    'util::Gaussian::sum': 0,
+    'util::Gaussian::sumsq': 0,
+    'util::Gaussian::count': 0,
+    'util::Gaussian::min': 0,
+    'util::Gaussian::max': 0,
+    'util::Histogram::quantizer': 0,
+    'util::Histogram::bins': 0,
+    'util::Histogram::nb_rejected': 0,
+    'util::Histogram::nb_accepted': 0,
+    'util::Histogram::min': 0,
+    'util::Histogram::max': 0,
+    'util::Histogram::sum': 0,
+    'util::Histogram::sumsq': 0,
+    'util::Queue::values': 0,
+    'util::Queue::capacity': 0,
+    'project::CustomType::string': 0,
+    'project::CustomType::int': 0,
+    'project::CustomType::float': 0,
+    'project::CustomType::bool': 0,
+    'project::CustomType::char': 0,
+    'project::CustomType::enum': 0,
+    'project::read_stringlit$args::arr': 0,
+    'project::Sensor::id': 0,
+    'project::Sensor::temp': 0,
+    'project::Sensor::humidity': 0,
+    'project::identity$args::v': 0,
+    'project::ArrayContainer::arr': 0,
+    'project::array_container$args::ac': 0,
+    'project::FooBar::tz': 0,
+    'project::FooBar::name': 0,
+    'project::FooBar::int': 0,
+    'project::FooBar::foo': 0,
+    'project::FooBar::values': 0,
+    'project::contacts$args::contacts': 0,
+    'project::Person::name': 0,
+    'project::Person::age': 0,
+    'project::Contact::firstname': 0,
+    'project::Contact::lastname': 0,
+    'project::Contact::age': 0,
+    'project::FloatPrecisionTest::normal': 0,
+    'project::FloatPrecisionTest::precision': 0,
+    'project::array_of_int$args::arr': 0,
+    'project::Obj::tuple': 0,
+    'project::Bar::attr': 0,
+    'project::something$args::foo': 0,
+    'project::float_f$args::f': 0,
+    'project::array_of_string$args::arr': 0,
+    'project::Named::name': 0,
+    'project::Baz::a': 0,
+    'project::Baz::b': 0,
+    'project::task_with_params$args::different': 0,
+    'project::task_with_params$args::age': 0,
+    'project::array_of_float$args::arr': 0,
+    'project::print_table$args::table': 0,
+    'project::MyRow::id': 0,
+    'project::MyRow::temp': 0,
+    'project::MyRow::data': 0,
+    'project::Foo::a': 0,
+  }
+
+  interface $FunctionsMap {
+    'core::Table::applyMappings': 0,
+    'core::nodeIndex::info': 0,
+    'core::nodeIndex::sample': 0,
+    'core::nodeList::info': 0,
+    'core::nodeList::sample': 0,
+    'core::nodeTime::info': 0,
+    'core::nodeTime::sample': 0,
+    'core::nodeGeo::info': 0,
+    'core::nodeGeo::sample': 0,
+    'core::node::resolve_all': 0,
+    'core::Date::from_time': 0,
+    'runtime::SecurityEntity::set': 0,
+    'runtime::SecurityEntity::all': 0,
+    'runtime::PeriodicTask::set': 0,
+    'runtime::PeriodicTask::all': 0,
+    'runtime::Task::is_running': 0,
+    'runtime::Task::cancel': 0,
+    'runtime::Task::history': 0,
+    'runtime::Task::running': 0,
+    'runtime::SecurityFields::get': 0,
+    'runtime::SecurityFields::set': 0,
+    'runtime::Permission::all': 0,
+    'runtime::OpenIDConnect::config': 0,
+    'runtime::User::setPassword': 0,
+    'runtime::User::permissions': 0,
+    'runtime::User::me': 0,
+    'runtime::User::current': 0,
+    'runtime::User::renew': 0,
+    'runtime::User::logout': 0,
+    'runtime::User::tokenLogin': 0,
+    'runtime::User::login': 0,
+    'runtime::Runtime::root': 0,
+    'runtime::Runtime::abi': 0,
+    'runtime::Runtime::info': 0,
+    'runtime::Role::all': 0,
+    'runtime::Debug::resume': 0,
+    'runtime::Debug::get': 0,
+    'runtime::Debug::all': 0,
+    'io::Csv::sample': 0,
+    'io::Csv::analyze': 0,
+    'io::Csv::generate': 0,
+    'project::map': 0,
+    'project::array': 0,
+    'project::array2': 0,
+    'project::array3': 0,
+    'project::array_mono': 0,
+    'project::array_mono2': 0,
+    'project::table': 0,
+    'project::longTask': 0,
+    'project::slowTask': 0,
+    'project::computeTask': 0,
+    'project::testTensor': 0,
+    'project::tensor': 0,
+    'project::tensor2': 0,
+    'project::tensor3': 0,
+    'project::foo': 0,
+    'project::task_with_params': 0,
+    'project::enum': 0,
+    'project::table2': 0,
+    'project::time': 0,
+    'project::an_error': 0,
+    'project::float_f': 0,
+    'project::blockingFn': 0,
+    'project::enumValue': 0,
+    'project::foobar': 0,
+    'project::vtable_test': 0,
+    'project::print_table': 0,
+    'project::fn_pointer': 0,
+    'project::identity': 0,
+    'project::array_container': 0,
+    'project::read_stringlit': 0,
+    'project::contacts': 0,
+    'project::array_of_int': 0,
+    'project::array_of_float': 0,
+    'project::array_of_string': 0,
+    'project::boom': 0,
+    'project::sensor_table': 0,
+    'project::geo': 0,
+    'project::geos': 0,
+    'project::periodic_task': 0,
+    'project::create_nodeTimes': 0,
+    'project::table3': 0,
+    'project::std_bool': 0,
+    'project::std_int': 0,
+    'project::std_int_min_number': 0,
+    'project::std_int_min_bigint': 0,
+    'project::std_int_max_number': 0,
+    'project::std_int_max_bigint': 0,
+    'project::some_table': 0,
+    'project::gonna_timeout': 0,
+    'project::get_node': 0,
+    'project::get_node_time': 0,
+    'project::get_node_list': 0,
+    'project::get_node_index': 0,
+    'project::get_node_geo': 0,
+    'project::ambiguous': 0,
+    'project::ambiguous2': 0,
+    'project::something': 0,
+  }
+
+  export import ErrorCode = gc.core.ErrorCode;
+  export import t4 = gc.core.t4;
+  export import Table = gc.core.Table;
+  export import t3 = gc.core.t3;
+  export import nodeIndex = gc.core.nodeIndex;
   export import GeoCircle = gc.core.GeoCircle;
+  export import TimeZone = gc.core.TimeZone;
+  export import t2 = gc.core.t2;
+  export import String = gc.core.String;
+  export import GeoBox = gc.core.GeoBox;
+  export import t4f = gc.core.t4f;
+  export import field = gc.core.field;
+  export import CalendarUnit = gc.core.CalendarUnit;
+  export import Buffer = gc.core.Buffer;
+  export import nodeList = gc.core.nodeList;
+  export import nodeTime = gc.core.nodeTime;
+  export import duration = gc.core.duration;
+  export import Tensor = gc.core.Tensor;
+  export import SortOrder = gc.core.SortOrder;
+  export import NodeInfo = gc.core.NodeInfo;
+  export import t3f = gc.core.t3f;
+  export import MathConstants = gc.core.MathConstants;
+  export import null_ = gc.core.null_;
+  export import type = gc.core.type;
+  export import SamplingMode = gc.core.SamplingMode;
+  export import geo = gc.core.geo;
+  export import Map = gc.core.Map;
+  export import Error = gc.core.Error;
+  export import nodeTimeCursor = gc.core.nodeTimeCursor;
+  export import nodeGeo = gc.core.nodeGeo;
+  export import node = gc.core.node;
+  export import DurationUnit = gc.core.DurationUnit;
+  export import TableColumnMapping = gc.core.TableColumnMapping;
+  export import TensorType = gc.core.TensorType;
+  export import Tuple = gc.core.Tuple;
+  export import time = gc.core.time;
+  export import bool = gc.core.bool;
+  export import ErrorFrame = gc.core.ErrorFrame;
   export import Array = gc.core.Array;
   export import GeoPoly = gc.core.GeoPoly;
-  export import TimeZone = gc.core.TimeZone;
-  export import SortOrder = gc.core.SortOrder;
-  export import ErrorFrame = gc.core.ErrorFrame;
-  export import String = gc.core.String;
-  export import t4 = gc.core.t4;
-  export import field = gc.core.field;
-  export import Map = gc.core.Map;
-  export import DurationUnit = gc.core.DurationUnit;
-  export import ErrorCode = gc.core.ErrorCode;
-  export import t2 = gc.core.t2;
-  export import Tensor = gc.core.Tensor;
-  export import nodeList = gc.core.nodeList;
-  export import GeoBox = gc.core.GeoBox;
-  export import type = gc.core.type;
-  export import nodeTimeCursor = gc.core.nodeTimeCursor;
-  export import null_ = gc.core.null_;
-  export import char = gc.core.char;
-  export import Table = gc.core.Table;
-  export import geo = gc.core.geo;
-  export import SamplingMode = gc.core.SamplingMode;
-  export import nodeTime = gc.core.nodeTime;
-  export import CalendarUnit = gc.core.CalendarUnit;
-  export import Date = gc.core.Date;
-  export import bool = gc.core.bool;
-  export import nodeIndex = gc.core.nodeIndex;
-  export import Buffer = gc.core.Buffer;
-  export import t3 = gc.core.t3;
-  export import Error = gc.core.Error;
-  export import t2f = gc.core.t2f;
-  export import nodeGeo = gc.core.nodeGeo;
   export import FloatPrecision = gc.core.FloatPrecision;
-  export import duration = gc.core.duration;
-  export import node = gc.core.node;
-  export import t4f = gc.core.t4f;
-  export import TableColumnMapping = gc.core.TableColumnMapping;
-  export import time = gc.core.time;
+  export import char = gc.core.char;
   export import float = gc.core.float;
-  export import TensorType = gc.core.TensorType;
-  export import MathConstants = gc.core.MathConstants;
-  export import UserGroupPolicy = gc.runtime.UserGroupPolicy;
-  export import User = gc.runtime.User;
-  export import StoreStat = gc.runtime.StoreStat;
-  export import RuntimeInfo = gc.runtime.RuntimeInfo;
-  export import CallPerf = gc.runtime.CallPerf;
+  export import int = gc.core.int;
+  export import t2f = gc.core.t2f;
+  export import Date = gc.core.Date;
+  export import function_ = gc.core.function_;
+  export import str = gc.core.str;
   export import SecurityEntity = gc.runtime.SecurityEntity;
-  export import Debug = gc.runtime.Debug;
-  export import LogLevel = gc.runtime.LogLevel;
-  export import Task = gc.runtime.Task;
-  export import DebugVariable = gc.runtime.DebugVariable;
-  export import LicenseType = gc.runtime.LicenseType;
-  export import License = gc.runtime.License;
-  export import DebugInfo = gc.runtime.DebugInfo;
-  export import Job = gc.runtime.Job;
-  export import DebugFrame = gc.runtime.DebugFrame;
-  export import Runtime = gc.runtime.Runtime;
-  export import OpenIDConnect = gc.runtime.OpenIDConnect;
-  export import Log = gc.runtime.Log;
-  export import System = gc.runtime.System;
-  export import UserRole = gc.runtime.UserRole;
   export import PeriodicTask = gc.runtime.PeriodicTask;
-  export import DebugBreakpoint = gc.runtime.DebugBreakpoint;
-  export import SecurityPolicy = gc.runtime.SecurityPolicy;
-  export import TaskStatus = gc.runtime.TaskStatus;
-  export import UserGroupPolicyType = gc.runtime.UserGroupPolicyType;
-  export import UserGroup = gc.runtime.UserGroup;
+  export import Task = gc.runtime.Task;
+  export import Log = gc.runtime.Log;
   export import SecurityFields = gc.runtime.SecurityFields;
-  export import CsvColumnInteger = gc.io.CsvColumnInteger;
-  export import CsvWriter = gc.io.CsvWriter;
-  export import CsvColumn = gc.io.CsvColumn;
-  export import CsvFormat = gc.io.CsvFormat;
+  export import CallPerf = gc.runtime.CallPerf;
+  export import RuntimeInfo = gc.runtime.RuntimeInfo;
+  export import System = gc.runtime.System;
+  export import LogLevel = gc.runtime.LogLevel;
+  export import OpenIDConnect = gc.runtime.OpenIDConnect;
+  export import User = gc.runtime.User;
+  export import UserGroupPolicyType = gc.runtime.UserGroupPolicyType;
+  export import Runtime = gc.runtime.Runtime;
+  export import Job = gc.runtime.Job;
+  export import License = gc.runtime.License;
+  export import UserGroupPolicy = gc.runtime.UserGroupPolicy;
+  export import LicenseType = gc.runtime.LicenseType;
+  export import TaskStatus = gc.runtime.TaskStatus;
+  export import SecurityPolicy = gc.runtime.SecurityPolicy;
+  export import UserGroup = gc.runtime.UserGroup;
+  export import FileWalker = gc.io.FileWalker;
+  export import Json = gc.io.Json;
+  export import Reader = gc.io.Reader;
   export import GcbReader = gc.io.GcbReader;
-  export import CsvColumnTime = gc.io.CsvColumnTime;
-  export import CsvValidateResult = gc.io.CsvValidateResult;
-  export import GcbWriter = gc.io.GcbWriter;
-  export import CsvColumnBoolean = gc.io.CsvColumnBoolean;
-  export import CsvColumnDuration = gc.io.CsvColumnDuration;
-  export import CsvColumnString = gc.io.CsvColumnString;
+  export import CsvColumnStatistics = gc.io.CsvColumnStatistics;
   export import File = gc.io.File;
   export import JsonReader = gc.io.JsonReader;
-  export import Smtp = gc.io.Smtp;
-  export import HttpHeader = gc.io.HttpHeader;
-  export import SmtpMode = gc.io.SmtpMode;
-  export import CsvAnalysisConfig = gc.io.CsvAnalysisConfig;
+  export import CsvFormat = gc.io.CsvFormat;
   export import CsvSharding = gc.io.CsvSharding;
-  export import JsonWriter = gc.io.JsonWriter;
   export import Email = gc.io.Email;
-  export import CsvColumnStatistics = gc.io.CsvColumnStatistics;
-  export import Reader = gc.io.Reader;
-  export import Json = gc.io.Json;
-  export import CsvColumnFloat = gc.io.CsvColumnFloat;
-  export import TextReader = gc.io.TextReader;
-  export import CsvReader = gc.io.CsvReader;
+  export import Csv = gc.io.Csv;
+  export import CsvAnalysisConfig = gc.io.CsvAnalysisConfig;
+  export import GcbWriter = gc.io.GcbWriter;
   export import SmtpAuth = gc.io.SmtpAuth;
   export import Url = gc.io.Url;
-  export import Http = gc.io.Http;
-  export import TextWriter = gc.io.TextWriter;
-  export import TextEncoder = gc.io.TextEncoder;
-  export import CsvColumnDate = gc.io.CsvColumnDate;
-  export import CsvStatistics = gc.io.CsvStatistics;
-  export import CsvColumnIgnored = gc.io.CsvColumnIgnored;
   export import Writer = gc.io.Writer;
-  export import FileWalker = gc.io.FileWalker;
-  export import CsvAnalysis = gc.io.CsvAnalysis;
-  export import TimeWindow = gc.util.TimeWindow;
-  export import Assert = gc.util.Assert;
-  export import Gaussian = gc.util.Gaussian;
-  export import SlidingWindow = gc.util.SlidingWindow;
-  export import Plot = gc.util.Plot;
-  export import MultiQuantizer = gc.util.MultiQuantizer;
-  export import GaussianProfile = gc.util.GaussianProfile;
-  export import Histogram = gc.util.Histogram;
-  export import Stack = gc.util.Stack;
-  export import CustomQuantizer = gc.util.CustomQuantizer;
-  export import GaussianProfileSlot = gc.util.GaussianProfileSlot;
-  export import Quantizer = gc.util.Quantizer;
-  export import QuantizerSlotBound = gc.util.QuantizerSlotBound;
-  export import Random = gc.util.Random;
-  export import HistogramStats = gc.util.HistogramStats;
+  export import SmtpMode = gc.io.SmtpMode;
+  export import TextWriter = gc.io.TextWriter;
+  export import Smtp = gc.io.Smtp;
+  export import HttpHeader = gc.io.HttpHeader;
+  export import CsvStatistics = gc.io.CsvStatistics;
+  export import Http = gc.io.Http;
+  export import CsvWriter = gc.io.CsvWriter;
+  export import JsonWriter = gc.io.JsonWriter;
+  export import TextReader = gc.io.TextReader;
+  export import CsvReader = gc.io.CsvReader;
   export import LinearQuantizer = gc.util.LinearQuantizer;
-  export import Queue = gc.util.Queue;
+  export import Stack = gc.util.Stack;
+  export import GaussianProfile = gc.util.GaussianProfile;
   export import ProgressTracker = gc.util.ProgressTracker;
+  export import Assert = gc.util.Assert;
+  export import MultiQuantizer = gc.util.MultiQuantizer;
+  export import HistogramStats = gc.util.HistogramStats;
   export import Crypto = gc.util.Crypto;
+  export import TimeWindow = gc.util.TimeWindow;
+  export import Plot = gc.util.Plot;
   export import LogQuantizer = gc.util.LogQuantizer;
-  export import Foo = gc.project.Foo;
+  export import QuantizerSlotBound = gc.util.QuantizerSlotBound;
+  export import GaussianProfileSlot = gc.util.GaussianProfileSlot;
+  export import SlidingWindow = gc.util.SlidingWindow;
+  export import HistogramBin = gc.util.HistogramBin;
+  export import Random = gc.util.Random;
+  export import CustomQuantizer = gc.util.CustomQuantizer;
+  export import Gaussian = gc.util.Gaussian;
+  export import Histogram = gc.util.Histogram;
+  export import Quantizer = gc.util.Quantizer;
+  export import Queue = gc.util.Queue;
+  export import CustomType = gc.project.CustomType;
+  export import Sensor = gc.project.Sensor;
+  export import Confidence = gc.project.Confidence;
+  export import ArrayContainer = gc.project.ArrayContainer;
+  export import FooBar = gc.project.FooBar;
+  export import Person = gc.project.Person;
+  export import Contact = gc.project.Contact;
+  export import FloatPrecisionTest = gc.project.FloatPrecisionTest;
+  export import Obj = gc.project.Obj;
   export import Bar = gc.project.Bar;
+  export import Named = gc.project.Named;
   export import Baz = gc.project.Baz;
   export import NameConflict = gc.project.NameConflict;
   export import MyRow = gc.project.MyRow;
-  export import Obj = gc.project.Obj;
-  export import ArrayContainer = gc.project.ArrayContainer;
-  export import Confidence = gc.project.Confidence;
-  export import Named = gc.project.Named;
-  export import FloatPrecisionTest = gc.project.FloatPrecisionTest;
-  export import Contact = gc.project.Contact;
-  export import FooBar = gc.project.FooBar;
-  export import Sensor = gc.project.Sensor;
-  export import Person = gc.project.Person;
-  export import CustomType = gc.project.CustomType;
+  export import Foo = gc.project.Foo;
   export import map = gc.project.map;
   export import array = gc.project.array;
   export import array2 = gc.project.array2;
@@ -855,6 +1634,5 @@ declare namespace gc {
   export import get_node_geo = gc.project.get_node_geo;
   export import ambiguous = gc.project.ambiguous;
   export import ambiguous2 = gc.project.ambiguous2;
-  export import potato2 = gc.project.potato2;
   export import something = gc.project.something;
 }

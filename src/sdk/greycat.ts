@@ -326,6 +326,7 @@ namespace gc {
       private _tasks_polling: number | undefined;
       private _tasks_polling_delay: number;
       private _max_tasks: number;
+      private _fields_map: Map<string, AbiAttribute>;
 
       constructor(
         api: string,
@@ -349,6 +350,7 @@ namespace gc {
         this.permissions = permissions;
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
+        this._fields_map = new Map();
 
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -937,12 +939,34 @@ namespace gc {
         return this.abi.createT4f(x0, x1, x2, x3);
       }
 
-      findType(fqn: string): AbiType | undefined {
+      findType(fqn: gc.$Types): AbiType | undefined {
         return this.abi.type_by_fqn.get(fqn);
       }
 
-      findFn(fqn: string): AbiFunction | undefined {
+      findFn(fqn: gc.$Functions): AbiFunction | undefined {
         return this.abi.fn_by_fqn.get(fqn);
+      }
+
+      findField(fqn: gc.$Fields): AbiAttribute | undefined {
+        let field = this._fields_map.get(fqn);
+        if (field) {
+          return field;
+        }
+        const last_dcolon = fqn.lastIndexOf('::');
+        if (last_dcolon === -1) {
+          return undefined;
+        }
+        const type_fqn = fqn.slice(0, last_dcolon);
+        const type = this.findType(type_fqn);
+        if (!type) {
+          return undefined;
+        }
+        const field_name = fqn.slice(last_dcolon + 2);
+        field = type.attrs.find((a) => a.name === field_name);
+        if (field) {
+          this._fields_map.set(fqn, field);
+        }
+        return field;
       }
 
       rootType(): AbiType {

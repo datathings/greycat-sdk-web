@@ -181,7 +181,7 @@ fn write_std_core(out: GcbWriter) {
 fn write_std_io(out: GcbWriter) {
   // out.write(out); // unsupported
   // out.write(AbiReader::new("out.gcb")); // segfault
-  out.write(TextEncoder::plain);
+  // out.write(TextEncoder::plain);
   out.write(CsvFormat {
       header_lines: 12,
       separator: ',',
@@ -220,7 +220,8 @@ fn write_std_runtime(out: GcbWriter) {
       fg_threads: 42,
       mem_total: 12,
       mem_worker: 0,
-      nb_ctx: 1,
+      disk_data_bytes: 42,
+      program_version: "1.2.3",
     });
   out.write(SecurityFields {});
   out.write(UserGroup {
@@ -258,17 +259,6 @@ fn write_std_runtime(out: GcbWriter) {
       start: 13_time,
       end: 37_time,
       max_memory: 12,
-    });
-  out.write(StoreStat {
-      capacity_bytes: 13,
-      allocated_bytes: 37,
-      allocated_ratio: 13.37,
-      remained_bytes: 12,
-      remained_ratio: 4.20,
-      used_bytes: 42,
-      used_ratio: 0.1,
-      available_bytes: 0,
-      available_ratio: 0.2,
     });
   out.write(System {});
   out.write(SecurityPolicy {});
@@ -403,7 +393,7 @@ fn slowTask() {
 
 @expose
 fn computeTask() {
-  var writer = TextWriter { path: "${File::taskDir()}/foo.txt" };
+  var writer = TextWriter { path: "${File::workingDir()}/foo.txt" };
   writer.write(42);
 }
 

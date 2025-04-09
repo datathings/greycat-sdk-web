@@ -1032,3 +1032,26 @@ fn init_non_overlapping() {
     }
   }
 }
+
+@volatile
+private type TimeRecord<T> {
+  time: time;
+  value: T;
+}
+
+type Composed {
+  a: int;
+  b: float;
+}
+
+@expose
+fn table_of_objects(): Table<TimeRecord<Composed>> {
+  var table = Table<TimeRecord<Composed>> {};
+
+  table.set_row(0, TimeRecord<Composed> { time: time::now(), value: Composed { a: 1, b: 0.1 } });
+  table.set_row(1, TimeRecord<Composed> { time: time::now(), value: Composed { a: 2, b: 0.2 } });
+  table.set_row(2, TimeRecord<Composed> { time: time::now(), value: Composed { a: 3, b: 0.3 } });
+  table.set_row(3, TimeRecord<Composed> { time: time::now(), value: Composed { a: 4, b: 0.4 } });
+
+  return table;
+}

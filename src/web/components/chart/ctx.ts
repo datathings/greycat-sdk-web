@@ -13,6 +13,7 @@ import type {
   BoxPlotOptions,
 } from './types.js';
 import { round } from '../../canvas';
+import { NumberValue } from 'd3';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -909,5 +910,26 @@ export class CanvasContext {
     this.ctx.stroke();
 
     this.ctx.restore();
+  }
+
+  getY(
+    table: gc.core.Table,
+    yCol: number | number[] | gc.$Fields | gc.$Fields[],
+    i: number,
+  ): NumberValue {
+    if (typeof yCol === 'number') {
+      return vMap(table.cols[yCol][i - 1]);
+    } else {
+      // TODO gc.$Fields | gc.$Fields[] | number[]
+      return 0;
+    }
+  }
+
+  getFieldOffset(fqn: string): number {
+    const field = gc.$.default.findField(fqn);
+    if (!field) {
+      return 0;
+    }
+    return field.mapped_att_offset;
   }
 }

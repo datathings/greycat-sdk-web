@@ -23,6 +23,7 @@ export default defineConfig(({ mode }) => ({
       '@greycat/web/jsx-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
       '@greycat/web/sdk': resolve(__dirname, '../dist/greycat.js'),
       '@greycat/web/greycat.css': resolve(__dirname, '../css/greycat.css'),
+      '@greycat/web/greycat-full.css': resolve(__dirname, '../css/greycat-full.css'),
       '@greycat/web': resolve(__dirname, '../src/web'),
     },
   },

@@ -17,9 +17,9 @@ namespace gc {
           static readonly _type = 'core::Tensor' as const;
 
           constructor(
-            public shape: number[] = [],
+            public shape: bigint[] = [],
             public type: gc.core.TensorType = gc.core.TensorType.i64,
-            public size: number = 0,
+            public size: bigint = 0n,
             public data: globalThis.Array<
               globalThis.Array<number | bigint | Uint8Array>
             > | null = null,
@@ -37,9 +37,9 @@ namespace gc {
 
             const shape = new globalThis.Array(nb_dim);
             for (let i = 0; i < nb_dim; i++) {
-              shape[i] = r.read_i32();
+              shape[i] = r.read_i64();
             }
-            const size = r.read_i32();
+            const size = r.read_i64();
             if (nb_dim === 0) {
               return new ty.ctor(shape, tensorType, size, null) as gc.core.Tensor;
             }
@@ -80,9 +80,9 @@ namespace gc {
             w.write_i8(this.shape.length);
             w.write_u8(this.type.offset);
             for (let i = 0; i < this.shape.length; i++) {
-              w.write_i32(this.shape[i]);
+              w.write_i64(this.shape[i]);
             }
-            w.write_i32(this.size);
+            w.write_i64(this.size);
             if (this.data) {
               for (let x = 0; x < this.data.length; x++) {
                 for (let y = 0; y < this.data[x].length; y++) {
@@ -114,7 +114,7 @@ namespace gc {
               return {
                 _type: Tensor._type,
                 dim: this.data.length,
-                shape: [this.data.length, this.size / this.data.length],
+                shape: [this.data.length, Number(this.size / BigInt(this.data.length))],
                 type: this.type,
                 data: this.data,
               };

@@ -760,6 +760,7 @@ namespace gc {
                   } as IGCObjectClass;
                   this.ctor = GCObject;
                 } else {
+                  // console.warn(`unable to find native class for: ${type.name}`);
                   const GCObject = class extends gc.sdk.GCObject {
                     static readonly _type = type.name;
                     constructor() {
