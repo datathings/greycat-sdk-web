@@ -34,6 +34,10 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
     this.input.autocomplete = 'off';
     this.input.clearable = false;
     this.input.disabled = true;
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     const icon = document.createElement('sl-icon');
     icon.setAttribute('slot', 'prefix');
     this.input.appendChild(icon);
@@ -240,7 +244,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
   /**
    * Always returns a `GuiOption<T>[]`. This can be safely cast into `GuiOption<T>[]`.
-   * 
+   *
    * Though the setter accepts the broader `IOption<T>[]` type.
    */
   get options(): IOption<T>[] {
