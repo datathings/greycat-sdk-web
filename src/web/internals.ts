@@ -1,5 +1,5 @@
 import { vMap } from './components/chart/internals.js';
-import { Axis, Ordinate, Scale, Serie } from './exports.js';
+import { Axis, Ordinate, Scale, Serie, tableGetCell } from './exports.js';
 
 export type Disposable = () => void;
 
@@ -18,8 +18,7 @@ export enum ScaleType {
 }
 
 export function closest(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cols: any[][],
+  table: gc.core.Table,
   serie: Serie<string>,
   x: number,
   y: number,
@@ -39,36 +38,36 @@ export function closest(
     yAxes[serie.yAxis].scale === 'linear'
   ) {
     let minDistance = Infinity;
-    for (let i = 0; i < (cols[0]?.length ?? 0); i++) {
-      const xPos = xScale(vMap(cols[serie.xCol][i]));
-      const yPos = yScale(vMap(cols[serie.yCol][i]));
+    for (let i = 0; i < (table.cols[0]?.length ?? 0); i++) {
+      const xPos = xScale(vMap(table.cols[serie.xCol][i]));
+      const yPos = yScale(vMap(tableGetCell(table, serie.yCol, i)));
       const distance = Math.hypot(xPos - x, yPos - y);
       if (distance < minDistance) {
-        res = cols[serie.xCol][i];
+        res = table.cols[serie.xCol][i];
         rowIdx = i;
         minDistance = distance;
       }
     }
   } else {
-    for (let i = 0; i < (cols[0]?.length ?? 0); i++) {
+    for (let i = 0; i < (table.cols[0]?.length ?? 0); i++) {
       let x: number;
       if (serie.type === 'bar' && serie.spanCol) {
-        const x0 = vMap(cols[serie.spanCol[0]][i]);
-        const x1 = vMap(cols[serie.spanCol[1]][i]);
+        const x0 = vMap(table.cols[serie.spanCol[0]][i]);
+        const x1 = vMap(table.cols[serie.spanCol[1]][i]);
         if (v >= x0 && v <= x1) {
           return { xValue: x0 + (x1 - x0) / 2, rowIdx: i };
         }
         x = x0;
       } else {
-        x = serie.xCol === undefined ? i : vMap(cols[serie.xCol][i]);
+        x = serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]);
         if (x === v) {
-          return { xValue: serie.xCol === undefined ? i : cols?.[serie.xCol][i], rowIdx: i };
+          return { xValue: serie.xCol === undefined ? i : table.cols?.[serie.xCol][i], rowIdx: i };
         }
       }
       const d2 = Math.abs(x - v);
       if (distance == null || distance > d2) {
         rowIdx = i;
-        res = serie.xCol === undefined ? i : cols[serie.xCol][i];
+        res = serie.xCol === undefined ? i : table.cols[serie.xCol][i];
         distance = d2;
       } else if (distance != null && x > v && distance < d2) {
         return { xValue: res, rowIdx };

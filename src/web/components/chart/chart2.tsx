@@ -1,6 +1,12 @@
 import * as d3 from 'd3';
 import { GestureDrawer } from '../../canvas';
-import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
+import {
+  createFormatter,
+  smartTimeFormatSpecifier,
+  tableGetCell,
+  tableGetColumn,
+  tableGetColumnIndex,
+} from './utils.js';
 import { getColors } from '../../utils.js';
 import type {
   Axis,
@@ -339,7 +345,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       const v = +xScale.invert(this._cursor.x);
 
       const { xValue, rowIdx } = closest(
-        this._table.cols,
+        this._table,
         serie,
         this._cursor.x,
         this._cursor.y,
@@ -350,10 +356,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         v,
       );
 
-      const yValue =
-        typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
-          ? Number(this._table.cols[serie.yCol][rowIdx])
-          : this._table.cols[serie.yCol][rowIdx];
+      const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
       const x = xScale(vMap(xValue));
       let y = yScales[serie.yAxis](vMap(yValue));
       const w = serie.markerWidth;
@@ -476,8 +479,14 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
 
         const nameEl = document.createElement('div');
         nameEl.style.color = color;
-        nameEl.textContent =
-          serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
+        const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
+        if (serie.title !== undefined) {
+          nameEl.textContent = serie.title;
+        } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
+          nameEl.textContent = this._table.headers[yColIdx];
+        } else {
+          nameEl.textContent = `Col ${yColIdx}`;
+        }
         const valueEl = document.createElement('div');
         valueEl.classList.add('gui-chart-tooltip-value');
         if (
@@ -965,8 +974,9 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;

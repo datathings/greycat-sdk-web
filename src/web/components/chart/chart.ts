@@ -836,7 +836,7 @@ export class GuiChart extends GuiElement {
         const v = +xScale.invert(this._cursor.x);
 
         const { xValue, rowIdx } = closest(
-          this._table.cols,
+          this._table,
           serie,
           this._cursor.x,
           this._cursor.y,
