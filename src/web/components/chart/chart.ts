@@ -26,6 +26,9 @@ import {
   GuiUpdateEvent,
   GuiElement,
   css,
+  tableGetCell,
+  tableGetColumn,
+  tableGetColumnIndex,
 } from '../../exports.js';
 import type { sl, TableLike } from '../../exports.js';
 import style from './chart.css?inline';
@@ -844,12 +847,9 @@ export class GuiChart extends GuiElement {
           v,
         );
 
-        const yValue =
-          typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
-            ? Number(this._table.cols[serie.yCol][rowIdx])
-            : this._table.cols[serie.yCol][rowIdx];
+        const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
         const x = xScale(vMap(xValue));
-        let y = yScales[serie.yAxis](vMap(yValue));
+        let y = yScales[serie.yAxis](yValue);
         const w = serie.markerWidth;
         let yValue2;
         if (typeof serie.yCol2 === 'number') {
@@ -968,10 +968,16 @@ export class GuiChart extends GuiElement {
           };
           const formatter = createFormatter(this._config.yAxes[serie.yAxis]);
 
+          const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
-          nameEl.textContent =
-            serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
+          if (serie.title !== undefined) {
+            nameEl.textContent = serie.title;
+          } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
+            nameEl.textContent = this._table.headers[yColIdx];
+          } else {
+            nameEl.textContent = `Col ${yColIdx}`;
+          }
           nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol}`);
           const valueEl = document.createElement('div');
           valueEl.classList.add('tooltip-value');
@@ -1556,8 +1562,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1594,8 +1601,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (max == null) {
                   max = value;
@@ -1622,8 +1630,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;

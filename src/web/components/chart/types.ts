@@ -261,7 +261,7 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
    * offset of the y column in the given table
    */
-  yCol: number;
+  yCol: number | number[] | gc.$Fields | gc.$Fields[];
   /**
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */

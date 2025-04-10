@@ -6,8 +6,6 @@ await gc.sdk.init();
 const table = await gc.project.table_of_objects();
 console.log(table);
 
-const table_col_1 = table.getRow()
-
 document.body.appendChild(
   <app-layout title="Chart • Table of objects">
     <gui-chart
@@ -23,7 +21,7 @@ document.body.appendChild(
           {
             type: 'line',
             xCol: 0,
-            yCol: [''],
+            yCol: ['project::TimeRecord::value', 'project::Composed::b'],
             yAxis: 'y',
           },
         ],

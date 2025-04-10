@@ -110,7 +110,26 @@
   },
   {
     "label": "Inputs",
-    "route": "pages/inputs/"
+    "route": "pages/inputs/",
+    "link": true,
+    "children": [
+      {
+        "label": "Any",
+        "route": "any.html"
+      },
+      {
+        "label": "Time",
+        "route": "time.html"
+      },
+      {
+        "label": "Object",
+        "route": "object.html"
+      },
+      {
+        "label": "Slot",
+        "route": "slot.html"
+      }
+    ]
   },
   {
     "label": "Layout",

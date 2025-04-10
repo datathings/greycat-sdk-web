@@ -237,3 +237,103 @@ function isPotentiallyChartable(value: unknown): boolean {
     value instanceof gc.core.float
   );
 }
+
+export function tableGetColumnIndex(
+  col: number | number[] | gc.$Fields | gc.$Fields[],
+): number | undefined {
+  if (typeof col === 'number') {
+    return col;
+  }
+  if (typeof col === 'string') {
+    const attr = gc.$.default.findField(col);
+    if (attr === undefined) {
+      return undefined;
+    }
+    return attr.mapped_att_offset;
+  }
+  if (col.length === 0) {
+    return undefined;
+  }
+  if (typeof col[0] === 'number') {
+    return col[0];
+  }
+  const path = col as gc.$Fields[];
+  const attr = gc.$.default.findField(path[0]);
+  if (!attr) {
+    // unknown attribute
+    return undefined;
+  }
+  return attr.mapped_att_offset;
+}
+
+export function tableGetColumn(
+  table: gc.core.Table,
+  col: number | number[] | gc.$Fields | gc.$Fields[],
+): unknown[] | undefined {
+  const index = tableGetColumnIndex(col);
+  if (index === undefined) {
+    return undefined;
+  }
+  return table.cols[index];
+}
+
+export function tableGetCell(
+  table: gc.core.Table,
+  col: number | number[] | gc.$Fields | gc.$Fields[],
+  row: number,
+): unknown {
+  if (typeof col === 'number') {
+    return table.cols[col][row];
+  }
+  if (typeof col === 'string') {
+    const attr = gc.$.default.findField(col);
+    if (attr === undefined) {
+      return undefined;
+    }
+    return table.cols[attr.mapped_att_offset][row];
+  }
+  if (col.length === 0) {
+    return undefined;
+  }
+  if (typeof col[0] === 'number') {
+    const path = col as number[];
+    let value: unknown;
+    for (let i = 0; i < path.length; i++) {
+      if (i === 0) {
+        value = table.cols[path[i]][row];
+      } else if (value instanceof gc.sdk.GCEnum) {
+        return undefined;
+      } else if (value instanceof gc.sdk.GCObject) {
+        if (value.$fields === undefined) {
+          return undefined;
+        }
+        value = value.$fields[path[i]];
+      } else {
+        return undefined;
+      }
+    }
+    return value;
+  }
+  const path = col as gc.$Fields[];
+  let value: unknown;
+  for (let i = 0; i < path.length; i++) {
+    const attr = gc.$.default.findField(path[i]);
+    if (!attr) {
+      // unknown attribute
+      return undefined;
+    }
+    if (i === 0) {
+      value = table.cols[attr.mapped_att_offset][row];
+    } else if (value instanceof gc.sdk.GCEnum) {
+      return undefined;
+    } else if (value instanceof gc.sdk.GCObject) {
+      if (value.$fields === undefined) {
+        return undefined;
+      }
+      value = value.$fields[attr.mapped_att_offset];
+    } else {
+      return undefined;
+    }
+  }
+  return value;
+}

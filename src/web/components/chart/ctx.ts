@@ -13,7 +13,7 @@ import type {
   BoxPlotOptions,
 } from './types.js';
 import { round } from '../../canvas';
-import { NumberValue } from 'd3';
+import { tableGetCell } from './utils.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -123,12 +123,14 @@ export class CanvasContext {
 
     for (let i = 1; i < table.cols[0].length; i++) {
       const prevX = xScale(serie.xCol === undefined ? i - 1 : vMap(table.cols[serie.xCol][i - 1]));
-      const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+      const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
 
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
+      const y = tableGetCell(table, serie.yCol, i);
 
-      if (prevX < xMin && x < xMin) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const sY = yScale(vMap(y));
+
+      if (prevX < xMin && sX < xMin) {
         // close previous path
         if (!first) {
           this.ctx.stroke();
@@ -136,8 +138,7 @@ export class CanvasContext {
         first = true;
         continue;
       }
-      const notDefined =
-        table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const notDefined = y === undefined || y === null;
       let lineColor: Color = serie.color;
       let lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[0];
       let lineWidth = serie.width;
@@ -165,15 +166,15 @@ export class CanvasContext {
         this.ctx.beginPath();
         this.ctx.moveTo(prevX, prevY);
         if (serie.curve === 'step-after') {
-          this.ctx.lineTo(x, prevY);
+          this.ctx.lineTo(sX, prevY);
         }
-        this.ctx.lineTo(x, y);
+        this.ctx.lineTo(sX, sY);
         first = false;
       } else {
         if (serie.curve === 'step-after') {
-          this.ctx.lineTo(x, prevY);
+          this.ctx.lineTo(sX, prevY);
         }
-        this.ctx.lineTo(x, y);
+        this.ctx.lineTo(sX, sY);
       }
 
       if (
@@ -191,7 +192,7 @@ export class CanvasContext {
         this.ctx.globalAlpha = lineOpacity;
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         this.ctx.setLineDash(lineDash);
       }
 
@@ -203,8 +204,8 @@ export class CanvasContext {
       this.ctx.strokeStyle = lineColor;
 
       // draw the last segment and stop
-      if (x > xMax) {
-        this.ctx.lineTo(x, y);
+      if (sX > xMax) {
+        this.ctx.lineTo(sX, sY);
         break;
       }
     }
@@ -233,9 +234,10 @@ export class CanvasContext {
     // let prevColor = serie.color;
     let first = true;
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const y = tableGetCell(table, serie.yCol, i);
+      const sY = yScale(vMap(y));
+      if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
         // close previous path
         if (!first) {
           this.ctx.stroke();
@@ -243,20 +245,19 @@ export class CanvasContext {
         first = true;
         continue;
       }
-      const notDefined =
-        table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const notDefined = y === undefined || y === null;
       const lineColor: Color = serie.color;
       const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[0];
 
       if (first) {
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         first = false;
       } else {
-        const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
-        this.ctx.lineTo(x, prevY);
-        this.ctx.lineTo(x, y);
+        const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
+        this.ctx.lineTo(sX, prevY);
+        this.ctx.lineTo(sX, sY);
       }
 
       if (prevSegments !== lineDash || this.ctx.strokeStyle !== lineColor) {
@@ -266,14 +267,14 @@ export class CanvasContext {
         // start new path type
         this.ctx.strokeStyle = lineColor;
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         this.ctx.setLineDash(lineDash);
       }
 
       prevSegments = lineDash;
       this.ctx.strokeStyle = lineColor;
 
-      if (x === xMax) {
+      if (sX === xMax) {
         break;
       }
     }
@@ -310,7 +311,7 @@ export class CanvasContext {
       if (serie.spanCol) {
         let x0 = xScale(vMap(table.cols[serie.spanCol[0]][i]));
         let x1 = xScale(vMap(table.cols[serie.spanCol[1]][i]));
-        y = yScale(vMap(table.cols[serie.yCol][i]));
+        y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         if (x0 < xMin) {
           x0 = xMin;
         }
@@ -328,7 +329,7 @@ export class CanvasContext {
         w = x1 - x0;
       } else {
         x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
-        y = yScale(vMap(table.cols[serie.yCol][i]));
+        y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         w = serie.width;
         if (x + serie.width < xMin || x > xMax) {
           continue;
@@ -378,9 +379,9 @@ export class CanvasContext {
     const [yMin, yMax] = yScale.range();
 
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const sY = yScale(vMap(tableGetCell(table, serie.yCol, i)));
+      if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
         continue;
       }
 
@@ -404,16 +405,16 @@ export class CanvasContext {
 
       switch (serie.markerShape) {
         case 'circle':
-          this.circle(x, y, serie.plotRadius ?? width, { fill, color });
+          this.circle(sX, sY, serie.plotRadius ?? width, { fill, color });
           break;
         case 'square':
-          this.rectangle(x, y, serie.plotRadius ?? width, serie.width, {
+          this.rectangle(sX, sY, serie.plotRadius ?? width, serie.width, {
             fill,
             color,
           });
           break;
         case 'triangle':
-          this.triangle(x, y, serie.plotRadius ?? width, width, { fill, color });
+          this.triangle(sX, sY, serie.plotRadius ?? width, width, { fill, color });
           break;
       }
     }
@@ -429,11 +430,11 @@ export class CanvasContext {
     const [xMin, xMax] = xScale.range();
     // const [yMin, yMax] = yScale.range();
 
-    const { x, y, fillOpacity, fill } = computePoint(table.cols, serie.xCol, serie.yCol, 0);
+    const { x, y, fillOpacity, fill } = computePoint(table, serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
     let { x: lastX } = computePoint(
-      table.cols,
+      table,
       serie.xCol,
       serie.yCol,
       table.cols[0]?.length - 1 || 0,
@@ -449,7 +450,7 @@ export class CanvasContext {
     // line
     let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
-      const pt = computePoint(table.cols, serie.xCol, serie.yCol, i);
+      const pt = computePoint(table, serie.xCol, serie.yCol, i);
 
       if (prevPt.x < xMin && pt.x < xMin) {
         prevPt = pt;
@@ -470,7 +471,7 @@ export class CanvasContext {
       }
 
       if (serie.curve === 'step-after') {
-        const prevY = computePoint(table.cols, serie.xCol, serie.yCol, i - 1).y;
+        const prevY = computePoint(table, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
       }
       this.ctx.lineTo(pt.x, pt.y);
@@ -492,7 +493,7 @@ export class CanvasContext {
         } else {
           // fill in regard to another serie
           for (let a = i; a >= i - iterations; a--) {
-            const pt = computePoint(table.cols, serie.xCol, serie.yCol2, a);
+            const pt = computePoint(table, serie.xCol, serie.yCol2, a);
             this.ctx.lineTo(pt.x, pt.y);
           }
           iterations = 0;
@@ -534,7 +535,7 @@ export class CanvasContext {
 
         this.ctx.lineTo(x, y);
         if (serie.curve === 'step-after') {
-          const prevY = computePoint(table.cols, serie.xCol, serie.yCol2, i - 1).y;
+          const prevY = computePoint(table, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
         }
       }
@@ -544,17 +545,16 @@ export class CanvasContext {
     this.ctx.restore();
 
     function computePoint(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cols: any[][],
+      table: gc.core.Table,
       xCol: number | undefined,
-      yCol: number,
-      i: number,
+      yCol: number | number[] | gc.$Fields | gc.$Fields[],
+      row: number,
     ) {
-      const x = xScale(xCol === undefined ? i : vMap(cols[xCol][i]));
-      const y = yScale(vMap(cols[yCol][i]));
+      const x = xScale(xCol === undefined ? row : vMap(table.cols[xCol][row]));
+      const y = yScale(vMap(tableGetCell(table, yCol, row)));
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(cols[serie.styleMapping.col]?.[i]);
+          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[row]);
           if (style) {
             return {
               x,
@@ -568,7 +568,7 @@ export class CanvasContext {
         return {
           x,
           y,
-          fill: cols[serie.styleMapping.col]?.[i] ?? serie.color,
+          fill: table.cols[serie.styleMapping.col]?.[row] ?? serie.color,
           fillOpacity: serie.fillOpacity,
         };
       }
@@ -910,26 +910,5 @@ export class CanvasContext {
     this.ctx.stroke();
 
     this.ctx.restore();
-  }
-
-  getY(
-    table: gc.core.Table,
-    yCol: number | number[] | gc.$Fields | gc.$Fields[],
-    i: number,
-  ): NumberValue {
-    if (typeof yCol === 'number') {
-      return vMap(table.cols[yCol][i - 1]);
-    } else {
-      // TODO gc.$Fields | gc.$Fields[] | number[]
-      return 0;
-    }
-  }
-
-  getFieldOffset(fqn: string): number {
-    const field = gc.$.default.findField(fqn);
-    if (!field) {
-      return 0;
-    }
-    return field.mapped_att_offset;
   }
 }
