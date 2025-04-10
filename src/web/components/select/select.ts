@@ -143,6 +143,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-select-list');
+    this._list.part.add('list');
     this.hideDropdown();
 
     this.shadowRoot.append(this.input, this._list);
