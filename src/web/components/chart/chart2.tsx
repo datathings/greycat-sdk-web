@@ -448,11 +448,11 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
           const style = serie.styleMapping.mapping(
-            this._table.cols[serie.styleMapping.col]?.[rowIdx],
+            tableGetCell(this._table, serie.styleMapping.col, rowIdx),
           );
           color = style?.color?.toString() ?? color;
         } else {
-          const value = this._table.cols[serie.styleMapping.col]?.[rowIdx];
+          const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
           if (typeof value === 'string') {
             color = value;
           }
@@ -482,6 +482,20 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
         if (serie.title !== undefined) {
           nameEl.textContent = serie.title;
+        } else if (Array.isArray(serie.yCol)) {
+          nameEl.textContent = serie.yCol
+            .map((p) => {
+              if (typeof p === 'number') {
+                return p;
+              }
+              const last_dcolon = p.lastIndexOf('::');
+              if (last_dcolon === -1) {
+                return p;
+              }
+              const field_name = p.slice(last_dcolon + 2);
+              return field_name;
+            })
+            .join('.');
         } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
           nameEl.textContent = this._table.headers[yColIdx];
         } else {
@@ -923,9 +937,8 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          const col = this._table.cols?.[serie.xCol];
-          const nb_rows = col?.length ?? 0;
-          for (let row = 0; row < nb_rows; row++) {
+          const col = tableGetColumn(this._table, serie.xCol) ?? [];
+          for (let row = 0; row < col.length; row++) {
             const value = vMap(col[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {

@@ -230,8 +230,10 @@ export type SerieOptions = {
     /**
      * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
      * be the cells of that `col`.
+     * 
+     * (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
      */
-    col: number;
+    col: SerieTableColumn;
     /**
      * @param v the column (`col`) value
      * @returns the style used for canvas painting, or `null` to get the default style of the serie
@@ -251,22 +253,33 @@ export type LineOptions = {
   curve?: CurveStyle;
 };
 
+/**
+ * Index of a column in the table.
+ *
+ * Or an array of indexes if trying to dive into a nested object.
+ *
+ * Or an object field fully-qualified-name for typed Table.
+ *
+ * Or an array of fields if trying to dive into a nested object in a typed Table.
+ */
+export type SerieTableColumn = number | number[] | gc.$Fields | gc.$Fields[];
+
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
-   * optional offset of the x column in the given table
+   * optional offset of the x column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    *
    * If undefined, the array index will be used
    */
-  xCol?: number;
+  xCol?: SerieTableColumn;
   /**
-   * offset of the y column in the given table
+   * offset of the y column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    */
-  yCol: number | number[] | gc.$Fields | gc.$Fields[];
+  yCol: SerieTableColumn;
   /**
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: K;
-  /**
+  /** 
    * Optional title used to name the serie.
    */
   title?: string;

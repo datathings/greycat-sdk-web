@@ -39,11 +39,12 @@ export function closest(
   ) {
     let minDistance = Infinity;
     for (let i = 0; i < (table.cols[0]?.length ?? 0); i++) {
-      const xPos = xScale(vMap(table.cols[serie.xCol][i]));
+      const tx = serie.xCol === undefined ? i : tableGetCell(table, serie.xCol, i);
+      const xPos = xScale(vMap(tx));
       const yPos = yScale(vMap(tableGetCell(table, serie.yCol, i)));
       const distance = Math.hypot(xPos - x, yPos - y);
       if (distance < minDistance) {
-        res = table.cols[serie.xCol][i];
+        res = tx;
         rowIdx = i;
         minDistance = distance;
       }
@@ -59,20 +60,21 @@ export function closest(
         }
         x = x0;
       } else {
-        x = serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]);
+        const tx = serie.xCol === undefined ? i : tableGetCell(table, serie.xCol, i);
+        x = serie.xCol === undefined ? i : vMap(tx);
         if (x === v) {
-          return { xValue: serie.xCol === undefined ? i : table.cols?.[serie.xCol][i], rowIdx: i };
+          return { xValue: x, rowIdx: i };
         }
       }
       const d2 = Math.abs(x - v);
       if (distance == null || distance > d2) {
         rowIdx = i;
-        res = serie.xCol === undefined ? i : table.cols[serie.xCol][i];
+        res = serie.xCol === undefined ? i : x;
         distance = d2;
       } else if (distance != null && x > v && distance < d2) {
-        return { xValue: res, rowIdx };
+        return { xValue: vMap(res), rowIdx };
       }
     }
   }
-  return { xValue: res, rowIdx };
+  return { xValue: vMap(res), rowIdx };
 }

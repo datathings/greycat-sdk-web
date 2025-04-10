@@ -11,6 +11,7 @@ import type {
   SerieStyle,
   BoxPlotData,
   BoxPlotOptions,
+  SerieTableColumn,
 } from './types.js';
 import { round } from '../../canvas';
 import { tableGetCell } from './utils.js';
@@ -122,12 +123,14 @@ export class CanvasContext {
     let first = true;
 
     for (let i = 1; i < table.cols[0].length; i++) {
-      const prevX = xScale(serie.xCol === undefined ? i - 1 : vMap(table.cols[serie.xCol][i - 1]));
+      const prevX = xScale(
+        serie.xCol === undefined ? i - 1 : vMap(tableGetCell(table, serie.xCol, i - 1)),
+      );
       const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
 
       const y = tableGetCell(table, serie.yCol, i);
 
-      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
       const sY = yScale(vMap(y));
 
       if (prevX < xMin && sX < xMin) {
@@ -146,7 +149,8 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             lineDash = style.dash ?? lineDash;
             lineColor = style.color ?? lineColor;
@@ -154,7 +158,9 @@ export class CanvasContext {
             lineOpacity = style.opacity ?? lineOpacity;
           }
         } else {
-          lineColor = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          lineColor = (v as Color) ?? serie.color;
         }
       }
 
@@ -234,7 +240,7 @@ export class CanvasContext {
     // let prevColor = serie.color;
     let first = true;
     for (let i = 0; i < table.cols[0].length; i++) {
-      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
       const y = tableGetCell(table, serie.yCol, i);
       const sY = yScale(vMap(y));
       if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
@@ -328,7 +334,7 @@ export class CanvasContext {
         x = x0;
         w = x1 - x0;
       } else {
-        x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
+        x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) - shift;
         y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         w = serie.width;
         if (x + serie.width < xMin || x > xMax) {
@@ -341,14 +347,17 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             this.ctx.fillStyle = style.fill ?? serie.color;
             this.ctx.strokeStyle = style.color ?? serie.color;
             this.ctx.globalAlpha = style.opacity ?? serie.opacity;
           }
         } else {
-          this.ctx.strokeStyle = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          this.ctx.strokeStyle = (v as Color) ?? serie.color;
         }
       }
 
@@ -379,7 +388,7 @@ export class CanvasContext {
     const [yMin, yMax] = yScale.range();
 
     for (let i = 0; i < table.cols[0].length; i++) {
-      const sX = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
       const sY = yScale(vMap(tableGetCell(table, serie.yCol, i)));
       if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
         continue;
@@ -391,7 +400,8 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col][i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             fill = style.fill ?? serie.color;
             color = style.color ?? serie.color;
@@ -399,7 +409,9 @@ export class CanvasContext {
             width = style.width ?? serie.width;
           }
         } else {
-          color = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          color = (v as Color) ?? serie.color;
         }
       }
 
@@ -433,12 +445,7 @@ export class CanvasContext {
     const { x, y, fillOpacity, fill } = computePoint(table, serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint(
-      table,
-      serie.xCol,
-      serie.yCol,
-      table.cols[0]?.length - 1 || 0,
-    );
+    let { x: lastX } = computePoint(table, serie.xCol, serie.yCol, table.cols[0]?.length - 1 || 0);
 
     this.ctx.save();
     this.ctx.beginPath();
@@ -530,7 +537,7 @@ export class CanvasContext {
     } else if (iterations > 0) {
       // fill in regard to another serie if not already done
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
-        const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
+        const x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
         const y = yScale(vMap(table.cols[serie.yCol2][i]));
 
         this.ctx.lineTo(x, y);
@@ -546,15 +553,21 @@ export class CanvasContext {
 
     function computePoint(
       table: gc.core.Table,
-      xCol: number | undefined,
-      yCol: number | number[] | gc.$Fields | gc.$Fields[],
+      xCol: SerieTableColumn | undefined,
+      yCol: SerieTableColumn,
       row: number,
-    ) {
-      const x = xScale(xCol === undefined ? row : vMap(table.cols[xCol][row]));
+    ): {
+      x: number;
+      y: number;
+      fill: Color;
+      fillOpacity: number;
+    } {
+      const x = xScale(xCol === undefined ? row : vMap(tableGetCell(table, xCol, row)));
       const y = yScale(vMap(tableGetCell(table, yCol, row)));
       if (serie.styleMapping) {
+        const v = tableGetCell(table, serie.styleMapping.col, row);
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[row]);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             return {
               x,
@@ -568,7 +581,8 @@ export class CanvasContext {
         return {
           x,
           y,
-          fill: table.cols[serie.styleMapping.col]?.[row] ?? serie.color,
+          // TODO this is so not safe, v could be anything but a Color...
+          fill: (v as Color) ?? serie.color,
           fillOpacity: serie.fillOpacity,
         };
       }

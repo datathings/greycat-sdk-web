@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { Axis, ChartConfig, Scale } from './types.js';
+import { Axis, ChartConfig, Scale, SerieTableColumn } from './types.js';
 import {
   getGlobalDateTimeFormat,
   getGlobalDateTimeFormatTimezone,
@@ -279,7 +279,7 @@ export function tableGetColumn(
 
 export function tableGetCell(
   table: gc.core.Table,
-  col: number | number[] | gc.$Fields | gc.$Fields[],
+  col: SerieTableColumn,
   row: number,
 ): unknown {
   if (typeof col === 'number') {

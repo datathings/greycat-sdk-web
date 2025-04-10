@@ -20,8 +20,14 @@ document.body.appendChild(
         series: [
           {
             type: 'line',
-            xCol: 0,
+            xCol: 'project::TimeRecord::time',
             yCol: ['project::TimeRecord::value', 'project::Composed::b'],
+            yAxis: 'y',
+          },
+          {
+            type: 'scatter',
+            xCol: 'project::TimeRecord::time',
+            yCol: ['project::TimeRecord::value', 'project::Composed::a'],
             yAxis: 'y',
           },
         ],
