@@ -3,26 +3,34 @@ import { ChartConfig } from '../../exports.js';
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
-  private _value?: gc.util.HistogramBin[];
+  private _bins?: gc.util.HistogramBin[];
   private _stats?: gc.util.HistogramStats;
 
   constructor() {
     super();
   }
 
-  set value(val: gc.util.HistogramBin[]) {
-    this._value = val;
+  /**
+   * Displays a classic bar chart histogram from a gcl histogram get_bins() output
+   * Only one of bins or stats can be used at the same time
+   */
+  set bins(val: gc.util.HistogramBin[]) {
+    this._bins = val;
     this._stats = undefined;
     this.render();
   }
 
-  get value(): gc.util.HistogramBin[] | undefined {
-    return this._value;
+  get bins(): gc.util.HistogramBin[] | undefined {
+    return this._bins;
   }
 
+  /**
+   * Displays a boxplot from a gcl histogram stats() output
+   * Only one of bins or stats can be used at the same time
+   */
   set stats(val: gc.util.HistogramStats) {
     this._stats = val;
-    this._value = undefined;
+    this._bins = undefined;
     this.render();
   }
 
@@ -31,10 +39,10 @@ export class GuiHistogram extends HTMLElement {
   }
 
   private render() {
-    if (this._value) {
+    if (this._bins) {
       let dims = 0;
-      for (let i = 0; i < this._value.length; i++) {
-        const bin = this._value[i].bin;
+      for (let i = 0; i < this._bins.length; i++) {
+        const bin = this._bins[i].bin;
         if (typeof bin.center === 'number') {
           dims = 1;
           break;
@@ -47,7 +55,7 @@ export class GuiHistogram extends HTMLElement {
         Error("Can't render this histogram dimensions are empty");
       }
       if (dims === 1) {
-        this._render_histogram(this._value);
+        this._render_histogram(this._bins);
       } else if (dims === 2) {
         Error('Not supported yet');
         //TODO To implement when histogram supports multiple dimensions
