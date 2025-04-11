@@ -797,7 +797,6 @@ export class CanvasContext {
       this.ctx.restore();
     } else {
       this.ctx.strokeStyle = opts.whiskerColor ?? 'inherit';
-      console.log(this.ctx.strokeStyle);
 
       //Upper Whisker
       this.ctx.moveTo(boxPlot.max, boxPlot.crossValue - halfWidth);
