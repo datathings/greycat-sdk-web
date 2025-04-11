@@ -129,6 +129,8 @@ export class GuiHistogram extends HTMLElement {
           },
         },
       ],
+      cursor: false,
+      selection: false,
     };
     const chart = document.createElement('gui-chart');
     chart.config = config;
