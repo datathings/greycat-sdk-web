@@ -230,7 +230,7 @@ export type SerieOptions = {
     /**
      * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
      * be the cells of that `col`.
-     * 
+     *
      * (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
      */
     col: SerieTableColumn;
@@ -279,7 +279,7 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: K;
-  /** 
+  /**
    * Optional title used to name the serie.
    */
   title?: string;
@@ -394,8 +394,8 @@ export interface BoxPlotData {
 
 export interface BoxPlotOptions {
   width: number;
-  medianColor: string;
-  whiskerColor: string;
-  iqrColor: string;
+  medianColor?: string;
+  whiskerColor?: string;
+  iqrColor?: string;
   orientation: 'vertical' | 'horizontal';
 }

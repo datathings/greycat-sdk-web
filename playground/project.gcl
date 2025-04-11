@@ -110,22 +110,6 @@ enum Confidence {
   Low;
 }
 
-// @expose
-// fn boxplot_float() {
-//   var histogram = HistogramFloat {};
-
-//   var random = Random::new();
-//   random.setSeed(12345);
-//   var testSize = 10;
-
-//   for (var i = 0; i < testSize; i++) {
-//     var v = random.uniformf(-100.0, 100.0);
-//     histogram.add(v);
-//   }
-
-//   return histogram.toBoxPlot();
-// }
-
 @expose
 fn chart(nbRows: int): Table<any> {
   if (nbRows < 5) {
@@ -357,31 +341,6 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// // pages/histogram
-// @expose
-// fn histogram_table(): Table {
-//   var csvFormat = CsvFormat {};
-//   csvFormat.separator = ',';
-//   csvFormat.header_lines = 1;
-//   var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
-
-//   var histogramHeight = HistogramFloat {};
-//   var histogramWeight = HistogramFloat {};
-//   while (csv.available() > 0) {
-//     var res = csv.read();
-//     var height_inch = res?[1] as float;
-//     var weight_pound = res?[2] as float; 
-
-//     var height_cm = height_inch * 2.54;
-//     var weight_kg = weight_pound * 0.453592;
-
-//     histogramHeight.add(height_cm);
-//     histogramWeight.add(weight_kg);
-//   }
-
-//   return histogramHeight.all();
-// }
-// // pages/histogram end
 
 @expose
 fn table(): Table {
@@ -784,19 +743,6 @@ fn big_map(): Map {
   return map;
 }
 
-@expose
-fn one_d_histo_example(): Histogram {
-  var quant = LinearQuantizer { min: 0.0, max: 10.0, bins: 100 };
-  var histo = Histogram { quantizer: quant };
-  var rand = Random {};
-  for (var i = 0; i < 1000; i++) {
-    var val = rand.normal(5.0, 2.0);
-    histo.add(val);
-  }
-
-  return histo;
-}
-
 type Country {
   name: String;
   timezone: TimeZone;
@@ -856,25 +802,6 @@ fn real_example(): Country {
   };
 }
 
-// @expose
-// fn two_d_histo_example(): Histogram {
-//   var quant = MultiQuantizer {
-//     dimensions: [
-//       LinearQuantizer { min: 5.0, max: 10.0, bins: 100 },
-//       LinearQuantizer { min: 0.0, max: 5.0, bins: 100 },
-//     ]
-//   };
-//   var histo = Histogram { quantizer: quant };
-
-//   var rand = Random {};
-//   for (var i = 0; i < 10000; i++) {
-//     var val = rand.normal(2.5, 1.0);
-//     var val2 = rand.normal(7.5, 1.0);
-//     histo.add([val2, val]);
-//   }
-
-//   return histo;
-// }
 type Obj1 {
   prop1: String;
   prop2: User;
@@ -1054,7 +981,7 @@ fn table_of_objects(): Table<TimeRecord<Composed>> {
   table.set_row(1, TimeRecord<Composed> { time: start + 1hour, value: Composed { a: 2, b: 0.2 } });
   table.set_row(2, TimeRecord<Composed> { time: start + 2hour, value: Composed { a: 3, b: 0.3 } });
   table.set_row(3, TimeRecord<Composed> { time: start + 3hour, value: Composed { a: 4, b: 0.4 } });
-  
+
   for (var i = 0; i < table.rows(); i++) {
     println(table.get_row(i));
   }
@@ -1083,3 +1010,58 @@ fn table_of_objects2(): Table<TimedComposed> {
 
   return table;
 }
+
+// pages/histogram
+@expose
+fn one_d_histogram_bins(): Array<HistogramBin<float>>
+{
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var gaus = Gaussian<float> {};
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    gaus.add(height_cm);
+  }
+  csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var histogramHeight = Histogram<float> { quantizer: LinearQuantizer<float> {bins: 10, min: gaus.min ?? 0.0, max: gaus.max ?? 1.0 } };
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    histogramHeight.add(height_cm);
+  }
+
+  return histogramHeight.get_bins();
+}
+
+@expose
+fn histogram_stats(): HistogramStats<float>?
+{
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var gaus = Gaussian<float> {};
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    gaus.add(height_cm);
+  }
+  csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var histogramHeight = Histogram<float> { quantizer: LinearQuantizer<float> {bins: 10, min: gaus.min ?? 0.0, max: gaus.max ?? 1.0 } };
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    histogramHeight.add(height_cm);
+  }
+
+  return histogramHeight.stats();
+}
+
+

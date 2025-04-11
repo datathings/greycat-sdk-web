@@ -9,10 +9,6 @@
     "link": true,
     "children": [
       {
-        "label": "Bar histogram",
-        "route": "chart-bar-histogram/"
-      },
-      {
         "label": "Bar",
         "route": "chart-bar/"
       },
@@ -106,7 +102,17 @@
   },
   {
     "label": "Histogram",
-    "route": "pages/histogram/"
+    "route": "pages/histogram/",
+    "children": [
+      {
+        "label": "Histogram 1D",
+        "route": "1d-histogram/"
+      },
+      {
+        "label": "Histogram Stats",
+        "route": "histogram-stats/"
+      }
+    ]
   },
   {
     "label": "Inputs",
