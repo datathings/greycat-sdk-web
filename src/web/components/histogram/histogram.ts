@@ -5,6 +5,7 @@ export class GuiHistogram extends HTMLElement {
 
   private _bins?: gc.util.HistogramBin[];
   private _stats?: gc.util.HistogramStats;
+  private _percentiles: boolean = false;
 
   constructor() {
     super();
@@ -38,6 +39,19 @@ export class GuiHistogram extends HTMLElement {
     return this._stats;
   }
 
+  /**
+   * Displays the histogram stats() output in form a percentiles line chart
+   * Only works for stats
+   */
+  set percentiles(val: boolean) {
+    this._percentiles = val;
+    this.render();
+  }
+
+  get percentiles() {
+    return this._percentiles;
+  }
+
   private render() {
     if (this._bins) {
       let dims = 0;
@@ -64,7 +78,11 @@ export class GuiHistogram extends HTMLElement {
         //TODO To implement when histogram supports multiple dimensions
       }
     } else if (this._stats) {
-      this._render_boxplot(this._stats);
+      if (this._percentiles) {
+        this._render_percentile(this._stats);
+      } else {
+        this._render_boxplot(this._stats);
+      }
     }
   }
 
@@ -135,6 +153,47 @@ export class GuiHistogram extends HTMLElement {
     const chart = document.createElement('gui-chart');
     chart.config = config;
     chart.value = [];
+    this.replaceChildren(chart);
+  }
+
+  private _render_percentile(stats: gc.util.HistogramStats<number>) {
+    const data = [];
+    data.push([1, stats.percentile1]);
+    data.push([5, stats.percentile5]);
+    data.push([10, stats.percentile10]);
+    data.push([20, stats.percentile20]);
+    data.push([25, stats.percentile25]);
+    data.push([50, stats.percentile50]);
+    data.push([75, stats.percentile75]);
+    data.push([80, stats.percentile80]);
+    data.push([90, stats.percentile90]);
+    data.push([95, stats.percentile95]);
+    data.push([99, stats.percentile99]);
+    const config: ChartConfig = {
+      xAxis: {
+        scale: 'linear',
+      },
+      yAxes: {
+        left: {
+          format(value) {
+            return `${value} %`;
+          },
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          yAxis: 'left',
+          yCol: 0,
+          xCol: 1,
+        },
+      ],
+      cursor: false,
+      selection: false,
+    };
+    const chart = document.createElement('gui-chart');
+    chart.config = config;
+    chart.value = data;
     this.replaceChildren(chart);
   }
 
