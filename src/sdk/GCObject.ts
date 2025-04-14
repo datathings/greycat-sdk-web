@@ -105,19 +105,23 @@ namespace gc {
                 break;
               }
               case PrimitiveType.object: {
-                if (this.$type.abi.types[att.abi_type].is_ambiguous) {
-                  w.write_vu32(att.abi_type);
-                }
+                const att_ty = this.$type.abi.types[att.abi_type];
                 if (Array.isArray(value)) {
+                  if (att_ty.is_ambiguous) {
+                    w.write_vu32(att.abi_type);
+                  }
                   w.write_vu32(value.length);
                   w.write_array(value);
                 } else if (value instanceof Map) {
+                  if (att_ty.is_ambiguous) {
+                    w.write_vu32(att.abi_type);
+                  }
                   w.write_vu32(value.size);
                   w.write_map(value);
                 } else if (typeof value === 'string') {
                   w.raw_string(value);
                 } else if (value instanceof GCObject) {
-                  if (w.abi.types[att.abi_type].is_abstract) {
+                  if (att_ty.is_ambiguous) {
                     w.write_vu32(value.$type.offset);
                   }
                   value.saveContent(w);
@@ -265,96 +269,6 @@ namespace gc {
           }
         }
         return new programType.ctor(...fields);
-      }
-    }
-
-    export function serialize_object(
-      w: AbiWriter,
-      type: AbiType,
-      object: object,
-      with_headers: boolean,
-    ): void {
-      if (with_headers) {
-        w.write_u8(PrimitiveType.object);
-        w.write_vu32(type.offset);
-      }
-      if (type.nullable_nb_bytes > 0) {
-        // nullable bitset
-        const nullable_bitset = new Uint8Array(type.nullable_nb_bytes);
-        let nullable_offset = 0;
-        let att;
-        for (let offset = 0; offset < type.attrs.length; offset++) {
-          att = type.attrs[offset];
-          if (att.nullable) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if ((object as any)[att.name] === null || (object as any)[att.name] === undefined) {
-              GCObject.set_null(nullable_bitset, nullable_offset);
-            } else {
-              GCObject.set_not_null(nullable_bitset, nullable_offset);
-            }
-            nullable_offset++;
-          }
-        }
-        w.write_all(nullable_bitset);
-      }
-
-      for (let i = 0; i < type.attrs.length; i++) {
-        const att = type.attrs[i];
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const value = (object as any)[att.name];
-        if (att.nullable && (value === null || value === undefined)) {
-          // skip nullable field that is actually 'null'
-          continue;
-        }
-
-        switch (att.sbi_type) {
-          case PrimitiveType.bool:
-            w.write_bool(value as boolean);
-            break;
-          case PrimitiveType.char:
-            w.write_i8((value as string).charCodeAt(0));
-            break;
-          case PrimitiveType.int:
-            w.write_vi64(typeof value === 'bigint' ? value : BigInt(value as number));
-            break;
-          case PrimitiveType.float:
-            w.write_pf64(value as number, att.precision);
-            break;
-          case PrimitiveType.object:
-            if (Array.isArray(value)) {
-              w.write_vu32(value.length);
-              for (let i = 0; i < value.length; i++) {
-                w.serialize(value[i]);
-              }
-            } else if (value instanceof Map) {
-              w.write_vu32(value.size);
-              value.forEach((value, key) => {
-                w.serialize(key);
-                w.serialize(value);
-              });
-            } else if (typeof value === 'string') {
-              w.raw_string(value);
-            } else {
-              const object = value as GCObject;
-              if (w.abi.types[att.abi_type].is_abstract) {
-                w.write_vu32(object.$type.offset);
-              }
-              object.saveContent(w);
-            }
-            break;
-          case PrimitiveType.undefined:
-            // when the type is undefined, we need the header to be written
-            w.serialize(value);
-            break;
-
-          case PrimitiveType.null:
-            // noop
-            break;
-
-          default:
-            (value as GCObject).saveContent(w);
-            break;
-        }
       }
     }
   }

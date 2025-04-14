@@ -938,6 +938,13 @@ namespace gc {
         readonly return_type_nullable: boolean,
         readonly args_type: AbiType,
       ) {}
+
+      /**
+       * @returns an instance of `gc.core.function_` that points to that `AbiFunction`
+       */
+      toFunction(): gc.core.function_ {
+        return new gc.core.function_(this.module_id, this.type_id, this.name_id);
+      }
     }
 
     export class AbiParam {
