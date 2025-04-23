@@ -14,10 +14,10 @@ gui-table {
   min-height: var(--gui-table-min-height);
 }
 
-gui-table > gui-search-input::part(base) {
+gui-table::part(filter-base) {
   border-radius: 0;
 }
 
-gui-tbody-row:hover {
+gui-table::part(row):hover {
   cursor: pointer;
 }
