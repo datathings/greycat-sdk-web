@@ -7,7 +7,7 @@ export type Scale =
 export type Color = string | CanvasGradient | CanvasPattern;
 export type SerieType = Serie['type'];
 export type ScaleType = Extract<Axis['scale'], string>;
-export type SecondOrdinate = 'min' | 'max' | number;
+export type SecondOrdinate = 'min' | 'max' | SerieTableColumn;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
@@ -209,7 +209,7 @@ export type SerieOptions = {
   /**
    * - `'min'`: draws the area from `yCol` to the bottom
    * - `'max'`: draws the area from `yCol` to the top
-   * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
+   * - `SerieTableColumn`: draws the area from `yCol` to the column specified by the `SerieTableColumn`
    */
   yCol2: SecondOrdinate;
   /**
@@ -230,7 +230,7 @@ export type SerieOptions = {
     /**
      * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
      * be the cells of that `col`.
-     * 
+     *
      * (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
      */
     col: SerieTableColumn;
@@ -279,7 +279,7 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
   yAxis: K;
-  /** 
+  /**
    * Optional title used to name the serie.
    */
   title?: string;
@@ -398,4 +398,12 @@ export interface BoxPlotOptions {
   whiskerColor: string;
   iqrColor: string;
   orientation: 'vertical' | 'horizontal';
+}
+
+export function isOrdMinMax(ord: SecondOrdinate | undefined): ord is 'min' | 'max' {
+  return ord !== undefined && (ord === 'min' || ord === 'max');
+}
+
+export function isOrdSerieTableColumn(ord: SecondOrdinate | undefined): ord is SerieTableColumn {
+  return ord !== undefined && !isOrdMinMax(ord);
 }

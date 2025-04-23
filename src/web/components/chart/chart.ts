@@ -29,6 +29,7 @@ import {
   tableGetCell,
   tableGetColumn,
   tableGetColumnIndex,
+  isOrdSerieTableColumn,
 } from '../../exports.js';
 import type { sl, TableLike } from '../../exports.js';
 import style from './chart.css?inline';
@@ -852,8 +853,8 @@ export class GuiChart extends GuiElement {
         let y = yScales[serie.yAxis](yValue);
         const w = serie.markerWidth;
         let yValue2;
-        if (typeof serie.yCol2 === 'number') {
-          yValue2 = this._table.cols[serie.yCol2][rowIdx];
+        if (isOrdSerieTableColumn(serie.yCol2)) {
+          yValue2 = tableGetCell(this._table, serie.yCol2, rowIdx);
         }
 
         if (serie.markerThreshold) {
@@ -992,10 +993,10 @@ export class GuiChart extends GuiElement {
           } else {
             nameEl.textContent = `Col ${yColIdx}`;
           }
-          nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol}`);
+          nameEl.part.add('tooltip-name', `tooltip-name-${yColIdx}`);
           const valueEl = document.createElement('div');
           valueEl.classList.add('tooltip-value');
-          valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol}`);
+          valueEl.part.add('tooltip-value', `tooltip-value-${yColIdx}`);
           if (
             this._config.tooltip?.position === 'bottom-right' ||
             this._config.tooltip?.position === 'top-right'
@@ -1007,15 +1008,36 @@ export class GuiChart extends GuiElement {
             serie.value !== undefined ? serie.value.toString() : formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
-          if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
+          if (yValue2 !== undefined && isOrdSerieTableColumn(serie.yCol2)) {
+            const y2ColIdx = tableGetColumnIndex(serie.yCol2) ?? 0;
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
-            nameEl.textContent =
-              serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
-            nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol2}`);
+            if (serie.title !== undefined) {
+              nameEl.textContent = serie.title;
+            } else if (Array.isArray(serie.yCol2)) {
+              const yCol2 = serie.yCol2 as number[] | gc.$Fields[]; // ts spreads union for some reason, gotta found why, meanwhile I'm casting
+              nameEl.textContent = yCol2
+                .map((p) => {
+                  if (typeof p === 'number') {
+                    return p;
+                  }
+                  const last_dcolon = p.lastIndexOf('::');
+                  if (last_dcolon === -1) {
+                    return p;
+                  }
+                  const field_name = p.slice(last_dcolon + 2);
+                  return field_name;
+                })
+                .join('.');
+            } else if (this._table.headers && this._table.headers[y2ColIdx] !== undefined) {
+              nameEl.textContent = this._table.headers[y2ColIdx];
+            } else {
+              nameEl.textContent = `Col ${y2ColIdx}`;
+            }
+            nameEl.part.add('tooltip-name', `tooltip-name-${y2ColIdx}`);
             const valueEl = document.createElement('div');
             valueEl.classList.add('tooltip-value');
-            valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol2}`);
+            valueEl.part.add('tooltip-value', `tooltip-value-${y2ColIdx}`);
             if (
               this._config.tooltip?.position === 'bottom-right' ||
               this._config.tooltip?.position === 'top-right'
@@ -1023,7 +1045,7 @@ export class GuiChart extends GuiElement {
               valueEl.classList.add('right');
             }
             valueEl.style.color = color;
-            valueEl.textContent = formatter(yValue2);
+            valueEl.textContent = formatter(vMap(yValue2));
             this._tooltip.append(nameEl, valueEl);
           }
         }
@@ -1595,8 +1617,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
@@ -1629,8 +1651,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (max == null) {
                     max = value;
@@ -1658,8 +1680,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
