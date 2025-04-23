@@ -1,17 +1,19 @@
 import { vMap } from './internals.js';
-import type {
-  Scale,
-  Color,
-  SerieWithOptions,
-  BarSerie,
-  SerieOptions,
-  LineOptions,
-  ScatterSerie,
-  LineScatterSerie,
-  SerieStyle,
-  BoxPlotData,
-  BoxPlotOptions,
-  SerieTableColumn,
+import {
+  type Scale,
+  type Color,
+  type SerieWithOptions,
+  type BarSerie,
+  type SerieOptions,
+  type LineOptions,
+  type ScatterSerie,
+  type LineScatterSerie,
+  type SerieStyle,
+  type BoxPlotData,
+  type BoxPlotOptions,
+  type SerieTableColumn,
+  isOrdMinMax,
+  isOrdSerieTableColumn,
 } from './types.js';
 import { round } from '../../canvas';
 import { tableGetCell } from './utils.js';
@@ -525,7 +527,7 @@ export class CanvasContext {
       }
     }
 
-    if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
+    if (isOrdMinMax(serie.yCol2)) {
       // yCol2 === 'max': fill from line to top
       // yCol2 === 'min': fill from line to bottom
       const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
@@ -534,11 +536,11 @@ export class CanvasContext {
       this.ctx.lineTo(lastX, yBound); // bottom right
       this.ctx.lineTo(firstX, yBound); // bottom left
       this.ctx.lineTo(firstX, firstY); // start of line
-    } else if (iterations > 0) {
+    } else if (iterations > 0 && isOrdSerieTableColumn(serie.yCol2)) {
       // fill in regard to another serie if not already done
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
         const x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
-        const y = yScale(vMap(table.cols[serie.yCol2][i]));
+        const y = yScale(vMap(tableGetCell(table, serie.yCol2, i)));
 
         this.ctx.lineTo(x, y);
         if (serie.curve === 'step-after') {
