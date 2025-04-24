@@ -865,3 +865,17 @@ fn something(foo: Baz): Baz {
   pprint(foo);
   return foo;
 }
+
+@expose
+fn getPeriod(days: Tuple<int, int>?) {
+  pprint(days);
+}
+
+type Custom<T> {
+  x: T;
+}
+
+@expose
+fn consume_custom(c: Custom<String>) {
+  println(c);
+}

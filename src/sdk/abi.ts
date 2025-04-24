@@ -432,7 +432,7 @@ namespace gc {
               Object.defineProperty(this, '$type', {
                 value: type,
                 enumerable: false,
-                writable: false,
+                writable: true, // we need to be able to update $type for generics
               });
               this.$init?.();
             }
@@ -678,7 +678,11 @@ namespace gc {
             static readonly _type = type.name;
             constructor(offset = 0, key = '') {
               super(offset, key);
-              Object.defineProperty(this, '$type', { value: type, enumerable: false });
+              Object.defineProperty(this, '$type', {
+                value: type,
+                enumerable: false,
+                // we don't need writability for enums
+              });
             }
           };
           this.ctor = GCEnum;
@@ -693,7 +697,6 @@ namespace gc {
               this.enum_values[offset] = en;
               Object.defineProperty(this.ctor, en_field_name, {
                 value: en,
-                writable: false,
                 enumerable: true,
               });
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -702,7 +705,6 @@ namespace gc {
             Object.defineProperty(this.ctor, '$fields', {
               value: this.enum_values,
               enumerable: true,
-              writable: false,
             });
           }
         } else if (is_native) {
@@ -713,7 +715,10 @@ namespace gc {
                 const GCObject = class extends gc.sdk.std_n.core.function_ {
                   constructor(mod_off = 0, ty_off = 0, name_off = 0) {
                     super(mod_off, ty_off, name_off);
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -724,7 +729,10 @@ namespace gc {
                 const GCObject = class extends gc.sdk.std_n.core.null_ {
                   constructor() {
                     super();
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -735,7 +743,10 @@ namespace gc {
                   static readonly _type = type.name;
                   constructor() {
                     super();
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -753,7 +764,7 @@ namespace gc {
                       Object.defineProperty(this, '$type', {
                         value: type,
                         enumerable: false,
-                        writable: true,
+                        writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
                       });
                       this.$init?.();
                     }
@@ -804,7 +815,11 @@ namespace gc {
             static readonly _type = type.name;
             constructor(...fields: unknown[]) {
               super();
-              Object.defineProperty(this, '$type', { value: type, enumerable: false });
+              Object.defineProperty(this, '$type', {
+                value: type,
+                enumerable: false,
+                writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
+              });
               Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
               Object.defineProperties(this, properties);
             }

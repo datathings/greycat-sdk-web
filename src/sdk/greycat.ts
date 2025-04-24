@@ -521,6 +521,10 @@ namespace gc {
               const arg = args[i];
               if (!param) {
                 writer.serialize(arg);
+              } else if (arg instanceof GCObject && param.type.generic_abi_type !== arg.$type.generic_abi_type) {
+                // transtype the value
+                Object.assign(arg, { $type: param.type });
+                writer.serialize(arg);
               } else if (param.type.offset === this.abi.core.float) {
                 if (arg === null) {
                   writer.null();
