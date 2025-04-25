@@ -521,10 +521,6 @@ namespace gc {
               const arg = args[i];
               if (!param) {
                 writer.serialize(arg);
-              } else if (arg instanceof GCObject && param.type.generic_abi_type !== arg.$type.generic_abi_type) {
-                // transtype the value
-                Object.assign(arg, { $type: param.type });
-                writer.serialize(arg);
               } else if (param.type.offset === this.abi.core.float) {
                 if (arg === null) {
                   writer.null();
@@ -563,6 +559,10 @@ namespace gc {
                 writer.write_u8(PrimitiveType.object);
                 writer.write_vu32(param.type.offset);
                 arg.saveContent(writer);
+              } else if (arg instanceof GCObject && param.type.generic_abi_type !== arg.$type.generic_abi_type) {
+                // transtype the value
+                Object.assign(arg, { $type: param.type });
+                writer.serialize(arg);
               } else {
                 writer.serialize(arg);
               }

@@ -879,3 +879,28 @@ type Custom<T> {
 fn consume_custom(c: Custom<String>) {
   println(c);
 }
+
+
+type Whatever {
+  node: node<Point>;
+}
+
+type Point {
+  x: int;
+  y: int;
+}
+
+@expose
+fn whatever(): Array<Whatever> {
+  return Array<Whatever> {
+    Whatever { node: node<Point> { Point { x: 0, y: 0 } } },
+    Whatever { node: node<Point> { Point { x: 1, y: 1 } } },
+    Whatever { node: node<Point> { Point { x: 2, y: 2 } } },
+    Whatever { node: node<Point> { Point { x: 3, y: 3 } } },
+  };
+}
+
+@expose
+fn arr_of_nodes(arr: Array<node<Point>>) {
+  pprint(arr);
+}
