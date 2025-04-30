@@ -176,19 +176,31 @@ namespace gc {
     }
 
     export function primitiveType(type: AbiType): PrimitiveType {
-      if (type.offset === type.abi.core.node) {
+      if (type.offset === type.abi.core.node || type.generic_abi_type === type.abi.core.node) {
         return PrimitiveType.node;
       }
-      if (type.offset === type.abi.core.node_time) {
+      if (
+        type.offset === type.abi.core.node_time ||
+        type.generic_abi_type === type.abi.core.node_time
+      ) {
         return PrimitiveType.node_time;
       }
-      if (type.offset === type.abi.core.node_index) {
+      if (
+        type.offset === type.abi.core.node_index ||
+        type.generic_abi_type === type.abi.core.node_index
+      ) {
         return PrimitiveType.node_index;
       }
-      if (type.offset === type.abi.core.node_list) {
+      if (
+        type.offset === type.abi.core.node_list ||
+        type.generic_abi_type === type.abi.core.node_list
+      ) {
         return PrimitiveType.node_list;
       }
-      if (type.offset === type.abi.core.node_geo) {
+      if (
+        type.offset === type.abi.core.node_geo ||
+        type.generic_abi_type === type.abi.core.node_geo
+      ) {
         return PrimitiveType.node_geo;
       }
       if (type.offset === type.abi.core.geo) {

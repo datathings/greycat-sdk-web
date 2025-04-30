@@ -512,63 +512,11 @@ namespace gc {
         if (args instanceof ArrayBuffer) {
           body = args;
         } else {
-          const writer = new AbiWriter(this.abi, this.capacity);
-          writer.headers();
-          if (args && args.length > 0) {
-            const fn = this.abi.fn_by_fqn.get(method);
-            for (let i = 0; i < args.length; i++) {
-              const param = fn?.params[i];
-              const arg = args[i];
-              if (!param) {
-                writer.serialize(arg);
-              } else if (param.type.offset === this.abi.core.float) {
-                if (arg === null) {
-                  writer.null();
-                } else if (typeof arg === 'number') {
-                  writer.float(arg as number);
-                } else {
-                  writer.serialize(arg);
-                }
-              } else if (param.type.offset === this.abi.core.char) {
-                if (arg === null) {
-                  writer.null();
-                } else if (typeof arg === 'string') {
-                  writer.char(arg as string);
-                } else {
-                  writer.serialize(arg);
-                }
-              } else if (
-                param.type.generic_abi_type === this.abi.core.array &&
-                Array.isArray(arg)
-              ) {
-                // monomorphic array
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                writer.write_vu32(arg.length);
-                writer.write_array(arg);
-              } else if (param.type.generic_abi_type === this.abi.core.map && arg instanceof Map) {
-                // monomorphic map
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                writer.write_vu32(arg.size);
-                writer.write_map(arg);
-              } else if (
-                param.type.generic_abi_type === this.abi.core.table &&
-                arg instanceof core.Table
-              ) {
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                arg.saveContent(writer);
-              } else if (arg instanceof GCObject && param.type.generic_abi_type !== arg.$type.generic_abi_type) {
-                // transtype the value
-                Object.assign(arg, { $type: param.type });
-                writer.serialize(arg);
-              } else {
-                writer.serialize(arg);
-              }
-            }
+          const fn = this.abi.fn_by_fqn.get(method);
+          if (!fn) {
+            throw new Error(`function '${method}' is not registered in the abi`);
           }
-          body = writer.buffer.buffer;
+          body = fn.serialize(args, this.capacity);
         }
         const headers: HeadersInit = {
           accept: 'application/octet-stream',

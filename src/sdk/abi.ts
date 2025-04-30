@@ -402,6 +402,7 @@ namespace gc {
           }
 
           this.functions[i] = new AbiFunction(
+            this,
             lib === 0 ? 'project' : lib_name,
             module_name,
             type === 0 ? undefined : type_name,
@@ -940,6 +941,7 @@ namespace gc {
 
     export class AbiFunction {
       constructor(
+        readonly abi: Abi,
         readonly lib: string,
         readonly module: string,
         readonly type: string | undefined,
@@ -959,6 +961,71 @@ namespace gc {
        */
       toFunction(): gc.core.function_ {
         return new gc.core.function_(this.module_id, this.type_id, this.name_id);
+      }
+
+      /**
+       * Serializes the given `args` following this functions parameters signature
+       * @param abi
+       * @param args
+       * @returns
+       */
+      serialize(args?: gc.sdk.Value[], capacity?: number): ArrayBuffer {
+        const writer = new gc.sdk.AbiWriter(this.abi, capacity);
+        writer.headers();
+        if (args && args.length > 0) {
+          for (let i = 0; i < args.length; i++) {
+            const param = this.params[i];
+            const arg = args[i];
+            if (!param) {
+              writer.serialize(arg);
+            } else if (param.type.offset === this.abi.core.float) {
+              if (arg === null) {
+                writer.null();
+              } else if (typeof arg === 'number') {
+                writer.float(arg as number);
+              } else {
+                writer.serialize(arg);
+              }
+            } else if (param.type.offset === this.abi.core.char) {
+              if (arg === null) {
+                writer.null();
+              } else if (typeof arg === 'string') {
+                writer.char(arg as string);
+              } else {
+                writer.serialize(arg);
+              }
+            } else if (param.type.generic_abi_type === this.abi.core.array && Array.isArray(arg)) {
+              // monomorphic array
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              writer.write_vu32(arg.length);
+              writer.write_array(arg);
+            } else if (param.type.generic_abi_type === this.abi.core.map && arg instanceof Map) {
+              // monomorphic map
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              writer.write_vu32(arg.size);
+              writer.write_map(arg);
+            } else if (
+              param.type.generic_abi_type === this.abi.core.table &&
+              arg instanceof core.Table
+            ) {
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              arg.saveContent(writer);
+            } else if (
+              arg instanceof GCObject &&
+              param.type.generic_abi_type !== arg.$type.generic_abi_type
+            ) {
+              // transtype the value
+              Object.assign(arg, { $type: param.type });
+              writer.serialize(arg);
+            } else {
+              writer.serialize(arg);
+            }
+          }
+        }
+        return writer.buffer.buffer;
       }
     }
 
