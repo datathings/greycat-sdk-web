@@ -1146,8 +1146,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this._inline = getBooleanAttribute(this, 'inline');
-    this._noTypes = getBooleanAttribute(this, 'no-types');
+    this._inline = getBooleanAttribute(this, 'inline') || this._inline;
+    this._noTypes = getBooleanAttribute(this, 'no-types') || this._noTypes;
     this.update();
   }
 

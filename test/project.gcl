@@ -462,15 +462,18 @@ type Foo {
 }
 
 @expose
-
 fn foo(): Foo {
   return Foo {};
 }
 
 @expose
-
 fn task_with_params(different: String, age: int): String {
   return different;
+}
+
+@expose
+fn task_without_result() {
+  println("hello");
 }
 
 enum Confidence {
@@ -480,7 +483,6 @@ enum Confidence {
 }
 
 @expose
-
 fn enum() {
   return TimeZone::"Europe/Andorra";
 }
