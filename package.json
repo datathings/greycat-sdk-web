@@ -24,14 +24,11 @@
       "import": "./dist/vite-plugin/index.js"
     },
     "./*.css": "./dist/*.css",
-    "./*.ttf": "./fonts/*.ttf",
-    "./*.woff": "./fonts/*.woff",
     "./assets/*.svg": "./assets/*.svg"
   },
   "license": "Apache-2.0",
   "files": [
     "dist",
-    "fonts",
     "assets",
     "src"
   ],
