@@ -364,10 +364,33 @@ namespace gc {
             const signal = raw_args[fn.params.length + 1] as AbortSignal | undefined;
             return g.call(fn.fqn, args, signal);
           };
-          Object.defineProperty(theFn, 'name', {
-            value: fn.fqn,
-            writable: false,
-            enumerable: false,
+          Object.defineProperties(theFn, {
+            name: {
+              value: fn.fqn,
+              writable: false,
+              enumerable: false,
+            },
+            // spawn: {
+            //   value: (...raw_args: unknown[]) => {
+            //     const args = new Array(fn.params.length);
+            //     for (let i = 0; i < fn.params.length; i++) {
+            //       args[i] = raw_args[i];
+            //     }
+            //     const signal = raw_args[fn.params.length] as AbortSignal | undefined;
+            //     return this.spawn(fn.fqn, args, signal);
+            //   },
+            // },
+            // spawnAwait: {
+            //   value: (...raw_args: unknown[]) => {
+            //     const args = new Array(fn.params.length);
+            //     for (let i = 0; i < fn.params.length; i++) {
+            //       args[i] = raw_args[i];
+            //     }
+            //     const pollEvery = raw_args[fn.params.length] as number | undefined;
+            //     const signal = raw_args[fn.params.length + 1] as AbortSignal | undefined;
+            //     return this.spawnAwait(fn.fqn, args, pollEvery, signal);
+            //   },
+            // },
           });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           if (!(gc as any)[fn.module]) {
@@ -478,23 +501,52 @@ namespace gc {
         pollEvery?: number,
         signal?: AbortSignal,
       ): Promise<T> {
+        const delay = pollEvery ?? 2000;
         let running = await runtime.Task.is_running(task.task_id, this, signal);
         // eslint-disable-next-line no-constant-condition
         while (running) {
-          // re-fetch task info, on first fetch we only wait 250ms
-          await sleep(pollEvery ?? 2000, signal);
+          // re-fetch task info while running
+          await sleep(delay, signal);
           running = await runtime.Task.is_running(task.task_id, this, signal);
         }
-        const [result] = await this.getFile<T>(
-          `${task.user_id}/tasks/${task.task_id}/result.gcb`,
-          undefined,
-          undefined,
-          signal,
-        );
-        if (result instanceof core.Error) {
-          throw result;
+
+        // download and parse 'result.gcb' if found
+        const result_route = `files/${task.user_id}/tasks/${task.task_id}/result.gcb`;
+        const url = new URL(`${this.api}/${result_route}`);
+        const res = await fetch(url, { signal });
+        if (res.ok) {
+          debugLogger(res.status, url.pathname);
+          const data = await res.arrayBuffer();
+          if (data.byteLength === 0) {
+            return undefined as T;
+          }
+          const reader = new AbiReader(this.abi, data);
+          reader.headers(); // TODO do not ignore headers
+          const value = reader.deserialize();
+          if (!reader.is_empty) {
+            throw new Error(`The request buffer for '${result_route}' has bytes left in it`);
+          }
+          if (value instanceof core.Error) {
+            throw value;
+          }
+          return value as T;
         }
-        return result;
+        if (res.status === 404) {
+          debugLogger(res.status, url.pathname);
+          // 404 on result.gcb might probably mean that the task returned 'void', therefore we do not fail in this case
+          return undefined as T;
+        } else if (res.status === 403) {
+          // forbidden
+          debugLogger(res.status, url.pathname);
+          throw new Error(`file '${result_route}' access forbidden`);
+        } else if (res.status === 401) {
+          // unauthorized
+          debugLogger(res.status, url.pathname);
+          this.token = undefined;
+          this.unauthorizedHandler?.();
+          throw new Error('unauthorized');
+        }
+        throw new Error(`unexpected error while getting file '${result_route}'`);
       }
 
       /**
@@ -512,59 +564,11 @@ namespace gc {
         if (args instanceof ArrayBuffer) {
           body = args;
         } else {
-          const writer = new AbiWriter(this.abi, this.capacity);
-          writer.headers();
-          if (args && args.length > 0) {
-            const fn = this.abi.fn_by_fqn.get(method);
-            for (let i = 0; i < args.length; i++) {
-              const param = fn?.params[i];
-              const arg = args[i];
-              if (!param) {
-                writer.serialize(arg);
-              } else if (param.type.offset === this.abi.core.float) {
-                if (arg === null) {
-                  writer.null();
-                } else if (typeof arg === 'number') {
-                  writer.float(arg as number);
-                } else {
-                  writer.serialize(arg);
-                }
-              } else if (param.type.offset === this.abi.core.char) {
-                if (arg === null) {
-                  writer.null();
-                } else if (typeof arg === 'string') {
-                  writer.char(arg as string);
-                } else {
-                  writer.serialize(arg);
-                }
-              } else if (
-                param.type.generic_abi_type === this.abi.core.array &&
-                Array.isArray(arg)
-              ) {
-                // monomorphic array
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                writer.write_vu32(arg.length);
-                writer.write_array(arg);
-              } else if (param.type.generic_abi_type === this.abi.core.map && arg instanceof Map) {
-                // monomorphic map
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                writer.write_vu32(arg.size);
-                writer.write_map(arg);
-              } else if (
-                param.type.generic_abi_type === this.abi.core.table &&
-                arg instanceof core.Table
-              ) {
-                writer.write_u8(PrimitiveType.object);
-                writer.write_vu32(param.type.offset);
-                arg.saveContent(writer);
-              } else {
-                writer.serialize(arg);
-              }
-            }
+          const fn = this.abi.fn_by_fqn.get(method);
+          if (!fn) {
+            throw new Error(`function '${method}' is not registered in the abi`);
           }
-          body = writer.buffer.buffer;
+          body = fn.serialize(args, this.capacity);
         }
         const headers: HeadersInit = {
           accept: 'application/octet-stream',

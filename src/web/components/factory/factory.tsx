@@ -327,7 +327,7 @@ export class GuiInputFactory extends GuiElement {
       return document.createElement('gui-input-enum');
     }
 
-    if (value instanceof gc.sdk.GCFunction) {
+    if (value instanceof gc.core.function_) {
       const tagName = this.get(value.$type.name);
       if (tagName) {
         return document.createElement(tagName);

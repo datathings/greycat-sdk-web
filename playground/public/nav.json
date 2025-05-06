@@ -185,6 +185,10 @@
     "route": "pages/root/"
   },
   {
+    "label": "Sampling",
+    "route": "pages/sampling/"
+  },
+  {
     "label": "Select",
     "route": "pages/select/"
   },

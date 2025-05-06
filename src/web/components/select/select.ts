@@ -19,6 +19,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
   readonly input: sl.SlInput;
   private _list: HTMLElement;
+  private _popup: sl.SlPopup;
   private _options: GuiOption<T>[];
   private _nullable = false;
 
@@ -144,9 +145,16 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
     this._list = document.createElement('div');
     this._list.classList.add('gui-select-list');
     this._list.part.add('list');
-    this.hideDropdown();
 
-    this.shadowRoot.append(this.input, this._list);
+    this._popup = document.createElement('sl-popup');
+    this._popup.flip = true;
+    this._popup.placement = 'bottom';
+    this._popup.sync = 'width';
+    this._popup.append(this._list);
+    this._popup.append(this.input);
+    this.input.slot = 'anchor';
+
+    this.shadowRoot.append(this._popup);
   }
 
   override connectedCallback() {
@@ -263,13 +271,13 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
   }
 
   showDropdown(): void {
-    this._list.style.visibility = 'visible';
-    this.classList.add('open');
+    this._popup.active = true;
+    //this.classList.add('open');
   }
 
   hideDropdown(): void {
-    this._list.style.visibility = 'hidden';
-    this.classList.remove('open');
+    this._popup.active = false;
+    //this.classList.remove('open');
   }
 
   private _emptyList(): void {

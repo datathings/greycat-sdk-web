@@ -123,6 +123,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._filter.clearable = true;
     this._filter.placeholder = 'Filter the table';
     this._filter.part.add('filter');
+    this._filter.setAttribute('exportparts', 'base:filter-base');
     this._filter.oninput = () => {
       this.filter = this._filter.value;
       this._dirtyFilter = true;
@@ -1358,6 +1359,7 @@ export class GuiTableBody extends HTMLElement {
     }
 
     const newRow = document.createElement('gui-tbody-row');
+    newRow.part.add('row');
     this.appendChild(newRow);
     return newRow;
   }

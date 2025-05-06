@@ -157,7 +157,7 @@ export class GuiTab extends GuiElement {
       this.tabIndex = 0;
     }
     if (this.hasAttribute('active')) {
-      this.active = getBooleanAttribute(this, 'active');
+      this.active = getBooleanAttribute(this, 'active') || this.active;
     }
     this.update();
   }

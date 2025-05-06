@@ -34,7 +34,7 @@ export class GuiUsers extends GuiElement {
 
     this._userForm = document.createElement('gui-user-form');
 
-    this._table.addEventListener('gui-click', (ev) => {
+    this._table.addEventListener('gui-table-click', (ev) => {
       const user_id = this._table.table.cols[0][ev.detail.rowIdx] as number | bigint;
       const name = this._table.table.cols[1][ev.detail.rowIdx] as string;
       const full_name = this._table.table.cols[2][ev.detail.rowIdx] as string;
@@ -156,8 +156,8 @@ export class GuiUsers extends GuiElement {
               await this._userForm.updateUser();
               this.update();
               this._dialog.hide();
-            } catch {
-              // handle problems
+            } catch (err) {
+              toast.error(err);
             }
           }}
         >

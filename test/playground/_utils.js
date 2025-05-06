@@ -44,3 +44,17 @@ export function displayValue(value, json = false) {
     console.dir(structuredClone(value), { depth: Infinity });
   }
 }
+
+export function stdin_read() {
+  return new Promise(function(resolve, reject) {
+    let data = '';
+
+    process.stdin.setEncoding('utf8');
+
+    process.stdin.on('data', function(chunk) { data += chunk; });
+    process.stdin.on('end', function() { resolve(data); });
+    process.stdin.on('error', function(err) { reject(err); });
+
+    process.stdin.resume();
+  });
+}

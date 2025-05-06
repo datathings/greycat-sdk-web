@@ -117,6 +117,7 @@ export class GuiHeatmap extends GuiElement {
 
     // tooltip
     this._tooltip = document.createElement('gui-heatmap-tooltip');
+    this._tooltip.part.add('tooltip');
 
     this._uxCanvas.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events

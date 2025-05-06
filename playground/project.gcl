@@ -10,6 +10,7 @@ var nt: nodeTime;
 var non_overlapping_1: nodeTime<float>;
 var non_overlapping_2: nodeTime<float>;
 var non_overlapping_3: nodeTime<float>;
+var simple_index: nodeIndex<String, int>;
 
 type KLine {
   open: float;
@@ -61,6 +62,8 @@ fn main() {
   if (kline.size() == 0) {
     init_kline();
   }
+
+  init_simple_index();
 }
 
 fn nothing() {}
@@ -135,7 +138,7 @@ fn chart(nbRows: int): Table<any> {
     prev1 = max(0_f, prev1);
 
     table.set_cell(rowIdx, LINE_COL, prev1);
-    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10,(prev1 as int) + 10));
+    table.set_cell(rowIdx, AREA_COL, rand.uniform((prev1 as int) - 10, (prev1 as int) + 10));
     if (rowIdx >= 20 && rowIdx <= 45) {
       // dashed
       table.set_cell(rowIdx, LINE_TYPE_COL, 1);
@@ -157,7 +160,7 @@ fn chart(nbRows: int): Table<any> {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
-    if (rowIdx >= (nbRows - 5) && rowIdx < nbRows) {
+    if (rowIdx >=(nbRows - 5) && rowIdx < nbRows) {
       table.set_cell(rowIdx, BAR_COL, rand.uniform(1, 40));
     }
 
@@ -466,10 +469,13 @@ fn controlled_task(duration: duration) {
 
 @expose
 fn mainTask() {
-  await(Array<Job> {
+  await(
+    Array<Job> {
       Job { function: project::subTask, arguments: Array<any?> {0} },
       Job { function: project::subTask, arguments: Array<any?> {1} },
-    });
+    },
+    MergeStrategy::strict,
+  );
 }
 
 fn subTask(id: int) {
@@ -541,7 +547,7 @@ fn obj() {
 @expose
 fn complex_object() {
   var map = Map<String, any> {};
-  map.set("first",("BAR", 42));
+  map.set("first", ("BAR", 42));
   map.set("second", TimeZone::"Africa/Abidjan");
 
   var array = [42, 3.14, "hello world"];
@@ -1014,7 +1020,7 @@ fn table_of_objects2(): Table<TimedComposed> {
 // pages/histogram
 @expose
 fn one_d_histogram_bins(): Array<HistogramBin<float>>
-{
+ {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
@@ -1040,7 +1046,7 @@ fn one_d_histogram_bins(): Array<HistogramBin<float>>
 
 @expose
 fn histogram_stats(): HistogramStats<float>?
-{
+ {
   var csvFormat = CsvFormat {};
   csvFormat.separator = ',';
   csvFormat.header_lines = 1;
@@ -1065,3 +1071,10 @@ fn histogram_stats(): HistogramStats<float>?
 }
 
 
+fn init_simple_index() {
+  if (simple_index.size() == 0) {
+    for (var i = 0; i < 2000; i++) {
+      simple_index.set("KEY_${i}", i);
+    }
+  }
+}

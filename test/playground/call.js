@@ -1,6 +1,6 @@
 import '@greycat/web/sdk';
 import path from 'node:path';
-import { readBytes, displayValue } from './_utils.js';
+import { stdin_read, readBytes, displayValue } from './_utils.js';
 
 const cwd = process.cwd();
 const raw_args = process.argv.slice(2);
@@ -27,7 +27,17 @@ for (const arg of raw_args) {
 const g = await gc.sdk.init();
 
 try {
-  const fnArgs = args[1] ? readBytes(args[1]) : undefined;
+  let fnArgs;
+  if (args[1] === undefined) {
+    const raw_fn_args = await stdin_read();
+    fnArgs = JSON.parse(raw_fn_args);
+    if (!Array.isArray(fnArgs)) {
+      throw new Error('fn arguments must be given in an array');
+    }
+  } else {
+    // reads args from gcb file
+    fnArgs = readBytes(args[1]);
+  }
   const value = await g.call(args[0], fnArgs);
   displayValue(value, json);
 } catch (err) {

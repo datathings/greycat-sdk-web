@@ -28,7 +28,6 @@
     "polyfill.ts",
     "GCObject.ts",
     "GCEnum.ts",
-    "GCFunction.ts",
     "abi.ts",
     "types.ts",
     "io.ts",
