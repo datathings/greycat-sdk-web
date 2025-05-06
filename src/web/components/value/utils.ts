@@ -104,6 +104,8 @@ export function stringify(props: StringifyProps): string {
     value instanceof gc.core.t4f
   ) {
     return value.toString(numFmt);
+  } else if (value instanceof Map) {
+    return `Map { size: ${value.size} }`;
   } else if (typeof value === 'object') {
     if (value) {
       if (tiny) {
