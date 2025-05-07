@@ -9,6 +9,10 @@
     "link": true,
     "children": [
       {
+        "label": "Many series",
+        "route": "many-series/"
+      },
+      {
         "label": "Bar histogram",
         "route": "chart-bar-histogram/"
       },

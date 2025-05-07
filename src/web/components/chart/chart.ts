@@ -102,6 +102,7 @@ export class GuiChart extends GuiElement {
   > = {};
   private _computed: ComputedState | undefined;
   private _drawer: sl.SlDrawer;
+  private _drawerEnabled: boolean;
   private _configEl: GuiChartConfig;
 
   constructor() {
@@ -141,6 +142,7 @@ export class GuiChart extends GuiElement {
     this._tooltip.classList.add('tooltip');
 
     // config drawer
+    this._drawerEnabled = false;
     this._drawer = document.createElement('sl-drawer');
     this._drawer.contained = true;
     this._drawer.label = 'Chart config';
@@ -177,10 +179,8 @@ export class GuiChart extends GuiElement {
     });
     this._uxCanvas.addEventListener('contextmenu', (ev) => {
       ev.preventDefault();
-      ev.stopPropagation();
       this.toggleConfig();
     });
-    // this.addEventListener('mouseleave', () => this._resetCursor());
     this._uxCanvas.addEventListener('dblclick', () => {
       this._resetCursor();
       // reset X configuration
@@ -493,15 +493,21 @@ export class GuiChart extends GuiElement {
   };
 
   toggleConfig(): void {
-    this._drawer.open = !this._drawer.open;
+    if (this._drawerEnabled) {
+      this._drawer.open = !this._drawer.open;
+    }
   }
 
   openConfig(): void {
-    this._drawer.open = true;
+    if (this._drawerEnabled) {
+      this._drawer.open = true;
+    }
   }
 
   closeConfig(): void {
-    this._drawer.open = false;
+    if (this._drawerEnabled) {
+      this._drawer.open = false;
+    }
   }
 
   /**
@@ -579,10 +585,36 @@ export class GuiChart extends GuiElement {
     return this._config;
   }
 
+  set drawerEnabled(enabled: boolean) {
+    if (!this._drawerEnabled) {
+      if (enabled) {
+        // we go from disabled -> enabled, refresh the config
+        this._configEl.value = this._config;
+      }
+    } else {
+      if (!enabled) {
+        // we go from enabled -> disabled, close drawer
+        this._drawer.open = false;
+      }
+    }
+    this._drawerEnabled = enabled;
+    this.update();
+  }
+
+  /**
+   * Whether or not to enable the config drawer by *right-click*ing the canvas.
+   *
+   * By default the drawer is disabled
+   */
+  get drawerEnabled() {
+    return this._drawerEnabled;
+  }
+
   setAttrs({
     config = this._config,
     value = this._table,
-  }: Partial<{ config: ChartConfig; value: TableLike }>) {
+    drawerEnabled = this._drawerEnabled,
+  }: Partial<{ config: ChartConfig; value: TableLike; drawerEnabled: boolean }>) {
     let recompute = false;
     if (this._table !== value) {
       this._table = convertToTable(value);
@@ -598,7 +630,18 @@ export class GuiChart extends GuiElement {
     for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
-
+    if (!this._drawerEnabled) {
+      if (drawerEnabled) {
+        // we go grom disabled -> enabled, refresh config
+        this._configEl.value = this._config;
+      }
+    } else {
+      if (!drawerEnabled) {
+        // we go from enabled -> disabled, close drawer
+        this._drawer.open = false;
+      }
+    }
+    this._drawerEnabled = drawerEnabled;
     if (recompute) {
       this.compute();
     }
@@ -609,6 +652,7 @@ export class GuiChart extends GuiElement {
     return {
       config: this._config,
       value: this._table,
+      drawerEnabled: this._drawerEnabled,
     };
   }
 
@@ -1451,8 +1495,10 @@ export class GuiChart extends GuiElement {
       }
     }
 
-    // update current config
-    this._configEl.value = this._config;
+    if (this._drawerEnabled) {
+      // update current config
+      this._configEl.value = this._config;
+    }
   }
 
   /**
