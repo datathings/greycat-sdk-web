@@ -35,6 +35,7 @@ export interface GuiTableProps {
   rowHeight: number;
   globalFilter: boolean;
   globalFilterPlaceholder: string;
+  drawerEnabled: boolean;
   onrowupdate: RowUpdateCallback;
 }
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
@@ -108,6 +109,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   private _disposer = new Disposer();
   private _columnFactory: CleanColumnFactory | undefined;
   private _drawer: sl.SlDrawer;
+  private _drawerEnabled: boolean;
   private _configEl: GuiTableConfig;
   /** if `true` update should recompute the filters */
   private _dirtyFilter: boolean = true;
@@ -139,6 +141,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._drawer.label = 'Table config';
     this._drawer.contained = true;
 
+    this._drawerEnabled = false;
     this._configEl = document.createElement('gui-table-config');
     this._configEl.table = this;
     this._configEl.addEventListener('sl-change', () => {
@@ -529,6 +532,29 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     return this._rowUpdateCallback;
   }
 
+  /**
+   * Whether or not to enable the config drawer by *right-click*ing the table.
+   *
+   * By default the drawer is disabled
+   */
+  get drawerEnabled() {
+    return this._drawerEnabled;
+  }
+
+  set drawerEnabled(enabled: boolean) {
+    if (this._drawerEnabled) {
+      if (!enabled) {
+        this.closeConfig();
+      }
+    } else {
+      if (enabled) {
+        this._configEl.value = this.getAttrs();
+      }
+    }
+    this._drawerEnabled = enabled;
+    this.update();
+  }
+
   setAttrs({
     value = this._table,
     filter = this._filterText,
@@ -544,6 +570,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     columnsWidths = this._wCalc.getWidths(),
     minColWidth = this._wCalc.getMinWidth(),
     onrowupdate = this._rowUpdateCallback,
+    drawerEnabled = this._drawerEnabled,
   }: Partial<GuiTableProps>) {
     this._setValue(value);
     this._ignoreCols = ignoreCols;
@@ -564,7 +591,16 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
     this._prevFromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
-
+    if (this._drawerEnabled) {
+      if (!drawerEnabled) {
+        this.closeConfig();
+      }
+    } else {
+      if (drawerEnabled) {
+        this._configEl.value = this.getAttrs();
+      }
+    }
+    this._drawerEnabled = drawerEnabled;
     this.update();
   }
 
@@ -583,6 +619,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
       minColWidth: this._wCalc.getMinWidth(),
+      drawerEnabled: this._drawerEnabled,
       onrowupdate: this._rowUpdateCallback,
     };
   }
@@ -659,19 +696,25 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }
 
   toggleConfig(): void {
-    if (this._drawer.open) {
-      this._drawer.hide();
-    } else {
-      this._drawer.show();
+    if (this._drawerEnabled) {
+      if (this._drawer.open) {
+        this._drawer.hide();
+      } else {
+        this._drawer.show();
+      }
     }
   }
 
   openConfig(): void {
-    this._drawer.show();
+    if (this._drawerEnabled) {
+      this._drawer.show();
+    }
   }
 
   closeConfig(): void {
-    this._drawer.hide();
+    if (this._drawerEnabled) {
+      this._drawer.hide();
+    }
   }
 
   async update(): Promise<void> {
@@ -710,7 +753,9 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
     this._tbody.updateWidths(this._wCalc, nb_cols);
 
-    this._configEl.value = this.getAttrs();
+    if (this._drawerEnabled) {
+      this._configEl.value = this.getAttrs();
+    }
 
     resolve();
   }
