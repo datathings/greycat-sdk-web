@@ -137,11 +137,12 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._tableContainer.part.add('table');
     this._tableContainer.append(this._thead, this._tbody);
 
+    this._drawerEnabled = false;
     this._drawer = document.createElement('sl-drawer');
     this._drawer.label = 'Table config';
     this._drawer.contained = true;
+    this._drawer.open = false;
 
-    this._drawerEnabled = false;
     this._configEl = document.createElement('gui-table-config');
     this._configEl.table = this;
     this._configEl.addEventListener('sl-change', () => {
@@ -546,10 +547,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (!enabled) {
         this.closeConfig();
       }
-    } else {
-      if (enabled) {
-        this._configEl.value = this.getAttrs();
-      }
     }
     this._drawerEnabled = enabled;
     this.update();
@@ -594,10 +591,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     if (this._drawerEnabled) {
       if (!drawerEnabled) {
         this.closeConfig();
-      }
-    } else {
-      if (drawerEnabled) {
-        this._configEl.value = this.getAttrs();
       }
     }
     this._drawerEnabled = drawerEnabled;

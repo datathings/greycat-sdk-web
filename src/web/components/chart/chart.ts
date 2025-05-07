@@ -145,6 +145,7 @@ export class GuiChart extends GuiElement {
     this._drawerEnabled = false;
     this._drawer = document.createElement('sl-drawer');
     this._drawer.contained = true;
+    this._drawer.open = false;
     this._drawer.label = 'Chart config';
     this._configEl = document.createElement('gui-chart-config');
     this._configEl.addEventListener('sl-change', (ev) => {
@@ -500,13 +501,13 @@ export class GuiChart extends GuiElement {
 
   openConfig(): void {
     if (this._drawerEnabled) {
-      this._drawer.open = true;
+      this._drawer.show();
     }
   }
 
   closeConfig(): void {
     if (this._drawerEnabled) {
-      this._drawer.open = false;
+      this._drawer.hide();
     }
   }
 
@@ -586,15 +587,10 @@ export class GuiChart extends GuiElement {
   }
 
   set drawerEnabled(enabled: boolean) {
-    if (!this._drawerEnabled) {
-      if (enabled) {
-        // we go from disabled -> enabled, refresh the config
-        this._configEl.value = this._config;
-      }
-    } else {
+    if (this._drawerEnabled) {
       if (!enabled) {
         // we go from enabled -> disabled, close drawer
-        this._drawer.open = false;
+        this._drawer.hide();
       }
     }
     this._drawerEnabled = enabled;
@@ -630,15 +626,10 @@ export class GuiChart extends GuiElement {
     for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
-    if (!this._drawerEnabled) {
-      if (drawerEnabled) {
-        // we go grom disabled -> enabled, refresh config
-        this._configEl.value = this._config;
-      }
-    } else {
+    if (this._drawerEnabled) {
       if (!drawerEnabled) {
         // we go from enabled -> disabled, close drawer
-        this._drawer.open = false;
+        this._drawer.hide();
       }
     }
     this._drawerEnabled = drawerEnabled;
