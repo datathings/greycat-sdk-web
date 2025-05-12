@@ -1097,3 +1097,12 @@ fn init_simple_index() {
     }
   }
 }
+
+@expose
+fn array_of_nodes(): Array<node<String>> {
+  return Array<node<String>> {
+    node<String> { "a" },
+    node<String> { "b" },
+    node<String> { "c" },
+  };
+}

@@ -4,6 +4,10 @@
     "route": "pages/index/"
   },
   {
+    "label": "Array",
+    "route": "pages/array/"
+  },
+  {
     "label": "Chart",
     "route": "pages/chart/",
     "link": true,
