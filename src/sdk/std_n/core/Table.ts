@@ -181,7 +181,7 @@ namespace gc {
             const keys_dict = new Set<string>();
             for (let i = 0; i < objects.length; i++) {
               const obj = objects[i];
-              if (obj instanceof GCPrimitive) {
+              if (!(obj instanceof GCPrimitive)) {
                 for (const key in obj) {
                   if (Object.hasOwn(obj, key)) {
                     keys_dict.add(key);

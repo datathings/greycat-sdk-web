@@ -2,7 +2,7 @@ import { GuiInputFn, sl, GuiSelect } from '@greycat/web';
 import '~/common';
 import actions from './actions';
 
-await gc.sdk.init();
+await gc.sdk.init({ pollTasks: 1000 });
 
 const fnInput = (<gui-input-fn />) as GuiInputFn;
 const fnSelector = (
