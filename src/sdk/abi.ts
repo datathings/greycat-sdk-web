@@ -444,6 +444,9 @@ namespace gc {
         // link monomorphized types to there known native generic type
         for (let i = 0; i < nb_types; i++) {
           const type = this.types[i];
+          if (type.generic_abi_type === 0) {
+            continue;
+          }
           switch (type.generic_abi_type) {
             case this.core.array: {
               type.ctor = create_monomorphic_class(type, gc.core.Array);
@@ -494,7 +497,8 @@ namespace gc {
               break;
             }
             default:
-              // noop
+              // use the generic constructor for non-native monomorphic types
+              // type.ctor = this.types[type.generic_abi_type].ctor;
               break;
           }
         }
@@ -812,29 +816,44 @@ namespace gc {
               },
             };
           }
-          const GCObject = class extends gc.sdk.GCObject {
-            static readonly _type = type.name;
-            constructor(...fields: unknown[]) {
-              super();
-              Object.defineProperty(this, '$type', {
-                value: type,
-                enumerable: false,
-                writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
-              });
-              Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
-              Object.defineProperties(this, properties);
-            }
-
-            static createFrom(o: object) {
-              const fields = new globalThis.Array(type.attrs.length);
-              for (let i = 0; i < type.attrs.length; i++) {
-                const attr = type.attrs[i];
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                fields[i] = (o as any)[attr.name];
+          let GCObject: IGCObjectClass;
+          if (generic_abi_type === 0) {
+            GCObject = class extends gc.sdk.GCObject {
+              static readonly _type = type.name;
+              constructor(...fields: unknown[]) {
+                super();
+                Object.defineProperty(this, '$type', {
+                  value: type,
+                  enumerable: false,
+                  writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
+                });
+                Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
+                Object.defineProperties(this, properties);
               }
-              return new type.ctor(...fields);
-            }
-          };
+
+              static createFrom(o: object) {
+                const fields = new globalThis.Array(type.attrs.length);
+                for (let i = 0; i < type.attrs.length; i++) {
+                  const attr = type.attrs[i];
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  fields[i] = (o as any)[attr.name];
+                }
+                return new type.ctor(...fields);
+              }
+            };
+          } else {
+            GCObject = class extends abi.types[generic_abi_type].ctor {
+              static override readonly _type = type.name;
+              constructor(...fields: unknown[]) {
+                super(...fields);
+                Object.defineProperty(this, '$type', {
+                  value: type,
+                  enumerable: false,
+                  writable: false,
+                });
+              }
+            };
+          }
           this.ctor = GCObject;
         }
 
