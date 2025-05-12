@@ -112,7 +112,7 @@ namespace gc {
           override toJSON() {
             if (this.data) {
               return {
-                _type: Tensor._type,
+                _type: this.$type.name,
                 dim: this.data.length,
                 shape: [this.data.length, Number(this.size / BigInt(this.data.length))],
                 type: this.type,
@@ -121,7 +121,7 @@ namespace gc {
             }
 
             return {
-              _type: Tensor._type,
+              _type: this.$type.name,
               dim: 0,
               shape: [],
               type: this.type,

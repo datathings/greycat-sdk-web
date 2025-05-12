@@ -1016,3 +1016,18 @@ fn string_list(list: Array<String>) {
 fn node_string_list(list: Array<node<String>>) {
   pprint(list);
 }
+
+@volatile
+private type Box<T> {
+  value: T;
+}
+
+@expose
+fn get_box_string(): Box<String> {
+  return Box<String> { value: "hello" };
+}
+
+@expose
+fn get_box_int(): Box<int> {
+  return Box<int> { value: 42 };
+}

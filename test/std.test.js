@@ -10,7 +10,6 @@ describe('std', () => {
     const buffer = /** @type {ArrayBuffer} */ ((await readFile('project.test.abi')).buffer);
     gc.sdk.initWithAbi({
       abi: new Abi(buffer),
-      pollTasks: -1,
     });
   });
 
