@@ -394,9 +394,9 @@ export interface BoxPlotData {
 
 export interface BoxPlotOptions {
   width: number;
-  medianColor: string;
-  whiskerColor: string;
-  iqrColor: string;
+  medianColor?: string;
+  whiskerColor?: string;
+  iqrColor?: string;
   orientation: 'vertical' | 'horizontal';
 }
 

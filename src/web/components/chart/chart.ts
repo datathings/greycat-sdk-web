@@ -1587,7 +1587,27 @@ export class GuiChart extends GuiElement {
     } else if (xMin === null && xMax === null) {
       // x axis domain is not defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
-        if (serie.xCol !== undefined) {
+        if (serie.type === 'bar' && serie.spanCol !== undefined) {
+          const col = tableGetColumn(this._table, serie.spanCol[0]) ?? [];
+          for (let row = 0; row < col.length; row++) {
+            const valueMin = vMap(tableGetCell(this._table, serie.spanCol[0], row));
+            const valueMax = vMap(tableGetCell(this._table, serie.spanCol[1], row));
+            if (valueMin !== null && valueMin !== undefined && !isNaN(valueMin)) {
+              if (xMin == null) {
+                xMin = valueMin;
+              } else if (valueMin <= xMin) {
+                xMin = valueMin;
+              }
+            }
+            if (valueMax !== null && valueMax !== undefined && !isNaN(valueMax)) {
+              if (xMax == null) {
+                xMax = valueMax;
+              } else if (valueMax >= xMax) {
+                xMax = valueMax;
+              }
+            }
+          }
+        } else if (serie.xCol !== undefined) {
           const col = tableGetColumn(this._table, serie.xCol) ?? [];
           for (let row = 0; row < col.length; row++) {
             const value = vMap(tableGetCell(this._table, serie.xCol, row));

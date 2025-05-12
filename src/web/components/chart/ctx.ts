@@ -761,7 +761,8 @@ export class CanvasContext {
     const halfWidth = opts.width / 2;
 
     if (opts.orientation === 'vertical') {
-      this.ctx.strokeStyle = opts.whiskerColor;
+      this.ctx.strokeStyle = opts.whiskerColor ?? 'inherit';
+
       //Upper Whisker
       this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.max);
       this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.max);
@@ -775,8 +776,8 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //IQR Box
-      this.ctx.fillStyle = opts.iqrColor;
-      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
+      this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
       this.ctx.rect(
         boxPlot.crossValue - halfWidth,
@@ -789,7 +790,7 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //Median
-      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.strokeStyle = opts.medianColor ?? 'inherit';
       this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.median);
       this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.median);
       this.ctx.stroke();
@@ -797,7 +798,8 @@ export class CanvasContext {
 
       this.ctx.restore();
     } else {
-      this.ctx.strokeStyle = opts.whiskerColor;
+      this.ctx.strokeStyle = opts.whiskerColor ?? 'inherit';
+
       //Upper Whisker
       this.ctx.moveTo(boxPlot.max, boxPlot.crossValue - halfWidth);
       this.ctx.lineTo(boxPlot.max, boxPlot.crossValue + halfWidth);
@@ -811,8 +813,8 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //IQR Box
-      this.ctx.fillStyle = opts.iqrColor;
-      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
+      this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
       this.ctx.rect(
         boxPlot.q3,
@@ -825,7 +827,7 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //Median
-      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.strokeStyle = opts.medianColor ?? 'inherit';
       this.ctx.moveTo(boxPlot.median, boxPlot.crossValue - halfWidth);
       this.ctx.lineTo(boxPlot.median, boxPlot.crossValue + halfWidth);
       this.ctx.stroke();
