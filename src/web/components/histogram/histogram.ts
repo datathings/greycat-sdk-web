@@ -62,15 +62,17 @@ export class GuiHistogram extends HTMLElement {
         }
       }
       if (dims === 0) {
-        Error("Can't render this histogram dimensions are empty");
-      }
-      if (dims === 1) {
+        console.error('Histogram dimensions are empty');
+        this.replaceChildren();
+      } else if (dims === 1) {
         this._render_histogram(bins);
       } else if (dims === 2) {
-        Error('Not supported yet');
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
         //TODO To implement when histogram supports multiple dimensions
       } else {
-        Error('Not supported yet');
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
         //TODO To implement when histogram supports multiple dimensions
       }
     }
