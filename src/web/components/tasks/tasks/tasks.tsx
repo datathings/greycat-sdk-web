@@ -35,7 +35,8 @@ export class GuiTasks extends GuiElement {
           }
           const cancellable =
             task.status === gc.runtime.TaskStatus.waiting ||
-            task.status === gc.runtime.TaskStatus.running;
+            task.status === gc.runtime.TaskStatus.running ||
+            task.status === gc.runtime.TaskStatus.await;
 
           return cancellable ? (
             <sl-button
