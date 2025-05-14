@@ -121,6 +121,7 @@ function initWeb() {
     [gc.core.nodeGeo._type]: 'gui-value',
     [gc.core.nodeList._type]: 'gui-value',
     [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
+    [gc.util.HistogramStats._type]: 'gui-histogram',
   });
   registerCustomElement('gui-input-factory', GuiInputFactory);
   // create the global input factory after it is registered

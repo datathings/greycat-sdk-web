@@ -3,45 +3,33 @@ import { ChartConfig } from '../../exports.js';
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
-  private _bins?: gc.util.HistogramBin[];
-  private _stats?: gc.util.HistogramStats;
+  private _value: gc.util.HistogramBin[] | gc.util.HistogramStats | null;
   private _percentiles: boolean = false;
 
   constructor() {
     super();
+    this._value = null;
   }
 
   /**
+   * If value of type HistogramBin[]
    * Displays a classic bar chart histogram from a gcl histogram get_bins() output
-   * Only one of bins or stats can be used at the same time
-   */
-  set bins(val: gc.util.HistogramBin[]) {
-    this._bins = val;
-    this._stats = undefined;
-    this.render();
-  }
-
-  get bins(): gc.util.HistogramBin[] | undefined {
-    return this._bins;
-  }
-
-  /**
+   *
+   * If value of type HistogramStats
    * Displays a boxplot from a gcl histogram stats() output
-   * Only one of bins or stats can be used at the same time
    */
-  set stats(val: gc.util.HistogramStats) {
-    this._stats = val;
-    this._bins = undefined;
+  set value(val: gc.util.HistogramBin[] | gc.util.HistogramStats | null) {
+    this._value = val;
     this.render();
   }
 
-  get stats(): gc.util.HistogramStats | undefined {
-    return this._stats;
+  get value() {
+    return this._value;
   }
 
   /**
    * Displays the histogram stats() output in form a percentiles line chart
-   * Only works for stats
+   * Only works if value is of type HistogramStats
    */
   set percentiles(val: boolean) {
     this._percentiles = val;
@@ -53,10 +41,18 @@ export class GuiHistogram extends HTMLElement {
   }
 
   private render() {
-    if (this._bins) {
+    if (!this.value) return;
+    if (this._value instanceof gc.util.HistogramStats) {
+      if (this._percentiles) {
+        this._render_percentile(this._value);
+      } else {
+        this._render_boxplot(this._value);
+      }
+    } else {
+      const bins = this._value as gc.util.HistogramBin[];
       let dims = 0;
-      for (let i = 0; i < this._bins.length; i++) {
-        const bin = this._bins[i].bin;
+      for (let i = 0; i < bins.length; i++) {
+        const bin = bins[i].bin;
         if (typeof bin.center === 'number') {
           dims = 1;
           break;
@@ -66,22 +62,18 @@ export class GuiHistogram extends HTMLElement {
         }
       }
       if (dims === 0) {
-        Error("Can't render this histogram dimensions are empty");
-      }
-      if (dims === 1) {
-        this._render_histogram(this._bins);
+        console.error('Histogram dimensions are empty');
+        this.replaceChildren();
+      } else if (dims === 1) {
+        this._render_histogram(bins);
       } else if (dims === 2) {
-        Error('Not supported yet');
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
         //TODO To implement when histogram supports multiple dimensions
       } else {
-        Error('Not supported yet');
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
         //TODO To implement when histogram supports multiple dimensions
-      }
-    } else if (this._stats) {
-      if (this._percentiles) {
-        this._render_percentile(this._stats);
-      } else {
-        this._render_boxplot(this._stats);
       }
     }
   }
