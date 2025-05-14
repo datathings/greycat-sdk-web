@@ -5,7 +5,7 @@ import '~/common';
 await gc.sdk.init();
 
 const stats = await gc.project.histogram_stats();
-const histo = (<gui-histogram stats={stats ?? undefined}></gui-histogram>) as GuiHistogram;
+const histo = (<gui-histogram value={stats ?? undefined}></gui-histogram>) as GuiHistogram;
 document.body.appendChild(
   <app-layout title="Histogram Stats">
     <>
