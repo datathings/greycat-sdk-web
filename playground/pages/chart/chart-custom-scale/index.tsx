@@ -31,10 +31,10 @@ document.body.appendChild(
   </app-layout>,
 );
 
-export function scaleAsinh(): d3.ScaleContinuousNumeric<number, number, never> {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function scaleAsinh(): any {
   let domain = [1, 1000];
   let range = [0, 1];
-  let clamp = false;
 
   const transform = (x: number) => Math.asinh(x);
   const untransform = (y: number) => Math.sinh(y);
@@ -56,15 +56,15 @@ export function scaleAsinh(): d3.ScaleContinuousNumeric<number, number, never> {
     return untransform((y - r0) / scaleFactor + d0);
   };
 
-  scale.domain = function (_?: Iterable<d3.NumberValue>) {
+  scale.domain = function (_?: number[]) {
     if (!arguments.length) return domain.slice() as [number, number];
-    domain = [..._];
+    domain = [..._!];
     return scale;
   };
 
-  scale.range = function (_?: Iterable<d3.NumberValue>) {
+  scale.range = function (_?: number[]) {
     if (!arguments.length) return range.slice() as [number, number];
-    range = [..._];
+    range = [..._!];
     return scale;
   };
   scale.rangeRound = scale.range;
@@ -73,10 +73,6 @@ export function scaleAsinh(): d3.ScaleContinuousNumeric<number, number, never> {
     return scaleAsinh().domain(domain).range(range);
   };
 
-  // Optional (not required for ScaleContinuousNumeric)
-  scale.clamp = function (_?: boolean) {
-    return arguments.length ? (clamp = _ ? true : false) : scale;
-  };
   scale.ticks = function (count: number) {
     const d = domain;
     return d3.ticks(d[0], d[d.length - 1], count == null ? 10 : count);
