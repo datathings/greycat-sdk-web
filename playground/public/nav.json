@@ -55,6 +55,10 @@
       {
         "label": "Non-overlapping",
         "route": "non-overlapping/"
+      },
+      {
+        "label": "Custom Scale",
+        "route": "chart-custom-scale/"
       }
     ]
   },

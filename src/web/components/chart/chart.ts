@@ -13,6 +13,7 @@ import type {
   BarSerie,
   Cursor,
   Axis,
+  CustomAxis,
 } from './types.js';
 import { vMap } from './internals.js';
 import {
@@ -1772,6 +1773,12 @@ export class GuiChart extends GuiElement {
             .domain([min ?? 0, max ?? 1])
             .rangeRound(yRange);
           break;
+        case 'custom':
+          yScales[yAxisName] = (yAxis as CustomAxis)
+            .scaleCustom()
+            .domain([min ?? 0, max ?? 1])
+            .rangeRound(yRange);
+          break;
       }
     }
 
@@ -1781,6 +1788,8 @@ export class GuiChart extends GuiElement {
       xScale = d3.scaleLog().domain([xMin, xMax]).rangeRound(xRange);
     } else if (xAxis.scale === 'time') {
       xScale = d3.scaleTime().domain([xMin, xMax]).rangeRound(xRange);
+    } else if (xAxis.scale === 'custom') {
+      xScale = xAxis.scaleCustom().domain([xMin, xMax]).rangeRound(xRange);
     } else {
       // default to linear scale
       xScale = d3.scaleLinear().domain([xMin, xMax]).rangeRound(xRange);

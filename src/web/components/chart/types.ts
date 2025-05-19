@@ -1,9 +1,11 @@
+import { ScaleContinuousNumeric } from 'd3';
 import { CanvasContext } from './ctx.js';
 
 export type Scale =
   | d3.ScaleLinear<number, number, never>
   | d3.ScaleTime<number, number, never>
-  | d3.ScaleLogarithmic<number, number, never>;
+  | d3.ScaleLogarithmic<number, number, never>
+  | d3.ScaleContinuousNumeric<number, number, never>;
 export type Color = string | CanvasGradient | CanvasPattern;
 export type SerieType = Serie['type'];
 export type ScaleType = Extract<Axis['scale'], string>;
@@ -180,7 +182,38 @@ export type TimeAxis = {
   cursorFormat?: ((value: number, specifier: string) => string) | string;
 };
 
-export type Axis = CommonAxis & (LinearAxis | LogAxis | TimeAxis);
+export type CustomAxis = {
+  scale: 'custom';
+
+  scaleCustom: () => ScaleContinuousNumeric<number, number, never>;
+
+  /**
+   * If specified, the values are used for ticks rather than the scale’s automatic tick generator.
+   *
+   * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  ticks?: any[];
+
+  /**
+   * Formats the ticks text depending on the axis type and this parameter type:
+   *
+   * - When `format: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `format: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `format: undefined` the value is stringified and displayed as-is.
+   */
+  format?: ((value: unknown) => string) | string;
+  /**
+   * Formats the cursor text depending on the axis type and this parameter type:
+   *
+   * - When `cursorFormat: string` the value is formatted with `d3.format` (see https://d3js.org/d3-format#format).
+   * - When `cursorFormat: (value: unknown) => string`, delegates formatting to that function entirely.
+   * - When `cursorFormat: undefined` the value is stringified and displayed as-is.
+   */
+  cursorFormat?: ((value: unknown) => string) | string;
+};
+
+export type Axis = CommonAxis & (LinearAxis | LogAxis | TimeAxis | CustomAxis);
 
 export type Ordinate = Axis & { position?: AxisPosition };
 
