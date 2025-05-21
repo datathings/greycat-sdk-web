@@ -406,8 +406,7 @@ export class GuiChart extends GuiElement {
     this._resize();
 
     this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
-    this.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
-
+    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
     this._resizeObs.observe(this);
 
     const animRef = { id: -1 };
