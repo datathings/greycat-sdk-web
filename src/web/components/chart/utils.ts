@@ -266,10 +266,7 @@ export function tableGetColumnIndex(
   return attr.mapped_att_offset;
 }
 
-export function tableGetColumn(
-  table: gc.core.Table,
-  col: number | gc.$Fields | (number | gc.$Fields)[],
-): unknown[] | undefined {
+export function tableGetColumn(table: gc.core.Table, col: SerieTableColumn): unknown[] | undefined {
   const index = tableGetColumnIndex(col);
   if (index === undefined) {
     return undefined;
@@ -291,40 +288,42 @@ export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: n
   if (col.length === 0) {
     return undefined;
   }
-  if (Array.isArray(col)) {
-    let value: unknown;
-    let idx: number | undefined;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const path = col as any[];
-    for (let i = 0; i < col.length; i++) {
-      if (value instanceof gc.sdk.GCEnum) {
-        return undefined;
-      }
-      if (typeof col[i] === 'string') {
-        const attr = gc.$.default.findField(path[i]);
-        if (!attr) {
-          // unknown attribute
-          return undefined;
-        }
-        idx = attr.mapped_att_offset;
-      } else if (typeof path[i] === 'number') {
-        idx = path[i];
-      }
-      if (idx === undefined) {
-        return undefined;
-      }
+  const path = col as (gc.$Fields | number)[];
+  let value: unknown;
+  for (let i = 0; i < path.length; i++) {
+    const p = path[i];
+    if (typeof p === 'number') {
       if (i === 0) {
-        value = table.cols[idx][row];
+        value = table.cols[p][row];
+      } else if (value instanceof gc.sdk.GCEnum) {
+        return undefined;
       } else if (value instanceof gc.sdk.GCObject) {
         if (value.$fields === undefined) {
           return undefined;
         }
-        value = value.$fields[idx];
+        value = value.$fields[p];
       } else {
         return undefined;
       }
+      return value;
     }
-    return value;
+    const attr = gc.$.default.findField(p);
+    if (!attr) {
+      // unknown attribute
+      return undefined;
+    }
+    if (i === 0) {
+      value = table.cols[attr.mapped_att_offset][row];
+    } else if (value instanceof gc.sdk.GCEnum) {
+      return undefined;
+    } else if (value instanceof gc.sdk.GCObject) {
+      if (value.$fields === undefined) {
+        return undefined;
+      }
+      value = value.$fields[attr.mapped_att_offset];
+    } else {
+      return undefined;
+    }
   }
-  return undefined;
+  return value;
 }
