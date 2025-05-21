@@ -239,7 +239,7 @@ function isPotentiallyChartable(value: unknown): boolean {
 }
 
 export function tableGetColumnIndex(
-  col: number | number[] | gc.$Fields | gc.$Fields[],
+  col: number | gc.$Fields | (number | gc.$Fields)[],
 ): number | undefined {
   if (typeof col === 'number') {
     return col;
@@ -266,10 +266,7 @@ export function tableGetColumnIndex(
   return attr.mapped_att_offset;
 }
 
-export function tableGetColumn(
-  table: gc.core.Table,
-  col: number | number[] | gc.$Fields | gc.$Fields[],
-): unknown[] | undefined {
+export function tableGetColumn(table: gc.core.Table, col: SerieTableColumn): unknown[] | undefined {
   const index = tableGetColumnIndex(col);
   if (index === undefined) {
     return undefined;
@@ -277,11 +274,7 @@ export function tableGetColumn(
   return table.cols[index];
 }
 
-export function tableGetCell(
-  table: gc.core.Table,
-  col: SerieTableColumn,
-  row: number,
-): unknown {
+export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: number): unknown {
   if (typeof col === 'number') {
     return table.cols[col][row];
   }
@@ -295,29 +288,26 @@ export function tableGetCell(
   if (col.length === 0) {
     return undefined;
   }
-  if (typeof col[0] === 'number') {
-    const path = col as number[];
-    let value: unknown;
-    for (let i = 0; i < path.length; i++) {
+  const path = col as (gc.$Fields | number)[];
+  let value: unknown;
+  for (let i = 0; i < path.length; i++) {
+    const p = path[i];
+    if (typeof p === 'number') {
       if (i === 0) {
-        value = table.cols[path[i]][row];
+        value = table.cols[p][row];
       } else if (value instanceof gc.sdk.GCEnum) {
         return undefined;
       } else if (value instanceof gc.sdk.GCObject) {
         if (value.$fields === undefined) {
           return undefined;
         }
-        value = value.$fields[path[i]];
+        value = value.$fields[p];
       } else {
         return undefined;
       }
+      return value;
     }
-    return value;
-  }
-  const path = col as gc.$Fields[];
-  let value: unknown;
-  for (let i = 0; i < path.length; i++) {
-    const attr = gc.$.default.findField(path[i]);
+    const attr = gc.$.default.findField(p);
     if (!attr) {
       // unknown attribute
       return undefined;

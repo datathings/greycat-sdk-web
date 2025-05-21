@@ -1017,6 +1017,32 @@ fn table_of_objects2(): Table<TimedComposed> {
   return table;
 }
 
+@volatile
+private type SeriesObject {
+  a: int;
+  b: float;
+}
+
+
+@expose
+fn table_of_objects3(): Table {
+  var table = Table {};
+  table.init(4, 2);
+  var start = time::now();
+
+  table.set_cell(0, 0, start);
+  table.set_cell(1, 0, start + 1_hour);
+  table.set_cell(2, 0, start + 2_hour);
+  table.set_cell(3, 0, start + 3_hour);
+
+  table.set_cell(0, 1, SeriesObject { a: 1, b: 0.1 });
+  table.set_cell(1, 1, SeriesObject { a: 2, b: 0.3 });
+  table.set_cell(2, 1, SeriesObject { a: 3, b: 0.2 });
+  table.set_cell(3, 1, SeriesObject { a: 4, b: 0.5 });
+
+  return table;
+}
+
 // pages/histogram
 @expose
 fn one_d_histogram_bins(): Array<HistogramBin<float>>

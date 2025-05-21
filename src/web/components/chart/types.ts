@@ -262,7 +262,7 @@ export type LineOptions = {
  *
  * Or an array of fields if trying to dive into a nested object in a typed Table.
  */
-export type SerieTableColumn = number | number[] | gc.$Fields | gc.$Fields[];
+export type SerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
 
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
