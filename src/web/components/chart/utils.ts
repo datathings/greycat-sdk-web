@@ -239,7 +239,7 @@ function isPotentiallyChartable(value: unknown): boolean {
 }
 
 export function tableGetColumnIndex(
-  col: number | number[] | gc.$Fields | gc.$Fields[],
+  col: number | gc.$Fields | (number | gc.$Fields)[],
 ): number | undefined {
   if (typeof col === 'number') {
     return col;
@@ -268,7 +268,7 @@ export function tableGetColumnIndex(
 
 export function tableGetColumn(
   table: gc.core.Table,
-  col: number | number[] | gc.$Fields | gc.$Fields[],
+  col: number | gc.$Fields | (number | gc.$Fields)[],
 ): unknown[] | undefined {
   const index = tableGetColumnIndex(col);
   if (index === undefined) {
@@ -277,11 +277,7 @@ export function tableGetColumn(
   return table.cols[index];
 }
 
-export function tableGetCell(
-  table: gc.core.Table,
-  col: SerieTableColumn,
-  row: number,
-): unknown {
+export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: number): unknown {
   if (typeof col === 'number') {
     return table.cols[col][row];
   }
@@ -295,45 +291,40 @@ export function tableGetCell(
   if (col.length === 0) {
     return undefined;
   }
-  if (typeof col[0] === 'number') {
-    const path = col as number[];
+  if (Array.isArray(col)) {
     let value: unknown;
-    for (let i = 0; i < path.length; i++) {
-      if (i === 0) {
-        value = table.cols[path[i]][row];
-      } else if (value instanceof gc.sdk.GCEnum) {
+    let idx: number | undefined;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const path = col as any[];
+    for (let i = 0; i < col.length; i++) {
+      if (value instanceof gc.sdk.GCEnum) {
         return undefined;
+      }
+      if (typeof col[i] === 'string') {
+        const attr = gc.$.default.findField(path[i]);
+        if (!attr) {
+          // unknown attribute
+          return undefined;
+        }
+        idx = attr.mapped_att_offset;
+      } else if (typeof path[i] === 'number') {
+        idx = path[i];
+      }
+      if (idx === undefined) {
+        return undefined;
+      }
+      if (i === 0) {
+        value = table.cols[idx][row];
       } else if (value instanceof gc.sdk.GCObject) {
         if (value.$fields === undefined) {
           return undefined;
         }
-        value = value.$fields[path[i]];
+        value = value.$fields[idx];
       } else {
         return undefined;
       }
     }
     return value;
   }
-  const path = col as gc.$Fields[];
-  let value: unknown;
-  for (let i = 0; i < path.length; i++) {
-    const attr = gc.$.default.findField(path[i]);
-    if (!attr) {
-      // unknown attribute
-      return undefined;
-    }
-    if (i === 0) {
-      value = table.cols[attr.mapped_att_offset][row];
-    } else if (value instanceof gc.sdk.GCEnum) {
-      return undefined;
-    } else if (value instanceof gc.sdk.GCObject) {
-      if (value.$fields === undefined) {
-        return undefined;
-      }
-      value = value.$fields[attr.mapped_att_offset];
-    } else {
-      return undefined;
-    }
-  }
-  return value;
+  return undefined;
 }
