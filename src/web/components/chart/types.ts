@@ -95,6 +95,9 @@ export type CommonAxis = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hook?: (axis: d3.Axis<any>) => void;
 
+  /**
+   * Automatically adjusts ticks based on available space
+   */
   autoTicks?: boolean;
 };
 
