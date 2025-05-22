@@ -5,7 +5,6 @@ await gc.sdk.init();
 
 const table = await gc.project.table_of_objects();
 const table2 = await gc.project.table_of_objects3();
-console.log(table);
 
 document.body.appendChild(
   <app-layout title="Chart • Table of objects">

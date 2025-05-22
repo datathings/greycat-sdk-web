@@ -305,7 +305,7 @@ export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: n
       } else {
         return undefined;
       }
-      return value;
+      continue;
     }
     const attr = gc.$.default.findField(p);
     if (!attr) {
