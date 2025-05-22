@@ -94,6 +94,8 @@ export type CommonAxis = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hook?: (axis: d3.Axis<any>) => void;
+
+  autoTicks?: boolean;
 };
 
 export type LinearAxis = {

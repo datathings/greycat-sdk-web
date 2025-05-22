@@ -1423,7 +1423,18 @@ export class GuiChart extends GuiElement {
       } else if (typeof this._config.xAxis.ticks === 'function') {
         this._xAxis.ticks(this._config.xAxis.ticks);
       }
+      if (this._config.xAxis.autoTicks) {
+        const fmt = this._xAxis.tickFormat();
+        const ticks = xScale.ticks();
+        let width = this._ctx.ctx.measureText(fmt ? fmt(ticks[0], 0) : ticks[0].toString()).width;
+        width = width + width * 0.5;
+        const totalWidth = width * ticks.length;
+        if (totalWidth > xScale.range()[1]) {
+          this._xAxis.ticks(Math.floor(xScale.range()[1] / width));
+        }
+      }
     }
+
     this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(this._xAxis);
@@ -1465,6 +1476,17 @@ export class GuiChart extends GuiElement {
           yAxis.tickValues(ord.ticks.map(vMap));
         } else if (typeof ord.ticks === 'function') {
           yAxis.ticks(ord.ticks);
+        }
+
+        if (ord.autoTicks) {
+          const fmt = yAxis.tickFormat();
+          const ticks = yScales[yAxisName].ticks();
+          let width = this._ctx.ctx.measureText(fmt ? fmt(ticks[0], 0) : ticks[0].toString()).width;
+          width = width + width * 0.2;
+          const totalWidth = width * ticks.length;
+          if (totalWidth > yScales[yAxisName].range()[0]) {
+            yAxis.ticks(Math.floor(yScales[yAxisName].range()[0] / width));
+          }
         }
       }
 
