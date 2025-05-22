@@ -471,11 +471,7 @@ export class GuiChart extends GuiElement {
 
   private _onmousemove = (ev: MouseEvent) => {
     const [target] = ev.composedPath();
-    if (
-      ev.target !== this ||
-      target !== this._uxCanvas ||
-      document.documentElement.classList.contains('sl-scroll-lock')
-    ) {
+    if (ev.target !== this || target !== this._uxCanvas) {
       this._resetCursor();
       return;
     }
