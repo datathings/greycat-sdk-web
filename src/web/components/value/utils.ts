@@ -69,10 +69,7 @@ export function stringify(props: StringifyProps): string {
       return `${value.lat}, ${value.lng}`;
     }
   } else if (Array.isArray(value)) {
-    if (tiny) {
-      return `Array(${value.length})`;
-    }
-    return JSON.stringify(value);
+    return `Array { size: ${value.length} }`;
   } else if (value instanceof gc.sdk.GCEnum) {
     if (value.value) {
       const tmp = props.value;
