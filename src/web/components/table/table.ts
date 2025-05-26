@@ -11,6 +11,7 @@ import {
   TableLike,
   GuiValue,
   GuiValueProps,
+  GuiTableMappingsApplyEvent,
 } from '../../exports.js';
 import '../search-input/index.js';
 import { stringify, StringifyProps } from '../value/utils.js';
@@ -207,10 +208,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this.toggleConfig();
     });
 
-    this._configEl.addEventListener('gui-table-apply-mappings', async (ev) => {
+    this._configEl.addEventListener(GuiTableMappingsApplyEvent.NAME, async (ev) => {
       ev.stopPropagation();
       await this.applyMappings();
       this.update();
+      this.dispatchEvent(new GuiTableApplyMappingsEvent());
     });
 
     this.shadowRoot.append(this._filter, this._tableContainer, this._drawer);
@@ -1835,6 +1837,14 @@ export class GuiTableChangeEvent extends CustomEvent<GuiTableEventDetail> {
   }
 }
 
+export class GuiTableApplyMappingsEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-table-apply-mappings';
+
+  constructor() {
+    super(GuiTableApplyMappingsEvent.NAME, { bubbles: true, composed: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-table': GuiTable;
@@ -1856,8 +1866,9 @@ declare global {
     [GuiTableChangeEvent.NAME]: GuiTableChangeEvent;
     [GuiTableClickEvent.NAME]: GuiTableClickEvent;
     [GuiTableDblClickEvent.NAME]: GuiTableDblClickEvent;
+    [GuiTableApplyMappingsEvent.NAME]: GuiTableApplyMappingsEvent;
   }
-
+  
   interface GuiTableEventMap extends GuiTableHeadCellEventMap {
     'table-filter': GuiTableFilterEvent;
   }
