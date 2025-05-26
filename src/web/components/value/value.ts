@@ -207,48 +207,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     const dateFmt = this._dateFmt ?? getGlobalDateTimeFormat();
     let element: Node;
 
-    if (Array.isArray(this._value)) {
-      this._disposeClickHandler?.();
-      const children = document.createDocumentFragment();
-      children.appendChild(document.createTextNode('['));
-      const len = Math.min(this._value.length, 15);
-      for (let i = 0; i < len; i++) {
-        const item = this._value[i];
-        const itemText = stringify({
-          value: item,
-          name: this._name,
-          tiny: this._tiny,
-          dateFmt,
-          numFmt,
-        });
-
-        let linkify = false;
-        if (typeof this._linkify === 'function') {
-          linkify = this._linkify(item);
-        } else if (this._linkify) {
-          linkify = true;
-        }
-
-        if (linkify) {
-          const link = document.createElement('a');
-          link.textContent = itemText;
-          link.title = stringify({
-            value: item,
-            dateFmt,
-            numFmt,
-            pretty: true,
-          });
-          children.appendChild(link);
-        } else {
-          children.appendChild(document.createTextNode(itemText));
-        }
-        if (i < this._value.length - 1) {
-          children.appendChild(document.createTextNode(', '));
-        }
-      }
-      children.appendChild(document.createTextNode(']'));
-      element = children;
-    } else if (this._value instanceof gc.sdk.AbiType) {
+    if (this._value instanceof gc.sdk.AbiType) {
       this.shadowRoot.replaceChildren(document.createTextNode(`<${this._value.name}>`));
       this.title = this._value.name;
       return;
