@@ -96,6 +96,10 @@ export type CommonAxis = {
   hook?: (axis: d3.Axis<any>) => void;
 
   /**
+   * Automatically adjusts ticks based on available space
+   */
+  autoTicks?: boolean;
+  /*
    * Ratio of padding to apply to the domain.
    *
    * Must be between 0 and 1. Pads both ends of the domain by a fraction

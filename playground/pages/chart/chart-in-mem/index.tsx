@@ -17,7 +17,7 @@ document.body.appendChild(
       value={t}
       config={{
         cursor: true,
-        xAxis: { scale: 'time', padding: 0.1 },
+        xAxis: { scale: 'time', padding: 0.1, autoTicks: true },
         yAxes: {
           y: {
             // cursorAlign: 'start',
