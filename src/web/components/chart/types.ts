@@ -99,6 +99,14 @@ export type CommonAxis = {
    * Automatically adjusts ticks based on available space
    */
   autoTicks?: boolean;
+  /*
+   * Ratio of padding to apply to the domain.
+   *
+   * Must be between 0 and 1. Pads both ends of the domain by a fraction
+   * of its range. For example, 0.1 adds 10% padding on each side.
+   * For example, a domain of [10, 20] with a padding of 0.1 will become [9, 21].
+   */
+  padding?: number;
 };
 
 export type LinearAxis = {

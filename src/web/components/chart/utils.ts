@@ -327,3 +327,12 @@ export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: n
   }
   return value;
 }
+
+export function padLinear([x0, x1]: [number, number], r: number) {
+  const dx = ((x1 - x0) * r) / 2;
+  return [x0 - dx, x1 + dx];
+}
+
+export function padLog([x0, x1]: [number, number], r: number) {
+  return padLinear([Math.log(x0), Math.log(x1)], r).map(Math.exp);
+}

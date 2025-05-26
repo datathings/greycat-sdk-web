@@ -30,6 +30,8 @@ import {
   tableGetColumn,
   tableGetColumnIndex,
   isOrdSerieTableColumn,
+  padLinear,
+  padLog,
 } from '../../exports.js';
 import type { sl, TableLike } from '../../exports.js';
 import style from './chart.css?inline';
@@ -406,8 +408,7 @@ export class GuiChart extends GuiElement {
     this._resize();
 
     this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
-    this.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
-
+    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
     this._resizeObs.observe(this);
 
     const animRef = { id: -1 };
@@ -1770,30 +1771,44 @@ export class GuiChart extends GuiElement {
         }
       }
 
+      if (min === null) {
+        min = 0;
+      }
+      if (max === null) {
+        max = 1;
+      }
+
+      if (yAxis.padding !== undefined) {
+        if (type === 'log') {
+          [min, max] = padLog([min, max], yAxis.padding);
+        } else {
+          [min, xMax] = padLinear([min, max], yAxis.padding);
+        }
+      }
+
       switch (type) {
         default:
         case 'linear':
-          yScales[yAxisName] = d3
-            .scaleLinear()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleLinear().domain([min, max]).rangeRound(yRange);
           break;
         case 'log':
-          yScales[yAxisName] = d3
-            .scaleLog()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleLog().domain([min, max]).rangeRound(yRange);
           break;
         case 'time':
-          yScales[yAxisName] = d3
-            .scaleTime()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleTime().domain([min, max]).rangeRound(yRange);
           break;
       }
     }
 
     const xAxis = this._config.xAxis;
+    if (xAxis.padding !== undefined) {
+      if (xAxis.scale === 'log') {
+        [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
+        console.log(xMin, xMax);
+      } else {
+        [xMin, xMax] = padLinear([xMin, xMax], xAxis.padding);
+      }
+    }
     let xScale: Scale;
     if (xAxis.scale === 'log') {
       xScale = d3.scaleLog().domain([xMin, xMax]).rangeRound(xRange);

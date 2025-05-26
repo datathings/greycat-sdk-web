@@ -10,9 +10,9 @@ export function readBytes(filepath) {
 }
 
 /**
- * 
- * @param {string} filepath 
- * @param {ArrayBuffer} bytes 
+ *
+ * @param {string} filepath
+ * @param {ArrayBuffer} bytes
  */
 export function writeBytes(filepath, bytes) {
   fs.writeFileSync(filepath, new Uint8Array(bytes));
@@ -45,16 +45,33 @@ export function displayValue(value, json = false) {
   }
 }
 
-export function stdin_read() {
-  return new Promise(function(resolve, reject) {
-    let data = '';
+export async function stdin_read() {
+  return new Promise((resolve, reject) => {
+    if (process.stdin.isTTY) {
+      resolve('');
+      return;
+    }
+
+    const timeout_id = setTimeout(() => {
+      process.stdin.pause();
+      resolve(chunks.join(''));
+    });
 
     process.stdin.setEncoding('utf8');
+    const chunks = [];
 
-    process.stdin.on('data', function(chunk) { data += chunk; });
-    process.stdin.on('end', function() { resolve(data); });
-    process.stdin.on('error', function(err) { reject(err); });
+    process.stdin.on('data', (chunk) => {
+      chunks.push(chunk);
+    });
 
-    process.stdin.resume();
+    process.stdin.on('end', () => {
+      clearTimeout(timeout_id);
+      resolve(chunks.join(''));
+    });
+
+    process.stdin.on('error', (err) => {
+      clearTimeout(timeout_id);
+      reject(new Error(`failed to read stdin (${err})`));
+    });
   });
 }

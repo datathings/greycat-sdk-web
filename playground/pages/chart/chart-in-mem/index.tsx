@@ -13,22 +13,20 @@ const t = gc.Table.fromCols([
 ]);
 document.body.appendChild(
   <app-layout title="Chart (in-mem)">
-    <div style={{ height: '100%', width: '50%' }}>
-      <gui-chart
-        value={t}
-        config={{
-          cursor: true,
-          xAxis: { scale: 'time', autoTicks: true },
-          yAxes: {
-            y: {
-              // cursorAlign: 'start',
-              scale: 'linear',
-              autoTicks: true,
-            },
+    <gui-chart
+      value={t}
+      config={{
+        cursor: true,
+        xAxis: { scale: 'time', padding: 0.1, autoTicks: true },
+        yAxes: {
+          y: {
+            // cursorAlign: 'start',
+            scale: 'log',
+            padding: 0.1,
           },
-          series: [{ type: 'line', xCol: 0, yCol: 1, yAxis: 'y' }],
-        }}
-      />
-    </div>
+        },
+        series: [{ type: 'line', xCol: 0, yCol: 1, yAxis: 'y' }],
+      }}
+    />
   </app-layout>,
 );

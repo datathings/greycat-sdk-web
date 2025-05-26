@@ -30,14 +30,17 @@ try {
   let fnArgs;
   if (args[1] === undefined) {
     const raw_fn_args = await stdin_read();
-    fnArgs = JSON.parse(raw_fn_args);
-    if (!Array.isArray(fnArgs)) {
-      throw new Error('fn arguments must be given in an array');
+    if (raw_fn_args.length !== 0) {
+      fnArgs = JSON.parse(raw_fn_args);
+      if (!Array.isArray(fnArgs)) {
+        throw new Error('fn arguments must be given in an array');
+      }
     }
   } else {
     // reads args from gcb file
     fnArgs = readBytes(args[1]);
   }
+  // console.log(`function = ${args[0]}, args =`, fnArgs);
   const value = await g.call(args[0], fnArgs);
   displayValue(value, json);
 } catch (err) {
