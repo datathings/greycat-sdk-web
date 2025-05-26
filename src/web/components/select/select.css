@@ -19,10 +19,12 @@
     }
   }
 
-  .gui-select-list {
+
+  sl-popup::part(popup) {
     z-index: var(--gui-select-list-z-index);
-    position: absolute;
-    width: 100%;
+  }
+
+  .gui-select-list {
     max-height: 400px;
     overflow-x: hidden;
     overflow-y: auto;
@@ -31,9 +33,10 @@
     flex-direction: column;
     pointer-events: auto;
     border: var(--border-width) solid var(--border-color);
-    box-shadow: -3px 0 3px rgb(var(--base-0)),
-             3px 0 3px rgb(var(--base-0)),
-             0 3px 3px rgb(var(--base-0));
+    box-shadow:
+      -3px 0 3px rgb(var(--base-0)),
+      3px 0 3px rgb(var(--base-0)),
+      0 3px 3px rgb(var(--base-0));
 
     > div {
       font-weight: normal;

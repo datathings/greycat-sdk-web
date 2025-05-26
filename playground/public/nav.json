@@ -4,14 +4,14 @@
     "route": "pages/index/"
   },
   {
+    "label": "Array",
+    "route": "pages/array/"
+  },
+  {
     "label": "Chart",
     "route": "pages/chart/",
     "link": true,
     "children": [
-      {
-        "label": "Bar histogram",
-        "route": "chart-bar-histogram/"
-      },
       {
         "label": "Bar",
         "route": "chart-bar/"
@@ -47,6 +47,14 @@
       {
         "label": "Chart 2",
         "route": "chart-2/"
+      },
+      {
+        "label": "Table of objects",
+        "route": "table-of-objects/"
+      },
+      {
+        "label": "Non-overlapping",
+        "route": "non-overlapping/"
       }
     ]
   },
@@ -98,11 +106,40 @@
   },
   {
     "label": "Histogram",
-    "route": "pages/histogram/"
+    "route": "pages/histogram/",
+    "children": [
+      {
+        "label": "Histogram 1D",
+        "route": "1d-histogram/"
+      },
+      {
+        "label": "Histogram Stats",
+        "route": "histogram-stats/"
+      }
+    ]
   },
   {
     "label": "Inputs",
-    "route": "pages/inputs/"
+    "route": "pages/inputs/",
+    "link": true,
+    "children": [
+      {
+        "label": "Any",
+        "route": "any.html"
+      },
+      {
+        "label": "Time",
+        "route": "time.html"
+      },
+      {
+        "label": "Object",
+        "route": "object.html"
+      },
+      {
+        "label": "Slot",
+        "route": "slot.html"
+      }
+    ]
   },
   {
     "label": "Layout",
@@ -150,6 +187,10 @@
   {
     "label": "Root",
     "route": "pages/root/"
+  },
+  {
+    "label": "Sampling",
+    "route": "pages/sampling/"
   },
   {
     "label": "Select",

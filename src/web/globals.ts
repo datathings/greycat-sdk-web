@@ -1,5 +1,6 @@
 // default number format
-let numFmt = new Intl.NumberFormat(navigator.language);
+let numFmt = new Intl.NumberFormat(navigator.language, {
+});
 // default datetime format, we force 2-digit to improve readability
 let dateFmt = new Intl.DateTimeFormat(navigator.language, {
   year: '2-digit',

@@ -11,13 +11,13 @@
     "lib": ["DOM", "ES2024"],
     "types": ["vite/client"],
     "paths": {
-      "@/*": ["./*"],
+      "~/*": ["./*"],
       "@greycat/web/jsx-dev-runtime": ["../src/jsx/jsx-runtime.ts"],
       "@greycat/web/jsx-runtime": ["../src/jsx/jsx-runtime.ts"],
       "@greycat/web/sdk": ["../src/sdk"],
-      "@greycat/web": ["../src/web"],
+      "@greycat/web": ["../src/web"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx"],
+  "include": ["./**/*.ts", "./**/*.tsx", "../src/web", "../src/jsx"],
   "exclude": ["./gcdata", "./files", "./public", "vite.config.ts"]
 }

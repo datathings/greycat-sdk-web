@@ -1,256 +1,252 @@
-import { format } from 'd3';
-import { ChartConfig, GuiHeatmap, HeatmapConfig } from '../../exports.js';
+import { ChartConfig } from '../../exports.js';
 
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;
 
-  private _value?: gc.util.Histogram;
+  private _value: gc.util.HistogramBin[] | gc.util.HistogramStats | null;
+  private _percentiles: boolean = false;
 
   constructor() {
     super();
+    this._value = null;
   }
 
-  set value(val: gc.util.Histogram) {
+  /**
+   * If value of type HistogramBin[]
+   * Displays a classic bar chart histogram from a gcl histogram get_bins() output
+   *
+   * If value of type HistogramStats
+   * Displays a boxplot from a gcl histogram stats() output
+   */
+  set value(val: gc.util.HistogramBin[] | gc.util.HistogramStats | null) {
     this._value = val;
     this.render();
   }
 
-  get value(): gc.util.Histogram | undefined {
+  get value() {
     return this._value;
   }
 
-  private render() {
-    if (!this._value?.bins) return;
-    const quant = this._value.quantizer;
+  /**
+   * Displays the histogram stats() output in form a percentiles line chart
+   * Only works if value is of type HistogramStats
+   */
+  set percentiles(val: boolean) {
+    this._percentiles = val;
+    this.render();
+  }
 
-    if (quant instanceof gc.util.LinearQuantizer || quant instanceof gc.util.LogQuantizer) {
-      this._render_histogram(this._value.bins, quant);
-    } else if (quant instanceof gc.util.MultiQuantizer) {
-      if (
-        quant.quantizers.length === 1 &&
-        (quant.quantizers[0] instanceof gc.util.LinearQuantizer ||
-          quant.quantizers[0] instanceof gc.util.LogQuantizer)
-      ) {
-        this._render_histogram(this._value.bins, quant.quantizers[0]);
-      } else if (
-        quant.quantizers.length === 2 &&
-        (quant.quantizers[0] instanceof gc.util.LinearQuantizer ||
-          quant.quantizers[0] instanceof gc.util.LogQuantizer) &&
-        (quant.quantizers[1] instanceof gc.util.LinearQuantizer ||
-          quant.quantizers[1] instanceof gc.util.LogQuantizer)
-      ) {
-        this._render_heatmap(this._value.bins, [quant.quantizers[0], quant.quantizers[1]]);
+  get percentiles() {
+    return this._percentiles;
+  }
+
+  private render() {
+    if (!this.value) return;
+    if (this._value instanceof gc.util.HistogramStats) {
+      if (this._percentiles) {
+        this._render_percentile(this._value);
       } else {
-        throw new Error('Histogram cannot render this quantizers');
+        this._render_boxplot(this._value);
       }
     } else {
-      throw new Error('Histogram cannot render this quantizers');
+      const bins = this._value as gc.util.HistogramBin[];
+      let dims = 0;
+      for (let i = 0; i < bins.length; i++) {
+        const bin = bins[i].bin;
+        if (typeof bin.center === 'number') {
+          dims = 1;
+          break;
+        } else if (Array.isArray(bin.center)) {
+          dims = bin.center.length;
+          break;
+        }
+      }
+      if (dims === 0) {
+        console.error('Histogram dimensions are empty');
+        this.replaceChildren();
+      } else if (dims === 1) {
+        this._render_histogram(bins);
+      } else if (dims === 2) {
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
+        //TODO To implement when histogram supports multiple dimensions
+      } else {
+        console.error('Multiple dimensions are not supported yet');
+        this.replaceChildren();
+        //TODO To implement when histogram supports multiple dimensions
+      }
     }
   }
 
-  private _render_histogram(
-    bins: (number | bigint | null)[],
-    quantizer: gc.util.LogQuantizer | gc.util.LinearQuantizer,
-  ) {
-    let xAxisScale: 'linear' | 'log' = 'linear';
-    if (quantizer instanceof gc.util.LogQuantizer) {
-      xAxisScale = 'log';
+  private _render_histogram(data: gc.util.HistogramBin[]) {
+    const t = [];
+    for (let index = 0; index < data.length; index++) {
+      const d = data[index];
+      t.push([d.count, d.bin.min, d.bin.max]);
     }
     const config: ChartConfig = {
-      xAxis: { scale: xAxisScale },
+      xAxis: { scale: 'linear' },
       yAxes: { left: {} },
-      series: [{ type: 'bar', yAxis: 'left', yCol: 2, spanCol: [0, 1], title: 'Count' }],
+      series: [
+        {
+          type: 'bar',
+          yAxis: 'left',
+          yCol: 0,
+          spanCol: [1, 2],
+          title: 'Count',
+        },
+      ],
     };
     const chart = document.createElement('gui-chart');
-
-    const bounds = new Bounds();
-    const data: number[][] = Array.from({ length: bins.length });
-    for (let index = 0; index < bins.length; index++) {
-      bounds.compute(index, quantizer);
-      data[index] = [bounds.min, bounds.max, Number(bins[index])];
-    }
-
-    // Temp Fix to be removed once serie of type bar works with spanCol correctly
-    config.xAxis.min = data[0][0] as number;
-    config.xAxis.max = data[data.length - 1][1] as number;
-
     chart.config = config;
-    chart.value = { rows: data };
-
+    chart.value = t;
     this.replaceChildren(chart);
   }
 
-  private _render_heatmap(
-    bins: (number | bigint | null)[],
-    quantizer: (gc.util.LinearQuantizer | gc.util.LogQuantizer)[],
-  ) {
-    const heatmap = document.createElement('gui-heatmap');
-
-    const data = Array.from({ length: Number(quantizer[0].bins) }, (_) =>
-      Array.from({ length: Number(quantizer[1].bins) }),
-    );
-
-    const xLabels: string[] = [];
-    const yLabels: string[] = [];
-
-    const formatter = format('~s');
-
-    const bounds = new Bounds();
-    const cols = Number(quantizer[0].bins);
-    for (let col = 0; col < quantizer[0].bins; col++) {
-      xLabels.push(formatter(bounds.compute(col, quantizer[0]).min));
-
-      for (let row = 0; row < quantizer[1].bins; row++) {
-        if (col === 0) {
-          yLabels.push(formatter(bounds.compute(row, quantizer[1]).max));
-        }
-
-        const idx = row * cols + col;
-        data[col][row] = bins[idx];
-      }
-    }
-
-    const config: HeatmapConfig = {
-      xAxis: {
-        labels: xLabels,
-        hook: (axis) => {
-          if (xLabels.length * 30 > this.clientWidth) {
-            const a = this.clientWidth / 30;
-            axis.tickValues(xLabels.filter((_, i) => i % Math.ceil(xLabels.length / a) === 0));
-          }
+  private _render_boxplot(stats: gc.util.HistogramStats<number>) {
+    const config: ChartConfig = {
+      xAxis: { scale: 'linear', min: stats.min, max: stats.max },
+      yAxes: {
+        left: {
+          min: 0,
+          max: 10,
+          hook(axis) {
+            axis.tickValues([]);
+          },
         },
       },
-      yAxis: {
-        labels: yLabels,
-        hook: (axis) => {
-          if (yLabels.length * 15 > this.clientHeight) {
-            const a = this.clientHeight / 15;
-            axis.tickValues(yLabels.filter((_, i) => i % Math.ceil(yLabels.length / a) === 0));
-          }
+      series: [
+        {
+          type: 'custom',
+          yAxis: 'left',
+          yCol: 0,
+          draw(ctx, _serie, xScale, yScale) {
+            ctx.boxPlot(
+              {
+                median: xScale(stats.percentile50),
+                q1: xScale(stats.percentile25),
+                q3: xScale(stats.percentile75),
+                max: xScale(stats.whisker_high),
+                min: xScale(stats.whisker_low),
+                crossValue: yScale(5),
+              },
+              {
+                width: (yScale.range()[0] - yScale.range()[1]) * 0.9,
+                orientation: 'horizontal',
+                iqrColor: _serie.color,
+              },
+            );
+          },
         },
-      },
-      colorScale: { colors: GuiHeatmap.VIRIDIS_COLORS },
+      ],
+      cursor: false,
+      selection: false,
     };
-
-    heatmap.config = config;
-    heatmap.value = { cols: data };
-    this.replaceChildren(heatmap);
+    const chart = document.createElement('gui-chart');
+    chart.config = config;
+    chart.value = [];
+    this.replaceChildren(chart);
   }
 
-  /*   private _get_multi_bounds(slot: number, quantizer: gc.util.MultiQuantizer): [number, number][] {
-    const result = Array.from({ length: quantizer.quantizers.length });
-    let multiplier = 1;
-    let slotId = 0;
-    let multiSlot = slot;
-    for (let index = 0; index < quantizer.quantizers.length; index++) {
-      const qt = quantizer.quantizers[index];
-      const dimSize = this._get_quantize_size(qt);
-      multiplier = multiplier * dimSize;
-      slotId = multiSlot % dimSize;
-      multiSlot = (multiSlot - slotId) / dimSize;
-
-      const bounds = this._get_bounds(slot, qt);
-      result[index] = bounds;
-    }
-
-    return result as [number, number][];
-  } */
-
-  /*   private _get_quantize_size(quantizer: gc.util.Quantizer): number {
-    if (quantizer instanceof gc.util.LinearQuantizer || quantizer instanceof gc.util.LogQuantizer) {
-      return Number(quantizer.bins);
-    } else if (quantizer instanceof gc.util.MultiQuantizer) {
-      let slots = 1;
-      for (let index = 0; index < quantizer.quantizers.length; index++) {
-        const qt = quantizer.quantizers[index];
-        const size = this._get_quantize_size(qt);
-        if (size === -1) {
-          return 0;
-        }
-        slots *= size;
-      }
-      return slots;
-    }
-    return -1;
-  } */
-}
-
-class Bounds {
-  constructor(
-    public min = 0,
-    public max = 1,
-  ) {}
-
-  compute(slot: number, quantizer: gc.util.Quantizer): this {
-    if (quantizer instanceof gc.util.LinearQuantizer) {
-      const step = (quantizer.max - quantizer.min) / Number(quantizer.bins);
-      this.min = quantizer.min + slot * step;
-      this.max = quantizer.min + (slot + 1) * step;
-      return this;
-    }
-
-    if (quantizer instanceof gc.util.LogQuantizer) {
-      const bins = Number(quantizer.bins);
-      let min = quantizer.min;
-      let max = quantizer.max;
-      if (quantizer.min > 0 && quantizer.max > 0) {
-        const logMin = Math.log(quantizer.min);
-        const logMax = Math.log(quantizer.max);
-        const step = (logMax - logMin) / bins;
-        if (slot !== 0) {
-          min = logMin + slot * step;
-        }
-        if (slot !== bins - 1) {
-          max = logMin + (slot + 1) * step;
-        }
-      } else {
-        if (min < 0 && max < 0) {
-          const logMin = Math.log(-max);
-          const logMax = Math.log(-min);
-          const step = (logMax - logMin) / bins;
-          slot = bins - 1 - slot;
-          min = -Math.exp(logMin + (slot + 1) * step);
-          max = -Math.exp(logMin + slot * step);
-        } else {
-          const thresholdLog = Math.log(GuiHistogram.GC_UTIL_THRESHOLD_LOG);
-          if (slot === bins / 2) {
-            min = -GuiHistogram.GC_UTIL_THRESHOLD_LOG;
-            max = GuiHistogram.GC_UTIL_THRESHOLD_LOG;
-          } else if (slot > bins / 2) {
-            const logMax = Math.log(max);
-            const step = logMax - thresholdLog;
-            if (slot == bins / 2 + 1) {
-              min = GuiHistogram.GC_UTIL_THRESHOLD_LOG;
-            } else {
-              min = Math.exp(thresholdLog + (slot - bins / 2 - 1) * step);
-            }
-            if (slot !== bins - 1) {
-              max = Math.exp(thresholdLog + (slot - bins / 2) * step);
-            }
-          } else {
-            const logMin = Math.log(-min);
-            const step = (thresholdLog - logMin) / (bins / 2);
-            if (slot !== 0) {
-              min = -Math.exp(logMin + slot * step);
-            }
-            if (slot === bins / 2 - 1) {
-              max = -GuiHistogram.GC_UTIL_THRESHOLD_LOG;
-            } else {
-              max = -Math.exp(logMin + (slot + 1) * step);
-            }
-          }
-        }
-      }
-      this.min = min;
-      this.max = max;
-      return this;
-    }
-
-    this.min = 0;
-    this.max = 1;
-
-    return this;
+  private _render_percentile(stats: gc.util.HistogramStats<number>) {
+    const data = [];
+    data.push([1, stats.percentile1]);
+    data.push([5, stats.percentile5]);
+    data.push([10, stats.percentile10]);
+    data.push([20, stats.percentile20]);
+    data.push([25, stats.percentile25]);
+    data.push([50, stats.percentile50]);
+    data.push([75, stats.percentile75]);
+    data.push([80, stats.percentile80]);
+    data.push([90, stats.percentile90]);
+    data.push([95, stats.percentile95]);
+    data.push([99, stats.percentile99]);
+    const config: ChartConfig = {
+      xAxis: {
+        scale: 'linear',
+      },
+      yAxes: {
+        left: {
+          format(value) {
+            return `${value} %`;
+          },
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          yAxis: 'left',
+          yCol: 0,
+          xCol: 1,
+        },
+      ],
+      cursor: false,
+      selection: false,
+    };
+    const chart = document.createElement('gui-chart');
+    chart.config = config;
+    chart.value = data;
+    this.replaceChildren(chart);
   }
+
+  // private _render_heatmap(
+  //   bins: (number | bigint | null)[],
+  //   quantizer: (gc.util.LinearQuantizer | gc.util.LogQuantizer)[],
+  // ) {
+  //   const heatmap = document.createElement('gui-heatmap');
+
+  //   const data = Array.from({ length: Number(quantizer[0].bins) }, (_) =>
+  //     Array.from({ length: Number(quantizer[1].bins) }),
+  //   );
+
+  //   const xLabels: string[] = [];
+  //   const yLabels: string[] = [];
+
+  //   const formatter = format('~s');
+
+  //   const bounds = new Bounds();
+  //   const cols = Number(quantizer[0].bins);
+  //   for (let col = 0; col < quantizer[0].bins; col++) {
+  //     xLabels.push(formatter(bounds.compute(col, quantizer[0]).min));
+
+  //     for (let row = 0; row < quantizer[1].bins; row++) {
+  //       if (col === 0) {
+  //         yLabels.push(formatter(bounds.compute(row, quantizer[1]).max));
+  //       }
+
+  //       const idx = row * cols + col;
+  //       data[col][row] = bins[idx];
+  //     }
+  //   }
+
+  //   const config: HeatmapConfig = {
+  //     xAxis: {
+  //       labels: xLabels,
+  //       hook: (axis) => {
+  //         if (xLabels.length * 30 > this.clientWidth) {
+  //           const a = this.clientWidth / 30;
+  //           axis.tickValues(xLabels.filter((_, i) => i % Math.ceil(xLabels.length / a) === 0));
+  //         }
+  //       },
+  //     },
+  //     yAxis: {
+  //       labels: yLabels,
+  //       hook: (axis) => {
+  //         if (yLabels.length * 15 > this.clientHeight) {
+  //           const a = this.clientHeight / 15;
+  //           axis.tickValues(yLabels.filter((_, i) => i % Math.ceil(yLabels.length / a) === 0));
+  //         }
+  //       },
+  //     },
+  //     colorScale: { colors: GuiHeatmap.VIRIDIS_COLORS },
+  //   };
+
+  //   heatmap.config = config;
+  //   heatmap.value = { cols: data };
+  //   this.replaceChildren(heatmap);
+  // }
+
+  //private _render_table(data: gc.util.HistogramBin[]) {}
 }
 
 declare global {

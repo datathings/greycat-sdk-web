@@ -1,5 +1,5 @@
 import { getGlobalNumberFormat } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 await gc.sdk.init();
 
@@ -14,6 +14,7 @@ document.body.appendChild(
     <gui-table
       value={table}
       globalFilter
+      drawerEnabled
       columnFactory={{
         1: (value: number | bigint | null, rowIdx: number, el) => {
           const klass = table.cols[2][rowIdx] as 'low' | 'normal' | 'high';

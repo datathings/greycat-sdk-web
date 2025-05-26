@@ -237,7 +237,10 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
     super();
 
     this.input = document.createElement('sl-input');
-    this.input.setAttribute('exportparts', 'base');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
@@ -328,7 +331,10 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     this.input = document.createElement('sl-input');
     this.input.type = 'number';
     this.input.step = 'any';
-    this.input.setAttribute('exportparts', 'base');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
 
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
@@ -425,7 +431,10 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-
+    this.input.setAttribute(
+      'exportparts',
+      'base,control,control--checked,control--indeterminate,checked-icon,label,form-control-help-text',
+    );
     this.shadowRoot.replaceChildren(this.input);
   }
 
@@ -487,6 +496,10 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
     super();
 
     this.input = document.createElement('sl-input');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this.input.type = 'datetime-local';
     this.input.step = 1;
 
@@ -593,6 +606,10 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
     super();
 
     this.input = document.createElement('sl-input');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this.input.placeholder = `Specify a type fqn (eg. 'runtime::User')`;
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
@@ -697,6 +714,10 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
     super();
 
     this.input = document.createElement('sl-input');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this.input.placeholder = `Specify a field fqn (eg. 'runtime::User::name')`;
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
@@ -812,7 +833,10 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
     super();
 
     this.input = document.createElement('gui-select');
-    this.input.setAttribute('exportparts', 'base');
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     this.input.addEventListener('gui-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
@@ -1122,8 +1146,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this._inline = getBooleanAttribute(this, 'inline');
-    this._noTypes = getBooleanAttribute(this, 'no-types');
+    this._inline = getBooleanAttribute(this, 'inline') || this._inline;
+    this._noTypes = getBooleanAttribute(this, 'no-types') || this._noTypes;
     this.update();
   }
 

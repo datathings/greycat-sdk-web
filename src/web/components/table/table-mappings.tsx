@@ -78,13 +78,7 @@ export class GuiTableMappings extends GuiElement {
     this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
   };
   private _applyMappings = () => {
-    this.dispatchEvent(
-      new CustomEvent('gui-table-apply-mappings', {
-        detail: this.value,
-        bubbles: true,
-        composed: true,
-      }),
-    );
+    this.dispatchEvent(new GuiTableMappingsApplyEvent(this.value));
   };
 
   constructor() {
@@ -94,7 +88,7 @@ export class GuiTableMappings extends GuiElement {
 
     this._mappings = document.createElement('div');
     this._mappings.classList.add('list', 'smart');
-    this._mappings.addEventListener('gui-table-mapping-delete', (ev) => {
+    this._mappings.addEventListener(GuiTableMappingsDeleteEvent.NAME, (ev) => {
       ev.stopPropagation();
       ev.detail.remove();
       this._value = this.value;
@@ -188,6 +182,22 @@ export class GuiTableMappings extends GuiElement {
   }
 }
 
+export class GuiTableMappingsDeleteEvent extends CustomEvent<GuiTableMapping> {
+  static readonly NAME = 'gui-table-mappings-delete';
+
+  constructor(mapping: GuiTableMapping) {
+    super(GuiTableMappingsDeleteEvent.NAME, { detail: mapping, composed: true, bubbles: true });
+  }
+}
+
+export class GuiTableMappingsApplyEvent extends CustomEvent<gc.core.TableColumnMapping[]> {
+  static readonly NAME = 'gui-table-mappings-apply';
+
+  constructor(mappings: gc.core.TableColumnMapping[]) {
+    super(GuiTableMappingsApplyEvent.NAME, { detail: mappings, composed: true, bubbles: true });
+  }
+}
+
 export class GuiTableMapping extends GuiElement {
   static override styles = [css(Mapping)];
 
@@ -268,32 +278,6 @@ export class GuiTableMapping extends GuiElement {
   }
 }
 
-declare global {
-  interface HTMLElementTagNameMap {
-    'gui-table-mappings': GuiTableMappings;
-    'gui-table-mapping': GuiTableMapping;
-  }
-
-  interface GuiTableMappingEventMap {
-    'gui-table-mapping-delete': CustomEvent<GuiTableMapping>;
-  }
-
-  interface GuiTableMappingsEventMap {
-    'gui-table-apply-mappings': CustomEvent<gc.core.TableColumnMapping[]>;
-  }
-
-  interface HTMLElementEventMap extends GuiTableMappingEventMap, GuiTableMappingsEventMap {}
-
-  namespace GreyCat {
-    namespace JSX {
-      interface IntrinsicElements {
-        'gui-table-mappings': GreyCat.Element<GuiTableMappings, GuiTableMappingsEventMap>;
-        'gui-table-mapping': GreyCat.Element<GuiTableMapping, GuiTableMappingEventMap>;
-      }
-    }
-  }
-}
-
 function getSelectValue(select: sl.SlSelect): string | undefined {
   const value = select.value;
   if (Array.isArray(value)) {
@@ -306,4 +290,30 @@ function getSelectValue(select: sl.SlSelect): string | undefined {
     return value;
   }
   return;
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    'gui-table-mappings': GuiTableMappings;
+    'gui-table-mapping': GuiTableMapping;
+  }
+
+  interface GuiTableMappingEventMap {
+    [GuiTableMappingsDeleteEvent.NAME]: GuiTableMappingsDeleteEvent;
+  }
+
+  interface GuiTableMappingsEventMap {
+    [GuiTableMappingsApplyEvent.NAME]: GuiTableMappingsApplyEvent;
+  }
+
+  interface HTMLElementEventMap extends GuiTableMappingEventMap, GuiTableMappingsEventMap {}
+
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'gui-table-mappings': GreyCat.Element<GuiTableMappings, GuiTableMappingsEventMap>;
+        'gui-table-mapping': GreyCat.Element<GuiTableMapping, GuiTableMappingEventMap>;
+      }
+    }
+  }
 }

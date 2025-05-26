@@ -1,0 +1,23 @@
+.inline {
+  --label-width: 3.75rem;
+  --gap-width: 1rem;
+}
+
+.inline + .inline {
+  margin-top: var(--sl-spacing-medium);
+}
+
+.inline::part(form-control) {
+  display: grid;
+  grid: auto / var(--label-width) 1fr;
+  gap: var(--sl-spacing-3x-small) var(--gap-width);
+  align-items: center;
+}
+
+.inline::part(form-control-label) {
+  text-align: right;
+}
+
+.inline::part(form-control-help-text) {
+  grid-column-start: 2;
+}

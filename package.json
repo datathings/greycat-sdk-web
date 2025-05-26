@@ -24,27 +24,26 @@
       "import": "./dist/vite-plugin/index.js"
     },
     "./*.css": "./dist/*.css",
-    "./*.ttf": "./fonts/*.ttf",
-    "./*.woff": "./fonts/*.woff",
-    "./icons/*.svg": "./icons/*.svg"
+    "./assets/*.svg": "./assets/*.svg"
   },
   "license": "Apache-2.0",
   "files": [
     "dist",
-    "fonts",
-    "icons",
-    "src",
-    "css"
+    "assets",
+    "src"
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "gen": "GREYCAT_CODEGEN_TS_STD=1 GREYCAT_CODEGEN_TS_FOOTER=std.ext.d.ts greycat codegen std.d.ts",
+    "gen": "greycat install && GREYCAT_CORE=1 greycat codegen ts && mv project.d.ts std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
-    "build:sdk": "tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts",
+    "build:sdk": "rm -rf dist/greycat.d.ts && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts && cat std.ext.d.ts >> dist/greycat.d.ts",
     "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
     "build:vite-plugin": "tsc -p src/vite-plugin/tsconfig.json",
-    "build:css": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
+    "build:css": "pnpm run build:css:greycat && pnpm run build:css:greycat-full",
+    "build:css:greycat": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
+    "build:css:greycat-full": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat-full.css -o dist/greycat-full.css",
+    "build:vendor": "NODE_OPTIONS=\"--max-old-space-size=12000\" rollup -c rollup.vendor.js",
     "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare-test.sh",
     "test": "./test/test.sh",
@@ -56,12 +55,12 @@
     "@shoelace-style/shoelace": "2.20.0",
     "d3": "7.9.0",
     "dockview-core": "3.2.0",
+    "lit": "3.2.1",
     "lit-html": "3.2.1"
   },
   "devDependencies": {
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
-    "@types/http-proxy": "1.17.15",
     "@types/node": "22.5.0",
     "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.24.2",
@@ -69,11 +68,14 @@
     "lightningcss": "1.29.2",
     "lightningcss-cli": "1.29.2",
     "prettier": "3.3.3",
+    "rollup": "4.36.0",
+    "rollup-plugin-dts": "6.2.0",
     "tslib": "2.6.3",
     "typescript": "5.7.2",
     "vite": "6.0.7"
   },
   "optionalDependencies": {
+    "@types/http-proxy": "1.17.16",
     "http-proxy": "1.18.1",
     "maplibre-gl": "5.1.0"
   },

@@ -79,7 +79,7 @@ import {
   GuiMap,
   GuiMapLayer,
   GuiMapSource,
-  GuiMapNodeGeo,
+  GuiMapMarkers,
   GuiNav,
   // GuiGaussian,
 } from './exports.js';
@@ -102,15 +102,29 @@ gc.sdk.initWithAbi = function webInitWithAbi(options: gc.sdk.WithAbiOptions) {
 
 function initWeb() {
   registerCustomElement('gui-factory', GuiFactory);
-  registerCustomElement('gui-input-factory', GuiInputFactory);
-
-  // both factories needs to be created after they are registered
+  // create the global object factory after it is registered
   GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
     [gc.core.Table._type]: 'gui-table',
     [gc.core.Map._type]: 'gui-table',
     [gc.core.Array._type]: 'gui-table',
+    [gc.core.String._type]: 'gui-value',
+    [gc.core.int._type]: 'gui-value',
+    [gc.core.float._type]: 'gui-value',
+    [gc.core.bool._type]: 'gui-value',
+    [gc.core.geo._type]: 'gui-value',
+    [gc.core.time._type]: 'gui-value',
+    [gc.core.str._type]: 'gui-value',
+    [gc.core.Date._type]: 'gui-value',
+    [gc.core.node._type]: 'gui-value',
+    [gc.core.nodeTime._type]: 'gui-value',
+    [gc.core.nodeIndex._type]: 'gui-value',
+    [gc.core.nodeGeo._type]: 'gui-value',
+    [gc.core.nodeList._type]: 'gui-value',
     [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
+    [gc.util.HistogramStats._type]: 'gui-histogram',
   });
+  registerCustomElement('gui-input-factory', GuiInputFactory);
+  // create the global input factory after it is registered
   GuiInputFactory.global = new GuiInputFactory({
     ['core::any']: 'gui-input-any',
     [gc.core.int._type]: 'gui-input-number',
@@ -215,7 +229,7 @@ function initWeb() {
   if ('maplibregl' in globalThis) {
     registerCustomElement('gui-map-source', GuiMapSource);
     registerCustomElement('gui-map-layer', GuiMapLayer);
-    registerCustomElement('gui-map-nodegeo', GuiMapNodeGeo);
+    registerCustomElement('gui-map-markers', GuiMapMarkers);
     registerCustomElement('gui-map', GuiMap);
   }
 }
@@ -303,7 +317,7 @@ declare global {
       GuiMap,
       GuiMapLayer,
       GuiMapSource,
-      GuiMapNodeGeo,
+      GuiMapMarkers,
       GuiNav,
       // GuiGaussian,
     };

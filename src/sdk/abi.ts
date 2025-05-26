@@ -402,6 +402,7 @@ namespace gc {
           }
 
           this.functions[i] = new AbiFunction(
+            this,
             lib === 0 ? 'project' : lib_name,
             module_name,
             type === 0 ? undefined : type_name,
@@ -432,7 +433,7 @@ namespace gc {
               Object.defineProperty(this, '$type', {
                 value: type,
                 enumerable: false,
-                writable: false,
+                writable: true, // we need to be able to update $type for generics
               });
               this.$init?.();
             }
@@ -443,6 +444,9 @@ namespace gc {
         // link monomorphized types to there known native generic type
         for (let i = 0; i < nb_types; i++) {
           const type = this.types[i];
+          if (type.generic_abi_type === 0) {
+            continue;
+          }
           switch (type.generic_abi_type) {
             case this.core.array: {
               type.ctor = create_monomorphic_class(type, gc.core.Array);
@@ -493,7 +497,8 @@ namespace gc {
               break;
             }
             default:
-              // noop
+              // use the generic constructor for non-native monomorphic types
+              // type.ctor = this.types[type.generic_abi_type].ctor;
               break;
           }
         }
@@ -676,9 +681,13 @@ namespace gc {
         if (is_enum) {
           const GCEnum = class extends gc.sdk.GCEnum {
             static readonly _type = type.name;
-            constructor(offset = 0, key = '', value?: Value) {
-              super(offset, key, value);
-              Object.defineProperty(this, '$type', { value: type, enumerable: false });
+            constructor(offset = 0, key = '') {
+              super(offset, key);
+              Object.defineProperty(this, '$type', {
+                value: type,
+                enumerable: false,
+                // we don't need writability for enums
+              });
             }
           };
           this.ctor = GCEnum;
@@ -693,7 +702,6 @@ namespace gc {
               this.enum_values[offset] = en;
               Object.defineProperty(this.ctor, en_field_name, {
                 value: en,
-                writable: false,
                 enumerable: true,
               });
               // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -702,7 +710,6 @@ namespace gc {
             Object.defineProperty(this.ctor, '$fields', {
               value: this.enum_values,
               enumerable: true,
-              writable: false,
             });
           }
         } else if (is_native) {
@@ -713,7 +720,10 @@ namespace gc {
                 const GCObject = class extends gc.sdk.std_n.core.function_ {
                   constructor(mod_off = 0, ty_off = 0, name_off = 0) {
                     super(mod_off, ty_off, name_off);
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -724,7 +734,10 @@ namespace gc {
                 const GCObject = class extends gc.sdk.std_n.core.null_ {
                   constructor() {
                     super();
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -735,7 +748,10 @@ namespace gc {
                   static readonly _type = type.name;
                   constructor() {
                     super();
-                    Object.defineProperty(this, '$type', { value: type, enumerable: false });
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                    });
                   }
                 };
                 this.ctor = GCObject;
@@ -753,13 +769,14 @@ namespace gc {
                       Object.defineProperty(this, '$type', {
                         value: type,
                         enumerable: false,
-                        writable: true,
+                        writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
                       });
                       this.$init?.();
                     }
                   } as IGCObjectClass;
                   this.ctor = GCObject;
                 } else {
+                  // console.warn(`unable to find native class for: ${type.name}`);
                   const GCObject = class extends gc.sdk.GCObject {
                     static readonly _type = type.name;
                     constructor() {
@@ -799,25 +816,44 @@ namespace gc {
               },
             };
           }
-          const GCObject = class extends gc.sdk.GCObject {
-            static readonly _type = type.name;
-            constructor(...fields: unknown[]) {
-              super();
-              Object.defineProperty(this, '$type', { value: type, enumerable: false });
-              Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
-              Object.defineProperties(this, properties);
-            }
-
-            static createFrom(o: object) {
-              const fields = new globalThis.Array(type.attrs.length);
-              for (let i = 0; i < type.attrs.length; i++) {
-                const attr = type.attrs[i];
-                // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                fields[i] = (o as any)[attr.name];
+          let GCObject: IGCObjectClass;
+          if (generic_abi_type === 0) {
+            GCObject = class extends gc.sdk.GCObject {
+              static readonly _type = type.name;
+              constructor(...fields: unknown[]) {
+                super();
+                Object.defineProperty(this, '$type', {
+                  value: type,
+                  enumerable: false,
+                  writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
+                });
+                Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
+                Object.defineProperties(this, properties);
               }
-              return new type.ctor(...fields);
-            }
-          };
+
+              static createFrom(o: object) {
+                const fields = new globalThis.Array(type.attrs.length);
+                for (let i = 0; i < type.attrs.length; i++) {
+                  const attr = type.attrs[i];
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  fields[i] = (o as any)[attr.name];
+                }
+                return new type.ctor(...fields);
+              }
+            };
+          } else {
+            GCObject = class extends abi.types[generic_abi_type].ctor {
+              static override readonly _type = type.name;
+              constructor(...fields: unknown[]) {
+                super(...fields);
+                Object.defineProperty(this, '$type', {
+                  value: type,
+                  enumerable: false,
+                  writable: false,
+                });
+              }
+            };
+          }
           this.ctor = GCObject;
         }
 
@@ -924,6 +960,7 @@ namespace gc {
 
     export class AbiFunction {
       constructor(
+        readonly abi: Abi,
         readonly lib: string,
         readonly module: string,
         readonly type: string | undefined,
@@ -937,6 +974,78 @@ namespace gc {
         readonly return_type_nullable: boolean,
         readonly args_type: AbiType,
       ) {}
+
+      /**
+       * @returns an instance of `gc.core.function_` that points to that `AbiFunction`
+       */
+      toFunction(): gc.core.function_ {
+        return new gc.core.function_(this.module_id, this.type_id, this.name_id);
+      }
+
+      /**
+       * Serializes the given `args` following this functions parameters signature
+       * @param abi
+       * @param args
+       * @returns
+       */
+      serialize(args?: gc.sdk.Value[], capacity?: number): ArrayBuffer {
+        const writer = new gc.sdk.AbiWriter(this.abi, capacity);
+        writer.headers();
+        if (args && args.length > 0) {
+          for (let i = 0; i < args.length; i++) {
+            const param = this.params[i];
+            const arg = args[i];
+            if (!param) {
+              writer.serialize(arg);
+            } else if (param.type.offset === this.abi.core.float) {
+              if (arg === null) {
+                writer.null();
+              } else if (typeof arg === 'number') {
+                writer.float(arg as number);
+              } else {
+                writer.serialize(arg);
+              }
+            } else if (param.type.offset === this.abi.core.char) {
+              if (arg === null) {
+                writer.null();
+              } else if (typeof arg === 'string') {
+                writer.char(arg as string);
+              } else {
+                writer.serialize(arg);
+              }
+            } else if (param.type.generic_abi_type === this.abi.core.array && Array.isArray(arg)) {
+              // monomorphic array
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              writer.write_vu32(arg.length);
+              writer.write_array(arg);
+            } else if (param.type.generic_abi_type === this.abi.core.map && arg instanceof Map) {
+              // monomorphic map
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              writer.write_vu32(arg.size);
+              writer.write_map(arg);
+            } else if (
+              param.type.generic_abi_type === this.abi.core.table &&
+              arg instanceof core.Table
+            ) {
+              writer.write_u8(PrimitiveType.object);
+              writer.write_vu32(param.type.offset);
+              arg.saveContent(writer);
+            } else if (
+              arg instanceof GCObject &&
+              param.type.generic_abi_type !== arg.$type.generic_abi_type
+            ) {
+              // transtype the value
+              Object.assign(arg, { $type: param.type });
+              writer.serialize(arg);
+            } else {
+              writer.serialize(arg);
+            }
+          }
+        }
+        return writer.buffer.buffer;
+      }
     }
 
     export class AbiParam {

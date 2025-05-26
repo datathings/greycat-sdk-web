@@ -11,8 +11,10 @@ import {
   TableLike,
   GuiValue,
   GuiValueProps,
+  GuiTableMappingsApplyEvent,
 } from '../../exports.js';
 import '../search-input/index.js';
+import { stringify, StringifyProps } from '../value/utils.js';
 import type { GuiTableConfig } from './table-config.js';
 import style from './table.css?inline';
 
@@ -34,6 +36,7 @@ export interface GuiTableProps {
   rowHeight: number;
   globalFilter: boolean;
   globalFilterPlaceholder: string;
+  drawerEnabled: boolean;
   onrowupdate: RowUpdateCallback;
 }
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
@@ -107,6 +110,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   private _disposer = new Disposer();
   private _columnFactory: CleanColumnFactory | undefined;
   private _drawer: sl.SlDrawer;
+  private _drawerEnabled: boolean;
   private _configEl: GuiTableConfig;
   /** if `true` update should recompute the filters */
   private _dirtyFilter: boolean = true;
@@ -122,6 +126,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._filter.clearable = true;
     this._filter.placeholder = 'Filter the table';
     this._filter.part.add('filter');
+    this._filter.setAttribute('exportparts', 'base:filter-base');
     this._filter.oninput = () => {
       this.filter = this._filter.value;
       this._dirtyFilter = true;
@@ -133,9 +138,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._tableContainer.part.add('table');
     this._tableContainer.append(this._thead, this._tbody);
 
+    this._drawerEnabled = false;
     this._drawer = document.createElement('sl-drawer');
     this._drawer.label = 'Table config';
     this._drawer.contained = true;
+    this._drawer.open = false;
 
     this._configEl = document.createElement('gui-table-config');
     this._configEl.table = this;
@@ -201,10 +208,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       this.toggleConfig();
     });
 
-    this._configEl.addEventListener('gui-table-apply-mappings', async (ev) => {
+    this._configEl.addEventListener(GuiTableMappingsApplyEvent.NAME, async (ev) => {
       ev.stopPropagation();
       await this.applyMappings();
       this.update();
+      this.dispatchEvent(new GuiTableApplyMappingsEvent());
     });
 
     this.shadowRoot.append(this._filter, this._tableContainer, this._drawer);
@@ -527,6 +535,25 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     return this._rowUpdateCallback;
   }
 
+  /**
+   * Whether or not to enable the config drawer by *right-click*ing the table.
+   *
+   * By default the drawer is disabled
+   */
+  get drawerEnabled() {
+    return this._drawerEnabled;
+  }
+
+  set drawerEnabled(enabled: boolean) {
+    if (this._drawerEnabled) {
+      if (!enabled) {
+        this.closeConfig();
+      }
+    }
+    this._drawerEnabled = enabled;
+    this.update();
+  }
+
   setAttrs({
     value = this._table,
     filter = this._filterText,
@@ -542,6 +569,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     columnsWidths = this._wCalc.getWidths(),
     minColWidth = this._wCalc.getMinWidth(),
     onrowupdate = this._rowUpdateCallback,
+    drawerEnabled = this._drawerEnabled,
   }: Partial<GuiTableProps>) {
     this._setValue(value);
     this._ignoreCols = ignoreCols;
@@ -562,7 +590,12 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._tbody.rowHeight = rowHeight;
     // because we've potentially changed "rowHeight" we need to re-compute the current "fromRowIdx"
     this._prevFromRowIdx = Math.floor(this._tableContainer.scrollTop / this._tbody.rowHeight);
-
+    if (this._drawerEnabled) {
+      if (!drawerEnabled) {
+        this.closeConfig();
+      }
+    }
+    this._drawerEnabled = drawerEnabled;
     this.update();
   }
 
@@ -581,6 +614,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       globalFilter: this.globalFilter,
       globalFilterPlaceholder: this.globalFilterPlaceholder,
       minColWidth: this._wCalc.getMinWidth(),
+      drawerEnabled: this._drawerEnabled,
       onrowupdate: this._rowUpdateCallback,
     };
   }
@@ -657,19 +691,25 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }
 
   toggleConfig(): void {
-    if (this._drawer.open) {
-      this._drawer.hide();
-    } else {
-      this._drawer.show();
+    if (this._drawerEnabled) {
+      if (this._drawer.open) {
+        this._drawer.hide();
+      } else {
+        this._drawer.show();
+      }
     }
   }
 
   openConfig(): void {
-    this._drawer.show();
+    if (this._drawerEnabled) {
+      this._drawer.show();
+    }
   }
 
   closeConfig(): void {
-    this._drawer.hide();
+    if (this._drawerEnabled) {
+      this._drawer.hide();
+    }
   }
 
   async update(): Promise<void> {
@@ -708,7 +748,9 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
     this._tbody.updateWidths(this._wCalc, nb_cols);
 
-    this._configEl.value = this.getAttrs();
+    if (this._drawerEnabled) {
+      this._configEl.value = this.getAttrs();
+    }
 
     resolve();
   }
@@ -745,7 +787,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             csv += options.sep;
           }
           if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
-            const cell = gc.sdk.stringify(cellProps(this._table.cols[c][r], r, c));
+            const cell = stringify(cellProps(this._table.cols[c][r], r, c));
             if (options.quoted && cell.length > 0) {
               csv += '"';
               csv += cell;
@@ -759,7 +801,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
         csv += '\n';
       }
     } else {
-      const props: gc.sdk.StringifyProps = Object.assign({ value: undefined }, this._cellProps);
+      const props: StringifyProps = Object.assign({ value: undefined }, this._cellProps);
       for (let r = 0; r < nb_rows; r++) {
         let needsSep = false;
         for (let c = 0; c < nb_cols; c++) {
@@ -771,7 +813,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           }
           if (this._table.cols[c][r] !== undefined && this._table.cols[c][r] !== null) {
             props.value = this._table.cols[c][r];
-            const cell = gc.sdk.stringify(props);
+            const cell = stringify(props);
             if (options.quoted && cell.length > 0) {
               csv += '"';
               csv += cell;
@@ -1327,8 +1369,8 @@ export class GuiTableBody extends HTMLElement {
       if ((colFilter && colFilter.length > 0) || filterText.length > 0) {
         cellText =
           typeof cellProps === 'function'
-            ? gc.sdk.stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx)).toLowerCase()
-            : gc.sdk.stringify({ ...cellProps, value: table.cols[colIdx][rowIdx] }).toLowerCase();
+            ? stringify(cellProps(table.cols[colIdx][rowIdx], rowIdx, colIdx)).toLowerCase()
+            : stringify({ ...cellProps, value: table.cols[colIdx][rowIdx] }).toLowerCase();
       }
 
       // Column-specific filter must match.
@@ -1357,6 +1399,7 @@ export class GuiTableBody extends HTMLElement {
     }
 
     const newRow = document.createElement('gui-tbody-row');
+    newRow.part.add('row');
     this.appendChild(newRow);
     return newRow;
   }
@@ -1794,6 +1837,14 @@ export class GuiTableChangeEvent extends CustomEvent<GuiTableEventDetail> {
   }
 }
 
+export class GuiTableApplyMappingsEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-table-apply-mappings';
+
+  constructor() {
+    super(GuiTableApplyMappingsEvent.NAME, { bubbles: true, composed: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-table': GuiTable;
@@ -1815,8 +1866,9 @@ declare global {
     [GuiTableChangeEvent.NAME]: GuiTableChangeEvent;
     [GuiTableClickEvent.NAME]: GuiTableClickEvent;
     [GuiTableDblClickEvent.NAME]: GuiTableDblClickEvent;
+    [GuiTableApplyMappingsEvent.NAME]: GuiTableApplyMappingsEvent;
   }
-
+  
   interface GuiTableEventMap extends GuiTableHeadCellEventMap {
     'table-filter': GuiTableFilterEvent;
   }

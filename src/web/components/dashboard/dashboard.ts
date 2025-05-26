@@ -98,7 +98,6 @@ export class GuiDashboard extends GuiElement {
 
     this._dockview = new DockviewComponent(this.shadowRoot as unknown as HTMLElement, {
       createComponent(_options) {
-        console.log('create component', _options);
         return new DashboardPanel();
       },
     });

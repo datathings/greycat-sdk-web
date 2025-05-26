@@ -180,11 +180,11 @@ describe('project', () => {
     0.7071067811865476, // MathConstants::sqrt1_2
 
     // std::io
-    'io::TextEncoder::plain',
     {
       _type: 'io::CsvFormat',
       header_lines: 12,
       separator: ',',
+      nearest_time: null,
       format: null,
       string_delimiter: '"',
       decimal_separator: '.',
@@ -213,7 +213,7 @@ describe('project', () => {
     {
       _type: 'runtime::RuntimeInfo',
       version: '',
-      program_version: null,
+      program_version: '1.2.3',
       arch: '',
       timezone: 'core::TimeZone::Europe/Luxembourg',
       license: {
@@ -232,8 +232,7 @@ describe('project', () => {
       fg_threads: 42,
       mem_total: 12,
       mem_worker: 0,
-      nb_ctx: 1,
-      store_stats: null,
+      disk_data_bytes: 42,
     },
     {
       _type: 'runtime::SecurityFields',
@@ -283,18 +282,6 @@ describe('project', () => {
       extra_2: null,
       name: null,
       type: null,
-    },
-    {
-      _type: 'runtime::StoreStat',
-      capacity_bytes: 13,
-      allocated_bytes: 37,
-      allocated_ratio: 13.37,
-      remained_bytes: 12,
-      remained_ratio: 4.2,
-      used_bytes: 42,
-      used_ratio: 0.1,
-      available_bytes: 0,
-      available_ratio: 0.2,
     },
     { _type: 'runtime::System' },
     {
@@ -359,10 +346,10 @@ describe('project', () => {
   ];
 
   before(async () => {
-    const buffer = (await readFile('project.test.abi')).buffer;
+    const buffer = /** @type {ArrayBuffer} */ ((await readFile('project.test.abi')).buffer);
     abi = new Abi(buffer);
 
-    const data = (await readFile('project.test.gcb')).buffer;
+    const data = /** @type {ArrayBuffer} */ ((await readFile('project.test.gcb')).buffer);
     reader = new AbiReader(abi, data);
 
     reader.headers(); // read headers
@@ -400,66 +387,6 @@ describe('project', () => {
       assert.deepStrictEqual(actual, expected);
     });
   }
-});
-
-describe('std', () => {
-  before(async () => {
-    const buffer = (await readFile('project.test.abi')).buffer;
-    gc.sdk.initWithAbi({
-      abi: new Abi(buffer),
-      tasksPollingDelay: -1,
-    });
-  });
-
-  it('time + duration => time', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(40).add(gc.core.duration.create(2)),
-      gc.core.time.create(42),
-    );
-  });
-
-  it('time - duration => time', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(45).sub(gc.core.duration.create(3)),
-      gc.core.time.create(42),
-    );
-  });
-
-  it('time - time => duration', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(42).sub(gc.core.time.create(40)),
-      gc.core.duration.create(2),
-    );
-  });
-
-  describe('duration', () => {
-    it('0n => 0us', () => {
-      assert.deepStrictEqual(gc.core.duration.create(0n).toString(), '0us');
-    });
-
-    it('1_000_000_000n => 16min 40', () => {
-      assert.deepStrictEqual(gc.core.duration.create(1_000_000_000n).toString(), '16min 40s');
-    });
-
-    it('100_000_000_000_000n => 1157day 9hour 46min 40s', () => {
-      assert.deepStrictEqual(
-        gc.core.duration.create(100_000_000_000_000n).toString(),
-        '1157day 9hour 46min 40s',
-      );
-    });
-
-    it('1year > 2days', () => {
-      assert(gc.core.duration.from_years(1) > gc.core.duration.from_days(2));
-    });
-
-    it('42us == 42', () => {
-      assert(gc.core.duration.create(42).valueOf() == 42);
-    });
-  });
-
-  it('42time == 42', () => {
-    assert(gc.core.time.create(42).valueOf() == 42);
-  });
 });
 
 function fromJson(value) {

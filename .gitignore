@@ -6,6 +6,9 @@
 /dist
 /.vitepress/cache
 /.vitepress/dist
+/*.tsbuildinfo
+/bin
+/lib
 
 /package-lock.json
 /src/sdk_esm_not_working

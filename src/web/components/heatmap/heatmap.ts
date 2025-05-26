@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 
-import { debounce } from '../../internals.js';
+import { debounce } from '../../utils.js';
 import {
   Disposer,
   TableLike,
@@ -11,9 +11,12 @@ import {
   HeatmapData,
   HeatmapStyle,
   convertToTable,
+  GuiElement,
+  css,
 } from '../../exports.js';
 import './tooltip.js';
 import { GuiHeatmapTooltip } from './tooltip.js';
+import style from './heatmap.css?inline';
 
 type ColorYScale =
   | d3.ScaleLinear<number, number, never>
@@ -35,7 +38,9 @@ type ComputedState = {
   yPadding: number;
 };
 
-export class GuiHeatmap extends HTMLElement {
+export class GuiHeatmap extends GuiElement {
+  static override styles = [css(style)];
+
   private _disposer: Disposer;
   private _table: gc.core.Table;
   private _config: HeatmapConfig;
@@ -112,39 +117,55 @@ export class GuiHeatmap extends HTMLElement {
 
     // tooltip
     this._tooltip = document.createElement('gui-heatmap-tooltip');
+    this._tooltip.part.add('tooltip');
 
-    this.addEventListener('touchmove', (event) => {
+    this._uxCanvas.addEventListener('touchmove', (event) => {
       // prevents the browser from processing emulated mouse events
       event.preventDefault();
       if (event.touches.length > 0) {
         const { left, top } = this._canvas.getBoundingClientRect();
         this._cursor.x = Math.round(event.touches[0].pageX - (left + window.scrollX));
         this._cursor.y = Math.round(event.touches[0].pageY - (top + window.scrollY));
-        this._updateUX();
+        //this._updateUX();
       }
     });
-    this.addEventListener('touchcancel', () => {
+    this._uxCanvas.addEventListener('touchcancel', () => {
       this._resetCursor();
     });
+
+    this.shadowRoot.append(
+      this._svg.node() as SVGSVGElement,
+      this._canvas,
+      this._uxCanvas,
+      this._tooltip,
+    );
   }
 
   connectedCallback() {
-    this._colors = getColors(this);
-
-    this.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
+    requestAnimationFrame(() => {
+      this._colors = getColors(this);
+      const style = getComputedStyle(this);
+      if (style.display === 'inline') {
+        // makes sure the WebComponent is properly displayed as 'block' unless overridden by something else
+        this.style.display = 'block';
+      }
+      this.style.position = 'relative';
+    });
 
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    document.addEventListener(
+    this.addEventListener(
       'mousemove',
-      (event) => {
-        if (event.target !== this._uxCanvas && event.target !== this._tooltip) {
+      (ev) => {
+        const [target] = ev.composedPath();
+        if (ev.target !== this || target !== this._uxCanvas) {
           return;
         }
+
         const container = this._canvas.getBoundingClientRect();
-        const x = Math.round(event.clientX - container.left);
-        const y = Math.round(event.clientY - container.top);
+        const x = Math.round(ev.clientX - container.left);
+        const y = Math.round(ev.clientY - container.top);
 
         // check if the cursor is inside the container boundaries
         if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
@@ -259,20 +280,11 @@ export class GuiHeatmap extends HTMLElement {
     if (!this._computed || !this._table) {
       return;
     }
+
     this._clearUX();
 
-    const {
-      xRange,
-      yRange,
-      xPadding,
-      yPadding,
-      style,
-      xScale,
-      yScale,
-      xLabels,
-      yLabels,
-      colorScale,
-    } = this._computed;
+    const { xRange, yRange, xPadding, yPadding, style, xScale, yScale, xLabels, yLabels } =
+      this._computed;
 
     const updateUX =
       this._cursor.x !== -1 &&
@@ -281,6 +293,8 @@ export class GuiHeatmap extends HTMLElement {
       this._cursor.x <= xRange[1] + yPadding &&
       this._cursor.y >= yRange[1] - yPadding &&
       this._cursor.y <= yRange[0] + yPadding;
+
+    // console.log(this._cursor);
 
     if (updateUX) {
       // highlight the hovered cell
@@ -325,14 +339,21 @@ export class GuiHeatmap extends HTMLElement {
             this._uxCtx.ctx.strokeStyle = this._config.markerColor ?? style['accent-0'];
             this._uxCtx.ctx.strokeRect(x, y, w, h);
 
-            let tooltipX = this._cursor.x - 70;
-            let tooltipY = this._cursor.y - 80;
+            const width = this._tooltip.clientWidth;
+            const height = this._tooltip.clientHeight;
+            let tooltipX = this._cursor.x - height / 2;
+            let tooltipY = this._cursor.y - width - 20;
             if (tooltipX < xRange[0]) {
-              tooltipX = this._cursor.x + 50;
+              tooltipX = xRange[0];
+            } else if (tooltipX + width > xRange[1]) {
+              tooltipX = xRange[1] - width;
             }
             if (tooltipY < yRange[1]) {
-              tooltipY = this._cursor.y + 50;
+              tooltipY = this._cursor.y + 20;
+            } else if (tooltipY + height > yRange[0]) {
+              tooltipY = yRange[0] - height;
             }
+
             this._tooltip.style.left = `${tooltipX}px`;
             this._tooltip.style.top = `${tooltipY}px`;
             this._tooltip.style.width = '';
@@ -342,7 +363,7 @@ export class GuiHeatmap extends HTMLElement {
         }
 
         // update the tooltip content
-        this._tooltip.update(this._config, data, colorScale, style);
+        this._tooltip.update(this._config, data, style);
       }
 
       this.dispatchEvent(new GuiHeatmapCursorEvent(data, cursor));

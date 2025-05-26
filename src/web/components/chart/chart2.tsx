@@ -1,6 +1,12 @@
 import * as d3 from 'd3';
 import { GestureDrawer } from '../../canvas';
-import { createFormatter, smartTimeFormatSpecifier } from './utils.js';
+import {
+  createFormatter,
+  smartTimeFormatSpecifier,
+  tableGetCell,
+  tableGetColumn,
+  tableGetColumnIndex,
+} from './utils.js';
 import { getColors } from '../../utils.js';
 import type {
   Axis,
@@ -44,6 +50,9 @@ type CachedState = {
   yScales: Record<string, Scale>;
 };
 
+/**
+ * WIP component. Don't use it.
+ */
 export class GuiChart2 extends Resizable(GestureDrawer) {
   cursorLineOpts: ShapeOptions = {
     dashed: true,
@@ -336,7 +345,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       const v = +xScale.invert(this._cursor.x);
 
       const { xValue, rowIdx } = closest(
-        this._table.cols,
+        this._table,
         serie,
         this._cursor.x,
         this._cursor.y,
@@ -347,10 +356,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         v,
       );
 
-      const yValue =
-        typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
-          ? Number(this._table.cols[serie.yCol][rowIdx])
-          : this._table.cols[serie.yCol][rowIdx];
+      const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
       const x = xScale(vMap(xValue));
       let y = yScales[serie.yAxis](vMap(yValue));
       const w = serie.markerWidth;
@@ -442,11 +448,11 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
           const style = serie.styleMapping.mapping(
-            this._table.cols[serie.styleMapping.col]?.[rowIdx],
+            tableGetCell(this._table, serie.styleMapping.col, rowIdx),
           );
           color = style?.color?.toString() ?? color;
         } else {
-          const value = this._table.cols[serie.styleMapping.col]?.[rowIdx];
+          const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
           if (typeof value === 'string') {
             color = value;
           }
@@ -473,8 +479,28 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
 
         const nameEl = document.createElement('div');
         nameEl.style.color = color;
-        nameEl.textContent =
-          serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
+        const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
+        if (serie.title !== undefined) {
+          nameEl.textContent = serie.title;
+        } else if (Array.isArray(serie.yCol)) {
+          nameEl.textContent = serie.yCol
+            .map((p) => {
+              if (typeof p === 'number') {
+                return p;
+              }
+              const last_dcolon = p.lastIndexOf('::');
+              if (last_dcolon === -1) {
+                return p;
+              }
+              const field_name = p.slice(last_dcolon + 2);
+              return field_name;
+            })
+            .join('.');
+        } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
+          nameEl.textContent = this._table.headers[yColIdx];
+        } else {
+          nameEl.textContent = `Col ${yColIdx}`;
+        }
         const valueEl = document.createElement('div');
         valueEl.classList.add('gui-chart-tooltip-value');
         if (
@@ -911,9 +937,8 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
       // x axis domain is not fully defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          const col = this._table.cols?.[serie.xCol];
-          const nb_rows = col?.length ?? 0;
-          for (let row = 0; row < nb_rows; row++) {
+          const col = tableGetColumn(this._table, serie.xCol) ?? [];
+          for (let row = 0; row < col.length; row++) {
             const value = vMap(col[row]);
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
@@ -962,8 +987,9 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols?.[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols?.[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;

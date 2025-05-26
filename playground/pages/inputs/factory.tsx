@@ -1,5 +1,5 @@
 import { findParentInputElement, GuiChangeEvent, GuiInputObject, GuiSelect } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 const greycat = await gc.sdk.init();
 

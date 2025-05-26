@@ -6,7 +6,7 @@
 
     "target": "ES2024",
     "module": "None",
-    
+
     "sourceMap": true,
     "strict": true,
     "useDefineForClassFields": false,
@@ -18,18 +18,22 @@
     "allowJs": true,
 
     "lib": ["DOM", "ES2024"],
-    "types": ["../../std.d.ts"]
+    // This empty array IS important to prevent TypeScript
+    // from including all the .d.ts files it finds in the
+    // common resolution directories (node_modules, etc.)
+    "types": []
   },
   // ORDER IS IMPORTANT
   "files": [
     "polyfill.ts",
     "GCObject.ts",
     "GCEnum.ts",
-    "GCFunction.ts",
     "abi.ts",
     "types.ts",
     "io.ts",
     "crypto.ts",
+    "../../std.d.ts",
+    "../../std.ext.d.ts",
     "std.ext.ts",
     "std_n/core/Array.ts",
     "std_n/core/bool.ts",
@@ -65,8 +69,7 @@
     "utils/duration.ts",
     "utils/error.ts",
     "utils/misc.ts",
-    "utils/task.ts",
     "greycat.ts",
-    "global.ts",
-  ],
+    "global.ts"
+  ]
 }

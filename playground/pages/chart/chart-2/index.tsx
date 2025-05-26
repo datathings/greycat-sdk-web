@@ -1,5 +1,5 @@
 import { type GuiChart2 } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './index.css';
 
 const greycat = await gc.sdk.init();

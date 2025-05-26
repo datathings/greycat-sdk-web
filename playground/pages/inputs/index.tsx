@@ -7,7 +7,7 @@ import {
   registerCustomElement,
   sl,
 } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './project-sensor-form';
 import IndexStyle from './index.css?inline';
 

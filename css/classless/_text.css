@@ -1,0 +1,8 @@
+sub,
+sup {
+  font-size: 11px;
+}
+
+small {
+  --font-size: 12px;
+}

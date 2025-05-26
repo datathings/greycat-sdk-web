@@ -1,0 +1,49 @@
+/* Small devices */
+@media (min-width: 576px) {
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: calc(var(--spacing) * 2);
+  }
+
+  .container,
+  .container-fluid {
+    padding-left: var(--spacing);
+    padding-right: var(--spacing);
+  }
+}
+
+/* Medium devices */
+@media (min-width: 768px) {
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: calc(var(--spacing) * 1.5);
+  }
+
+  dialog article {
+    min-width: 450px;
+  }
+}
+
+/* Large devices */
+@media (min-width: 992px) {
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: var(--spacing);
+  }
+}
+
+/* Extra large devices */
+@media (min-width: 1200px) {
+  body > header,
+  body > main,
+  body > footer,
+  section {
+    --block-spacing-vertical: var(--spacing);
+  }
+}

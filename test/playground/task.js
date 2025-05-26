@@ -13,3 +13,5 @@ console.log('await completion...');
 const result = await task.await();
 displayValue(result);
 
+const res = await greycat.spawnAwait('project::task_without_result');
+console.log(res);

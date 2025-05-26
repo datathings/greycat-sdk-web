@@ -1,5 +1,5 @@
 // import { GreyCat } from '@greycat/web';
-// import '@/common';
+// import '~/common';
 
 // const greycat = await await gc.sdk.init();
 

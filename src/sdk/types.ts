@@ -1,5 +1,8 @@
 namespace gc {
   export namespace sdk {
+    // using Pick<...> to catch bug earlier if `runtime.Task` changes
+    export type TaskLike = Pick<runtime.Task, 'user_id' | 'task_id'>;
+
     type ExtractValues<T> = T[keyof T];
 
     // prettier-ignore
@@ -109,15 +112,15 @@ namespace gc {
       cache?: Cache;
       /**
        * The delay in milliseconds between refreshes of the tasks information.
-       * 
+       *
        * If the value is less or equal to `0` then polling is disabled.
-       * 
+       *
        * Defaults to `0` (deactivated)
        */
       pollTasks?: number;
       /**
        * The maximum number of tasks polled from the history.
-       * 
+       *
        * Defaults to `100`
        */
       maxTasks?: number;
@@ -173,19 +176,31 @@ namespace gc {
     }
 
     export function primitiveType(type: AbiType): PrimitiveType {
-      if (type.offset === type.abi.core.node) {
+      if (type.offset === type.abi.core.node || type.generic_abi_type === type.abi.core.node) {
         return PrimitiveType.node;
       }
-      if (type.offset === type.abi.core.node_time) {
+      if (
+        type.offset === type.abi.core.node_time ||
+        type.generic_abi_type === type.abi.core.node_time
+      ) {
         return PrimitiveType.node_time;
       }
-      if (type.offset === type.abi.core.node_index) {
+      if (
+        type.offset === type.abi.core.node_index ||
+        type.generic_abi_type === type.abi.core.node_index
+      ) {
         return PrimitiveType.node_index;
       }
-      if (type.offset === type.abi.core.node_list) {
+      if (
+        type.offset === type.abi.core.node_list ||
+        type.generic_abi_type === type.abi.core.node_list
+      ) {
         return PrimitiveType.node_list;
       }
-      if (type.offset === type.abi.core.node_geo) {
+      if (
+        type.offset === type.abi.core.node_geo ||
+        type.generic_abi_type === type.abi.core.node_geo
+      ) {
         return PrimitiveType.node_geo;
       }
       if (type.offset === type.abi.core.geo) {

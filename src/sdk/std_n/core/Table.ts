@@ -43,9 +43,13 @@ namespace gc {
             if (this.$type.generic_abi_type != 0) {
               const generic_param_type = this.$type.abi.types[this.$type.g1()];
               this.headers = generic_param_type.attrs.map((a) => a.name);
-              this.subheaders = generic_param_type.attrs.map(
-                (a) => this.$type.abi.types[a.abi_type].name,
-              );
+              this.subheaders = generic_param_type.attrs.map((a) => {
+                const type = this.$type.abi.types[a.abi_type].name;
+                if (a.nullable) {
+                  return `${type}?`;
+                }
+                return type;
+              });
             }
           }
 
@@ -177,7 +181,7 @@ namespace gc {
             const keys_dict = new Set<string>();
             for (let i = 0; i < objects.length; i++) {
               const obj = objects[i];
-              if (obj instanceof GCPrimitive) {
+              if (!(obj instanceof GCPrimitive)) {
                 for (const key in obj) {
                   if (Object.hasOwn(obj, key)) {
                     keys_dict.add(key);
@@ -233,7 +237,7 @@ namespace gc {
             const nb_cols = r.read_vu32();
             const cols = new globalThis.Array(nb_cols);
             for (let col = 0; col < nb_cols; col++) {
-              cols[col] = r.read_array(nb_rows);
+              cols[col] = r.read_array(nb_rows, false);
             }
             const table = new ty.ctor(cols) as gc.core.Table<T>;
             // // Automatically create rows based on generic type if possible
@@ -262,7 +266,7 @@ namespace gc {
             w.write_vu32(nb_rows);
             w.write_vu32(nb_cols);
             for (let col = 0; col < nb_cols; col++) {
-              w.write_array(this.cols[col]);
+              w.write_array(this.cols[col], false);
             }
           }
 

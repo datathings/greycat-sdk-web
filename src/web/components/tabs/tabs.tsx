@@ -4,7 +4,10 @@ import tabStyle from './tab.css?inline';
 import panelStyle from './panel.css?inline';
 
 /**
- * Children of a `gui-tabs` should be either `gui-tab` or `gui-panel` (or subclasses of them)
+ * Children of a `gui-tabs` should be either `gui-tab` or `gui-panel` (or subclasses of them).
+ *
+ * The first time this component is connected to the DOM it inspects its children to create the panels, and won't ever do it again.
+ * What this means is that this component does not know how to react to dynamically adding/removing tabs/panels.
  */
 export class GuiTabs extends GuiElement {
   static override styles = [css(tabsStyle)];
@@ -12,6 +15,7 @@ export class GuiTabs extends GuiElement {
   private _tabsSlot: HTMLSlotElement;
   private _panelsSlot: HTMLSlotElement;
   private _tabs: GuiTab[] = [];
+  private _initialized = false;
   readonly panels: Map<string, GuiPanel> = new Map();
 
   constructor() {
@@ -32,6 +36,23 @@ export class GuiTabs extends GuiElement {
   }
 
   connectedCallback() {
+    if (this._initialized) {
+      return;
+    }
+    this._initialize();
+    this._initialized = true;
+  }
+
+  selectTab(name: string): void {
+    for (let i = 0; i < this._tabs.length; i++) {
+      const tab = this._tabs[i];
+      if (tab.textContent === name) {
+        this._internalSelect(tab);
+      }
+    }
+  }
+
+  private _initialize(): void {
     this._tabs = this._tabsSlot.assignedElements().filter((el): el is GuiTab => {
       if (el instanceof GuiTab) {
         return true;
@@ -89,19 +110,6 @@ export class GuiTabs extends GuiElement {
     }
   }
 
-  disconnectedCallback() {
-    this.panels.clear();
-  }
-
-  selectTab(name: string): void {
-    for (let i = 0; i < this._tabs.length; i++) {
-      const tab = this._tabs[i];
-      if (tab.textContent === name) {
-        this._internalSelect(tab);
-      }
-    }
-  }
-
   private _internalSelect(tab: GuiTab): void {
     this._tabs.forEach((el) => {
       el.active = false;
@@ -149,7 +157,7 @@ export class GuiTab extends GuiElement {
       this.tabIndex = 0;
     }
     if (this.hasAttribute('active')) {
-      this.active = getBooleanAttribute(this, 'active');
+      this.active = getBooleanAttribute(this, 'active') || this.active;
     }
     this.update();
   }

@@ -7,7 +7,7 @@ export type Scale =
 export type Color = string | CanvasGradient | CanvasPattern;
 export type SerieType = Serie['type'];
 export type ScaleType = Extract<Axis['scale'], string>;
-export type SecondOrdinate = 'min' | 'max' | number;
+export type SecondOrdinate = 'min' | 'max' | SerieTableColumn;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
@@ -94,6 +94,19 @@ export type CommonAxis = {
    */
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   hook?: (axis: d3.Axis<any>) => void;
+
+  /**
+   * Automatically adjusts ticks based on available space
+   */
+  autoTicks?: boolean;
+  /*
+   * Ratio of padding to apply to the domain.
+   *
+   * Must be between 0 and 1. Pads both ends of the domain by a fraction
+   * of its range. For example, 0.1 adds 10% padding on each side.
+   * For example, a domain of [10, 20] with a padding of 0.1 will become [9, 21].
+   */
+  padding?: number;
 };
 
 export type LinearAxis = {
@@ -209,7 +222,7 @@ export type SerieOptions = {
   /**
    * - `'min'`: draws the area from `yCol` to the bottom
    * - `'max'`: draws the area from `yCol` to the top
-   * - `<number>`: draws the area from `yCol` to the column at offset `<number>`
+   * - `SerieTableColumn`: draws the area from `yCol` to the column specified by the `SerieTableColumn`
    */
   yCol2: SecondOrdinate;
   /**
@@ -230,8 +243,10 @@ export type SerieOptions = {
     /**
      * The index of the column to use for the mapping. The parameter `v` in `mapping(v)` will
      * be the cells of that `col`.
+     *
+     * (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
      */
-    col: number;
+    col: SerieTableColumn;
     /**
      * @param v the column (`col`) value
      * @returns the style used for canvas painting, or `null` to get the default style of the serie
@@ -251,17 +266,28 @@ export type LineOptions = {
   curve?: CurveStyle;
 };
 
+/**
+ * Index of a column in the table.
+ *
+ * Or an array of indexes if trying to dive into a nested object.
+ *
+ * Or an object field fully-qualified-name for typed Table.
+ *
+ * Or an array of fields if trying to dive into a nested object in a typed Table.
+ */
+export type SerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
+
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
-   * optional offset of the x column in the given table
+   * optional offset of the x column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    *
    * If undefined, the array index will be used
    */
-  xCol?: number;
+  xCol?: SerieTableColumn;
   /**
-   * offset of the y column in the given table
+   * offset of the y column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    */
-  yCol: number;
+  yCol: SerieTableColumn;
   /**
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
@@ -381,8 +407,16 @@ export interface BoxPlotData {
 
 export interface BoxPlotOptions {
   width: number;
-  medianColor: string;
-  whiskerColor: string;
-  iqrColor: string;
+  medianColor?: string;
+  whiskerColor?: string;
+  iqrColor?: string;
   orientation: 'vertical' | 'horizontal';
+}
+
+export function isOrdMinMax(ord: SecondOrdinate | undefined): ord is 'min' | 'max' {
+  return ord !== undefined && (ord === 'min' || ord === 'max');
+}
+
+export function isOrdSerieTableColumn(ord: SecondOrdinate | undefined): ord is SerieTableColumn {
+  return ord !== undefined && !isOrdMinMax(ord);
 }

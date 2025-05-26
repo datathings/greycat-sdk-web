@@ -18,8 +18,8 @@ enum CapitalType {
 }
 
 fn analyze() {
-  var stats = CsvAnalysis::analyze(Array<File> { File { path: "pages/map/cities.csv" }}, CsvAnalysisConfig { header_lines: 1 });
-  var code = CsvStatistics::generate(stats);
+  var stats = Csv::analyze(Array<File> { File { path: "pages/map/cities.csv" }}, CsvAnalysisConfig { header_lines: 1 });
+  var code = Csv::generate(stats);
   println(code);
 }
 

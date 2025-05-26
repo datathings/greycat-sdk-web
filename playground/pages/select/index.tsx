@@ -1,5 +1,6 @@
 import '@greycat/web';
-import '@/common';
+import '~/common';
+import './index.css';
 
 await gc.sdk.init();
 
@@ -55,7 +56,7 @@ document.body.appendChild(
         <header slot="header">Override gui-object with gui-select</header>
       </gui-card>
 
-      <gui-select options={['Foo', 'Bar', 'Baz']} />
+      <gui-select className="inline" label="Example label" options={['Foo', 'Bar', 'Baz']} />
     </div>
   </app-layout>,
 );

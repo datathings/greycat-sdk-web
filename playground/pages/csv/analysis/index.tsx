@@ -1,5 +1,5 @@
 import { modal, type GuiCsvStatistics2, type GuiTable } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 const greycat = await gc.sdk.init({ pollTasks: 1000 });
 

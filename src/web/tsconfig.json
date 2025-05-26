@@ -18,7 +18,7 @@
     "noImplicitOverride": true,
     "allowJs": true,
     // This is necessary for our handling of maplibre-gl
-    // We use it as it was defined globally because the components that leverages
+    // We use it as if it was defined globally because the components that leverages
     // this library will not be registered if it is not found globally
     "allowUmdGlobalAccess": true,
 
@@ -27,6 +27,6 @@
     "jsxImportSource": "@greycat/web",
     "types": ["maplibre-gl"]
   },
-  "include": ["**/*"],
+  "include": ["**/*", "ambient.d.ts"],
   "exclude": ["../sdk"]
 }

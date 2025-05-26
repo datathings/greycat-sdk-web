@@ -1,6 +1,7 @@
 import * as d3 from 'd3';
 
-import { closest, debounce, throttle } from '../../internals.js';
+import { debounce, throttle } from '../../utils.js';
+import { closest } from '../../internals.js';
 import type {
   Scale,
   ChartConfig,
@@ -25,6 +26,12 @@ import {
   GuiUpdateEvent,
   GuiElement,
   css,
+  tableGetCell,
+  tableGetColumn,
+  tableGetColumnIndex,
+  isOrdSerieTableColumn,
+  padLinear,
+  padLog,
 } from '../../exports.js';
 import type { sl, TableLike } from '../../exports.js';
 import style from './chart.css?inline';
@@ -59,6 +66,7 @@ export class GuiChart extends GuiElement {
   static override styles = [css(style)];
 
   private _disposer: Disposer;
+  private _resizeObs: ResizeObserver;
   private _table: gc.core.Table;
   private _config: ChartConfig;
   private _colors: string[] = [];
@@ -96,12 +104,14 @@ export class GuiChart extends GuiElement {
   > = {};
   private _computed: ComputedState | undefined;
   private _drawer: sl.SlDrawer;
+  private _drawerEnabled: boolean;
   private _configEl: GuiChartConfig;
 
   constructor() {
     super();
 
     this._disposer = new Disposer();
+    this._resizeObs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._table = gc.core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
 
@@ -134,8 +144,10 @@ export class GuiChart extends GuiElement {
     this._tooltip.classList.add('tooltip');
 
     // config drawer
+    this._drawerEnabled = false;
     this._drawer = document.createElement('sl-drawer');
     this._drawer.contained = true;
+    this._drawer.open = false;
     this._drawer.label = 'Chart config';
     this._configEl = document.createElement('gui-chart-config');
     this._configEl.addEventListener('sl-change', (ev) => {
@@ -170,10 +182,8 @@ export class GuiChart extends GuiElement {
     });
     this._uxCanvas.addEventListener('contextmenu', (ev) => {
       ev.preventDefault();
-      ev.stopPropagation();
       this.toggleConfig();
     });
-    // this.addEventListener('mouseleave', () => this._resetCursor());
     this._uxCanvas.addEventListener('dblclick', () => {
       this._resetCursor();
       // reset X configuration
@@ -398,11 +408,8 @@ export class GuiChart extends GuiElement {
     this._resize();
 
     this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
-    this.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
-
-    const obs = new ResizeObserver(debounce(() => this._resize(), 50));
-    this._disposer.disposables.push(() => obs.disconnect());
-    obs.observe(this);
+    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
+    this._resizeObs.observe(this);
 
     const animRef = { id: -1 };
     const animationCallback = () => {
@@ -415,6 +422,7 @@ export class GuiChart extends GuiElement {
 
   disconnectedCallback() {
     this._disposer.dispose();
+    this._resizeObs.disconnect();
   }
 
   private _onmouseup = (ev: MouseEvent) => {
@@ -464,11 +472,7 @@ export class GuiChart extends GuiElement {
 
   private _onmousemove = (ev: MouseEvent) => {
     const [target] = ev.composedPath();
-    if (
-      ev.target !== this ||
-      target !== this._uxCanvas ||
-      document.documentElement.classList.contains('sl-scroll-lock')
-    ) {
+    if (ev.target !== this || target !== this._uxCanvas) {
       this._resetCursor();
       return;
     }
@@ -487,15 +491,21 @@ export class GuiChart extends GuiElement {
   };
 
   toggleConfig(): void {
-    this._drawer.open = !this._drawer.open;
+    if (this._drawerEnabled) {
+      this._drawer.open = !this._drawer.open;
+    }
   }
 
   openConfig(): void {
-    this._drawer.open = true;
+    if (this._drawerEnabled) {
+      this._drawer.show();
+    }
   }
 
   closeConfig(): void {
-    this._drawer.open = false;
+    if (this._drawerEnabled) {
+      this._drawer.hide();
+    }
   }
 
   /**
@@ -518,7 +528,6 @@ export class GuiChart extends GuiElement {
     this._svg.attr('viewBox', `0 0 ${this._canvas.width} ${this._canvas.height}`);
     // recompute state
     this.compute();
-
     this.update();
   }
 
@@ -574,13 +583,35 @@ export class GuiChart extends GuiElement {
     return this._config;
   }
 
+  set drawerEnabled(enabled: boolean) {
+    if (this._drawerEnabled) {
+      if (!enabled) {
+        // we go from enabled -> disabled, close drawer
+        this._drawer.hide();
+      }
+    }
+    this._drawerEnabled = enabled;
+    this.update();
+  }
+
+  /**
+   * Whether or not to enable the config drawer by *right-click*ing the canvas.
+   *
+   * By default the drawer is disabled
+   */
+  get drawerEnabled() {
+    return this._drawerEnabled;
+  }
+
   setAttrs({
     config = this._config,
     value = this._table,
-  }: Partial<{ config: ChartConfig; value: TableLike }>) {
+    drawerEnabled = this._drawerEnabled,
+  }: Partial<{ config: ChartConfig; value: TableLike; drawerEnabled: boolean }>) {
+    let recompute = false;
     if (this._table !== value) {
       this._table = convertToTable(value);
-      this.compute();
+      recompute = true;
     }
     this._config = config;
 
@@ -592,8 +623,16 @@ export class GuiChart extends GuiElement {
     for (const [name, yAxis] of Object.entries(this._config.yAxes)) {
       this._userYAxes[name] = { min: yAxis.min, max: yAxis.max };
     }
-
-    this.compute();
+    if (this._drawerEnabled) {
+      if (!drawerEnabled) {
+        // we go from enabled -> disabled, close drawer
+        this._drawer.hide();
+      }
+    }
+    this._drawerEnabled = drawerEnabled;
+    if (recompute) {
+      this.compute();
+    }
     this.update();
   }
 
@@ -601,6 +640,7 @@ export class GuiChart extends GuiElement {
     return {
       config: this._config,
       value: this._table,
+      drawerEnabled: this._drawerEnabled,
     };
   }
 
@@ -829,7 +869,7 @@ export class GuiChart extends GuiElement {
         const v = +xScale.invert(this._cursor.x);
 
         const { xValue, rowIdx } = closest(
-          this._table.cols,
+          this._table,
           serie,
           this._cursor.x,
           this._cursor.y,
@@ -840,16 +880,13 @@ export class GuiChart extends GuiElement {
           v,
         );
 
-        const yValue =
-          typeof this._table.cols[serie.yCol][rowIdx] === 'bigint'
-            ? Number(this._table.cols[serie.yCol][rowIdx])
-            : this._table.cols[serie.yCol][rowIdx];
+        const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
         const x = xScale(vMap(xValue));
-        let y = yScales[serie.yAxis](vMap(yValue));
+        let y = yScales[serie.yAxis](yValue);
         const w = serie.markerWidth;
         let yValue2;
-        if (typeof serie.yCol2 === 'number') {
-          yValue2 = this._table.cols[serie.yCol2][rowIdx];
+        if (isOrdSerieTableColumn(serie.yCol2)) {
+          yValue2 = tableGetCell(this._table, serie.yCol2, rowIdx);
         }
 
         if (serie.markerThreshold) {
@@ -935,11 +972,11 @@ export class GuiChart extends GuiElement {
         if (serie.styleMapping) {
           if (serie.styleMapping.mapping) {
             const style = serie.styleMapping.mapping(
-              this._table.cols[serie.styleMapping.col]?.[rowIdx],
+              tableGetCell(this._table, serie.styleMapping.col, rowIdx),
             );
             color = style?.color?.toString() ?? color;
           } else {
-            const value = this._table.cols[serie.styleMapping.col]?.[rowIdx];
+            const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
             if (typeof value === 'string') {
               color = value;
             }
@@ -964,14 +1001,34 @@ export class GuiChart extends GuiElement {
           };
           const formatter = createFormatter(this._config.yAxes[serie.yAxis]);
 
+          const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
           const nameEl = document.createElement('div');
           nameEl.style.color = color;
-          nameEl.textContent =
-            serie.title ?? this._table.headers?.[serie.yCol] ?? `Col ${serie.yCol}`;
-          nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol}`);
+          if (serie.title !== undefined) {
+            nameEl.textContent = serie.title;
+          } else if (Array.isArray(serie.yCol)) {
+            nameEl.textContent = serie.yCol
+              .map((p) => {
+                if (typeof p === 'number') {
+                  return p;
+                }
+                const last_dcolon = p.lastIndexOf('::');
+                if (last_dcolon === -1) {
+                  return p;
+                }
+                const field_name = p.slice(last_dcolon + 2);
+                return field_name;
+              })
+              .join('.');
+          } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
+            nameEl.textContent = this._table.headers[yColIdx];
+          } else {
+            nameEl.textContent = `Col ${yColIdx}`;
+          }
+          nameEl.part.add('tooltip-name', `tooltip-name-${yColIdx}`);
           const valueEl = document.createElement('div');
           valueEl.classList.add('tooltip-value');
-          valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol}`);
+          valueEl.part.add('tooltip-value', `tooltip-value-${yColIdx}`);
           if (
             this._config.tooltip?.position === 'bottom-right' ||
             this._config.tooltip?.position === 'top-right'
@@ -979,18 +1036,40 @@ export class GuiChart extends GuiElement {
             valueEl.classList.add('right');
           }
           valueEl.style.color = color;
-          valueEl.textContent = serie.value !== undefined ? serie.value.toString() : formatter(yValue);
+          valueEl.textContent =
+            serie.value !== undefined ? serie.value.toString() : formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
-          if (yValue2 !== undefined && typeof serie.yCol2 === 'number') {
+          if (yValue2 !== undefined && isOrdSerieTableColumn(serie.yCol2)) {
+            const y2ColIdx = tableGetColumnIndex(serie.yCol2) ?? 0;
             const nameEl = document.createElement('div');
             nameEl.style.color = color;
-            nameEl.textContent =
-              serie.title ?? this._table.headers?.[serie.yCol2] ?? `Col ${serie.yCol2}`;
-            nameEl.part.add('tooltip-name', `tooltip-name-${serie.yCol2}`);
+            if (serie.title !== undefined) {
+              nameEl.textContent = serie.title;
+            } else if (Array.isArray(serie.yCol2)) {
+              const yCol2 = serie.yCol2 as number[] | gc.$Fields[]; // ts spreads union for some reason, gotta found why, meanwhile I'm casting
+              nameEl.textContent = yCol2
+                .map((p) => {
+                  if (typeof p === 'number') {
+                    return p;
+                  }
+                  const last_dcolon = p.lastIndexOf('::');
+                  if (last_dcolon === -1) {
+                    return p;
+                  }
+                  const field_name = p.slice(last_dcolon + 2);
+                  return field_name;
+                })
+                .join('.');
+            } else if (this._table.headers && this._table.headers[y2ColIdx] !== undefined) {
+              nameEl.textContent = this._table.headers[y2ColIdx];
+            } else {
+              nameEl.textContent = `Col ${y2ColIdx}`;
+            }
+            nameEl.part.add('tooltip-name', `tooltip-name-${y2ColIdx}`);
             const valueEl = document.createElement('div');
             valueEl.classList.add('tooltip-value');
-            valueEl.part.add('tooltip-value', `tooltip-value-${serie.yCol2}`);
+            valueEl.part.add('tooltip-value', `tooltip-value-${y2ColIdx}`);
             if (
               this._config.tooltip?.position === 'bottom-right' ||
               this._config.tooltip?.position === 'top-right'
@@ -998,7 +1077,7 @@ export class GuiChart extends GuiElement {
               valueEl.classList.add('right');
             }
             valueEl.style.color = color;
-            valueEl.textContent = formatter(yValue2);
+            valueEl.textContent = formatter(vMap(yValue2));
             this._tooltip.append(nameEl, valueEl);
           }
         }
@@ -1345,7 +1424,18 @@ export class GuiChart extends GuiElement {
       } else if (typeof this._config.xAxis.ticks === 'function') {
         this._xAxis.ticks(this._config.xAxis.ticks);
       }
+      if (this._config.xAxis.autoTicks) {
+        const fmt = this._xAxis.tickFormat();
+        const ticks = xScale.ticks();
+        let width = this._ctx.ctx.measureText(fmt ? fmt(ticks[0], 0) : ticks[0].toString()).width;
+        width = width + width * 0.5;
+        const totalWidth = width * ticks.length;
+        if (totalWidth > xScale.range()[1]) {
+          this._xAxis.ticks(Math.floor(xScale.range()[1] / width));
+        }
+      }
     }
+
     this._xAxisGroup
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(this._xAxis);
@@ -1388,6 +1478,17 @@ export class GuiChart extends GuiElement {
         } else if (typeof ord.ticks === 'function') {
           yAxis.ticks(ord.ticks);
         }
+
+        if (ord.autoTicks) {
+          const fmt = yAxis.tickFormat();
+          const ticks = yScales[yAxisName].ticks();
+          let width = this._ctx.ctx.measureText(fmt ? fmt(ticks[0], 0) : ticks[0].toString()).width;
+          width = width + width * 0.2;
+          const totalWidth = width * ticks.length;
+          if (totalWidth > yScales[yAxisName].range()[0]) {
+            yAxis.ticks(Math.floor(yScales[yAxisName].range()[0] / width));
+          }
+        }
       }
 
       this._yAxisGroups[yAxisName]
@@ -1404,8 +1505,10 @@ export class GuiChart extends GuiElement {
       }
     }
 
-    // update current config
-    this._configEl.value = this._config;
+    if (this._drawerEnabled) {
+      // update current config
+      this._configEl.value = this._config;
+    }
   }
 
   /**
@@ -1470,8 +1573,9 @@ export class GuiChart extends GuiElement {
       // x axis domain is not fully defined, we are missing the 'xMax' bound, let's iterate over the table to find it
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols[serie.xCol]?.[row]);
+          const col = tableGetColumn(this._table, serie.xCol) ?? [];
+          for (let row = 0; row < col.length; row++) {
+            const value = vMap(tableGetCell(this._table, serie.xCol, row));
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMax == null) {
                 xMax = value;
@@ -1486,8 +1590,9 @@ export class GuiChart extends GuiElement {
       // x axis domain is not fully defined, we are missing the 'xMin' bound, let's iterate over the table to find it
       for (const serie of this._config.series) {
         if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols[serie.xCol]?.[row]);
+          const col = tableGetColumn(this._table, serie.xCol) ?? [];
+          for (let row = 0; row < col.length; row++) {
+            const value = vMap(tableGetCell(this._table, serie.xCol, row));
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1501,9 +1606,30 @@ export class GuiChart extends GuiElement {
     } else if (xMin === null && xMax === null) {
       // x axis domain is not defined, let's iterate over the table to find the boundaries
       for (const serie of this._config.series) {
-        if (serie.xCol !== undefined) {
-          for (let row = 0; row < (this._table.cols[serie.xCol]?.length ?? 0); row++) {
-            const value = vMap(this._table.cols[serie.xCol]?.[row]);
+        if (serie.type === 'bar' && serie.spanCol !== undefined) {
+          const col = tableGetColumn(this._table, serie.spanCol[0]) ?? [];
+          for (let row = 0; row < col.length; row++) {
+            const valueMin = vMap(tableGetCell(this._table, serie.spanCol[0], row));
+            const valueMax = vMap(tableGetCell(this._table, serie.spanCol[1], row));
+            if (valueMin !== null && valueMin !== undefined && !isNaN(valueMin)) {
+              if (xMin == null) {
+                xMin = valueMin;
+              } else if (valueMin <= xMin) {
+                xMin = valueMin;
+              }
+            }
+            if (valueMax !== null && valueMax !== undefined && !isNaN(valueMax)) {
+              if (xMax == null) {
+                xMax = valueMax;
+              } else if (valueMax >= xMax) {
+                xMax = valueMax;
+              }
+            }
+          }
+        } else if (serie.xCol !== undefined) {
+          const col = tableGetColumn(this._table, serie.xCol) ?? [];
+          for (let row = 0; row < col.length; row++) {
+            const value = vMap(tableGetCell(this._table, serie.xCol, row));
             if (value !== null && value !== undefined && !isNaN(value)) {
               if (xMin == null) {
                 xMin = value;
@@ -1551,8 +1677,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1566,8 +1693,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
@@ -1589,8 +1716,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (max == null) {
                   max = value;
@@ -1599,8 +1727,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (max == null) {
                     max = value;
@@ -1617,8 +1745,9 @@ export class GuiChart extends GuiElement {
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
           if (serie.yAxis === yAxisName) {
-            for (let row = 0; row < (this._table.cols[serie.yCol]?.length ?? 0); row++) {
-              const value = vMap(this._table.cols[serie.yCol]?.[row]);
+            const col = tableGetColumn(this._table, serie.yCol) ?? [];
+            for (let row = 0; row < col.length; row++) {
+              const value = vMap(tableGetCell(this._table, serie.yCol, row));
               if (value !== null && value !== undefined && !isNaN(value)) {
                 if (min == null) {
                   min = value;
@@ -1627,8 +1756,8 @@ export class GuiChart extends GuiElement {
                 }
               }
               // make sure to account for 'yCol2' if used
-              if (typeof serie.yCol2 === 'number') {
-                const value = vMap(this._table.cols[serie.yCol2]?.[row]);
+              if (isOrdSerieTableColumn(serie.yCol2)) {
+                const value = vMap(tableGetCell(this._table, serie.yCol2, row));
                 if (value !== null && value !== undefined && !isNaN(value)) {
                   if (min == null) {
                     min = value;
@@ -1642,30 +1771,44 @@ export class GuiChart extends GuiElement {
         }
       }
 
+      if (min === null) {
+        min = 0;
+      }
+      if (max === null) {
+        max = 1;
+      }
+
+      if (yAxis.padding !== undefined) {
+        if (type === 'log') {
+          [min, max] = padLog([min, max], yAxis.padding);
+        } else {
+          [min, xMax] = padLinear([min, max], yAxis.padding);
+        }
+      }
+
       switch (type) {
         default:
         case 'linear':
-          yScales[yAxisName] = d3
-            .scaleLinear()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleLinear().domain([min, max]).rangeRound(yRange);
           break;
         case 'log':
-          yScales[yAxisName] = d3
-            .scaleLog()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleLog().domain([min, max]).rangeRound(yRange);
           break;
         case 'time':
-          yScales[yAxisName] = d3
-            .scaleTime()
-            .domain([min ?? 0, max ?? 1])
-            .rangeRound(yRange);
+          yScales[yAxisName] = d3.scaleTime().domain([min, max]).rangeRound(yRange);
           break;
       }
     }
 
     const xAxis = this._config.xAxis;
+    if (xAxis.padding !== undefined) {
+      if (xAxis.scale === 'log') {
+        [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
+        console.log(xMin, xMax);
+      } else {
+        [xMin, xMax] = padLinear([xMin, xMax], xAxis.padding);
+      }
+    }
     let xScale: Scale;
     if (xAxis.scale === 'log') {
       xScale = d3.scaleLog().domain([xMin, xMax]).rangeRound(xRange);

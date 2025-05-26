@@ -535,8 +535,8 @@ namespace gc {
         return nullable_mask;
       }
 
-      read_array(len: number): Array<Value> {
-        if (len === 0) {
+      read_array(len: number, can_skip = true): Array<Value> {
+        if (len === 0 && can_skip) {
           return [];
         }
         const nullable_mask = this.read_nullable_mask(len);
@@ -1168,8 +1168,8 @@ namespace gc {
        * @param arr
        * @returns
        */
-      write_array(arr: Value[]): void {
-        if (arr.length === 0) {
+      write_array(arr: Value[], can_skip = true): void {
+        if (arr.length === 0 && can_skip) {
           return;
         }
         const nullable_slot = this.write_bool_slot();

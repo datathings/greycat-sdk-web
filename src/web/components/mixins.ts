@@ -1,4 +1,4 @@
-import { debounce } from '../internals.js';
+import { debounce } from '../utils.js';
 
 abstract class WebComponent extends HTMLElement {
   connectedCallback(): void | Promise<void> {}

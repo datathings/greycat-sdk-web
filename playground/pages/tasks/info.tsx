@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '@/common';
+import '~/common';
 import actions from './actions';
 
 await gc.sdk.init();

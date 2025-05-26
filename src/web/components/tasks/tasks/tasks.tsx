@@ -35,7 +35,8 @@ export class GuiTasks extends GuiElement {
           }
           const cancellable =
             task.status === gc.runtime.TaskStatus.waiting ||
-            task.status === gc.runtime.TaskStatus.running;
+            task.status === gc.runtime.TaskStatus.running ||
+            task.status === gc.runtime.TaskStatus.await;
 
           return cancellable ? (
             <sl-button
@@ -88,8 +89,10 @@ export class GuiTasks extends GuiElement {
   }
 
   connectedCallback() {
+    if (this._updateDelay > 0) {
+      this._updateId = setInterval(() => this.reload(), this._updateDelay);
+    }
     this.reload();
-    this._updateId = setInterval(() => this.reload(), this._updateDelay);
   }
 
   disconnectedCallback() {
@@ -110,7 +113,7 @@ export class GuiTasks extends GuiElement {
     this._updateDelay = delay;
     clearInterval(this._updateId);
     if (delay > 0) {
-      setInterval(() => this.reload(), this._updateDelay);
+      this._updateId = setInterval(() => this.reload(), this._updateDelay);
     }
   }
 
@@ -123,6 +126,10 @@ export class GuiTasks extends GuiElement {
   }
 
   async reload(): Promise<void> {
+    if (!this.isConnected) {
+      return;
+    }
+
     const users: Record<number, string> = {};
     try {
       const entities = await gc.runtime.SecurityEntity.all();

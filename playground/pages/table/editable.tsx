@@ -1,4 +1,4 @@
-import '@/common';
+import '~/common';
 import '@greycat/web';
 import { GuiChangeEvent, GuiTable, sl } from '@greycat/web';
 

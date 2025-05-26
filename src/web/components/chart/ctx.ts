@@ -1,18 +1,22 @@
 import { vMap } from './internals.js';
-import type {
-  Scale,
-  Color,
-  SerieWithOptions,
-  BarSerie,
-  SerieOptions,
-  LineOptions,
-  ScatterSerie,
-  LineScatterSerie,
-  SerieStyle,
-  BoxPlotData,
-  BoxPlotOptions,
+import {
+  type Scale,
+  type Color,
+  type SerieWithOptions,
+  type BarSerie,
+  type SerieOptions,
+  type LineOptions,
+  type ScatterSerie,
+  type LineScatterSerie,
+  type SerieStyle,
+  type BoxPlotData,
+  type BoxPlotOptions,
+  type SerieTableColumn,
+  isOrdMinMax,
+  isOrdSerieTableColumn,
 } from './types.js';
 import { round } from '../../canvas';
+import { tableGetCell } from './utils.js';
 
 const CIRCLE_END_ANGLE = Math.PI * 2;
 
@@ -42,6 +46,7 @@ export type TextOptions = {
   baseline?: CanvasTextBaseline;
   align?: CanvasTextAlign;
   opacity?: number;
+  padding?: number;
 };
 
 const SEGMENTS: Record<number, number[]> = {
@@ -120,13 +125,17 @@ export class CanvasContext {
     let first = true;
 
     for (let i = 1; i < table.cols[0].length; i++) {
-      const prevX = xScale(serie.xCol === undefined ? i - 1 : vMap(table.cols[serie.xCol][i - 1]));
-      const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
+      const prevX = xScale(
+        serie.xCol === undefined ? i - 1 : vMap(tableGetCell(table, serie.xCol, i - 1)),
+      );
+      const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
 
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
+      const y = tableGetCell(table, serie.yCol, i);
 
-      if (prevX < xMin && x < xMin) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
+      const sY = yScale(vMap(y));
+
+      if (prevX < xMin && sX < xMin) {
         // close previous path
         if (!first) {
           this.ctx.stroke();
@@ -134,8 +143,7 @@ export class CanvasContext {
         first = true;
         continue;
       }
-      const notDefined =
-        table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const notDefined = y === undefined || y === null;
       let lineColor: Color = serie.color;
       let lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[0];
       let lineWidth = serie.width;
@@ -143,7 +151,8 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             lineDash = style.dash ?? lineDash;
             lineColor = style.color ?? lineColor;
@@ -151,7 +160,9 @@ export class CanvasContext {
             lineOpacity = style.opacity ?? lineOpacity;
           }
         } else {
-          lineColor = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          lineColor = (v as Color) ?? serie.color;
         }
       }
 
@@ -163,15 +174,15 @@ export class CanvasContext {
         this.ctx.beginPath();
         this.ctx.moveTo(prevX, prevY);
         if (serie.curve === 'step-after') {
-          this.ctx.lineTo(x, prevY);
+          this.ctx.lineTo(sX, prevY);
         }
-        this.ctx.lineTo(x, y);
+        this.ctx.lineTo(sX, sY);
         first = false;
       } else {
         if (serie.curve === 'step-after') {
-          this.ctx.lineTo(x, prevY);
+          this.ctx.lineTo(sX, prevY);
         }
-        this.ctx.lineTo(x, y);
+        this.ctx.lineTo(sX, sY);
       }
 
       if (
@@ -189,7 +200,7 @@ export class CanvasContext {
         this.ctx.globalAlpha = lineOpacity;
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         this.ctx.setLineDash(lineDash);
       }
 
@@ -201,8 +212,8 @@ export class CanvasContext {
       this.ctx.strokeStyle = lineColor;
 
       // draw the last segment and stop
-      if (x > xMax) {
-        this.ctx.lineTo(x, y);
+      if (sX > xMax) {
+        this.ctx.lineTo(sX, sY);
         break;
       }
     }
@@ -231,9 +242,10 @@ export class CanvasContext {
     // let prevColor = serie.color;
     let first = true;
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
+      const y = tableGetCell(table, serie.yCol, i);
+      const sY = yScale(vMap(y));
+      if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
         // close previous path
         if (!first) {
           this.ctx.stroke();
@@ -241,20 +253,19 @@ export class CanvasContext {
         first = true;
         continue;
       }
-      const notDefined =
-        table.cols[serie.yCol][i] === undefined || table.cols[serie.yCol][i] === null;
+      const notDefined = y === undefined || y === null;
       const lineColor: Color = serie.color;
       const lineDash = notDefined ? SEGMENTS[1] : SEGMENTS[0];
 
       if (first) {
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         first = false;
       } else {
-        const prevY = yScale(vMap(table.cols[serie.yCol][i - 1]));
-        this.ctx.lineTo(x, prevY);
-        this.ctx.lineTo(x, y);
+        const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
+        this.ctx.lineTo(sX, prevY);
+        this.ctx.lineTo(sX, sY);
       }
 
       if (prevSegments !== lineDash || this.ctx.strokeStyle !== lineColor) {
@@ -264,14 +275,14 @@ export class CanvasContext {
         // start new path type
         this.ctx.strokeStyle = lineColor;
         this.ctx.beginPath();
-        this.ctx.moveTo(x, y);
+        this.ctx.moveTo(sX, sY);
         this.ctx.setLineDash(lineDash);
       }
 
       prevSegments = lineDash;
       this.ctx.strokeStyle = lineColor;
 
-      if (x === xMax) {
+      if (sX === xMax) {
         break;
       }
     }
@@ -308,7 +319,7 @@ export class CanvasContext {
       if (serie.spanCol) {
         let x0 = xScale(vMap(table.cols[serie.spanCol[0]][i]));
         let x1 = xScale(vMap(table.cols[serie.spanCol[1]][i]));
-        y = yScale(vMap(table.cols[serie.yCol][i]));
+        y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         if (x0 < xMin) {
           x0 = xMin;
         }
@@ -325,8 +336,8 @@ export class CanvasContext {
         x = x0;
         w = x1 - x0;
       } else {
-        x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i])) - shift;
-        y = yScale(vMap(table.cols[serie.yCol][i]));
+        x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) - shift;
+        y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         w = serie.width;
         if (x + serie.width < xMin || x > xMax) {
           continue;
@@ -338,14 +349,17 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col]?.[i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             this.ctx.fillStyle = style.fill ?? serie.color;
             this.ctx.strokeStyle = style.color ?? serie.color;
             this.ctx.globalAlpha = style.opacity ?? serie.opacity;
           }
         } else {
-          this.ctx.strokeStyle = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          this.ctx.strokeStyle = (v as Color) ?? serie.color;
         }
       }
 
@@ -376,9 +390,9 @@ export class CanvasContext {
     const [yMin, yMax] = yScale.range();
 
     for (let i = 0; i < table.cols[0].length; i++) {
-      const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-      const y = yScale(vMap(table.cols[serie.yCol][i]));
-      if (x < xMin || x > xMax || y > yMin || y < yMax) {
+      const sX = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
+      const sY = yScale(vMap(tableGetCell(table, serie.yCol, i)));
+      if (sX < xMin || sX > xMax || sY > yMin || sY < yMax) {
         continue;
       }
 
@@ -388,7 +402,8 @@ export class CanvasContext {
 
       if (serie.styleMapping) {
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(table.cols[serie.styleMapping.col][i]);
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             fill = style.fill ?? serie.color;
             color = style.color ?? serie.color;
@@ -396,22 +411,24 @@ export class CanvasContext {
             width = style.width ?? serie.width;
           }
         } else {
-          color = table.cols[serie.styleMapping.col]?.[i] ?? serie.color;
+          const v = tableGetCell(table, serie.styleMapping.col, i);
+          // TODO this is so not safe, v can be anything but a Color..
+          color = (v as Color) ?? serie.color;
         }
       }
 
       switch (serie.markerShape) {
         case 'circle':
-          this.circle(x, y, serie.plotRadius ?? width, { fill, color });
+          this.circle(sX, sY, serie.plotRadius ?? width, { fill, color });
           break;
         case 'square':
-          this.rectangle(x, y, serie.plotRadius ?? width, serie.width, {
+          this.rectangle(sX, sY, serie.plotRadius ?? width, serie.width, {
             fill,
             color,
           });
           break;
         case 'triangle':
-          this.triangle(x, y, serie.plotRadius ?? width, width, { fill, color });
+          this.triangle(sX, sY, serie.plotRadius ?? width, width, { fill, color });
           break;
       }
     }
@@ -427,15 +444,10 @@ export class CanvasContext {
     const [xMin, xMax] = xScale.range();
     // const [yMin, yMax] = yScale.range();
 
-    const { x, y, fillOpacity, fill } = computePoint(table.cols, serie.xCol, serie.yCol, 0);
+    const { x, y, fillOpacity, fill } = computePoint(table, serie.xCol, serie.yCol, 0);
     let firstX = x;
     let firstY = y;
-    let { x: lastX } = computePoint(
-      table.cols,
-      serie.xCol,
-      serie.yCol,
-      table.cols[0]?.length - 1 || 0,
-    );
+    let { x: lastX } = computePoint(table, serie.xCol, serie.yCol, table.cols[0]?.length - 1 || 0);
 
     this.ctx.save();
     this.ctx.beginPath();
@@ -447,7 +459,7 @@ export class CanvasContext {
     // line
     let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
-      const pt = computePoint(table.cols, serie.xCol, serie.yCol, i);
+      const pt = computePoint(table, serie.xCol, serie.yCol, i);
 
       if (prevPt.x < xMin && pt.x < xMin) {
         prevPt = pt;
@@ -468,7 +480,7 @@ export class CanvasContext {
       }
 
       if (serie.curve === 'step-after') {
-        const prevY = computePoint(table.cols, serie.xCol, serie.yCol, i - 1).y;
+        const prevY = computePoint(table, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
       }
       this.ctx.lineTo(pt.x, pt.y);
@@ -490,7 +502,7 @@ export class CanvasContext {
         } else {
           // fill in regard to another serie
           for (let a = i; a >= i - iterations; a--) {
-            const pt = computePoint(table.cols, serie.xCol, serie.yCol2, a);
+            const pt = computePoint(table, serie.xCol, serie.yCol2, a);
             this.ctx.lineTo(pt.x, pt.y);
           }
           iterations = 0;
@@ -515,7 +527,7 @@ export class CanvasContext {
       }
     }
 
-    if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
+    if (isOrdMinMax(serie.yCol2)) {
       // yCol2 === 'max': fill from line to top
       // yCol2 === 'min': fill from line to bottom
       const yBound = serie.yCol2 === 'min' ? yScale.range()[0] : yScale.range()[1];
@@ -524,15 +536,15 @@ export class CanvasContext {
       this.ctx.lineTo(lastX, yBound); // bottom right
       this.ctx.lineTo(firstX, yBound); // bottom left
       this.ctx.lineTo(firstX, firstY); // start of line
-    } else if (iterations > 0) {
+    } else if (iterations > 0 && isOrdSerieTableColumn(serie.yCol2)) {
       // fill in regard to another serie if not already done
       for (let i = table.cols[0].length - 1; i >= 0; i--) {
-        const x = xScale(serie.xCol === undefined ? i : vMap(table.cols[serie.xCol][i]));
-        const y = yScale(vMap(table.cols[serie.yCol2][i]));
+        const x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i)));
+        const y = yScale(vMap(tableGetCell(table, serie.yCol2, i)));
 
         this.ctx.lineTo(x, y);
         if (serie.curve === 'step-after') {
-          const prevY = computePoint(table.cols, serie.xCol, serie.yCol2, i - 1).y;
+          const prevY = computePoint(table, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
         }
       }
@@ -542,17 +554,22 @@ export class CanvasContext {
     this.ctx.restore();
 
     function computePoint(
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      cols: any[][],
-      xCol: number | undefined,
-      yCol: number,
-      i: number,
-    ) {
-      const x = xScale(xCol === undefined ? i : vMap(cols[xCol][i]));
-      const y = yScale(vMap(cols[yCol][i]));
+      table: gc.core.Table,
+      xCol: SerieTableColumn | undefined,
+      yCol: SerieTableColumn,
+      row: number,
+    ): {
+      x: number;
+      y: number;
+      fill: Color;
+      fillOpacity: number;
+    } {
+      const x = xScale(xCol === undefined ? row : vMap(tableGetCell(table, xCol, row)));
+      const y = yScale(vMap(tableGetCell(table, yCol, row)));
       if (serie.styleMapping) {
+        const v = tableGetCell(table, serie.styleMapping.col, row);
         if (serie.styleMapping.mapping) {
-          const style = serie.styleMapping.mapping(cols[serie.styleMapping.col]?.[i]);
+          const style = serie.styleMapping.mapping(v);
           if (style) {
             return {
               x,
@@ -566,7 +583,8 @@ export class CanvasContext {
         return {
           x,
           y,
-          fill: cols[serie.styleMapping.col]?.[i] ?? serie.color,
+          // TODO this is so not safe, v could be anything but a Color...
+          fill: (v as Color) ?? serie.color,
           fillOpacity: serie.fillOpacity,
         };
       }
@@ -630,50 +648,59 @@ export class CanvasContext {
   }
 
   text(x: number, y: number, text: string, opts: TextOptions): void {
-    const mx = this.ctx.measureText(text);
+    this.ctx.font = opts.font ?? `bold 10px monospace`;
+
     if (opts.backgroundColor) {
-      const xPadding = 4;
-      const yPadding = 4;
+      const mx = this.ctx.measureText(text);
+      const padding = opts.padding ?? 5;
+      const textHeight = mx.actualBoundingBoxAscent + mx.actualBoundingBoxDescent;
+      const textWidth = mx.width;
+
+      let baselineOffset = 0;
+      switch (opts.baseline) {
+        case 'top':
+        case 'hanging':
+          baselineOffset = 0 - padding / 2;
+          break;
+        case 'middle':
+          baselineOffset = textHeight / 2;
+          break;
+        case 'bottom':
+        case 'ideographic':
+          baselineOffset = textHeight + padding / 2;
+          break;
+        case 'alphabetic':
+        default:
+          baselineOffset = textHeight;
+          break;
+      }
+
+      let rectX = x - padding;
+      const rectY = y - baselineOffset - padding;
+      const rectWidth = textWidth + padding * 2;
+      const rectHeight = textHeight + padding * 2;
 
       switch (opts.align) {
-        case 'start': {
-          this.rectangle(
-            x + mx.width / 2,
-            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
+        case 'center':
+          rectX = x - rectWidth / 2;
           break;
-        }
-        case 'end': {
-          this.rectangle(
-            x - mx.width / 2,
-            y + mx.fontBoundingBoxAscent / 2 - yPadding - 1, // don't know why but it feels cleaner with that 1px
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
+        case 'end':
+          rectX = x - rectWidth + padding;
           break;
-        }
+        case 'start':
         default:
-        case 'center': {
-          this.rectangle(
-            x,
-            y + mx.fontBoundingBoxAscent / 2,
-            mx.width + xPadding * 2,
-            mx.fontBoundingBoxAscent + yPadding * 2,
-            { color: opts.backgroundColor, fill: opts.backgroundColor, center: true },
-          );
           break;
-        }
       }
+
+      this.rectangle(rectX, rectY, rectWidth, rectHeight, {
+        color: opts.backgroundColor,
+        fill: opts.backgroundColor,
+      });
     }
 
     this.ctx.save();
 
     this.ctx.fillStyle = opts.color;
-    this.ctx.font = opts.font ?? `bold 10px monospace`;
     this.ctx.textBaseline = opts.baseline ?? 'bottom';
     this.ctx.textAlign = opts.align ?? 'start';
     this.ctx.globalAlpha = opts.opacity ?? 1;
@@ -734,7 +761,8 @@ export class CanvasContext {
     const halfWidth = opts.width / 2;
 
     if (opts.orientation === 'vertical') {
-      this.ctx.strokeStyle = opts.whiskerColor;
+      this.ctx.strokeStyle = opts.whiskerColor ?? 'inherit';
+
       //Upper Whisker
       this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.max);
       this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.max);
@@ -748,8 +776,8 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //IQR Box
-      this.ctx.fillStyle = opts.iqrColor;
-      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
+      this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
       this.ctx.rect(
         boxPlot.crossValue - halfWidth,
@@ -762,7 +790,7 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //Median
-      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.strokeStyle = opts.medianColor ?? 'inherit';
       this.ctx.moveTo(boxPlot.crossValue - halfWidth, boxPlot.median);
       this.ctx.lineTo(boxPlot.crossValue + halfWidth, boxPlot.median);
       this.ctx.stroke();
@@ -770,7 +798,8 @@ export class CanvasContext {
 
       this.ctx.restore();
     } else {
-      this.ctx.strokeStyle = opts.whiskerColor;
+      this.ctx.strokeStyle = opts.whiskerColor ?? 'inherit';
+
       //Upper Whisker
       this.ctx.moveTo(boxPlot.max, boxPlot.crossValue - halfWidth);
       this.ctx.lineTo(boxPlot.max, boxPlot.crossValue + halfWidth);
@@ -784,8 +813,8 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //IQR Box
-      this.ctx.fillStyle = opts.iqrColor;
-      this.ctx.strokeStyle = opts.iqrColor;
+      this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
+      this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
       this.ctx.rect(
         boxPlot.q3,
@@ -798,7 +827,7 @@ export class CanvasContext {
       this.ctx.stroke();
 
       //Median
-      this.ctx.strokeStyle = opts.medianColor;
+      this.ctx.strokeStyle = opts.medianColor ?? 'inherit';
       this.ctx.moveTo(boxPlot.median, boxPlot.crossValue - halfWidth);
       this.ctx.lineTo(boxPlot.median, boxPlot.crossValue + halfWidth);
       this.ctx.stroke();

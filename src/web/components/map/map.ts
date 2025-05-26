@@ -1,21 +1,43 @@
-import { GuiMapLayer } from './map-layer';
-import { GuiMapSource } from './map-source';
+import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline'
+import { css, GuiElement } from '../../exports.js';
+import { GuiMapLayer } from './map-layer.js';
+import { GuiMapSource } from './map-source.js';
+import { GuiMapElement } from './model.js';
+import style from './map.css?inline';
 
 export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
 
 /**
  * This component is only available if `maplibre-gl` is globally available
  */
-export class GuiMap extends HTMLElement {
+export class GuiMap extends GuiElement {
+  static override styles = [css(maplibreStyle), css(style)];
+
+  private _container: HTMLDivElement;
   private _observer: MutationObserver;
   private _options: maplibregl.MapOptions | undefined;
-  /** The current MapLibre-GL instance */
-  map: maplibregl.Map | undefined;
+  private _readyResolve: (map: maplibregl.Map) => void;
+  private _map: maplibregl.Map | undefined;
+  /**
+   * Resolved when the underlying `map` is ready to be used, and returns it.
+   */
+  ready: Promise<maplibregl.Map>;
 
   constructor() {
     super();
 
+    this._container = document.createElement('div');
+    this._container.className = 'container';
+    this.shadowRoot.appendChild(this._container);
+
     this._observer = new MutationObserver(this._onMutations);
+    const { promise, resolve } = Promise.withResolvers<maplibregl.Map>();
+    this.ready = promise;
+    this._readyResolve = resolve;
+  }
+
+  set stylesheet(text: string) {
+    this.shadowRoot.adoptedStyleSheets.unshift(css(text));
   }
 
   connectedCallback(): void {
@@ -32,7 +54,7 @@ export class GuiMap extends HTMLElement {
   }
 
   set options(options: GuiMapOptions) {
-    this._options = Object.assign({ container: this }, options);
+    this._options = Object.assign({ container: this._container }, options);
     this.update();
   }
 
@@ -40,7 +62,7 @@ export class GuiMap extends HTMLElement {
     if (!this.isConnected) {
       return;
     }
-    if (this.map) {
+    if (this._map) {
       // map already initialized
       return;
     }
@@ -49,41 +71,49 @@ export class GuiMap extends HTMLElement {
       return;
     }
 
-    const map = (this.map = new maplibregl.Map(this._options));
-    const sources = this.querySelectorAll('gui-map-source');
-    const layers = this.querySelectorAll('gui-map-layer');
-    console.log({ sources, layers });
-    this.map.once('load', () => {
-      sources.forEach((source) => {
-        if (source.value) {
-          map.addSource(source.name, source.value);
-        }
-      });
-      layers.forEach((layer) => {
-        if (layer.value) {
-          map.addLayer(layer.value, layer.beforeId);
-        }
-      });
+    const map = (this._map = new maplibregl.Map(this._options));
+    this._map.once('load', () => {
+      this._readyResolve(map);
+      // We create a mutation ourselves to trigger the initialization
+      this._onMutations(
+        [
+          {
+            type: 'childList',
+            target: this,
+            addedNodes: this.childNodes,
+            attributeName: null,
+            attributeNamespace: null,
+            nextSibling: null,
+            oldValue: null,
+            previousSibling: null,
+            // the following will create an empty `NodeList`
+            removedNodes: document.querySelectorAll('something-that-do-not-exist-most-likely'),
+          },
+        ],
+        this._observer,
+      );
     });
-    // this.map.on('zoomend', this.updateValue);
-    // this.map.on('dragend', this.updateValue);
   }
 
   private _onMutations: MutationCallback = (mutations) => {
-    if (!this.map) {
+    if (!this._map) {
       return;
     }
-    const map = this.map;
+    const map = this._map;
     for (const mutation of mutations) {
       mutation.addedNodes.forEach((node) => {
         if (node instanceof GuiMapSource) {
+          node.onLoad(map);
           if (node.value) {
             map.addSource(node.name, node.value);
           }
         } else if (node instanceof GuiMapLayer) {
+          node.onLoad(map);
           if (node.value) {
             map.addLayer(node.value, node.beforeId);
           }
+        } else if (node instanceof GuiMapElement) {
+          node.onLoad(map);
         }
       });
       mutation.removedNodes.forEach((node) => {

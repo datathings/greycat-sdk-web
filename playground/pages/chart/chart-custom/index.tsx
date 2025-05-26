@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { ChartConfig } from '@greycat/web';
-import '@/common';
+import '~/common';
 import data from './data.json';
 
 await gc.sdk.init();

@@ -41,13 +41,28 @@ namespace gc {
 
     /**
      * Considered scalar:
-     *  - string
-     *  - number
-     *  - bigint
-     *  - boolean
-     *  - null
-     *  - undefined
-     *  - GCEnum
+     *  - `string`
+     *  - `number`
+     *  - `bigint`
+     *  - `boolean`
+     *  - `null`
+     *  - `undefined`
+     *  - `core::geo`
+     *  - `core::time`
+     *  - `core::duration`
+     *  - `core::int`
+     *  - `core::float`
+     *  - `core::bool`
+     *  - `core::String`
+     *  - `core::str`
+     *  - `core::Date`
+     *  - `core::t2`
+     *  - `core::t2f`
+     *  - `core::t3`
+     *  - `core::t3f`
+     *  - `core::t4`
+     *  - `core::t4f`
+     *  - `GCEnum`
      *
      * @param val
      * @returns
@@ -60,7 +75,23 @@ namespace gc {
         return val === null;
       }
       if (type === 'object') {
-        if (val instanceof GCEnum) {
+        if (
+          val instanceof GCEnum ||
+          val instanceof gc.core.time ||
+          val instanceof gc.core.int ||
+          val instanceof gc.core.float ||
+          val instanceof gc.core.bool ||
+          val instanceof gc.core.duration ||
+          val instanceof gc.core.Date ||
+          val instanceof gc.core.str ||
+          val instanceof gc.core.t2 ||
+          val instanceof gc.core.t2f ||
+          val instanceof gc.core.t3 ||
+          val instanceof gc.core.t3f ||
+          val instanceof gc.core.t4 ||
+          val instanceof gc.core.t4f ||
+          val instanceof gc.core.geo
+        ) {
           return true;
         }
         return val === null;
@@ -132,153 +163,6 @@ namespace gc {
         return txt[0].toLocaleUpperCase() + txt.slice(1);
       }
       return txt;
-    }
-
-    /**
-     * Ellipsis a string after `max` character.
-     * @param s
-     * @param max
-     * @returns
-     */
-    // eslint-disable-next-line no-inner-declarations
-    function toStrTiny(s: string, max = 100) {
-      if (s.length > max) {
-        return `${s.slice(0, max)}...`;
-      }
-      return s;
-    }
-
-    export interface StringifyProps {
-      value: unknown;
-      /**
-       * use `name` to override node's ref with the given value
-       */
-      name?: string;
-      /**
-       * use `text` to completely override the type-check and display the given text
-       */
-      text?: string;
-      tiny?: boolean;
-      /** optional Date formatter used for: `core.time`, `core.Date` and `Date` */
-      dateFmt?: Intl.DateTimeFormat;
-      /** optional number formatter used for: `number` */
-      numFmt?: Intl.NumberFormat;
-      /**
-       * pretty-print content if possible
-       */
-      pretty?: boolean;
-      /** optional boolean to surround strings with doublequotes, defaults to `false` */
-      quotedString?: boolean;
-    }
-
-    /**
-     * Best-effort to stringify the given value.
-     */
-    export function stringify(props: StringifyProps): string {
-      const { text, value, dateFmt, numFmt, name, tiny, pretty = false } = props;
-      if (text) {
-        return text;
-      }
-      if (value instanceof core.time) {
-        return dateFmt ? value.format(dateFmt) : value.toString();
-      } else if (value instanceof core.duration) {
-        return value.toString();
-      } else if (typeof value === 'string') {
-        if (tiny) {
-          return props.quotedString ? `"${toStrTiny(value)}"` : toStrTiny(value);
-        }
-        return props.quotedString ? `"${value}"` : value;
-      } else if (typeof value === 'number') {
-        return numFmt ? numFmt.format(value) : `${value}`;
-      } else if (isScalar(value)) {
-        return String(value);
-      } else if (value instanceof Date) {
-        return dateFmt ? dateFmt.format(value) : value.toISOString();
-      } else if (value instanceof core.Date) {
-        return value.toString();
-      } else if (value instanceof core.str) {
-        return value.toString();
-      } else if (value instanceof core.Tuple) {
-        const tmp = props.value;
-        const tmpQuotedString = props.quotedString;
-        props.value = value.x;
-        props.quotedString = true;
-        const x = stringify(props);
-        props.value = value.y;
-        const y = stringify(props);
-        props.value = tmp;
-        props.quotedString = tmpQuotedString;
-        return `(${x}, ${y})`;
-      } else if (isNode(value)) {
-        if (name) {
-          const type = Object.getPrototypeOf(value).constructor._type.split('::')[1];
-          return `${type}/${encodeURIComponent(name)}`;
-        }
-        return value.toString();
-      } else if (value instanceof gc.core.geo) {
-        if (tiny) {
-          return `${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}`;
-        } else {
-          return `${value.lat}, ${value.lng}`;
-        }
-      } else if (Array.isArray(value)) {
-        if (tiny) {
-          return `Array(${value.length})`;
-        }
-        return JSON.stringify(value);
-      } else if (value instanceof GCEnum) {
-        if (value.value) {
-          const tmp = props.value;
-          const tmpQuotedString = props.quotedString;
-          props.value = value.value;
-          props.quotedString = true;
-          const en_value = stringify(props);
-          props.value = tmp;
-          props.quotedString = tmpQuotedString;
-          if (value.$type.name.startsWith('core::')) {
-            return `${value.$type.name.slice(6)}::${value.key}(${en_value})`;
-          } else {
-            return `${value.$type.name}::${value.key}(${en_value})`;
-          }
-        }
-        if (value.$type.name.startsWith('core::')) {
-          return `${value.$type.name.slice(6)}::${value.key}`;
-        } else {
-          return `${value.$type.name}::${value.key}`;
-        }
-      } else if ('Node' in globalThis && value instanceof globalThis['Node']) {
-        return value.textContent ?? '';
-      } else if (typeof value === 'object') {
-        if (value) {
-          if (tiny) {
-            const type: string | undefined = Object.getPrototypeOf(value).constructor._type;
-            if (type) {
-              if (name) {
-                return `gc://${type}/${name}`;
-              }
-              return `gc://${type}`;
-            }
-            return `Object(${Object.keys(value).length})`;
-          }
-          // eslint-disable-next-line no-prototype-builtins
-          if (value.hasOwnProperty('toString')) {
-            return value.toString();
-          }
-        }
-        return JSON.stringify(value, bigintsAsString, pretty ? '  ' : undefined);
-      }
-      return String(value);
-    }
-
-    /**
-     * Stringifies `bigint`, the rest is left unchanged
-     */
-    // eslint-disable-next-line no-inner-declarations
-    function bigintsAsString(_key: string, value: unknown): unknown {
-      if (typeof value === 'bigint') {
-        return `${value}`;
-      }
-      return value;
     }
 
     export function isNode(

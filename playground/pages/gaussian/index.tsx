@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '@/common';
+import '~/common';
 import './style.css';
 
 await gc.sdk.init();

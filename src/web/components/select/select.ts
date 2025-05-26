@@ -19,6 +19,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
   readonly input: sl.SlInput;
   private _list: HTMLElement;
+  private _popup: sl.SlPopup;
   private _options: GuiOption<T>[];
   private _nullable = false;
 
@@ -34,6 +35,10 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
     this.input.autocomplete = 'off';
     this.input.clearable = false;
     this.input.disabled = true;
+    this.input.setAttribute(
+      'exportparts',
+      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+    );
     const icon = document.createElement('sl-icon');
     icon.setAttribute('slot', 'prefix');
     this.input.appendChild(icon);
@@ -139,9 +144,17 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-select-list');
-    this.hideDropdown();
+    this._list.part.add('list');
 
-    this.shadowRoot.append(this.input, this._list);
+    this._popup = document.createElement('sl-popup');
+    this._popup.flip = true;
+    this._popup.placement = 'bottom';
+    this._popup.sync = 'width';
+    this._popup.append(this._list);
+    this._popup.append(this.input);
+    this.input.slot = 'anchor';
+
+    this.shadowRoot.append(this._popup);
   }
 
   override connectedCallback() {
@@ -240,7 +253,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
   /**
    * Always returns a `GuiOption<T>[]`. This can be safely cast into `GuiOption<T>[]`.
-   * 
+   *
    * Though the setter accepts the broader `IOption<T>[]` type.
    */
   get options(): IOption<T>[] {
@@ -258,13 +271,13 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
   }
 
   showDropdown(): void {
-    this._list.style.visibility = 'visible';
-    this.classList.add('open');
+    this._popup.active = true;
+    //this.classList.add('open');
   }
 
   hideDropdown(): void {
-    this._list.style.visibility = 'hidden';
-    this.classList.remove('open');
+    this._popup.active = false;
+    //this.classList.remove('open');
   }
 
   private _emptyList(): void {

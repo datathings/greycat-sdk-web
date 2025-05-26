@@ -1,5 +1,4 @@
-import { sl } from '../../shoelace.js';
-import { GuiTable, GuiTableProps, modal, toast, GuiElement, css, TableCsvOptions } from '../../exports.js';
+import { GuiTable, GuiTableProps, modal, toast, GuiElement, css, TableCsvOptions, sl } from '../../exports.js';
 import style from './table-config.css?inline';
 import type { GuiTableMappings } from './table-mappings.js';
 

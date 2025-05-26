@@ -1,5 +1,5 @@
 import { vMap } from './components/chart/internals.js';
-import { Axis, Ordinate, Scale, Serie } from './exports.js';
+import { Axis, Ordinate, Scale, Serie, tableGetCell } from './exports.js';
 
 export type Disposable = () => void;
 
@@ -17,44 +17,8 @@ export enum ScaleType {
   log,
 }
 
-// TODO we should most likely use 'lodash.throttle' here
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
-  let enableCall = true;
-
-  return function <U>(this: U, ...args: Parameters<typeof callback>) {
-    if (!enableCall) {
-      return;
-    }
-
-    enableCall = false;
-    callback.apply(this, args);
-    setTimeout(() => (enableCall = true), interval);
-  };
-}
-
-// TODO we should most likely use 'lodash.debounce' here
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function debounce<T extends (...args: any[]) => void>(
-  callback: T,
-  delay: number,
-  immediate = false,
-) {
-  let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
-
-  return function <U>(this: U, ...args: Parameters<typeof callback>) {
-    clearTimeout(debounceTimeoutId);
-    debounceTimeoutId = setTimeout(() => callback.apply(this, args), delay);
-
-    if (immediate) {
-      callback.apply(this, args);
-    }
-  };
-}
-
 export function closest(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cols: any[][],
+  table: gc.core.Table,
   serie: Serie<string>,
   x: number,
   y: number,
@@ -74,41 +38,43 @@ export function closest(
     yAxes[serie.yAxis].scale === 'linear'
   ) {
     let minDistance = Infinity;
-    for (let i = 0; i < (cols[0]?.length ?? 0); i++) {
-      const xPos = xScale(vMap(cols[serie.xCol][i]));
-      const yPos = yScale(vMap(cols[serie.yCol][i]));
+    for (let i = 0; i < (table.cols[0]?.length ?? 0); i++) {
+      const tx = serie.xCol === undefined ? i : tableGetCell(table, serie.xCol, i);
+      const xPos = xScale(vMap(tx));
+      const yPos = yScale(vMap(tableGetCell(table, serie.yCol, i)));
       const distance = Math.hypot(xPos - x, yPos - y);
       if (distance < minDistance) {
-        res = cols[serie.xCol][i];
+        res = tx;
         rowIdx = i;
         minDistance = distance;
       }
     }
   } else {
-    for (let i = 0; i < (cols[0]?.length ?? 0); i++) {
+    for (let i = 0; i < (table.cols[0]?.length ?? 0); i++) {
       let x: number;
       if (serie.type === 'bar' && serie.spanCol) {
-        const x0 = vMap(cols[serie.spanCol[0]][i]);
-        const x1 = vMap(cols[serie.spanCol[1]][i]);
+        const x0 = vMap(table.cols[serie.spanCol[0]][i]);
+        const x1 = vMap(table.cols[serie.spanCol[1]][i]);
         if (v >= x0 && v <= x1) {
           return { xValue: x0 + (x1 - x0) / 2, rowIdx: i };
         }
         x = x0;
       } else {
-        x = serie.xCol === undefined ? i : vMap(cols[serie.xCol][i]);
+        const tx = serie.xCol === undefined ? i : tableGetCell(table, serie.xCol, i);
+        x = serie.xCol === undefined ? i : vMap(tx);
         if (x === v) {
-          return { xValue: serie.xCol === undefined ? i : cols?.[serie.xCol][i], rowIdx: i };
+          return { xValue: x, rowIdx: i };
         }
       }
       const d2 = Math.abs(x - v);
       if (distance == null || distance > d2) {
         rowIdx = i;
-        res = serie.xCol === undefined ? i : cols[serie.xCol][i];
+        res = serie.xCol === undefined ? i : x;
         distance = d2;
       } else if (distance != null && x > v && distance < d2) {
-        return { xValue: res, rowIdx };
+        return { xValue: vMap(res), rowIdx };
       }
     }
   }
-  return { xValue: res, rowIdx };
+  return { xValue: vMap(res), rowIdx };
 }

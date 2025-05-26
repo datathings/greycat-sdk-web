@@ -6,8 +6,6 @@ namespace gc {
         public offset: number,
         /** name of the field */
         public key: string,
-        /** optional value of the field */
-        public value: Value,
       ) {
         super();
       }

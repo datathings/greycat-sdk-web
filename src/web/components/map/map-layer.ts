@@ -1,4 +1,6 @@
-export class GuiMapLayer extends HTMLElement {
+import { GuiMapElement } from './model.js';
+
+export class GuiMapLayer extends GuiMapElement {
   private _value: maplibregl.LayerSpecification | undefined;
   private _beforeId: string | undefined;
 

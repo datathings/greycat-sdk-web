@@ -7,9 +7,20 @@ export namespace JSX {
 
 export const Fragment = '<></>';
 
+export function createElement(
+  tagName: typeof Fragment,
+  props?: Partial<{
+    children: HTMLElement | HTMLElement[];
+  }>,
+): DocumentFragment;
+export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
+  tagName: K,
+  props?: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
+): HTMLElementTagNameMap[K];
+
 export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
   tagName: K | typeof Fragment,
-  props: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
+  props?: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();
@@ -42,7 +53,10 @@ interface GuiElement extends HTMLElement {
   setAttribute(key: string, value: unknown): void;
 }
 
-function setElementAttrs(element: GuiElement, props: { [k: string]: unknown }) {
+function setElementAttrs(element: GuiElement, props?: { [k: string]: unknown }) {
+  if (props === undefined) {
+    return;
+  }
   element.setAttrs(props);
   // deal with event handlers separatly
   for (const key in props) {

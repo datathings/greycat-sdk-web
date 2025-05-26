@@ -1,5 +1,5 @@
 import { svg, toggleTheme } from '@greycat/web';
-import '@/common';
+import '~/common';
 import './styles.css';
 import LogoIcon from './logo.svg?raw';
 

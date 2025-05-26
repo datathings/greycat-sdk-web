@@ -7,6 +7,10 @@ var sensor: nodeTime<SensorData>;
 var serie_float: nodeTime<float>;
 var kline: nodeTime<KLine>;
 var nt: nodeTime;
+var non_overlapping_1: nodeTime<float>;
+var non_overlapping_2: nodeTime<float>;
+var non_overlapping_3: nodeTime<float>;
+var simple_index: nodeIndex<String, int>;
 
 type KLine {
   open: float;
@@ -48,7 +52,8 @@ type ComplexForm {
 }
 
 fn main() {
-  // tx::init();
+  cities::import();
+  init_non_overlapping();
 
   if (serie_float.size() == 0) {
     init_float();
@@ -57,6 +62,8 @@ fn main() {
   if (kline.size() == 0) {
     init_kline();
   }
+
+  init_simple_index();
 }
 
 fn nothing() {}
@@ -105,22 +112,6 @@ enum Confidence {
   Medium;
   Low;
 }
-
-// @expose
-// fn boxplot_float() {
-//   var histogram = HistogramFloat {};
-
-//   var random = Random::new();
-//   random.setSeed(12345);
-//   var testSize = 10;
-
-//   for (var i = 0; i < testSize; i++) {
-//     var v = random.uniformf(-100.0, 100.0);
-//     histogram.add(v);
-//   }
-
-//   return histogram.toBoxPlot();
-// }
 
 @expose
 fn chart(nbRows: int): Table<any> {
@@ -353,31 +344,6 @@ fn hello(name: String): String {
 }
 // pages/hello end
 
-// // pages/histogram
-// @expose
-// fn histogram_table(): Table {
-//   var csvFormat = CsvFormat {};
-//   csvFormat.separator = ',';
-//   csvFormat.header_lines = 1;
-//   var csv = CsvReader { path: "pages/chart-bar-histogram/heightweight.csv", format: csvFormat };
-
-//   var histogramHeight = HistogramFloat {};
-//   var histogramWeight = HistogramFloat {};
-//   while (csv.available() > 0) {
-//     var res = csv.read();
-//     var height_inch = res?[1] as float;
-//     var weight_pound = res?[2] as float; 
-
-//     var height_cm = height_inch * 2.54;
-//     var weight_kg = weight_pound * 0.453592;
-
-//     histogramHeight.add(height_cm);
-//     histogramWeight.add(weight_kg);
-//   }
-
-//   return histogramHeight.all();
-// }
-// // pages/histogram end
 
 @expose
 fn table(): Table {
@@ -487,11 +453,29 @@ fn task_long_running2() {
 }
 
 @expose
+fn controlled_task(duration: duration) {
+  var steps = 100;
+  var progress = ProgressTracker {
+    start: time::now(),
+    total: steps,
+  };
+  var sleep = duration::new(duration.to(DurationUnit::milliseconds) / steps, DurationUnit::milliseconds);
+  for (var i = 0; i < steps; i++) {
+    progress.update(i);
+    Task::progress(progress.progress ?? 0.0);
+    Runtime::sleep(sleep);
+  }
+}
+
+@expose
 fn mainTask() {
-  await(Array<Job> {
+  await(
+    Array<Job> {
       Job { function: project::subTask, arguments: Array<any?> {0} },
       Job { function: project::subTask, arguments: Array<any?> {1} },
-    });
+    },
+    MergeStrategy::strict,
+  );
 }
 
 fn subTask(id: int) {
@@ -527,6 +511,14 @@ type ComplexObject {
   nested: any?;
   map: Map<String, any>;
   tuple: Tuple<any, any>;
+  t2: t2;
+  t2f: t2f;
+  t3: t3;
+  t3f: t3f;
+  t4: t4;
+  t4f: t4f;
+  str: str;
+  date: Date;
 }
 
 type Obj {
@@ -577,6 +569,14 @@ fn complex_object() {
     nodeIndex: nodeIndex {},
     nodeList: nodeList {},
     nodeGeo: nodeGeo {},
+    t2: t2 {1, 2},
+    t2f: t2f {1.42, 2.42},
+    t3: t3 {1, 2, 3},
+    t3f: t3f {1.42, 2.42, 3.42},
+    t4: t4 {1, 2, 3, 4},
+    t4f: t4f {1.42, 2.42, 3.42, 4.42},
+    str: str { "hello" },
+    date: time::now().toDate(null),
     tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
     nested: ComplexObject {
       string: "Hello, world!",
@@ -594,6 +594,14 @@ fn complex_object() {
       nodeList: nodeList {},
       nodeGeo: nodeGeo {},
       enum: TimeZone::"Europe/Luxembourg",
+      t2: t2 {1, 2},
+      t2f: t2f {1.42, 2.42},
+      t3: t3 {1, 2, 3},
+      t3f: t3f {1.42, 2.42, 3.42},
+      t4: t4 {1, 2, 3, 4},
+      t4f: t4f {1.42, 2.42, 3.42, 4.42},
+      str: str { "hello" },
+      date: time::now().toDate(null),
     },
     map: map,
   };
@@ -694,10 +702,10 @@ fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, opt
 fn now() {
   var now = time::now();
   return TimeZones {
-    azores: Date::fromTime(now, TimeZone::"Atlantic/Azores"),
-    utc: Date::fromTime(now, TimeZone::UTC),
-    paris: Date::fromTime(now, TimeZone::"Europe/Paris"),
-    athens: Date::fromTime(now, TimeZone::"Europe/Athens"),
+    azores: Date::from_time(now, TimeZone::"Atlantic/Azores"),
+    utc: Date::from_time(now, TimeZone::UTC),
+    paris: Date::from_time(now, TimeZone::"Europe/Paris"),
+    athens: Date::from_time(now, TimeZone::"Europe/Athens"),
   };
 }
 
@@ -741,38 +749,65 @@ fn big_map(): Map {
   return map;
 }
 
-@expose
-fn one_d_histo_example(): Histogram {
-  var quant = LinearQuantizer { min: 0.0, max: 10.0, bins: 100 };
-  var histo = Histogram { quantizer: quant };
-  var rand = Random {};
-  for (var i = 0; i < 1000; i++) {
-    var val = rand.normal(5.0, 2.0);
-    histo.add(val);
-  }
-
-  return histo;
+type Country {
+  name: String;
+  timezone: TimeZone;
+  operating_stats: node;
+  last_updated_stats: time?;
+  governorates: nodeIndex;
+  meteo: node<Meteo>;
 }
 
-// @expose
-// fn two_d_histo_example(): Histogram {
-//   var quant = MultiQuantizer {
-//     dimensions: [
-//       LinearQuantizer { min: 5.0, max: 10.0, bins: 100 },
-//       LinearQuantizer { min: 0.0, max: 5.0, bins: 100 },
-//     ]
-//   };
-//   var histo = Histogram { quantizer: quant };
+type Meteo {
+  ideal_solar: node<SolarRadiation>;
+  visual_crossing: node<VisualCrossingProvider>;
+}
 
-//   var rand = Random {};
-//   for (var i = 0; i < 10000; i++) {
-//     var val = rand.normal(2.5, 1.0);
-//     var val2 = rand.normal(7.5, 1.0);
-//     histo.add([val2, val]);
-//   }
+type SolarRadiation {
+  is_enabled: bool;
+  radiance: nodeTime;
+  instant_power: nodeTime;
+}
 
-//   return histo;
-// }
+type VisualCrossingProvider {
+  name: String;
+  solar: node<SolarRadiation>;
+}
+
+@expose
+fn real_example(): Country {
+  return Country {
+    name: "France",
+    timezone: TimeZone::"Europe/Paris",
+    operating_stats: node<String> { "i don't know" },
+    last_updated_stats: null,
+    governorates: nodeIndex {},
+    meteo: node<Meteo> {
+      Meteo {
+        ideal_solar: node<SolarRadiation> {
+          SolarRadiation {
+            is_enabled: true,
+            instant_power: nodeTime {},
+            radiance: nodeTime {},
+          },
+        },
+        visual_crossing: node<VisualCrossingProvider> {
+          VisualCrossingProvider {
+            name: "VisualCrossing",
+            solar: node<SolarRadiation> {
+              SolarRadiation {
+                is_enabled: true,
+                instant_power: nodeTime {},
+                radiance: nodeTime {},
+              },
+            },
+          },
+        },
+      },
+    },
+  };
+}
+
 type Obj1 {
   prop1: String;
   prop2: User;
@@ -880,7 +915,7 @@ fn sample_huge_csv(): Table? {
       header_lines: 1,
     },
   };
-  huge_table.set(CsvReader::sample(reader, null));
+  huge_table.set(Csv::sample(reader, null));
   info("updated cache");
   return *huge_table;
 }
@@ -892,4 +927,189 @@ fn destructuring_table(): Table {
   table.set_cell(1, 0, Person { name: "Paul", age: 36, activated: false });
   table.set_cell(2, 0, Person { name: "Maria", age: 27, activated: true });
   return table;
+}
+
+@expose
+fn this_is_boom() {
+  do_something();
+}
+
+fn do_something() {
+  throw "rekt";
+}
+
+
+fn init_non_overlapping() {
+  if (non_overlapping_1.size() == 0) {
+    var t1 = time::parse("01/01/2020", "%d/%M/%Y");
+    var t2 = time::parse("02/01/2020", "%d/%M/%Y");
+    var t3 = time::parse("03/01/2020", "%d/%M/%Y");
+    var t4 = time::parse("04/01/2020", "%d/%M/%Y");
+
+    var i = 0;
+    for (var t = t1; t < t2; t = t + 1_hour) {
+      non_overlapping_1.setAt(t, 10.0 + i * 0.01);
+      i = i + 1;
+    }
+
+    i = 0;
+    for (var t = t2; t < t3; t = t + 1_hour) {
+      non_overlapping_2.setAt(t, 15.0 - i * 0.01);
+      i = i + 1;
+    }
+
+    i = 0;
+    for (var t = t3; t < t4; t = t + 1_hour) {
+      non_overlapping_3.setAt(t, 20.0 + i * 0.02);
+      i = i + 1;
+    }
+  }
+}
+
+@volatile
+private type TimeRecord<T> {
+  time: time;
+  value: T;
+}
+
+type Composed {
+  a: int;
+  b: float;
+}
+
+@expose
+fn table_of_objects(): Table<TimeRecord<Composed>> {
+  var table = Table<TimeRecord<Composed>> {};
+
+  var start = time::now();
+
+  table.set_row(0, TimeRecord<Composed> { time: start, value: Composed { a: 1, b: 0.1 } });
+  table.set_row(1, TimeRecord<Composed> { time: start + 1hour, value: Composed { a: 2, b: 0.2 } });
+  table.set_row(2, TimeRecord<Composed> { time: start + 2hour, value: Composed { a: 3, b: 0.3 } });
+  table.set_row(3, TimeRecord<Composed> { time: start + 3hour, value: Composed { a: 4, b: 0.4 } });
+
+  for (var i = 0; i < table.rows(); i++) {
+    println(table.get_row(i));
+  }
+
+  return table;
+}
+
+@volatile
+private type TimedComposed {
+  time: time;
+  a: int;
+  b: float;
+}
+
+@expose
+fn table_of_objects2(): Table<TimedComposed> {
+  var table = Table<TimedComposed> {};
+
+  var start = time::now();
+
+  table.set_row(0, TimedComposed { time: start, a: 1, b: 0.1 });
+  table.set_row(1, TimedComposed { time: start + 1hour, a: 2, b: 0.2 });
+  table.set_row(2, TimedComposed { time: start + 2hour, a: 3, b: 0.3 });
+  table.set_row(3, TimedComposed { time: start + 3hour, a: 4, b: 0.4 });
+  // pprint(table);
+
+  return table;
+}
+
+@volatile
+private type SeriesObject {
+  a: int;
+  b: float;
+}
+
+
+@expose
+fn table_of_objects3(): Table {
+  var table = Table {};
+  table.init(4, 2);
+  var start = time::now();
+
+  table.set_cell(0, 0, start);
+  table.set_cell(1, 0, start + 1_hour);
+  table.set_cell(2, 0, start + 2_hour);
+  table.set_cell(3, 0, start + 3_hour);
+
+  table.set_cell(0, 1, SeriesObject { a: 1, b: 0.1 });
+  table.set_cell(1, 1, SeriesObject { a: 2, b: 0.3 });
+  table.set_cell(2, 1, SeriesObject { a: 3, b: 0.2 });
+  table.set_cell(3, 1, SeriesObject { a: 4, b: 0.5 });
+
+  return table;
+}
+
+// pages/histogram
+@expose
+fn one_d_histogram_bins(): Array<HistogramBin<float>>
+ {
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var gaus = Gaussian<float> {};
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    gaus.add(height_cm);
+  }
+  csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var histogramHeight = Histogram<float> { quantizer: LinearQuantizer<float> {bins: 10, min: gaus.min ?? 0.0, max: gaus.max ?? 1.0 } };
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    histogramHeight.add(height_cm);
+  }
+
+  return histogramHeight.get_bins();
+}
+
+@expose
+fn histogram_stats(): HistogramStats<float>?
+ {
+  var csvFormat = CsvFormat {};
+  csvFormat.separator = ',';
+  csvFormat.header_lines = 1;
+  var csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var gaus = Gaussian<float> {};
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    gaus.add(height_cm);
+  }
+  csv = CsvReader<Array<float>> { path: "pages/histogram/heightweight.csv", format: csvFormat };
+  var histogramHeight = Histogram<float> { quantizer: LinearQuantizer<float> {bins: 10, min: gaus.min ?? 0.0, max: gaus.max ?? 1.0 } };
+  while (csv.can_read()) {
+    var res = csv.read();
+    var height_inch = res[1];
+    var height_cm = height_inch * 2.54;
+    histogramHeight.add(height_cm);
+  }
+
+  return histogramHeight.stats();
+}
+
+
+fn init_simple_index() {
+  if (simple_index.size() == 0) {
+    for (var i = 0; i < 2000; i++) {
+      simple_index.set("KEY_${i}", i);
+    }
+  }
+}
+
+@expose
+fn array_of_nodes(): Array<node<String>> {
+  return Array<node<String>> {
+    node<String> { "a" },
+    node<String> { "b" },
+    node<String> { "c" },
+  };
 }

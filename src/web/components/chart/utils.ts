@@ -1,5 +1,5 @@
 import * as d3 from 'd3';
-import { Axis, ChartConfig, Scale } from './types.js';
+import { Axis, ChartConfig, Scale, SerieTableColumn } from './types.js';
 import {
   getGlobalDateTimeFormat,
   getGlobalDateTimeFormatTimezone,
@@ -163,10 +163,7 @@ export function createFormatter(
  * @param greycat
  * @returns
  */
-export function inferConfig(
-  table: gc.core.Table,
-  g: gc.sdk.GreyCat = gc.$.default,
-): ChartConfig {
+export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.default): ChartConfig {
   const config: ChartConfig = {
     xAxis: {},
     yAxes: {},
@@ -190,19 +187,29 @@ export function inferConfig(
   for (let c = 1; c < table.cols.length; c++) {
     const col = table.cols[c];
     for (let r = 0; r < col.length; r++) {
-      const cell = col[0];
-      if (cell === null) {
+      const cell = col[r];
+      if (cell === null || cell === undefined) {
         continue;
       }
       if (!isPotentiallyChartable(cell)) {
         break;
       }
-      const columnName =
-        table.headers?.[c] ?? greycatTypeFromValueStr(cell, g).replaceAll(/[- :]+/g, '_');
-      const yAxis = `c${c}_${columnName}`;
-      config.yAxes[yAxis] = { scale: cell instanceof gc.core.time ? 'time' : 'linear' };
+      let axisName: string;
+      let columnName: string;
+      if (table.headers && table.headers[c] !== undefined) {
+        axisName = table.headers[c];
+        if (table.subheaders && table.subheaders[c]) {
+          columnName = `${table.headers[c]} ${table.subheaders[c]}`;
+        } else {
+          columnName = table.headers[c];
+        }
+      } else {
+        axisName = columnName = greycatTypeFromValueStr(cell, g);
+      }
+      const yAxis = axisName.replaceAll(/[- :]+/g, '_');
+      config.yAxes[yAxis] = { scale: 'linear' };
       config.series.push({
-        title: table.headers?.[c] ?? `c${c}`,
+        title: columnName,
         type: 'line',
         xCol: 0,
         yCol: c,
@@ -210,6 +217,11 @@ export function inferConfig(
       });
       break;
     }
+  }
+
+  const yAxes = Object.keys(config.yAxes);
+  if (yAxes.length === 2) {
+    config.yAxes[yAxes[1]].position = 'right';
   }
 
   return config;
@@ -220,10 +232,107 @@ function isPotentiallyChartable(value: unknown): boolean {
   return (
     type === 'number' ||
     type === 'bigint' ||
-    value instanceof gc.core.time ||
     value instanceof gc.core.duration ||
     value instanceof gc.core.int ||
-    value instanceof gc.core.float ||
-    value instanceof gc.core.geo
+    value instanceof gc.core.float
   );
+}
+
+export function tableGetColumnIndex(
+  col: number | gc.$Fields | (number | gc.$Fields)[],
+): number | undefined {
+  if (typeof col === 'number') {
+    return col;
+  }
+  if (typeof col === 'string') {
+    const attr = gc.$.default.findField(col);
+    if (attr === undefined) {
+      return undefined;
+    }
+    return attr.mapped_att_offset;
+  }
+  if (col.length === 0) {
+    return undefined;
+  }
+  if (typeof col[0] === 'number') {
+    return col[0];
+  }
+  const path = col as gc.$Fields[];
+  const attr = gc.$.default.findField(path[0]);
+  if (!attr) {
+    // unknown attribute
+    return undefined;
+  }
+  return attr.mapped_att_offset;
+}
+
+export function tableGetColumn(table: gc.core.Table, col: SerieTableColumn): unknown[] | undefined {
+  const index = tableGetColumnIndex(col);
+  if (index === undefined) {
+    return undefined;
+  }
+  return table.cols[index];
+}
+
+export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: number): unknown {
+  if (typeof col === 'number') {
+    return table.cols[col][row];
+  }
+  if (typeof col === 'string') {
+    const attr = gc.$.default.findField(col);
+    if (attr === undefined) {
+      return undefined;
+    }
+    return table.cols[attr.mapped_att_offset][row];
+  }
+  if (col.length === 0) {
+    return undefined;
+  }
+  const path = col as (gc.$Fields | number)[];
+  let value: unknown;
+  for (let i = 0; i < path.length; i++) {
+    const p = path[i];
+    if (typeof p === 'number') {
+      if (i === 0) {
+        value = table.cols[p][row];
+      } else if (value instanceof gc.sdk.GCEnum) {
+        return undefined;
+      } else if (value instanceof gc.sdk.GCObject) {
+        if (value.$fields === undefined) {
+          return undefined;
+        }
+        value = value.$fields[p];
+      } else {
+        return undefined;
+      }
+      continue;
+    }
+    const attr = gc.$.default.findField(p);
+    if (!attr) {
+      // unknown attribute
+      return undefined;
+    }
+    if (i === 0) {
+      value = table.cols[attr.mapped_att_offset][row];
+    } else if (value instanceof gc.sdk.GCEnum) {
+      return undefined;
+    } else if (value instanceof gc.sdk.GCObject) {
+      if (value.$fields === undefined) {
+        return undefined;
+      }
+      value = value.$fields[attr.mapped_att_offset];
+    } else {
+      return undefined;
+    }
+  }
+  return value;
+}
+
+export function padLinear([x0, x1]: [number, number], r: number) {
+  const dx = ((x1 - x0) * r) / 2;
+  return [x0 - dx, x1 + dx];
+}
+
+export function padLog([x0, x1]: [number, number], r: number) {
+  return padLinear([Math.log(x0), Math.log(x1)], r).map(Math.exp);
 }

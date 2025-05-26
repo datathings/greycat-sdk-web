@@ -1,4 +1,11 @@
 declare namespace gc {
+  interface $TypesMap {}
+  export type $Types = keyof $TypesMap extends never ? string : keyof $TypesMap;
+  interface $FieldsMap {}
+  export type $Fields = keyof $FieldsMap extends never ? string : keyof $FieldsMap;
+  interface $FunctionsMap {}
+  export type $Functions = keyof $FunctionsMap extends never ? string : keyof $FunctionsMap;
+
   namespace runtime {
     interface Task {
       /**

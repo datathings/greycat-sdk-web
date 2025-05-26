@@ -1,5 +1,5 @@
 import { BarSerie } from '@greycat/web';
-import '@/common';
+import '~/common';
 
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;

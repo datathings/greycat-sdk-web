@@ -1,4 +1,6 @@
-export class GuiMapSource extends HTMLElement {
+import { GuiMapElement } from './model.js';
+
+export class GuiMapSource extends GuiMapElement {
   name = `${Date.now()}`;
   value: maplibregl.SourceSpecification | null = null;
 }

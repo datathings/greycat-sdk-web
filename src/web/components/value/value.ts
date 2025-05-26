@@ -1,5 +1,6 @@
 import { getGlobalNumberFormat, GuiElement, css, getGlobalDateTimeFormat } from '../../exports.js';
 import { Disposable } from '../../internals.js';
+import { stringify } from './utils.js';
 import style from './value.css?inline';
 
 export type ClickHandler<T = unknown> = (
@@ -197,6 +198,11 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       return;
     }
 
+    if (this._value === undefined) {
+      this.shadowRoot.replaceChildren();
+      return;
+    }
+
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
     const dateFmt = this._dateFmt ?? getGlobalDateTimeFormat();
     let element: Node;
@@ -208,7 +214,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       const len = Math.min(this._value.length, 15);
       for (let i = 0; i < len; i++) {
         const item = this._value[i];
-        const itemText = gc.sdk.stringify({
+        const itemText = stringify({
           value: item,
           name: this._name,
           tiny: this._tiny,
@@ -225,15 +231,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
 
         if (linkify) {
           const link = document.createElement('a');
-          // const onclick = (e: MouseEvent) => this._onClick?.(e, value, content, this._data);
-          // link.addEventListener('auxclick', onclick);
-          // link.addEventListener('click', onclick);
-          // this._disposeClickHandler = () => {
-          //   link.removeEventListener('click', onclick);
-          //   link.removeEventListener('auxclick', onclick);
-          // };
           link.textContent = itemText;
-          link.title = gc.sdk.stringify({
+          link.title = stringify({
             value: item,
             dateFmt,
             numFmt,
@@ -254,7 +253,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       this.title = this._value.name;
       return;
     } else {
-      const text = gc.sdk.stringify({
+      const text = stringify({
         value: this._value,
         name: this._name,
         tiny: this._tiny,
@@ -273,13 +272,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       }
       if (linkify) {
         const link = document.createElement('a');
-        // const onclick = (e: MouseEvent) => this._onClick?.(e, this._value, text, this._data);
-        // link.addEventListener('auxclick', onclick);
-        // link.addEventListener('click', onclick);
-        // this._disposeClickHandler = () => {
-        //   link.removeEventListener('click', onclick);
-        //   link.removeEventListener('auxclick', onclick);
-        // };
         link.textContent = text;
         this.shadowRoot.appendChild(link);
         element = link;
