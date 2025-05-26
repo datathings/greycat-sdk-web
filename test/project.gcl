@@ -11,6 +11,7 @@ enum NameConflict {
 type FloatPrecisionTest {
   normal: float;
 
+
   @precision(0.01)
   precision: float;
 }
@@ -316,7 +317,6 @@ fn time_window() {
 }
 
 @expose
-
 fn map(): Map {
   return Map<any, any> {
     "hello world": 42,
@@ -325,31 +325,26 @@ fn map(): Map {
 }
 
 @expose
-
 fn array(): Array {
   return Array<any?> {"hello world", 42, Named { name: "object" }, false};
 }
 
 @expose
-
 fn array2() {
   return [42, true, "hello", CalendarUnit::month];
 }
 
 @expose
-
 fn array3() {
   return [false, 42, "main", null];
 }
 
 @expose
-
 fn array_mono(): Array<int> {
   return Array<int> {2, 2, 2, 2};
 }
 
 @expose
-
 fn array_mono2(): Array<bool> {
   var tu = (42, "hello");
 
@@ -357,7 +352,6 @@ fn array_mono2(): Array<bool> {
 }
 
 @expose
-
 fn table() {
   return Table<any> {
     [0, 0.5, Named { name: "one" }],
@@ -388,7 +382,6 @@ fn write_table_cols() {
 }
 
 @expose
-
 fn longTask() {
   println("long fn ${Task::id()}: start");
   Runtime::sleep(15_s);
@@ -396,7 +389,6 @@ fn longTask() {
 }
 
 @expose
-
 fn slowTask() {
   // slow
   var start = time::now();
@@ -405,14 +397,12 @@ fn slowTask() {
 }
 
 @expose
-
 fn computeTask() {
   var writer = TextWriter { path: "${File::workingDir()}/foo.txt" };
   writer.write(42);
 }
 
 @expose
-
 fn testTensor(): Tensor {
   var t = Tensor {};
   t.init(TensorType::f64, Array<int> {2, 10});
@@ -425,13 +415,11 @@ fn testTensor(): Tensor {
 }
 
 @expose
-
 fn tensor() {
   return Tensor {};
 }
 
 @expose
-
 fn tensor2() {
   var tensor = Tensor {};
   tensor.init(TensorType::f64, Array<int> {1, 5});
@@ -440,7 +428,6 @@ fn tensor2() {
 }
 
 @expose
-
 fn tensor3() {
   var tensor = Tensor {};
   tensor.init(TensorType::f64, Array<int> {1, 1});
@@ -456,7 +443,6 @@ fn tensor3() {
 //   gaussian.learn(tensor);
 //   return gaussian;
 // }
-
 type Foo {
   a: int?;
 }
@@ -488,7 +474,6 @@ fn enum() {
 }
 
 @expose
-
 fn table2(): Table<any?> {
   var a = nodeTime<any?> {};
 
@@ -506,7 +491,6 @@ fn table2(): Table<any?> {
 }
 
 @expose
-
 fn time() {
   var v = 42_s + 1337_us;
   var t = time::new(v.to(DurationUnit::microseconds), DurationUnit::microseconds);
@@ -514,26 +498,22 @@ fn time() {
 }
 
 @expose
-
 fn an_error() {
   throw "this is an error";
 }
 
 @expose
-
 fn float_f(f: float?) {
   return f;
 }
 
 @expose
-
 fn blockingFn() {
   // this should trigger a timeout as rpc are maxed at 30s by default
   Runtime::sleep(40_s);
 }
 
 @expose
-
 fn enumValue() {
   return TimeZone::"Europe/Luxembourg";
 }
@@ -547,7 +527,6 @@ type FooBar {
 }
 
 @expose
-
 fn foobar() {
   return FooBar {
     tz: TimeZone::"Europe/Lisbon",
@@ -565,7 +544,6 @@ fn foobar() {
 }
 
 @expose
-
 fn vtable_test(): Table<Array<any>> {
   var table = Table<Array<any>> {};
   var start = time::now();
@@ -590,18 +568,16 @@ fn vtable_test(): Table<Array<any>> {
 }
 
 @expose
-
 fn print_table(table: Table) {
   println(table);
 }
 
 @expose
-
 fn fn_pointer() {
   return project::table;
 }
 
-type Bar < T> {
+type Bar<T> {
   attr: T?;
 }
 
@@ -611,7 +587,6 @@ fn write_string() {
 }
 
 @expose
-
 fn identity(v: any?): any? {
   pprint(v);
   return v;
@@ -622,7 +597,6 @@ type ArrayContainer {
 }
 
 @expose
-
 fn array_container(ac: ArrayContainer) {
   pprint(ac);
   return ac;
@@ -640,7 +614,6 @@ fn sl() {
 }
 
 @expose
-
 fn read_stringlit(arr: Array<String>) {
   pprint(arr);
   return arr;
@@ -657,35 +630,30 @@ fn cc() {
 }
 
 @expose
-
 fn contacts(contacts: Table<Contact>) {
   pprint(contacts);
   return contacts;
 }
 
 @expose
-
 fn array_of_int(arr: Array<int>) {
   pprint(arr);
   return arr;
 }
 
 @expose
-
 fn array_of_float(arr: Array<float>) {
   pprint(arr);
   return arr;
 }
 
 @expose
-
 fn array_of_string(arr: Array<String>) {
   pprint(arr);
   return arr;
 }
 
 @expose
-
 fn boom() {
   throw "boom";
 }
@@ -697,7 +665,6 @@ type Sensor {
 }
 
 @expose
-
 fn sensor_table(): Table<Sensor> {
   return Table<Sensor> {
     ["AZ0001", 19.4, 57.1],
@@ -720,13 +687,11 @@ fn broke() {
 }
 
 @expose
-
 fn geo() {
   return geo {1.5, 2.01};
 }
 
 @expose
-
 fn geos() {
   return Array<geo> {
     geo {1, 2},
@@ -736,7 +701,6 @@ fn geos() {
 }
 
 @expose
-
 fn periodic_task(): PeriodicTask {
   return PeriodicTask {
     function: project::float_f,
@@ -748,7 +712,6 @@ fn periodic_task(): PeriodicTask {
 }
 
 @expose
-
 fn create_nodeTimes() {
   var writer = GcbWriter { path: "nodetimes.gcb" };
   var nt_0 = nodeTime<int> {};
@@ -764,7 +727,6 @@ type Person {
 }
 
 @expose
-
 fn table3() {
   var start = time::now();
   var table = Table {
@@ -803,6 +765,7 @@ type CustomType {
   bool: bool;
   char: char;
 
+
   enum: TimeZone;
 }
 
@@ -811,37 +774,31 @@ type Named {
 }
 
 @expose
-
 fn std_bool() {
   return true;
 }
 
 @expose
-
 fn std_int() {
   return 0;
 }
 
 @expose
-
 fn std_int_min_number() {
   return -9007199254740991;
 }
 
 @expose
-
 fn std_int_min_bigint() {
   return int::min;
 }
 
 @expose
-
 fn std_int_max_number() {
   return 9007199254740991;
 }
 
 @expose
-
 fn std_int_max_bigint() {
   return int::max;
 }
@@ -853,7 +810,6 @@ type MyRow {
 }
 
 @expose
-
 fn some_table() {
   return Table<MyRow> {
     [0, 10.5, Named { name: "one" }],
@@ -864,38 +820,32 @@ fn some_table() {
 }
 
 @expose
-
 fn gonna_timeout() {
   Runtime::sleep(30s);
   return 42;
 }
 
 @expose
-
 fn get_node() {
   return n;
 }
 
 @expose
-
 fn get_node_time() {
   return nt;
 }
 
 @expose
-
 fn get_node_list() {
   return nl;
 }
 
 @expose
-
 fn get_node_index() {
   return ni;
 }
 
 @expose
-
 fn get_node_geo() {
   return ng;
 }
@@ -905,7 +855,6 @@ type Obj {
 }
 
 @expose
-
 fn ambiguous() {
   return Obj {
     tuple: Tuple<String, String> { x: "Hello", y: ", world!" },
@@ -913,9 +862,8 @@ fn ambiguous() {
 }
 
 @expose
-
 fn ambiguous2() {
-  return([], false);
+  return ([], false);
 }
 
 type Baz {
@@ -924,24 +872,21 @@ type Baz {
 }
 
 @expose
-
 fn something(foo: Baz): Baz {
   pprint(foo);
   return foo;
 }
 
 @expose
-
 fn getPeriod(days: Tuple<int, int>?) {
   pprint(days);
 }
 
-type Custom < T> {
+type Custom<T> {
   x: T;
 }
 
 @expose
-
 fn consume_custom(c: Custom<String>) {
   println(c);
 }
@@ -968,7 +913,6 @@ private type MapParams {
 }
 
 @expose
-
 fn get_nodes(): Array<node<Point>> {
   return Array<node<Point>> {
     node<Point> { Point { x: 0, y: 0 } },
@@ -978,11 +922,9 @@ fn get_nodes(): Array<node<Point>> {
 }
 
 @expose
-
 fn load_within_stub(map: MapParams) {
   pprint(map);
 }
-
 
 @volatile
 abstract type Shape {
@@ -991,9 +933,9 @@ abstract type Shape {
 
 @volatile
 type Rect extends Shape {}
+
 @volatile
 type Circle extends Shape {}
-
 
 @expose
 fn print_shapes(shapes: Array<Shape>) {
@@ -1003,7 +945,7 @@ fn print_shapes(shapes: Array<Shape>) {
 }
 
 @volatile
-abstract type List<T> {
+abstract type List < T> {
   elements: Array<T>;
 }
 
@@ -1018,7 +960,7 @@ fn node_string_list(list: Array<node<String>>) {
 }
 
 @volatile
-private type Box<T> {
+private type Box < T> {
   value: T;
 }
 
@@ -1030,4 +972,37 @@ fn get_box_string(): Box<String> {
 @expose
 fn get_box_int(): Box<int> {
   return Box<int> { value: 42 };
+}
+
+@expose
+fn table_bin(): Array<Table> {
+  var a = Array<Table> {};
+  for (var i = 0; i < 2; i++) {
+    var table = Table {};
+    table.init(1, 2);
+    if (i != 0) {
+      table.set_cell(0, 1, 0_time);
+      table.set_cell(0, 0, 0.5);
+    }
+    a.add(table);
+  }
+  GcbWriter { path: "out.gcb" }.write(a);
+  return a;
+}
+
+@expose
+fn try_this() {
+  return ["foo", [], [false, true], []];
+}
+
+fn potato() {
+  var table = Table {};
+  table.init(1, 200000);
+  println(table.rows());
+  println(table.cols());
+  GcbWriter { path: "foo.gcb" }.write(table);
+}
+
+fn foo2() {
+  pprint(GcbReader { path: "out.gcb" }.read());
 }

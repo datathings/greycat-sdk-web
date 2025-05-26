@@ -237,7 +237,7 @@ namespace gc {
             const nb_cols = r.read_vu32();
             const cols = new globalThis.Array(nb_cols);
             for (let col = 0; col < nb_cols; col++) {
-              cols[col] = r.read_array(nb_rows);
+              cols[col] = r.read_array(nb_rows, false);
             }
             const table = new ty.ctor(cols) as gc.core.Table<T>;
             // // Automatically create rows based on generic type if possible
@@ -266,7 +266,7 @@ namespace gc {
             w.write_vu32(nb_rows);
             w.write_vu32(nb_cols);
             for (let col = 0; col < nb_cols; col++) {
-              w.write_array(this.cols[col]);
+              w.write_array(this.cols[col], false);
             }
           }
 
