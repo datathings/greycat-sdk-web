@@ -407,7 +407,7 @@ export class GuiChart extends GuiElement {
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    this.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
+    document.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
     document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
     this._resizeObs.observe(this);
 
@@ -472,22 +472,14 @@ export class GuiChart extends GuiElement {
 
   private _onmousemove = (ev: MouseEvent) => {
     const [target] = ev.composedPath();
-    if (ev.target !== this || target !== this._uxCanvas) {
+    if (this._cursor.selection === false && target !== this._uxCanvas) {
       this._resetCursor();
       return;
     }
 
     const container = this._canvas.getBoundingClientRect();
-    const x = Math.round(ev.clientX - container.left);
-    const y = Math.round(ev.clientY - container.top);
-
-    // check if the cursor is inside the container boundaries
-    if (x >= 0 && y >= 0 && x <= container.width && y <= container.height) {
-      this._cursor.x = x;
-      this._cursor.y = y;
-    } else {
-      this._resetCursor();
-    }
+    this._cursor.x = Math.round(Math.min(container.width, Math.max(0, ev.clientX - container.left)));
+    this._cursor.y = Math.round(Math.min(container.height, Math.max(0, ev.clientY - container.top)));
   };
 
   toggleConfig(): void {
