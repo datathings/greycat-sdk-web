@@ -478,8 +478,12 @@ export class GuiChart extends GuiElement {
     }
 
     const container = this._canvas.getBoundingClientRect();
-    this._cursor.x = Math.round(Math.min(container.width, Math.max(0, ev.clientX - container.left)));
-    this._cursor.y = Math.round(Math.min(container.height, Math.max(0, ev.clientY - container.top)));
+    this._cursor.x = Math.round(
+      Math.min(container.width, Math.max(0, ev.clientX - container.left)),
+    );
+    this._cursor.y = Math.round(
+      Math.min(container.height, Math.max(0, ev.clientY - container.top)),
+    );
   };
 
   toggleConfig(): void {
@@ -601,7 +605,7 @@ export class GuiChart extends GuiElement {
     drawerEnabled = this._drawerEnabled,
   }: Partial<{ config: ChartConfig; value: TableLike; drawerEnabled: boolean }>) {
     let recompute = false;
-    if (this._table !== value) {
+    if (this._table !== value || this._config !== config) {
       this._table = convertToTable(value);
       recompute = true;
     }
