@@ -23,7 +23,6 @@ import {
   getColors,
   convertToTable,
   GuiChartConfig,
-  GuiUpdateEvent,
   GuiElement,
   css,
   tableGetCell,
@@ -32,6 +31,8 @@ import {
   isOrdSerieTableColumn,
   padLinear,
   padLog,
+  inferConfig,
+  GuiChartConfigUpdateEvent,
 } from '../../exports.js';
 import type { sl, TableLike } from '../../exports.js';
 import style from './chart.css?inline';
@@ -149,10 +150,29 @@ export class GuiChart extends GuiElement {
     this._drawer.contained = true;
     this._drawer.open = false;
     this._drawer.label = 'Chart config';
+    const inferConfigBtn = document.createElement('sl-button');
+    inferConfigBtn.textContent = 'Reset';
+    inferConfigBtn.size = 'small';
+    inferConfigBtn.style.alignSelf = 'center';
+    inferConfigBtn.onclick = () => {
+      const oldConfig = this._config;
+      this._config = inferConfig(this._table);
+      this.compute();
+      this.update();
+      this.dispatchEvent(new GuiChartConfigUpdateEvent(oldConfig, this._config));
+    };
+    const inferConfigTooltip = document.createElement('sl-tooltip');
+    const inferConfigTooltipContent = document.createElement('div');
+    inferConfigTooltipContent.slot = 'content';
+    inferConfigTooltipContent.innerHTML = `Resets the config.<br/><br/>This will re-create a new config by analyzing the current table.<br/><br/><strong>The current configuration will be lost</strong>`;
+    inferConfigTooltip.appendChild(inferConfigTooltipContent);
+    inferConfigTooltip.slot = 'header-actions';
+    inferConfigTooltip.appendChild(inferConfigBtn);
+    this._drawer.appendChild(inferConfigTooltip);
     this._configEl = document.createElement('gui-chart-config');
-    this._configEl.addEventListener('sl-change', (ev) => {
+    this._configEl.addEventListener('gui-chart-config-update', (ev) => {
       ev.stopPropagation();
-      const value = this._configEl.value;
+      const value = ev.detail.new;
 
       // check for series/yAxis validity
       let isValid = true;
@@ -164,10 +184,12 @@ export class GuiChart extends GuiElement {
       }
       // we only update the chart if the config is valid
       if (isValid) {
-        this.config = value;
+        this._config = value;
+        this.compute();
+        this.update();
       }
 
-      this.dispatchEvent(new GuiUpdateEvent(value));
+      this.dispatchEvent(new GuiChartConfigUpdateEvent(ev.detail.old, ev.detail.new));
     });
     this._drawer.appendChild(this._configEl);
 
@@ -478,8 +500,12 @@ export class GuiChart extends GuiElement {
     }
 
     const container = this._canvas.getBoundingClientRect();
-    this._cursor.x = Math.round(Math.min(container.width, Math.max(0, ev.clientX - container.left)));
-    this._cursor.y = Math.round(Math.min(container.height, Math.max(0, ev.clientY - container.top)));
+    this._cursor.x = Math.round(
+      Math.min(container.width, Math.max(0, ev.clientX - container.left)),
+    );
+    this._cursor.y = Math.round(
+      Math.min(container.height, Math.max(0, ev.clientY - container.top)),
+    );
   };
 
   toggleConfig(): void {
@@ -641,11 +667,11 @@ export class GuiChart extends GuiElement {
       // reset selection
       this._config.xAxis.min = this._userXAxisMin;
       this._config.xAxis.max = this._userXAxisMax;
-      // for (const name in this._config.yAxes) {
-      //   const yAxis = this._config.yAxes[name];
-      //   yAxis.min = this._userYAxes[name].min;
-      //   yAxis.max = this._userYAxes[name].max;
-      // }
+      for (const name in this._config.yAxes) {
+        const yAxis = this._config.yAxes[name];
+        yAxis.min = this._userYAxes[name].min;
+        yAxis.max = this._userYAxes[name].max;
+      }
     } else {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       this._config.xAxis.min = selection.from as any;
@@ -1796,7 +1822,6 @@ export class GuiChart extends GuiElement {
     if (xAxis.padding !== undefined) {
       if (xAxis.scale === 'log') {
         [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
-        console.log(xMin, xMax);
       } else {
         [xMin, xMax] = padLinear([xMin, xMax], xAxis.padding);
       }

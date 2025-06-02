@@ -165,6 +165,7 @@ export function createFormatter(
  */
 export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.default): ChartConfig {
   const config: ChartConfig = {
+    cursor: true,
     xAxis: {},
     yAxes: {},
     series: [],
@@ -204,7 +205,7 @@ export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.defau
           columnName = table.headers[c];
         }
       } else {
-        axisName = columnName = greycatTypeFromValueStr(cell, g);
+        axisName = columnName = greycatTypeFromValueStr(cell, g) + ` ${r}`;
       }
       const yAxis = axisName.replaceAll(/[- :]+/g, '_');
       config.yAxes[yAxis] = { scale: 'linear' };
