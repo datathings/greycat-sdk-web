@@ -24,6 +24,7 @@ await gc.sdk.init();
 
 const chart = (
   <gui-chart
+    drawerEnabled
     value={await gc.project.chart(150)}
     config={{
       cursor: true,

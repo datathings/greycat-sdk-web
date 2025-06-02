@@ -11,6 +11,8 @@ import {
   MarkerShape,
   css,
   GuiElement,
+  getIndexInParent,
+  querySelectorAllWithShadow,
 } from '../../exports.js';
 import style from './chart-config.css?inline';
 
@@ -56,10 +58,10 @@ export class GuiChartConfig extends GuiElement {
     this._yAxes.addEventListener('sl-change', () => {
       const yAxes = this._yAxes.value;
       this._series.yAxes = Object.keys(yAxes);
-      queueMicrotask(() => this.updateValidity());
+      queueMicrotask(() => this._post_change());
     });
 
-    this.addEventListener('sl-change', () => this.updateValidity());
+    this.addEventListener('sl-change', () => this._post_change());
 
     this.shadowRoot.appendChild(
       <div className="list">
@@ -120,11 +122,16 @@ export class GuiChartConfig extends GuiElement {
     this._selection.value = this._value.selection ?? false;
   }
 
+  private _post_change(): void {
+    this.updateValidity();
+    this.dispatchEvent(new GuiChartConfigUpdateEvent(this._value, this.value));
+  }
+
   updateValidity(): void {
-    this.querySelectorAll('gui-details').forEach((details) => {
-      const summary = details.querySelector('summary > span');
+    querySelectorAllWithShadow('gui-details', this).forEach((details) => {
+      const summary = querySelectorAllWithShadow('summary > span', details);
       if (summary instanceof HTMLElement) {
-        if (details.querySelector('[data-user-invalid], [data-invalid]')) {
+        if (querySelectorAllWithShadow('[data-user-invalid], [data-invalid]', details)) {
           summary.style.color = 'var(--sl-color-danger-700)';
           this.invalid = true;
         } else {
@@ -160,7 +167,7 @@ export class GuiChartYAxesInput extends HTMLElement {
         .then((yes) => {
           if (yes) {
             ev.detail.el.remove();
-            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
           }
         });
     });
@@ -187,7 +194,7 @@ export class GuiChartYAxesInput extends HTMLElement {
                 this._axes.appendChild(ord);
                 // update the local state
                 this._value = this.value;
-                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
               }
             }}
           >
@@ -381,10 +388,10 @@ export class GuiChartAxisInput extends HTMLElement {
       </sl-select>
     ) as sl.SlSelect;
     this._min = (
-      <sl-input size="small" label="Min" helpText="The axis minimum bound" />
+      <sl-input size="small" label="Min" step="any" helpText="The axis minimum bound" />
     ) as sl.SlInput;
     this._max = (
-      <sl-input size="small" label="Max" helpText="The axis maximum bound" />
+      <sl-input size="small" label="Max" step="any" helpText="The axis maximum bound" />
     ) as sl.SlInput;
     this._format = (
       <sl-input size="small" label="Ticks">
@@ -394,7 +401,11 @@ export class GuiChartAxisInput extends HTMLElement {
             d3-format
           </a>{' '}
           or{' '}
-          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
+          <a
+            href="https://d3js.org/d3-time-format#locale_utcFormat"
+            target="_blank"
+            rel="noreferrer"
+          >
             d3-time-format
           </a>
         </span>
@@ -412,7 +423,11 @@ export class GuiChartAxisInput extends HTMLElement {
             d3-format
           </a>{' '}
           or{' '}
-          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
+          <a
+            href="https://d3js.org/d3-time-format#locale_utcFormat"
+            target="_blank"
+            rel="noreferrer"
+          >
             d3-time-format
           </a>
         </span>
@@ -1084,6 +1099,10 @@ export class GuiChartSeriesInput extends HTMLElement {
     this._series.classList.add('list', 'smart');
     this._series.addEventListener('gui-chart-config-delete', (ev) => {
       ev.stopPropagation();
+      if (!(ev.target instanceof HTMLElement)) {
+        return;
+      }
+      const elIndex = getIndexInParent(ev.target);
       modal
         .confirm({
           message: (
@@ -1094,8 +1113,9 @@ export class GuiChartSeriesInput extends HTMLElement {
         })
         .then((yes) => {
           if (yes) {
+            this._value.splice(elIndex, 1);
             ev.detail.el.remove();
-            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
           }
         });
     });
@@ -1116,7 +1136,7 @@ export class GuiChartSeriesInput extends HTMLElement {
               this._series.appendChild(serie);
               // update the local state
               this._value = this.value;
-              this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true }));
+              this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
             }}
           >
             Add
@@ -1188,6 +1208,18 @@ export class GuiChartSeriesInput extends HTMLElement {
   }
 }
 
+export class GuiChartConfigUpdateEvent extends CustomEvent<{ old: ChartConfig; new: ChartConfig }> {
+  static readonly NAME = 'gui-chart-config-update';
+
+  constructor(oldConfig: ChartConfig, newConfig: ChartConfig) {
+    super(GuiChartConfigUpdateEvent.NAME, {
+      detail: { old: oldConfig, new: newConfig },
+      bubbles: true,
+      composed: true,
+    });
+  }
+}
+
 export class GuiChartConfigDeleteEvent extends CustomEvent<{ name: string; el: Element }> {
   static readonly NAME = 'gui-chart-config-delete';
 
@@ -1221,35 +1253,23 @@ declare global {
     'gui-chart-serie-input': GuiChartSerieInput;
   }
 
-  interface GuiChartInputEventMap {
-    'sl-change': sl.SlChangeEvent;
-    'sl-input': sl.SlInputEvent;
-  }
-
-  interface GuiChartConfigEventMap extends GuiChartInputEventMap {}
-
-  interface GuiChartDeleteEventMap {
+  interface GuiChartConfigEventMap {
     [GuiChartConfigDeleteEvent.NAME]: GuiChartConfigDeleteEvent;
+    [GuiChartConfigUpdateEvent.NAME]: GuiChartConfigUpdateEvent;
   }
 
-  interface HTMLElementEventMap extends GuiChartDeleteEventMap {}
+  interface HTMLElementEventMap extends GuiChartConfigEventMap {}
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
         'gui-chart-config': GreyCat.Element<GuiChartConfig, GuiChartConfigEventMap>;
-        'gui-chart-axis-input': GreyCat.Element<GuiChartAxisInput, GuiChartInputEventMap>;
-        'gui-chart-yaxes-input': GreyCat.Element<GuiChartYAxesInput, GuiChartInputEventMap>;
-        'gui-chart-ordinate-input': GreyCat.Element<
-          GuiChartOrdinateInput,
-          GuiChartDeleteEventMap & GuiChartInputEventMap
-        >;
-        'gui-chart-selection-input': GreyCat.Element<GuiChartSelectionInput, GuiChartInputEventMap>;
-        'gui-chart-series-input': GreyCat.Element<GuiChartSeriesInput, GuiChartInputEventMap>;
-        'gui-chart-serie-input': GreyCat.Element<
-          GuiChartSerieInput,
-          GuiChartDeleteEventMap & GuiChartInputEventMap
-        >;
+        'gui-chart-axis-input': GreyCat.Element<GuiChartAxisInput>;
+        'gui-chart-yaxes-input': GreyCat.Element<GuiChartYAxesInput>;
+        'gui-chart-ordinate-input': GreyCat.Element<GuiChartOrdinateInput>;
+        'gui-chart-selection-input': GreyCat.Element<GuiChartSelectionInput>;
+        'gui-chart-series-input': GreyCat.Element<GuiChartSeriesInput>;
+        'gui-chart-serie-input': GreyCat.Element<GuiChartSerieInput>;
       }
     }
   }

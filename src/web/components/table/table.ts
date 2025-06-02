@@ -211,7 +211,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._configEl.addEventListener(GuiTableMappingsApplyEvent.NAME, async (ev) => {
       ev.stopPropagation();
       await this.applyMappings();
-      this.update();
       this.dispatchEvent(new GuiTableApplyMappingsEvent());
     });
 
@@ -283,27 +282,27 @@ export class GuiTable extends GuiElement implements GuiTableProps {
    * el.applyMappings(myTable); // only one update
    * ```
    */
-  async applyMappings(table: gc.core.Table = this._table): Promise<void> {
+  async applyMappings(table: gc.core.Table = this._table): Promise<gc.core.Table> {
     try {
       const mappings = this._configEl.mappings;
       if (mappings.length > 0) {
         const offset = this._table.cols.length;
-        this._table = await gc.core.Table.applyMappings(table, mappings);
-        const headers = new Array(this._table.cols.length);
-        for (let i = offset; i < this._table.cols.length; i++) {
+        const new_table = await gc.core.Table.applyMappings(table, mappings);
+        const headers = new Array(new_table.cols.length);
+        for (let i = offset; i < new_table.cols.length; i++) {
           headers[i] = mappings[i - offset].extractors.join('.');
         }
-        this._table.headers = headers;
-        await this.update();
-        this.dispatchEvent(new GuiChangeEvent(this._table));
-      } else if (table !== this._table) {
-        this._table = table;
-        await this.update();
-        this.dispatchEvent(new GuiChangeEvent(this._table));
+        new_table.headers = headers;
+        table = new_table;
       }
+      this._setValue(table);
+      await this.update();
+      this.dispatchEvent(new GuiChangeEvent(this._table));
     } catch (err) {
       toast.error(err);
     }
+
+    return table;
   }
 
   /**
@@ -1868,7 +1867,7 @@ declare global {
     [GuiTableDblClickEvent.NAME]: GuiTableDblClickEvent;
     [GuiTableApplyMappingsEvent.NAME]: GuiTableApplyMappingsEvent;
   }
-  
+
   interface GuiTableEventMap extends GuiTableHeadCellEventMap {
     'table-filter': GuiTableFilterEvent;
   }
