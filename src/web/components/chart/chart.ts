@@ -605,8 +605,11 @@ export class GuiChart extends GuiElement {
     drawerEnabled = this._drawerEnabled,
   }: Partial<{ config: ChartConfig; value: TableLike; drawerEnabled: boolean }>) {
     let recompute = false;
-    if (this._table !== value || this._config !== config) {
+    if (this._table !== value) {
       this._table = convertToTable(value);
+      recompute = true;
+    }
+    if (this._config !== config) {
       recompute = true;
     }
     this._config = config;
