@@ -1803,7 +1803,7 @@ export class GuiChart extends GuiElement {
         if (type === 'log') {
           [min, max] = padLog([min, max], yAxis.padding);
         } else {
-          [min, xMax] = padLinear([min, max], yAxis.padding);
+          [min, max] = padLinear([min, max], yAxis.padding);
         }
       }
 
