@@ -631,6 +631,9 @@ export class GuiChart extends GuiElement {
       this._table = convertToTable(value);
       recompute = true;
     }
+    if (this._config !== config) {
+      recompute = true;
+    }
     this._config = config;
 
     // update local user X min/max with the configuration values
