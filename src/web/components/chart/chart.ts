@@ -1210,9 +1210,7 @@ export class GuiChart extends GuiElement {
           }
         } else {
           if (this._config.xAxis.scale === 'time') {
-            const [from, to] = xScale.range();
-            const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-            const specifier = smartTimeFormatSpecifier(span);
+            const specifier = smartTimeFormatSpecifier(Math.abs(to - from));
             fromStr = this._config.xAxis.cursorFormat(from, specifier);
             toStr = this._config.xAxis.cursorFormat(to, specifier);
           } else {
