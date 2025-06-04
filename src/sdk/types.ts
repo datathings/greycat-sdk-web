@@ -170,6 +170,10 @@ namespace gc {
     export interface WithAbiOptions extends Options {
       /** The ABI to use internally */
       abi: Abi;
+      /** Wasm module (use `gc.sdk.compileWasm()`) */
+      module: WebAssembly.Module;
+      /** Wasm instance exports (use `gc.sdk.compileWasm()`) */
+      exports: gc.sdk.GreyCatWasmExports;
       /** Optional auth token */
       token?: string;
       permissions?: string[];

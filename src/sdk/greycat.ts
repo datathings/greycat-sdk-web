@@ -165,9 +165,13 @@ namespace gc {
       const abi = new Abi(data);
       const cleanUrl = normalizeUrl(url);
 
+      const wasm = await compileWasm();
+
       const g = new GreyCat(
         cleanUrl,
         abi,
+        wasm.module,
+        wasm.instance.exports as unknown as gc.sdk.GreyCatWasmExports,
         capacity,
         cache,
         pollTasks,
@@ -206,6 +210,8 @@ namespace gc {
       pollTasks,
       maxTasks,
       abi,
+      module,
+      exports,
       token,
       unauthorizedHandler,
       abiMismatchHandler,
@@ -214,6 +220,8 @@ namespace gc {
       const greycat = new GreyCat(
         normalizeUrl(url),
         abi,
+        module,
+        exports,
         capacity,
         cache,
         pollTasks,
@@ -316,6 +324,10 @@ namespace gc {
       tasks: gc.runtime.Task[] = [];
       /** currently connected user permissions */
       permissions: string[];
+      /** GreyCat Wasm Module */
+      readonly module: WebAssembly.Module;
+      /** GreyCat Wasm Exports */
+      private _exports: GreyCatWasmExports;
       /** used when making authenticated requests */
       token: string | undefined;
       /** called when a request returns a status code 401 */
@@ -331,6 +343,8 @@ namespace gc {
       constructor(
         api: string,
         abi: Abi,
+        module: WebAssembly.Module,
+        exports: GreyCatWasmExports,
         capacity = 4096,
         cache: Cache = new NoopCache(),
         pollTasks = 0,
@@ -348,6 +362,8 @@ namespace gc {
         this._max_tasks = maxTasks;
         this.token = token;
         this.permissions = permissions;
+        this.module = module;
+        this._exports = exports;
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
         this._fields_map = new Map();
@@ -997,6 +1013,44 @@ namespace gc {
         }
         return evolutions;
       }
+
+      parseTime(isoDate: string, tz: gc.core.TimeZone = gc.core.TimeZone.UTC): gc.core.time {
+        const res_ptr = 0;
+        const str_ptr = 8;
+
+        const str_buf = new TextEncoder().encode(isoDate);
+        new Uint8Array(this._exports.memory.buffer).set(str_buf, str_ptr);
+
+        const res = this._exports.gc_dtz_time__parse(
+          str_ptr,
+          str_buf.byteLength,
+          tz.offset,
+          res_ptr,
+        );
+
+        if (!res) {
+          throw new Error(`Invalid date`);
+        }
+
+        const epoch_ms = new DataView(this._exports.memory.buffer).getBigInt64(res_ptr, true);
+        return new gc.core.time(epoch_ms * 1000n);
+      }
+    }
+
+    /**
+     * Instantiates GreyCat's wasm module.
+     *
+     * *This is called implicitly by `gc.sdk.init()`, you should never call it manually*
+     * @returns
+     */
+    export async function compileWasm(): Promise<{
+      module: WebAssembly.Module;
+      instance: WebAssembly.Instance & { exports: GreyCatWasmExports };
+    }> {
+      return WebAssembly.instantiate(gc.sdk.WASM_BYTES) as unknown as {
+        module: WebAssembly.Module;
+        instance: WebAssembly.Instance & { exports: GreyCatWasmExports };
+      };
     }
 
     export type LoginOptions = Auth & {

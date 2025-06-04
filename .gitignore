@@ -4,11 +4,10 @@
 /pages/gcdata
 /playground/gcdata/
 /dist
-/.vitepress/cache
-/.vitepress/dist
 /*.tsbuildinfo
 /bin
 /lib
+/webroot
 
 /package-lock.json
 /src/sdk_esm_not_working

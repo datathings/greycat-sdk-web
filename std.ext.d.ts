@@ -1,4 +1,23 @@
 declare namespace gc {
+  export namespace sdk {
+    export interface GreyCatWasmExports {
+      memory: WebAssembly.Memory;
+      /**
+       * @param {number} str_ptr Pointer to `const char *str`
+       * @param {number} len `str_ptr` length
+       * @param {number} tz `core::TimeZone` field offset
+       * @param {number} out_epoch_ms_ptr address of the result epoch `i64_t *out_epoch_ms`
+       * @result `1`=success, `0`=error
+       */
+      gc_dtz_time__parse(
+        str_ptr: number,
+        len: number,
+        tz: number,
+        out_epoch_ms_ptr: number,
+      ): number;
+    }
+  }
+
   interface $TypesMap {}
   export type $Types = keyof $TypesMap extends never ? string : keyof $TypesMap;
   interface $FieldsMap {}
@@ -90,7 +109,7 @@ declare namespace gc {
       /**
        * Downloads the content of this file. This method interprets the extension in order to
        * call the appropriate deserializer.
-       * 
+       *
        * *This is nothing more than sugar on top of `gc.$.default.getFile(this.path)`*
        */
       download<T = unknown>(

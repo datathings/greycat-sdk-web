@@ -26,6 +26,7 @@
   // ORDER IS IMPORTANT
   "files": [
     "polyfill.ts",
+    "wasm.ts",
     "GCObject.ts",
     "GCEnum.ts",
     "abi.ts",

@@ -8,8 +8,11 @@ const { Abi } = gc.sdk;
 describe('std', () => {
   before(async () => {
     const buffer = /** @type {ArrayBuffer} */ ((await readFile('project.test.abi')).buffer);
+    const wasm = await gc.sdk.compileWasm();
     gc.sdk.initWithAbi({
       abi: new Abi(buffer),
+      module: wasm.module,
+      exports: wasm.instance.exports,
     });
   });
 
