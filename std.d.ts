@@ -765,19 +765,6 @@ declare namespace gc {
 
     class MathConstants extends gc.sdk.GCObject {
       static readonly _type = 'core::MathConstants';
-      static e: number;
-      static log_2e: number;
-      static log_10e: number;
-      static ln2: number;
-      static ln10: number;
-      static pi: number;
-      static pi_2: number;
-      static pi_4: number;
-      static m1_pi: number;
-      static m2_pi: number;
-      static m2_sqrt_pi: number;
-      static sqrt2: number;
-      static sqrt1_2: number;
     }
 
     class null_ extends gc.sdk.std_n.core.null_ {}
@@ -1054,8 +1041,6 @@ declare namespace gc {
       enumerable_limit: number | bigint | null;
       date_check_limit: number | bigint | null;
       date_formats: globalThis.Array<string> | null;
-      static enumerable_limit_default: bigint;
-      static date_check_limit_default: bigint;
       constructor(header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, row_limit?: number | bigint | null, enumerable_limit?: number | bigint | null, date_check_limit?: number | bigint | null, date_formats?: globalThis.Array<string> | null);
       static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, row_limit?: number | bigint | null, enumerable_limit?: number | bigint | null, date_check_limit?: number | bigint | null, date_formats?: globalThis.Array<string> | null}): CsvAnalysisConfig;
     }
