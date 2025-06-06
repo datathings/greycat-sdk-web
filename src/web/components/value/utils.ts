@@ -19,17 +19,21 @@ export interface StringifyProps {
   pretty?: boolean;
   /** optional boolean to surround strings with doublequotes, defaults to `false` */
   quotedString?: boolean;
+  /** optional timezone for datetime display */
+  timezone?: gc.core.TimeZone;
+  /** optional format for datetime display */
+  format?: string;
 }
 
 /**
  * Best-effort to stringify the given value.
  */
 export function stringify(props: StringifyProps): string {
-  const { text, value, dateFmt, numFmt, name, tiny, pretty = false } = props;
+  const { text, value, dateFmt, numFmt, name, tiny, pretty = false, timezone, format } = props;
   if (text) {
     return text;
   } else if (value instanceof gc.core.time) {
-    return value.toString(dateFmt);
+    return value.toString(timezone, format);
   } else if (value instanceof gc.core.duration) {
     return value.toString();
   } else if (typeof value === 'string') {

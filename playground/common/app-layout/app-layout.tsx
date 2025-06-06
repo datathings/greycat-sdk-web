@@ -32,16 +32,21 @@ export class AppLayout extends GuiElement {
           {this._title}
         </sl-breadcrumb>
         <div className="actions" slot="header">
-          <slot name="action" />
-          <sl-button
-            variant="text"
-            onclick={(ev) => {
-              ev.preventDefault();
-              this._toggleTheme();
-            }}
-          >
-            Light / Dark
-          </sl-button>
+          <div className="actions-left">
+            <slot name="action-left" />
+          </div>
+          <div className="actions-right">
+            <slot name="action" />
+            <sl-button
+              variant="text"
+              onclick={(ev) => {
+                ev.preventDefault();
+                this._toggleTheme();
+              }}
+            >
+              Light / Dark
+            </sl-button>
+          </div>
         </div>
         <gui-nav slot="navigation" />
         {this._main}

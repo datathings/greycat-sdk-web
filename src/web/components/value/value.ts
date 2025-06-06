@@ -23,6 +23,8 @@ export interface GuiValueProps {
   name: string | undefined;
   dateFmt?: Intl.DateTimeFormat;
   numFmt?: Intl.NumberFormat;
+  timezone?: gc.core.TimeZone;
+  format?: string;
   /** optional user-defined data */
   data?: unknown;
   className?: string;
@@ -44,6 +46,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
   protected _linkify: boolean | ((value: unknown) => boolean) = false;
   protected _tiny = false;
   protected _text: string | undefined;
+  protected _timezone: gc.core.TimeZone | undefined;
+  protected _format: string | undefined;
   protected _data: unknown;
   protected _onClick: ClickHandler = NOOP;
   protected _disposeClickHandler: Disposable | undefined;
@@ -107,6 +111,24 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     this.update();
   }
 
+  get timezone() {
+    return this._timezone;
+  }
+
+  set timezone(timezone: gc.core.TimeZone | undefined) {
+    this._timezone = timezone;
+    this.update();
+  }
+
+  get format() {
+    return this._format;
+  }
+
+  set format(format: string | undefined) {
+    this._format = format;
+    this.update();
+  }
+
   get numFmt() {
     return this._numFmt;
   }
@@ -139,6 +161,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     dateFmt = this._dateFmt,
     numFmt = this._numFmt,
     text = this._text,
+    timezone = this._timezone,
+    format = this._format,
     data = this._data,
     className = this.className,
     title = this.title,
@@ -151,6 +175,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     this._dateFmt = dateFmt;
     this._numFmt = numFmt;
     this._text = text;
+    this._timezone = timezone;
+    this._format = format;
     this._data = data;
     this.className = className;
     this.title = title;
@@ -166,6 +192,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     dateFmt: Intl.DateTimeFormat | undefined;
     numFmt: Intl.NumberFormat | undefined;
     text: string | undefined;
+    timezone: gc.core.TimeZone | undefined;
+    format: string | undefined;
     data: unknown;
     className: string;
     title: string;
@@ -179,6 +207,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       dateFmt: this._dateFmt,
       numFmt: this._numFmt,
       text: this._text,
+      timezone: this._timezone,
+      format: this._format,
       data: this._data,
       className: this.className,
       title: this.title,
@@ -217,6 +247,8 @@ export class GuiValue extends GuiElement implements GuiValueProps {
         name: this._name,
         tiny: this._tiny,
         text: this._text,
+        timezone: this._timezone,
+        format: this._format,
         dateFmt,
         numFmt,
       });

@@ -74,6 +74,7 @@ import {
   GuiTasks,
   GuiTabs,
   GuiTab,
+  GuiTime,
   GuiPanel,
   GuiSelect,
   GuiMap,
@@ -149,6 +150,7 @@ function initWeb() {
     [gc.core.function_._type]: 'gui-input-fnptr',
   });
 
+  registerCustomElement('gui-time', GuiTime);
   registerCustomElement('gui-thead-cell', GuiTableHeadCell);
   registerCustomElement('gui-tbody-cell', GuiTableBodyCell);
   registerCustomElement('gui-tbody-row', GuiTableBodyRow);
@@ -312,6 +314,7 @@ declare global {
       GuiTasks,
       GuiTabs,
       GuiTab,
+      GuiTime,
       GuiPanel,
       GuiSelect,
       GuiMap,

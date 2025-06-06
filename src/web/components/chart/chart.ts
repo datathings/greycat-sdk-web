@@ -1197,8 +1197,8 @@ export class GuiChart extends GuiElement {
         let toStr: string;
         if (this._config.xAxis.cursorFormat === undefined) {
           if (this._config.xAxis.scale === 'time') {
-            fromStr = d3.isoFormat(new Date(from));
-            toStr = d3.isoFormat(new Date(to));
+            fromStr = gc.core.time.fromMs(from).toString();
+            toStr = gc.core.time.fromMs(to).toString();
           } else {
             fromStr = `${from}`;
             toStr = `${to}`;
@@ -1839,6 +1839,14 @@ export class GuiChart extends GuiElement {
     }
 
     this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
+  }
+
+  xScale() {
+    return this._computed?.xScale;
+  }
+
+  yScales() {
+    return this._computed?.yScales;
   }
 
   /**

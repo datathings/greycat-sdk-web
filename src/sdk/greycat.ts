@@ -142,6 +142,7 @@ namespace gc {
         name = 'default',
         url = DEFAULT_URL,
         capacity,
+        timezone,
         cache,
         pollTasks,
         maxTasks,
@@ -173,6 +174,7 @@ namespace gc {
         wasm.module,
         wasm.instance.exports as unknown as gc.sdk.GreyCatWasmExports,
         capacity,
+        timezone,
         cache,
         pollTasks,
         maxTasks,
@@ -206,6 +208,7 @@ namespace gc {
       name = 'default',
       url = DEFAULT_URL,
       capacity,
+      timezone,
       cache,
       pollTasks,
       maxTasks,
@@ -223,6 +226,7 @@ namespace gc {
         module,
         exports,
         capacity,
+        timezone,
         cache,
         pollTasks,
         maxTasks,
@@ -318,6 +322,8 @@ namespace gc {
       readonly capacity: number;
       /** cache layer for request/response. Defaults to the `NoopCache`. */
       readonly cache: Cache;
+      /** the default timezone of this instance */
+      timezone: gc.core.TimeZone;
       /** program roles & permissions */
       roles: gc.runtime.Role[] = [];
       /** server tasks, this list is automatically updated periodically */
@@ -346,6 +352,7 @@ namespace gc {
         module: WebAssembly.Module,
         exports: GreyCatWasmExports,
         capacity = 4096,
+        timezone: gc.core.TimeZone.Field | undefined,
         cache: Cache = new NoopCache(),
         pollTasks = 0,
         maxTasks = 100,
@@ -367,6 +374,15 @@ namespace gc {
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
         this._fields_map = new Map();
+
+        if (timezone === undefined) {
+          this.timezone =
+            gc.core.TimeZone[
+              new Intl.DateTimeFormat().resolvedOptions().timeZone as gc.core.TimeZone.Field
+            ];
+        } else {
+          this.timezone = gc.core.TimeZone[timezone];
+        }
 
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -1014,12 +1030,15 @@ namespace gc {
         return evolutions;
       }
 
-      parseTime(isoDate: string, tz: gc.core.TimeZone = gc.core.TimeZone.UTC): gc.core.time {
+      parseTime(isoDate: string, tz = this.timezone): gc.core.time {
         const res_ptr = 0;
         const str_ptr = 8;
+        const dv = new DataView(this._exports.memory.buffer);
 
-        const str_buf = new TextEncoder().encode(isoDate);
-        new Uint8Array(this._exports.memory.buffer).set(str_buf, str_ptr);
+        dv.setBigInt64(res_ptr, 0n, true);
+
+        const str_buf = new Uint8Array(this._exports.memory.buffer, str_ptr, isoDate.length);
+        new TextEncoder().encodeInto(isoDate, str_buf);
 
         const res = this._exports.gc_dtz_time__parse(
           str_ptr,
@@ -1032,8 +1051,21 @@ namespace gc {
           throw new Error(`Invalid date`);
         }
 
-        const epoch_ms = new DataView(this._exports.memory.buffer).getBigInt64(res_ptr, true);
-        return new gc.core.time(epoch_ms * 1000n);
+        const epoch_us = dv.getBigInt64(res_ptr, true);
+        return new gc.core.time(epoch_us);
+      }
+
+      printTime(
+        time: gc.core.time,
+        tz = this.timezone,
+        format = '%Y-%m-%dT%H:%M:%S%.3f%z',
+      ): string {
+        const format_buf = new Uint8Array(this._exports.memory.buffer, 0, format.length + 1);
+        new TextEncoder().encodeInto(format, format_buf);
+        format_buf[format.length] = 0; // ensures nul-byte terminated
+        const out_ptr = format.length + 1;
+        const n = this._exports.gc_dtz_time__print(BigInt(time.value), tz.offset, 0, out_ptr, 128);
+        return new TextDecoder().decode(new Uint8Array(this._exports.memory.buffer, out_ptr, n));
       }
     }
 

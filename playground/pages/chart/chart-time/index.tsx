@@ -1,7 +1,10 @@
 import '@greycat/web';
+import { setGlobalDateTimeFormatTimezone } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ timezone: 'Australia/Adelaide' });
+
+setGlobalDateTimeFormatTimezone(gc.core.TimeZone['Australia/Adelaide']);
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');
@@ -14,15 +17,6 @@ chart.addEventListener('gui-selection', (e) => {
   } else {
     console.log(`reset selection`);
   }
-});
-
-chart.addEventListener('gui-enter', () => {
-  console.log('canvas-enter');
-});
-
-chart.addEventListener('gui-leave', () => {
-  console.log('canvas-leave');
-  currentValue.innerHTML = '';
 });
 
 const colors = {
@@ -73,23 +67,29 @@ chart.setConfig({
   ],
 });
 
+const from = document.createElement('gui-time');
+from.timezone = gc.core.TimeZone['Europe/Paris'];
+const to = document.createElement('gui-time');
+to.timezone = gc.core.TimeZone['Europe/Paris'];
+
 document.body.appendChild(
   <app-layout title="Chart (time)">
-    <>
-      {currentValue}
-      <a slot="action" href="#" onclick={randomize}>
-        Randomize
-      </a>
-      <a
-        slot="action"
-        href="#"
-        onclick={() => {
-          chart.config.cursor = !chart.config.cursor;
-        }}
-      >
-        Toggle cursor
-      </a>
-    </>
+    <div slot="action-left">
+      <span>from={from}</span>,&nbsp;<span>to={to}</span>
+    </div>
+    {currentValue}
+    <a slot="action" href="#" onclick={randomize}>
+      Randomize
+    </a>
+    <a
+      slot="action"
+      href="#"
+      onclick={() => {
+        chart.config.cursor = !chart.config.cursor;
+      }}
+    >
+      Toggle cursor
+    </a>
     {chart}
   </app-layout>,
 );
@@ -99,4 +99,10 @@ randomize();
 async function randomize() {
   chart.value = await gc.project.chart_time();
   console.log({ table: chart.value });
+  const scale = chart.xScale();
+  if (scale !== undefined) {
+    const [min, max] = scale.domain() as [Date, Date];
+    from.value = gc.core.time.fromDate(min);
+    to.value = gc.core.time.fromDate(max);
+  }
 }

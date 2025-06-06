@@ -490,6 +490,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
 
 export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
   private _value: gc.core.time | null = null;
+  private _timezone: gc.core.TimeZone | undefined;
   readonly input: sl.SlInput;
 
   constructor() {
@@ -505,20 +506,26 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
 
     this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
-      const epochMs = this.input.valueAsNumber;
-      if (isNaN(epochMs)) {
-        this._value = null;
-      } else {
-        this._value = gc.core.time.fromMs(epochMs);
-      }
-      this.dispatchEvent(new GuiInputEvent(this.value));
+      this._update_value();
+      this.dispatchEvent(new GuiInputEvent(this._value));
     });
     this.input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
+      this.dispatchEvent(new GuiChangeEvent(this._value));
     });
 
     this.shadowRoot.replaceChildren(this.input);
+  }
+
+  private _update_value(): void {
+    if (!this.isConnected) {
+      return;
+    }
+    try {
+      this._value = gc.$.default.parseTime(this.input.value, this._timezone);
+    } catch {
+      this._value = null;
+    }
   }
 
   get value(): gc.core.time | null {
@@ -528,6 +535,15 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
   set value(value: gc.core.time | null | undefined) {
     this._value = value ?? null;
     this.update();
+  }
+
+  get timezone() {
+    return this._timezone;
+  }
+
+  set timezone(tz: gc.core.TimeZone | undefined) {
+    this._timezone = tz;
+    this._update_value();
   }
 
   override get name() {
@@ -581,7 +597,10 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.input.updateComplete.then(() => this.update());
+    this.input.updateComplete.then(() => {
+      this.update();
+      this._update_value();
+    });
   }
 
   override update(): void {
@@ -590,7 +609,15 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
     }
 
     if (this._value) {
-      this.input.input.valueAsNumber = this._value.epochMs;
+      let tz: gc.core.TimeZone;
+      if (this._timezone === undefined) {
+        const local_tz = new Intl.DateTimeFormat().resolvedOptions()
+          .timeZone as gc.core.TimeZone.Field;
+        tz = gc.core.TimeZone[local_tz];
+      } else {
+        tz = this._timezone;
+      }
+      this.input.input.value = this._value.toInputValue(tz);
       this.input.value = this.input.input.value;
     } else {
       this.input.value = '';

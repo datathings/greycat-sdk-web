@@ -13,6 +13,14 @@
   vertical-align: inherit;
 }
 
+:root,
+:host,
+.sl-theme-light,
+.sl-theme-dark {
+  --sl-font-mono: 'JetBrains Mono', 'Fira Code', 'Menlo', 'Consolas', 'Liberation Mono',
+    'DejaVu Sans Mono', monospace;
+}
+
 :where(:root) {
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;

@@ -101,6 +101,12 @@ namespace gc {
        */
       url?: URL;
       /**
+       * The default timezone of this instance
+       *
+       * Defaults to the host local
+       */
+      timezone?: gc.core.TimeZone.Field;
+      /**
        * Write buffer capacity. Defaults to `4096` (4KB)
        */
       capacity?: number;

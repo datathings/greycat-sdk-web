@@ -170,12 +170,15 @@ namespace gc {
             }).format(date);
           }
 
-          override toString(fmt?: Intl.DateTimeFormat): string {
-            const date = new globalThis.Date(this.epochMs);
-            if (isNaN(date.getTime())) {
-              return `${this.value}_time`;
-            }
-            return fmt?.format(date) ?? date.toISOString();
+          /**
+           * Returns the time properly formatted for an HTML `datetime-local` input value
+           */
+          toInputValue(tz?: gc.core.TimeZone, g = gc.$.default): string {
+            return g.printTime(this, tz, '%Y-%m-%dT%H:%M:%S');
+          }
+
+          override toString(tz?: gc.core.TimeZone, fmt?: string, g = gc.$.default): string {
+            return g.printTime(this, tz, fmt);
           }
 
           override toJSON() {
