@@ -1,10 +1,6 @@
 import * as d3 from 'd3';
 import { Axis, ChartConfig, Scale, SerieTableColumn } from './types.js';
-import {
-  getGlobalDateTimeFormat,
-  getGlobalDateTimeFormatTimezone,
-  greycatTypeFromValueStr,
-} from '../../exports.js';
+import { greycatTypeFromValueStr } from '../../exports.js';
 
 const SECONDS_IN_MS = 1000;
 const MINUTES_IN_MS = SECONDS_IN_MS * 60;
@@ -19,7 +15,7 @@ const DAYS_IN_MS = HOURS_IN_MS * 24;
  */
 export function smartTimeFormatSpecifier(span: number): string {
   if (span < MINUTES_IN_MS) {
-    return '%S.%L';
+    return '%S%.3f';
   } else if (span < HOURS_IN_MS) {
     return '%M:%S';
   } else if (span < DAYS_IN_MS) {
@@ -28,6 +24,24 @@ export function smartTimeFormatSpecifier(span: number): string {
     return '%a %H:%M';
   } else if (span < DAYS_IN_MS * 30) {
     return '%d %b';
+  } else if (span < DAYS_IN_MS * 365 * 2) {
+    return '%d %b %Y';
+  } else {
+    return '%b %Y';
+  }
+}
+
+export function smartTimeCursorFormatSpecifier(span: number): string | undefined {
+  if (span < MINUTES_IN_MS) {
+    return '%M:%S%.f';
+  } else if (span < HOURS_IN_MS) {
+    return '%H:%M:%S%.3f';
+  } else if (span < DAYS_IN_MS * 2) {
+    return '%a %d %b %H:%M:%S';
+  } else if (span < DAYS_IN_MS * 7) {
+    return '%a %d %b %H:%M';
+  } else if (span < DAYS_IN_MS * 30) {
+    return '%d %b %y %H:%M';
   } else if (span < DAYS_IN_MS * 365 * 2) {
     return '%d %b %Y';
   } else {
@@ -54,104 +68,36 @@ export function axisSpan(axis: d3.Axis<unknown>): number {
 export function createFormatter(
   axis: Axis,
   scale: Scale,
-  useCursorFormat = false,
+  isCursor = false,
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): (...args: any[]) => string {
-  const format = axis[useCursorFormat ? 'cursorFormat' : 'format'];
-  if (format === undefined) {
-    const [from, to] = scale.range();
-    const span = Math.abs(+scale.invert(to) - +scale.invert(from));
-    if (axis.scale === 'time') {
-      const timeZone = getGlobalDateTimeFormatTimezone();
-      const gFmt = getGlobalDateTimeFormat();
-      const locale = gFmt.resolvedOptions().locale;
-      if (useCursorFormat) {
-        return (d) => gFmt.format(d);
+  const format = axis[isCursor ? 'cursorFormat' : 'format'];
+
+  switch (axis.scale) {
+    case 'time': {
+      const timezone = axis[isCursor ? 'cursorTimezone' : 'timezone'];
+      if (typeof format === 'string') {
+        return (d: number) => gc.$.default.printTime(gc.core.time.fromMs(d), timezone, format);
+      } else if (format === undefined) {
+        const [from, to] = scale.range();
+        const span = Math.abs(+scale.invert(to) - +scale.invert(from));
+        const smartFormat = isCursor ? smartTimeCursorFormatSpecifier(span) : smartTimeFormatSpecifier(span);
+        return (d: number) => gc.$.default.printTime(gc.core.time.fromMs(d), timezone, smartFormat);
       }
-      if (span < SECONDS_IN_MS * 30) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          fractionalSecondDigits: 3,
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < MINUTES_IN_MS * 5) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < HOURS_IN_MS) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < DAYS_IN_MS * 7) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          weekday: 'short',
-          hour: '2-digit',
-          minute: '2-digit',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < DAYS_IN_MS * 50) {
-        // TODO We could add logic to show 'year' only when the months are 'dec' and 'jan'
-        const fmt = new Intl.DateTimeFormat(locale, {
-          // weekday: 'short',
-          day: '2-digit',
-          month: '2-digit',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < DAYS_IN_MS * 365) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          year: '2-digit',
-          month: '2-digit',
-          day: '2-digit',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      if (span < DAYS_IN_MS * 365 * 10) {
-        const fmt = new Intl.DateTimeFormat(locale, {
-          year: 'numeric',
-          month: 'short',
-          timeZone: timeZone?.key,
-        });
-        return (d) => fmt.format(d);
-      }
-      const fmt = new Intl.DateTimeFormat(locale, {
-        year: 'numeric',
-        timeZone: timeZone?.key,
-      });
-      return (d) => fmt.format(d);
-    } else {
-      return d3.format(smartNumericalFormatSpecifier(span));
-    }
-  } else if (typeof format === 'string') {
-    if (axis.scale === 'time') {
-      return d3.utcFormat(format);
-    } else {
-      return d3.format(format);
-    }
-  } else {
-    if (axis.scale === 'time') {
       const [from, to] = scale.range();
       const span = Math.abs(+scale.invert(to) - +scale.invert(from));
       const specifier = smartTimeFormatSpecifier(span);
       return (v) => format(+v, specifier);
-    } else {
+    }
+
+    default: {
+      if (typeof format === 'string') {
+        return d3.format(format);
+      } else if (format === undefined) {
+        const [from, to] = scale.range();
+        const span = Math.abs(+scale.invert(to) - +scale.invert(from));
+        return d3.format(smartNumericalFormatSpecifier(span));
+      }
       return format;
     }
   }

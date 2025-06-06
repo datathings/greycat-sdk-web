@@ -7,7 +7,7 @@ export type Scale =
 export type Color = string | CanvasGradient | CanvasPattern;
 export type SerieType = Serie['type'];
 export type ScaleType = Extract<Axis['scale'], string>;
-export type SecondOrdinate = 'min' | 'max' | SerieTableColumn;
+export type SecondOrdinate<C = SerieTableColumn> = 'min' | 'max' | C;
 export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
@@ -176,28 +176,30 @@ export type TimeAxis = {
   /**
    * Formats the ticks text on the axis depending on the axis type and this parameter type:
    *
-   * - When `format: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
+   * - When `format: string` the value is formatted with greycat `printTime`.
    * - When `format: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
    *   The `specifier` parameter is set to be the best possible specifier for the range.
-   * - When `format: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
+   * - When `format: undefined` the value is formatted with greycat `printTime`.
    */
   format?: ((value: number, specifier: string) => string) | string;
+  timezone?: gc.core.TimeZone;
   /**
    * Formats the cursor text on the axis depending on the axis type and this parameter type:
    *
-   * - When `cursorFormat: string` the value is formatted with `d3.utcFormat` (see https://d3js.org/d3-time-format#utcFormat).
+   * - When `cursorFormat: string` the value is formatted with greycat `printTime`.
    * - When `cursorFormat: (value: number, specifier: string) => string`, delegates formatting to that function entirely.
    *   The `specifier` parameter is set to be the best possible specifier for the range.
-   * - When `cursorFormat: undefined` the value is formatted with `d3.isoFormat` (see https://d3js.org/d3-time-format#isoFormat)
+   * - When `cursorFormat: undefined` the value is formatted with greycat `printTime`.
    */
   cursorFormat?: ((value: number, specifier: string) => string) | string;
+  cursorTimezone?: gc.core.TimeZone;
 };
 
 export type Axis = CommonAxis & (LinearAxis | LogAxis | TimeAxis);
 
 export type Ordinate = Axis & { position?: AxisPosition };
 
-export type SerieOptions = {
+export interface SerieOptions<C = SerieTableColumn> {
   /** Whether or not to display the serie */
   hide: boolean;
   color: string;
@@ -224,7 +226,7 @@ export type SerieOptions = {
    * - `'max'`: draws the area from `yCol` to the top
    * - `SerieTableColumn`: draws the area from `yCol` to the column specified by the `SerieTableColumn`
    */
-  yCol2: SecondOrdinate;
+  yCol2: SecondOrdinate<C>;
   /**
    * If `true` this serie value won't show in the tooltip.
    *
@@ -246,7 +248,7 @@ export type SerieOptions = {
      *
      * (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
      */
-    col: SerieTableColumn;
+    col: C;
     /**
      * @param v the column (`col`) value
      * @returns the style used for canvas painting, or `null` to get the default style of the serie
@@ -254,7 +256,7 @@ export type SerieOptions = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     mapping?: (v: any) => SerieStyle | null;
   };
-};
+}
 
 export type LineOptions = {
   /**
@@ -275,19 +277,24 @@ export type LineOptions = {
  *
  * Or an array of fields if trying to dive into a nested object in a typed Table.
  */
-export type SerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
+export type SerieTableColumn = number | string | (number | string)[];
+export type TypedSerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
 
-export interface CommonSerie<K> extends Partial<SerieOptions> {
+export function chartConfig<K>(config: ChartConfig<K, TypedSerieTableColumn>): ChartConfig<K, SerieTableColumn> {
+  return config;
+}
+
+export interface CommonSerie<K, C = SerieTableColumn> extends Partial<SerieOptions<C>> {
   /**
    * optional offset of the x column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    *
    * If undefined, the array index will be used
    */
-  xCol?: SerieTableColumn;
+  xCol?: C;
   /**
    * offset of the y column in the given table (see [SerieTableColumn](#SerieTableColumn) for in-depth explaination)
    */
-  yCol: SerieTableColumn;
+  yCol: C;
   /**
    * must refer to a defined 'key' in `config.yAxes` and will be used as the y-axis for this serie
    */
@@ -310,16 +317,16 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
   drawAfter?: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
-export interface CustomSerie<K> extends CommonSerie<K> {
+export interface CustomSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
   type: 'custom';
   draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
-export interface LineSerie<K> extends CommonSerie<K>, LineOptions {
+export interface LineSerie<K, C = SerieTableColumn> extends CommonSerie<K, C>, LineOptions {
   type: 'line';
 }
 
-export interface BarSerie<K> extends CommonSerie<K> {
+export interface BarSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
   type: 'bar';
   /**
    * Use this when you want to have bars that match a specific width.
@@ -334,37 +341,37 @@ export interface BarSerie<K> extends CommonSerie<K> {
   baseLine?: number;
 }
 
-export interface ScatterSerie<K> extends CommonSerie<K> {
+export interface ScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
   type: 'scatter';
   /** This is not used. Use `width` to specify the radius of the plots */
   plotRadius?: never;
 }
 
-export interface LineScatterSerie<K> extends CommonSerie<K>, LineOptions {
+export interface LineScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C>, LineOptions {
   type: 'line+scatter';
   /** Specifies the radius of the plot in a `'line+scatter'` */
   plotRadius?: number;
 }
 
-export interface AreaSerie<K> extends CommonSerie<K>, LineOptions {
+export interface AreaSerie<K, C = SerieTableColumn> extends CommonSerie<K, C>, LineOptions {
   type: 'area';
 }
 
-export interface LineAreaSerie<K> extends CommonSerie<K>, LineOptions {
+export interface LineAreaSerie<K, C = SerieTableColumn> extends CommonSerie<K, C>, LineOptions {
   type: 'line+area';
 }
 
-export type Serie<K extends string = string> =
-  | LineSerie<K>
-  | BarSerie<K>
-  | ScatterSerie<K>
-  | LineScatterSerie<K>
-  | AreaSerie<K>
-  | LineAreaSerie<K>
-  | CustomSerie<K>;
+export type Serie<K extends string = string, C = SerieTableColumn> =
+  | LineSerie<K, C>
+  | BarSerie<K, C>
+  | ScatterSerie<K, C>
+  | LineScatterSerie<K, C>
+  | AreaSerie<K, C>
+  | LineAreaSerie<K, C>
+  | CustomSerie<K, C>;
 
-export interface ChartConfig<K = { [keys: string]: never }> {
-  series: Serie<Extract<keyof K, string>>[];
+export interface ChartConfig<K = { [keys: string]: never }, C = SerieTableColumn> {
+  series: Serie<Extract<keyof K, string>, C>[];
   /**
    * The x-axis definition
    */

@@ -1205,8 +1205,16 @@ export class GuiChart extends GuiElement {
           }
         } else if (typeof this._config.xAxis.cursorFormat === 'string') {
           if (this._config.xAxis.scale === 'time') {
-            fromStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(from));
-            toStr = d3.utcFormat(this._config.xAxis.cursorFormat)(new Date(to));
+            fromStr = gc.$.default.printTime(
+              gc.core.time.fromMs(from),
+              this._config.xAxis.cursorTimezone,
+              this._config.xAxis.cursorFormat,
+            );
+            toStr = gc.$.default.printTime(
+              gc.core.time.fromMs(to),
+              this._config.xAxis.cursorTimezone,
+              this._config.xAxis.cursorFormat,
+            );
           } else {
             fromStr = d3.format(this._config.xAxis.cursorFormat)(from);
             toStr = d3.format(this._config.xAxis.cursorFormat)(to);

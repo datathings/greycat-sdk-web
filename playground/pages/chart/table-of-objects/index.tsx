@@ -1,4 +1,5 @@
 import '@greycat/web';
+import { chartConfig } from '@greycat/web';
 import '~/common';
 
 await gc.sdk.init();
@@ -11,7 +12,7 @@ document.body.appendChild(
     <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <gui-chart
         value={table}
-        config={{
+        config={chartConfig({
           xAxis: {
             scale: 'time',
           },
@@ -32,7 +33,7 @@ document.body.appendChild(
               yAxis: 'y',
             },
           ],
-        }}
+        })}
       />
       <gui-chart
         value={table2}
