@@ -1806,7 +1806,7 @@ export class GuiChart extends GuiElement {
         max = 1;
       }
 
-      if (yAxis.padding !== undefined) {
+      if (yAxis.padding !== undefined && yAxis.min === undefined && yAxis.max === undefined) {
         if (type === 'log') {
           [min, max] = padLog([min, max], yAxis.padding);
         } else {
@@ -1829,7 +1829,11 @@ export class GuiChart extends GuiElement {
     }
 
     const xAxis = this._config.xAxis;
-    if (xAxis.padding !== undefined) {
+    if (
+      xAxis.padding !== undefined &&
+      this._config.xAxis.min === undefined &&
+      this._config.xAxis.max === undefined
+    ) {
       if (xAxis.scale === 'log') {
         [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
       } else {
