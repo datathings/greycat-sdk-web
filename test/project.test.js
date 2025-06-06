@@ -53,7 +53,7 @@ describe('project', () => {
     'Hello world',
     'Hello world',
     12,
-    '1970-01-01T00:00:00.000Z',
+    '1970-01-01T01:00:00.000+0100',
     [],
     [42, true, 'hello', 'core::CalendarUnit::month'],
     { lat: 49.596344732033856, lng: 6.128470371477306 },
@@ -205,7 +205,7 @@ describe('project', () => {
       progress: null,
       start: null,
       duration: null,
-      creation: '1970-01-01T00:00:00.000Z',
+      creation: '1970-01-01T01:00:00.000+0100',
       status: 'runtime::TaskStatus::empty',
     },
     'runtime::TaskStatus::cancelled',
@@ -218,8 +218,8 @@ describe('project', () => {
       timezone: 'core::TimeZone::Europe/Luxembourg',
       license: {
         _type: 'runtime::License',
-        start: '1970-01-01T00:00:00.000Z',
-        end: '1970-01-01T00:00:00.000Z',
+        start: '1970-01-01T01:00:00.000+0100',
+        end: '1970-01-01T01:00:00.000+0100',
         max_memory: 12,
         company: null,
         name: null,
@@ -251,7 +251,7 @@ describe('project', () => {
       function: 'project::float_f',
       arguments: [3.14],
       user_id: 12,
-      start: '1970-01-01T00:00:00.000Z',
+      start: '1970-01-01T01:00:00.000+0100',
       every: 37,
     },
     {
@@ -274,8 +274,8 @@ describe('project', () => {
     'runtime::UserGroupPolicyType::read',
     {
       _type: 'runtime::License',
-      start: '1970-01-01T00:00:00.000Z',
-      end: '1970-01-01T00:00:00.000Z',
+      start: '1970-01-01T01:00:00.000+0100',
+      end: '1970-01-01T01:00:00.000+0100',
       max_memory: 12,
       company: null,
       extra_1: null,
@@ -298,7 +298,7 @@ describe('project', () => {
     { _type: 'util::Assert' },
     {
       _type: 'util::ProgressTracker',
-      start: '1970-01-01T00:00:00.000Z',
+      start: '1970-01-01T01:00:00.000+0100',
       counter: null,
       duration: null,
       progress: null,
@@ -320,15 +320,15 @@ describe('project', () => {
       sum: 1000101042,
       sumsq: 1000000008001001900,
       values: [
-        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 1 },
-        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 1000 },
-        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 100000 },
+        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 1 },
+        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 1000 },
+        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 100000 },
         {
           _type: 'core::Tuple<core::time,core::any?>',
-          x: '1970-01-01T00:00:00.000Z',
+          x: '1970-01-01T01:00:00.000+0100',
           y: 999999999,
         },
-        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T00:00:00.000Z', y: 42 },
+        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 42 },
       ],
       span: 3000000,
     },
@@ -348,6 +348,12 @@ describe('project', () => {
   before(async () => {
     const buffer = /** @type {ArrayBuffer} */ ((await readFile('project.test.abi')).buffer);
     abi = new Abi(buffer);
+    const wasm = await gc.sdk.compileWasm();
+    gc.sdk.initWithAbi({
+      abi,
+      module: wasm.module,
+      exports: wasm.instance.exports,
+    });
 
     const data = /** @type {ArrayBuffer} */ ((await readFile('project.test.gcb')).buffer);
     reader = new AbiReader(abi, data);

@@ -113,7 +113,7 @@ export class CanvasContext {
     this.ctx.save();
     this.ctx.beginPath();
 
-    const [xMin, xMax] = xScale.range();
+    const [xMin, _] = xScale.range();
 
     const prevStyle: SerieStyle = {
       color: serie.color,
@@ -123,6 +123,11 @@ export class CanvasContext {
     };
 
     let first = true;
+
+    const isReverse =
+      serie.xCol !== undefined &&
+      xScale(vMap(tableGetCell(table, serie.xCol, 0))) >
+        xScale(vMap(tableGetCell(table, serie.xCol, 1)));
 
     for (let i = 1; i < table.cols[0].length; i++) {
       const prevX = xScale(
@@ -173,14 +178,30 @@ export class CanvasContext {
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
         this.ctx.moveTo(prevX, prevY);
-        if (serie.curve === 'step-after') {
+        if (
+          (serie.curve === 'step-after' && !isReverse) ||
+          (serie.curve === 'step-before' && isReverse)
+        ) {
           this.ctx.lineTo(sX, prevY);
+        } else if (
+          (serie.curve === 'step-before' && !isReverse) ||
+          (serie.curve === 'step-after' && isReverse)
+        ) {
+          this.ctx.lineTo(prevX, sY);
         }
         this.ctx.lineTo(sX, sY);
         first = false;
       } else {
-        if (serie.curve === 'step-after') {
+        if (
+          (serie.curve === 'step-after' && !isReverse) ||
+          (serie.curve === 'step-before' && isReverse)
+        ) {
           this.ctx.lineTo(sX, prevY);
+        } else if (
+          (serie.curve === 'step-before' && !isReverse) ||
+          (serie.curve === 'step-after' && isReverse)
+        ) {
+          this.ctx.lineTo(prevX, sY);
         }
         this.ctx.lineTo(sX, sY);
       }
@@ -212,10 +233,10 @@ export class CanvasContext {
       this.ctx.strokeStyle = lineColor;
 
       // draw the last segment and stop
-      if (sX > xMax) {
-        this.ctx.lineTo(sX, sY);
-        break;
-      }
+      // if (sX > xMax) {
+      //   this.ctx.lineTo(sX, sY);
+      //   break;
+      // }
     }
 
     this.ctx.stroke();
@@ -441,7 +462,7 @@ export class CanvasContext {
       return;
     }
 
-    const [xMin, xMax] = xScale.range();
+    const [xMin, _] = xScale.range();
     // const [yMin, yMax] = yScale.range();
 
     const { x, y, fillOpacity, fill } = computePoint(table, serie.xCol, serie.yCol, 0);
@@ -456,6 +477,10 @@ export class CanvasContext {
 
     let first = true;
 
+    const isReverse =
+      serie.xCol !== undefined &&
+      xScale(vMap(tableGetCell(table, serie.xCol, 0))) >
+        xScale(vMap(tableGetCell(table, serie.xCol, 1)));
     // line
     let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
@@ -479,9 +504,18 @@ export class CanvasContext {
         first = false;
       }
 
-      if (serie.curve === 'step-after') {
+      if (
+        (serie.curve === 'step-after' && !isReverse) ||
+        (serie.curve === 'step-before' && isReverse)
+      ) {
         const prevY = computePoint(table, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
+      } else if (
+        (serie.curve === 'step-before' && !isReverse) ||
+        (serie.curve === 'step-after' && isReverse)
+      ) {
+        const prevX = computePoint(table, serie.xCol, serie.yCol, i - 1).x;
+        this.ctx.lineTo(prevX, pt.y);
       }
       this.ctx.lineTo(pt.x, pt.y);
       lastX = pt.x;
@@ -521,10 +555,10 @@ export class CanvasContext {
       }
       prevPt = pt;
 
-      if (pt.x > xMax) {
-        this.ctx.lineTo(pt.x, pt.y);
-        break;
-      }
+      // if (pt.x > xMax) {
+      //   this.ctx.lineTo(pt.x, pt.y);
+      //   break;
+      // }
     }
 
     if (isOrdMinMax(serie.yCol2)) {
@@ -543,9 +577,18 @@ export class CanvasContext {
         const y = yScale(vMap(tableGetCell(table, serie.yCol2, i)));
 
         this.ctx.lineTo(x, y);
-        if (serie.curve === 'step-after') {
+        if (
+          (serie.curve === 'step-after' && !isReverse) ||
+          (serie.curve === 'step-before' && isReverse)
+        ) {
           const prevY = computePoint(table, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
+        } else if (
+          (serie.curve === 'step-before' && !isReverse) ||
+          (serie.curve === 'step-after' && isReverse)
+        ) {
+          const prevX = computePoint(table, serie.xCol, serie.yCol, i - 1).x;
+          this.ctx.lineTo(prevX, y);
         }
       }
     }

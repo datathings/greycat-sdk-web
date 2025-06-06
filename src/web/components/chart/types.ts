@@ -12,7 +12,7 @@ export type AxisPosition = 'left' | 'right';
 export type MarkerShape = 'circle' | 'square' | 'triangle';
 export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'bottom-left';
 export type SerieWithOptions = Serie & SerieOptions;
-export type CurveStyle = 'linear' | 'step-after';
+export type CurveStyle = 'linear' | 'step-after' | 'step-before';
 
 export type SerieStyle = {
   opacity?: number;
