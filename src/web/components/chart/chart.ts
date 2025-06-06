@@ -1824,7 +1824,7 @@ export class GuiChart extends GuiElement {
     if (
       xAxis.padding !== undefined &&
       this._config.xAxis.min === undefined &&
-      this._config.xAxis.max == undefined
+      this._config.xAxis.max === undefined
     ) {
       if (xAxis.scale === 'log') {
         [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
