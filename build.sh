@@ -54,3 +54,5 @@ rm -rf libweb *.tsbuildinfo
 
 mv sdk_web.zip dist/
 mv web.zip dist/
+
+echo $VERSION
