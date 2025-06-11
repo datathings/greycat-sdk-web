@@ -9,8 +9,6 @@ export interface StringifyProps {
    */
   text?: string;
   tiny?: boolean;
-  /** optional Date formatter used for: `core.time`, `core.Date` and `Date` */
-  dateFmt?: Intl.DateTimeFormat;
   /** optional number formatter used for: `number` */
   numFmt?: Intl.NumberFormat;
   /**
@@ -29,7 +27,7 @@ export interface StringifyProps {
  * Best-effort to stringify the given value.
  */
 export function stringify(props: StringifyProps): string {
-  const { text, value, dateFmt, numFmt, name, tiny, pretty = false, timezone, format } = props;
+  const { text, value, numFmt, name, tiny, pretty = false, timezone, format } = props;
   if (text) {
     return text;
   } else if (value instanceof gc.core.time) {
@@ -44,7 +42,7 @@ export function stringify(props: StringifyProps): string {
   } else if (typeof value === 'number') {
     return numFmt ? numFmt.format(value) : `${value}`;
   } else if (value instanceof Date) {
-    return dateFmt ? dateFmt.format(value) : value.toISOString();
+    return gc.core.time.fromDate(value).toString(timezone, format);
   } else if (value instanceof gc.core.Date) {
     return value.toString();
   } else if (value instanceof gc.core.str) {

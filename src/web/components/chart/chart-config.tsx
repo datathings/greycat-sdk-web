@@ -557,9 +557,26 @@ export class GuiChartAxisInput extends HTMLElement {
     if (value === undefined) {
       input.value = '';
     } else if (value instanceof Date) {
-      input.value = value.toISOString().slice(0, -1);
+      input.value = gc.core.time.fromDate(value).toInputValue();
     } else if (typeof value === 'number' || typeof value === 'bigint') {
-      input.value = value.toString();
+      if (input.type === 'datetime-local') {
+        input.value = new gc.core.time(BigInt(value) * 1000n).toInputValue();
+      } else {
+        input.value = `${value}`;
+      }
+    } else if (value instanceof gc.core.Date) {
+      let date = `${value.year}`.padStart(4, '0');
+      date += '-';
+      date += `${value.month}`.padStart(2, '0');
+      date += '-';
+      date += `${value.day}`.padStart(2, '0');
+      date += 'T';
+      date += `${value.hour}`.padStart(2, '0');
+      date += ':';
+      date += `${value.minute}`.padStart(2, '0');
+      date += ':';
+      date += `${value.second}`.padStart(2, '0');
+      input.value = date;
     } else {
       input.value = value.toString().slice(0, -1);
     }

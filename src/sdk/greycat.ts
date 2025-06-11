@@ -1031,6 +1031,9 @@ namespace gc {
       }
 
       parseTime(isoDate: string, tz = this.timezone): gc.core.time {
+        // NOTE:
+        // Wasm uses its stack backwards, starting by default at 1 page (64KB)
+        // and going down towards 0. So we use the bottom of the stack for our data passing
         const res_ptr = 0;
         const str_ptr = 8;
         const dv = new DataView(this._exports.memory.buffer);
@@ -1060,6 +1063,9 @@ namespace gc {
         tz = this.timezone,
         format = '%Y-%m-%dT%H:%M:%S%.3f%z',
       ): string {
+        // NOTE:
+        // Wasm uses its stack backwards, starting by default at 1 page (64KB)
+        // and going down towards 0. So we use the bottom of the stack for our data passing
         const format_buf = new Uint8Array(this._exports.memory.buffer, 0, format.length + 1);
         new TextEncoder().encodeInto(format, format_buf);
         format_buf[format.length] = 0; // ensures nul-byte terminated

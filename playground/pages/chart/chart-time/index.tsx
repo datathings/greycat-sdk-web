@@ -1,14 +1,11 @@
 import '@greycat/web';
-import { setGlobalDateTimeFormatTimezone } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init({ timezone: 'Australia/Adelaide' });
-
-setGlobalDateTimeFormatTimezone(gc.core.TimeZone['Australia/Adelaide']);
+await gc.sdk.init({ /* timezone: 'Australia/Adelaide' */ });
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');
-
+chart.drawerEnabled = true;
 chart.addEventListener('gui-selection', (e) => {
   if (e.detail) {
     const from = gc.core.time.fromMs(e.detail.from as number);

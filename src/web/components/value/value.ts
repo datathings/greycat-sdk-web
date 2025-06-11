@@ -1,4 +1,4 @@
-import { getGlobalNumberFormat, GuiElement, css, getGlobalDateTimeFormat } from '../../exports.js';
+import { getGlobalNumberFormat, GuiElement, css } from '../../exports.js';
 import { Disposable } from '../../internals.js';
 import { stringify } from './utils.js';
 import style from './value.css?inline';
@@ -234,7 +234,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     }
 
     const numFmt = this._numFmt ?? getGlobalNumberFormat();
-    const dateFmt = this._dateFmt ?? getGlobalDateTimeFormat();
     let element: Node;
 
     if (this._value instanceof gc.sdk.AbiType) {
@@ -249,7 +248,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
         text: this._text,
         timezone: this._timezone,
         format: this._format,
-        dateFmt,
         numFmt,
       });
 
