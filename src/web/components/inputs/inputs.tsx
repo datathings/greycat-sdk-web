@@ -2665,11 +2665,11 @@ export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
     this.input = document.createElement('sl-input');
     this.input.placeholder = `Specify a function fqn (eg. 'runtime::User::me')`;
     this.input.clearable = true;
-    this.input.addEventListener('input', (ev) => {
+    this.input.addEventListener('sl-input', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('change', (ev) => {
+    this.input.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
