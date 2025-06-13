@@ -138,6 +138,10 @@
       {
         "label": "Slot",
         "route": "slot.html"
+      },
+      {
+        "label": "FnPtr",
+        "route": "fn_ptr.html"
       }
     ]
   },

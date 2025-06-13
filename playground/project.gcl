@@ -1113,3 +1113,18 @@ fn array_of_nodes(): Array<node<String>> {
     node<String> { "c" },
   };
 }
+
+@expose
+fn display_fn(fn_: function) {
+  println("I CAN execute without any permissions: ${fn_}");
+}
+
+@volatile
+private type ObjWithFn {
+  fn: function;
+}
+
+@expose
+fn display_fn_in_obj(o: ObjWithFn) {
+  println("I WILL execute: ${o.fn}");
+}
