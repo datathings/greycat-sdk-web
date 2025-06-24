@@ -453,6 +453,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   set filter(text: string | undefined | null) {
     if (typeof text === 'string') {
       this._filterText = text.toLowerCase();
+      this._filter.value = text;
     } else {
       this._filterText = '';
     }
@@ -471,7 +472,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
   set filterColumns(filters: Array<string | undefined | null>) {
     this._filterColumns = filters;
-    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
+    this.shadowRoot.querySelectorAll('gui-thead-cell').forEach((header, i) => {
       header.filter = filters[i];
     });
     this._dirtyFilter = true;
@@ -572,7 +573,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }: Partial<GuiTableProps>) {
     this._setValue(value);
     this._ignoreCols = ignoreCols;
-    this._filterText = filter;
+    this._filterText = filter.toLowerCase();
+    this._filter.value = filter;
     this._filterColumns = filterColumns;
     this._cellProps = cellProps;
     this._columnFactory = this._sanitizeColumnFactory(columnFactory);
@@ -744,13 +746,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._wCalc.setAvailable(this._tbody.virtualScroller.scrollWidth || this._tbody.scrollWidth);
     this._wCalc.update();
 
-    this._thead.update(this._table, this._ignoreCols, this._wCalc, this._sortCol);
+    this._thead.update(
+      this._table,
+      this._ignoreCols,
+      this._wCalc,
+      this._sortCol,
+      this._filterColumns,
+    );
     this._tbody.updateWidths(this._wCalc, nb_cols);
 
     if (this._drawerEnabled) {
       this._configEl.value = this.getAttrs();
     }
-
     resolve();
   }
 
@@ -902,6 +909,7 @@ export class GuiTableHead extends HTMLElement {
     ignoreCols: number[] | undefined,
     calc: WidthCalculator,
     sortCol: SortCol,
+    filters: (string | null | undefined)[],
   ) {
     let index = 0; // this index does not account for ignored columns
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
@@ -915,6 +923,7 @@ export class GuiTableHead extends HTMLElement {
         table.headers?.[colIdx],
         table.subheaders?.[colIdx],
         sortCol.index === colIdx ? sortCol.ord : 'default',
+        filters[colIdx],
       );
       index += 1;
     }
@@ -1123,7 +1132,13 @@ export class GuiTableHeadCell extends HTMLElement {
     this._input.focus();
   }
 
-  update(index: number, header: string | undefined, subheader: string | undefined, sort: SortOrd) {
+  update(
+    index: number,
+    header: string | undefined,
+    subheader: string | undefined,
+    sort: SortOrd,
+    filter: string | null | undefined,
+  ) {
     this.index = index;
     const title = document.createDocumentFragment();
 
@@ -1153,6 +1168,9 @@ export class GuiTableHeadCell extends HTMLElement {
 
     this._title.replaceChildren(title);
     this._sorter.textContent = this._icons[sort];
+    if (typeof filter === 'string') {
+      this._input.value = filter;
+    }
   }
 }
 
@@ -1361,7 +1379,7 @@ export class GuiTableBody extends HTMLElement {
     let globalMatchFound = false;
 
     for (let colIdx = 0; colIdx < table.cols.length; colIdx++) {
-      const colFilter = filterColumns[colIdx];
+      const colFilter = filterColumns[colIdx]?.toLowerCase();
       let cellText: string | undefined;
 
       // Only compute cell text if needed (for col filter or global filter)
