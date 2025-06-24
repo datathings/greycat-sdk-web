@@ -282,7 +282,9 @@ export type LineOptions = {
 export type SerieTableColumn = number | string | (number | string)[];
 export type TypedSerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
 
-export function chartConfig<K>(config: ChartConfig<K, TypedSerieTableColumn>): ChartConfig<K, SerieTableColumn> {
+export function chartConfig<K>(
+  config: ChartConfig<K, TypedSerieTableColumn>,
+): ChartConfig<K, SerieTableColumn> {
   return config;
 }
 
@@ -341,6 +343,8 @@ export interface BarSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
    * The point on the y axis from which the bars are drawn either upward or downward
    */
   baseLine?: number;
+
+  mode?: 'group' | 'stack';
 }
 
 export interface ScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {

@@ -319,6 +319,7 @@ export class CanvasContext {
     serie: BarSerie<string> & SerieOptions,
     xScale: Scale,
     yScale: Scale,
+    prevBarHeights: number[] | undefined,
   ): void {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
@@ -387,7 +388,13 @@ export class CanvasContext {
       if (serie.baseLine !== undefined) {
         h = yScale(serie.baseLine) - y;
       } else {
-        h = yMin - y;
+        if (serie.mode === 'stack' && prevBarHeights !== undefined) {
+          h = yMin - y;
+          y = y - prevBarHeights[i];
+          prevBarHeights[i] = h;
+        } else {
+          h = yMin - y;
+        }
       }
       this.ctx.fillRect(x, y, w, h);
     }
