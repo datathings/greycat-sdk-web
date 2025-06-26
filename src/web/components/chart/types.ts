@@ -349,6 +349,18 @@ export interface BarSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
    * A baseline of 0 is assumed for stacked bars
    */
   stack?: string;
+
+  /**
+   * If the x scale is of type time , you can also specify a width as a duration
+   *
+   *If specified Will override the normal width
+   */
+  barWidth?: gc.core.duration;
+
+  /**
+   * How to align the bar
+   */
+  barAlign?: 'center' | 'left';
 }
 
 export interface ScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {

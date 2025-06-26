@@ -3,12 +3,13 @@ import '~/common';
 
 await gc.sdk.init();
 const r = gc.Table.fromCols([
-  [new Date('2020-01-01T00:00:00'), new Date('2020-01-02T00:00:00')],
-  [1, 3],
-  [3, 6],
-  [5, 2],
-  [10, 5],
-  [7, 7],
+  [
+    new Date('2020-01-01T00:00:00'),
+    new Date('2020-01-02T00:00:00'),
+    new Date('2020-01-03T00:00:00'),
+  ],
+  [1, 3, 5],
+  [3, 6, 4],
 ]);
 // const r = gc.Table.fromCols([
 //   [
@@ -43,43 +44,20 @@ document.body.appendChild(
             color: 'red',
             stack: 'foo',
             width: 5,
+            barWidth: gc.duration.from_hours(2),
+            barAlign: 'left',
           },
 
           {
             type: 'bar',
             xCol: 0,
-            yCol: 3,
+            yCol: 2,
             yAxis: 'y',
             color: 'blue',
             stack: 'baz',
             width: 5,
-          },
-          {
-            type: 'bar',
-            xCol: 0,
-            yCol: 4,
-            yAxis: 'y',
-            color: 'yellow',
-            stack: 'foo',
-            width: 5,
-          },
-          {
-            type: 'bar',
-            xCol: 0,
-            yCol: 5,
-            yAxis: 'y',
-            color: 'purple',
-            stack: 'baz',
-            width: 5,
-          },
-          {
-            type: 'bar',
-            xCol: 0,
-            yCol: 2,
-            yAxis: 'y',
-            color: 'brown',
-            stack: 'lol',
-            width: 5,
+            barWidth: gc.duration.from_hours(2),
+            barAlign: 'left',
           },
         ],
       }}

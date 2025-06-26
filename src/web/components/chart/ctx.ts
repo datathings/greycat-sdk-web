@@ -336,7 +336,10 @@ export class CanvasContext {
 
     const [yMin, yMax] = yScale.range();
     const [xMin, xMax] = xScale.range();
-    const shift = Math.round(groupBarWidth / 2);
+    let shift = Math.round(groupBarWidth / 2);
+    if (serie.barAlign === 'left') {
+      shift = 0;
+    }
 
     for (let i = 0; i < table.cols[0].length; i++) {
       let x: number;
