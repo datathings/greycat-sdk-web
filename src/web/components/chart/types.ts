@@ -344,7 +344,11 @@ export interface BarSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
    */
   baseLine?: number;
 
-  mode?: 'group' | 'stack';
+  /**
+   * Specify wether the bar should be drawn stacked with another bar series
+   * A baseline of 0 is assumed for stacked bars
+   */
+  stack?: string;
 }
 
 export interface ScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
