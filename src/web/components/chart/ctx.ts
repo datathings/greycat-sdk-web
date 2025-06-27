@@ -401,8 +401,8 @@ export class CanvasContext {
       } else {
         if (barGroupHeights) {
           h = yMin - y;
-          y = y - barGroupHeights[i];
-          barGroupHeights[i] += h;
+          y = y - (barGroupHeights[x] ?? 0);
+          barGroupHeights[x] = (barGroupHeights[x] || 0) + h;
         } else {
           h = yMin - y;
         }

@@ -870,22 +870,20 @@ export class GuiChart extends GuiElement {
 
       const prevBarHeight: Record<string, number> = {};
       const barGroupShifts: Record<string, number> = {};
-      const barGroupWidths: Record<string, number> = {};
-      let groupBarCurrentShift = 0;
       let groupBarTotalWidth = 0;
 
       for (let i = 0; i < this._config.series.length; i++) {
         const s = this._config.series[i];
-        if (s.type === 'bar' && s.stack) {
-          groupBarTotalWidth += s.width ?? 1;
+        if (s.type === 'bar' && s.stack && barGroupShifts[s.stack] === undefined) {
           if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
             if (s.barWidth instanceof gc.core.duration) {
               const domain = xScale.domain();
               const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
-              barGroupWidths[s.stack] = w;
+              barGroupShifts[s.stack] = groupBarTotalWidth;
               groupBarTotalWidth += w;
             }
           } else {
+            barGroupShifts[s.stack] = groupBarTotalWidth;
             groupBarTotalWidth += s.width ?? 1;
           }
         }
@@ -974,9 +972,16 @@ export class GuiChart extends GuiElement {
                 serie.width = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
               }
             }
-            if (s.stack && barGroupShifts[s.stack] === undefined) {
-              barGroupShifts[s.stack] = groupBarCurrentShift;
-              groupBarCurrentShift += serie.width;
+
+            if (groupBarTotalWidth === 0) {
+              groupBarTotalWidth = serie.width;
+            }
+            let shift = Math.round(groupBarTotalWidth / 2);
+            if (s.barAlign === 'left') {
+              shift = 0;
+            }
+            if (s.stack && barGroupShifts[s.stack] !== undefined) {
+              shift -= barGroupShifts[s.stack];
             }
             let w = serie.width;
             let rectX = x;
@@ -1020,13 +1025,10 @@ export class GuiChart extends GuiElement {
               rectX = xRange[1] - (w - newW) / 2;
               w = w - newW;
             }
+            // console.log(shift, barGroupShifts[s.stack!]);
 
             if (s.stack) {
-              let shift = Math.round(groupBarTotalWidth / 2);
-              if (s.barAlign === 'left') {
-                shift = 0;
-              }
-              rectX = rectX - shift + barGroupShifts[s.stack] + w / 2;
+              rectX = rectX - shift + w / 2;
             }
 
             if (rectX < xRange[1] && rectX > xRange[0]) {
@@ -1424,7 +1426,6 @@ export class GuiChart extends GuiElement {
 
     const barGroupHeights: Record<string, number[]> = {};
     const barGroupShifts: Record<string, number> = {};
-    const barGroupWidths: Record<string, number> = {};
     let groupBarCurrentShift = 0;
     let groupBarTotalWidth = 0;
 
@@ -1435,14 +1436,13 @@ export class GuiChart extends GuiElement {
           if (s.barWidth instanceof gc.core.duration) {
             const domain = xScale.domain();
             const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
-            barGroupWidths[s.stack] = w;
             groupBarTotalWidth += w;
           }
         } else {
           groupBarTotalWidth += s.width ?? 1;
         }
         if (hasStackedBar && !barGroupHeights[s.stack]) {
-          barGroupHeights[s.stack] = Array.from({ length: this._table.cols[0].length }, () => 0);
+          barGroupHeights[s.stack] = [];
         }
       }
     }
