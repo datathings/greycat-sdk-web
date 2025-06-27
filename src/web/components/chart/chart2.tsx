@@ -851,7 +851,7 @@ export class GuiChart2 extends Resizable(GestureDrawer) {
         this.main.area(this._table, serie, xScale, yScales[serie.yAxis]);
         break;
       case 'bar':
-        this.main.bar(this._table, serie, xScale, yScales[serie.yAxis]);
+        this.main.bar(this._table, serie, xScale, yScales[serie.yAxis], 0, 0, undefined);
         break;
       case 'scatter':
         serie.width = serie.plotRadius ?? 3;

@@ -4,13 +4,12 @@ import '~/common';
 await gc.sdk.init();
 const r = gc.Table.fromCols([
   [
-    new Date('2020-01-04T15:15:00Z'),
-    new Date('2020-01-03T15:15:00Z'),
-    new Date('2020-01-02T15:15:00Z'),
-    new Date('2020-01-01T15:15:00Z'),
+    new Date('2020-01-01T00:00:00'),
+    new Date('2020-01-02T00:00:00'),
+    new Date('2020-01-03T00:00:00'),
   ],
-  [2, 5, 10, 5],
-  [3, 6, 11, 6],
+  [1, 3, 5],
+  [3, 6, 4],
 ]);
 // const r = gc.Table.fromCols([
 //   [
@@ -33,12 +32,33 @@ document.body.appendChild(
           y: {
             // cursorAlign: 'start',
             scale: 'linear',
+            min: 0,
           },
         },
         series: [
-          { type: 'scatter', xCol: 0, yCol: 1, yAxis: 'y', width: 3 },
-          { type: 'line', xCol: 0, yCol: 1, yAxis: 'y' },
-          { type: 'area', xCol: 0, yCol: 1, yCol2: 2, yAxis: 'y' },
+          {
+            type: 'bar',
+            xCol: 0,
+            yCol: 1,
+            yAxis: 'y',
+            color: 'red',
+            stack: 'foo',
+            width: 5,
+            barWidth: gc.duration.from_hours(2),
+            barAlign: 'left',
+          },
+
+          {
+            type: 'bar',
+            xCol: 0,
+            yCol: 2,
+            yAxis: 'y',
+            color: 'blue',
+            stack: 'baz',
+            width: 5,
+            barWidth: gc.duration.from_hours(2),
+            barAlign: 'left',
+          },
         ],
       }}
     />

@@ -282,7 +282,9 @@ export type LineOptions = {
 export type SerieTableColumn = number | string | (number | string)[];
 export type TypedSerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
 
-export function chartConfig<K>(config: ChartConfig<K, TypedSerieTableColumn>): ChartConfig<K, SerieTableColumn> {
+export function chartConfig<K>(
+  config: ChartConfig<K, TypedSerieTableColumn>,
+): ChartConfig<K, SerieTableColumn> {
   return config;
 }
 
@@ -341,6 +343,24 @@ export interface BarSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {
    * The point on the y axis from which the bars are drawn either upward or downward
    */
   baseLine?: number;
+
+  /**
+   * Specify wether the bar should be drawn stacked with another bar series
+   * A baseline of 0 is assumed for stacked bars
+   */
+  stack?: string;
+
+  /**
+   * If the x scale is of type time , you can also specify a width as a duration
+   *
+   *If specified Will override the normal width
+   */
+  barWidth?: gc.core.duration;
+
+  /**
+   * How to align the bar
+   */
+  barAlign?: 'center' | 'left';
 }
 
 export interface ScatterSerie<K, C = SerieTableColumn> extends CommonSerie<K, C> {

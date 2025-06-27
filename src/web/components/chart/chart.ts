@@ -61,6 +61,7 @@ type ComputedState = {
   };
   xScale: Scale;
   yScales: Record<string, Scale>;
+  hasStackedBar: boolean;
 };
 
 export class GuiChart extends GuiElement {
@@ -867,6 +868,29 @@ export class GuiChart extends GuiElement {
 
       const tooltipSerieData: SerieData[] = [];
 
+      const prevBarHeight: Record<string, number> = {};
+      const barGroupShifts: Record<string, number> = {};
+      const barGroupWidths: Record<string, number> = {};
+      let groupBarCurrentShift = 0;
+      let groupBarTotalWidth = 0;
+
+      for (let i = 0; i < this._config.series.length; i++) {
+        const s = this._config.series[i];
+        if (s.type === 'bar' && s.stack) {
+          groupBarTotalWidth += s.width ?? 1;
+          if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+            if (s.barWidth instanceof gc.core.duration) {
+              const domain = xScale.domain();
+              const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
+              barGroupWidths[s.stack] = w;
+              groupBarTotalWidth += w;
+            }
+          } else {
+            groupBarTotalWidth += s.width ?? 1;
+          }
+        }
+      }
+
       // display markers on series & tooltip based on cursor location
       for (let i = 0; i < this._config.series.length; i++) {
         const serie: Serie & SerieOptions = {
@@ -944,6 +968,16 @@ export class GuiChart extends GuiElement {
           }
           case 'bar': {
             const s = serie as BarSerie<string>;
+            if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+              if (s.barWidth instanceof gc.core.duration) {
+                const domain = xScale.domain();
+                serie.width = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
+              }
+            }
+            if (s.stack && barGroupShifts[s.stack] === undefined) {
+              barGroupShifts[s.stack] = groupBarCurrentShift;
+              groupBarCurrentShift += serie.width;
+            }
             let w = serie.width;
             let rectX = x;
             let h: number;
@@ -964,8 +998,17 @@ export class GuiChart extends GuiElement {
               rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
               h = yScales[serie.yAxis](s.baseLine) - y;
             } else {
-              rectY = y + (yRange[0] - y) / 2;
-              h = yRange[0] - y;
+              if (s.stack) {
+                if (prevBarHeight[s.stack] !== undefined) {
+                  y = y - prevBarHeight[s.stack];
+                }
+                h = yRange[0] - y;
+                rectY = y + (yRange[0] - y) / 2;
+                prevBarHeight[s.stack] = h;
+              } else {
+                rectY = y + (yRange[0] - y) / 2;
+                h = yRange[0] - y;
+              }
             }
 
             if (x - w / 2 < xRange[0]) {
@@ -976,6 +1019,14 @@ export class GuiChart extends GuiElement {
               const newW = x + w / 2 - xRange[1];
               rectX = xRange[1] - (w - newW) / 2;
               w = w - newW;
+            }
+
+            if (s.stack) {
+              let shift = Math.round(groupBarTotalWidth / 2);
+              if (s.barAlign === 'left') {
+                shift = 0;
+              }
+              rectX = rectX - shift + barGroupShifts[s.stack] + w / 2;
             }
 
             if (rectX < xRange[1] && rectX > xRange[0]) {
@@ -1369,7 +1420,32 @@ export class GuiChart extends GuiElement {
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
-    const { xScale, yScales, style } = this._computed;
+    const { xScale, yScales, style, hasStackedBar } = this._computed;
+
+    const barGroupHeights: Record<string, number[]> = {};
+    const barGroupShifts: Record<string, number> = {};
+    const barGroupWidths: Record<string, number> = {};
+    let groupBarCurrentShift = 0;
+    let groupBarTotalWidth = 0;
+
+    for (let i = 0; i < this._config.series.length; i++) {
+      const s = this._config.series[i];
+      if (s.type === 'bar' && s.stack) {
+        if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+          if (s.barWidth instanceof gc.core.duration) {
+            const domain = xScale.domain();
+            const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
+            barGroupWidths[s.stack] = w;
+            groupBarTotalWidth += w;
+          }
+        } else {
+          groupBarTotalWidth += s.width ?? 1;
+        }
+        if (hasStackedBar && !barGroupHeights[s.stack]) {
+          barGroupHeights[s.stack] = Array.from({ length: this._table.cols[0].length }, () => 0);
+        }
+      }
+    }
 
     for (let i = 0; i < this._config.series.length; i++) {
       const serie: Serie & SerieOptions = {
@@ -1388,7 +1464,6 @@ export class GuiChart extends GuiElement {
 
       if (!serie.hide) {
         serie.drawBefore?.(this._ctx, serie, xScale, yScales[serie.yAxis]);
-
         switch (serie.type) {
           case 'line':
             this._ctx.line(this._table, serie, xScale, yScales[serie.yAxis]);
@@ -1406,7 +1481,25 @@ export class GuiChart extends GuiElement {
             this._ctx.area(this._table, serie, xScale, yScales[serie.yAxis]);
             break;
           case 'bar':
-            this._ctx.bar(this._table, serie, xScale, yScales[serie.yAxis]);
+            if (serie.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+              if (serie.barWidth instanceof gc.core.duration) {
+                const domain = xScale.domain();
+                serie.width = xScale(+domain[0] + serie.barWidth.ms) - xScale(domain[0]);
+              }
+            }
+            if (serie.stack && barGroupShifts[serie.stack] === undefined) {
+              barGroupShifts[serie.stack] = groupBarCurrentShift;
+              groupBarCurrentShift += serie.width;
+            }
+            this._ctx.bar(
+              this._table,
+              serie,
+              xScale,
+              yScales[serie.yAxis],
+              serie.stack ? barGroupShifts[serie.stack] : 0,
+              groupBarTotalWidth,
+              serie.stack ? barGroupHeights[serie.stack] : undefined,
+            );
             break;
           case 'scatter':
             this._ctx.scatter(this._table, serie, xScale, yScales[serie.yAxis]);
@@ -1586,6 +1679,9 @@ export class GuiChart extends GuiElement {
     ];
     const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
+    let hasStackedBar = false;
+    const stackMax: Record<string, number> = {};
+
     let xMin: number | null = null;
     let xMax: number | null = null;
 
@@ -1699,11 +1795,11 @@ export class GuiChart extends GuiElement {
       if (yAxis.max !== undefined) {
         max = vMap(yAxis.max);
       }
-
       if (min === null && max === null) {
         // axis domain is not fully defined, we need to iterate through the series to compute the actual domain
         for (let i = 0; i < this._config.series.length; i++) {
           const serie = this._config.series[i];
+
           if (serie.yAxis === yAxisName) {
             const col = tableGetColumn(this._table, serie.yCol) ?? [];
             for (let row = 0; row < col.length; row++) {
@@ -1737,6 +1833,15 @@ export class GuiChart extends GuiElement {
                 }
               }
             }
+            if (serie.type == 'bar' && serie.stack !== undefined) {
+              if (stackMax[serie.stack] === undefined) {
+                stackMax[serie.stack] = 0;
+              } else {
+                hasStackedBar = true;
+              }
+              stackMax[serie.stack] += max ?? 0;
+              max = null;
+            }
           }
         }
       } else if (min !== null && max === null) {
@@ -1765,6 +1870,15 @@ export class GuiChart extends GuiElement {
                   }
                 }
               }
+            }
+            if (serie.type == 'bar' && serie.stack !== undefined) {
+              if (stackMax[serie.stack] === undefined) {
+                stackMax[serie.stack] = 0;
+              } else {
+                hasStackedBar = true;
+              }
+              stackMax[serie.stack] += max ?? 0;
+              max = null;
             }
           }
         }
@@ -1805,6 +1919,12 @@ export class GuiChart extends GuiElement {
       if (max === null) {
         max = 1;
       }
+
+      Object.values(stackMax).forEach((v) => {
+        if (v > max!) {
+          max = v;
+        }
+      });
 
       if (yAxis.padding !== undefined && yAxis.min === undefined && yAxis.max === undefined) {
         if (type === 'log') {
@@ -1850,7 +1970,16 @@ export class GuiChart extends GuiElement {
       xScale = d3.scaleLinear().domain([xMin, xMax]).rangeRound(xRange);
     }
 
-    this._computed = { leftAxes, rightAxes, xRange, yRange, style: props, xScale, yScales };
+    this._computed = {
+      leftAxes,
+      rightAxes,
+      xRange,
+      yRange,
+      style: props,
+      xScale,
+      yScales,
+      hasStackedBar,
+    };
   }
 
   xScale() {

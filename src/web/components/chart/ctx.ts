@@ -319,9 +319,15 @@ export class CanvasContext {
     serie: BarSerie<string> & SerieOptions,
     xScale: Scale,
     yScale: Scale,
-  ): void {
+    groupBarShift: number,
+    groupBarWidth: number,
+    barGroupHeights: number[] | undefined,
+  ) {
     if (table.cols === undefined || table.cols.length === 0) {
       return;
+    }
+    if (groupBarWidth === 0) {
+      groupBarWidth = serie.width;
     }
 
     this.ctx.save();
@@ -330,7 +336,10 @@ export class CanvasContext {
 
     const [yMin, yMax] = yScale.range();
     const [xMin, xMax] = xScale.range();
-    const shift = Math.round(serie.width / 2);
+    let shift = Math.round(groupBarWidth / 2);
+    if (serie.barAlign === 'left') {
+      shift = 0;
+    }
 
     for (let i = 0; i < table.cols[0].length; i++) {
       let x: number;
@@ -357,7 +366,10 @@ export class CanvasContext {
         x = x0;
         w = x1 - x0;
       } else {
-        x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) - shift;
+        x =
+          xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) -
+          shift +
+          groupBarShift;
         y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         w = serie.width;
         if (x + serie.width < xMin || x > xMax) {
@@ -387,7 +399,13 @@ export class CanvasContext {
       if (serie.baseLine !== undefined) {
         h = yScale(serie.baseLine) - y;
       } else {
-        h = yMin - y;
+        if (barGroupHeights) {
+          h = yMin - y;
+          y = y - barGroupHeights[i];
+          barGroupHeights[i] += h;
+        } else {
+          h = yMin - y;
+        }
       }
       this.ctx.fillRect(x, y, w, h);
     }
