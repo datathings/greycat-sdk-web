@@ -1548,9 +1548,11 @@ export class GuiChart extends GuiElement {
       if (this._config.xAxis.autoTicks) {
         const fmt = this._xAxis.tickFormat();
         const ticks = xScale.ticks();
+
         let width = this._ctx.ctx.measureText(fmt ? fmt(ticks[0], 0) : ticks[0].toString()).width;
         width = width + width * 0.5;
         const totalWidth = width * ticks.length;
+
         if (totalWidth > xScale.range()[1]) {
           this._xAxis.ticks(Math.floor(xScale.range()[1] / width));
         }
@@ -1561,6 +1563,21 @@ export class GuiChart extends GuiElement {
       .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
       .call(this._xAxis);
 
+    if (this._config.xAxis.autoTicks) {
+      // d3 internal ticks returns approximately count + 1 so overlaps can still happen
+      const ticks = this._xAxisGroup.selectAll('.tick').nodes() as SVGGElement[];
+      for (let i = 0; i < ticks.length - 1; i += 2) {
+        const rect1 = ticks[i].getBoundingClientRect();
+        const rect2 = ticks[i + 1].getBoundingClientRect();
+        ticks[i].style.visibility = 'visible';
+        ticks[i + 1].style.visibility = 'visible';
+        const isOverlapping = rect1.right + 10 > rect2.left;
+
+        if (isOverlapping) {
+          ticks[i + 1].style.visibility = 'hidden';
+        }
+      }
+    }
     // Add the y-axes.
     let leftAxesIdx = -1;
     let rightAxesIdx = -1;
