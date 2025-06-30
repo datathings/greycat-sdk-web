@@ -13,6 +13,7 @@ import type {
   BarSerie,
   Cursor,
   Axis,
+  ArtificialCursor,
 } from './types.js';
 import { vMap } from './internals.js';
 import {
@@ -73,11 +74,17 @@ export class GuiChart extends GuiElement {
   private _config: ChartConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
+    invertedX: -1,
     x: -1,
     y: -1,
     startX: -1,
     startY: -1,
     selection: false,
+  };
+
+  private _artificialCursor: ArtificialCursor = {
+    x: -1,
+    invertedX: -1,
   };
 
   private _svg: d3.Selection<SVGSVGElement, unknown, null, undefined>;
@@ -622,6 +629,20 @@ export class GuiChart extends GuiElement {
     return this._drawerEnabled;
   }
 
+  set artificialCursor(cursor: Cursor | null) {
+    if (this.xScale() !== undefined && cursor) {
+      this._artificialCursor = {
+        x: this.xScale()!(cursor.invertedX),
+        invertedX: cursor.invertedX,
+      };
+    } else {
+      this._artificialCursor = {
+        x: -1,
+        invertedX: -1,
+      };
+    }
+  }
+
   setAttrs({
     config = this._config,
     value = this._table,
@@ -698,7 +719,7 @@ export class GuiChart extends GuiElement {
     this._clearUX();
 
     // XXX later optim: we could split compute even more to prevent computing the scales and margins and styles if the cursor is not in range
-    const { xRange, yRange, rightAxes, style, xScale, yScales } = this._computed;
+    const { xRange, yRange, style, xScale, yScales, rightAxes } = this._computed;
 
     const updateUX =
       this._cursor.x !== -1 &&
@@ -718,30 +739,6 @@ export class GuiChart extends GuiElement {
       if (!this._canvasEntered) {
         this._canvasEntered = true;
         this.dispatchEvent(new GuiChartCanvasEnterEvent());
-      }
-
-      // make tooltip visible and located properly
-      if (!this._tooltip.isConnected) {
-        this.shadowRoot.appendChild(this._tooltip);
-      }
-      this._tooltip.replaceChildren();
-      switch (this._config.tooltip?.position ?? 'top-left') {
-        case 'top-left':
-          this._tooltip.style.left = `${xRange[0] + 10}px`;
-          this._tooltip.style.top = `${yRange[1]}px`;
-          break;
-        case 'top-right':
-          this._tooltip.style.right = `${xRange[0] + 10}px`;
-          this._tooltip.style.top = `${yRange[1]}px`;
-          break;
-        case 'bottom-left':
-          this._tooltip.style.left = `${xRange[0] + 10}px`;
-          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
-          break;
-        case 'bottom-right':
-          this._tooltip.style.right = `${xRange[0] + 10}px`;
-          this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
-          break;
       }
 
       // The dashed lines, cursor, and axis texts could arguably be configured by the user
@@ -866,306 +863,43 @@ export class GuiChart extends GuiElement {
         }
       }
 
-      const tooltipSerieData: SerieData[] = [];
+      const v = +xScale.invert(this._cursor.x);
 
-      const prevBarHeight: Record<string, number> = {};
-      const barGroupShifts: Record<string, number> = {};
-      let groupBarTotalWidth = 0;
-
-      for (let i = 0; i < this._config.series.length; i++) {
-        const s = this._config.series[i];
-        if (s.type === 'bar' && s.stack && barGroupShifts[s.stack] === undefined) {
-          if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
-            if (s.barWidth instanceof gc.core.duration) {
-              const domain = xScale.domain();
-              const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
-              barGroupShifts[s.stack] = groupBarTotalWidth;
-              groupBarTotalWidth += w;
-            }
-          } else {
-            barGroupShifts[s.stack] = groupBarTotalWidth;
-            groupBarTotalWidth += s.width ?? 1;
-          }
-        }
-      }
-
-      // display markers on series & tooltip based on cursor location
-      for (let i = 0; i < this._config.series.length; i++) {
-        const serie: Serie & SerieOptions = {
-          color: this._colors[i],
-          width: 1,
-          markerWidth: 4,
-          markerShape: 'circle',
-          markerColor: this._config.series[i].color ?? this._colors[i],
-          opacity: 1,
-          fillOpacity: 0.2,
-          yCol2: 'min',
-          hideInTooltip: false,
-          hide: false,
-          ...this._config.series[i],
-        };
-
-        if (serie.hide) {
-          continue;
-        }
-
-        const v = +xScale.invert(this._cursor.x);
-
-        const { xValue, rowIdx } = closest(
-          this._table,
-          serie,
-          this._cursor.x,
-          this._cursor.y,
-          this._config.xAxis,
-          this._config.yAxes,
-          xScale,
-          yScales[serie.yAxis],
-          v,
-        );
-
-        const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
-        const x = xScale(vMap(xValue));
-        let y = yScales[serie.yAxis](yValue);
-        const w = serie.markerWidth;
-        let yValue2;
-        if (isOrdSerieTableColumn(serie.yCol2)) {
-          yValue2 = tableGetCell(this._table, serie.yCol2, rowIdx);
-        }
-
-        if (serie.markerThreshold) {
-          // shortcuts if cursor's above threshold
-          if (serie.markerThreshold.x) {
-            if (Math.abs(this._cursor.x - x) > serie.markerThreshold.x) {
-              continue;
-            }
-          }
-          if (serie.markerThreshold.y) {
-            if (Math.abs(this._cursor.y - y) > serie.markerThreshold.y) {
-              continue;
-            }
-          }
-        }
-
-        // marker
-        switch (serie.type ?? 'line') {
-          case 'line+scatter':
-          case 'scatter':
-          case 'line':
-          case 'line+area':
-          case 'area': {
-            // only draw marker if inside the range
-            if (y <= yRange[0] && y >= yRange[1] && x <= xRange[1] && x >= xRange[0]) {
-              // make sure to also add a marker when 'yCol2' is defined
-              this._drawMarker(serie, x, y, w, serie.markerColor);
-              if (yValue2 !== undefined) {
-                const y2 = yScales[serie.yAxis](vMap(yValue2));
-                this._drawMarker(serie, x, y2, w, serie.markerColor);
-              }
-            }
-            break;
-          }
-          case 'bar': {
-            const s = serie as BarSerie<string>;
-            if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
-              if (s.barWidth instanceof gc.core.duration) {
-                const domain = xScale.domain();
-                serie.width = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
-              }
-            }
-
-            if (groupBarTotalWidth === 0) {
-              groupBarTotalWidth = serie.width;
-            }
-            let shift = Math.round(groupBarTotalWidth / 2);
-            if (s.barAlign === 'left') {
-              shift = 0;
-            }
-            if (s.stack && barGroupShifts[s.stack] !== undefined) {
-              shift -= barGroupShifts[s.stack];
-            }
-            let w = serie.width;
-            let rectX = x;
-            let h: number;
-            let rectY: number;
-            if (s.spanCol) {
-              const x0 = xScale(vMap(this._table.cols[s.spanCol[0]][rowIdx]));
-              const x1 = xScale(vMap(this._table.cols[s.spanCol[1]][rowIdx]));
-              w = Math.abs(x1 - x0);
-            }
-
-            if (y < yRange[1]) {
-              y = yRange[1];
-            } else if (y > yRange[0]) {
-              y = yRange[0];
-            }
-
-            if (s.baseLine !== undefined) {
-              rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
-              h = yScales[serie.yAxis](s.baseLine) - y;
-            } else {
-              if (s.stack) {
-                if (prevBarHeight[s.stack] !== undefined) {
-                  y = y - prevBarHeight[s.stack];
-                }
-                h = yRange[0] - y;
-                rectY = y + (yRange[0] - y) / 2;
-                prevBarHeight[s.stack] = h;
-              } else {
-                rectY = y + (yRange[0] - y) / 2;
-                h = yRange[0] - y;
-              }
-            }
-
-            if (x - w / 2 < xRange[0]) {
-              const newW = xRange[0] - x + w / 2;
-              rectX = xRange[0] + (w - newW) / 2;
-              w = w - newW;
-            } else if (x + w / 2 > xRange[1]) {
-              const newW = x + w / 2 - xRange[1];
-              rectX = xRange[1] - (w - newW) / 2;
-              w = w - newW;
-            }
-            // console.log(shift, barGroupShifts[s.stack!]);
-
-            if (s.stack) {
-              rectX = rectX - shift + w / 2;
-            }
-
-            if (rectX < xRange[1] && rectX > xRange[0]) {
-              this._uxCtx.rectangle(rectX, rectY, w, h, {
-                color: style['accent-0'],
-                center: true,
-              });
-            }
-            break;
-          }
-        }
-
-        // tooltip
-        let color: string = serie.color;
-        if (serie.styleMapping) {
-          if (serie.styleMapping.mapping) {
-            const style = serie.styleMapping.mapping(
-              tableGetCell(this._table, serie.styleMapping.col, rowIdx),
-            );
-            color = style?.color?.toString() ?? color;
-          } else {
-            const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
-            if (typeof value === 'string') {
-              color = value;
-            }
-          }
-        }
-        if (!this._config.tooltip?.render && !serie.hideInTooltip) {
-          const createFormatter = (axis: Axis) => {
-            if (axis.format === undefined) {
-              return (x: unknown) => `${x}`;
-            }
-            if (typeof axis.format === 'string') {
-              return d3.format(axis.format);
-            }
-            if (axis.scale === 'time') {
-              const [from, to] = xScale.range();
-              const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
-              const specifier = smartTimeFormatSpecifier(span);
-              const format = axis.format;
-              return (v: number) => format(v, specifier);
-            }
-            return axis.format;
-          };
-          const formatter = createFormatter(this._config.yAxes[serie.yAxis]);
-
-          const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
-          const nameEl = document.createElement('div');
-          nameEl.style.color = color;
-          if (serie.title !== undefined) {
-            nameEl.textContent = serie.title;
-          } else if (Array.isArray(serie.yCol)) {
-            nameEl.textContent = serie.yCol
-              .map((p) => {
-                if (typeof p === 'number') {
-                  return p;
-                }
-                const last_dcolon = p.lastIndexOf('::');
-                if (last_dcolon === -1) {
-                  return p;
-                }
-                const field_name = p.slice(last_dcolon + 2);
-                return field_name;
-              })
-              .join('.');
-          } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
-            nameEl.textContent = this._table.headers[yColIdx];
-          } else {
-            nameEl.textContent = `Col ${yColIdx}`;
-          }
-          nameEl.part.add('tooltip-name', `tooltip-name-${yColIdx}`);
-          const valueEl = document.createElement('div');
-          valueEl.classList.add('tooltip-value');
-          valueEl.part.add('tooltip-value', `tooltip-value-${yColIdx}`);
-          if (
-            this._config.tooltip?.position === 'bottom-right' ||
-            this._config.tooltip?.position === 'top-right'
-          ) {
-            valueEl.classList.add('right');
-          }
-          valueEl.style.color = color;
-          valueEl.textContent =
-            serie.value !== undefined ? serie.value.toString() : formatter(yValue);
-          this._tooltip.append(nameEl, valueEl);
-
-          if (yValue2 !== undefined && isOrdSerieTableColumn(serie.yCol2)) {
-            const y2ColIdx = tableGetColumnIndex(serie.yCol2) ?? 0;
-            const nameEl = document.createElement('div');
-            nameEl.style.color = color;
-            if (serie.title !== undefined) {
-              nameEl.textContent = serie.title;
-            } else if (Array.isArray(serie.yCol2)) {
-              const yCol2 = serie.yCol2 as number[] | gc.$Fields[]; // ts spreads union for some reason, gotta found why, meanwhile I'm casting
-              nameEl.textContent = yCol2
-                .map((p) => {
-                  if (typeof p === 'number') {
-                    return p;
-                  }
-                  const last_dcolon = p.lastIndexOf('::');
-                  if (last_dcolon === -1) {
-                    return p;
-                  }
-                  const field_name = p.slice(last_dcolon + 2);
-                  return field_name;
-                })
-                .join('.');
-            } else if (this._table.headers && this._table.headers[y2ColIdx] !== undefined) {
-              nameEl.textContent = this._table.headers[y2ColIdx];
-            } else {
-              nameEl.textContent = `Col ${y2ColIdx}`;
-            }
-            nameEl.part.add('tooltip-name', `tooltip-name-${y2ColIdx}`);
-            const valueEl = document.createElement('div');
-            valueEl.classList.add('tooltip-value');
-            valueEl.part.add('tooltip-value', `tooltip-value-${y2ColIdx}`);
-            if (
-              this._config.tooltip?.position === 'bottom-right' ||
-              this._config.tooltip?.position === 'top-right'
-            ) {
-              valueEl.classList.add('right');
-            }
-            valueEl.style.color = color;
-            valueEl.textContent = formatter(vMap(yValue2));
-            this._tooltip.append(nameEl, valueEl);
-          }
-        }
-
-        tooltipSerieData.push({ xValue, yValue, rowIdx, ...serie } as SerieData);
-      }
+      const tooltipSerieData = this._highlightSeries(v);
 
       // we need to give a clone of the cursor because we don't want users to mutate our own version of it
-      const cursor: Cursor = { ...this._cursor };
+      const cursor: Cursor = { ...this._cursor, invertedX: v };
       // call tooltip render if defined
       this._config.tooltip?.render?.(tooltipSerieData, cursor);
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(tooltipSerieData, cursor));
     } else {
+      if (this._artificialCursor.x != -1) {
+        this._cursor.x = this._artificialCursor.x;
+        this._highlightSeries(this._artificialCursor.invertedX);
+
+        this._uxCtx.simpleLine(this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
+          color: style.cursor.lineColor,
+          dashed: true,
+        });
+        if (this._config.xAxis.cursor !== false) {
+          const defaultCursorPadding = 10;
+          const xValue = +xScale.invert(this._cursor.x);
+          const formatter = createFormatter(this._config.xAxis, xScale, true);
+          // TODO clip on boundaries
+          this._uxCtx.text(
+            this._cursor.x,
+            yRange[0] + (this._config.xAxis.cursorPadding ?? defaultCursorPadding),
+            formatter(xValue),
+            {
+              color: style.cursor.color,
+              backgroundColor: style.cursor.bgColor,
+              align: this._config.xAxis.cursorAlign ?? 'center',
+              baseline: this._config.xAxis.cursorBaseline ?? 'top',
+            },
+          );
+        }
+      }
       if (this._canvasEntered) {
         this._canvasEntered = false;
         this.dispatchEvent(new GuiChartCanvasLeaveEvent());
@@ -1288,6 +1022,330 @@ export class GuiChart extends GuiElement {
         this._tooltip.append(nameEl, valueEl);
       }
     }
+  }
+
+  private _highlightSeries(v: number): SerieData[] {
+    if (!this._computed || this._table.cols.length === 0) {
+      return [];
+    }
+    const { xRange, yRange, style, xScale, yScales } = this._computed;
+
+    // make tooltip visible and located properly
+    if (!this._tooltip.isConnected) {
+      this.shadowRoot.appendChild(this._tooltip);
+    }
+    this._tooltip.replaceChildren();
+    switch (this._config.tooltip?.position ?? 'top-left') {
+      case 'top-left':
+        this._tooltip.style.left = `${xRange[0] + 10}px`;
+        this._tooltip.style.top = `${yRange[1]}px`;
+        break;
+      case 'top-right':
+        this._tooltip.style.right = `${xRange[0] + 10}px`;
+        this._tooltip.style.top = `${yRange[1]}px`;
+        break;
+      case 'bottom-left':
+        this._tooltip.style.left = `${xRange[0] + 10}px`;
+        this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+        break;
+      case 'bottom-right':
+        this._tooltip.style.right = `${xRange[0] + 10}px`;
+        this._tooltip.style.bottom = `${yRange[1] + style.margin.bottom}px`;
+        break;
+    }
+
+    const tooltipSerieData: SerieData[] = [];
+
+    const prevBarHeight: Record<string, number> = {};
+    const barGroupShifts: Record<string, number> = {};
+    let groupBarTotalWidth = 0;
+
+    for (let i = 0; i < this._config.series.length; i++) {
+      const s = this._config.series[i];
+      if (s.type === 'bar' && s.stack && barGroupShifts[s.stack] === undefined) {
+        if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+          if (s.barWidth instanceof gc.core.duration) {
+            const domain = xScale.domain();
+            const w = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
+            barGroupShifts[s.stack] = groupBarTotalWidth;
+            groupBarTotalWidth += w;
+          }
+        } else {
+          barGroupShifts[s.stack] = groupBarTotalWidth;
+          groupBarTotalWidth += s.width ?? 1;
+        }
+      }
+    }
+
+    // display markers on series & tooltip based on cursor location
+    for (let i = 0; i < this._config.series.length; i++) {
+      const serie: Serie & SerieOptions = {
+        color: this._colors[i],
+        width: 1,
+        markerWidth: 4,
+        markerShape: 'circle',
+        markerColor: this._config.series[i].color ?? this._colors[i],
+        opacity: 1,
+        fillOpacity: 0.2,
+        yCol2: 'min',
+        hideInTooltip: false,
+        hide: false,
+        ...this._config.series[i],
+      };
+
+      if (serie.hide) {
+        continue;
+      }
+
+      const { xValue, rowIdx } = closest(
+        this._table,
+        serie,
+        this._cursor.x,
+        this._cursor.y,
+        this._config.xAxis,
+        this._config.yAxes,
+        xScale,
+        yScales[serie.yAxis],
+        v,
+      );
+
+      const yValue = vMap(tableGetCell(this._table, serie.yCol, rowIdx));
+      const x = xScale(vMap(xValue));
+      let y = yScales[serie.yAxis](yValue);
+      const w = serie.markerWidth;
+      let yValue2;
+      if (isOrdSerieTableColumn(serie.yCol2)) {
+        yValue2 = tableGetCell(this._table, serie.yCol2, rowIdx);
+      }
+
+      if (serie.markerThreshold) {
+        // shortcuts if cursor's above threshold
+        if (serie.markerThreshold.x) {
+          if (Math.abs(this._cursor.x - x) > serie.markerThreshold.x) {
+            continue;
+          }
+        }
+        if (serie.markerThreshold.y) {
+          if (Math.abs(this._cursor.y - y) > serie.markerThreshold.y) {
+            continue;
+          }
+        }
+      }
+
+      // marker
+      switch (serie.type ?? 'line') {
+        case 'line+scatter':
+        case 'scatter':
+        case 'line':
+        case 'line+area':
+        case 'area': {
+          // only draw marker if inside the range
+          if (y <= yRange[0] && y >= yRange[1] && x <= xRange[1] && x >= xRange[0]) {
+            // make sure to also add a marker when 'yCol2' is defined
+            this._drawMarker(serie, x, y, w, serie.markerColor);
+            if (yValue2 !== undefined) {
+              const y2 = yScales[serie.yAxis](vMap(yValue2));
+              this._drawMarker(serie, x, y2, w, serie.markerColor);
+            }
+          }
+          break;
+        }
+        case 'bar': {
+          const s = serie as BarSerie<string>;
+          if (s.barWidth !== undefined && this._config.xAxis.scale === 'time') {
+            if (s.barWidth instanceof gc.core.duration) {
+              const domain = xScale.domain();
+              serie.width = xScale(+domain[0] + s.barWidth.ms) - xScale(domain[0]);
+            }
+          }
+
+          if (groupBarTotalWidth === 0) {
+            groupBarTotalWidth = serie.width;
+          }
+          let shift = Math.round(groupBarTotalWidth / 2);
+          if (s.barAlign === 'left') {
+            shift = 0;
+          }
+          if (s.stack && barGroupShifts[s.stack] !== undefined) {
+            shift -= barGroupShifts[s.stack];
+          }
+          let w = serie.width;
+          let rectX = x;
+          let h: number;
+          let rectY: number;
+          if (s.spanCol) {
+            const x0 = xScale(vMap(this._table.cols[s.spanCol[0]][rowIdx]));
+            const x1 = xScale(vMap(this._table.cols[s.spanCol[1]][rowIdx]));
+            w = Math.abs(x1 - x0);
+          }
+
+          if (y < yRange[1]) {
+            y = yRange[1];
+          } else if (y > yRange[0]) {
+            y = yRange[0];
+          }
+
+          if (s.baseLine !== undefined) {
+            rectY = y + (yScales[serie.yAxis](s.baseLine) - y) / 2;
+            h = yScales[serie.yAxis](s.baseLine) - y;
+          } else {
+            if (s.stack) {
+              if (prevBarHeight[s.stack] !== undefined) {
+                y = y - prevBarHeight[s.stack];
+              }
+              h = yRange[0] - y;
+              rectY = y + (yRange[0] - y) / 2;
+              prevBarHeight[s.stack] = h;
+            } else {
+              rectY = y + (yRange[0] - y) / 2;
+              h = yRange[0] - y;
+            }
+          }
+
+          if (x - w / 2 < xRange[0]) {
+            const newW = xRange[0] - x + w / 2;
+            rectX = xRange[0] + (w - newW) / 2;
+            w = w - newW;
+          } else if (x + w / 2 > xRange[1]) {
+            const newW = x + w / 2 - xRange[1];
+            rectX = xRange[1] - (w - newW) / 2;
+            w = w - newW;
+          }
+          // console.log(shift, barGroupShifts[s.stack!]);
+
+          if (s.stack) {
+            rectX = rectX - shift + w / 2;
+          }
+
+          if (rectX < xRange[1] && rectX > xRange[0]) {
+            this._uxCtx.rectangle(rectX, rectY, w, h, {
+              color: style['accent-0'],
+              center: true,
+            });
+          }
+          break;
+        }
+      }
+
+      // tooltip
+      let color: string = serie.color;
+      if (serie.styleMapping) {
+        if (serie.styleMapping.mapping) {
+          const style = serie.styleMapping.mapping(
+            tableGetCell(this._table, serie.styleMapping.col, rowIdx),
+          );
+          color = style?.color?.toString() ?? color;
+        } else {
+          const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
+          if (typeof value === 'string') {
+            color = value;
+          }
+        }
+      }
+      if (!this._config.tooltip?.render && !serie.hideInTooltip) {
+        const createFormatter = (axis: Axis) => {
+          if (axis.format === undefined) {
+            return (x: unknown) => `${x}`;
+          }
+          if (typeof axis.format === 'string') {
+            return d3.format(axis.format);
+          }
+          if (axis.scale === 'time') {
+            const [from, to] = xScale.range();
+            const span = Math.abs(+xScale.invert(to) - +xScale.invert(from));
+            const specifier = smartTimeFormatSpecifier(span);
+            const format = axis.format;
+            return (v: number) => format(v, specifier);
+          }
+          return axis.format;
+        };
+        const formatter = createFormatter(this._config.yAxes[serie.yAxis]);
+
+        const yColIdx = tableGetColumnIndex(serie.yCol) ?? 0;
+        const nameEl = document.createElement('div');
+        nameEl.style.color = color;
+        if (serie.title !== undefined) {
+          nameEl.textContent = serie.title;
+        } else if (Array.isArray(serie.yCol)) {
+          nameEl.textContent = serie.yCol
+            .map((p) => {
+              if (typeof p === 'number') {
+                return p;
+              }
+              const last_dcolon = p.lastIndexOf('::');
+              if (last_dcolon === -1) {
+                return p;
+              }
+              const field_name = p.slice(last_dcolon + 2);
+              return field_name;
+            })
+            .join('.');
+        } else if (this._table.headers && this._table.headers[yColIdx] !== undefined) {
+          nameEl.textContent = this._table.headers[yColIdx];
+        } else {
+          nameEl.textContent = `Col ${yColIdx}`;
+        }
+        nameEl.part.add('tooltip-name', `tooltip-name-${yColIdx}`);
+        const valueEl = document.createElement('div');
+        valueEl.classList.add('tooltip-value');
+        valueEl.part.add('tooltip-value', `tooltip-value-${yColIdx}`);
+        if (
+          this._config.tooltip?.position === 'bottom-right' ||
+          this._config.tooltip?.position === 'top-right'
+        ) {
+          valueEl.classList.add('right');
+        }
+        valueEl.style.color = color;
+        valueEl.textContent =
+          serie.value !== undefined ? serie.value.toString() : formatter(yValue);
+        this._tooltip.append(nameEl, valueEl);
+
+        if (yValue2 !== undefined && isOrdSerieTableColumn(serie.yCol2)) {
+          const y2ColIdx = tableGetColumnIndex(serie.yCol2) ?? 0;
+          const nameEl = document.createElement('div');
+          nameEl.style.color = color;
+          if (serie.title !== undefined) {
+            nameEl.textContent = serie.title;
+          } else if (Array.isArray(serie.yCol2)) {
+            const yCol2 = serie.yCol2 as number[] | gc.$Fields[]; // ts spreads union for some reason, gotta found why, meanwhile I'm casting
+            nameEl.textContent = yCol2
+              .map((p) => {
+                if (typeof p === 'number') {
+                  return p;
+                }
+                const last_dcolon = p.lastIndexOf('::');
+                if (last_dcolon === -1) {
+                  return p;
+                }
+                const field_name = p.slice(last_dcolon + 2);
+                return field_name;
+              })
+              .join('.');
+          } else if (this._table.headers && this._table.headers[y2ColIdx] !== undefined) {
+            nameEl.textContent = this._table.headers[y2ColIdx];
+          } else {
+            nameEl.textContent = `Col ${y2ColIdx}`;
+          }
+          nameEl.part.add('tooltip-name', `tooltip-name-${y2ColIdx}`);
+          const valueEl = document.createElement('div');
+          valueEl.classList.add('tooltip-value');
+          valueEl.part.add('tooltip-value', `tooltip-value-${y2ColIdx}`);
+          if (
+            this._config.tooltip?.position === 'bottom-right' ||
+            this._config.tooltip?.position === 'top-right'
+          ) {
+            valueEl.classList.add('right');
+          }
+          valueEl.style.color = color;
+          valueEl.textContent = formatter(vMap(yValue2));
+          this._tooltip.append(nameEl, valueEl);
+        }
+      }
+
+      tooltipSerieData.push({ xValue, yValue, rowIdx, ...serie } as SerieData);
+    }
+
+    return tooltipSerieData;
   }
 
   private _selection(

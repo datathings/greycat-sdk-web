@@ -1,15 +1,14 @@
 import '@greycat/web';
+import { GuiChart } from '@greycat/web';
 import '~/common';
 
 await gc.sdk.init();
+const start = new Date();
+const rows = 100;
 const r = gc.Table.fromCols([
-  [
-    new Date('2020-01-01T00:00:00'),
-    new Date('2020-01-02T00:00:00'),
-    new Date('2020-01-03T00:00:00'),
-  ],
-  [1, 3, 5],
-  [3, 6, 4],
+  Array.from({ length: rows }, (_, i) => new Date(start.getTime() + i * 24 * 60 * 60 * 1000)),
+  Array.from({ length: rows }, () => Math.floor(Math.random() * 10) + 1),
+  Array.from({ length: rows }, () => Math.floor(Math.random() * 100) + 1),
 ]);
 // const r = gc.Table.fromCols([
 //   [
@@ -21,46 +20,79 @@ const r = gc.Table.fromCols([
 //   [5, 10, 5, 2],
 //   [6, 11, 6, 3],
 // ]);
+const chart1 = (
+  <gui-chart
+    value={r}
+    config={{
+      cursor: true,
+      xAxis: { scale: 'time', padding: 0.1, autoTicks: true },
+      yAxes: {
+        y: {
+          // cursorAlign: 'start',
+          scale: 'linear',
+          min: 0,
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          xCol: 0,
+          yCol: 1,
+          yAxis: 'y',
+          color: 'red',
+          markerColor: 'green',
+          markerWidth: 5,
+        },
+      ],
+    }}
+  />
+) as GuiChart;
+const chart2 = (
+  <gui-chart
+    value={r}
+    config={{
+      cursor: true,
+      xAxis: { scale: 'time', padding: 0.1, autoTicks: true },
+      yAxes: {
+        y: {
+          // cursorAlign: 'start',
+          scale: 'linear',
+          min: 0,
+        },
+      },
+      series: [
+        {
+          type: 'line',
+          xCol: 0,
+          yCol: 2,
+          yAxis: 'y',
+          color: 'red',
+          markerColor: 'green',
+          markerWidth: 5,
+        },
+      ],
+    }}
+  />
+) as GuiChart;
+
 document.body.appendChild(
   <app-layout title="Chart (in-mem)">
-    <gui-chart
-      value={r}
-      config={{
-        cursor: true,
-        xAxis: { scale: 'time', padding: 0.1, autoTicks: true },
-        yAxes: {
-          y: {
-            // cursorAlign: 'start',
-            scale: 'linear',
-            min: 0,
-          },
-        },
-        series: [
-          {
-            type: 'bar',
-            xCol: 0,
-            yCol: 1,
-            yAxis: 'y',
-            color: 'red',
-            stack: 'foo',
-            width: 5,
-            barWidth: gc.duration.from_hours(2),
-            barAlign: 'left',
-          },
-
-          {
-            type: 'bar',
-            xCol: 0,
-            yCol: 2,
-            yAxis: 'y',
-            color: 'blue',
-            stack: 'baz',
-            width: 5,
-            barWidth: gc.duration.from_hours(2),
-            barAlign: 'left',
-          },
-        ],
-      }}
-    />
+    <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
+      {chart1}
+      {chart2}
+    </div>
   </app-layout>,
 );
+
+chart1.addEventListener('gui-chart-cursor', (e) => {
+  chart2.artificialCursor = e.detail.cursor;
+});
+chart1.addEventListener('gui-chart-leave', () => {
+  chart2.artificialCursor = null;
+});
+chart2.addEventListener('gui-chart-cursor', (e) => {
+  chart1.artificialCursor = e.detail.cursor;
+});
+chart2.addEventListener('gui-chart-leave', () => {
+  chart1.artificialCursor = null;
+});

@@ -30,11 +30,17 @@ export type SerieStyle = {
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
 export type Cursor = {
+  invertedX: number;
   x: number;
   y: number;
   startX: number;
   startY: number;
   selection: boolean;
+};
+
+export type ArtificialCursor = {
+  x: number;
+  invertedX: number;
 };
 
 export type SelectionOptions = {
