@@ -46,6 +46,7 @@ export class GuiHeatmap extends GuiElement {
   private _config: HeatmapConfig;
   private _colors: string[] = [];
   private _cursor: Cursor = {
+    invertedX: -1,
     x: -1,
     y: -1,
     startX: -1,
