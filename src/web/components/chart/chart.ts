@@ -629,7 +629,12 @@ export class GuiChart extends GuiElement {
     return this._drawerEnabled;
   }
 
-  set artificialCursor(cursor: Cursor | null) {
+  /**
+   * Used to highlight the series based on the cursor from another chart
+   *
+   * Only syncs on the x axis, requires charts to share similar x domain, will not work well with a scatter plot
+   */
+  set cursor(cursor: Cursor | null) {
     if (this.xScale() !== undefined && cursor) {
       this._artificialCursor = {
         x: this.xScale()!(cursor.invertedX),

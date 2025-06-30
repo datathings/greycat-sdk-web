@@ -85,14 +85,14 @@ document.body.appendChild(
 );
 
 chart1.addEventListener('gui-chart-cursor', (e) => {
-  chart2.artificialCursor = e.detail.cursor;
+  chart2.cursor = e.detail.cursor;
 });
 chart1.addEventListener('gui-chart-leave', () => {
-  chart2.artificialCursor = null;
+  chart2.cursor = null;
 });
 chart2.addEventListener('gui-chart-cursor', (e) => {
-  chart1.artificialCursor = e.detail.cursor;
+  chart1.cursor = e.detail.cursor;
 });
 chart2.addEventListener('gui-chart-leave', () => {
-  chart1.artificialCursor = null;
+  chart1.cursor = null;
 });
