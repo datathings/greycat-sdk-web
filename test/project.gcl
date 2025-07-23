@@ -1006,3 +1006,24 @@ fn potato() {
 fn foo2() {
   pprint(GcbReader { path: "out.gcb" }.read());
 }
+
+type TableEntry {
+  t: time;
+  v: any;
+}
+
+@expose
+fn get_table() {
+  var res = Table<TableEntry> {};
+  res.set_row(0, TableEntry { t: time::now(), v: 0 });
+  res.set_row(1, TableEntry { t: time::now(), v: 10 });
+  res.set_row(2, TableEntry { t: time::now(), v: 42.5 });
+  GcbWriter { path: "out.gcb" }.write(res);
+  return res;
+}
+
+@expose
+fn get_array() {
+  var arr = Array<any> { 0, 1, 42.5 };
+  return arr;
+}
