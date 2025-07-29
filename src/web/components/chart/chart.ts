@@ -565,6 +565,10 @@ export class GuiChart extends GuiElement {
     this._cursor.selection = false;
   }
 
+  private _resetArtificialCursor() {
+    this._artificialCursor = { invertedX: -1, x: -1 };
+  }
+
   set value(table: TableLike) {
     this._table = convertToTable(table);
     this.compute();
@@ -744,6 +748,7 @@ export class GuiChart extends GuiElement {
       if (!this._canvasEntered) {
         this._canvasEntered = true;
         this.dispatchEvent(new GuiChartCanvasEnterEvent());
+        this._resetArtificialCursor();
       }
 
       // The dashed lines, cursor, and axis texts could arguably be configured by the user
@@ -879,9 +884,15 @@ export class GuiChart extends GuiElement {
       // dispatch event
       this.dispatchEvent(new GuiChartCursorEvent(tooltipSerieData, cursor));
     } else {
-      if (this._artificialCursor.x != -1) {
+      if (
+        this._artificialCursor.x != -1 &&
+        this._artificialCursor.x >= xRange[0] &&
+        this._artificialCursor.x <= xRange[1]
+      ) {
         this._cursor.x = this._artificialCursor.x;
-        this._highlightSeries(this._artificialCursor.invertedX);
+        const tooltipSerieData = this._highlightSeries(this._artificialCursor.invertedX);
+        const cursor: Cursor = { ...this._cursor, invertedX: this._artificialCursor.invertedX };
+        this._config.tooltip?.render?.(tooltipSerieData, cursor);
 
         this._uxCtx.simpleLine(this._cursor.x, yRange[0], this._cursor.x, yRange[1], {
           color: style.cursor.lineColor,
