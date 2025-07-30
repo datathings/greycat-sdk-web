@@ -1658,6 +1658,12 @@ export type GuiTableEventDetail = {
   colIdx: number;
 };
 
+export type GuiTableChangeEventDetail = GuiTableEventDetail & {
+  /** The value */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+};
+
 type SortOrd = 'asc' | 'desc' | 'default';
 
 /**
@@ -1802,9 +1808,9 @@ class WidthCalculator {
   }
 }
 
-export type GuiTableClickEventDetail = {
+export type GuiTableClickEventDetail = GuiTableEventDetail & {
   mouseEvent: MouseEvent;
-} & GuiTableEventDetail;
+};
 
 export class GuiTableClickEvent extends CustomEvent<GuiTableClickEventDetail> {
   static readonly NAME = 'gui-table-click';
@@ -1828,10 +1834,10 @@ export class GuiTableInputEvent extends CustomEvent<GuiTableEventDetail & { valu
     super(GuiTableInputEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }
-export class GuiTableChangeEvent extends CustomEvent<GuiTableEventDetail> {
+export class GuiTableChangeEvent extends CustomEvent<GuiTableChangeEventDetail> {
   static readonly NAME = 'gui-table-change';
 
-  constructor(detail: GuiTableEventDetail & { value: unknown }) {
+  constructor(detail: GuiTableChangeEventDetail) {
     super(GuiTableChangeEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }
