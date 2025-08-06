@@ -175,7 +175,7 @@ namespace gc {
           const g1_abi_type_desc = cursor.read_vu32();
           const g2_abi_type_desc = cursor.read_vu32();
           const super_type = cursor.read_vu32();
-          const companion_type_id = cursor.read_vu32();
+          /* const companion_type_id = */ cursor.read_vu32(); // unused
 
           const attributes_len = cursor.read_vu32();
           /* const attributes_offset =  */ cursor.read_vu32(); // unused
@@ -231,7 +231,6 @@ namespace gc {
             g1_abi_type_desc,
             g2_abi_type_desc,
             super_type,
-            companion_type_id,
             mapped_abi_type_offset,
             masked_abi_type_offset,
             nullable_nb_bytes,
@@ -661,7 +660,6 @@ namespace gc {
         readonly g1_abi_type_desc: number,
         readonly g2_abi_type_desc: number,
         readonly super_type: number,
-        readonly companion_type_id: number,
         readonly mapped_type_off: number,
         readonly masked_type_off: number,
         readonly nullable_nb_bytes: number,
