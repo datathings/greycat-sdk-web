@@ -10,21 +10,25 @@ stages:
   - publish
 
 before_script:
-  - export VERSION=`git2version -s`
+  - export VERSION=`greycat build-version`
 
 build:
   stage: build
   script:
+    - echo "VERSION=$VERSION"
     - ./scripts/codegen.sh
     - ./scripts/build.sh
     - ./scripts/test.sh
+    - echo "VERSION=$VERSION"
 
 publish:
   stage: publish
   when: manual
   script:
+    - echo "VERSION=$VERSION"
     - ./scripts/codegen.sh
     - ./scripts/build.sh
     - ./scripts/pack.sh
     - ./scripts/publish.sh
+    - echo "VERSION=$VERSION"
 
