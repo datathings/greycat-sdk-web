@@ -15,12 +15,16 @@ before_script:
 build:
   stage: build
   script:
-    - ./build.sh
+    - ./scripts/codegen.sh
+    - ./scripts/build.sh
+    - ./scripts/test.sh
 
 publish:
   stage: publish
   when: manual
   script:
-    - ./build.sh
-    - ./publish.sh
+    - ./scripts/codegen.sh
+    - ./scripts/build.sh
+    - ./scripts/pack.sh
+    - ./scripts/publish.sh
 

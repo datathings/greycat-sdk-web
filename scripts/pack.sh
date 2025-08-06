@@ -1,18 +1,15 @@
-#!/bin/bash
-set -ex
+#!/usr/bin/env bash
+set -e
 
-VERSION=${VERSION:-"0.0.0"}
+SOURCE=${BASH_SOURCE[0]}
+while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
+  DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+  SOURCE=$(readlink "$SOURCE")
+  [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
+done
+DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
+cd ${DIR}/..
 
-rm -rf dist
-
-sed -i -e "s/\"version\":\\s*\"0.0.0\"/\"version\": \"${VERSION}\"/g" package.json
-
-GREYCAT_TARGET=wasm32 greycat install
-pnpm clean
-pnpm install
-pnpm lint
-pnpm build
-pnpm test
 pnpm pack
 
 mkdir -p dist/sdk/web
