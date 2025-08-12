@@ -67,11 +67,12 @@ export function closest(
         }
       }
       const d2 = Math.abs(x - v);
-      if (distance == null || distance > d2) {
+
+      if (!isNaN(d2) && (distance == null || distance > d2)) {
         rowIdx = i;
         res = serie.xCol === undefined ? i : x;
         distance = d2;
-      } else if (distance != null && x > v && distance < d2) {
+      } else if (!isNaN(d2) && distance != null && x > v && distance < d2) {
         return { xValue: vMap(res), rowIdx };
       }
     }
