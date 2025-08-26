@@ -165,19 +165,19 @@ describe('project', () => {
     [13.369140625, 12.419921875, -13.369140625],
     [13.3125, 12.375, -13.3125, -12.375],
     // std::core::MathConstants
-    2.7182818284590455, // MathConstants::e
+    2.718281828459045, // MathConstants::e
     1.4426950408889634, // MathConstants::log_2e
-    0.43429448190325187, // MathConstants::log_10e
+    0.4342944819032518, // MathConstants::log_10e
     0.6931471805599453, // MathConstants::ln2
     2.302585092994046, // MathConstants::ln10
     3.141592653589793, // MathConstants::pi
     1.5707963267948966, // MathConstants::pi_2
-    0.7853981633974484, // MathConstants::pi_4
-    0.31830988618379064, // MathConstants::m1_pi
-    0.6366197723675813, // MathConstants::m2_pi
+    0.7853981633974483, // MathConstants::pi_4
+    0.3183098861837907, // MathConstants::m1_pi
+    0.6366197723675814, // MathConstants::m2_pi
     1.1283791670955126, // MathConstants::m2_sqrt_pi
     1.4142135623730951, // MathConstants::sqrt2
-    0.7071067811865477, // MathConstants::sqrt1_2
+    0.7071067811865476, // MathConstants::sqrt1_2
 
     // std::io
     {
