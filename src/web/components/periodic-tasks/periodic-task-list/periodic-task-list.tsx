@@ -96,7 +96,7 @@ export class GuiPeriodicTaskList extends GuiElement {
     // deletes all the tasks
     this._tasks.length = 0;
     // update task list
-    await gc.runtime.PeriodicTask.set(this._tasks, this._greycat);
+    //await gc.runtime.PeriodicTask.set(this._tasks, this._greycat);
     // re-render
     this.update();
   }
@@ -105,7 +105,7 @@ export class GuiPeriodicTaskList extends GuiElement {
     // deletes the task by index
     this._tasks.splice(index, 1);
     // update task list
-    await gc.runtime.PeriodicTask.set(this._tasks, this._greycat);
+    //await gc.runtime.PeriodicTask.(this._tasks, this._greycat);
     // re-render
     this.update();
   }
@@ -183,7 +183,7 @@ export class GuiPeriodicTaskList extends GuiElement {
 
   async updateTasks(tasks: gc.runtime.PeriodicTask[]): Promise<void> {
     try {
-      await gc.runtime.PeriodicTask.set(tasks, this._greycat);
+      //await gc.runtime.Scheduler.set(tasks, this._greycat);
       this._tasks = tasks;
       this.update();
     } catch (err) {
@@ -192,7 +192,7 @@ export class GuiPeriodicTaskList extends GuiElement {
   }
 
   async reloadTasks(): Promise<void> {
-    this._tasks = await gc.runtime.PeriodicTask.all(this._greycat);
+    this._tasks = await gc.runtime.Scheduler.list(this._greycat);
     this.update();
   }
 
