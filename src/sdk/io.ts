@@ -395,6 +395,7 @@ namespace gc {
         [PrimitiveType.enum]: this.read_enum.bind(this),
         [PrimitiveType.object]: this.read_object.bind(this),
         [PrimitiveType.block_ref]: deserialize_error,
+        [PrimitiveType.block_inline]: deserialize_error,
         [PrimitiveType.function]: (r) => {
           const ty = r.abi.types[r.abi.core.fn];
           return ty.ctor.load(r, ty);

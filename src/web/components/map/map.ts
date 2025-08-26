@@ -87,7 +87,7 @@ export class GuiMap extends GuiElement {
             oldValue: null,
             previousSibling: null,
             // the following will create an empty `NodeList`
-            removedNodes: document.querySelectorAll('something-that-do-not-exist-most-likely'),
+            removedNodes: document.createDocumentFragment().childNodes,
           },
         ],
         this._observer,

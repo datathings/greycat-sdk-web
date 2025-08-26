@@ -14,6 +14,6 @@ table.headers = ['Name', 'Age', 'Children'];
 document.body.appendChild(
   <app-layout title="Table (row-based)" mainStyle={{ display: 'flex', gap: 'var(--spacing)' }}>
     {actions}
-    <gui-table value={table} />
+    <gui-table value={table} globalFilter={true} filterColumns={['john']} />
   </app-layout>,
 );

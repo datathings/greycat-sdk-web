@@ -31,12 +31,13 @@ namespace gc {
       t3f: 21,
       t4f: 22,
       block_ref: 23,
-      function: 24,
-      undefined: 25,
-      type: 26,
-      field: 27,
-      stringlit: 28,
-      error: 29,
+      block_inline: 24,
+      function: 25,
+      undefined: 26,
+      type: 27,
+      field: 28,
+      stringlit: 29,
+      error: 30,
     } as const;
 
     export const PrimitiveTypeName = {
@@ -64,12 +65,13 @@ namespace gc {
       21: 't3f',
       22: 't4f',
       23: 'block_ref',
-      24: 'function',
-      25: 'undefined',
-      26: 'type',
-      27: 'field',
-      28: 'stringlit',
-      29: 'error',
+      24: 'block_inline',
+      25: 'function',
+      26: 'undefined',
+      27: 'type',
+      28: 'field',
+      29: 'stringlit',
+      30: 'error',
     } as const;
 
     export type PrimitiveType = ExtractValues<typeof PrimitiveType>;

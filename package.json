@@ -34,7 +34,7 @@
   ],
   "scripts": {
     "clean": "rm -rf dist",
-    "gen": "GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 greycat codegen ts && mv project.d.ts std.d.ts",
+    "gen": "greycat install && GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
     "build:sdk": "node scripts/gen-wasm.js && rm -rf dist/greycat.d.ts && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts && cat std.ext.d.ts >> dist/greycat.d.ts",

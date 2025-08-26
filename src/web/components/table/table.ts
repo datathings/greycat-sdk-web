@@ -160,7 +160,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     });
 
     this._thead.addEventListener('gui-table-filter-column', (ev) => {
-      this._filterColumns[ev.detail.index] = ev.detail.text;
+      this._filterColumns[ev.detail.index] = ev.detail.text.toLowerCase();
       this._dirtyFilter = true;
       this.update();
     });
@@ -453,6 +453,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   set filter(text: string | undefined | null) {
     if (typeof text === 'string') {
       this._filterText = text.toLowerCase();
+      this._filter.value = text;
     } else {
       this._filterText = '';
     }
@@ -470,8 +471,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }
 
   set filterColumns(filters: Array<string | undefined | null>) {
-    this._filterColumns = filters;
-    this.querySelectorAll('gui-thead-cell').forEach((header, i) => {
+    this._filterColumns = filters.map((v) => v?.toLowerCase());
+    this.shadowRoot.querySelectorAll('gui-thead-cell').forEach((header, i) => {
       header.filter = filters[i];
     });
     this._dirtyFilter = true;
@@ -572,8 +573,9 @@ export class GuiTable extends GuiElement implements GuiTableProps {
   }: Partial<GuiTableProps>) {
     this._setValue(value);
     this._ignoreCols = ignoreCols;
-    this._filterText = filter;
-    this._filterColumns = filterColumns;
+    this._filterText = filter.toLowerCase();
+    this._filter.value = filter;
+    this._filterColumns = filterColumns.map((v) => v?.toLowerCase());
     this._cellProps = cellProps;
     this._columnFactory = this._sanitizeColumnFactory(columnFactory);
     // this._defaultCellFactory = this._sanitizeCellFactory(defaultCellFactory);
@@ -750,7 +752,6 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     if (this._drawerEnabled) {
       this._configEl.value = this.getAttrs();
     }
-
     resolve();
   }
 
@@ -1658,6 +1659,12 @@ export type GuiTableEventDetail = {
   colIdx: number;
 };
 
+export type GuiTableChangeEventDetail = GuiTableEventDetail & {
+  /** The value */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  value: any;
+};
+
 type SortOrd = 'asc' | 'desc' | 'default';
 
 /**
@@ -1802,9 +1809,9 @@ class WidthCalculator {
   }
 }
 
-export type GuiTableClickEventDetail = {
+export type GuiTableClickEventDetail = GuiTableEventDetail & {
   mouseEvent: MouseEvent;
-} & GuiTableEventDetail;
+};
 
 export class GuiTableClickEvent extends CustomEvent<GuiTableClickEventDetail> {
   static readonly NAME = 'gui-table-click';
@@ -1828,10 +1835,10 @@ export class GuiTableInputEvent extends CustomEvent<GuiTableEventDetail & { valu
     super(GuiTableInputEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }
-export class GuiTableChangeEvent extends CustomEvent<GuiTableEventDetail> {
+export class GuiTableChangeEvent extends CustomEvent<GuiTableChangeEventDetail> {
   static readonly NAME = 'gui-table-change';
 
-  constructor(detail: GuiTableEventDetail & { value: unknown }) {
+  constructor(detail: GuiTableChangeEventDetail) {
     super(GuiTableChangeEvent.NAME, { detail, bubbles: true, composed: true });
   }
 }

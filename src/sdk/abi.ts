@@ -175,6 +175,8 @@ namespace gc {
           const g1_abi_type_desc = cursor.read_vu32();
           const g2_abi_type_desc = cursor.read_vu32();
           const super_type = cursor.read_vu32();
+          /* const companion_type_id = */ cursor.read_vu32(); // unused
+
           const attributes_len = cursor.read_vu32();
           /* const attributes_offset =  */ cursor.read_vu32(); // unused
           /* const mapped_prog_type_offset =  */ cursor.read_vu32(); // unused
