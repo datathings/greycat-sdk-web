@@ -241,13 +241,13 @@ fn write_std_runtime(out: GcbWriter) {
       name: "",
       permissions: Array<String> {},
     });
-  out.write(PeriodicTask {
-      function: project::float_f,
-      arguments: Array<any?> {3.14},
-      user_id: 12,
-      start: 13_time,
-      every: 37_us,
-    });
+  // out.write(PeriodicTask {
+  //     function: project::float_f,
+  //     arguments: Array<any?> {3.14},
+  //     user_id: 12,
+  //     start: 13_time,
+  //     every: 37_us,
+  //   });
   out.write(User {
       id: 12,
       name: "",
@@ -700,16 +700,16 @@ fn geos() {
   };
 }
 
-@expose
-fn periodic_task(): PeriodicTask {
-  return PeriodicTask {
-    function: project::float_f,
-    arguments: Array<any?> {3.14},
-    user_id: 12,
-    start: 13_time,
-    every: duration::new(37, DurationUnit::microseconds),
-  };
-}
+// @expose
+// fn periodic_task(): PeriodicTask {
+//   return PeriodicTask {
+//     function: project::float_f,
+//     //arguments: Array<any?> {3.14},
+//     //user_id: 12,
+//     //start: 13_time,
+//     //every: duration::new(37, DurationUnit::microseconds),
+//   };
+// }
 
 @expose
 fn create_nodeTimes() {
