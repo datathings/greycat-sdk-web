@@ -2,11 +2,11 @@
 /* eslint-disable */
 declare namespace gc {
   namespace core {
-    class nodeTime$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeTime$info$args';
-      nodes: globalThis.Array<gc.core.nodeTime>;
-      constructor(nodes: globalThis.Array<gc.core.nodeTime>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeTime>}): nodeTime$info$args;
+    class node$resolve_all$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::node$resolve_all$args';
+      n: globalThis.Array<gc.core.node | null>;
+      constructor(n: globalThis.Array<gc.core.node | null>);
+      static createFrom(fields: {n: globalThis.Array<gc.core.node | null>}): node$resolve_all$args;
     }
 
     class Date extends gc.sdk.GCObject {
@@ -29,11 +29,12 @@ declare namespace gc {
       static applyMappings(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
     }
 
-    class nodeGeo$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeGeo$info$args';
-      nodes: globalThis.Array<gc.core.nodeGeo>;
-      constructor(nodes: globalThis.Array<gc.core.nodeGeo>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeGeo>}): nodeGeo$info$args;
+    class Date$from_time$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::Date$from_time$args';
+      time: gc.core.time;
+      tz: gc.core.TimeZone | null;
+      constructor(time: gc.core.time, tz?: gc.core.TimeZone | null);
+      static createFrom(fields: {time: gc.core.time, tz?: gc.core.TimeZone | null}): Date$from_time$args;
     }
 
     class t3 extends gc.sdk.std_n.core.t3 {}
@@ -50,19 +51,29 @@ declare namespace gc {
       type Field = "asc"|"desc";
     }
 
-    class nodeIndex$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeIndex$info$args';
-      nodes: globalThis.Array<gc.core.nodeIndex>;
-      constructor(nodes: globalThis.Array<gc.core.nodeIndex>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeIndex>}): nodeIndex$info$args;
+    class nodeList$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeList$sample$args';
+      refs: globalThis.Array<gc.core.nodeList>;
+      from: number | bigint | null;
+      to: number | bigint | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      maxDephasing: number | bigint | null;
+      constructor(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeList>, from?: number | bigint | null, to?: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null}): nodeList$sample$args;
     }
 
-    class Date$from_time$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::Date$from_time$args';
-      time: gc.core.time;
+    class nodeTime$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeTime$sample$args';
+      refs: globalThis.Array<gc.core.nodeTime>;
+      from: gc.core.time | null;
+      to: gc.core.time | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      maxDephasing: gc.core.duration | null;
       tz: gc.core.TimeZone | null;
-      constructor(time: gc.core.time, tz?: gc.core.TimeZone | null);
-      static createFrom(fields: {time: gc.core.time, tz?: gc.core.TimeZone | null}): Date$from_time$args;
+      constructor(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeTime>, from?: gc.core.time | null, to?: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null}): nodeTime$sample$args;
     }
 
     class TimeZone extends gc.sdk.GCEnum {
@@ -673,19 +684,23 @@ declare namespace gc {
       type Field = "UTC"|"Africa/Abidjan"|"Africa/Accra"|"Africa/Addis_Ababa"|"Africa/Algiers"|"Africa/Asmara"|"Africa/Asmera"|"Africa/Bamako"|"Africa/Bangui"|"Africa/Banjul"|"Africa/Bissau"|"Africa/Blantyre"|"Africa/Brazzaville"|"Africa/Bujumbura"|"Africa/Cairo"|"Africa/Casablanca"|"Africa/Ceuta"|"Africa/Conakry"|"Africa/Dakar"|"Africa/Dar_es_Salaam"|"Africa/Djibouti"|"Africa/Douala"|"Africa/El_Aaiun"|"Africa/Freetown"|"Africa/Gaborone"|"Africa/Harare"|"Africa/Johannesburg"|"Africa/Juba"|"Africa/Kampala"|"Africa/Khartoum"|"Africa/Kigali"|"Africa/Kinshasa"|"Africa/Lagos"|"Africa/Libreville"|"Africa/Lome"|"Africa/Luanda"|"Africa/Lubumbashi"|"Africa/Lusaka"|"Africa/Malabo"|"Africa/Maputo"|"Africa/Maseru"|"Africa/Mbabane"|"Africa/Mogadishu"|"Africa/Monrovia"|"Africa/Nairobi"|"Africa/Ndjamena"|"Africa/Niamey"|"Africa/Nouakchott"|"Africa/Ouagadougou"|"Africa/Porto-Novo"|"Africa/Sao_Tome"|"Africa/Timbuktu"|"Africa/Tripoli"|"Africa/Tunis"|"Africa/Windhoek"|"America/Adak"|"America/Anchorage"|"America/Anguilla"|"America/Antigua"|"America/Araguaina"|"America/Argentina/Buenos_Aires"|"America/Argentina/Catamarca"|"America/Argentina/ComodRivadavia"|"America/Argentina/Cordoba"|"America/Argentina/Jujuy"|"America/Argentina/La_Rioja"|"America/Argentina/Mendoza"|"America/Argentina/Rio_Gallegos"|"America/Argentina/Salta"|"America/Argentina/San_Juan"|"America/Argentina/San_Luis"|"America/Argentina/Tucuman"|"America/Argentina/Ushuaia"|"America/Aruba"|"America/Asuncion"|"America/Atikokan"|"America/Atka"|"America/Bahia"|"America/Bahia_Banderas"|"America/Barbados"|"America/Belem"|"America/Belize"|"America/Blanc-Sablon"|"America/Boa_Vista"|"America/Bogota"|"America/Boise"|"America/Buenos_Aires"|"America/Cambridge_Bay"|"America/Campo_Grande"|"America/Cancun"|"America/Caracas"|"America/Catamarca"|"America/Cayenne"|"America/Cayman"|"America/Chicago"|"America/Chihuahua"|"America/Ciudad_Juarez"|"America/Coral_Harbour"|"America/Cordoba"|"America/Costa_Rica"|"America/Coyhaique"|"America/Creston"|"America/Cuiaba"|"America/Curacao"|"America/Danmarkshavn"|"America/Dawson"|"America/Dawson_Creek"|"America/Denver"|"America/Detroit"|"America/Dominica"|"America/Edmonton"|"America/Eirunepe"|"America/El_Salvador"|"America/Ensenada"|"America/Fort_Nelson"|"America/Fort_Wayne"|"America/Fortaleza"|"America/Glace_Bay"|"America/Godthab"|"America/Goose_Bay"|"America/Grand_Turk"|"America/Grenada"|"America/Guadeloupe"|"America/Guatemala"|"America/Guayaquil"|"America/Guyana"|"America/Halifax"|"America/Havana"|"America/Hermosillo"|"America/Indiana/Indianapolis"|"America/Indiana/Knox"|"America/Indiana/Marengo"|"America/Indiana/Petersburg"|"America/Indiana/Tell_City"|"America/Indiana/Vevay"|"America/Indiana/Vincennes"|"America/Indiana/Winamac"|"America/Indianapolis"|"America/Inuvik"|"America/Iqaluit"|"America/Jamaica"|"America/Jujuy"|"America/Juneau"|"America/Kentucky/Louisville"|"America/Kentucky/Monticello"|"America/Knox_IN"|"America/Kralendijk"|"America/La_Paz"|"America/Lima"|"America/Los_Angeles"|"America/Louisville"|"America/Lower_Princes"|"America/Maceio"|"America/Managua"|"America/Manaus"|"America/Marigot"|"America/Martinique"|"America/Matamoros"|"America/Mazatlan"|"America/Mendoza"|"America/Menominee"|"America/Merida"|"America/Metlakatla"|"America/Mexico_City"|"America/Miquelon"|"America/Moncton"|"America/Monterrey"|"America/Montevideo"|"America/Montreal"|"America/Montserrat"|"America/Nassau"|"America/New_York"|"America/Nipigon"|"America/Nome"|"America/Noronha"|"America/North_Dakota/Beulah"|"America/North_Dakota/Center"|"America/North_Dakota/New_Salem"|"America/Nuuk"|"America/Ojinaga"|"America/Panama"|"America/Pangnirtung"|"America/Paramaribo"|"America/Phoenix"|"America/Port-au-Prince"|"America/Port_of_Spain"|"America/Porto_Acre"|"America/Porto_Velho"|"America/Puerto_Rico"|"America/Punta_Arenas"|"America/Rainy_River"|"America/Rankin_Inlet"|"America/Recife"|"America/Regina"|"America/Resolute"|"America/Rio_Branco"|"America/Rosario"|"America/Santa_Isabel"|"America/Santarem"|"America/Santiago"|"America/Santo_Domingo"|"America/Sao_Paulo"|"America/Scoresbysund"|"America/Shiprock"|"America/Sitka"|"America/St_Barthelemy"|"America/St_Johns"|"America/St_Kitts"|"America/St_Lucia"|"America/St_Thomas"|"America/St_Vincent"|"America/Swift_Current"|"America/Tegucigalpa"|"America/Thule"|"America/Thunder_Bay"|"America/Tijuana"|"America/Toronto"|"America/Tortola"|"America/Vancouver"|"America/Virgin"|"America/Whitehorse"|"America/Winnipeg"|"America/Yakutat"|"America/Yellowknife"|"Antarctica/Casey"|"Antarctica/Davis"|"Antarctica/DumontDUrville"|"Antarctica/Macquarie"|"Antarctica/Mawson"|"Antarctica/McMurdo"|"Antarctica/Palmer"|"Antarctica/Rothera"|"Antarctica/South_Pole"|"Antarctica/Syowa"|"Antarctica/Troll"|"Antarctica/Vostok"|"Arctic/Longyearbyen"|"Asia/Aden"|"Asia/Almaty"|"Asia/Amman"|"Asia/Anadyr"|"Asia/Aqtau"|"Asia/Aqtobe"|"Asia/Ashgabat"|"Asia/Ashkhabad"|"Asia/Atyrau"|"Asia/Baghdad"|"Asia/Bahrain"|"Asia/Baku"|"Asia/Bangkok"|"Asia/Barnaul"|"Asia/Beirut"|"Asia/Bishkek"|"Asia/Brunei"|"Asia/Calcutta"|"Asia/Chita"|"Asia/Choibalsan"|"Asia/Chongqing"|"Asia/Chungking"|"Asia/Colombo"|"Asia/Dacca"|"Asia/Damascus"|"Asia/Dhaka"|"Asia/Dili"|"Asia/Dubai"|"Asia/Dushanbe"|"Asia/Famagusta"|"Asia/Gaza"|"Asia/Harbin"|"Asia/Hebron"|"Asia/Ho_Chi_Minh"|"Asia/Hong_Kong"|"Asia/Hovd"|"Asia/Irkutsk"|"Asia/Istanbul"|"Asia/Jakarta"|"Asia/Jayapura"|"Asia/Jerusalem"|"Asia/Kabul"|"Asia/Kamchatka"|"Asia/Karachi"|"Asia/Kashgar"|"Asia/Kathmandu"|"Asia/Katmandu"|"Asia/Khandyga"|"Asia/Kolkata"|"Asia/Krasnoyarsk"|"Asia/Kuala_Lumpur"|"Asia/Kuching"|"Asia/Kuwait"|"Asia/Macao"|"Asia/Macau"|"Asia/Magadan"|"Asia/Makassar"|"Asia/Manila"|"Asia/Muscat"|"Asia/Nicosia"|"Asia/Novokuznetsk"|"Asia/Novosibirsk"|"Asia/Omsk"|"Asia/Oral"|"Asia/Phnom_Penh"|"Asia/Pontianak"|"Asia/Pyongyang"|"Asia/Qatar"|"Asia/Qostanay"|"Asia/Qyzylorda"|"Asia/Rangoon"|"Asia/Riyadh"|"Asia/Saigon"|"Asia/Sakhalin"|"Asia/Samarkand"|"Asia/Seoul"|"Asia/Shanghai"|"Asia/Singapore"|"Asia/Srednekolymsk"|"Asia/Taipei"|"Asia/Tashkent"|"Asia/Tbilisi"|"Asia/Tehran"|"Asia/Tel_Aviv"|"Asia/Thimbu"|"Asia/Thimphu"|"Asia/Tokyo"|"Asia/Tomsk"|"Asia/Ujung_Pandang"|"Asia/Ulaanbaatar"|"Asia/Ulan_Bator"|"Asia/Urumqi"|"Asia/Ust-Nera"|"Asia/Vientiane"|"Asia/Vladivostok"|"Asia/Yakutsk"|"Asia/Yangon"|"Asia/Yekaterinburg"|"Asia/Yerevan"|"Atlantic/Azores"|"Atlantic/Bermuda"|"Atlantic/Canary"|"Atlantic/Cape_Verde"|"Atlantic/Faeroe"|"Atlantic/Faroe"|"Atlantic/Jan_Mayen"|"Atlantic/Madeira"|"Atlantic/Reykjavik"|"Atlantic/South_Georgia"|"Atlantic/St_Helena"|"Atlantic/Stanley"|"Australia/ACT"|"Australia/Adelaide"|"Australia/Brisbane"|"Australia/Broken_Hill"|"Australia/Canberra"|"Australia/Currie"|"Australia/Darwin"|"Australia/Eucla"|"Australia/Hobart"|"Australia/LHI"|"Australia/Lindeman"|"Australia/Lord_Howe"|"Australia/Melbourne"|"Australia/NSW"|"Australia/North"|"Australia/Perth"|"Australia/Queensland"|"Australia/South"|"Australia/Sydney"|"Australia/Tasmania"|"Australia/Victoria"|"Australia/West"|"Australia/Yancowinna"|"Brazil/Acre"|"Brazil/DeNoronha"|"Brazil/East"|"Brazil/West"|"CET"|"CST6CDT"|"Canada/Atlantic"|"Canada/Central"|"Canada/Eastern"|"Canada/Mountain"|"Canada/Newfoundland"|"Canada/Pacific"|"Canada/Saskatchewan"|"Canada/Yukon"|"Chile/Continental"|"Chile/EasterIsland"|"Cuba"|"EET"|"EST"|"EST5EDT"|"Egypt"|"Eire"|"Etc/GMT"|"Etc/GMT+0"|"Etc/GMT+1"|"Etc/GMT+10"|"Etc/GMT+11"|"Etc/GMT+12"|"Etc/GMT+2"|"Etc/GMT+3"|"Etc/GMT+4"|"Etc/GMT+5"|"Etc/GMT+6"|"Etc/GMT+7"|"Etc/GMT+8"|"Etc/GMT+9"|"Etc/GMT-0"|"Etc/GMT-1"|"Etc/GMT-10"|"Etc/GMT-11"|"Etc/GMT-12"|"Etc/GMT-13"|"Etc/GMT-14"|"Etc/GMT-2"|"Etc/GMT-3"|"Etc/GMT-4"|"Etc/GMT-5"|"Etc/GMT-6"|"Etc/GMT-7"|"Etc/GMT-8"|"Etc/GMT-9"|"Etc/GMT0"|"Etc/Greenwich"|"Etc/UCT"|"Etc/UTC"|"Etc/Universal"|"Etc/Zulu"|"Europe/Amsterdam"|"Europe/Andorra"|"Europe/Astrakhan"|"Europe/Athens"|"Europe/Belfast"|"Europe/Belgrade"|"Europe/Berlin"|"Europe/Bratislava"|"Europe/Brussels"|"Europe/Bucharest"|"Europe/Budapest"|"Europe/Busingen"|"Europe/Chisinau"|"Europe/Copenhagen"|"Europe/Dublin"|"Europe/Gibraltar"|"Europe/Guernsey"|"Europe/Helsinki"|"Europe/Isle_of_Man"|"Europe/Istanbul"|"Europe/Jersey"|"Europe/Kaliningrad"|"Europe/Kiev"|"Europe/Kirov"|"Europe/Kyiv"|"Europe/Lisbon"|"Europe/Ljubljana"|"Europe/London"|"Europe/Luxembourg"|"Europe/Madrid"|"Europe/Malta"|"Europe/Mariehamn"|"Europe/Minsk"|"Europe/Monaco"|"Europe/Moscow"|"Europe/Nicosia"|"Europe/Oslo"|"Europe/Paris"|"Europe/Podgorica"|"Europe/Prague"|"Europe/Riga"|"Europe/Rome"|"Europe/Samara"|"Europe/San_Marino"|"Europe/Sarajevo"|"Europe/Saratov"|"Europe/Simferopol"|"Europe/Skopje"|"Europe/Sofia"|"Europe/Stockholm"|"Europe/Tallinn"|"Europe/Tirane"|"Europe/Tiraspol"|"Europe/Ulyanovsk"|"Europe/Uzhgorod"|"Europe/Vaduz"|"Europe/Vatican"|"Europe/Vienna"|"Europe/Vilnius"|"Europe/Volgograd"|"Europe/Warsaw"|"Europe/Zagreb"|"Europe/Zaporozhye"|"Europe/Zurich"|"Factory"|"GB"|"GB-Eire"|"GMT"|"GMT+0"|"GMT-0"|"GMT0"|"Greenwich"|"HST"|"Hongkong"|"Iceland"|"Indian/Antananarivo"|"Indian/Chagos"|"Indian/Christmas"|"Indian/Cocos"|"Indian/Comoro"|"Indian/Kerguelen"|"Indian/Mahe"|"Indian/Maldives"|"Indian/Mauritius"|"Indian/Mayotte"|"Indian/Reunion"|"Iran"|"Israel"|"Jamaica"|"Japan"|"Kwajalein"|"Libya"|"MET"|"MST"|"MST7MDT"|"Mexico/BajaNorte"|"Mexico/BajaSur"|"Mexico/General"|"NZ"|"NZ-CHAT"|"Navajo"|"PRC"|"PST8PDT"|"Pacific/Apia"|"Pacific/Auckland"|"Pacific/Bougainville"|"Pacific/Chatham"|"Pacific/Chuuk"|"Pacific/Easter"|"Pacific/Efate"|"Pacific/Enderbury"|"Pacific/Fakaofo"|"Pacific/Fiji"|"Pacific/Funafuti"|"Pacific/Galapagos"|"Pacific/Gambier"|"Pacific/Guadalcanal"|"Pacific/Guam"|"Pacific/Honolulu"|"Pacific/Johnston"|"Pacific/Kanton"|"Pacific/Kiritimati"|"Pacific/Kosrae"|"Pacific/Kwajalein"|"Pacific/Majuro"|"Pacific/Marquesas"|"Pacific/Midway"|"Pacific/Nauru"|"Pacific/Niue"|"Pacific/Norfolk"|"Pacific/Noumea"|"Pacific/Pago_Pago"|"Pacific/Palau"|"Pacific/Pitcairn"|"Pacific/Pohnpei"|"Pacific/Ponape"|"Pacific/Port_Moresby"|"Pacific/Rarotonga"|"Pacific/Saipan"|"Pacific/Samoa"|"Pacific/Tahiti"|"Pacific/Tarawa"|"Pacific/Tongatapu"|"Pacific/Truk"|"Pacific/Wake"|"Pacific/Wallis"|"Pacific/Yap"|"Poland"|"Portugal"|"ROC"|"ROK"|"Singapore"|"Turkey"|"UCT"|"US/Alaska"|"US/Aleutian"|"US/Arizona"|"US/Central"|"US/East-Indiana"|"US/Eastern"|"US/Hawaii"|"US/Indiana-Starke"|"US/Michigan"|"US/Mountain"|"US/Pacific"|"US/Samoa"|"Universal"|"W-SU"|"WET"|"Zulu";
     }
 
-    class nodeList$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeList$sample$args';
-      refs: globalThis.Array<gc.core.nodeList>;
-      from: number | bigint | null;
-      to: number | bigint | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      maxDephasing: number | bigint | null;
-      constructor(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeList>, from?: number | bigint | null, to?: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null}): nodeList$sample$args;
+    class nodeList$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeList$info$args';
+      nodes: globalThis.Array<gc.core.nodeList>;
+      constructor(nodes: globalThis.Array<gc.core.nodeList>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeList>}): nodeList$info$args;
     }
 
     class t2 extends gc.sdk.std_n.core.t2 {}
+
+    class nodeIndex$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeIndex$info$args';
+      nodes: globalThis.Array<gc.core.nodeIndex>;
+      constructor(nodes: globalThis.Array<gc.core.nodeIndex>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeIndex>}): nodeIndex$info$args;
+    }
+
+    class String extends gc.sdk.std_n.core.String {}
 
     class nodeIndex$sample$args extends gc.sdk.GCObject {
       static readonly _type = 'core::nodeIndex$sample$args';
@@ -695,15 +710,6 @@ declare namespace gc {
       mode: gc.core.SamplingMode;
       constructor(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
       static createFrom(fields: {refs: globalThis.Array<gc.core.nodeIndex>, from?: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeIndex$sample$args;
-    }
-
-    class String extends gc.sdk.std_n.core.String {}
-
-    class node$resolve_all$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::node$resolve_all$args';
-      n: globalThis.Array<gc.core.node | null>;
-      constructor(n: globalThis.Array<gc.core.node | null>);
-      static createFrom(fields: {n: globalThis.Array<gc.core.node | null>}): node$resolve_all$args;
     }
 
     class t4f extends gc.sdk.std_n.core.t4f {}
@@ -726,19 +732,23 @@ declare namespace gc {
 
     class duration extends gc.sdk.std_n.core.duration {}
 
-    class nodeList$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeList$info$args';
-      nodes: globalThis.Array<gc.core.nodeList>;
-      constructor(nodes: globalThis.Array<gc.core.nodeList>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeList>}): nodeList$info$args;
-    }
-
     class Table$applyMappings$args extends gc.sdk.GCObject {
       static readonly _type = 'core::Table$applyMappings$args';
       table: gc.core.Table;
       mappings: globalThis.Array<gc.core.TableColumnMapping>;
       constructor(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>);
       static createFrom(fields: {table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>}): Table$applyMappings$args;
+    }
+
+    class nodeGeo$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeGeo$sample$args';
+      refs: globalThis.Array<gc.core.nodeGeo>;
+      from: gc.core.geo | null;
+      to: gc.core.geo | null;
+      maxRows: number | bigint;
+      mode: gc.core.SamplingMode;
+      constructor(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
+      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeGeo>, from?: gc.core.geo | null, to?: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeGeo$sample$args;
     }
 
     class nodeTimeCursor<T = any> extends gc.sdk.GCObject {
@@ -792,15 +802,11 @@ declare namespace gc {
       static createFrom(fields: {sw: gc.core.geo, ne: gc.core.geo}): GeoBox;
     }
 
-    class nodeGeo$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeGeo$sample$args';
-      refs: globalThis.Array<gc.core.nodeGeo>;
-      from: gc.core.geo | null;
-      to: gc.core.geo | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      constructor(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeGeo>, from?: gc.core.geo | null, to?: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeGeo$sample$args;
+    class nodeGeo$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeGeo$info$args';
+      nodes: globalThis.Array<gc.core.nodeGeo>;
+      constructor(nodes: globalThis.Array<gc.core.nodeGeo>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeGeo>}): nodeGeo$info$args;
     }
 
     class node<T = any> extends gc.sdk.std_n.core.node<T> {
@@ -858,17 +864,11 @@ declare namespace gc {
       static createFrom(fields: {points: globalThis.Array<gc.core.geo>}): GeoPoly;
     }
 
-    class nodeTime$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'core::nodeTime$sample$args';
-      refs: globalThis.Array<gc.core.nodeTime>;
-      from: gc.core.time | null;
-      to: gc.core.time | null;
-      maxRows: number | bigint;
-      mode: gc.core.SamplingMode;
-      maxDephasing: gc.core.duration | null;
-      tz: gc.core.TimeZone | null;
-      constructor(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeTime>, from?: gc.core.time | null, to?: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null}): nodeTime$sample$args;
+    class nodeTime$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'core::nodeTime$info$args';
+      nodes: globalThis.Array<gc.core.nodeTime>;
+      constructor(nodes: globalThis.Array<gc.core.nodeTime>);
+      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeTime>}): nodeTime$info$args;
     }
 
     class ErrorFrame extends gc.sdk.GCObject {
@@ -1036,11 +1036,12 @@ declare namespace gc {
       static createFrom(fields: {host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null}): Smtp;
     }
 
-    class Csv$generate$args extends gc.sdk.GCObject {
-      static readonly _type = 'io::Csv$generate$args';
-      stats: gc.io.CsvStatistics;
-      constructor(stats: gc.io.CsvStatistics);
-      static createFrom(fields: {stats: gc.io.CsvStatistics}): Csv$generate$args;
+    class Csv$analyze$args extends gc.sdk.GCObject {
+      static readonly _type = 'io::Csv$analyze$args';
+      files: globalThis.Array<gc.io.File>;
+      config: gc.io.CsvAnalysisConfig | null;
+      constructor(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null);
+      static createFrom(fields: {files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null}): Csv$analyze$args;
     }
 
     class CsvSharding extends gc.sdk.GCObject {
@@ -1121,28 +1122,20 @@ declare namespace gc {
       static readonly _type = 'io::HttpRequest';
       method: gc.io.HttpMethod;
       url: string;
-      headers: globalThis.Array<gc.io.HttpHeader> | null;
+      headers: globalThis.Map<string, string> | null;
       body: string | null;
-      constructor(method: gc.io.HttpMethod, url: string, headers?: globalThis.Array<gc.io.HttpHeader> | null, body?: string | null);
-      static createFrom(fields: {method: gc.io.HttpMethod, url: string, headers?: globalThis.Array<gc.io.HttpHeader> | null, body?: string | null}): HttpRequest;
+      constructor(method: gc.io.HttpMethod, url: string, headers?: globalThis.Map<string, string> | null, body?: string | null);
+      static createFrom(fields: {method: gc.io.HttpMethod, url: string, headers?: globalThis.Map<string, string> | null, body?: string | null}): HttpRequest;
     }
 
     class HttpResponse<T = any> extends gc.sdk.GCObject {
       static readonly _type = 'io::HttpResponse';
       status_code: number | bigint;
-      headers: globalThis.Array<gc.io.HttpHeader>;
+      headers: globalThis.Map<string, string>;
       content: T | null;
       error_msg: string | null;
-      constructor(status_code: number | bigint, headers: globalThis.Array<gc.io.HttpHeader>, content?: T | null, error_msg?: string | null);
-      static createFrom<T>(fields: {status_code: number | bigint, headers: globalThis.Array<gc.io.HttpHeader>, content?: T | null, error_msg?: string | null}): HttpResponse;
-    }
-
-    class HttpHeader extends gc.sdk.GCObject {
-      static readonly _type = 'io::HttpHeader';
-      name: string;
-      value: string;
-      constructor(name: string, value: string);
-      static createFrom(fields: {name: string, value: string}): HttpHeader;
+      constructor(status_code: number | bigint, headers: globalThis.Map<string, string>, content?: T | null, error_msg?: string | null);
+      static createFrom<T>(fields: {status_code: number | bigint, headers: globalThis.Map<string, string>, content?: T | null, error_msg?: string | null}): HttpResponse;
     }
 
     class GcbReader<T = any> extends gc.sdk.GCObject {
@@ -1151,6 +1144,13 @@ declare namespace gc {
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
       static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): GcbReader;
+    }
+
+    class Csv$generate$args extends gc.sdk.GCObject {
+      static readonly _type = 'io::Csv$generate$args';
+      stats: gc.io.CsvStatistics;
+      constructor(stats: gc.io.CsvStatistics);
+      static createFrom(fields: {stats: gc.io.CsvStatistics}): Csv$generate$args;
     }
 
     class CsvReader<T = any> extends gc.sdk.GCObject {
@@ -1209,12 +1209,12 @@ declare namespace gc {
       static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null, nearest_time?: boolean | null}): CsvFormat;
     }
 
-    class Csv$analyze$args extends gc.sdk.GCObject {
-      static readonly _type = 'io::Csv$analyze$args';
-      files: globalThis.Array<gc.io.File>;
-      config: gc.io.CsvAnalysisConfig | null;
-      constructor(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null);
-      static createFrom(fields: {files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null}): Csv$analyze$args;
+    class Csv$sample$args extends gc.sdk.GCObject {
+      static readonly _type = 'io::Csv$sample$args';
+      reader: gc.io.CsvReader;
+      max_lines: number | bigint | null;
+      constructor(reader: gc.io.CsvReader, max_lines?: number | bigint | null);
+      static createFrom(fields: {reader: gc.io.CsvReader, max_lines?: number | bigint | null}): Csv$sample$args;
     }
 
     class FileWalker extends gc.sdk.GCObject {
@@ -1270,14 +1270,6 @@ declare namespace gc {
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
       static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): XmlReader;
-    }
-
-    class Csv$sample$args extends gc.sdk.GCObject {
-      static readonly _type = 'io::Csv$sample$args';
-      reader: gc.io.CsvReader;
-      max_lines: number | bigint | null;
-      constructor(reader: gc.io.CsvReader, max_lines?: number | bigint | null);
-      static createFrom(fields: {reader: gc.io.CsvReader, max_lines?: number | bigint | null}): Csv$sample$args;
     }
 
     class JsonWriter<T = any> extends gc.sdk.GCObject {
@@ -1344,19 +1336,16 @@ declare namespace gc {
       static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Permission>>;
     }
 
-    class User$renew$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$renew$args';
-      use_cookie: boolean;
-      constructor(use_cookie: boolean);
-      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
+    class User$current$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$current$args';
     }
 
     class System extends gc.sdk.GCObject {
       static readonly _type = 'runtime::System';
     }
 
-    class SecurityFields$get$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$get$args';
+    class SecurityEntity$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$all$args';
     }
 
     class WeeklyPeriodicity extends gc.sdk.GCObject {
@@ -1396,13 +1385,6 @@ declare namespace gc {
       activated: boolean;
       constructor(id: number | bigint, name: string, activated: boolean);
       static createFrom(fields: {id: number | bigint, name: string, activated: boolean}): UserGroup;
-    }
-
-    class Scheduler$deactivate$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$deactivate$args';
-      function: gc.core.function_;
-      constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$deactivate$args;
     }
 
     class Runtime extends gc.sdk.GCObject {
@@ -1445,8 +1427,11 @@ declare namespace gc {
       static createFrom(fields: {name?: string | null, start: gc.core.time, end: gc.core.time, company?: string | null, max_memory: number | bigint, extra_1?: number | bigint | null, extra_2?: number | bigint | null, type?: gc.runtime.LicenseType | null}): License;
     }
 
-    class User$logout$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$logout$args';
+    class User$renew$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$renew$args';
+      use_cookie: boolean;
+      constructor(use_cookie: boolean);
+      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
     }
 
     class Month extends gc.sdk.GCEnum {
@@ -1471,11 +1456,11 @@ declare namespace gc {
       type Field = "Jan"|"Feb"|"Mar"|"Apr"|"May"|"Jun"|"Jul"|"Aug"|"Sep"|"Oct"|"Nov"|"Dec";
     }
 
-    class Task$cancel$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$cancel$args';
+    class Task$is_running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$is_running$args';
       task_id: number | bigint;
       constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
+      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
     }
 
     class SecurityPolicy extends gc.sdk.GCObject {
@@ -1504,19 +1489,23 @@ declare namespace gc {
       static createFrom(fields: {day: number | bigint, month: gc.runtime.Month}): DateTuple;
     }
 
-    class Scheduler$find$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$find$args';
+    class Scheduler$activate$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$activate$args';
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$find$args;
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$activate$args;
     }
 
-    class User$current$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$current$args';
+    class User$me$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$me$args';
     }
 
-    class OpenIDConnect$config$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::OpenIDConnect$config$args';
+    class User$login$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$login$args';
+      credentials: string;
+      use_cookie: boolean;
+      constructor(credentials: string, use_cookie: boolean);
+      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
     }
 
     class Periodicity extends gc.sdk.GCObject {
@@ -1548,12 +1537,19 @@ declare namespace gc {
       static createFrom(fields: {name?: string | null, value?: any | null}): Variable;
     }
 
-    class SecurityEntity$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$all$args';
+    class SecurityEntity$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$set$args';
+      entity: gc.runtime.SecurityEntity;
+      constructor(entity: gc.runtime.SecurityEntity);
+      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
     }
 
-    class User$permissions$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$permissions$args';
+    class User$setPassword$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$setPassword$args';
+      name: string;
+      pass: string;
+      constructor(name: string, pass: string);
+      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
     }
 
     class SecurityFields extends gc.sdk.GCObject {
@@ -1570,11 +1566,13 @@ declare namespace gc {
       static set(f: gc.runtime.SecurityFields, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
     }
 
-    class Debug$resume$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$resume$args';
-      id: number | bigint;
-      constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
+    class Scheduler$add$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$add$args';
+      function: gc.core.function_;
+      periodicity: gc.runtime.Periodicity;
+      options: gc.runtime.PeriodicOptions | null;
+      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null);
+      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null}): Scheduler$add$args;
     }
 
     class UserGroupPolicy extends gc.sdk.GCObject {
@@ -1621,51 +1619,41 @@ declare namespace gc {
       static createFrom(fields: {hour?: number | bigint | null, minute?: number | bigint | null, second?: number | bigint | null, timezone?: gc.core.TimeZone | null}): DailyPeriodicity;
     }
 
-    class Debug$get$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$get$args';
+    class Debug$resume$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$resume$args';
       id: number | bigint;
       constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$get$args;
-    }
-
-    class Scheduler$add$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$add$args';
-      function: gc.core.function_;
-      periodicity: gc.runtime.Periodicity;
-      options: gc.runtime.PeriodicOptions | null;
-      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null);
-      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null}): Scheduler$add$args;
-    }
-
-    class Runtime$info$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$info$args';
-    }
-
-    class SecurityFields$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$set$args';
-      f: gc.runtime.SecurityFields;
-      constructor(f: gc.runtime.SecurityFields);
-      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
+      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
     }
 
     class Scheduler$list$args extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Scheduler$list$args';
     }
 
-    class User$setPassword$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$setPassword$args';
-      name: string;
-      pass: string;
-      constructor(name: string, pass: string);
-      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
+    class Runtime$abi$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$abi$args';
     }
 
-    class Task$history$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$history$args';
-      offset: number | bigint;
-      max: number | bigint;
-      constructor(offset: number | bigint, max: number | bigint);
-      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
+    class SecurityFields$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$get$args';
+    }
+
+    class Scheduler$find$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$find$args';
+      function: gc.core.function_;
+      constructor(function_: gc.core.function_);
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$find$args;
+    }
+
+    class Debug$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$all$args';
+    }
+
+    class Task$cancel$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$cancel$args';
+      task_id: number | bigint;
+      constructor(task_id: number | bigint);
+      static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
     }
 
     class LicenseType extends gc.sdk.GCEnum {
@@ -1681,16 +1669,16 @@ declare namespace gc {
       type Field = "community"|"enterprise"|"testing";
     }
 
-    class Runtime$root$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$root$args';
+    class Task$running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$running$args';
     }
 
-    class User$login$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$login$args';
-      credentials: string;
+    class User$tokenLogin$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$tokenLogin$args';
+      token: string;
       use_cookie: boolean;
-      constructor(credentials: string, use_cookie: boolean);
-      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
+      constructor(token: string, use_cookie: boolean);
+      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
     }
 
     class PeriodicTask extends gc.sdk.GCObject {
@@ -1705,11 +1693,11 @@ declare namespace gc {
       static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options: gc.runtime.PeriodicOptions, is_active: boolean, next_execution: gc.core.time, execution_count: number | bigint}): PeriodicTask;
     }
 
-    class Scheduler$activate$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$activate$args';
+    class Scheduler$deactivate$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$deactivate$args';
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$activate$args;
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$deactivate$args;
     }
 
     class UserCredential extends gc.sdk.GCObject {
@@ -1749,8 +1737,12 @@ declare namespace gc {
       static config($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
     }
 
-    class Task$running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$running$args';
+    class Task$history$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$history$args';
+      offset: number | bigint;
+      max: number | bigint;
+      constructor(offset: number | bigint, max: number | bigint);
+      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
     }
 
     class User extends gc.sdk.GCObject {
@@ -1776,12 +1768,12 @@ declare namespace gc {
       static login(credentials: string, use_cookie: boolean, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
     }
 
-    class Permission$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Permission$all$args';
+    class Role$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Role$all$args';
     }
 
-    class Runtime$openapi$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$openapi$args';
+    class Runtime$root$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$root$args';
     }
 
     class UserGroupPolicyType extends gc.sdk.GCEnum {
@@ -1810,19 +1802,22 @@ declare namespace gc {
       static createFrom(fields: {level: gc.runtime.LogLevel, time: gc.core.time, user_id?: number | bigint | null, id?: number | bigint | null, id2?: number | bigint | null, src?: gc.core.function_ | null, data?: any | null}): Log;
     }
 
-    class Task$is_running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$is_running$args';
-      task_id: number | bigint;
-      constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
+    class SecurityFields$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$set$args';
+      f: gc.runtime.SecurityFields;
+      constructor(f: gc.runtime.SecurityFields);
+      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
     }
 
-    class Debug$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$all$args';
+    class Debug$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$get$args';
+      id: number | bigint;
+      constructor(id: number | bigint);
+      static createFrom(fields: {id: number | bigint}): Debug$get$args;
     }
 
-    class User$me$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$me$args';
+    class User$permissions$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$permissions$args';
     }
 
     class MonthlyPeriodicity extends gc.sdk.GCObject {
@@ -1848,19 +1843,16 @@ declare namespace gc {
       type Field = "error"|"warn"|"info"|"perf"|"trace";
     }
 
-    class SecurityEntity$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$set$args';
-      entity: gc.runtime.SecurityEntity;
-      constructor(entity: gc.runtime.SecurityEntity);
-      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
+    class OpenIDConnect$config$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::OpenIDConnect$config$args';
     }
 
-    class User$tokenLogin$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$tokenLogin$args';
-      token: string;
-      use_cookie: boolean;
-      constructor(token: string, use_cookie: boolean);
-      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
+    class Permission$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Permission$all$args';
+    }
+
+    class User$logout$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$logout$args';
     }
 
     class PeriodicOptions extends gc.sdk.GCObject {
@@ -1872,8 +1864,8 @@ declare namespace gc {
       static createFrom(fields: {activated?: boolean | null, start?: gc.core.time | null, max_duration?: gc.core.duration | null}): PeriodicOptions;
     }
 
-    class Role$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Role$all$args';
+    class Runtime$info$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$info$args';
     }
 
     class SecurityEntity extends gc.sdk.GCObject {
@@ -1885,8 +1877,8 @@ declare namespace gc {
       static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.SecurityEntity>>;
     }
 
-    class Runtime$abi$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Runtime$abi$args';
+    class Runtime$openapi$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$openapi$args';
     }
 
     class Job<T = any> extends gc.sdk.GCObject {
