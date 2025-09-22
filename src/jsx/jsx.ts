@@ -47,6 +47,17 @@ declare global {
         exportparts?: string;
         /** A space-separated list of the part names of the element */
         part?: string;
+        /**
+         * A reference callback that is invoked with the created DOM element.
+         *
+         * Use this to imperatively access the element immediately after it is created.
+         * The callback is called once, during element creation.
+         *
+         * *Note: Because this is called at element creation, the element might not be added to the DOM yet.*
+         *
+         * @param el - The element instance created by the JSX call.
+         */
+        $ref?: (el: T) => void;
       };
 
     namespace JSX {

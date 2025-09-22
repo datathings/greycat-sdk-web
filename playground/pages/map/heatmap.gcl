@@ -1,0 +1,161 @@
+var earthquakes_by_geo: nodeGeo<Earthquake>;
+var earthquakes_by_time: nodeTime<Earthquake>;
+
+type Earthquake {
+  time: time;
+  location: geo;
+  depth: float;
+  mag: float;
+  magType: MagType;
+  nst: int?;
+  gap: int?;
+  dmin: float?;
+  rms: float;
+  net: Net;
+  id: String;
+  updated: time;
+  place: String;
+  horizontalError: float?;
+  depthError: float;
+  magError: float?;
+  magNst: int?;
+  magSource: MagSource;
+}
+
+@volatile
+private type Record {
+  /// column=0
+  @format("%Y-%m-%dT%H:%M:%S%z")
+  time: time;
+  /// column=1, min=-61.8842, max=83.8394, avg=22.4896408333
+  latitude: float;
+  /// column=2, min=-179.369, max=179.8605, avg=83.5534406667
+  longitude: float;
+  /// column=3, min=7.466, max=639.511, avg=55.0781866667
+  depth: float;
+  /// column=4, min=4.5, max=7.8, avg=4.8468333333
+  mag: float;
+  /// column=5
+  magType: MagType;
+  /// column=6, min=9, max=287, avg=63.9296482412
+  nst: int?;
+  /// column=7, min=20, max=263, avg=108.076599665
+  gap: int?;
+  /// column=8, min=0.1, max=31.484, avg=2.6537839196
+  dmin: float?;
+  /// column=9, min=0.32, max=1.55, avg=0.8291103333
+  rms: float;
+  /// column=10
+  net: Net;
+  /// column=11
+  id: String;
+  /// column=12
+  @format("%Y-%m-%dT%H:%M:%S%z")
+  updated: time;
+  /// column=13
+  place: String;
+  /// column=14
+  type: Type;
+  /// column=15, min=2.88, max=17.47, avg=8.7943456376
+  horizontalError: float?;
+  /// column=16, min=0.972, max=22.5, avg=4.4283683333
+  depthError: float;
+  /// column=17, min=0.02, max=0.205, avg=0.0727785235
+  magError: float?;
+  /// column=18, min=7, max=818, avg=101.1375838926
+  magNst: int?;
+  /// column=19
+  status: Status;
+  /// column=20
+  locationSource: LocationSource;
+  /// column=21
+  magSource: MagSource;
+}
+
+enum MagType {
+  mww,
+  ml,
+  mw,
+  mwr,
+  mb,
+}
+
+enum Net {
+  ak,
+  us,
+  nn,
+}
+
+@volatile
+private enum Type {
+  earthquake,
+}
+
+@volatile
+private enum Status {
+  reviewed,
+}
+
+@volatile
+private enum LocationSource {
+  ak,
+  us,
+  nn,
+}
+
+@volatile
+private enum MagSource {
+  ak,
+  us,
+  nn,
+}
+
+fn import_data() {
+    if (earthquakes_by_geo.size() > 0) {
+        return;
+    }
+
+    var reader = CsvReader<Record> {
+        path: "pages/map/earthquakes_4.5_month.csv",
+        format: CsvFormat {
+            header_lines: 1,
+        },
+    };
+
+    var record: Record;
+    while (reader.can_read()) {
+        record = reader.read();
+        var earthquake = Earthquake {
+            location: geo { record.latitude, record.longitude },
+            time: record.time,
+            depth: record.depth,
+            depthError: record.depthError,
+            mag: record.mag,
+            magType: record.magType,
+            nst: record.nst,
+            gap: record.gap,
+            dmin: record.dmin,
+            rms: record.rms,
+            net: record.net,
+            id: record.id,
+            updated: record.updated,
+            place: record.place,
+            magError: record.magError,
+            magNst: record.magNst,
+            magSource: record.magSource,
+        };
+        earthquakes_by_geo.set(earthquake.location, clone(earthquake));
+        earthquakes_by_time.setAt(earthquake.time, earthquake);
+    }
+    println("Imported ${earthquakes_by_geo.size()} eartquakes from ${earthquakes_by_time.firstTime()} to ${earthquakes_by_time.lastTime()}");
+}
+
+@expose
+fn earthquakes(): Array<Earthquake> {
+    var arr = Array<Earthquake> {};
+    arr.set_capacity(earthquakes_by_time.size());
+    for (_, e in earthquakes_by_time) {
+        arr.add(e);
+    }
+    return arr;
+}

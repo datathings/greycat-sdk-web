@@ -85,23 +85,37 @@ import {
   // GuiGaussian,
 } from './exports.js';
 
+export interface WebOptions {
+  maplibregl?: typeof import('maplibre-gl');
+}
+
+export interface WebWithoutAbiOptions extends WebOptions, gc.sdk.WithoutAbiOptions {}
+export interface WebWithAbiOptions extends WebOptions, gc.sdk.WithAbiOptions {}
+
+declare global {
+  namespace gc {
+    namespace sdk {
+      function init(options: WebWithoutAbiOptions): Promise<gc.sdk.GreyCat>;
+      function initWithAbi(options: WebWithAbiOptions): gc.sdk.GreyCat;
+    }
+  }
+}
+
 const sdkInit = gc.sdk.init;
-gc.sdk.init = async function webInit(
-  options: gc.sdk.WithoutAbiOptions = { url: gc.sdk.DEFAULT_URL },
-) {
+gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = { url: gc.sdk.DEFAULT_URL }) {
   const g = await sdkInit(options);
-  initWeb();
+  initWeb(options);
   return g;
 };
 
 const sdkInitWithAbi = gc.sdk.initWithAbi;
-gc.sdk.initWithAbi = function webInitWithAbi(options: gc.sdk.WithAbiOptions) {
+gc.sdk.initWithAbi = function webInitWithAbi(options: WebWithAbiOptions) {
   const g = sdkInitWithAbi(options);
-  initWeb();
+  initWeb(options);
   return g;
 };
 
-function initWeb() {
+function initWeb(options: WebOptions) {
   registerCustomElement('gui-factory', GuiFactory);
   // create the global object factory after it is registered
   GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
@@ -228,7 +242,8 @@ function initWeb() {
   registerCustomElement('gui-nav', GuiNav);
   // registerCustomElement('gui-gaussian', GuiGaussian);
 
-  if ('maplibregl' in globalThis) {
+  if (options.maplibregl || 'maplibregl' in globalThis) {
+    globalThis['maplibregl'] = options.maplibregl ?? globalThis['maplibregl'];
     registerCustomElement('gui-map-source', GuiMapSource);
     registerCustomElement('gui-map-layer', GuiMapLayer);
     registerCustomElement('gui-map-markers', GuiMapMarkers);

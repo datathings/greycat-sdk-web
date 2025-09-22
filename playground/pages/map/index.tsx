@@ -3,76 +3,26 @@ import '~/common';
 import maplibregl from 'maplibre-gl';
 import { GeoData, GuiMap } from '@greycat/web';
 
-globalThis.maplibregl = maplibregl;
-
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ maplibregl });
 
 const markers = document.createElement('gui-map-markers');
 
-const map = (
-  <gui-map
-    options={{
-      style: 'https://demotiles.maplibre.org/style.json',
-      center: gc.core.geo.fromLatLng(49.6181, 6.162),
-      zoom: 5,
-    }}
-  >
-    {/* <gui-map-source
-      name="national-park"
-      value={{
-        type: 'geojson',
-        data: 'https://www.data.gouv.fr/fr/datasets/r/bb4cda9a-9036-4458-9113-e05b923f0656',
-      }}
-    />
-    <gui-map-source
-      name="urban-areas"
-      value={{
-        type: 'geojson',
-        data: 'https://d2ad6b4ur7yvpq.cloudfront.net/naturalearth-3.3.0/ne_50m_urban_areas.geojson',
-      }}
-    />
-    <gui-map-layer
-      value={{
-        id: 'national-parks-layer',
-        type: 'fill',
-        source: 'national-park',
-        layout: {},
-        paint: {
-          'fill-color': '#507',
-          'fill-opacity': 1,
-        },
-      }}
-    />
-    <gui-map-layer
-      value={{
-        id: 'urban-areas-fill',
-        type: 'fill',
-        source: 'urban-areas',
-        layout: {},
-        paint: {
-          'fill-color': '#f08',
-          'fill-opacity': 0.4,
-        },
-      }}
-    /> */}
-    {markers}
-  </gui-map>
-) as GuiMap;
-
 document.body.appendChild(
   <app-layout title="Map" mainStyle={{ display: 'grid' }}>
-    {map}
+    <gui-map
+      $ref={init}
+      options={{
+        style: 'https://demotiles.maplibre.org/style.json',
+        center: gc.core.geo.fromLatLng(49.6181, 6.162),
+        zoom: 5,
+      }}
+    >
+      {markers}
+    </gui-map>
   </app-layout>,
 );
 
-const root = await greycat.root();
-const nCities = root['cities::cities'] as gc.core.nodeGeo;
-
-const m = await map.ready;
-m.on('zoomend', updateCities);
-m.on('dragend', updateCities);
-
-async function updateCities() {
+async function updateCities(m: maplibregl.Map, nCities: gc.core.nodeGeo) {
   const bounds = m.getBounds();
   const tCities = await gc.core.nodeGeo.sample(
     [nCities],
@@ -81,6 +31,7 @@ async function updateCities() {
     1000,
     gc.core.SamplingMode.dense,
   );
+  console.log(tCities);
   const cities: GeoData<gc.City>[] = [];
   for (const row of tCities) {
     cities.push({ geo: row[0], data: row[1] });
@@ -88,4 +39,13 @@ async function updateCities() {
   markers.value = cities;
 }
 
-updateCities();
+async function init(map: GuiMap) {
+  const m = await map.ready;
+  const root = await greycat.root();
+  const nCities = root['cities::cities'] as gc.core.nodeGeo;
+
+  m.on('zoomend', () => updateCities(m, nCities));
+  m.on('dragend', () => updateCities(m, nCities));
+
+  updateCities(m, nCities);
+}

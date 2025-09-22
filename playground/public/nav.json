@@ -162,7 +162,17 @@
   },
   {
     "label": "Map",
-    "route": "pages/map/"
+    "route": "pages/map/",
+    "children": [
+      {
+        "label": "Markers",
+        "route": "index.html"
+      },
+      {
+        "label": "Heatmap",
+        "route": "heatmap.html"
+      }
+    ]
   },
   {
     "label": "Modal",

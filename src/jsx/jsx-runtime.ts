@@ -97,6 +97,13 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
   }
 
   switch (key) {
+    case '$ref': {
+      if (typeof value === 'function') {
+        value(element);
+      }
+      break;
+    }
+
     case 'className': {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       cx(element, value as any);

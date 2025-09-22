@@ -44,7 +44,6 @@ export function attr() {
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
 export abstract class GuiElement extends HTMLElement {
   static readonly styles = [css(componentStyle)];
 
@@ -217,11 +216,11 @@ export function registerCustomElement<K extends keyof HTMLElementTagNameMap>(
   options?: ElementDefinitionOptions | undefined,
 ) {
   if (!customElements.get(tagName)) {
-    customElements.define(tagName, constructor, options);
+    customElements.define(tagName, constructor as CustomElementConstructor, options);
   }
 }
 
 export function getBooleanAttribute(el: Element, name: string): boolean {
   const attr = el.getAttribute(name);
-  return (attr !== null) && (attr !== 'false');
+  return attr !== null && attr !== 'false';
 }

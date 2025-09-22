@@ -64,6 +64,7 @@ fn main() {
   }
 
   init_simple_index();
+  heatmap::import_data();
 }
 
 fn nothing() {}
