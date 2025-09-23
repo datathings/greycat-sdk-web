@@ -37,9 +37,10 @@ if (!Array.prototype.toFeatureCollection) {
   ): GeoJSON.FeatureCollection<G, T> {
     return {
       type: 'FeatureCollection',
-      features: this.map((item: T) => {
+      features: this.map((item: T, id) => {
         return {
           type: 'Feature',
+          id,
           properties: item,
           geometry: geometryMapper(item),
         };

@@ -1,6 +1,7 @@
 import '@greycat/web';
 import '~/common';
 import maplibregl from 'maplibre-gl';
+import { GuiObject, sl } from '@greycat/web';
 
 // Example inspired from: https://maplibre.org/maplibre-gl-js/docs/examples/create-a-heatmap-layer/
 // Using data from: https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php
@@ -15,13 +16,52 @@ const geojson = earthquakes.toFeatureCollection((e) => ({
   coordinates: [e.location.lat, e.location.lng],
 }));
 
+let hoveredId: number | undefined;
+let hoveredDisplay: GuiObject | undefined;
+let drawer: sl.SlDrawer | undefined;
+
 document.body.appendChild(
-  <app-layout title="Map" mainStyle={{ display: 'grid' }}>
+  <app-layout title="Map" mainStyle={{ display: 'grid', position: 'relative' }}>
     <gui-map
       options={{
-        style: 'https://demotiles.maplibre.org/style.json',
+        style: {
+          version: 8,
+          sources: {
+            osm: {
+              type: 'raster',
+              tiles: ['https://a.tile.openstreetmap.org/{z}/{x}/{y}.png'],
+              tileSize: 256,
+              attribution: '&copy; OpenStreetMap Contributors',
+              maxzoom: 19,
+            },
+          },
+          layers: [
+            {
+              id: 'osm',
+              type: 'raster',
+              source: 'osm',
+            },
+          ],
+        },
         center: [-120, 50],
         zoom: 2,
+      }}
+      $ref={async (map) => {
+        const m = await map.ready;
+        m.on('mouseenter', 'earthquakes-point', (e) => {
+          if (!e.features || e.features.length === 0) {
+            return;
+          }
+          if (hoveredId) {
+            m.setFeatureState({ source: 'earthquakes', id: hoveredId }, { hover: false });
+          }
+          hoveredId = e.features[0].id as number;
+          m.setFeatureState({ source: 'earthquakes', id: hoveredId }, { hover: true });
+          if (drawer && hoveredDisplay) {
+            hoveredDisplay.value = earthquakes[hoveredId];
+            drawer.show();
+          }
+        });
       }}
     >
       <gui-map-source
@@ -105,13 +145,28 @@ document.body.appendChild(
               6,
               'rgb(178,24,43)',
             ],
-            'circle-stroke-color': 'white',
-            'circle-stroke-width': 1,
+            'circle-stroke-color': ['case', ['boolean', ['feature-state', 'hover'], false], 'rgb(192,248,95)', 'white'],
+            'circle-stroke-width': ['case', ['boolean', ['feature-state', 'hover'], false], 3, 1],
             // Transition from heatmap to circle layer by zoom level
             'circle-opacity': ['interpolate', ['linear'], ['zoom'], 7, 0, 8, 1],
           },
         }}
       />
     </gui-map>
+    <sl-drawer
+      $ref={(el) => (drawer = el)}
+      label="Eartquake"
+      contained
+      placement="start"
+      style={{ '--size': '400px', position: 'absolute' }}
+    >
+      <gui-object
+        $ref={(el) => (hoveredDisplay = el)}
+        value="Hover an earthquake to see its details"
+      />
+      <sl-button slot="footer" variant="primary" onclick={() => drawer?.hide()}>
+        Close
+      </sl-button>
+    </sl-drawer>
   </app-layout>,
 );

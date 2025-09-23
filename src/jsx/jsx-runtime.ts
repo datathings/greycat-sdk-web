@@ -57,7 +57,8 @@ function setElementAttrs(element: GuiElement, props?: { [k: string]: unknown }) 
   if (props === undefined) {
     return;
   }
-  element.setAttrs(props);
+  const { $ref: _, ...rest } = props;
+  element.setAttrs(rest);
   // deal with event handlers separatly
   for (const key in props) {
     applyProp(element, key, props[key], true);
