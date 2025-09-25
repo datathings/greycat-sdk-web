@@ -169,6 +169,19 @@ export class GuiLayout extends GuiElement {
       this._asideDrawer.open = bigScreen;
     }
 
+    if (this.parentElement === document.body && this.getAttribute('full') !== null) {
+      // If we are the direct children of `html > body`
+      // then we automatically setup some styling
+      // to make the gui-layout take all available space
+      document.documentElement.style.minHeight = '100%';
+      document.documentElement.style.height = '100%';
+      // reset padding and margin
+      document.body.style.minHeight = '100%';
+      document.body.style.height = '100%';
+      document.body.style.padding = '0';
+      document.body.style.margin = '0';
+    }
+
     this._resizeObs.observe(this);
   }
 

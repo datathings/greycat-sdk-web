@@ -1,7 +1,9 @@
-@permission("foo", "the foo permission");
-@permission("bar", "the bar permission");
+// @library("explorer", "7.3.0-dev");
 
 @include("pages");
+
+@permission("foo", "the foo permission");
+@permission("bar", "the bar permission");
 
 var sensor: nodeTime<SensorData>;
 var serie_float: nodeTime<float>;

@@ -1,6 +1,6 @@
 import { css, sl, SlDetailsEventMap } from '../../exports.js';
 import styles from './details.css?inline';
-import componentStyles from '../styles.component.css?inline';
+import componentStyles from '../component.styles.css?inline';
 
 export class GuiDetails extends sl.SlDetails {
   static override styles = [

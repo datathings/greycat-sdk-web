@@ -898,6 +898,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 }
 
 export class GuiTableHead extends HTMLElement {
+  connectedCallback(): void {
+    this.part.add('header');
+  }
+
   update(
     table: gc.core.Table,
     ignoreCols: number[] | undefined,
@@ -1003,7 +1007,7 @@ export class GuiTableHeadCell extends HTMLElement {
     this._dropdown.classList.add('gui-thead-dropdown');
     this._input.clearable = true;
     this._input.placeholder = 'Filter column';
-    this._input.part.add('col-filter');
+    this._input.part.add('filter-input', 'col-filter');
     this._dropdown.appendChild(this._input);
 
     this._input.addEventListener('input', (e) => {
@@ -1059,13 +1063,15 @@ export class GuiTableHeadCell extends HTMLElement {
   }
 
   connectedCallback() {
+    this.part.add('header-cell');
+
     const styles = getComputedStyle(this);
     this._icons.default = styles.getPropertyValue('--icon-sort-default');
     this._icons.asc = styles.getPropertyValue('--icon-sort-asc');
     this._icons.desc = styles.getPropertyValue('--icon-sort-desc');
     this._icons.close = styles.getPropertyValue('--icon-close');
     this._filter.style.backgroundImage = this._icons.search;
-    this._filter.part.add('col-filter-icon');
+    this._filter.part.add('filter', 'col-filter-icon');
 
     this._title.classList.add('gui-thead-title');
     this._title.part.add('title');

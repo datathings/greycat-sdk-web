@@ -1,6 +1,10 @@
 :host {
-  /* font-family: var(--sl-font-mono); */
   display: inline-block;
   height: 100%;
-  line-height: var(--line-height);
+  /* background-color: var(--background-color);
+  color: var(--color);
+  font-weight: var(--font-weight);
+  font-size: var(--font-size);
+  font-family: var(--sl-font-sans);
+  line-height: var(--line-height); */
 }

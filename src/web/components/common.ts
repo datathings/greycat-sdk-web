@@ -1,4 +1,4 @@
-import componentStyle from './styles.component.css?inline';
+import componentStyle from './component.styles.css?inline';
 
 declare global {
   interface HTMLElementEventMap {
@@ -55,7 +55,7 @@ export abstract class GuiElement extends HTMLElement {
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.adoptedStyleSheets = [
-      ...GuiElement.styles,
+      css(componentStyle),
       ...(this.constructor as typeof GuiElement).styles,
     ];
   }

@@ -1,11 +1,12 @@
 /**
- * The theme is a shared set of variables used by both 'dark' AND 'light' schemes.
+ * Shared set of variables used by both 'dark' AND 'light' schemes.
  */
-
 :root,
 :host,
 .sl-theme-light,
-.sl-theme-dark {
+.gui-theme-light,
+.sl-theme-dark,
+.gui-theme-dark {
   /* Primary */
   --sl-color-primary-50: var(--sl-color-lime-50);
   --sl-color-primary-100: var(--sl-color-lime-100);
@@ -254,4 +255,80 @@
   /* Dialog */
   --sl-dialog-header-background-color: var(--bg-0);
   --sl-dialog-footer-background-color: var(--bg-0);
+
+  /* GreyCat specific */
+  --font-size: 14px;
+  --font-size-sm: 14px;
+  --font-size-md: 14px;
+  --font-size-lg: 14px;
+  --font-size-xl: 14px;
+  --font-weight: normal;
+
+  --scrollbar-bg: rgba(var(--accent-0), 0.45);
+  --scrollbar-bg-hover: rgba(var(--accent-0), 0.75);
+  --scrollbar-size: 4px;
+
+  --spacing: 6px; /* keep 'spacing' an even value */
+  --line-height: 20px;
+  --outline-width: 2px;
+
+  --form-element-active-border-color: var(--primary);
+  --form-element-spacing-vertical: calc(var(--spacing) / 2);
+  --form-element-spacing-horizontal: var(--spacing);
+  --form-element-background-color: var(--bg-1);
+  --form-element-border-color: #374956;
+  --form-element-disabled-background-color: var(--bg-0);
+  --form-element-disabled-border-color: #415462;
+  --form-element-disabled-opacity: 0.3;
+
+  --switch-color: var(--primary-inverse);
+  --switch-checked-background-color: var(--primary);
+
+  --nav-link-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-link-spacing-horizontal: var(--spacing);
+  --nav-element-spacing-vertical: calc(var(--spacing) / 2);
+  --nav-element-spacing-horizontal: var(--spacing);
+
+  --card-background-color: var(--bg-0);
+  --card-sectionning-background-color: var(--bg-1);
+
+  --code-color: var(--primary);
+  --code-background-color: var(--bg-1);
+
+  --table-border-color: rgba(var(--text-2), 0.2);
+
+  --block-spacing-vertical: var(--spacing);
+  --block-spacing-horizontal: var(--spacing);
+
+  --accordion-border-color: rgba(var(--text-2), 0.2);
+  --accordion-open-summary-color: var(--primary);
+
+  --dropdown-background-color: var(--bg-1);
+  --dropdown-hover-background-color: var(--bg-0);
+
+  --modal-overlay-background-color: rgba(var(--base-2), 0.35);
+
+  --grid-spacing-vertical: var(--spacing);
+
+  --typography-spacing-vertical: calc(var(--spacing) * 3);
+
+  --range-thumb-color: var(--primary);
+  --range-thumb-hover-color: var(--primary-hover);
+
+  --border-width: 1px;
+  --border-radius: 4px;
+
+  --gui-fieldset-border-width: var(--border-width);
+  --gui-fieldset-border-color: var(--border-color);
+  --gui-fieldset-background-color: var(--bg-2);
+  --gui-fieldset-legend-background-color: var(--bg-0);
+
+  --gui-table-min-height: 400px;
+
+  background-color: var(--background-color);
+  color: var(--color);
+  font-weight: var(--font-weight);
+  font-size: var(--font-size);
+  font-family: var(--sl-font-sans);
+  line-height: var(--line-height);
 }

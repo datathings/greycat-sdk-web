@@ -1,5 +1,4 @@
-/* Shoelace specific Light theme overrides */
-:host,
+.gui-theme-light,
 .sl-theme-light {
   color-scheme: light;
 
@@ -244,15 +243,8 @@
   --sl-input-focus-ring-color: rgb(192, 248, 95, 0.4);
 
   --sl-overlay-background-color: hsl(240 3.8% 46.1% / 33%);
-}
 
-/* GreyCat Light Theme */
-:host[data-theme='light'],
-:host.sl-theme-light,
-:root[data-theme='light'],
-:root.sl-theme-light {
-  color-scheme: light;
-
+  /* GreyCat base */
   --primary: #37c43e;
   --primary-hover: #4fd24a;
   --primary-focus: rgba(205, 249, 127, 0.6);
@@ -269,11 +261,13 @@
 
   --color: #151515;
   --background-color: var(--bg-2);
+  --muted-color: var(--sl-color-neutral-500);
 
   --text-0: 0, 0, 0;
   --text-1: 20, 20, 20;
   --text-2: 40, 40, 40;
   --text-inverse: 255, 255, 255;
+  --text-muted: var(--muted-color);
 
   --base-0: 255, 255, 255;
   --base-1: 240, 240, 240;
@@ -288,15 +282,25 @@
   --neutral-2: 132, 138, 147;
 
   --color-0: #a2e163;
+  --color-1: #cb9cf8;
+  --color-2: #779ef7;
+  --color-3: #37c43e;
+  --color-4: #5737c4;
   --color-5: #d55ef7;
+  --color-6: #4fc0e8;
   --color-7: #d74186;
   --color-8: #fe7d3e;
   --color-9: #ffc645;
   --color-10: #ea70bf;
+  --color-11: #2237c4;
+  --color-12: #3b254c;
+
+  --color-error: #f74318;
+
+  --shadow: 0px 1px 1px 0px rgb(var(--base-1));
 
   --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(15,15,15)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
+  --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(15,15,15)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
 
-  --fieldset-group-label-background: #f3f3f3;
-
-  --border-color: #a2afb9;
+  --border-color: rgb(162, 175, 185);
 }

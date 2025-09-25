@@ -254,6 +254,10 @@
       {
         "label": "Table of Objects",
         "route": "table-of-objects.html"
+      },
+      {
+        "label": "Custom Style",
+        "route": "custom-style.html"
       }
     ]
   },

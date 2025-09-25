@@ -1,6 +1,6 @@
 import { css, sl } from '../../exports.js';
 import styles from './card.css?inline';
-import componentStyles from '../styles.component.css?inline';
+import componentStyles from '../component.styles.css?inline';
 
 export class GuiCard extends sl.SlCard {
   static override styles = [

@@ -2,9 +2,29 @@
   --icon-sort-default: unset;
   --icon-sort-asc: ↓;
   --icon-sort-desc: ↑;
-  --table-background-color: var(--bg-1);
-  --gui-table-filter-border-top-left-radius: var(--border-radius);
-  --gui-table-filter-border-top-right-radius: var(--border-radius);
+
+  --table-spacing: var(--spacing);
+  --table-bg-color: var(--bg-1);
+  --table-cell-bg-color: var(--base-1);
+
+  --table-border-color: var(--border-color);
+
+  --table-filter-border-top-left-radius: var(--border-radius);
+  --table-filter-border-top-right-radius: var(--border-radius);
+
+  --table-subheader-color: var(--text-muted);
+
+  --table-resizer-width: 3px;
+  --table-resizer-bg-color: var(--primary);
+  --table-resizer-bg-color-hover: var(--primary-hover);
+
+  --table-head-height: fit-content;
+  --table-head-bg-color: var(--base-0);
+  --table-head-bg-color-hover: var(--bg-1);
+  --table-head-border-color: var(--base-2);
+  --table-head-sorter-color-hover: var(--primary-hover);
+  --table-head-color-active: var(--accent-0);
+  --table-head-filter-bg-color-hover: var(--primary-focus);
 
   position: relative;
   display: grid;
@@ -13,7 +33,7 @@
   min-height: var(--gui-table-min-height);
   height: 100%;
   width: 100%;
-  background-color: var(--table-background-color);
+  background-color: var(--table-bg-color);
 }
 
 .gui-table-filter {
@@ -23,8 +43,8 @@
 .gui-table-filter::part(base) {
   border-bottom-left-radius: 0;
   border-bottom-right-radius: 0;
-  border-top-left-radius: var(--gui-table-filter-border-top-left-radius);
-  border-top-right-radius: var(--gui-table-filter-border-top-right-radius);
+  border-top-left-radius: var(--table-filter-border-top-left-radius);
+  border-top-right-radius: var(--table-filter-border-top-right-radius);
 }
 .gui-table-filter.visible {
   visibility: visible;
@@ -49,17 +69,19 @@ gui-thead {
 }
 .gui-table-resizing > * {
   cursor: ew-resize !important;
-  background-color: rgb(var(--base-0)) !important;
+  background-color: rgb(var(--table-head-bg-color)) !important;
 }
 .gui-thead-subheader {
-  color: var(--muted-color);
+  color: var(--table-subheader-color);
 }
 gui-thead-cell {
-  --resizer-width: 3px;
+  --resizer-width: var(--table-resizer-width);
+  --resizer-bg-color: var(--table-resizer-bg-color);
+  --resizer-bg-color-hover: var(--table-resizer-bg-color-hover);
   position: relative;
   flex-shrink: 0;
-  background-color: rgb(var(--base-0));
-  border-bottom: 1px solid rgb(var(--base-2));
+  background-color: rgb(var(--table-head-bg-color));
+  border-bottom: 1px solid rgb(var(--table-head-border-color));
 }
 .gui-table gui-thead gui-thead-cell:has(.gui-thead-dropdown.open) {
   border-bottom: 0;
@@ -67,23 +89,24 @@ gui-thead-cell {
 .gui-thead {
   display: flex;
   align-items: center;
-  gap: var(--spacing);
+  gap: var(--table-spacing);
   cursor: pointer;
   user-select: none;
-  padding-left: var(--spacing);
-  padding-right: var(--spacing);
+  padding-left: var(--table-spacing);
+  padding-right: var(--table-spacing);
+  height: var(--table-head-height);
 }
 gui-thead-cell:hover {
-  background-color: var(--bg-1);
+  background-color: var(--table-head-bg-color-hover);
 }
 gui-thead-cell.active .gui-thead-sorter,
 gui-thead-cell.active .gui-thead-title {
-  color: rgb(var(--accent-0));
+  color: rgb(var(--table-head-color-active));
 }
 .gui-thead-title {
   display: inline-flex;
   width: 100%;
-  gap: var(--spacing);
+  gap: var(--table-spacing);
   overflow: hidden;
   flex: 1;
 }
@@ -101,12 +124,12 @@ gui-thead-cell.active .gui-thead-title {
 }
 .gui-thead-sorter {
   display: block;
-  height: 28px;
+  height: 26px;
   font-size: 26px;
   line-height: 20px;
 }
 .gui-thead-sorter:hover {
-  color: var(--primary-hover);
+  color: var(--table-head-sorter-color-hover);
 }
 .gui-thead-resizer {
   position: absolute;
@@ -115,10 +138,14 @@ gui-thead-cell.active .gui-thead-title {
   right: 0;
   display: block;
   width: var(--resizer-width);
-  background-color: rgba(var(--accent-0));
+  background-color: var(--resizer-bg-color);
   height: 100%;
   cursor: ew-resize;
 }
+.gui-thead-resizer:hover {
+  background-color: var(--resizer-bg-color-hover);
+}
+
 gui-thead-cell:last-child .gui-thead-resizer {
   visibility: hidden;
 }
@@ -132,7 +159,7 @@ gui-thead-cell:last-child .gui-thead-resizer {
   background-image: var(--icon-search);
 }
 .gui-thead-filter:hover {
-  background-color: var(--primary-focus);
+  background-color: var(--table-head-filter-bg-color-hover);
 }
 .gui-thead-filter.open:hover {
   background-color: unset;
@@ -168,10 +195,10 @@ gui-tbody-row {
   display: flex;
 }
 gui-tbody-row:hover gui-tbody-cell {
-  background-color: rgba(var(--base-1), 0.8);
+  background-color: rgba(var(--table-cell-bg-color), 0.8);
 }
 gui-tbody-row.gui-tbody-row-even:not(:hover) gui-tbody-cell {
-  background-color: rgba(var(--base-1), 0.3);
+  background-color: rgba(var(--table-cell-bg-color), 0.3);
 }
 gui-tbody-cell {
   display: inline-flex;
@@ -179,8 +206,7 @@ gui-tbody-cell {
   height: 100%;
   width: 100%;
   flex-shrink: 0;
-  border-bottom: 1px solid rgb(var(--base-1));
-  /* overflow: auto; */
+  border-bottom: 1px solid var(--table-border-color);
 }
 
 gui-tbody-cell > :first-child {
@@ -207,7 +233,7 @@ gui-tbody-cell > gui-object {
 }
 
 gui-tbody-cell > gui-object.gui-object-grid:first-child {
-  padding: var(--spacing);
+  padding: var(--table-spacing);
 }
 
 /* Special-case for gui-object-card within gui-table cells */

@@ -1,8 +1,3 @@
-/* sl-tab-group::part(nav),
-gui-tab-group::part(nav) {
-  background-color: var(--bg-0);
-} */
-
 sl-tab-group::part(body),
 gui-tab-group::part(body) {
   flex: 1 1 100%;
@@ -10,6 +5,4 @@ gui-tab-group::part(body) {
 
 sl-tab::part(base) {
   padding: calc(var(--spacing) * 0.5) var(--spacing);
-  /* background-color: var(--bg-1); */
-  /* border: var(--border-width) solid var(--border-color); */
 }

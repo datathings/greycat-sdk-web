@@ -20,6 +20,7 @@ export const actions = (
     {link('Array-of-objects', 'array-of-objects.html')}
     {link('Table-of-objects', 'table-of-objects.html')}
     {link('Column Factories', 'column-factories.html')}
+    {link('Custom Style', 'custom-style.html')}
     <gui-input-enum
       slot="action"
       value={gc.$.default.timezone}

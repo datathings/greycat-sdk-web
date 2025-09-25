@@ -34,6 +34,7 @@ export default defineConfig(({ mode }) => ({
     rollupOptions: {
       input: {
         index: resolve(__dirname, 'index.html'),
+        vanilla: resolve(__dirname, 'vanilla.html'),
         ...inputsFromDirectories(resolve(__dirname, 'pages'), 'pages/'),
       },
     },
