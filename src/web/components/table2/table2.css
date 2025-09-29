@@ -1,0 +1,213 @@
+:host {
+  --table-spacing: var(--spacing);
+  --table-color: var(--color);
+  --table-bg-color: var(--bg-1);
+  --table-border-color: var(--border-color);
+  --table-filter-border-top-left-radius: var(--border-radius);
+  --table-filter-border-top-right-radius: var(--border-radius);
+  --table-cell-padding: var(--spacing);
+
+  --table-header-bg-color: var(--bg-0);
+  --table-header-font-weight: bold;
+  --table-header-cell-bg-color-hover: rgba(var(--base-1), 0.4);
+  --table-header-cell-padding: calc(var(--spacing) * 1.5);
+  --table-resizer-color: var(--primary);
+  --table-sorter-color: var(--primary);
+  --table-sorter-font: var(--sl-font-mono);
+  --table-sorter-font-size: 24px;
+  --table-sorter-line-height: 24px;
+
+  --table-footer-bg-color: var(--bg-0);
+  --table-footer-font-weight: bold;
+  --table-footer-cell-bg-color-hover: rgba(var(--base-1), 0.4);
+
+  --table-row-bg-color: var(--bg-1);
+  --table-row-bg-color-even: var(--bg-2);
+  --table-row-bg-color-hover: rgba(var(--accent-0), 0.15);
+  --table-row-bg-color-focus: rgba(var(--accent-0), 0.7);
+
+  width: 100%;
+  height: 100%;
+  min-height: var(--table-min-height);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.controls {
+  display: flex;
+  gap: var(--spacing);
+}
+
+.controls > * {
+  flex-grow: 1;
+}
+
+.global-filter::part(base) {
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  border-top-left-radius: var(--table-filter-border-top-left-radius);
+  border-top-right-radius: var(--table-filter-border-top-right-radius);
+}
+
+.container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+}
+
+.container.resizing {
+  cursor: col-resize;
+}
+
+.bar-group {
+  display: flex;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  max-width: 100%;
+  overflow: hidden;
+  flex-direction: column;
+}
+
+.bar.header {
+  background: var(--table-header-bg-color);
+  font-weight: var(--table-header-font-weight);
+  box-shadow: 0 4px 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+.bar.footer {
+  background: var(--table-footer-bg-color);
+  font-weight: var(--table-footer-font-weight);
+  box-shadow: 0 -4px 8px -2px rgba(0, 0, 0, 0.4);
+}
+
+.bar-cell {
+  position: relative;
+  padding: var(--table-header-cell-padding);
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border-right: 1px solid var(--table-border-color);
+}
+
+.title {
+  line-height: 24px;
+}
+
+.resizing .bar-cell {
+  cursor: col-resize;
+}
+
+.bar-cell:hover {
+  background: var(--table-header-cell-bg-color-hover);
+}
+
+.footer .bar-cell:hover {
+  background: var(--table-footer-cell-bg-color-hover);
+}
+
+.sorter::after {
+  font-family: var(--table-sorter-font);
+  font-size: var(--table-sorter-font-size);
+  line-height: var(--table-sorter-line-height);
+  vertical-align: middle;
+  color: var(--table-sorter-color);
+}
+
+.sorter.asc::after {
+  content: '↑';
+}
+
+.sorter.desc::after {
+  content: '↓';
+}
+
+.resizer {
+  position: absolute;
+  top: 0;
+  height: 100%;
+  right: 0;
+  width: 3px;
+  background: var(--table-resizer-color);
+  cursor: col-resize;
+  user-select: none;
+  touch-action: none;
+}
+
+.resizer.resizing {
+  background: var(--primary-focus);
+  opacity: 1;
+}
+
+@media (hover: hover) {
+  .resizer {
+    opacity: 0;
+  }
+
+  *:hover > .resizer {
+    opacity: 1;
+  }
+}
+
+.body {
+  height: 100%;
+  width: 100%;
+  overflow: auto;
+}
+
+/* dynamically set: width, height */
+.virtual-list {
+  position: relative;
+}
+
+/* dynamically set: height, transform:translateY */
+.row {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  border-bottom: 1px solid var(--table-border-color);
+  background: var(--table-row-bg-color);
+}
+
+.row.even {
+  background: var(--table-row-bg-color-even);
+}
+
+.row:hover {
+  background: var(--table-row-bg-color-hover);
+}
+
+.row.selected {
+  color: rgb(var(--text-inverse));
+  background: var(--table-row-bg-color-focus);
+}
+
+/* dynamically set: height, width, transform:translateX */
+.cell {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  padding: 0 var(--table-cell-padding);
+  border-right: 1px solid var(--table-border-color);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+}

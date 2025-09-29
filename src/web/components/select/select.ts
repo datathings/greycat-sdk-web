@@ -144,7 +144,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
 
     this._list = document.createElement('div');
     this._list.classList.add('gui-select-list');
-    this._list.part.add('list');
+    this._list.part.add('gui-list');
 
     this._popup = document.createElement('sl-popup');
     this._popup.flip = true;

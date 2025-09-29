@@ -127,6 +127,13 @@ export class GuiTabs extends GuiElement {
       this.dispatchEvent(new GuiChangeEvent(tab));
     }
   }
+
+  /**
+   * Returns the currently selected tab if any
+   */
+  get tab(): GuiTab | undefined {
+    return this._tabs.find((t) => t.active);
+  }
 }
 
 export class GuiTab extends GuiElement {

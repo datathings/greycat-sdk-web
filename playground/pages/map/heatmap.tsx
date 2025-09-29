@@ -9,7 +9,7 @@ import { GuiObject, sl } from '@greycat/web';
 await gc.sdk.init({ maplibregl });
 
 // Fetch data from GreyCat
-const earthquakes = await gc.heatmap.earthquakes();
+const earthquakes = await gc.heatmap.major_earthquakes();
 // Convert the array to a GeoJSON.FeatureCollection
 const geojson = earthquakes.toFeatureCollection((e) => ({
   type: 'Point',

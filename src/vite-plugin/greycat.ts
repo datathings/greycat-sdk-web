@@ -1,6 +1,7 @@
-import type { PluginOption } from 'vite';
+import type { Connect, PluginOption } from 'vite';
 import { type GzipPluginOptions, gzipWriteBundle } from './gzip.js';
 import { proxy } from './proxy.js';
+import { IncomingMessage, ServerResponse } from 'node:http';
 
 const DEFAULT_TARGET = 'http://127.0.0.1:8080';
 
@@ -9,6 +10,8 @@ export interface GreyCatPluginOptions {
    * GreyCat endpoint url, defaults to `'http://127.0.0.1:8080'`
    */
   greycat?: string;
+  /* Enables debug logs, defaults to `false` */
+  debug?: boolean;
   /**
    * Assets compression options.
    *
@@ -25,7 +28,7 @@ export interface GreyCatPluginOptions {
  * Also provides auto-compression of assets into gzip.
  */
 export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
-  const { greycat = DEFAULT_TARGET, gzip } = options;
+  const { greycat = DEFAULT_TARGET, gzip, debug = false } = options;
   let skip_compression = false;
   let gzip_options: GzipPluginOptions | undefined;
   if (typeof gzip === 'boolean') {
@@ -34,14 +37,14 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
     gzip_options = gzip;
   }
 
-  // const proxy_callback = (err: Error) => {
-  //   console.error(`${err.message}: make sure GreyCat is started and listening at ${greycat}`);
-  // };
-
   return {
     name: 'greycat',
     configureServer(server) {
-      server.middlewares.use((req, res, next) => {
+      server.middlewares.use(function greycatMiddleware(
+        req: Connect.IncomingMessage,
+        res: ServerResponse<IncomingMessage>,
+        next: Connect.NextFunction,
+      ): void {
         if (!req.originalUrl || req.headers.upgrade === 'websocket') {
           next();
           return;
@@ -53,8 +56,9 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
         const isRpc = !isFileApi && req.method === 'POST';
 
         if (isFileApi || isRpc) {
-          // proxy to GreyCat
-          console.log(`Proxy '${req.originalUrl}' to GreyCat at ${greycat}${req.originalUrl}`);
+          if (debug) {
+            console.log(`Proxy ${req.originalUrl} → ${greycat}${req.originalUrl}`);
+          }
           proxy(req, res, greycat);
           return;
         }
@@ -70,3 +74,38 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
     },
   };
 }
+
+/* 
+  // Try to intercept GET 404 to proxy them to GreyCat
+  let vite404MiddlewareIndex = -1;
+  let viteErrorMiddlewareIndex = -1;
+  for (let i = 0; i < server.middlewares.stack.length; i++) {
+    switch ((server.middlewares.stack[i].handle as { name?: string }).name) {
+      case 'vite404Middleware':
+        vite404MiddlewareIndex = i;
+        break;
+      case 'viteErrorMiddleware':
+        viteErrorMiddlewareIndex = i;
+        break;
+    }
+  }
+  if (vite404MiddlewareIndex !== -1) {
+    // remove existing 404 middleware
+    server.middlewares.stack.splice(vite404MiddlewareIndex, 1);
+  }
+  if (viteErrorMiddlewareIndex !== -1) {
+    // add proxy middleware before error middleware
+    server.middlewares.stack.splice(vite404MiddlewareIndex, 0, {
+      route: '',
+      handle: function greycat404ProxyMiddleware(
+        req: Connect.IncomingMessage,
+        res: ServerResponse<IncomingMessage>,
+      ) {
+        // undo the url change made by htmlFallbackMiddleware
+        req.url = req.originalUrl;
+        console.log(`Proxy ${req.originalUrl} → ${greycat}${req.originalUrl}`);
+        proxy(req, res, greycat);
+      },
+    });
+  }
+*/

@@ -258,6 +258,10 @@
       {
         "label": "Custom Style",
         "route": "custom-style.html"
+      },
+      {
+        "label": "Table2",
+        "route": "table2.html"
       }
     ]
   },

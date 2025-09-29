@@ -2,121 +2,118 @@ var earthquakes_by_geo: nodeGeo<Earthquake>;
 var earthquakes_by_time: nodeTime<Earthquake>;
 
 type Earthquake {
-  time: time;
-  location: geo;
-  depth: float;
-  mag: float;
-  magType: MagType;
-  nst: int?;
-  gap: int?;
-  dmin: float?;
-  rms: float;
-  net: Net;
-  id: String;
-  updated: time;
-  place: String;
-  horizontalError: float?;
-  depthError: float;
-  magError: float?;
-  magNst: int?;
-  magSource: MagSource;
+    time: time;
+    location: geo;
+    depth: float;
+    mag: float?;
+    magType: MagType?;
+    nst: int?;
+    gap: int?;
+    dmin: float?;
+    rms: float;
+    net: String;
+    id: String;
+    updated: time;
+    place: String;
+    horizontalError: float?;
+    depthError: float?;
+    magError: float?;
+    magNst: int?;
+    magSource: String;
 }
 
 @volatile
 private type Record {
-  /// column=0
-  @format("%Y-%m-%dT%H:%M:%S%z")
-  time: time;
-  /// column=1, min=-61.8842, max=83.8394, avg=22.4896408333
-  latitude: float;
-  /// column=2, min=-179.369, max=179.8605, avg=83.5534406667
-  longitude: float;
-  /// column=3, min=7.466, max=639.511, avg=55.0781866667
-  depth: float;
-  /// column=4, min=4.5, max=7.8, avg=4.8468333333
-  mag: float;
-  /// column=5
-  magType: MagType;
-  /// column=6, min=9, max=287, avg=63.9296482412
-  nst: int?;
-  /// column=7, min=20, max=263, avg=108.076599665
-  gap: int?;
-  /// column=8, min=0.1, max=31.484, avg=2.6537839196
-  dmin: float?;
-  /// column=9, min=0.32, max=1.55, avg=0.8291103333
-  rms: float;
-  /// column=10
-  net: Net;
-  /// column=11
-  id: String;
-  /// column=12
-  @format("%Y-%m-%dT%H:%M:%S%z")
-  updated: time;
-  /// column=13
-  place: String;
-  /// column=14
-  type: Type;
-  /// column=15, min=2.88, max=17.47, avg=8.7943456376
-  horizontalError: float?;
-  /// column=16, min=0.972, max=22.5, avg=4.4283683333
-  depthError: float;
-  /// column=17, min=0.02, max=0.205, avg=0.0727785235
-  magError: float?;
-  /// column=18, min=7, max=818, avg=101.1375838926
-  magNst: int?;
-  /// column=19
-  status: Status;
-  /// column=20
-  locationSource: LocationSource;
-  /// column=21
-  magSource: MagSource;
+    /// column=0
+    @format("%Y-%m-%dT%H:%M:%S%z")
+    time: time;
+    /// column=1, min=-61.8842, max=83.8394, avg=22.4896408333
+    latitude: float;
+    /// column=2, min=-179.369, max=179.8605, avg=83.5534406667
+    longitude: float;
+    /// column=3, min=7.466, max=639.511, avg=55.0781866667
+    depth: float;
+    /// column=4, min=4.5, max=7.8, avg=4.8468333333
+    mag: float?;
+    /// column=5
+    magType: MagType?;
+    /// column=6, min=9, max=287, avg=63.9296482412
+    nst: int?;
+    /// column=7, min=20, max=263, avg=108.076599665
+    gap: int?;
+    /// column=8, min=0.1, max=31.484, avg=2.6537839196
+    dmin: float?;
+    /// column=9, min=0.32, max=1.55, avg=0.8291103333
+    rms: float;
+    /// column=10
+    net: String;
+    /// column=11
+    id: String;
+    /// column=12
+    @format("%Y-%m-%dT%H:%M:%S%z")
+    updated: time;
+    /// column=13
+    place: String;
+    /// column=14
+    type: Type;
+    /// column=15, min=2.88, max=17.47, avg=8.7943456376
+    horizontalError: float?;
+    /// column=16, min=0.972, max=22.5, avg=4.4283683333
+    depthError: float?;
+    /// column=17, min=0.02, max=0.205, avg=0.0727785235
+    magError: float?;
+    /// column=18, min=7, max=818, avg=101.1375838926
+    magNst: int?;
+    /// column=19
+    status: Status;
+    /// column=20
+    locationSource: String;
+    /// column=21
+    magSource: String;
 }
 
-enum MagType {
-  mww,
-  ml,
-  mw,
-  mwr,
-  mb,
-}
-
-enum Net {
-  ak,
-  us,
-  nn,
+@volatile
+private enum MagType {
+    mww,
+    mb_lg,
+    mh,
+    md,
+    ml,
+    mw,
+    mwr,
+    mb,
 }
 
 @volatile
 private enum Type {
-  earthquake,
+    explosion,
+    earthquake,
+    landslide,
+    "quarry blast",
+    rockslide,
 }
 
 @volatile
 private enum Status {
-  reviewed,
+    automatic,
+    reviewed,
 }
 
-@volatile
-private enum LocationSource {
-  ak,
-  us,
-  nn,
+fn init() {
+    import_data();
 }
 
-@volatile
-private enum MagSource {
-  ak,
-  us,
-  nn,
-}
-
-fn import_data() {
+private fn import_data() {
     if (earthquakes_by_geo.size() > 0) {
         return;
     }
 
+    var now = time::now().toDate(TimeZone::UTC);
+    var filepath = "files/earthquakes_${now.month}_${now.year}.csv";
+    Http {}.getFile("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv", filepath, null);
+
     var reader = CsvReader<Record> {
-        path: "pages/map/earthquakes_4.5_month.csv",
+        path: filepath,
         format: CsvFormat {
             header_lines: 1,
         },
@@ -151,7 +148,19 @@ fn import_data() {
 }
 
 @expose
-fn earthquakes(): Array<Earthquake> {
+fn major_earthquakes(): Array<Earthquake> {
+    var arr = Array<Earthquake> {};
+    arr.set_capacity(earthquakes_by_time.size());
+    for (_, e in earthquakes_by_time) {
+        if (e.mag != null && e.mag > 4.5) {
+            arr.add(e);
+        }
+    }
+    return arr;
+}
+
+@expose
+fn all_earthquakes(): Array<Earthquake> {
     var arr = Array<Earthquake> {};
     arr.set_capacity(earthquakes_by_time.size());
     for (_, e in earthquakes_by_time) {

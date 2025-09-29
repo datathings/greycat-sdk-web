@@ -58,85 +58,85 @@ gui-search-input > sl-icon[slot='prefix'] {
   background-image: var(--icon-search);
 }
 
-.p-1 {
+.gui-p-1 {
   padding: var(--spacing);
 }
 
-.pt-1 {
+.gui-pt-1 {
   padding-top: var(--spacing);
 }
 
-.pr-1 {
+.gui-pr-1 {
   padding-right: var(--spacing);
 }
 
-.pl-1 {
+.gui-pl-1 {
   padding-left: var(--spacing);
 }
 
-.pb-1 {
+.gui-pb-1 {
   padding-bottom: var(--spacing);
 }
 
-.px-1 {
+.gui-px-1 {
   padding-left: var(--spacing);
   padding-right: var(--spacing);
 }
 
-.py-1 {
+.gui-py-1 {
   padding-top: var(--spacing);
   padding-bottom: var(--spacing);
 }
 
-.p-2 {
+.gui-p-2 {
   padding: calc(var(--spacing) * 2);
 }
 
-.pt-2 {
+.gui-pt-2 {
   padding-top: calc(var(--spacing) * 2);
 }
 
-.pr-2 {
+.gui-pr-2 {
   padding-right: calc(var(--spacing) * 2);
 }
 
-.pl-2 {
+.gui-pl-2 {
   padding-left: calc(var(--spacing) * 2);
 }
 
-.pb-2 {
+.gui-pb-2 {
   padding-bottom: calc(var(--spacing) * 2);
 }
 
-.px-2 {
+.gui-px-2 {
   padding-left: calc(var(--spacing) * 2);
   padding-right: calc(var(--spacing) * 2);
 }
 
-.py-2 {
+.gui-py-2 {
   padding-top: calc(var(--spacing) * 2);
   padding-bottom: calc(var(--spacing) * 2);
 }
 
-.list {
+.gui-list {
   display: flex;
   flex-direction: column;
   gap: var(--spacing);
 }
 
-.list.smart:empty::before {
+.gui-list.smart:empty::before {
   content: 'List is empty';
   color: var(--muted-color);
   align-self: center;
   font-size: var(--sl-font-size-small);
 }
 
-.row {
+.gui-row {
   display: flex;
   gap: var(--spacing);
 }
 
-.row-fluid {
+.gui-row-fluid {
   display: flex;
   gap: var(--spacing);
 
@@ -145,7 +145,7 @@ gui-search-input > sl-icon[slot='prefix'] {
   }
 }
 
-.flex-1 {
+.gui-flex-1 {
   flex: 1;
 }
 

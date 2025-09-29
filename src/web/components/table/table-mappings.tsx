@@ -87,7 +87,7 @@ export class GuiTableMappings extends GuiElement {
     this._value = [];
 
     this._mappings = document.createElement('div');
-    this._mappings.classList.add('list', 'smart');
+    this._mappings.classList.add('gui-list', 'smart');
     this._mappings.addEventListener(GuiTableMappingsDeleteEvent.NAME, (ev) => {
       ev.stopPropagation();
       ev.detail.remove();
@@ -109,7 +109,7 @@ export class GuiTableMappings extends GuiElement {
       <sl-card>
         <header slot="header">
           <span>Mappings</span>
-          <div className="row">
+          <div className="gui-row">
             <sl-button variant="text" size="small" onclick={this._createMapping}>
               Add
             </sl-button>

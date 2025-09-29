@@ -27,7 +27,7 @@ export class GuiTableConfig extends GuiElement {
       const proceed = await modal.confirm({
         title: 'Csv Options',
         message: (
-          <div className="list">
+          <div className="gui-list">
             <sl-input
               label="Separator"
               helpText="Column delimiter"
@@ -133,14 +133,14 @@ export class GuiTableConfig extends GuiElement {
     this._mappings = document.createElement('gui-table-mappings');
 
     this.shadowRoot.appendChild(
-      <div className="list">
-        <div className="row">
+      <div className="gui-list">
+        <div className="gui-row">
           {this._fitColumnsToHeadersBtn}
           {this._downloadAsCsvBtn}
         </div>
         <sl-details>
           <header slot="summary">Options</header>
-          <div className="list">
+          <div className="gui-list">
             {this._globalFilter}
             {this._headers}
             {this._rowHeight}

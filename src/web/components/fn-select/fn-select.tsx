@@ -25,7 +25,7 @@ export class GuiFnSelect extends sl.SlSelect {
       group.push(fn);
     }
 
-    const headerClasses = ['px-1', 'text-muted'];
+    const headerClasses = ['gui-px-1', 'text-muted'];
     const options = document.createDocumentFragment();
     groups.forEach((functions, name) => {
       options.appendChild(<h6 className={headerClasses}>{name}</h6>);

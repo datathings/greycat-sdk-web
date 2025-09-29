@@ -32,3 +32,4 @@ export * from './search-input/index.js';
 export * from './map/index.js';
 export * from './nav/index.js';
 export * from './time/index.js';
+// export * from './table2/index.js';

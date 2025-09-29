@@ -64,12 +64,12 @@ export class GuiChartConfig extends GuiElement {
     this.addEventListener('sl-change', () => this._post_change());
 
     this.shadowRoot.appendChild(
-      <div className="list">
+      <div className="gui-list">
         {this._xAxis}
         {this._yAxes}
         {this._series}
         <gui-details summary="Options">
-          <div className="list">
+          <div className="gui-list">
             {this._cursor}
             {this._tooltip}
             {this._selection}
@@ -152,7 +152,7 @@ export class GuiChartYAxesInput extends HTMLElement {
     super();
 
     this._axes = document.createElement('div');
-    this._axes.classList.add('list', 'smart');
+    this._axes.classList.add('gui-list', 'smart');
     this._axes.appendChild(<gui-chart-ordinate-input header="y" />);
     this._axes.addEventListener('gui-chart-config-delete', (ev) => {
       ev.stopPropagation();
@@ -455,14 +455,14 @@ export class GuiChartAxisInput extends HTMLElement {
     const root = (
       <gui-details>
         <summary slot="summary">{this._summary}</summary>
-        <div className="list">
+        <div className="gui-list">
           {this._scale}
           {this._min}
           {this._max}
           {this._ratio}
           <gui-details>
             <summary slot="summary">Styles</summary>
-            <div className="list">
+            <div className="gui-list">
               {this._format}
               {this._cursorFormat}
             </div>
@@ -642,7 +642,7 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
             Del
           </sl-button>
         </summary>
-        <div className="list">
+        <div className="gui-list">
           {this._name}
           {this._scale}
           {this._min}
@@ -650,7 +650,7 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
           {this._ratio}
           {this._position}
           <gui-details summary="Style">
-            <div className="list">
+            <div className="gui-list">
               {this._format}
               {this._cursorFormat}
             </div>
@@ -868,7 +868,7 @@ export class GuiChartSerieInput extends HTMLElement {
             Del
           </sl-button>
         </summary>
-        <div className="list">
+        <div className="gui-list">
           {this._title}
           {this._type}
           {this._xCol}
@@ -881,7 +881,7 @@ export class GuiChartSerieInput extends HTMLElement {
           {this._spanCol1}
           {this._baseline}
           <gui-details summary="Style">
-            <div className="list">
+            <div className="gui-list">
               {this._plotRadius}
               <div className="gui-chart-config-input-field">
                 <div className="gui-chart-config-input-label">Color</div>
@@ -1113,7 +1113,7 @@ export class GuiChartSeriesInput extends HTMLElement {
     super();
 
     this._series = document.createElement('div');
-    this._series.classList.add('list', 'smart');
+    this._series.classList.add('gui-list', 'smart');
     this._series.addEventListener('gui-chart-config-delete', (ev) => {
       ev.stopPropagation();
       if (!(ev.target instanceof HTMLElement)) {

@@ -82,7 +82,7 @@ import {
   GuiMapSource,
   GuiMapMarkers,
   GuiNav,
-  // GuiGaussian,
+  // GuiTable2,
 } from './exports.js';
 
 export interface WebOptions {
@@ -240,7 +240,7 @@ function initWeb(options: WebOptions) {
   registerCustomElement('gui-tabs', GuiTabs);
   registerCustomElement('gui-select', GuiSelect);
   registerCustomElement('gui-nav', GuiNav);
-  // registerCustomElement('gui-gaussian', GuiGaussian);
+  // registerCustomElement('gui-table2', GuiTable2);
 
   if (options.maplibregl || 'maplibregl' in globalThis) {
     globalThis['maplibregl'] = options.maplibregl ?? globalThis['maplibregl'];
@@ -337,7 +337,7 @@ declare global {
       GuiMapSource,
       GuiMapMarkers,
       GuiNav,
-      // GuiGaussian,
+      // GuiTable2,
     };
   }
 }
