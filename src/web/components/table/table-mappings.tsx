@@ -22,47 +22,11 @@ export class GuiTableMappings extends GuiElement {
   };
   private _automaticDestructuring = async () => {
     const table = this.table.table;
-    const mappings: gc.core.TableColumnMapping[] = [];
-    const row = Array.from({ length: table.cols.length });
-    let hasNodes = false;
-    for (let i = 0; i < table.cols.length; i++) {
-      const value = table.cols[i][0];
-      row[i] = value;
-      if (value instanceof gc.core.node) {
-        hasNodes = true;
-      }
-    }
+    let mappings: gc.core.TableColumnMapping[];
     try {
-      let columns: unknown[];
-      const nodes = row.map((v) => (v instanceof gc.core.node ? v : null)) as gc.core.node[];
-      if (hasNodes) {
-        columns = await gc.core.node.resolve_all(nodes);
-      } else {
-        columns = row;
-      }
-      for (let i = 0; i < columns.length; i++) {
-        const col = columns[i] === null ? row[i] : columns[i];
-        if (col instanceof gc.core.node) {
-          // nested node
-          const [value] = await gc.core.node.resolve_all([col]);
-          if (value instanceof gc.sdk.GCObject && !value.$type.is_native) {
-            for (let j = 0; j < value.$type.attrs.length; j++) {
-              const attr = value.$type.attrs[j];
-              mappings.push(new gc.core.TableColumnMapping(i, [attr.name]));
-            }
-          } else {
-            mappings.push(new gc.core.TableColumnMapping(i, ['*']));
-          }
-        } else if (col instanceof gc.sdk.GCObject && !col.$type.is_native) {
-          for (let j = 0; j < col.$type.attrs.length; j++) {
-            const attr = col.$type.attrs[j];
-            mappings.push(new gc.core.TableColumnMapping(i, [attr.name]));
-          }
-        } else if (nodes[i] !== null) {
-          mappings.push(new gc.core.TableColumnMapping(i, ['*']));
-        }
-      }
+      mappings = await table.inferMappings();
     } catch (err) {
+      mappings = [];
       toast.error(err);
     }
     this._value = mappings;
