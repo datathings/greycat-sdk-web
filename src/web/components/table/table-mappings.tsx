@@ -1,30 +1,28 @@
-import { GuiElement, type sl, GuiTable, css, toast } from '../../exports.js';
-import Mappings from './table-mappings.css?inline';
-import Mapping from './table-mapping.css?inline';
+import { GuiElement, type sl, css, toast, GuiTable } from '../../exports.js';
+import style from './table-mappings.css?inline';
+import { GuiTableMapping } from './table-mapping.js';
 
 export class GuiTableMappings extends GuiElement {
-  static override styles = [css(Mappings)];
+  static override styles = [css(style)];
 
-  public table!: GuiTable;
-
+  private _table!: GuiTable;
   private _value: gc.core.TableColumnMapping[];
 
   private _mappings: HTMLElement;
   private _applyBtn: sl.SlButton;
   private _createMapping = (ev: MouseEvent) => {
     ev.stopPropagation();
-    const mapping = (<gui-table-mapping />) as GuiTableMapping;
-    mapping.table = this.table;
+    const mapping = document.createElement('gui-table-mapping');
+    mapping.table = this._table;
     this._mappings.appendChild(mapping);
     this._value.push(mapping.value);
     this._applyBtn.disabled = false;
     this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
   };
   private _automaticDestructuring = async () => {
-    const table = this.table.table;
     let mappings: gc.core.TableColumnMapping[];
     try {
-      mappings = await table.inferMappings();
+      mappings = await this._table.table.inferMappings();
     } catch (err) {
       mappings = [];
       toast.error(err);
@@ -33,7 +31,7 @@ export class GuiTableMappings extends GuiElement {
     const new_mappings = document.createDocumentFragment();
     for (const mapping of mappings) {
       const el = document.createElement('gui-table-mapping');
-      el.table = this.table;
+      el.table = this._table;
       el.value = mapping;
       new_mappings.appendChild(el);
     }
@@ -95,6 +93,18 @@ export class GuiTableMappings extends GuiElement {
     this.update();
   }
 
+  get table() {
+    return this._table;
+  }
+
+  set table(table: GuiTable) {
+    this._table = table;
+    for (let i = 0; i < this._mappings.children.length; i++) {
+      (this._mappings.children[i] as GuiTableMapping).table = table;
+    }
+    this.update();
+  }
+
   get value() {
     const mappings: gc.core.TableColumnMapping[] = [];
     for (let i = 0; i < this._mappings.children.length; i++) {
@@ -119,13 +129,17 @@ export class GuiTableMappings extends GuiElement {
     if (this._value.length === this._mappings.children.length) {
       // same number of elements
       for (let i = 0; i < this._value.length; i++) {
-        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+        const mapping = this._mappings.children[i] as GuiTableMapping;
+        mapping.value = this._value[i];
+        mapping.table = this._table;
       }
     } else if (this._value.length < this._mappings.children.length) {
       // less mappings that DOM elements
       let i = 0;
       for (i; i < this._value.length; i++) {
-        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+        const mapping = this._mappings.children[i] as GuiTableMapping;
+        mapping.value = this._value[i];
+        mapping.table = this._table;
       }
       let left = this._mappings.children.length - i;
       while (left > 0) {
@@ -137,10 +151,14 @@ export class GuiTableMappings extends GuiElement {
       // more mappings that DOM elements
       let i = 0;
       for (i; i < this._mappings.children.length; i++) {
-        (this._mappings.children[i] as GuiTableMapping).value = this._value[i];
+        const mapping = this._mappings.children[i] as GuiTableMapping;
+        mapping.value = this._value[i];
+        mapping.table = this._table;
       }
       for (i; i < this._value.length; i++) {
-        this._mappings.appendChild(<gui-table-mapping value={this._value[i]} />);
+        this._mappings.appendChild(
+          <gui-table-mapping value={this._value[i]} table={this._table} />,
+        );
       }
     }
   }
@@ -162,104 +180,9 @@ export class GuiTableMappingsApplyEvent extends CustomEvent<gc.core.TableColumnM
   }
 }
 
-export class GuiTableMapping extends GuiElement {
-  static override styles = [css(Mapping)];
-
-  public table!: GuiTable;
-  private _value: gc.core.TableColumnMapping = new gc.core.TableColumnMapping(0, []);
-
-  private _column: sl.SlSelect;
-  private _extractors: sl.SlInput;
-  private _delete: sl.SlButton;
-
-  constructor() {
-    super();
-
-    this._column = (<sl-select label="Column" size="small" />) as sl.SlSelect;
-    this._extractors = (<sl-input label="Extractors" size="small" />) as sl.SlInput;
-    this._delete = (
-      <sl-button
-        variant="text"
-        size="small"
-        onclick={() => {
-          this.dispatchEvent(
-            new CustomEvent('gui-table-mapping-delete', {
-              detail: this,
-              bubbles: true,
-              composed: true,
-            }),
-          );
-        }}
-      >
-        Del
-      </sl-button>
-    ) as sl.SlButton;
-
-    this.shadowRoot.replaceChildren(
-      <>
-        {this._column}
-        {this._extractors}
-        {this._delete}
-      </>,
-    );
-  }
-
-  connectedCallback(): void {
-    this.update();
-  }
-
-  get value() {
-    const value = this._value;
-
-    const column = getSelectValue(this._column);
-    if (column !== undefined) {
-      value.column = +column;
-    }
-
-    value.extractors = this._extractors.value.split('.');
-
-    return value;
-  }
-
-  set value(value: gc.core.TableColumnMapping) {
-    this._value = value;
-    this.update();
-  }
-
-  update(): void {
-    if (!this.isConnected) {
-      return;
-    }
-
-    this._column.replaceChildren();
-    for (let i = 0; i < this.table.table.cols.length; i++) {
-      const header = this.table.table.headers?.[i] || `Column ${i}`;
-      this._column.appendChild(<sl-option value={`${i}`}>{header}</sl-option>);
-    }
-    this._column.value = `${this._value.column}`;
-    // this._column.setAttribute('value', `${this._value.column}`);
-    this._extractors.value = this._value.extractors.join('.');
-  }
-}
-
-function getSelectValue(select: sl.SlSelect): string | undefined {
-  const value = select.value;
-  if (Array.isArray(value)) {
-    if (value.length === 1) {
-      return value[0];
-    }
-    return;
-  }
-  if (value.length !== 0) {
-    return value;
-  }
-  return;
-}
-
 declare global {
   interface HTMLElementTagNameMap {
     'gui-table-mappings': GuiTableMappings;
-    'gui-table-mapping': GuiTableMapping;
   }
 
   interface GuiTableMappingEventMap {
@@ -270,13 +193,12 @@ declare global {
     [GuiTableMappingsApplyEvent.NAME]: GuiTableMappingsApplyEvent;
   }
 
-  interface HTMLElementEventMap extends GuiTableMappingEventMap, GuiTableMappingsEventMap {}
+  interface HTMLElementEventMap extends GuiTableMappingsEventMap {}
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
         'gui-table-mappings': GreyCat.Element<GuiTableMappings, GuiTableMappingsEventMap>;
-        'gui-table-mapping': GreyCat.Element<GuiTableMapping, GuiTableMappingEventMap>;
       }
     }
   }

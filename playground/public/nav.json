@@ -262,6 +262,10 @@
       {
         "label": "Table2",
         "route": "table2.html"
+      },
+      {
+        "label": "Config",
+        "route": "config.html"
       }
     ]
   },

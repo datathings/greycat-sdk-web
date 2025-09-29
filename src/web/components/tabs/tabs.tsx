@@ -1,4 +1,4 @@
-import { css, getBooleanAttribute, GuiChangeEvent, GuiElement } from '../../exports.js';
+import { css, getBooleanAttribute, GuiElement } from '../../exports.js';
 import tabsStyle from './tabs.css?inline';
 import tabStyle from './tab.css?inline';
 import panelStyle from './panel.css?inline';
@@ -124,7 +124,7 @@ export class GuiTabs extends GuiElement {
     const panel = this.panels.get(tabName);
     if (panel) {
       this.appendChild(panel);
-      this.dispatchEvent(new GuiChangeEvent(tab));
+      this.dispatchEvent(new GuiTabChangeEvent(tab));
     }
   }
 
@@ -211,6 +211,14 @@ export class GuiPanel extends GuiElement {
   }
 }
 
+export class GuiTabChangeEvent extends CustomEvent<GuiTab> {
+  static readonly NAME = 'gui-tab-change';
+
+  constructor(value: GuiTab) {
+    super(GuiTabChangeEvent.NAME, { detail: value, bubbles: true, composed: true });
+  }
+}
+
 declare global {
   interface HTMLElementTagNameMap {
     'gui-tabs': GuiTabs;
@@ -219,7 +227,7 @@ declare global {
   }
 
   interface GuiTabsEventMap {
-    [GuiChangeEvent.NAME]: GuiChangeEvent<HTMLElement>;
+    [GuiTabChangeEvent.NAME]: GuiTabChangeEvent;
   }
 
   interface HTMLElementEventMap extends GuiTabsEventMap {}

@@ -554,6 +554,14 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this.update();
   }
 
+  setHeaders(headers: string[]) {
+    this._table.headers = headers;
+  }
+
+  getHeaders() {
+    return this._table.headers;
+  }
+
   setAttrs({
     value = this._table,
     filter = this._filterText,

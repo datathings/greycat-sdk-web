@@ -1,14 +1,22 @@
-import { GuiTable, GuiTableProps, modal, toast, GuiElement, css, TableCsvOptions, sl } from '../../exports.js';
+import {
+  GuiTableProps,
+  modal,
+  toast,
+  GuiElement,
+  css,
+  TableCsvOptions,
+  sl,
+  GuiTable,
+} from '../../exports.js';
 import style from './table-config.css?inline';
 import type { GuiTableMappings } from './table-mappings.js';
 
 export class GuiTableConfig extends GuiElement {
   static override styles = [css(style)];
 
-  public table!: GuiTable;
-
   private _value: Partial<GuiTableProps> = {};
 
+  private _table!: GuiTable;
   private _globalFilter: sl.SlCheckbox;
   private _headers: sl.SlInput;
   private _ignoreCols: sl.SlInput;
@@ -56,7 +64,7 @@ export class GuiTableConfig extends GuiElement {
         // if closing the modal, abort the operation
         return;
       }
-      const csv = this.table.asCsv(options);
+      const csv = this._table.asCsv(options);
 
       const blob = new Blob([csv], {
         type: 'text/csv',
@@ -121,7 +129,7 @@ export class GuiTableConfig extends GuiElement {
       />
     ) as sl.SlInput;
     this._fitColumnsToHeadersBtn = (
-      <sl-button size="small" onclick={() => this.table.fitColumnsToHeaders()}>
+      <sl-button size="small" onclick={() => this._table.fitColumnsToHeaders()}>
         Fit columns to headers
       </sl-button>
     ) as sl.SlButton;
@@ -155,7 +163,6 @@ export class GuiTableConfig extends GuiElement {
   }
 
   connectedCallback(): void {
-    this._mappings.table = this.table;
     this.update();
   }
 
@@ -166,7 +173,7 @@ export class GuiTableConfig extends GuiElement {
 
     const headers = this._headers.value;
     if (headers) {
-      this.table.table.headers = headers.split(',');
+      this._table.table.headers = headers.split(',');
     }
 
     const rowHeight = this._rowHeight.valueAsNumber;
@@ -227,13 +234,19 @@ export class GuiTableConfig extends GuiElement {
     this._mappings.value = mappings;
   }
 
+  set table(table: GuiTable) {
+    this._table = table;
+    this._mappings.table = table;
+    this.update();
+  }
+
   update(): void {
     if (!this.isConnected) {
       return;
     }
 
     this._globalFilter.checked = !!this._value.globalFilter;
-    this._headers.value = this.table.table.headers?.join(',') ?? '';
+    this._headers.value = this._table.table.headers?.join(',') ?? '';
     this._rowHeight.value =
       typeof this._value.rowHeight === 'number' ? `${this._value.rowHeight}` : '';
     this._ignoreCols.value = this._value.ignoreCols?.join(',') ?? '';

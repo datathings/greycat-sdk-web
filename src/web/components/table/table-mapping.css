@@ -7,3 +7,7 @@
 sl-button {
   align-self: flex-end;
 }
+
+sl-select::part(listbox) {
+  width: fit-content;
+}
