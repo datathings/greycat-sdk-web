@@ -24,10 +24,13 @@ namespace gc {
             w.write_array(this.values);
           }
 
-          static override load<T extends Value = unknown>(r: AbiReader, type: AbiType): globalThis.Array<T> {
+          static override load<T extends Value = unknown>(
+            r: AbiReader,
+            type: AbiType,
+          ): globalThis.Array<T> {
             const len = r.read_vu32();
             const arr = r.read_array(len) as globalThis.Array<T>;
-            arr.$type = type;
+            Object.defineProperty(arr, '$type', { value: type, enumerable: false });
             return arr;
           }
 

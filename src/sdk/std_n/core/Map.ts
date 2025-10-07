@@ -63,7 +63,7 @@ namespace gc {
           ): globalThis.Map<K, V> {
             const len = r.read_vu32();
             const map = new globalThis.Map<K, V>();
-            map.$type = ty;
+            Object.defineProperty(map, '$type', { value: ty, enumerable: false });
 
             for (let i = 0; i < len; i++) {
               const key = r.deserialize() as K;
