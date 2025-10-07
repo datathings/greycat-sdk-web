@@ -9,18 +9,17 @@ export const Fragment = '<></>';
 
 export function createElement(
   tagName: typeof Fragment,
-  props?: Partial<{
-    children: HTMLElement | HTMLElement[];
-  }>,
+  props?: GreyCat.JSX.IntrinsicElements[typeof Fragment],
 ): DocumentFragment;
-export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
-  tagName: K,
-  props?: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
-): HTMLElementTagNameMap[K];
 
-export function createElement<K extends keyof HTMLElementTagNameMap, E = HTMLElementTagNameMap[K]>(
+export function createElement<
+  K extends keyof GreyCat.JSX.IntrinsicElements & keyof HTMLElementTagNameMap,
+  E = GreyCat.JSX.IntrinsicElements[K],
+>(tagName: K, props?: E): HTMLElementTagNameMap[K];
+
+export function createElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K | typeof Fragment,
-  props?: Partial<E & { children: HTMLElement | HTMLElement[] }> & GreyCat.ExtendedHTMLProperties,
+  props?: GreyCat.JSX.IntrinsicElements[K | typeof Fragment],
 ): HTMLElementTagNameMap[K] | DocumentFragment {
   if (tagName === Fragment) {
     const fragment = document.createDocumentFragment();

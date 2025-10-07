@@ -1,41 +1,27 @@
-import { GuiInputFn, sl, GuiSelect } from '@greycat/web';
+import { createElement } from '@greycat/web';
 import '~/common';
 import actions from './actions';
 
-await gc.sdk.init({ pollTasks: 1000 });
+await gc.sdk.init();
 
-const fnInput = (<gui-input-fn />) as GuiInputFn;
-const fnSelector = (
-  <gui-select
-    placeholder="Select a function to run as a task"
-    options={gc.$.default.abi.functions.map((fn) => ({ text: fn.fqn, value: fn }))}
-    ongui-change={(ev) => {
-      const fn = ev.detail as gc.sdk.AbiFunction | undefined;
-      if (fn) {
-        fnInput.value = new fn.args_type.ctor();
-        spawnBtn.disabled = false;
-      } else {
-        fnInput.value = undefined;
-        spawnBtn.disabled = true;
-      }
-    }}
-  />
-) as GuiSelect;
-const spawnBtn = (
-  <sl-button
-    variant="text"
-    size="small"
-    disabled
-    onclick={async () => {
-      await gc.$.default.spawn(fnSelector.value.fqn, fnInput.args);
-      tasks.reload();
-    }}
-  >
-    Spawn
-  </sl-button>
-) as sl.SlButton;
-
-const tasks = document.createElement('gui-tasks');
+const selector = createElement('gui-fn-select', {
+  'ongui-change': (ev) => {
+    input.value = new ev.detail.args_type.ctor();
+    spawnBtn.disabled = false;
+  },
+});
+const tasks = createElement('gui-tasks');
+const input = createElement('gui-input-fn');
+const spawnBtn = Object.assign(createElement('sl-button'), {
+  variant: 'text',
+  size: 'small',
+  disabled: true,
+  onclick: async () => {
+    await gc.$.default.spawn(selector.fqn!, input.args);
+    tasks.reload();
+  },
+  textContent: 'Spawn',
+});
 
 document.body.appendChild(
   <app-layout
@@ -49,10 +35,10 @@ document.body.appendChild(
         {spawnBtn}
       </header>
       <div role="list">
-        {fnSelector}
+        {selector}
         <fieldset>
           <legend>Arguments:</legend>
-          {fnInput}
+          {input}
         </fieldset>
       </div>
     </gui-card>

@@ -2,6 +2,7 @@
 export { html, render } from 'lit-html';
 export * as d3 from 'd3';
 export * as sl from '@shoelace-style/shoelace';
+export * from '@greycat/web/jsx-runtime';
 
 // ensures globals are defined before init
 import './globals.js';

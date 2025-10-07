@@ -806,6 +806,8 @@ namespace gc {
           }
         } else {
           const properties: AbiTypeProperties = {};
+          const offsets: Record<string, number> = {};
+
           for (let i = 0; i < this.attrs.length; i++) {
             const attr = this.attrs[i];
             properties[attr.name] = {
@@ -817,6 +819,8 @@ namespace gc {
                 this.$fields![i] = v;
               },
             };
+
+            offsets[attr.name] = i;
           }
           let GCObject: IGCObjectClass;
           if (generic_abi_type === 0) {
@@ -857,6 +861,12 @@ namespace gc {
             };
           }
           this.ctor = GCObject;
+          Object.defineProperty(this.ctor, '$fields', {
+            enumerable: false,
+            writable: false,
+            configurable: false,
+            value: offsets,
+          });
         }
 
         Object.defineProperty(this.ctor.constructor, 'name', {

@@ -158,6 +158,43 @@ export type SlTreeItemEventMap = SlExpand &
 export type SlTreeEventMap = SlSelectionChange;
 
 declare global {
+  interface HTMLElementEventMap
+    extends SlAfterCollapse,
+      SlAfterExpand,
+      SlAfterHide,
+      SlAfterShow,
+      SlBlur,
+      SlCancel,
+      SlChange,
+      SlClear,
+      SlClose,
+      SlCollapse,
+      SlCopy,
+      SlError,
+      SlExpand,
+      SlFinish,
+      SlFocus,
+      SlHide,
+      SlHover,
+      SlInitialFocus,
+      SlInput,
+      SlInvalid,
+      SlLazyChange,
+      SlLazyLoad,
+      SlLoad,
+      SlMutation,
+      SlRemove,
+      SlReposition,
+      SlRequestClose,
+      SlResize,
+      SlSelect,
+      SlSelectionChange,
+      SlShow,
+      SlSlideChange,
+      SlStart,
+      SlTabHide,
+      SlTabShow {}
+
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {

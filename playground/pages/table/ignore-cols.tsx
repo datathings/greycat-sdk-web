@@ -93,10 +93,8 @@ document.body.appendChild(
     {actions}
     <gui-table
       value={await gc.project.chart(100)}
-      ignoreCols={[3, 4]}
-      columnFactory={{
-        5: 'app-confidence',
-      }}
+      useDefaultColumns
+      columns={[{ index: 5, cell: 'app-confidence' }]}
       rowHeight={30}
       style={{ backgroundColor: 'var(--bg-1)' }}
       ongui-table-click={(ev) => {

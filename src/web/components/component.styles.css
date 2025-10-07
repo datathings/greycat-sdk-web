@@ -49,6 +49,27 @@
   opacity: 1;
 }
 
+sl-drawer::part(body)::-webkit-scrollbar,
+sl-card::part(body)::-webkit-scrollbar,
+sl-details::part(content)::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+sl-drawer::part(body)::-webkit-scrollbar-thumb,
+sl-card::part(body)::-webkit-scrollbar-thumb,
+sl-details::part(content)::-webkit-scrollbar-thumb {
+  background-color: var(--scrollbar-bg);
+  border-radius: 2px;
+}
+
+sl-drawer::part(body)::-webkit-scrollbar-thumb:hover,
+sl-card::part(body)::-webkit-scrollbar-thumb:hover,
+sl-details::part(content)::-webkit-scrollbar-thumb:hover {
+  background-color: var(--scrollbar-bg-hover);
+  opacity: 1;
+}
+
 [hidden] {
   display: none !important;
 }

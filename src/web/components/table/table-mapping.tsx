@@ -1,10 +1,10 @@
-import { GuiElement, css, sl, GuiTable } from '../../exports.js';
+import { GuiElement, css, sl, GuiTableMappingsDeleteEvent } from '../../exports.js';
 import style from './table-mapping.css?inline';
 
 export class GuiTableMapping extends GuiElement {
   static override styles = [css(style)];
 
-  private _table!: GuiTable;
+  private _table: gc.core.Table;
   private _value: gc.core.TableColumnMapping = new gc.core.TableColumnMapping(0, []);
 
   private _column: sl.SlSelect;
@@ -14,6 +14,8 @@ export class GuiTableMapping extends GuiElement {
   constructor() {
     super();
 
+    this._table = new gc.core.Table();
+
     this._column = (<sl-select label="Column" size="small" hoist />) as sl.SlSelect;
     this._extractors = (<sl-input label="Extractors" size="small" />) as sl.SlInput;
     this._delete = (
@@ -21,13 +23,7 @@ export class GuiTableMapping extends GuiElement {
         variant="text"
         size="small"
         onclick={() => {
-          this.dispatchEvent(
-            new CustomEvent('gui-table-mapping-delete', {
-              detail: this,
-              bubbles: true,
-              composed: true,
-            }),
-          );
+          this.dispatchEvent(new GuiTableMappingsDeleteEvent(this));
         }}
       >
         Del
@@ -51,7 +47,7 @@ export class GuiTableMapping extends GuiElement {
     return this._table;
   }
 
-  set table(table: GuiTable) {
+  set table(table: gc.core.Table) {
     this._table = table;
     this.update();
   }
@@ -80,8 +76,8 @@ export class GuiTableMapping extends GuiElement {
     }
 
     this._column.replaceChildren();
-    for (let i = 0; i < this._table.table.cols.length; i++) {
-      const header = this._table.table.headers?.[i] || `Column ${i}`;
+    for (let i = 0; i < this._table.cols.length; i++) {
+      const header = this._table.headers?.[i] || `Column ${i}`;
       this._column.appendChild(<sl-option value={`${i}`}>{header}</sl-option>);
     }
     this._column.value = `${this._value.column}`;

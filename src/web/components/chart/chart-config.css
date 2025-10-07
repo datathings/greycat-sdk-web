@@ -56,3 +56,14 @@ sl-select[data-invalid]::part(combobox),
 sl-checkbox[data-invalid]::part(control) {
   border-color: var(--sl-color-danger-600);
 }
+
+.summary {
+  & {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+  }
+
+  sl-checkbox {
+    padding-left: 0;
+  }
+}

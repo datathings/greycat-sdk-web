@@ -1,44 +1,15 @@
-import { GuiElement, type sl, css, toast, GuiTable } from '../../exports.js';
+import { GuiElement, type sl, css, toast } from '../../exports.js';
 import style from './table-mappings.css?inline';
 import { GuiTableMapping } from './table-mapping.js';
 
 export class GuiTableMappings extends GuiElement {
   static override styles = [css(style)];
 
-  private _table!: GuiTable;
+  private _table: gc.core.Table;
   private _value: gc.core.TableColumnMapping[];
 
   private _mappings: HTMLElement;
   private _applyBtn: sl.SlButton;
-  private _createMapping = (ev: MouseEvent) => {
-    ev.stopPropagation();
-    const mapping = document.createElement('gui-table-mapping');
-    mapping.table = this._table;
-    this._mappings.appendChild(mapping);
-    this._value.push(mapping.value);
-    this._applyBtn.disabled = false;
-    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
-  };
-  private _automaticDestructuring = async () => {
-    let mappings: gc.core.TableColumnMapping[];
-    try {
-      mappings = await this._table.table.inferMappings();
-    } catch (err) {
-      mappings = [];
-      toast.error(err);
-    }
-    this._value = mappings;
-    const new_mappings = document.createDocumentFragment();
-    for (const mapping of mappings) {
-      const el = document.createElement('gui-table-mapping');
-      el.table = this._table;
-      el.value = mapping;
-      new_mappings.appendChild(el);
-    }
-    this._mappings.replaceChildren(new_mappings);
-    // this._applyBtn.disabled = mappings.length === 0;
-    this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
-  };
   private _applyMappings = () => {
     this.dispatchEvent(new GuiTableMappingsApplyEvent(this.value));
   };
@@ -46,6 +17,7 @@ export class GuiTableMappings extends GuiElement {
   constructor() {
     super();
 
+    this._table = new gc.core.Table();
     this._value = [];
 
     this._mappings = document.createElement('div');
@@ -72,10 +44,31 @@ export class GuiTableMappings extends GuiElement {
         <header slot="header">
           <span>Mappings</span>
           <div className="gui-row">
-            <sl-button variant="text" size="small" onclick={this._createMapping}>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={(ev) => {
+                ev.stopPropagation();
+                this.addMapping();
+                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
+              }}
+            >
               Add
             </sl-button>
-            <sl-button variant="text" size="small" onclick={this._automaticDestructuring}>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={async () => {
+                try {
+                  await this.automaticDestructuring();
+                  this.dispatchEvent(
+                    new CustomEvent('sl-change', { bubbles: true, composed: true }),
+                  );
+                } catch {
+                  // TODO: report error
+                }
+              }}
+            >
               Automatic destructuring
             </sl-button>
           </div>
@@ -97,7 +90,7 @@ export class GuiTableMappings extends GuiElement {
     return this._table;
   }
 
-  set table(table: GuiTable) {
+  set table(table: gc.core.Table) {
     this._table = table;
     for (let i = 0; i < this._mappings.children.length; i++) {
       (this._mappings.children[i] as GuiTableMapping).table = table;
@@ -119,12 +112,37 @@ export class GuiTableMappings extends GuiElement {
     this.update();
   }
 
+  addMapping(): void {
+    const mapping = document.createElement('gui-table-mapping');
+    mapping.table = this._table;
+    this._value.push(mapping.value);
+    this._mappings.appendChild(mapping);
+    this._applyBtn.disabled = false;
+  }
+
+  async automaticDestructuring(): Promise<void> {
+    let mappings: gc.core.TableColumnMapping[];
+    try {
+      mappings = await this._table.inferMappings();
+    } catch (err) {
+      mappings = [];
+      toast.error(err);
+    }
+    this._value = mappings;
+    const new_mappings = document.createDocumentFragment();
+    for (const mapping of mappings) {
+      const el = document.createElement('gui-table-mapping');
+      el.table = this._table;
+      el.value = mapping;
+      new_mappings.appendChild(el);
+    }
+    this._mappings.replaceChildren(new_mappings);
+  }
+
   update(): void {
     if (!this.isConnected) {
       return;
     }
-
-    // this._applyBtn.disabled = this._value.length === 0;
 
     if (this._value.length === this._mappings.children.length) {
       // same number of elements

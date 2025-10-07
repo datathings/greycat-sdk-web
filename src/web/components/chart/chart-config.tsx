@@ -147,6 +147,7 @@ export class GuiChartYAxesInput extends HTMLElement {
   private _value: { [name: string]: Ordinate } = {};
 
   private _axes: HTMLDivElement;
+  private _delSelection: sl.SlButton;
 
   constructor() {
     super();
@@ -171,6 +172,61 @@ export class GuiChartYAxesInput extends HTMLElement {
           }
         });
     });
+    this._axes.addEventListener('gui-config-selected', () => {
+      let showDelSelection = false;
+      querySelectorAllWithShadow('.selection-checkbox', this._axes).forEach((el) => {
+        if ((el as sl.SlCheckbox).checked) {
+          showDelSelection = true;
+        }
+      });
+      this._delSelection.style.display = showDelSelection ? 'inline-block' : 'none';
+    });
+    this._delSelection = (
+      <sl-button
+        variant="text"
+        size="small"
+        style={{ display: 'none' }}
+        onclick={(ev) => {
+          ev.stopPropagation();
+          let count = 0;
+          querySelectorAllWithShadow('.selection-checkbox', this._axes).forEach((el) => {
+            if ((el as sl.SlCheckbox).checked) {
+              count += 1;
+            }
+          });
+          modal
+            .confirm({
+              message: <>Are you sure you want to delete {count} axes?</>,
+            })
+            .then((yes) => {
+              if (yes) {
+                querySelectorAllWithShadow('.selection-checkbox', this._axes).forEach((el) => {
+                  if ((el as sl.SlCheckbox).checked) {
+                    const index = getIndexInParent(el.parentElement!.parentElement!.parentElement!);
+                    this._axes.childNodes.item(index).remove();
+                  }
+                });
+                this._updateDelSelection();
+                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
+              }
+            });
+        }}
+      >
+        Del selection
+      </sl-button>
+    ) as sl.SlButton;
+  }
+
+  private _updateDelSelection(): void {
+    let count = 0;
+    querySelectorAllWithShadow('.selection-checkbox', this._axes).forEach((el) => {
+      if ((el as sl.SlCheckbox).checked) {
+        count += 1;
+      }
+    });
+    if (count === 0) {
+      this._delSelection.style.display = 'none';
+    }
   }
 
   connectedCallback() {
@@ -178,28 +234,33 @@ export class GuiChartYAxesInput extends HTMLElement {
       <gui-details open>
         <summary slot="summary">
           <span>yAxes</span>
-          <sl-button
-            variant="text"
-            size="small"
-            onclick={async (ev) => {
-              ev.stopPropagation();
-              ev.preventDefault();
-              const key = await modal.input({
-                title: 'New ordinate axis',
-                inputProps: { label: 'Name' },
-              });
-              if (key) {
-                (this.children[0] as sl.SlDetails).open = true;
-                const ord = (<gui-chart-ordinate-input header={key} />) as GuiChartOrdinateInput;
-                this._axes.appendChild(ord);
-                // update the local state
-                this._value = this.value;
-                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
-              }
-            }}
-          >
-            Add
-          </sl-button>
+          <div>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={async (ev) => {
+                ev.stopPropagation();
+                ev.preventDefault();
+                const key = await modal.input({
+                  title: 'New ordinate axis',
+                  inputProps: { label: 'Name' },
+                });
+                if (key) {
+                  (this.children[0] as sl.SlDetails).open = true;
+                  const ord = (<gui-chart-ordinate-input header={key} />) as GuiChartOrdinateInput;
+                  this._axes.appendChild(ord);
+                  // update the local state
+                  this._value = this.value;
+                  this.dispatchEvent(
+                    new CustomEvent('sl-change', { bubbles: true, composed: true }),
+                  );
+                }
+              }}
+            >
+              Add
+            </sl-button>
+            {this._delSelection}
+          </div>
         </summary>
         {this._axes}
       </gui-details>,
@@ -265,7 +326,6 @@ export class GuiChartYAxesInput extends HTMLElement {
     }
   }
 }
-
 export class GuiChartSelectionInput extends HTMLElement {
   private _value: Partial<SelectionOptions> | false = false;
 
@@ -364,7 +424,6 @@ export class GuiChartSelectionInput extends HTMLElement {
     }
   }
 }
-
 export class GuiChartAxisInput extends HTMLElement {
   protected _value: Axis = {};
 
@@ -556,6 +615,8 @@ export class GuiChartAxisInput extends HTMLElement {
   ): void {
     if (value === undefined) {
       input.value = '';
+    } else if (value instanceof gc.core.time) {
+      input.value = value.toInputValue();
     } else if (value instanceof Date) {
       input.value = gc.core.time.fromDate(value).toInputValue();
     } else if (typeof value === 'number' || typeof value === 'bigint') {
@@ -577,8 +638,6 @@ export class GuiChartAxisInput extends HTMLElement {
       date += ':';
       date += `${value.second}`.padStart(2, '0');
       input.value = date;
-    } else {
-      input.value = value.toString().slice(0, -1);
     }
   }
 
@@ -596,7 +655,6 @@ export class GuiChartAxisInput extends HTMLElement {
     return +value;
   }
 }
-
 export class GuiChartOrdinateInput extends GuiChartAxisInput {
   override _value: Ordinate = {};
 
@@ -628,7 +686,19 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
   override connectedCallback() {
     this.replaceChildren(
       <gui-details>
-        <summary slot="summary">
+        <summary slot="summary" className="summary">
+          <sl-checkbox
+            className="selection-checkbox"
+            size="small"
+            onclick={function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              this.checked = !this.checked;
+              this.dispatchEvent(
+                new CustomEvent('gui-config-selected', { bubbles: true, composed: true }),
+              );
+            }}
+          />
           {this._summary}
           <sl-button
             variant="text"
@@ -692,6 +762,197 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
     super.update();
     const position = this._value.position ?? '';
     this._position.setAttribute('value', position);
+  }
+}
+
+export class GuiChartSeriesInput extends HTMLElement {
+  private _value: Serie[] = [];
+
+  private _series: HTMLDivElement;
+  private _yAxes: string[] = [];
+  private _delSelection: sl.SlButton;
+
+  constructor() {
+    super();
+
+    this._series = document.createElement('div');
+    this._series.classList.add('gui-list', 'smart');
+    this._series.addEventListener('gui-chart-config-delete', (ev) => {
+      ev.stopPropagation();
+      if (!(ev.target instanceof HTMLElement)) {
+        return;
+      }
+      const elIndex = getIndexInParent(ev.target);
+      modal
+        .confirm({
+          message: (
+            <>
+              Are you sure you want to delete serie <strong>{ev.detail.name}</strong>?
+            </>
+          ),
+        })
+        .then((yes) => {
+          if (yes) {
+            this._value.splice(elIndex, 1);
+            ev.detail.el.remove();
+            this._updateDelSelection();
+            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
+          }
+        });
+    });
+    this._series.addEventListener('gui-config-selected', () => {
+      let showDelSelection = false;
+      querySelectorAllWithShadow('.selection-checkbox', this._series).forEach((el) => {
+        if ((el as sl.SlCheckbox).checked) {
+          showDelSelection = true;
+        }
+      });
+      this._delSelection.style.display = showDelSelection ? 'inline-block' : 'none';
+    });
+    this._delSelection = (
+      <sl-button
+        variant="text"
+        size="small"
+        style={{ display: 'none' }}
+        onclick={(ev) => {
+          ev.stopPropagation();
+          let count = 0;
+          querySelectorAllWithShadow('.selection-checkbox', this._series).forEach((el) => {
+            if ((el as sl.SlCheckbox).checked) {
+              count += 1;
+            }
+          });
+          modal
+            .confirm({
+              message: <>Are you sure you want to delete {count} series?</>,
+            })
+            .then((yes) => {
+              if (yes) {
+                querySelectorAllWithShadow('.selection-checkbox', this._series).forEach((el) => {
+                  if ((el as sl.SlCheckbox).checked) {
+                    const serieIndex = getIndexInParent(
+                      el.parentElement!.parentElement!.parentElement!,
+                    );
+                    this._value.splice(serieIndex, 1);
+                    this._series.childNodes.item(serieIndex).remove();
+                  }
+                });
+                this._updateDelSelection();
+                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
+              }
+            });
+        }}
+      >
+        Del selection
+      </sl-button>
+    ) as sl.SlButton;
+  }
+
+  private _updateDelSelection(): void {
+    if (this._value.length === 0) {
+      this._delSelection.style.display = 'none';
+      return;
+    }
+
+    let count = 0;
+    querySelectorAllWithShadow('.selection-checkbox', this._series).forEach((el) => {
+      if ((el as sl.SlCheckbox).checked) {
+        count += 1;
+      }
+    });
+    if (count === 0) {
+      this._delSelection.style.display = 'none';
+    }
+  }
+
+  connectedCallback() {
+    this.replaceChildren(
+      <gui-details open>
+        <summary slot="summary">
+          <span>Series</span>
+          <div>
+            <sl-button
+              variant="text"
+              size="small"
+              onclick={async (ev) => {
+                ev.stopPropagation();
+                ev.preventDefault();
+                const serie = (<gui-chart-serie-input yAxes={this._yAxes} />) as GuiChartSerieInput;
+                this._series.appendChild(serie);
+                // update the local state
+                this._value = this.value;
+                this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
+              }}
+            >
+              Add
+            </sl-button>
+            {this._delSelection}
+          </div>
+        </summary>
+        {this._series}
+      </gui-details>,
+    );
+
+    this.update();
+  }
+
+  get value() {
+    const series: Serie[] = [];
+    this._series.childNodes.forEach((node) => {
+      series.push((node as GuiChartSerieInput).value);
+    });
+    return series;
+  }
+
+  set value(value: Serie[]) {
+    this._value = value;
+    this.update();
+  }
+
+  set yAxes(yAxes: string[]) {
+    this._yAxes = yAxes;
+    this.update();
+  }
+
+  update(): void {
+    if (!this.isConnected) {
+      return;
+    }
+
+    // We only want to update DOM elements to reflect the current state
+    if (this._series.children.length < this._value.length) {
+      // less DOM elements than required
+      for (let i = 0; i < this._series.children.length; i++) {
+        const serie = this._series.children.item(i) as GuiChartSerieInput;
+        serie.yAxes = this._yAxes;
+        serie.value = this._value[i];
+      }
+      // add new elements
+      for (let i = this._series.children.length; i < this._value.length; i++) {
+        const serie = this._value[i];
+        this._series.appendChild(<gui-chart-serie-input yAxes={this._yAxes} value={serie} />);
+      }
+    } else if (this._series.children.length > this._value.length) {
+      // more DOM elements than required
+      for (let i = 0; i < this._value.length; i++) {
+        const serie = this._series.children.item(i) as GuiChartSerieInput;
+        serie.yAxes = this._yAxes;
+        serie.value = this._value[i];
+      }
+      let nextSibling = this._series.children.item(this._value.length) as ChildNode | null;
+      while (nextSibling) {
+        const toRemove = nextSibling;
+        nextSibling = nextSibling.nextSibling;
+        toRemove.remove();
+      }
+    } else {
+      // exactly the same amount
+      this._series.childNodes.forEach((node, i) => {
+        const serie = node as GuiChartSerieInput;
+        serie.yAxes = this._yAxes;
+        serie.value = this._value[i];
+      });
+    }
   }
 }
 
@@ -787,21 +1048,10 @@ export class GuiChartSerieInput extends HTMLElement {
       </sl-select>
     ) as sl.SlSelect;
     this._xCol = (
-      <sl-input
-        size="small"
-        label="xCol"
-        type="number"
-        helpText="Optional offset of the 'x' column"
-      />
+      <sl-input size="small" label="xCol" helpText="Optional offset/field of the 'x' column" />
     ) as sl.SlInput;
     this._yCol = (
-      <sl-input
-        size="small"
-        label="yCol"
-        type="number"
-        helpText="Offset of the 'y' column"
-        required
-      />
+      <sl-input size="small" label="yCol" helpText="Offset/field of the 'y' column" required />
     ) as sl.SlInput;
     this._yCol2 = (
       <sl-input
@@ -854,7 +1104,19 @@ export class GuiChartSerieInput extends HTMLElement {
   connectedCallback() {
     this.replaceChildren(
       <gui-details>
-        <summary slot="summary">
+        <summary slot="summary" className="summary">
+          <sl-checkbox
+            className="selection-checkbox"
+            size="small"
+            onclick={function (ev) {
+              ev.preventDefault();
+              ev.stopPropagation();
+              this.checked = !this.checked;
+              this.dispatchEvent(
+                new CustomEvent('gui-config-selected', { bubbles: true, composed: true }),
+              );
+            }}
+          />
           {this._summary}
           <sl-button
             variant="text"
@@ -924,16 +1186,26 @@ export class GuiChartSerieInput extends HTMLElement {
   get value() {
     const value = this._value;
 
-    const xCol = this._xCol.valueAsNumber;
-    if (!isNaN(xCol)) {
-      value.xCol = xCol;
+    const xCol = this._xCol.value;
+    const xColN = parseInt(xCol);
+    if (isNaN(xColN)) {
+      if (xCol.length === 0) {
+        delete value.xCol;
+      } else {
+        value.xCol = xCol;
+      }
     } else {
-      delete value.xCol;
+      value.xCol = xColN;
     }
 
-    const yCol = this._yCol.valueAsNumber;
-    if (!isNaN(yCol)) {
-      value.yCol = yCol;
+    const yCol = this._yCol.value;
+    const yColN = parseInt(yCol);
+    if (isNaN(yColN)) {
+      if (yCol.length !== 0) {
+        value.yCol = yCol;
+      }
+    } else {
+      value.yCol = yColN;
     }
 
     const title = this._title.value;
@@ -1100,128 +1372,6 @@ export class GuiChartSerieInput extends HTMLElement {
 
     this._hide.checked = !!this._value.hide;
     this._hideInTooltip.checked = !!this._value.hideInTooltip;
-  }
-}
-
-export class GuiChartSeriesInput extends HTMLElement {
-  private _value: Serie[] = [];
-
-  private _series: HTMLDivElement;
-  private _yAxes: string[] = [];
-
-  constructor() {
-    super();
-
-    this._series = document.createElement('div');
-    this._series.classList.add('gui-list', 'smart');
-    this._series.addEventListener('gui-chart-config-delete', (ev) => {
-      ev.stopPropagation();
-      if (!(ev.target instanceof HTMLElement)) {
-        return;
-      }
-      const elIndex = getIndexInParent(ev.target);
-      modal
-        .confirm({
-          message: (
-            <>
-              Are you sure you want to delete serie <strong>{ev.detail.name}</strong>?
-            </>
-          ),
-        })
-        .then((yes) => {
-          if (yes) {
-            this._value.splice(elIndex, 1);
-            ev.detail.el.remove();
-            this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
-          }
-        });
-    });
-  }
-
-  connectedCallback() {
-    this.replaceChildren(
-      <gui-details open>
-        <summary slot="summary">
-          <span>Series</span>
-          <sl-button
-            variant="text"
-            size="small"
-            onclick={async (ev) => {
-              ev.stopPropagation();
-              ev.preventDefault();
-              const serie = (<gui-chart-serie-input yAxes={this._yAxes} />) as GuiChartSerieInput;
-              this._series.appendChild(serie);
-              // update the local state
-              this._value = this.value;
-              this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
-            }}
-          >
-            Add
-          </sl-button>
-        </summary>
-        {this._series}
-      </gui-details>,
-    );
-
-    this.update();
-  }
-
-  get value() {
-    const series: Serie[] = [];
-    this._series.childNodes.forEach((node) => {
-      series.push((node as GuiChartSerieInput).value);
-    });
-    return series;
-  }
-
-  set value(value: Serie[]) {
-    this._value = value;
-    this.update();
-  }
-
-  set yAxes(yAxes: string[]) {
-    this._yAxes = yAxes;
-    this.update();
-  }
-
-  update(): void {
-    if (!this.isConnected) {
-      return;
-    }
-
-    // We only want to update DOM elements to reflect the current state
-    if (this._series.children.length < this._value.length) {
-      // less DOM elements than required
-      for (let i = 0; i < this._series.children.length; i++) {
-        const serie = this._series.children.item(i) as GuiChartSerieInput;
-        serie.yAxes = this._yAxes;
-        serie.value = this._value[i];
-      }
-      for (let i = this._series.children.length; i < this._value.length; i++) {
-        const serie = this._value[i];
-        this._series.appendChild(<gui-chart-serie-input yAxes={this._yAxes} value={serie} />);
-      }
-    } else if (this._series.children.length > this._value.length) {
-      // more DOM elements than required
-      for (let i = 0; i < this._value.length; i++) {
-        const serie = this._series.children.item(i) as GuiChartSerieInput;
-        serie.yAxes = this._yAxes;
-        serie.value = this._value[i];
-      }
-      let nextSibling = this._series.children.item(this._value.length) as ChildNode | null;
-      while (nextSibling) {
-        const toRemove = nextSibling;
-        nextSibling = nextSibling.nextSibling;
-        toRemove.remove();
-      }
-    } else {
-      // exactly the same amount
-      this._series.childNodes.forEach((node, i) => {
-        const serie = node as GuiChartSerieInput;
-        serie.yAxes = this._yAxes;
-        serie.value = this._value[i];
-      });
-    }
   }
 }
 

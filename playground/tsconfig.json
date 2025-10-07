@@ -18,6 +18,6 @@
       "@greycat/web": ["../src/web"]
     }
   },
-  "include": ["./**/*.ts", "./**/*.tsx", "../src/web", "../src/jsx"],
+  "include": ["project.d.ts", "./**/*.ts", "./**/*.tsx", "../src/web", "../src/jsx"],
   "exclude": ["./gcdata", "./files", "./public", "vite.config.ts"]
 }

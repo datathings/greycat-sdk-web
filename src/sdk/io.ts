@@ -1293,7 +1293,8 @@ namespace gc {
         }
 
         const slot_type = slot_type_and === slot_type_or ? slot_type_and : PrimitiveType.undefined;
-        const object_type_id = object_type_and === object_type_or ? BigInt(object_type_and) : 4294967295n;
+        const object_type_id =
+          object_type_and === object_type_or ? BigInt(object_type_and) : 4294967295n;
         this.write_u8(slot_type);
         if (slot_type == PrimitiveType.object || slot_type == PrimitiveType.enum) {
           this.write_vu64(object_type_id);

@@ -324,6 +324,7 @@
   --gui-fieldset-legend-background-color: var(--bg-0);
 
   --gui-table-min-height: 400px;
+  --border-color: var(--sl-color-neutral-200);
 
   background-color: var(--background-color);
   color: var(--color);

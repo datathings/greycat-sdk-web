@@ -32,7 +32,7 @@ namespace gc {
            */
           public headers: string[] | undefined;
           public subheaders: string[] | undefined;
-          private _initial_value: unknown[] | undefined;
+          private _initial_value: T[] | undefined;
 
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           constructor(public cols: any[][] = []) {
@@ -258,6 +258,10 @@ namespace gc {
             //   table._initial_value = rows;
             // }
             return table;
+          }
+
+          get initialValue(): T[] | undefined {
+            return this._initial_value as T[] | undefined;
           }
 
           override saveContent(w: AbiWriter): void {

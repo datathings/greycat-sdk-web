@@ -1,13 +1,23 @@
-import { sl, SlSelectEventMap } from '../../exports.js';
+import { GuiChangeEvent, GuiElement, sl, SlSelectEventMap } from '../../exports.js';
 
 /**
  * Provides a selector for the currently defined ABI functions.
  */
 export class GuiFnSelect extends sl.SlSelect {
+  static override styles = [sl.SlSelect.styles as CSSStyleSheet, GuiElement.BASE_STYLE];
+
   constructor() {
     super();
 
     this.placeholder = 'Select a function';
+    this.addEventListener('sl-change', (ev) => {
+      ev.stopPropagation();
+      this.dispatchEvent(new GuiChangeEvent(gc.$.default.findFn(this.value as string)));
+    });
+  }
+
+  get fqn() {
+    return this.value as string | undefined;
   }
 
   override connectedCallback(): void {
@@ -25,10 +35,14 @@ export class GuiFnSelect extends sl.SlSelect {
       group.push(fn);
     }
 
-    const headerClasses = ['gui-px-1', 'text-muted'];
+    const headerStyle: Partial<CSSStyleDeclaration> = {
+      color: 'var(--text-muted)',
+      fontSize: '14px',
+      padding: 'var(--spacing)',
+    };
     const options = document.createDocumentFragment();
     groups.forEach((functions, name) => {
-      options.appendChild(<h6 className={headerClasses}>{name}</h6>);
+      options.appendChild(<div style={headerStyle}>{name}</div>);
       for (let i = 0; i < functions.length; i++) {
         const fn = functions[i];
         if (fn.type) {
@@ -52,10 +66,14 @@ declare global {
     'gui-fn-select': GuiFnSelect;
   }
 
+  interface GuiFnSelectEventMap extends Omit<SlSelectEventMap, 'sl-change'> {
+    [GuiChangeEvent.NAME]: GuiChangeEvent<gc.sdk.AbiFunction>;
+  }
+
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'gui-fn-select': GreyCat.Element<GuiFnSelect, SlSelectEventMap>;
+        'gui-fn-select': GreyCat.Element<GuiFnSelect, GuiFnSelectEventMap>;
       }
     }
   }

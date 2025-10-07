@@ -19,19 +19,27 @@ document.body.appendChild(
       globalFilter
       value={table}
       rowHeight={40}
-      columnFactory={{
-        3: (_, rowIdx) => {
-          return (
-            <sl-icon-button
-              name="eye"
-              label="Details"
-              onclick={() => {
-                window.alert(`Show details: ${table[rowIdx].Ident}`);
-              }}
-            />
-          );
+      useDefaultColumns
+      columns={[
+        { index: 0, filterable: false },
+        { index: 1, filterable: false },
+        { index: 2, filterable: false },
+        {
+          index: 3,
+          filterable: false,
+          cell: (_, rowIdx) => {
+            return (
+              <sl-icon-button
+                name="eye"
+                label="Details"
+                onclick={() => {
+                  window.alert(`Show details: ${table[rowIdx].Ident}`);
+                }}
+              />
+            );
+          },
         },
-      }}
+      ]}
     />
   </app-layout>,
 );

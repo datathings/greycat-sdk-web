@@ -36,6 +36,7 @@ type Result<T, E> = Ok<T> | Err<E>;
  */
 export class GuiNav extends GuiElement {
   static override styles = [css(style)];
+
   private _root: string | undefined;
   private _value: NavTree | undefined;
 

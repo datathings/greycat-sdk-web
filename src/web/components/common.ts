@@ -45,7 +45,8 @@ export function attr() {
 }
 
 export abstract class GuiElement extends HTMLElement {
-  static readonly styles = [css(componentStyle)];
+  static readonly BASE_STYLE = css(componentStyle);
+  static readonly styles = [GuiElement.BASE_STYLE];
 
   /** Returns this element's shadow root */
   override shadowRoot!: ShadowRoot;
@@ -55,7 +56,7 @@ export abstract class GuiElement extends HTMLElement {
 
     this.attachShadow({ mode: 'open' });
     this.shadowRoot.adoptedStyleSheets = [
-      css(componentStyle),
+      GuiElement.BASE_STYLE,
       ...(this.constructor as typeof GuiElement).styles,
     ];
   }

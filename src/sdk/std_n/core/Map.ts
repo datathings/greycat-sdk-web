@@ -59,9 +59,11 @@ namespace gc {
 
           static override load<K extends Value = unknown, V extends Value = unknown>(
             r: AbiReader,
+            ty: AbiType,
           ): globalThis.Map<K, V> {
             const len = r.read_vu32();
             const map = new globalThis.Map<K, V>();
+            map.$type = ty;
 
             for (let i = 0; i < len; i++) {
               const key = r.deserialize() as K;

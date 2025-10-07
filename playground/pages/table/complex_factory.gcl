@@ -1,0 +1,79 @@
+@volatile
+abstract type GridElementView<T> {
+    node: node<T>;
+    coordinates: geo?;
+    shortDescr: String?; // used for the details header
+    deletionDate: time?;
+}
+
+@volatile
+type CableView extends GridElementView<Cable> {
+    cableId: String?;
+    voltageLevel: VoltageLevel?;
+    voltageValue_kV: float?;
+    meta: String;
+    length_m: float;
+    regionalCenter: String?;
+    isSimulated: bool;
+}
+
+/* 
+  CableView
+    super_type: 222 (GridElementView<Cable>)
+    stype: node<any, T>
+*/
+
+type Cable {
+    voltageLevel: VoltageLevel?;
+}
+
+enum VoltageLevel {
+    low(0);
+    medium(1);
+    high(2);
+    extra_high(3);
+    ultra_high(4);
+}
+
+@expose
+fn cable_views(): Array<CableView> {
+    return Array<CableView> {
+        CableView {
+            cableId: "foo",
+            coordinates: geo { 1.5, 2.0 },
+            deletionDate: time::now(),
+            isSimulated: false,
+            length_m: 4.2,
+            meta: "Meta data foo",
+            node: node<Cable> { Cable { voltageLevel: VoltageLevel::high } },
+            regionalCenter: "Foo Center",
+            shortDescr: "This is the short description",
+            voltageLevel: VoltageLevel::high,
+            voltageValue_kV: 42.0,
+        },
+        CableView {
+            cableId: "bar",
+            coordinates: geo { 1.2, 1.2354 },
+            deletionDate: time::now() + 2s,
+            isSimulated: false,
+            length_m: 7.3,
+            meta: "Meta data bar",
+            node: node<Cable> { Cable { voltageLevel: VoltageLevel::medium } },
+            regionalCenter: "Bar Center",
+            voltageLevel: VoltageLevel::medium,
+            voltageValue_kV: 35.0,
+        },
+        CableView {
+            cableId: "baz",
+            coordinates: geo { 1.5, -1.5 },
+            deletionDate: time::now() - 5s,
+            isSimulated: true,
+            length_m: 2.8,
+            meta: "Meta data",
+            node: node<Cable> { Cable { voltageLevel: VoltageLevel::low } },
+            regionalCenter: "Baz Center",
+            voltageLevel: VoltageLevel::low,
+            voltageValue_kV: 15.0,
+        },
+    };
+}

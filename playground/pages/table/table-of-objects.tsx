@@ -5,7 +5,8 @@ await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-const table = await gc.project.objects_table();
+// const table = await gc.project.objects_table();
+const persons = await gc.project.persons() as gc.project.Person2[];
 
 document.body.appendChild(
   <app-layout
@@ -14,12 +15,13 @@ document.body.appendChild(
   >
     {actions}
     <gui-table
-      value={table}
-      columnFactory={{
-        0: 'gui-input-string',
-        1: 'gui-input-number',
-        2: 'gui-input-bool',
-      }}
+      value={persons}
+      useDefaultColumns
+      columns={[
+        { index: gc.project.Person2.$fields.id, width: 65 },
+        { index: gc.project.Person2.$fields.age, cell: 'gui-input-number' },
+        { index: gc.project.Person2.$fields.name, cell: 'gui-input-string' },
+      ]}
     />
   </app-layout>,
 );

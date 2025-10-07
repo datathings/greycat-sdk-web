@@ -1,11 +1,20 @@
 :host {
-  --icon-sort-default: unset;
-  --icon-sort-asc: ↓;
-  --icon-sort-desc: ↑;
+  --table-icon-sort-default: unset;
+  --table-icon-sort-asc: ↓;
+  --table-icon-sort-desc: ↑;
+
+  --table-icon-search: var(--icon-search);
 
   --table-spacing: var(--spacing);
   --table-bg-color: var(--bg-1);
+
   --table-cell-bg-color: var(--base-1);
+  --table-cell-bg-color-hover: rgba(var(--table-cell-bg-color), 0.8);
+  --table-cell-bg-color-even: rgba(var(--table-cell-bg-color), 0.3);
+  --table-cell-bg-color-even-hover: rgba(var(--table-cell-bg-color), 0.3);
+  --table-cell-cursor: auto;
+  --table-cell-align-items: center;
+  --table-cell-justify-content: flex-start;
 
   --table-border-color: var(--border-color);
 
@@ -75,9 +84,6 @@ gui-thead {
   color: var(--table-subheader-color);
 }
 gui-thead-cell {
-  --resizer-width: var(--table-resizer-width);
-  --resizer-bg-color: var(--table-resizer-bg-color);
-  --resizer-bg-color-hover: var(--table-resizer-bg-color-hover);
   position: relative;
   flex-shrink: 0;
   background-color: rgb(var(--table-head-bg-color));
@@ -90,13 +96,15 @@ gui-thead-cell {
   display: flex;
   align-items: center;
   gap: var(--table-spacing);
-  cursor: pointer;
   user-select: none;
   padding-left: var(--table-spacing);
   padding-right: var(--table-spacing);
   height: var(--table-head-height);
 }
-gui-thead-cell:hover {
+.sortable {
+  cursor: pointer;
+}
+.sortable gui-thead-cell:hover {
   background-color: var(--table-head-bg-color-hover);
 }
 gui-thead-cell.active .gui-thead-sorter,
@@ -137,13 +145,13 @@ gui-thead-cell.active .gui-thead-title {
   bottom: 0;
   right: 0;
   display: block;
-  width: var(--resizer-width);
-  background-color: var(--resizer-bg-color);
+  width: var(--table-resizer-width);
+  background-color: var(--table-resizer-bg-color);
   height: 100%;
   cursor: ew-resize;
 }
 .gui-thead-resizer:hover {
-  background-color: var(--resizer-bg-color-hover);
+  background-color: var(--table-resizer-bg-color-hover);
 }
 
 gui-thead-cell:last-child .gui-thead-resizer {
@@ -156,7 +164,7 @@ gui-thead-cell:last-child .gui-thead-resizer {
   background-position: 1px 50%;
   background-repeat: no-repeat;
   background-size: 18px;
-  background-image: var(--icon-search);
+  background-image: var(--table-icon-search);
 }
 .gui-thead-filter:hover {
   background-color: var(--table-head-filter-bg-color-hover);
@@ -166,7 +174,9 @@ gui-thead-cell:last-child .gui-thead-resizer {
 }
 .gui-thead-dropdown {
   display: none;
-  z-index: 10;
+  width: calc(100% - var(--table-resizer-width));
+}
+gui-thead-cell:last-child .gui-thead-dropdown {
   width: 100%;
 }
 .gui-thead-dropdown.open {
@@ -194,49 +204,47 @@ gui-tbody-row {
   width: 100%;
   display: flex;
 }
+gui-tbody-row gui-tbody-cell {
+  background-color: var(--table-cell-bg-color);
+}
 gui-tbody-row:hover gui-tbody-cell {
-  background-color: rgba(var(--table-cell-bg-color), 0.8);
+  background-color: var(--table-cell-bg-color-hover);
 }
 gui-tbody-row.gui-tbody-row-even:not(:hover) gui-tbody-cell {
-  background-color: rgba(var(--table-cell-bg-color), 0.3);
+  background-color: var(--table-cell-bg-color-even);
 }
 gui-tbody-cell {
   display: inline-flex;
-  align-items: center;
+  align-items: var(--table-cell-align-items);
+  justify-content: var(--table-cell-justify-content);
   height: 100%;
-  width: 100%;
   flex-shrink: 0;
   border-bottom: 1px solid var(--table-border-color);
 }
 
 gui-tbody-cell > :first-child {
-  padding: 1px 2px;
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
-  height: fit-content;
-  width: 100%;
-}
-
-gui-tbody-cell:has(> gui-value) {
-  overflow: hidden;
-  align-content: center;
-}
-
-gui-tbody-cell > gui-value {
   height: min-content;
+  max-width: 100%;
+  width: calc(100% - var(--table-resizer-width));
+}
+
+gui-tbody-cell > :first-child:hover {
+  cursor: var(--table-cell-cursor);
 }
 
 /* Special-case for gui-object within gui-table cells */
-gui-tbody-cell > gui-object {
+gui-tbody-cell:has(> gui-object) {
   align-self: flex-start;
 }
 
-gui-tbody-cell > gui-object.gui-object-grid:first-child {
+gui-tbody-cell:has(> gui-object.gui-object-grid:first-child) {
   padding: var(--table-spacing);
 }
 
 /* Special-case for gui-object-card within gui-table cells */
-gui-tbody-cell > gui-object > .gui-object-card::part(base) {
+gui-tbody-cell:has(> gui-object > .gui-object-card::part(base)) {
   background-color: transparent;
 }

@@ -14,11 +14,15 @@ export class GuiFiles extends GuiElement {
 
     this._current_dir = '/';
 
-    this._table = (
-      <gui-table
-        sortBy={[0]}
-        columnFactory={{
-          0: (value: string | undefined) => {
+    this._table = document.createElement('gui-table');
+    this._table.setAttrs({
+      globalFilter: true,
+      sortBy: [0, 'asc'],
+      columns: [
+        {
+          index: 0,
+          header: 'Filepath',
+          cell: (value: string | undefined) => {
             if (value === undefined) {
               return document.createTextNode('');
             }
@@ -34,39 +38,46 @@ export class GuiFiles extends GuiElement {
               </>
             );
           },
-          1: (value: number | bigint | null) => {
+        },
+        {
+          index: 1,
+          header: 'Size',
+          cell: (value: number | bigint | null) => {
             if (typeof value === 'number' || typeof value === 'bigint') {
               return document.createTextNode(gc.sdk.humanSize(Number(value)));
             }
             return document.createTextNode('');
           },
-          2: (value: gc.core.time | null) => {
+        },
+        {
+          index: 2,
+          header: 'Last Modification',
+          cell: (value: gc.core.time | null) => {
             if (value instanceof gc.core.time) {
               return <gui-value value={value} />;
             }
             return document.createTextNode('');
           },
-        }}
-        ongui-table-click={async (ev) => {
-          ev.stopPropagation();
-          const path = this._table.table.cols[0][ev.detail.rowIdx] as string;
-          this.dispatchEvent(
-            new GuiClickEvent(
-              new gc.io.File(
-                path,
-                this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
-                this._table.table.cols[2][ev.detail.rowIdx] as gc.core.time | null,
-              ),
-            ),
-          );
-          if (path !== '..' && !path.endsWith('/')) {
-            return;
-          }
-          this.change_dir(path);
-        }}
-        globalFilter
-      />
-    ) as GuiTable;
+        },
+      ],
+    });
+    this._table.addEventListener('gui-table-click', async (ev) => {
+      ev.stopPropagation();
+      const path = this._table.table.cols[0][ev.detail.rowIdx] as string;
+      this.dispatchEvent(
+        new GuiClickEvent(
+          new gc.io.File(
+            path,
+            this._table.table.cols[1][ev.detail.rowIdx] as number | bigint | null,
+            this._table.table.cols[2][ev.detail.rowIdx] as gc.core.time | null,
+          ),
+        ),
+      );
+      if (path !== '..' && !path.endsWith('/')) {
+        return;
+      }
+      this.change_dir(path);
+    });
 
     this.shadowRoot.appendChild(this._table);
   }
@@ -123,18 +134,10 @@ export class GuiFiles extends GuiElement {
     }
 
     const files = (await new gc.io.File(this._current_dir).list()) ?? [];
-    const rows: Array<[string, number | bigint | null, gc.core.time | null]> = files.map((file) => [
-      file.path,
-      file.size,
-      file.last_modification,
-    ]);
     if (this._current_dir !== '/') {
-      rows.unshift(['..', null, null]);
+      files.unshift(new gc.io.File('..', null, null));
     }
-    // update table
-    const table = gc.core.Table.fromRows(rows);
-    table.headers = ['Filepath', 'Size', 'Last Modification'];
-    this._table.value = table;
+    this._table.value = files;
   }
 
   private _filename(filepath: string): string {

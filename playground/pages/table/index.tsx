@@ -15,29 +15,41 @@ document.body.appendChild(
       value={table}
       globalFilter
       drawerEnabled
-      columnFactory={{
-        1: (value: number | bigint | null, rowIdx: number, el) => {
-          const klass = table.cols[2][rowIdx] as 'low' | 'normal' | 'high';
-          switch (klass) {
-            case 'low':
-              el.style.color = 'cyan';
-              break;
-            case 'normal':
-              el.style.color = 'lightgreen';
-              break;
-            case 'high':
-              el.style.color = 'orange';
-              break;
-            default:
-              el.style.color = 'unset';
-              break;
-          }
-          if (value === null) {
-            return <code>null</code>;
-          }
-          return document.createTextNode(getGlobalNumberFormat().format(value));
+      useDefaultColumns
+      columns={[
+        {
+          index: 0,
+          header: 'Time',
         },
-      }}
+        {
+          index: 1,
+          cell: (value: number | bigint | null, rowIdx: number, el) => {
+            const klass = table.cols[2][rowIdx] as 'low' | 'normal' | 'high';
+            switch (klass) {
+              case 'low':
+                el.style.color = 'cyan';
+                break;
+              case 'normal':
+                el.style.color = 'lightgreen';
+                break;
+              case 'high':
+                el.style.color = 'orange';
+                break;
+              default:
+                el.style.color = 'unset';
+                break;
+            }
+            if (value === null) {
+              return <code>null</code>;
+            }
+            return document.createTextNode(getGlobalNumberFormat().format(value));
+          },
+        },
+        {
+          index: 2,
+          header: 'Class',
+        },
+      ]}
       ongui-table-dblclick={(ev) => {
         const { rowIdx, colIdx } = ev.detail;
         window.alert(`Col ${colIdx}, Row ${rowIdx}, Value "${table.cols[colIdx][rowIdx]}"`);

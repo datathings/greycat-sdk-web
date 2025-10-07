@@ -1,17 +1,27 @@
 import '@greycat/web';
 import '~/common';
-import { books } from '~/common/data';
 
 await gc.sdk.init();
 
 const { actions } = await import('./actions');
 
-const table = gc.core.Table.create([books]);
-table.headers = ['Book'];
+const data = await gc.project.data_array();
 
 document.body.appendChild(
   <app-layout title="Table (columnFactories)">
     {actions}
-    <gui-table value={table} columnFactory={{ 0: 'gui-object' }} />
+    <gui-table
+      value={data}
+      columns={[
+        {
+          index: gc.project.MyData.$fields.value,
+          header: 'Level(value)',
+          value: (_value, _cell, _table, row) => {
+            const entry = data[row];
+            return `${entry.level.key}(${entry.value})`;
+          },
+        },
+      ]}
+    />
   </app-layout>,
 );

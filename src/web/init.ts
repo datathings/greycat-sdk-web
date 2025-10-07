@@ -5,7 +5,6 @@ import {
   GuiTableBody,
   GuiTableBodyCell,
   GuiTableBodyRow,
-  GuiTableConfig,
   GuiTableHead,
   GuiTableHeadCell,
   GuiTableMapping,
@@ -174,7 +173,6 @@ function initWeb(options: WebOptions) {
   registerCustomElement('gui-value', GuiValue);
   registerCustomElement('gui-table-mapping', GuiTableMapping);
   registerCustomElement('gui-table-mappings', GuiTableMappings);
-  registerCustomElement('gui-table-config', GuiTableConfig);
   registerCustomElement('gui-card', GuiCard);
   registerCustomElement('gui-object-fieldname', GuiObjectFieldName);
   registerCustomElement('gui-object-fieldvalue', GuiObjectFieldValue);
@@ -260,7 +258,6 @@ declare global {
       GuiTableBody,
       GuiTableBodyCell,
       GuiTableBodyRow,
-      GuiTableConfig,
       GuiTableHead,
       GuiTableHeadCell,
       GuiTableMapping,

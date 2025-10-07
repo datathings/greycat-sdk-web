@@ -55,6 +55,10 @@
       {
         "label": "Non-overlapping",
         "route": "non-overlapping/"
+      },
+      {
+        "label": "Config",
+        "route": "config/"
       }
     ]
   },
@@ -266,6 +270,10 @@
       {
         "label": "Config",
         "route": "config.html"
+      },
+      {
+        "label": "Complex Factory",
+        "route": "complex-factory.html"
       }
     ]
   },
@@ -284,5 +292,9 @@
   {
     "label": "Users",
     "route": "pages/users/"
+  },
+  {
+    "label": "List",
+    "route": "pages/list/"
   }
 ]

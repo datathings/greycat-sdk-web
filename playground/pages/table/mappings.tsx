@@ -5,11 +5,12 @@ await gc.sdk.init();
 const { actions } = await import('./actions');
 
 const tableEl = document.createElement('gui-table');
+tableEl.drawerEnabled = true;
 
 async function fetchTable() {
   const table = (await gc.project.serie_of_obj()) as gc.Table;
   table.headers = ['Time', 'KLine'];
-  return tableEl.applyMappings(table);
+  tableEl.value = table;
 }
 
 function resetMappings() {

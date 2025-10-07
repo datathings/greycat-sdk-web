@@ -387,66 +387,32 @@ namespace gc {
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const fn of this.abi.functions) {
-          const theFn = (...raw_args: unknown[]) => {
-            const args = new Array(fn.params.length);
+          const theFn = (...args: unknown[]) => {
+            const args_ = new Array(fn.params.length);
             for (let i = 0; i < fn.params.length; i++) {
-              args[i] = raw_args[i];
+              args_[i] = args[i];
             }
-            const g = (raw_args[fn.params.length] as GreyCat | undefined) ?? this;
-            const signal = raw_args[fn.params.length + 1] as AbortSignal | undefined;
-            return g.call(fn.fqn, args, signal);
+            const g = (args[fn.params.length] as GreyCat | undefined) ?? this;
+            const signal = args[fn.params.length + 1] as AbortSignal | undefined;
+            return g.call(fn.fqn, args_, signal);
           };
-          Object.defineProperties(theFn, {
-            name: {
-              value: fn.fqn,
-              writable: false,
-              enumerable: false,
-            },
-            // spawn: {
-            //   value: (...raw_args: unknown[]) => {
-            //     const args = new Array(fn.params.length);
-            //     for (let i = 0; i < fn.params.length; i++) {
-            //       args[i] = raw_args[i];
-            //     }
-            //     const signal = raw_args[fn.params.length] as AbortSignal | undefined;
-            //     return this.spawn(fn.fqn, args, signal);
-            //   },
-            // },
-            // spawnAwait: {
-            //   value: (...raw_args: unknown[]) => {
-            //     const args = new Array(fn.params.length);
-            //     for (let i = 0; i < fn.params.length; i++) {
-            //       args[i] = raw_args[i];
-            //     }
-            //     const pollEvery = raw_args[fn.params.length] as number | undefined;
-            //     const signal = raw_args[fn.params.length + 1] as AbortSignal | undefined;
-            //     return this.spawnAwait(fn.fqn, args, pollEvery, signal);
-            //   },
-            // },
+          Object.defineProperty(theFn, 'name', {
+            value: fn.fqn,
+            writable: false,
+            enumerable: false,
           });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (!(gc as any)[fn.module]) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (gc as any)[fn.module] = {};
-          }
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          if (!(gc as any)[fn.module]) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (gc as any)[fn.module] = {};
+          const g = gc as any;
+          if (!g[fn.module]) {
+            g[fn.module] = {};
           }
           if (fn.type) {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            if (!(gc as any)[fn.module][fn.type]) {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              (gc as any)[fn.module][fn.type] = {};
+            if (!g[fn.module][fn.type]) {
+              g[fn.module][fn.type] = {};
             }
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (gc as any)[fn.module][fn.type][fn.name] = theFn;
+            g[fn.module][fn.type][fn.name] = theFn;
           } else {
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (gc as any)[fn.module][fn.name] = theFn;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (gc as any)[fn.name] = theFn;
+            g[fn.module][fn.name] = theFn;
           }
         }
 
@@ -583,24 +549,32 @@ namespace gc {
 
       /**
        * This method is used internally by: `call(...)`, `spawn(...)` and `spawnAwait(...)`.
+       *
+       * @param uri the uri of the method to call (eg. `runtime::User::me`)
+       * @param args the arguments of the method to call
+       * @param signal an `AbortSignal` to cancel the request on demand
+       * @param task whether or not to call the method as a task (defaults to `false`)
+       * @param httpMethod the http method to use (defaults to `POST`)
        */
       async rawCall<T = unknown>(
-        method: string,
+        uri: string,
         args?: Value[] | ArrayBuffer,
         signal?: AbortSignal,
         task = false,
-        httpMethod = 'POST',
+        httpMethod: 'POST' | 'GET' = 'POST',
       ): Promise<T> {
-        const url = `${this.api}/${method}`;
+        const url = `${this.api}/${uri}`;
         let body: ArrayBuffer;
         if (args instanceof ArrayBuffer) {
           body = args;
-        } else {
-          const fn = this.abi.fn_by_fqn.get(method);
+        } else if (httpMethod === 'POST') {
+          const fn = this.abi.fn_by_fqn.get(uri);
           if (!fn) {
-            throw new Error(`function '${method}' is not registered in the abi`);
+            throw new Error(`function '${uri}' is not registered in the abi`);
           }
           body = fn.serialize(args, this.capacity);
+        } else {
+          body = this.serialize(args);
         }
         const headers: HeadersInit = {
           accept: 'application/octet-stream',
@@ -612,7 +586,7 @@ namespace gc {
         if (task) {
           headers['task'] = '';
         }
-        const key: CacheKey = [method, body];
+        const key: CacheKey = [uri, body];
         const cachedRes = await this.cache.read(key);
         if (cachedRes) {
           headers['If-None-Match'] = cachedRes.etag;
@@ -633,35 +607,35 @@ namespace gc {
           if (etag) {
             await this.cache.write(key, { etag, data });
           }
-          debugLogger(res.status, method, args, value);
+          debugLogger(res.status, uri, args, value);
           return value as T;
         } else if (res.status === 304) {
           if (cachedRes === null) {
             // try again
-            return this.rawCall(method, args, signal);
+            return this.rawCall(uri, args, signal);
           }
           const value = this.deserializeWithHeader(cachedRes.data);
-          debugLogger(res.status, method, args, value);
+          debugLogger(res.status, uri, args, value);
           return value as T;
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, method, args);
+          debugLogger(res.status, uri, args);
           // reset token
           this.token = undefined;
           // call handler if any
           this.unauthorizedHandler?.();
-          throw new Error(`you need to be logged-in to access '${method}'`);
+          throw new Error(`you need to be logged-in to access '${uri}'`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, method, args);
-          throw new Error(`access to '${method}' is forbidden`);
+          debugLogger(res.status, uri, args);
+          throw new Error(`access to '${uri}' is forbidden`);
         } else if (res.status === 404) {
           // not found
-          debugLogger(res.status, method, args, null);
-          throw new Error(`unknown method '${method}'`);
+          debugLogger(res.status, uri, args, null);
+          throw new Error(`unknown method '${uri}'`);
         } else if (res.status === 422) {
           // unprocessable content (abi mismatch)
-          debugLogger(res.status, method, args);
+          debugLogger(res.status, uri, args);
           // call handler if any
           this.abiMismatchHandler?.();
           throw new Error('ABI mismatch error');
@@ -669,11 +643,11 @@ namespace gc {
         const data = await res.arrayBuffer();
         const value = this.deserializeWithHeader(data);
         const err = value as core.Error | null;
-        debugLogger(res.status, method, args, value);
+        debugLogger(res.status, uri, args, value);
         if (err === null) {
-          throw new Error(`calling '${method}' failed`);
+          throw new Error(`calling '${uri}' failed`);
         }
-        throw new Error(`[greycat] ${err}\nCaused by: calling '${method}'`);
+        throw new Error(`[greycat] ${err}\nCaused by: calling '${uri}'`);
       }
 
       /**
@@ -749,7 +723,7 @@ namespace gc {
       }
 
       /**
-       * Downloads a file from gc.sdk.
+       * Downloads a file from GreyCat
        *
        * Deserializes the content of the file based on the extension:
        *
@@ -983,6 +957,34 @@ namespace gc {
         return this.abi.fn_by_fqn.get(fqn);
       }
 
+      /**
+       * Just like `findField` but will throw if unable to find the field
+       * @param fqn
+       * @returns
+       */
+      field(fqn: gc.$Fields): AbiAttribute {
+        let field = this._fields_map.get(fqn);
+        if (field) {
+          return field;
+        }
+        const last_dcolon = fqn.lastIndexOf('::');
+        if (last_dcolon === -1) {
+          throw new Error(`malformed fqn (expecting: "module::type::field_name")`);
+        }
+        const type_fqn = fqn.slice(0, last_dcolon);
+        const type = this.findType(type_fqn);
+        if (!type) {
+          throw new Error(`unknown type '${type_fqn}'`);
+        }
+        const field_name = fqn.slice(last_dcolon + 2);
+        field = type.attrs.find((a) => a.name === field_name);
+        if (field) {
+          this._fields_map.set(fqn, field);
+          return field;
+        }
+        throw new Error(`unknown type field '${fqn}'`);
+      }
+
       findField(fqn: gc.$Fields): AbiAttribute | undefined {
         let field = this._fields_map.get(fqn);
         if (field) {
@@ -990,19 +992,37 @@ namespace gc {
         }
         const last_dcolon = fqn.lastIndexOf('::');
         if (last_dcolon === -1) {
-          return undefined;
+          return;
         }
         const type_fqn = fqn.slice(0, last_dcolon);
         const type = this.findType(type_fqn);
         if (!type) {
-          return undefined;
+          return;
         }
         const field_name = fqn.slice(last_dcolon + 2);
         field = type.attrs.find((a) => a.name === field_name);
         if (field) {
           this._fields_map.set(fqn, field);
+          return field;
         }
-        return field;
+        return;
+      }
+
+      /**
+       * Just like `findFieldOffset` but will throw if unable to find the field
+       * @param fqn
+       * @returns
+       */
+      fieldOffset(fqn: gc.$Fields): number {
+        return this.field(fqn).mapped_att_offset;
+      }
+
+      findFieldOffset(fqn: gc.$Fields): number | undefined {
+        const attr = this.findField(fqn);
+        if (attr) {
+          return attr.mapped_att_offset;
+        }
+        return;
       }
 
       rootType(): AbiType {

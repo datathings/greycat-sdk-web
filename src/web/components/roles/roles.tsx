@@ -1,14 +1,10 @@
-import { type GuiDialog, GuiElement, css, toast } from '../../exports.js';
-import '../table/table.js'; // makes sure gui-table is available
-import type { GuiTable } from '../table/table.js';
-import './role-permissions.js';
+import { GuiElement, css, toast, type GuiTable } from '../../exports.js';
 import style from './roles.css?inline';
 
 export class GuiRoles extends GuiElement {
   static override styles = [css(style)];
 
   private _table: GuiTable;
-  private _dialog: GuiDialog;
 
   constructor() {
     super();
@@ -16,16 +12,14 @@ export class GuiRoles extends GuiElement {
     this._table = (
       <gui-table
         sortBy={[0, 'asc']}
-        columnWidths={[200]}
         globalFilter
         globalFilterPlaceholder="Filter by name or permissions"
-        columnFactory={{
-          1: 'gui-role-permissions',
-        }}
+        columns={[
+          { index: 0, width: 200 },
+          { index: 1, cell: 'gui-role-permissions' },
+        ]}
       />
     ) as GuiTable;
-
-    this._dialog = document.createElement('sl-dialog');
 
     this.shadowRoot.appendChild(
       <>
@@ -33,7 +27,6 @@ export class GuiRoles extends GuiElement {
           <header slot="header">Roles</header>
           {this._table}
         </gui-card>
-        {this._dialog}
       </>,
     );
   }

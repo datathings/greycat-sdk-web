@@ -17,69 +17,125 @@ export class GuiTasks extends GuiElement {
   readonly table: GuiTable;
   private _updateId: number;
   private _updateDelay: number;
+  private _users: Record<number, string> = {};
+  private _tasks: gc.runtime.Task[] = [];
 
   constructor() {
     super();
 
     this.table = document.createElement('gui-table');
     this.table.setAttrs({
+      value: this._tasks,
       globalFilter: true,
       globalFilterPlaceholder: 'Filter the tasks',
       sortBy: [0, 'desc'],
-      columnFactory: {
-        8: (_value, rowIdx, _el) => {
-          const [task_id] = this.table.table.getRowArray(rowIdx) as [number];
-          const task = gc.$.default.tasks.find((t) => t.task_id === task_id);
-          if (!task) {
-            return document.createTextNode(`Unknown task ${task_id}`);
-          }
-          const cancellable =
-            task.status === gc.runtime.TaskStatus.waiting ||
-            task.status === gc.runtime.TaskStatus.running ||
-            task.status === gc.runtime.TaskStatus.await;
-
-          return cancellable ? (
-            <sl-button
-              variant="text"
-              size="small"
-              onclick={async (ev) => {
-                const self = ev.target as sl.SlButton;
-                self.textContent = 'Cancelling...';
-                self.disabled = true;
-                await gc.runtime.Task.cancel(task.task_id);
-              }}
-            >
-              Cancel
-            </sl-button>
-          ) : (
-            <sl-button
-              variant="text"
-              size="small"
-              onclick={async (ev) => {
-                const self = ev.target as sl.SlButton;
-                const prev = self.textContent;
-                self.textContent = 'Loading...';
-                self.disabled = true;
-                let value;
-                try {
-                  value = await task.result();
-                } catch (err) {
-                  value = err;
-                } finally {
-                  self.disabled = false;
-                  self.textContent = prev;
-                  modal.info({
-                    title: `Task ${task.task_id}`,
-                    message: <gui-object header value={value} />,
-                  });
-                }
-              }}
-            >
-              Result
-            </sl-button>
-          );
+      columns: [
+        {
+          index: gc.runtime.Task.$fields.task_id,
+          header: 'Task',
+          width: 100,
         },
-      },
+        {
+          index: gc.runtime.Task.$fields.user_id,
+          header: 'User',
+          value: (value) => {
+            const user_id = Number(value);
+            return this._users[user_id] ?? user_id;
+          },
+        },
+        {
+          index: gc.runtime.Task.$fields.fun,
+          header: 'Name',
+          value: (_value, _cellEl, _table, row) => {
+            const task = this._tasks[row];
+            if (task.type) {
+              return `${task.mod}::${task.type}::${task.fun}`;
+            }
+            return `${task.mod}::${task.fun}`;
+          },
+        },
+        {
+          index: gc.runtime.Task.$fields.creation,
+          header: 'Created',
+        },
+        {
+          index: gc.runtime.Task.$fields.start,
+          header: 'Started',
+          value: (value) => value ?? '',
+        },
+        {
+          index: gc.runtime.Task.$fields.duration,
+          header: 'Duration',
+          value: (value) => value ?? '',
+        },
+        {
+          index: gc.runtime.Task.$fields.status,
+          header: 'Status',
+          width: 120,
+          value: (value) => value.key,
+        },
+        {
+          index: gc.runtime.Task.$fields.progress,
+          header: 'Progress',
+          value: (_value, _el, _table, row) =>
+            this._tasks[row].progress ? `${(this._tasks[row].progress * 100).toFixed(1)}%` : '',
+        },
+        {
+          index: gc.runtime.Task.$fields.task_id,
+          header: 'Action',
+          cell: (task_id) => {
+            const task = gc.$.default.tasks.find((t) => t.task_id === task_id);
+            if (!task) {
+              return document.createTextNode(`Unknown task ${task_id}`);
+            }
+            const cancellable =
+              task.status === gc.runtime.TaskStatus.waiting ||
+              task.status === gc.runtime.TaskStatus.running ||
+              task.status === gc.runtime.TaskStatus.await;
+
+            return cancellable ? (
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={async (ev) => {
+                  const self = ev.target as sl.SlButton;
+                  self.textContent = 'Cancelling...';
+                  self.disabled = true;
+                  await gc.runtime.Task.cancel(task.task_id);
+                }}
+              >
+                Cancel
+              </sl-button>
+            ) : (
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={async (ev) => {
+                  const self = ev.target as sl.SlButton;
+                  const prev = self.textContent;
+                  self.textContent = 'Loading...';
+                  self.disabled = true;
+                  let value;
+                  try {
+                    value = await task.result();
+                  } catch (err) {
+                    value = err;
+                  } finally {
+                    self.disabled = false;
+                    self.textContent = prev;
+                    modal.info({
+                      title: `Task ${task.task_id}`,
+                      message: <gui-object header value={value} />,
+                    });
+                  }
+                }}
+              >
+                Result
+              </sl-button>
+            );
+          },
+        },
+      ],
     });
 
     this._updateId = -1;
@@ -130,12 +186,13 @@ export class GuiTasks extends GuiElement {
       return;
     }
 
-    const users: Record<number, string> = {};
+    // reset users
+    this._users = {};
     try {
       const entities = await gc.runtime.SecurityEntity.all();
       for (let i = 0; i < entities.length; i++) {
         const entity = entities[i];
-        users[Number(entity.id)] = entity.name;
+        this._users[Number(entity.id)] = entity.name;
       }
     } catch {
       // failing to access SecurityEntity.all() is not a failure point
@@ -145,30 +202,10 @@ export class GuiTasks extends GuiElement {
     try {
       // force a task refresh
       await gc.$.default.pollTasks();
-      // post-process tasks
-      const rows = gc.$.default.tasks.map((task) => {
-        const user_id = Number(task.user_id);
-        let name_or_id: string | number = users[user_id];
-        if (!name_or_id) {
-          name_or_id = user_id;
-        }
-
-        return {
-          Task: task.task_id,
-          User: name_or_id,
-          Name: task.type ? `${task.mod}::${task.type}::${task.fun}` : `${task.mod}::${task.fun}`,
-          Created: task.creation,
-          Started: task.start ?? '',
-          Duration: task.duration ?? '',
-          Status: task.status.key,
-          Progress: task.progress ? `${(task.progress * 100).toFixed(1)}%` : '',
-          Action: undefined,
-        };
-      });
-
-      // update table
-      const table = gc.core.Table.fromObjects(rows);
-      this.table.value = table;
+      // clone the global tasks array
+      this._tasks = Array.from(gc.$.default.tasks);
+      // update table data
+      this.table.value = this._tasks;
     } catch (err) {
       toast.error(err);
     }

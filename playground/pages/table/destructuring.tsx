@@ -7,6 +7,6 @@ const table = await gc.project.destructuring_table();
 
 document.body.appendChild(
   <app-layout title="Table (destructuring)">
-    <gui-table value={table} />
+    <gui-table value={table} drawerEnabled />
   </app-layout>
 );

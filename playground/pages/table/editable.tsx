@@ -1,6 +1,5 @@
+import { createElement, GuiChangeEvent, sl } from '@greycat/web';
 import '~/common';
-import '@greycat/web';
-import { GuiChangeEvent, GuiTable, sl } from '@greycat/web';
 
 await gc.sdk.init();
 
@@ -20,7 +19,7 @@ interface User {
 }
 
 const groups = ['devs', 'editors', 'moderators', 'users', 'admin'];
-const table = gc.core.Table.fromObjects<User>([
+const users: User[] = [
   {
     id: 3,
     username: 'user3',
@@ -141,46 +140,36 @@ const table = gc.core.Table.fromObjects<User>([
     is_admin: false,
     action: null,
   },
-]);
-table.headers = [
-  'id',
-  'username',
-  'is_active',
-  'fullname',
-  'email',
-  'role',
-  'permission_flags',
-  'groups',
-  'is_admin',
-  'action',
 ];
 
 function deleteRow(rowIdx: number) {
   return () => {
     // TODO
     console.log('delete row', rowIdx);
-    tableEl.value = table;
+    users.splice(rowIdx, 1);
+    tableEl.value = users;
   };
 }
 
-const tableEl = (
-  <gui-table
-    value={table}
-    globalFilter
-    sortBy={[0, 'asc']}
-    rowHeight={30}
-    columnsWidths={[100, 100, 100]}
-    columnFactory={{
-      2: { tag: 'gui-input-bool', props: { size: 'small' } },
-      3: { tag: 'gui-input-bool', props: { size: 'small' } },
-      4: { tag: 'gui-input-string', props: { size: 'small' } },
-      5: { tag: 'gui-input-string', props: { size: 'small' } },
-      7: (value: string[], _, el) => {
+const tableEl = createElement('gui-table', {
+  value: users,
+  globalFilter: true,
+  sortBy: [0, 'asc'],
+  rowHeight: 30,
+  useDefaultColumns: true,
+  columns: [
+    { index: 2, cell: { tag: 'gui-input-bool', props: { size: 'small' } } },
+    { index: 3, cell: { tag: 'gui-input-bool', props: { size: 'small' } } },
+    { index: 4, cell: { tag: 'gui-input-string', props: { size: 'small' } } },
+    { index: 5, cell: { tag: 'gui-input-string', props: { size: 'small' } } },
+    {
+      index: 7,
+      cell: (value: string[], _, el) => {
         return (
           <sl-select
             size="small"
             value={(value ?? []).join(' ')}
-            maxOptionsVisible={2}
+            maxOptionsVisible={1}
             multiple
             clearable
             hoist
@@ -195,20 +184,24 @@ const tableEl = (
           </sl-select>
         );
       },
-      9: (_, rowIdx) => {
+    },
+    {
+      index: 9,
+      width: 100,
+      cell: (_, rowIdx) => {
         return (
           <sl-button variant="text" size="small" onclick={deleteRow(rowIdx)}>
             Delete
           </sl-button>
         );
       },
-    }}
-    ongui-table-change={(ev) => {
-      console.log('event.detail', ev.detail);
-      console.log('table', table);
-    }}
-  />
-) as GuiTable;
+    },
+  ],
+  'ongui-table-change': (ev) => {
+    console.log('event.detail', ev.detail);
+    console.log('users', users);
+  },
+});
 
 document.body.appendChild(
   <app-layout title="Table (editable)">

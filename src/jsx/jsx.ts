@@ -21,25 +21,27 @@ declare global {
     type WritableKeys<T> = {
       [K in keyof T]-?: IfEquals<{ [P in K]: T[K] }, { -readonly [P in K]: T[K] }, K>;
     }[keyof T];
-    type ExcludeFunctions<T> = {
+    type FunctionKeys<T> = keyof {
       // eslint-disable-next-line @typescript-eslint/ban-types
-      [K in keyof T as T[K] extends Function ? never : K]: T[K];
+      [K in keyof T as T[K] extends Function ? K : never]: T[K];
     };
-
     type IfEquals<X, Y, A = X, B = never> =
       (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
-
-    type WrapElement<T> = Pick<T, WritableKeys<ExcludeFunctions<T>>>;
+    type OmitFunctions<T> = Omit<T, FunctionKeys<T>>;
+    type HTMLElementFunctionsKeys = Pick<HTMLElement, FunctionKeys<HTMLElement>>;
+    type UnwantedKeys =
+      | 'style'
+      | 'className'
+      | 'children'
+      | 'onclick'
+      | 'exportparts'
+      | 'part'
+      | 'shadowRoot'
+      | keyof HTMLElementFunctionsKeys;
+    type WrapElement<T> = Partial<Omit<Pick<T, WritableKeys<T>>, UnwantedKeys>>;
 
     // eslint-disable-next-line @typescript-eslint/ban-types
-    type Element<T, EventMap = {}> = Partial<
-      WrapElement<
-        Omit<
-          T,
-          'style' | 'className' | 'children' | 'onclick' | 'exportparts' | 'part' | 'shadowRoot'
-        >
-      >
-    > &
+    type Element<T, EventMap = HTMLElementEventMap> = WrapElement<T> &
       ExtendedHTMLProperties &
       ElementEventMap<T, EventMap> & {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -61,13 +63,6 @@ declare global {
       };
 
     namespace JSX {
-      type IntrinsicElement = IntrinsicElements[keyof IntrinsicElements];
-
-      interface AttributeCollection {
-        children?: HTMLElement | HTMLElement[];
-        [prop: string]: unknown;
-      }
-
       interface Element extends Node {}
 
       interface IntrinsicElements {

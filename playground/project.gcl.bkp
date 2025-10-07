@@ -1,0 +1,16 @@
+var foo: nodeList<node<Bar>>;
+
+type Bar {
+    text: String;
+
+    static fn index(bar: node<Bar>) {
+        foo ?= nodeList<node<Bar>> {};
+        foo.set(bar as int, bar);
+    }
+}
+
+@expose
+fn fooBar(text: String) {
+    var bar = node<Bar> { Bar { text: text } };
+    Bar::index(bar);
+}

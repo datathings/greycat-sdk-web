@@ -69,6 +69,10 @@ fn main() {
 
     init_simple_index();
     heatmap::init();
+
+    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "users" });
+    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "moderators" });
+    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "reviewers" });
 }
 
 fn nothing() {}
@@ -924,7 +928,7 @@ fn sample_huge_csv(): Table? {
     }
     info("sampling...");
     var reader = CsvReader {
-        path: "files/output.csv",
+        path: "files/people-10000.csv",
         format: CsvFormat {
             header_lines: 1,
         },
@@ -1174,4 +1178,35 @@ fn people(): Array<People> {
         people.add(reader.read());
     }
     return people;
+}
+
+type Box {
+    value: int;
+}
+
+@expose
+fn boxes(): Array<Box?> {
+    return Array<Box?> { null, Box { value: 42 }, null };
+}
+
+private type MyData {
+    level: Level;
+    value: float;
+}
+
+private enum Level {
+    High,
+    Normal,
+    Low,
+}
+
+@expose
+fn data_array(): Array<MyData> {
+    return Array<MyData> {
+        MyData { level: Level::Normal, value: 1.5 },
+        MyData { level: Level::High, value: 15.2 },
+        MyData { level: Level::Normal, value: 3.4 },
+        MyData { level: Level::Low, value: 0.9 },
+        MyData { level: Level::Normal, value: 6.8 },
+    };
 }

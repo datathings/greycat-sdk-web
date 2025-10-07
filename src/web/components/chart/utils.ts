@@ -81,7 +81,9 @@ export function createFormatter(
       } else if (format === undefined) {
         const [from, to] = scale.range();
         const span = Math.abs(+scale.invert(to) - +scale.invert(from));
-        const smartFormat = isCursor ? smartTimeCursorFormatSpecifier(span) : smartTimeFormatSpecifier(span);
+        const smartFormat = isCursor
+          ? smartTimeCursorFormatSpecifier(span)
+          : smartTimeFormatSpecifier(span);
         return (d: number) => gc.$.default.printTime(gc.core.time.fromMs(d), timezone, smartFormat);
       }
       const [from, to] = scale.range();
@@ -112,10 +114,53 @@ export function createFormatter(
 export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.default): ChartConfig {
   const config: ChartConfig = {
     cursor: true,
+    selection: {
+      orientation: 'both',
+    },
     xAxis: {},
     yAxes: {},
     series: [],
   };
+
+  if (table.initialValue?.$type) {
+    const arrTy = table.initialValue.$type;
+    if (arrTy.generic_abi_type !== 0) {
+      const elemTy = arrTy.abi.types[arrTy.g1()];
+      let timeCol: gc.sdk.AbiAttribute | undefined;
+      for (let i = 0; i < elemTy.attrs.length; i++) {
+        const attr = elemTy.attrs[i];
+        if (attr.sbi_type === gc.sdk.PrimitiveType.time) {
+          timeCol = attr;
+          config.xAxis.scale = 'time';
+          break;
+        }
+      }
+
+      if (timeCol !== undefined) {
+        for (let i = 0; i < elemTy.attrs.length; i++) {
+          const attr = elemTy.attrs[i];
+          switch (attr.sbi_type) {
+            case gc.sdk.PrimitiveType.duration:
+            case gc.sdk.PrimitiveType.int:
+            case gc.sdk.PrimitiveType.float:
+              config.yAxes[attr.name] = {};
+              config.series.push({
+                title: attr.name,
+                type: 'line',
+                xCol: `${elemTy.name}::${timeCol.name}`,
+                yCol: `${elemTy.name}::${attr.name}`,
+                yAxis: attr.name,
+              });
+              break;
+            default:
+              break;
+          }
+        }
+      }
+
+      return config;
+    }
+  }
 
   if (table.cols.length === 0 || table.cols[0].length === 0) {
     return config;
