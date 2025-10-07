@@ -1457,7 +1457,6 @@ export class GuiTableHeadCell extends HTMLElement {
     this._title.replaceChildren(title);
     this._sorter.textContent = this._icons[sort];
 
-    console.log(this._icons);
     if (col.column.filterable === false) {
       this._container.removeChild(this._filter);
     } else if (!this._filter.isConnected) {

@@ -301,14 +301,12 @@ class DashboardPanel implements IContentRenderer {
   }
 
   async init(parameters: GroupPanelPartInitParameters) {
-    console.log('DashboardPanel.init', parameters);
     const params = parameters.params as DashboardPanelParams;
     this.inner = createElement(params.component, params.attrs ?? {}) as HTMLElement;
     this._root.appendChild(this.inner);
   }
 
   update(event: PanelUpdateEvent<Parameters>): void {
-    console.log('DashboardPanel.update', event);
     for (const name in event.params.attrs) {
       const value = event.params.attrs[name];
       if (name in this.inner) {

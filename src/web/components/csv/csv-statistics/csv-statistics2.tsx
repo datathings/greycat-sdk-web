@@ -149,7 +149,6 @@ export class GuiCsvStatistics2 extends GuiElement {
 
   showProfile(offset: number, column: gc.io.CsvColumnStatistics): void {
     this._dialog.label = `Column: ${column.name ?? offset}`;
-    console.log(column.profile);
     this._dialog.replaceChildren(<gui-gaussian value={column.profile} />);
     this._dialog.show();
   }
