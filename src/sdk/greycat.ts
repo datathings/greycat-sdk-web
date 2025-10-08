@@ -1,4 +1,6 @@
 namespace gc {
+  export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
+
   /**
    * A map of all known GreyCat instances allowing to communicate with different GreyCat instances from the same client.
    *
@@ -10,7 +12,7 @@ namespace gc {
     const findGreyCat = async () => {
       if (globalThis.location === undefined) {
         // In Node.js context we do not have a location, therefore we use the default
-        return new URL('http://127.0.0.1:8080');
+        return DEFAULT_URL;
       }
 
       // in a browser context, we can try to find the best candidate by walking up the pathname
@@ -25,7 +27,7 @@ namespace gc {
         prefix += '/..';
       }
       // unable to discover the endpoint, fallback to the default
-      return new URL('http://127.0.0.1:8080');
+      return DEFAULT_URL;
     };
 
     const NOOP = (): void => void 0;
@@ -213,24 +215,22 @@ namespace gc {
       return g;
     }
 
-    export function initWithAbi(options: WithAbiOptions): GreyCat {
-      const {
-        name = 'default',
-        url,
-        capacity,
-        timezone,
-        cache,
-        pollTasks,
-        maxTasks,
-        abi,
-        module,
-        exports,
-        token,
-        unauthorizedHandler,
-        abiMismatchHandler,
-        permissions = [],
-      } = options;
-
+    export function initWithAbi({
+      name = 'default',
+      capacity,
+      timezone,
+      cache,
+      pollTasks,
+      maxTasks,
+      abi,
+      module,
+      exports,
+      token,
+      unauthorizedHandler,
+      abiMismatchHandler,
+      permissions = [],
+      url = DEFAULT_URL,
+    }: WithAbiOptions): GreyCat {
       const greycat = new GreyCat(
         normalizeUrl(url),
         abi,
