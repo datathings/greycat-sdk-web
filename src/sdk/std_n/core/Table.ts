@@ -161,6 +161,33 @@ namespace gc {
               return new ty.ctor([]) as gc.core.Table<T>;
             }
 
+            if (objects.$type !== undefined && objects.$type.generic_abi_type !== 0) {
+              const objTy = g.abi.types[objects.$type.g1()];
+              if (objTy.attrs.length === 0) {
+                const ty = g.abi.types[g.abi.core.table];
+                const table = new ty.ctor(objects) as gc.core.Table<T>;
+                table.headers = ['Value'];
+                table.subheaders = [objTy.name];
+                table._initial_value = objects;
+                return table;
+              }
+              const cols = new globalThis.Array(objTy.attrs.length);
+              for (let c = 0; c < cols.length; c++) {
+                const rows = new globalThis.Array(objects.length);
+                for (let r = 0; r < rows.length; r++) {
+                  const o = objects[r] as gc.sdk.GCObject;
+                  rows[r] = (o.$fields as unknown[])[c];
+                }
+                cols[c] = rows;
+              }
+              const ty = g.abi.types[g.abi.core.table];
+              const table = new ty.ctor(cols) as gc.core.Table<T>;
+              table.headers = objTy.attrs.map((a) => a.name);
+              table.subheaders = objTy.attrs.map((a) => g.abi.types[a.abi_type].name);
+              table._initial_value = objects;
+              return table;
+            }
+
             let allPrimitives = true;
             for (let i = 0; i < objects.length; i++) {
               const item = objects[i];
@@ -348,6 +375,9 @@ namespace gc {
           }
 
           [Symbol.iterator](): Iterator<T> {
+            if (this._initial_value !== undefined) {
+              return new TableObjectIterator(0, this, this._initial_value);
+            }
             if (this.$type.generic_abi_type == 0 || this.$type.g1() === this.$type.abi.core.any) {
               return new TableArrayIterator(0, this as Table<unknown[]>) as Iterator<T>;
             }
@@ -433,6 +463,7 @@ namespace gc {
           constructor(
             private _index = 0,
             readonly table: Table<T>,
+            private readonly _initial_value?: T[] | undefined,
           ) {
             this._nb_rows = table.cols[0]?.length ?? 0;
             this._elem_type = table.$type.abi.types[table.$type.g1_abi_type_desc >> 1];
@@ -442,6 +473,12 @@ namespace gc {
           next(): IteratorResult<T> {
             if (this._index >= this._nb_rows) {
               return { value: undefined, done: true };
+            }
+
+            if (this._initial_value) {
+              const value = this._initial_value[this._index];
+              this._index += 1;
+              return { value, done: false };
             }
 
             const nb_cols = this.table.cols.length;

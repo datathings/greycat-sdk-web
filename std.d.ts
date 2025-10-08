@@ -262,7 +262,7 @@ declare namespace gc {
     namespace ErrorFrame {
       interface $Fields {
         module: 0;
-        function_: 1;
+        function: 1;
         line: 2;
         column: 3;
       }
@@ -1942,7 +1942,7 @@ declare namespace gc {
         allOf: 8;
         minItems: 9;
         maxItems: 10;
-        enum_: 11;
+        enum: 11;
         additionalProperties: 12;
       }
     }
@@ -2012,7 +2012,7 @@ declare namespace gc {
     }
     namespace PeriodicTask {
       interface $Fields {
-        function_: 0;
+        function: 0;
         periodicity: 1;
         options: 2;
         is_active: 3;
@@ -2104,7 +2104,7 @@ declare namespace gc {
     }
     namespace Scheduler$activate$args {
       interface $Fields {
-        function_: 0;
+        function: 0;
       }
     }
 
@@ -2355,8 +2355,8 @@ declare namespace gc {
     }
     namespace Job {
       interface $Fields {
-        function_: 0;
-        arguments_: 1;
+        function: 0;
+        arguments: 1;
       }
     }
 
@@ -2750,7 +2750,7 @@ declare namespace gc {
     }
     namespace Scheduler$deactivate$args {
       interface $Fields {
-        function_: 0;
+        function: 0;
       }
     }
 
@@ -2780,7 +2780,7 @@ declare namespace gc {
     }
     namespace Scheduler$add$args {
       interface $Fields {
-        function_: 0;
+        function: 0;
         periodicity: 1;
         options: 2;
       }
@@ -2969,7 +2969,7 @@ declare namespace gc {
     }
     namespace Scheduler$find$args {
       interface $Fields {
-        function_: 0;
+        function: 0;
       }
     }
 
@@ -3005,7 +3005,7 @@ declare namespace gc {
       interface $Fields {
         module: 0;
         type: 1;
-        function_: 2;
+        function: 2;
         src: 3;
         line: 4;
         column: 5;
