@@ -10,6 +10,7 @@ describe('std', () => {
     const buffer = /** @type {ArrayBuffer} */ ((await readFile('project.test.abi')).buffer);
     const wasm = await gc.sdk.compileWasm();
     gc.sdk.initWithAbi({
+      url: new URL('http://localhost:8080'),
       abi: new Abi(buffer),
       module: wasm.module,
       exports: wasm.instance.exports,

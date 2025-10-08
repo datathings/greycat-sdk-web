@@ -350,6 +350,7 @@ describe('project', () => {
     abi = new Abi(buffer);
     const wasm = await gc.sdk.compileWasm();
     gc.sdk.initWithAbi({
+      url: new URL('http://localhost:8080'),
       abi,
       module: wasm.module,
       exports: wasm.instance.exports,
