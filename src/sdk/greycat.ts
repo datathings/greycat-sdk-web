@@ -7,13 +7,26 @@ namespace gc {
   export const $: { [name: string]: sdk.GreyCat } = {};
 
   export namespace sdk {
-    /** Defaults to `location.origin` when available, fallbacks to `'http://127.0.0.1:8080'` otherwise */
-    export let DEFAULT_URL: URL;
-    try {
-      DEFAULT_URL = new URL(globalThis.location?.origin ?? 'http://127.0.0.1:8080');
-    } catch {
-      DEFAULT_URL = new URL('http://127.0.0.1:8080');
-    }
+    const findGreyCat = async () => {
+      if (globalThis.location === undefined) {
+        // In Node.js context we do not have a location, therefore we use the default
+        return new URL('http://127.0.0.1:8080');
+      }
+
+      // in a browser context, we can try to find the best candidate by walking up the pathname
+      const opts = { method: 'POST' };
+      const attempts = location.pathname.split('/').length - 1;
+      let prefix = '.';
+      for (let i = 0; i < attempts; i++) {
+        const res = await fetch(`${prefix}/runtime::User::me`, opts);
+        if (res.status === 401 || res.status === 200) {
+          return new URL(`${location.href}${prefix}`);
+        }
+        prefix += '/..';
+      }
+      // unable to discover the endpoint, fallback to the default
+      return new URL('http://127.0.0.1:8080');
+    };
 
     const NOOP = (): void => void 0;
     export const DEFAULT_LOGGER = (
@@ -58,17 +71,16 @@ namespace gc {
      * @returns {[ArrayBuffer, string | undefined]} returns a tuple containing the ABI data and optionally the token if a login has occured
      */
     export async function downloadAbi(
-      {
-        url = DEFAULT_URL,
+      options: WithoutAbiOptions = {},
+    ): Promise<[ArrayBuffer, string | undefined]> {
+      const {
         auth,
         signal,
         cache,
         capacity,
         unauthorizedHandler,
-      }: WithoutAbiOptions = {
-        url: DEFAULT_URL,
-      },
-    ): Promise<[ArrayBuffer, string | undefined]> {
+        url = await findGreyCat(),
+      } = options;
       let token: string | undefined;
 
       if (auth) {
@@ -137,10 +149,10 @@ namespace gc {
      * @returns a GreyCat instance to initiate call requests to the backend.
      * @throws on IO and ABI parse errors
      */
-    export async function init(
-      {
+    export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat> {
+      const {
         name = 'default',
-        url = DEFAULT_URL,
+        url = await findGreyCat(),
         capacity,
         timezone,
         cache,
@@ -150,8 +162,7 @@ namespace gc {
         auth,
         unauthorizedHandler,
         abiMismatchHandler,
-      }: WithoutAbiOptions = { url: DEFAULT_URL },
-    ): Promise<GreyCat> {
+      } = options;
       const [data, token] = await downloadAbi({
         url,
         auth,
@@ -187,15 +198,13 @@ namespace gc {
       try {
         g.roles = await runtime.Role.all(g);
       } catch (err) {
-        // in case we cannot process the permissions, let's just warn about it and go on
-        console.warn(err);
+        // we probably don't have the permission to access this endpoint
       }
 
       try {
         g.permissions = await runtime.User.permissions(g);
       } catch (err) {
-        // in case we cannot process the permissions, let's just warn about it and go on
-        console.warn(err);
+        // we probably don't have the permission to access this endpoint
       }
 
       // register the instance
@@ -204,22 +213,24 @@ namespace gc {
       return g;
     }
 
-    export function initWithAbi({
-      name = 'default',
-      url = DEFAULT_URL,
-      capacity,
-      timezone,
-      cache,
-      pollTasks,
-      maxTasks,
-      abi,
-      module,
-      exports,
-      token,
-      unauthorizedHandler,
-      abiMismatchHandler,
-      permissions = [],
-    }: WithAbiOptions): GreyCat {
+    export function initWithAbi(options: WithAbiOptions): GreyCat {
+      const {
+        name = 'default',
+        url,
+        capacity,
+        timezone,
+        cache,
+        pollTasks,
+        maxTasks,
+        abi,
+        module,
+        exports,
+        token,
+        unauthorizedHandler,
+        abiMismatchHandler,
+        permissions = [],
+      } = options;
+
       const greycat = new GreyCat(
         normalizeUrl(url),
         abi,
@@ -1121,13 +1132,8 @@ namespace gc {
      * @param {LoginOptions} opts
      * @returns the user token
      */
-    export async function login({
-      username,
-      password,
-      use_cookie = false,
-      url = DEFAULT_URL,
-      signal,
-    }: LoginOptions): Promise<string> {
+    export async function login(options: LoginOptions): Promise<string> {
+      const { username, password, use_cookie = false, url = await findGreyCat(), signal } = options;
       const credentials = btoa(`${username}:${sha256hex(password)}`);
       const body = JSON.stringify([credentials, use_cookie]);
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::login`, {
@@ -1148,7 +1154,8 @@ namespace gc {
       signal?: AbortSignal;
     };
 
-    export async function logout({ url = DEFAULT_URL, signal }: LogoutOptions = {}): Promise<void> {
+    export async function logout(options: LogoutOptions = {}): Promise<void> {
+      const { url = await findGreyCat(), signal } = options;
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },

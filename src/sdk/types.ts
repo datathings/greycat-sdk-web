@@ -178,6 +178,8 @@ namespace gc {
     export interface WithAbiOptions extends Options {
       /** The ABI to use internally */
       abi: Abi;
+      /** The URL of the GreyCat server */
+      url: URL;
       /** Wasm module (use `gc.sdk.compileWasm()`) */
       module: WebAssembly.Module;
       /** Wasm instance exports (use `gc.sdk.compileWasm()`) */

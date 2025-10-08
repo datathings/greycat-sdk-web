@@ -101,7 +101,7 @@ declare global {
 }
 
 const sdkInit = gc.sdk.init;
-gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = { url: gc.sdk.DEFAULT_URL }) {
+gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
   const g = await sdkInit(options);
   initWeb(options);
   return g;
