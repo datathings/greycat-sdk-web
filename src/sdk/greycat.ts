@@ -1,6 +1,4 @@
 namespace gc {
-  export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
-
   /**
    * A map of all known GreyCat instances allowing to communicate with different GreyCat instances from the same client.
    *
@@ -9,6 +7,8 @@ namespace gc {
   export const $: { [name: string]: sdk.GreyCat } = {};
 
   export namespace sdk {
+    export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
+
     const findGreyCat = async () => {
       if (globalThis.location === undefined) {
         // In Node.js context we do not have a location, therefore we use the default
