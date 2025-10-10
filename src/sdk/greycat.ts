@@ -22,7 +22,13 @@ namespace gc {
       for (let i = 0; i < attempts; i++) {
         const res = await fetch(`${prefix}/runtime::User::me`, opts);
         if (res.status === 401 || res.status === 200) {
-          return new URL(`${location.href}${prefix}`);
+          let url: URL;
+          if (location.pathname.endsWith('/')) {
+            url = new URL(`${location.origin}${location.pathname}${prefix}`);
+          } else {
+            url = new URL(`${location.origin}${location.pathname}/${prefix}/..`);
+          }
+          return url;
         }
         prefix += '/..';
       }
