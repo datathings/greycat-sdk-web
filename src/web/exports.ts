@@ -4,13 +4,10 @@ export * as d3 from 'd3';
 export * as sl from '@shoelace-style/shoelace';
 export * from '@greycat/web/jsx-runtime';
 
-// ensures globals are defined before init
-import './globals.js';
 import './init.js';
 
 // library
 export * from './cache.js';
-export * from './globals.js';
 export * from './modal.js';
 export * from './serialize.js';
 export * from './shoelace.js';

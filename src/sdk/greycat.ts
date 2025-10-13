@@ -163,6 +163,7 @@ namespace gc {
         url = await findGreyCat(),
         capacity,
         timezone,
+        numFmt,
         cache,
         pollTasks,
         maxTasks,
@@ -194,6 +195,7 @@ namespace gc {
         wasm.instance.exports as unknown as gc.sdk.GreyCatWasmExports,
         capacity,
         timezone,
+        numFmt,
         cache,
         pollTasks,
         maxTasks,
@@ -205,13 +207,13 @@ namespace gc {
 
       try {
         g.roles = await runtime.Role.all(g);
-      } catch (err) {
+      } catch {
         // we probably don't have the permission to access this endpoint
       }
 
       try {
         g.permissions = await runtime.User.permissions(g);
-      } catch (err) {
+      } catch {
         // we probably don't have the permission to access this endpoint
       }
 
@@ -225,6 +227,7 @@ namespace gc {
       name = 'default',
       capacity,
       timezone,
+      numFmt,
       cache,
       pollTasks,
       maxTasks,
@@ -244,6 +247,7 @@ namespace gc {
         exports,
         capacity,
         timezone,
+        numFmt,
         cache,
         pollTasks,
         maxTasks,
@@ -341,6 +345,8 @@ namespace gc {
       readonly cache: Cache;
       /** the default timezone of this instance */
       timezone: gc.core.TimeZone;
+      /** the number formatter of this instance */
+      numFmt: Intl.NumberFormat;
       /** program roles & permissions */
       roles: gc.runtime.Role[] = [];
       /** server tasks, this list is automatically updated periodically */
@@ -370,6 +376,7 @@ namespace gc {
         exports: GreyCatWasmExports,
         capacity = 4096,
         timezone: gc.core.TimeZone.Field | undefined,
+        numFmt: Intl.NumberFormat | undefined,
         cache: Cache = new NoopCache(),
         pollTasks = 0,
         maxTasks = 100,
@@ -401,11 +408,13 @@ namespace gc {
           this.timezone = gc.core.TimeZone[timezone];
         }
 
+        this.numFmt = numFmt ?? new Intl.NumberFormat(navigator.language, {});
+
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const fn of this.abi.functions) {
           const theFn = (...args: unknown[]) => {
-            const args_ = new Array(fn.params.length);
+            const args_ = Array.from({ length: fn.params.length });
             for (let i = 0; i < fn.params.length; i++) {
               args_[i] = args[i];
             }
@@ -608,12 +617,11 @@ namespace gc {
         if (cachedRes) {
           headers['If-None-Match'] = cachedRes.etag;
         }
-        const res = await fetch(url, {
-          method: httpMethod,
-          body: httpMethod === 'GET' ? undefined : body,
-          headers,
-          signal,
-        });
+        const init: RequestInit = { method: httpMethod, headers, signal };
+        if (httpMethod === 'POST') {
+          init.body = body;
+        }
+        const res = await fetch(url, init);
         if (res.status >= 200 && res.status < 300) {
           const data = await res.arrayBuffer();
           if (data.byteLength === 0) {

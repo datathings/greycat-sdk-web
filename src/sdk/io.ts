@@ -141,7 +141,6 @@ namespace gc {
       }
 
       read_u32(): number {
-        this._view.byteOffset;
         assert_buffer_has_enough_bytes(this._curr + 4 <= this._buf.byteLength);
         const v = this._view.getUint32(this._curr, true);
         this._curr += 4;
@@ -555,7 +554,7 @@ namespace gc {
           }
         }
 
-        const arr = new Array(len);
+        const arr = Array.from({ length: len });
         for (let i = 0; i < len; i++) {
           if (nullable_mask) {
             if (is_elem_nullable(nullable_mask, i)) {

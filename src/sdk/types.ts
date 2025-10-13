@@ -109,6 +109,12 @@ namespace gc {
        */
       timezone?: gc.core.TimeZone.Field;
       /**
+       * The default number format of this instance
+       *
+       * Defaults to the navigator language
+       */
+      numFmt?: Intl.NumberFormat;
+      /**
        * Write buffer capacity. Defaults to `4096` (4KB)
        */
       capacity?: number;

@@ -1,4 +1,4 @@
-import { getGlobalNumberFormat, GuiElement, css } from '../../exports.js';
+import { GuiElement, css } from '../../exports.js';
 import { Disposable } from '../../internals.js';
 import { stringify } from './utils.js';
 import style from './value.css?inline';
@@ -21,7 +21,6 @@ export interface GuiValueProps {
   tiny: boolean;
   /** overrides references name */
   name: string | undefined;
-  dateFmt?: Intl.DateTimeFormat;
   numFmt?: Intl.NumberFormat;
   timezone?: gc.core.TimeZone;
   format?: string;
@@ -102,15 +101,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     return this._text;
   }
 
-  get dateFmt() {
-    return this._dateFmt;
-  }
-
-  set dateFmt(formatter: Intl.DateTimeFormat | undefined) {
-    this._dateFmt = formatter;
-    this.update();
-  }
-
   get timezone() {
     return this._timezone;
   }
@@ -158,7 +148,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     linkify = this._linkify,
     tiny = this._tiny,
     onClick = this._onClick,
-    dateFmt = this._dateFmt,
     numFmt = this._numFmt,
     text = this._text,
     timezone = this._timezone,
@@ -172,7 +161,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     this._linkify = linkify;
     this._tiny = tiny;
     this._onClick = onClick;
-    this._dateFmt = dateFmt;
     this._numFmt = numFmt;
     this._text = text;
     this._timezone = timezone;
@@ -233,7 +221,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       return;
     }
 
-    const numFmt = this._numFmt ?? getGlobalNumberFormat();
+    const numFmt = this._numFmt ?? gc.$.default.numFmt;
     let element: Node;
 
     if (this._value instanceof gc.sdk.AbiType) {

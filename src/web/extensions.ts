@@ -56,4 +56,3 @@ export function toFeatureCollection<T, G extends GeoJSON.Geometry>(
   return array.toFeatureCollection(geometryMapper);
 }
 
-export {};
