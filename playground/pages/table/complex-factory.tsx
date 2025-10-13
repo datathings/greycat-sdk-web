@@ -29,12 +29,12 @@ document.body.appendChild(
           index: gc.complex_factory.CableView.$fields.voltageLevel,
           header: 'Level',
           width: 100,
-          value: (value) => value.key,
+          value: ({ value }) => value.key,
         },
         {
           index: gc.complex_factory.CableView.$fields.voltageValue_kV,
           header: 'Voltage',
-          value: (value) => `${value} kV`,
+          value: ({ value }) => `${value} kV`,
         },
       ]}
     />

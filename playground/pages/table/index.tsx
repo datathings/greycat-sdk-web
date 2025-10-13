@@ -23,20 +23,20 @@ document.body.appendChild(
         },
         {
           index: 1,
-          cell: (value: number | bigint | null, rowIdx: number, el) => {
-            const klass = table.cols[2][rowIdx] as 'low' | 'normal' | 'high';
+          cell: ({ value, row, container }) => {
+            const klass = table.cols[2][row] as 'low' | 'normal' | 'high';
             switch (klass) {
               case 'low':
-                el.style.color = 'cyan';
+                container.style.color = 'cyan';
                 break;
               case 'normal':
-                el.style.color = 'lightgreen';
+                container.style.color = 'lightgreen';
                 break;
               case 'high':
-                el.style.color = 'orange';
+                container.style.color = 'orange';
                 break;
               default:
-                el.style.color = 'unset';
+                container.style.color = 'unset';
                 break;
             }
             if (value === null) {

@@ -1,4 +1,4 @@
-import { css, GuiClickEvent, GuiElement, type GuiTable } from '../../exports.js';
+import { CellData, css, GuiClickEvent, GuiElement, type GuiTable } from '../../exports.js';
 import '../table/index.js';
 import '../value/index.js';
 import style from './files.css?inline';
@@ -22,7 +22,7 @@ export class GuiFiles extends GuiElement {
         {
           index: 0,
           header: 'Filepath',
-          cell: (value: string | undefined) => {
+          cell: ({ value }: CellData<string | undefined>) => {
             if (value === undefined) {
               return document.createTextNode('');
             }
@@ -42,7 +42,7 @@ export class GuiFiles extends GuiElement {
         {
           index: 1,
           header: 'Size',
-          cell: (value: number | bigint | null) => {
+          cell: ({ value }: CellData<number | bigint | null>) => {
             if (typeof value === 'number' || typeof value === 'bigint') {
               return document.createTextNode(gc.sdk.humanSize(Number(value)));
             }
@@ -52,7 +52,7 @@ export class GuiFiles extends GuiElement {
         {
           index: 2,
           header: 'Last Modification',
-          cell: (value: gc.core.time | null) => {
+          cell: ({ value }: CellData<gc.core.time | null>) => {
             if (value instanceof gc.core.time) {
               return <gui-value value={value} />;
             }

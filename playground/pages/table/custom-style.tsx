@@ -25,13 +25,13 @@ tableEl.setAttrs({
     {
       index: 3,
       filterable: false,
-      cell: (_, rowIdx) => {
+      cell: ({ row }) => {
         return (
           <sl-icon-button
             name="eye"
             label="Details"
             onclick={() => {
-              window.alert(`Show details: ${table[rowIdx].Ident}`);
+              window.alert(`Show details: ${table[row].Ident}`);
             }}
           />
         );

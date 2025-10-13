@@ -6,6 +6,8 @@ import {
   css,
   GuiTableChangeEvent,
   createElement,
+  CellData,
+  CellValueData,
 } from '../../exports.js';
 import '../table/table.js'; // ensure gui-table is defined
 import '../user-form/user-form.js'; // ensure gui-user-form is defined
@@ -37,7 +39,7 @@ export class GuiUsers extends GuiElement {
           header: '',
           filterable: false,
           width: 30,
-          cell: (value: boolean) => (
+          cell: ({ value }: CellData<boolean>) => (
             <gui-input-bool
               size="small"
               value={value}
@@ -58,12 +60,12 @@ export class GuiUsers extends GuiElement {
         {
           index: gc.runtime.User.$fields.email,
           header: 'E-mail',
-          value: (value: string | null) => value ?? '',
+          value: ({ value }: CellValueData<string | null>) => value ?? '',
         },
         {
           index: gc.runtime.User.$fields.full_name,
           header: 'Full Name',
-          value: (value: string | null) => value ?? '',
+          value: ({ value }: CellValueData<string | null>) => value ?? '',
         },
         {
           index: gc.runtime.User.$fields.role,
@@ -76,7 +78,7 @@ export class GuiUsers extends GuiElement {
         },
         {
           index: gc.runtime.User.$fields.groups,
-          cell: (value: gc.runtime.UserGroupPolicy[] | null, rowIdx) => {
+          cell: ({ value, row }: CellData<gc.runtime.UserGroupPolicy[] | null>) => {
             const groups: string[] = [];
             if (value) {
               for (const policy of value) {
@@ -110,7 +112,7 @@ export class GuiUsers extends GuiElement {
                 }
                 select.dispatchEvent(
                   new GuiTableChangeEvent({
-                    rowIdx,
+                    rowIdx: row,
                     colIdx: gc.runtime.User.$fields.groups,
                     value,
                   }),

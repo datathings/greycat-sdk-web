@@ -16,7 +16,7 @@ document.body.appendChild(
         {
           index: gc.project.MyData.$fields.value,
           header: 'Level(value)',
-          value: (_value, _cell, _table, row) => {
+          value: ({ row }) => {
             const entry = data[row];
             return `${entry.level.key}(${entry.value})`;
           },

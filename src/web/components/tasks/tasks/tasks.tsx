@@ -7,6 +7,7 @@ import {
   modal,
   css,
   GuiElement,
+  CellValueData,
 } from '../../../exports.js';
 import style from './tasks.css?inline';
 
@@ -46,7 +47,7 @@ export class GuiTasks extends GuiElement {
         {
           index: gc.runtime.Task.$fields.fun,
           header: 'Name',
-          value: (_value, _cellEl, _table, row) => {
+          value: ({ row }) => {
             const task = this._tasks[row];
             if (task.type) {
               return `${task.mod}::${task.type}::${task.fun}`;
@@ -72,18 +73,18 @@ export class GuiTasks extends GuiElement {
           index: gc.runtime.Task.$fields.status,
           header: 'Status',
           width: 120,
-          value: (value) => value.key,
+          value: ({ value }: CellValueData<gc.sdk.GCEnum>) => value.key,
         },
         {
           index: gc.runtime.Task.$fields.progress,
           header: 'Progress',
-          value: (_value, _el, _table, row) =>
+          value: ({ row }) =>
             this._tasks[row].progress ? `${(this._tasks[row].progress * 100).toFixed(1)}%` : '',
         },
         {
           index: gc.runtime.Task.$fields.task_id,
           header: 'Action',
-          cell: (task_id) => {
+          cell: ({ value: task_id }) => {
             const task = gc.$.default.tasks.find((t) => t.task_id === task_id);
             if (!task) {
               return document.createTextNode(`Unknown task ${task_id}`);

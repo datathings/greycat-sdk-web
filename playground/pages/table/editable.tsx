@@ -164,7 +164,7 @@ const tableEl = createElement('gui-table', {
     { index: 5, cell: { tag: 'gui-input-string', props: { size: 'small' } } },
     {
       index: 7,
-      cell: (value: string[], _, el) => {
+      cell: ({ value, container }) => {
         return (
           <sl-select
             size="small"
@@ -175,7 +175,7 @@ const tableEl = createElement('gui-table', {
             hoist
             onsl-change={(ev) => {
               ev.stopPropagation();
-              el.dispatchEvent(new GuiChangeEvent((ev.target as sl.SlSelect).value));
+              container.dispatchEvent(new GuiChangeEvent((ev.target as sl.SlSelect).value));
             }}
           >
             {groups.map((group) => (
@@ -188,9 +188,9 @@ const tableEl = createElement('gui-table', {
     {
       index: 9,
       width: 100,
-      cell: (_, rowIdx) => {
+      cell: ({ row }) => {
         return (
-          <sl-button variant="text" size="small" onclick={deleteRow(rowIdx)}>
+          <sl-button variant="text" size="small" onclick={deleteRow(row)}>
             Delete
           </sl-button>
         );

@@ -41,14 +41,22 @@ export interface GuiTableProps {
 }
 export type CellProps = Partial<GuiValueProps> & { value: unknown };
 export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
-export type CellValueFn = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any,
-  CellValueFn: AnyValueElement,
-  table: gc.core.Table,
-  row: number,
-  col: number,
-) => unknown;
+/**
+ * The generic param is for convenience, **it is not enforced whatsoever**.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CellValueData<T = any> = {
+  value: T;
+  /** the current table */
+  table: gc.core.Table;
+  /** the row index in the table */
+  row: number;
+  /** the column index in the table */
+  col: number;
+  /** the container element */
+  container: AnyValueElement;
+};
+export type CellValueFn = (data: CellValueData) => unknown;
 export type TableColumnDef = {
   /**
    * Unique column index.
@@ -117,29 +125,28 @@ export type TableColumnDef = {
   sortable?: boolean;
 };
 
-/**
- * A function called to compute the cell properties
- * that will be passed to the underlying `<gui-value />` component.
- *
- * Or an object containing the cell properties.
- */
-export type CellPropsFactory =
-  | ((value: unknown, rowIdx: number, colIdx: number) => CellProps)
-  | CellAttrs;
-
 export type CellTagFactory = string | CleanCellFactory;
+/**
+ * The generic param is for convenience, **it is not enforced whatsoever**.
+ */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export type CellData<T = any> = {
+  value: T;
+  /** the row index in the table */
+  row: number;
+  /** the column index in the table */
+  col: number;
+  /** the container element */
+  container: GuiValue;
+  /** userdata persists accross renders */
+  userdata: Record<string, unknown>;
+};
 /**
  * - `value`: the current cell value to render
  * - `rowIdx`: the row index in the table
  * - `el`: the parent WebComponent element that will render the returned `Node`
  */
-export type CellFnFactory = (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  value: any,
-  rowIdx: number,
-  el: AnyValueElement,
-) => Node;
-
+export type CellFnFactory = (data: CellData) => Node;
 export type CellFactory = CellTagFactory | CellFnFactory;
 export type ColumnFactory = Record<number, string | CellFactory>;
 export type CleanCellFactory = { tag: string; props?: Record<string | number | symbol, unknown> };
@@ -1154,17 +1161,27 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           tagName,
           class extends GuiValue {
             rowIdx = -1;
+            private _cellData: CellData | undefined;
 
             override update() {
               if (!this.isConnected) {
                 return;
               }
-              const node = cellFactory(
-                this._value,
-                (this.parentElement as GuiTableBodyCell).rowIdx,
-                this,
-              );
-              this.shadowRoot.replaceChildren(node);
+              const cell = this.parentElement as GuiTableBodyCell;
+              if (this._cellData === undefined) {
+                this._cellData = {
+                  value: this._value,
+                  row: cell.rowIdx,
+                  col: cell.colIdx,
+                  userdata: {},
+                  container: this,
+                };
+              } else {
+                this._cellData.value = this._value;
+                this._cellData.row = cell.rowIdx;
+                this._cellData.col = cell.colIdx;
+              }
+              this.shadowRoot.replaceChildren(cellFactory(this._cellData));
             }
           },
         );
@@ -1837,7 +1854,13 @@ export class GuiTableBodyCell extends HTMLElement {
         this._cell.rowIdx = rowIdx;
       }
       const value = column.column.value
-        ? column.column.value(rawValue, this._cell, table, rowIdx, colIdx)
+        ? column.column.value({
+            value: rawValue,
+            table,
+            row: rowIdx,
+            col: colIdx,
+            container: this._cell,
+          })
         : rawValue;
       this._cell.value = value;
       this.replaceChildren(this._cell);
@@ -1845,13 +1868,25 @@ export class GuiTableBodyCell extends HTMLElement {
 
     if ('setAttrs' in this._cell && typeof this._cell.setAttrs === 'function') {
       const value = column.column.value
-        ? column.column.value(rawValue, this._cell, table, rowIdx, colIdx)
+        ? column.column.value({
+            value: rawValue,
+            table,
+            row: rowIdx,
+            col: colIdx,
+            container: this._cell,
+          })
         : rawValue;
       this._cell.setAttrs({ ...column.factory.props, value });
     } else {
       Object.assign(this._cell, column.factory.props);
       const value = column.column.value
-        ? column.column.value(rawValue, this._cell, table, rowIdx, colIdx)
+        ? column.column.value({
+            value: rawValue,
+            table,
+            row: rowIdx,
+            col: colIdx,
+            container: this._cell,
+          })
         : rawValue;
       this._cell.value = value;
     }
