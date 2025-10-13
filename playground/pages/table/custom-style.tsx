@@ -11,35 +11,38 @@ const table = [
   { Ident: '192771-1', Type: 'BTS', Voltage: '7 kV (MV)', ' ': undefined },
 ];
 
+const tableEl = document.createElement('gui-table');
+tableEl.classList.add('sl-theme-light', 'custom-style');
+tableEl.setAttrs({
+  globalFilter: true,
+  value: table,
+  rowHeight: 40,
+  useDefaultColumns: true,
+  columns: [
+    { index: 0, filterable: false },
+    { index: 1, filterable: false },
+    { index: 2, filterable: false },
+    {
+      index: 3,
+      filterable: false,
+      cell: (_, rowIdx) => {
+        return (
+          <sl-icon-button
+            name="eye"
+            label="Details"
+            onclick={() => {
+              window.alert(`Show details: ${table[rowIdx].Ident}`);
+            }}
+          />
+        );
+      },
+    },
+  ],
+});
+
 document.body.appendChild(
   <app-layout title="Table (custom-style)">
     {actions}
-    <gui-table
-      className={['sl-theme-light', 'custom-style']}
-      globalFilter
-      value={table}
-      rowHeight={40}
-      useDefaultColumns
-      columns={[
-        { index: 0, filterable: false },
-        { index: 1, filterable: false },
-        { index: 2, filterable: false },
-        {
-          index: 3,
-          filterable: false,
-          cell: (_, rowIdx) => {
-            return (
-              <sl-icon-button
-                name="eye"
-                label="Details"
-                onclick={() => {
-                  window.alert(`Show details: ${table[rowIdx].Ident}`);
-                }}
-              />
-            );
-          },
-        },
-      ]}
-    />
+    {tableEl}
   </app-layout>,
 );

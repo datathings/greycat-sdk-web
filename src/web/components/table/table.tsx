@@ -534,7 +534,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (mappings.length > 0) {
         const offset = this._table.cols.length;
         const new_table = await gc.core.Table.applyMappings(table, mappings);
-        const headers = new Array(new_table.cols.length);
+        const headers: string[] = Array.from({ length: new_table.cols.length });
         for (let i = 0; i < offset; i++) {
           headers[i] = this._table.headers?.[i] ?? `Column ${i}`;
         }
@@ -1788,11 +1788,6 @@ export class GuiTableBodyCell extends HTMLElement {
   colIdx = -1;
   /** By default the cell is displayed by a GuiValueElement (`'gui-value'`) */
   private _cell: AnyValueElement | undefined;
-
-  constructor() {
-    super();
-    this._cell = document.createElement('gui-value');
-  }
 
   set value(value: unknown) {
     if (this._cell) {
