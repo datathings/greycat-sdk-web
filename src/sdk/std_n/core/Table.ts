@@ -351,6 +351,10 @@ namespace gc {
             return row as T;
           }
 
+          /**
+           * Returns the actual `T` if the table was created from a typed array.
+           * Otherwise returns a Js object will all the columns as fields at row `index`.
+           */
           getRowObject(index: number): T | Record<string, unknown> | undefined {
             if (this._initial_value !== undefined) {
               return this._initial_value[index] as T | undefined;
