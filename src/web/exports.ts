@@ -4,9 +4,7 @@ export * as d3 from 'd3';
 export * as sl from '@shoelace-style/shoelace';
 export * from '@greycat/web/jsx-runtime';
 
-import './init.js';
-
-// library
+export * from './init.js';
 export * from './cache.js';
 export * from './modal.js';
 export * from './serialize.js';
