@@ -32,7 +32,7 @@ namespace gc {
             w.write_u64(this.value);
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             return sdk.str_decode(this.value);
           }
 

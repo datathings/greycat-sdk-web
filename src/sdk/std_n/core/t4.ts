@@ -42,12 +42,17 @@ namespace gc {
             return [this.x0, this.x1, this.x2, this.x3];
           }
 
-          override toString(fmt?: Intl.NumberFormat): string {
-            const x0 = fmt?.format(this.x0) ?? `${this.x0}`;
-            const x1 = fmt?.format(this.x1) ?? `${this.x1}`;
-            const x2 = fmt?.format(this.x2) ?? `${this.x2}`;
-            const x3 = fmt?.format(this.x3) ?? `${this.x3}`;
-            return `[${x0}, ${x1}, ${x2}, ${x3}]`;
+          override toString(
+            opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
+          ): string {
+            if (opts.numFmt) {
+              const x0 = opts.numFmt.format(this.x0);
+              const x1 = opts.numFmt.format(this.x1);
+              const x2 = opts.numFmt.format(this.x2);
+              const x3 = opts.numFmt.format(this.x3);
+              return `[${x0}, ${x1}, ${x2}, ${x3}]`;
+            }
+            return `[${this.x0}, ${this.x1}, ${this.x2}, ${this.x3}]`;
           }
         }
       }

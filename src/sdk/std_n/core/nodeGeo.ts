@@ -39,7 +39,7 @@ namespace gc {
             w.write_vu64(this.value);
           }
 
-          override toString(): string {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS): string {
             return `${this.value}_nodeGeo`;
           }
 

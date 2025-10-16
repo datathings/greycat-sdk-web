@@ -24,6 +24,10 @@ namespace gc {
             return { _type: this.$type.name, data: globalThis.Array.from(this.data) };
           }
 
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
+            return `Buffer { length: ${this.data.byteLength} }`;
+          }
+
           override valueOf() {
             return this.data;
           }

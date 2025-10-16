@@ -188,65 +188,6 @@ export class GuiHistogram extends HTMLElement {
     chart.value = data;
     this.replaceChildren(chart);
   }
-
-  // private _render_heatmap(
-  //   bins: (number | bigint | null)[],
-  //   quantizer: (gc.util.LinearQuantizer | gc.util.LogQuantizer)[],
-  // ) {
-  //   const heatmap = document.createElement('gui-heatmap');
-
-  //   const data = Array.from({ length: Number(quantizer[0].bins) }, (_) =>
-  //     Array.from({ length: Number(quantizer[1].bins) }),
-  //   );
-
-  //   const xLabels: string[] = [];
-  //   const yLabels: string[] = [];
-
-  //   const formatter = format('~s');
-
-  //   const bounds = new Bounds();
-  //   const cols = Number(quantizer[0].bins);
-  //   for (let col = 0; col < quantizer[0].bins; col++) {
-  //     xLabels.push(formatter(bounds.compute(col, quantizer[0]).min));
-
-  //     for (let row = 0; row < quantizer[1].bins; row++) {
-  //       if (col === 0) {
-  //         yLabels.push(formatter(bounds.compute(row, quantizer[1]).max));
-  //       }
-
-  //       const idx = row * cols + col;
-  //       data[col][row] = bins[idx];
-  //     }
-  //   }
-
-  //   const config: HeatmapConfig = {
-  //     xAxis: {
-  //       labels: xLabels,
-  //       hook: (axis) => {
-  //         if (xLabels.length * 30 > this.clientWidth) {
-  //           const a = this.clientWidth / 30;
-  //           axis.tickValues(xLabels.filter((_, i) => i % Math.ceil(xLabels.length / a) === 0));
-  //         }
-  //       },
-  //     },
-  //     yAxis: {
-  //       labels: yLabels,
-  //       hook: (axis) => {
-  //         if (yLabels.length * 15 > this.clientHeight) {
-  //           const a = this.clientHeight / 15;
-  //           axis.tickValues(yLabels.filter((_, i) => i % Math.ceil(yLabels.length / a) === 0));
-  //         }
-  //       },
-  //     },
-  //     colorScale: { colors: GuiHeatmap.VIRIDIS_COLORS },
-  //   };
-
-  //   heatmap.config = config;
-  //   heatmap.value = { cols: data };
-  //   this.replaceChildren(heatmap);
-  // }
-
-  //private _render_table(data: gc.util.HistogramBin[]) {}
 }
 
 declare global {

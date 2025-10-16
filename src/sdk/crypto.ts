@@ -37,7 +37,12 @@ namespace gc {
         a += String.fromCharCode(128);
 
         const i = Math.ceil((a.length / 4 + 2) / 16);
-        const j: number[][] = Array.from({ length: i }, () => Array(16).fill(0));
+        // oxlint-disable-next-line no-new-array
+        const j: number[][] = new Array(i);
+        for (let ji = 0; ji < i; ji++) {
+          // oxlint-disable-next-line no-new-array
+          j[ji] = new Array(16).fill(0, 0, 16);
+        }
 
         for (let g = 0; g < i; g++) {
           for (let e = 0; e < 16; e++) {

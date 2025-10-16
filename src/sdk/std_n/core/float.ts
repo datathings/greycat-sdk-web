@@ -31,8 +31,11 @@ namespace gc {
             return this.value === other.value;
           }
 
-          override toString(fmt?: Intl.NumberFormat) {
-            return fmt?.format(this.value) ?? `${this.value}`;
+          override toString(opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS) {
+            if (opts.numFmt) {
+              return opts.numFmt.format(this.value);
+            }
+            return `${this.value}`;
           }
 
           override valueOf() {

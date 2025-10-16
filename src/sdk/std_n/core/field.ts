@@ -32,7 +32,7 @@ namespace gc {
             w.write_vu32(this.offset);
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             const type = this.$type.abi.types[this.type_id];
             return `${type.name}::${type.attrs[this.offset].name}`;
           }

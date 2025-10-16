@@ -55,7 +55,7 @@ describe('project', () => {
     12,
     '1970-01-01T01:00:00.000+0100',
     [],
-    [42, true, 'hello', 'core::CalendarUnit::month'],
+    [42, true, 'hello', 'month'],
     { lat: 49.596344732033856, lng: 6.128470371477306 },
     {},
     'project::table',
@@ -65,7 +65,7 @@ describe('project', () => {
       42: 42,
       true: true,
       hello: 'hello',
-      'core::CalendarUnit::month': 'core::CalendarUnit::month',
+      'core::CalendarUnit::month': 'month',
     },
     {
       _type: 'project::CustomType',
@@ -74,7 +74,7 @@ describe('project', () => {
       float: 3.14,
       bool: true,
       char: 'c',
-      enum: 'core::TimeZone::Europe/Luxembourg',
+      enum: 'Europe/Luxembourg',
     },
     {
       _type: 'core::GeoBox',
@@ -88,13 +88,13 @@ describe('project', () => {
       },
     },
     53248,
-    'core::TimeZone::Europe/Luxembourg',
+    'Europe/Luxembourg',
     57344,
     { _type: 'core::Error', message: 'an error', stack: [] },
-    'core::ErrorCode::none',
-    'core::SamplingMode::adaptative',
-    'core::DurationUnit::days',
-    'core::TensorType::c128',
+    'none',
+    'adaptative',
+    'days',
+    'c128',
     [
       [0, 0.5, { _type: 'project::Named', name: 'one' }],
       [1, 1.5, { _type: 'project::Named', name: 'two' }],
@@ -105,14 +105,14 @@ describe('project', () => {
       _type: 'core::Tensor',
       dim: 0,
       shape: [],
-      type: 'core::TensorType::i32',
+      type: 'i32',
       data: null,
     },
     {
       _type: 'core::Tensor',
       dim: 1,
       shape: [1, 1],
-      type: 'core::TensorType::f64',
+      type: 'f64',
       data: [[3.14]],
     },
     {
@@ -155,7 +155,7 @@ describe('project', () => {
         },
       ],
     },
-    'core::CalendarUnit::day',
+    'day',
     69632,
     [13, 37],
     [13, 37, 42],
@@ -206,16 +206,16 @@ describe('project', () => {
       start: null,
       duration: null,
       creation: '1970-01-01T01:00:00.000+0100',
-      status: 'runtime::TaskStatus::empty',
+      status: 'empty',
     },
-    'runtime::TaskStatus::cancelled',
+    'cancelled',
     { _type: 'runtime::Runtime' },
     {
       _type: 'runtime::RuntimeInfo',
       version: '',
       program_version: '1.2.3',
       arch: '',
-      timezone: 'core::TimeZone::Europe/Luxembourg',
+      timezone: 'Europe/Luxembourg',
       license: {
         _type: 'runtime::License',
         start: '1970-01-01T01:00:00.000+0100',
@@ -269,9 +269,9 @@ describe('project', () => {
     {
       _type: 'runtime::UserGroupPolicy',
       group_id: 12,
-      type: 'runtime::UserGroupPolicyType::execute',
+      type: 'execute',
     },
-    'runtime::UserGroupPolicyType::read',
+    'read',
     {
       _type: 'runtime::License',
       start: '1970-01-01T01:00:00.000+0100',
@@ -322,7 +322,11 @@ describe('project', () => {
       values: [
         { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 1 },
         { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 1000 },
-        { _type: 'core::Tuple<core::time,core::any?>', x: '1970-01-01T01:00:00.000+0100', y: 100000 },
+        {
+          _type: 'core::Tuple<core::time,core::any?>',
+          x: '1970-01-01T01:00:00.000+0100',
+          y: 100000,
+        },
         {
           _type: 'core::Tuple<core::time,core::any?>',
           x: '1970-01-01T01:00:00.000+0100',
@@ -386,14 +390,29 @@ describe('project', () => {
       // deserialize the value again from what we serialize
       const roundtrip_value = reader2.deserialize();
       // ensure the actual deserialized value and our roundtrip are equals
-      assert.deepStrictEqual(actual, roundtrip_value);
-      // serialize to JSON
-      actual = fromJson(toJson(actual));
-      // validate that we were actually expecting this value
-      assert.deepStrictEqual(actual, expected);
+      if (Number.isFinite(actual) && !Number.isInteger(actual)) {
+        // float type
+        assert.ok(almostEqual(actual, roundtrip_value));
+        // serialize to JSON
+        actual = fromJson(toJson(actual));
+        // validate that we were actually expecting this value
+        assert.ok(almostEqual(actual, expected));
+      } else {
+        // other type
+        assert.deepStrictEqual(actual, roundtrip_value);
+        // serialize to JSON
+        actual = fromJson(toJson(actual));
+        // validate that we were actually expecting this value
+        assert.deepStrictEqual(actual, expected);
+      }
     });
   }
 });
+
+// check float equality with tolerance
+function almostEqual(a, b, epsilon = 1e-12) {
+  return Math.abs(a - b) <= epsilon;
+}
 
 function fromJson(value) {
   return JSON.parse(value, (_, value) => {

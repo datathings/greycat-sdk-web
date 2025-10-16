@@ -177,8 +177,8 @@ namespace gc {
             return g.printTime(this, tz, '%Y-%m-%dT%H:%M:%S');
           }
 
-          override toString(tz?: gc.core.TimeZone, fmt?: string, g = gc.$.default): string {
-            return g.printTime(this, tz, fmt);
+          override toString(opts: ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS): string {
+            return (opts.g ?? gc.$.default).printTime(this, opts.tz, opts.timeFmt);
           }
 
           override toJSON() {

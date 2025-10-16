@@ -9,6 +9,26 @@ namespace gc {
       [key: string]: Value;
     }
 
+    export interface ToStringOptions {
+      /** When a display needs GreyCat this will be used, if undefined `gc.$.default` is used */
+      g?: gc.sdk.GreyCat;
+      /** The TimeZone to display time value in */
+      tz?: gc.core.TimeZone;
+      /** The format used to display time, defaults to `'%Y-%m-%dT%H:%M:%S%.3f%z'` */
+      timeFmt?: string;
+      /** The format used to display number */
+      numFmt?: Intl.NumberFormat;
+      /** Whether or not to display the enum key only, default to `false` which results in `'enum_name::enum_key'` */
+      enumKeyOnly: boolean;
+      /** Used between every parts of a duration, defaults to `' '` */
+      durationSep: string;
+    }
+
+    export const DEFAULT_TO_STRING_OPTIONS: ToStringOptions = {
+      enumKeyOnly: false,
+      durationSep: ' ',
+    };
+
     /**
      * A dynamic GreyCat type instance, used when no matching class found in the factory
      */
@@ -34,6 +54,7 @@ namespace gc {
               return abi_type.static_values![value.field];
             }
 
+            // oxlint-disable-next-line no-new-array
             const fields = new Array(abi_type.attrs.length);
             for (let i = 0; i < abi_type.attrs.length; i++) {
               const attr = abi_type.attrs[i];
@@ -168,7 +189,7 @@ namespace gc {
         return json;
       }
 
-      toString(): string {
+      toString(_opts?: ToStringOptions): string {
         return JSON.stringify(this);
       }
 
@@ -215,6 +236,7 @@ namespace gc {
 
       static load(r: AbiReader, type: AbiType): unknown {
         const programType = type.abi.types[type.mapped_type_off];
+        // oxlint-disable-next-line no-new-array
         const fields = new Array(programType.attrs.length);
         // initialize every elements to null
         for (let i = 0; i < fields.length; i++) {

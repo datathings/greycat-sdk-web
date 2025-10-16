@@ -151,6 +151,7 @@ namespace gc {
 
         /* const symbols_size = */ cursor.read_u64();
         const nb_symbols = cursor.read_u32();
+        // oxlint-disable-next-line no-new-array
         this.symbols = new Array(nb_symbols + 1);
         this.symbols[0] = ''; // symbol zero is a special symbol for "not found"
 
@@ -165,6 +166,7 @@ namespace gc {
         const nb_types = cursor.read_u32();
         /* const nb_attrs = */ cursor.read_u32(); // unused
 
+        // oxlint-disable-next-line no-new-array
         this.types = new Array(nb_types);
 
         for (let i = 0; i < this.types.length; i++) {
@@ -191,6 +193,7 @@ namespace gc {
           const is_ambiguous = (flags & (1 << 4)) !== 0;
           const is_volatile = (flags & (1 << 5)) !== 0;
 
+          // oxlint-disable-next-line no-new-array
           const attrs: AbiAttribute[] = new Array(attributes_len);
           for (let i = 0; i < attributes_len; i++) {
             const name = cursor.read_vu32();
@@ -358,6 +361,7 @@ namespace gc {
 
         /* const functions_size = */ cursor.read_u64();
         const functions_len = cursor.read_u32();
+        // oxlint-disable-next-line no-new-array
         this.functions = new Array(functions_len);
         for (let i = 0; i < functions_len; i++) {
           const module = cursor.read_vu32();
@@ -365,7 +369,9 @@ namespace gc {
           const name = cursor.read_vu32();
           const lib = cursor.read_vu32();
           const arity = cursor.read_vu32();
+          // oxlint-disable-next-line no-new-array
           const attrs = new Array(arity);
+          // oxlint-disable-next-line no-new-array
           const params = new Array(arity);
           for (let p = 0; p < arity; p++) {
             const nullable = cursor.read_u8() === 1;
@@ -696,7 +702,8 @@ namespace gc {
           this.static_values = {};
           if (offset === mapped_type_off) {
             // initialize all enum fields
-            this.enum_values = Array.from({ length: attrs.length });
+            // oxlint-disable-next-line no-new-array
+            this.enum_values = new Array(attrs.length);
             for (let offset = 0; offset < attrs.length; offset++) {
               const en_field_name = attrs[offset].name;
               const en = new this.ctor(offset, en_field_name) as GCEnum;

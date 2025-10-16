@@ -22,7 +22,7 @@ namespace gc {
             // noop
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             return `null`;
           }
 

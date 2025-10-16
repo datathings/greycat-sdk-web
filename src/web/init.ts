@@ -102,67 +102,23 @@ declare global {
 
 const sdkInit = gc.sdk.init;
 gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
+  preInit(options);
   const g = await sdkInit(options);
-  initWeb(options);
+  postInit();
   return g;
 };
 
 const sdkInitWithAbi = gc.sdk.initWithAbi;
 gc.sdk.initWithAbi = function webInitWithAbi(options: WebWithAbiOptions) {
+  preInit(options);
   const g = sdkInitWithAbi(options);
-  initWeb(options);
+  postInit();
   return g;
 };
 
-function initWeb(options: WebOptions) {
+function preInit(options: WebOptions) {
   registerCustomElement('gui-factory', GuiFactory);
-  // create the global object factory after it is registered
-  GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
-    [gc.core.Table._type]: 'gui-table',
-    [gc.core.Map._type]: 'gui-table',
-    [gc.core.Array._type]: 'gui-table',
-    [gc.core.String._type]: 'gui-value',
-    [gc.core.int._type]: 'gui-value',
-    [gc.core.float._type]: 'gui-value',
-    [gc.core.bool._type]: 'gui-value',
-    [gc.core.geo._type]: 'gui-value',
-    [gc.core.time._type]: 'gui-value',
-    [gc.core.str._type]: 'gui-value',
-    [gc.core.Date._type]: 'gui-value',
-    [gc.core.node._type]: 'gui-value',
-    [gc.core.nodeTime._type]: 'gui-value',
-    [gc.core.nodeIndex._type]: 'gui-value',
-    [gc.core.nodeGeo._type]: 'gui-value',
-    [gc.core.nodeList._type]: 'gui-value',
-    [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
-    [gc.util.HistogramStats._type]: 'gui-histogram',
-  });
   registerCustomElement('gui-input-factory', GuiInputFactory);
-  // create the global input factory after it is registered
-  GuiInputFactory.global = new GuiInputFactory({
-    ['core::any']: 'gui-input-any',
-    [gc.core.int._type]: 'gui-input-number',
-    [gc.core.float._type]: 'gui-input-number',
-    [gc.core.bool._type]: 'gui-input-bool',
-    [gc.core.String._type]: 'gui-input-string',
-    [gc.core.char._type]: 'gui-input-string',
-    [gc.core.str._type]: 'gui-input-str',
-    [gc.core.time._type]: 'gui-input-time',
-    [gc.core.null_._type]: 'gui-input-null',
-    [gc.core.type._type]: 'gui-input-type',
-    [gc.core.field._type]: 'gui-input-field',
-    [gc.core.duration._type]: 'gui-input-duration',
-    [gc.core.Array._type]: 'gui-input-array',
-    [gc.core.Map._type]: 'gui-input-map',
-    [gc.core.geo._type]: 'gui-input-geo',
-    [gc.core.node._type]: 'gui-input-node',
-    [gc.core.nodeIndex._type]: 'gui-input-node-index',
-    [gc.core.nodeTime._type]: 'gui-input-node-time',
-    [gc.core.nodeList._type]: 'gui-input-node-list',
-    [gc.core.nodeGeo._type]: 'gui-input-node-geo',
-    [gc.core.function_._type]: 'gui-input-fnptr',
-  });
-
   registerCustomElement('gui-time', GuiTime);
   registerCustomElement('gui-thead-cell', GuiTableHeadCell);
   registerCustomElement('gui-tbody-cell', GuiTableBodyCell);
@@ -247,6 +203,53 @@ function initWeb(options: WebOptions) {
     registerCustomElement('gui-map-markers', GuiMapMarkers);
     registerCustomElement('gui-map', GuiMap);
   }
+}
+
+function postInit() {
+  GuiInputFactory.global = new GuiInputFactory({
+    ['core::any']: 'gui-input-any',
+    [gc.core.int._type]: 'gui-input-number',
+    [gc.core.float._type]: 'gui-input-number',
+    [gc.core.bool._type]: 'gui-input-bool',
+    [gc.core.String._type]: 'gui-input-string',
+    [gc.core.char._type]: 'gui-input-string',
+    [gc.core.str._type]: 'gui-input-str',
+    [gc.core.time._type]: 'gui-input-time',
+    [gc.core.null_._type]: 'gui-input-null',
+    [gc.core.type._type]: 'gui-input-type',
+    [gc.core.field._type]: 'gui-input-field',
+    [gc.core.duration._type]: 'gui-input-duration',
+    [gc.core.Array._type]: 'gui-input-array',
+    [gc.core.Map._type]: 'gui-input-map',
+    [gc.core.geo._type]: 'gui-input-geo',
+    [gc.core.node._type]: 'gui-input-node',
+    [gc.core.nodeIndex._type]: 'gui-input-node-index',
+    [gc.core.nodeTime._type]: 'gui-input-node-time',
+    [gc.core.nodeList._type]: 'gui-input-node-list',
+    [gc.core.nodeGeo._type]: 'gui-input-node-geo',
+    [gc.core.function_._type]: 'gui-input-fnptr',
+  });
+
+  GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
+    [gc.core.Table._type]: 'gui-table',
+    [gc.core.Map._type]: 'gui-table',
+    [gc.core.Array._type]: 'gui-table',
+    [gc.core.String._type]: 'gui-value',
+    [gc.core.int._type]: 'gui-value',
+    [gc.core.float._type]: 'gui-value',
+    [gc.core.bool._type]: 'gui-value',
+    [gc.core.geo._type]: 'gui-value',
+    [gc.core.time._type]: 'gui-value',
+    [gc.core.str._type]: 'gui-value',
+    [gc.core.Date._type]: 'gui-value',
+    [gc.core.node._type]: 'gui-value',
+    [gc.core.nodeTime._type]: 'gui-value',
+    [gc.core.nodeIndex._type]: 'gui-value',
+    [gc.core.nodeGeo._type]: 'gui-value',
+    [gc.core.nodeList._type]: 'gui-value',
+    [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
+    [gc.util.HistogramStats._type]: 'gui-histogram',
+  });
 }
 
 declare global {

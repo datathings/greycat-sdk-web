@@ -234,9 +234,10 @@ export class GuiValue extends GuiElement implements GuiValueProps {
         name: this._name,
         tiny: this._tiny,
         text: this._text,
-        timezone: this._timezone,
-        format: this._format,
+        tz: this._timezone,
+        timeFmt: this._format,
         numFmt,
+        ...gc.sdk.DEFAULT_TO_STRING_OPTIONS,
       });
 
       // make sure previous handlers are removed

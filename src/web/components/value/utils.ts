@@ -1,4 +1,4 @@
-export interface StringifyProps {
+export interface StringifyProps extends gc.sdk.ToStringOptions {
   value: unknown;
   /**
    * use `name` to override node's ref with the given value
@@ -9,44 +9,38 @@ export interface StringifyProps {
    */
   text?: string;
   tiny?: boolean;
-  /** optional number formatter used for: `number` */
-  numFmt?: Intl.NumberFormat;
   /**
    * pretty-print content if possible
    */
   pretty?: boolean;
   /** optional boolean to surround strings with doublequotes, defaults to `false` */
   quotedString?: boolean;
-  /** optional timezone for datetime display */
-  timezone?: gc.core.TimeZone;
-  /** optional format for datetime display */
-  format?: string;
 }
 
 /**
  * Best-effort to stringify the given value.
  */
 export function stringify(props: StringifyProps): string {
-  const { text, value, numFmt, name, tiny, pretty = false, timezone, format } = props;
+  const { text, value, name, tiny, pretty = false, ...opts } = props;
   if (text) {
     return text;
   } else if (value instanceof gc.core.time) {
-    return value.toString(timezone, format);
+    return value.toString(opts);
   } else if (value instanceof gc.core.duration) {
-    return value.toString();
+    return value.toString(opts);
   } else if (typeof value === 'string') {
     if (tiny) {
       return props.quotedString ? `"${toStrTiny(value)}"` : toStrTiny(value);
     }
     return props.quotedString ? `"${value}"` : value;
   } else if (typeof value === 'number') {
-    return numFmt ? numFmt.format(value) : `${value}`;
+    return opts.numFmt ? opts.numFmt.format(value) : `${value}`;
   } else if (value instanceof Date) {
-    return gc.core.time.fromDate(value).toString(timezone, format);
+    return gc.core.time.fromDate(value).toString(opts);
   } else if (value instanceof gc.core.Date) {
-    return value.toString();
+    return value.toString(opts);
   } else if (value instanceof gc.core.str) {
-    return value.toString();
+    return value.toString(opts);
   } else if (value instanceof gc.core.Tuple) {
     const tmp = props.value;
     const tmpQuotedString = props.quotedString;
@@ -63,7 +57,7 @@ export function stringify(props: StringifyProps): string {
       const type = Object.getPrototypeOf(value).constructor._type.split('::')[1];
       return `${type}/${encodeURIComponent(name)}`;
     }
-    return value.toString();
+    return value.toString(opts);
   } else if (value instanceof gc.core.geo) {
     if (tiny) {
       return `${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}`;
@@ -102,7 +96,7 @@ export function stringify(props: StringifyProps): string {
     value instanceof gc.core.t4 ||
     value instanceof gc.core.t4f
   ) {
-    return value.toString(numFmt);
+    return value.toString(opts);
   } else if (value instanceof Map) {
     return `Map { size: ${value.size} }`;
   } else if (typeof value === 'object') {

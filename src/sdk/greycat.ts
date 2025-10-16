@@ -414,7 +414,8 @@ namespace gc {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const fn of this.abi.functions) {
           const theFn = (...args: unknown[]) => {
-            const args_ = Array.from({ length: fn.params.length });
+            // oxlint-disable-next-line no-new-array
+            const args_ = new Array(fn.params.length);
             for (let i = 0; i < fn.params.length; i++) {
               args_[i] = args[i];
             }

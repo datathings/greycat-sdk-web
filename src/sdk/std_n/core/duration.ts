@@ -168,7 +168,7 @@ namespace gc {
             return BigInt(this.value) === BigInt(other.value);
           }
 
-          override toString(separator = ' '): string {
+          override toString(opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS) {
             const us = typeof this.value === 'bigint' ? this.value : BigInt(this.value);
 
             if (us === 0n) {
@@ -186,42 +186,42 @@ namespace gc {
 
             if (remainder >= day) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder / day}day`;
               remainder %= day;
             }
             if (remainder >= hour) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder / hour}hour`;
               remainder %= hour;
             }
             if (remainder >= minute) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder / minute}min`;
               remainder %= minute;
             }
             if (remainder >= second) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder / second}s`;
               remainder %= second;
             }
             if (remainder >= millisecond) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder / millisecond}ms`;
               remainder %= millisecond;
             }
             if (remainder > 0) {
               if (result.length) {
-                result += separator;
+                result += opts.durationSep;
               }
               result += `${remainder}us`;
             }

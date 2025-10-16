@@ -554,7 +554,8 @@ namespace gc {
           }
         }
 
-        const arr = Array.from({ length: len });
+        // oxlint-disable-next-line no-new-array
+        const arr = new Array(len);
         for (let i = 0; i < len; i++) {
           if (nullable_mask) {
             if (is_elem_nullable(nullable_mask, i)) {

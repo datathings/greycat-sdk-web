@@ -31,7 +31,7 @@ namespace gc {
             return this.value === other.value;
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             return `${this.value}`;
           }
 

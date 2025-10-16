@@ -86,7 +86,10 @@ namespace gc {
 
       // extend core.Date
       Object.assign(core.Date.prototype, {
-        toString(this: core.Date) {
+        toString(
+          this: core.Date,
+          _opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
+        ) {
           const month = this.month.toString().padStart(2, '0');
           const day = this.day.toString().padStart(2, '0');
           const hour = this.hour.toString().padStart(2, '0');
@@ -128,6 +131,9 @@ namespace gc {
       g?: GreyCat,
       signal?: AbortSignal,
     ) {
+      if (currDepth == maxDepth) {
+        return;
+      }
       if (file.size == null) {
         // directory
         const children = await file.list(g, signal);

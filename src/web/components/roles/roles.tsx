@@ -40,8 +40,8 @@ export class GuiRoles extends GuiElement {
       const roles = await gc.runtime.Role.all();
       const permissions = await gc.runtime.Permission.all();
 
-      const rows: Array<[string, gc.runtime.Permission[]]> = Array.from({ length: roles.length });
-
+      // oxlint-disable-next-line no-new-array
+      const rows: Array<[string, gc.runtime.Permission[]]> = new Array(roles.length);
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i];
         rows[i] = [

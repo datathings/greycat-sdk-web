@@ -29,7 +29,7 @@ namespace gc {
             return new ty.ctor(value) as char;
           }
 
-          override toString(): string {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS): string {
             return this.value;
           }
 

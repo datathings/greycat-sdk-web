@@ -389,7 +389,7 @@ namespace gc {
            */
           async inferMappings(g: GreyCat = gc.$.default): Promise<gc.core.TableColumnMapping[]> {
             const mappings: gc.core.TableColumnMapping[] = [];
-            const row = globalThis.Array.from({ length: this.cols.length });
+            const row = new globalThis.Array(this.cols.length);
 
             let hasNodes = false;
             for (let i = 0; i < this.cols.length; i++) {

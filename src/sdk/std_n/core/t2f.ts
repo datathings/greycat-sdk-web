@@ -34,10 +34,15 @@ namespace gc {
             return [this.x0, this.x1];
           }
 
-          override toString(fmt?: Intl.NumberFormat): string {
-            const x0 = fmt?.format(this.x0) ?? `${this.x0}`;
-            const x1 = fmt?.format(this.x1) ?? `${this.x1}`;
-            return `[${x0}, ${x1}]`;
+          override toString(
+            opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
+          ): string {
+            if (opts.numFmt) {
+              const x0 = opts.numFmt.format(this.x0);
+              const x1 = opts.numFmt.format(this.x1);
+              return `[${x0}, ${x1}]`;
+            }
+            return `[${this.x0}, ${this.x1}]`;
           }
         }
       }

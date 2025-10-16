@@ -37,7 +37,7 @@ namespace gc {
             w.write_vu64(this.value);
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             return `${this.value}_nodeIndex`;
           }
 

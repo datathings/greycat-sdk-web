@@ -146,7 +146,7 @@ declare namespace gc {
       /**
        * ISO8601-ish representation of this date
        */
-      toString(): string;
+      toString(opts?: gc.sdk.ToStringOptions): string;
     }
   }
 }

@@ -27,7 +27,7 @@ namespace gc {
             w.write_vu32(this.type_id);
           }
 
-          override toString() {
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
             return this.$type.abi.types[this.type_id].name;
           }
 

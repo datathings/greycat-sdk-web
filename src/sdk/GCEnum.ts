@@ -28,12 +28,15 @@ namespace gc {
         return programType.static_values![abiTypeAtt.name];
       }
 
-      override toString(): string {
+      override toString(opts: ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS): string {
+        if (opts.enumKeyOnly) {
+          return this.key;
+        }
         return `${this.$type.name}::${this.key}`;
       }
 
       override toJSON() {
-        return `${this.$type.name}::${this.key}`;
+        return `${this.key}`;
       }
     }
   }

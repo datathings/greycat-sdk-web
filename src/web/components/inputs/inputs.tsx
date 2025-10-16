@@ -1527,7 +1527,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    const opts: GuiOption[] = Array.from({ length: gc.$.default.abi.types.length - 1 });
+    // oxlint-disable-next-line no-new-array
+    const opts: GuiOption[] = new Array(gc.$.default.abi.types.length - 1);
     for (let index = 1; index < gc.$.default.abi.types.length; index++) {
       const t = gc.$.default.abi.types[index];
       opts[index - 1] = { text: t.name, value: t.offset };

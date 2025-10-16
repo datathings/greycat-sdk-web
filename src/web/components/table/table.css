@@ -28,6 +28,7 @@
   --table-resizer-bg-color-hover: var(--primary-hover);
 
   --table-head-height: fit-content;
+  --table-head-shadow: var(--sl-shadow-small);
   --table-head-bg-color: var(--base-0);
   --table-head-bg-color-hover: var(--bg-1);
   --table-head-border-color: var(--base-2);
@@ -75,6 +76,7 @@ gui-thead {
   display: flex;
   z-index: 1;
   opacity: 1;
+  box-shadow: var(--table-head-shadow);
 }
 .gui-table-resizing > * {
   cursor: ew-resize !important;

@@ -15,6 +15,7 @@ import {
   modal,
   createElement,
   GuiFactory,
+  StringifyProps,
 } from '../../exports.js';
 import '../search-input/index.js';
 import style from './table.css?inline';
@@ -541,7 +542,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (mappings.length > 0) {
         const offset = this._table.cols.length;
         const new_table = await gc.core.Table.applyMappings(table, mappings);
-        const headers: string[] = Array.from({ length: new_table.cols.length });
+        // oxlint-disable-next-line no-new-array
+        const headers: string[] = new Array(new_table.cols.length);
         for (let i = 0; i < offset; i++) {
           headers[i] = this._table.headers?.[i] ?? `Column ${i}`;
         }
@@ -1673,6 +1675,7 @@ export class GuiTableBody extends HTMLElement {
 
     let globalMatchFound = false;
 
+    const props: StringifyProps = { value: undefined, ...gc.sdk.DEFAULT_TO_STRING_OPTIONS };
     for (let remapIndex = 0; remapIndex < state.remap.length; remapIndex++) {
       const colIdx = state.remap[remapIndex];
       const colFilter = filterColumns[colIdx];
@@ -1680,7 +1683,8 @@ export class GuiTableBody extends HTMLElement {
 
       // Only compute cell text if needed (for col filter or global filter)
       if ((colFilter && colFilter.length > 0) || filterText.length > 0) {
-        cellText = stringify({ value: table.cols[colIdx][rowIdx] }).toLowerCase();
+        props.value = table.cols[colIdx][rowIdx];
+        cellText = stringify(props).toLowerCase();
       }
 
       // Column-specific filter must match.
@@ -1796,7 +1800,8 @@ export class GuiTableBodyRow extends HTMLElement {
   }
 
   get value() {
-    const values = Array.from({ length: this.children.length });
+    // oxlint-disable-next-line no-new-array
+    const values = new Array(this.children.length);
     this.childNodes.forEach((child, i) => {
       values[i] = (child as GuiTableBodyCell).value;
     });

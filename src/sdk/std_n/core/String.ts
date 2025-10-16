@@ -35,6 +35,10 @@ namespace gc {
           override toJSON() {
             return this.value;
           }
+
+          override toString(_opts: gc.sdk.ToStringOptions = DEFAULT_TO_STRING_OPTIONS) {
+            return this.value;
+          }
         }
       }
     }
