@@ -351,6 +351,17 @@ namespace gc {
             return row as T;
           }
 
+          getRowObject(index: number): T | Record<string, unknown> | undefined {
+            if (this._initial_value !== undefined) {
+              return this._initial_value[index] as T | undefined;
+            }
+            const record: Record<string, unknown> = {};
+            for (let c = 0; c < this.cols.length; c++) {
+              record[this.headers?.[c] ?? `${c}`] = this.cols[c][index];
+            }
+            return record;
+          }
+
           /**
            * Returns the row as an array (if the `index` is not in bounds, returns `undefined`)
            */
