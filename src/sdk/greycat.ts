@@ -206,12 +206,6 @@ namespace gc {
       );
 
       try {
-        g.roles = await runtime.Role.all(g);
-      } catch {
-        // we probably don't have the permission to access this endpoint
-      }
-
-      try {
         g.permissions = await runtime.User.permissions(g);
       } catch {
         // we probably don't have the permission to access this endpoint
@@ -347,8 +341,6 @@ namespace gc {
       timezone: gc.core.TimeZone;
       /** the number formatter of this instance */
       numFmt: Intl.NumberFormat;
-      /** program roles & permissions */
-      roles: gc.runtime.Role[] = [];
       /** server tasks, this list is automatically updated periodically */
       tasks: gc.runtime.Task[] = [];
       /** currently connected user permissions */
