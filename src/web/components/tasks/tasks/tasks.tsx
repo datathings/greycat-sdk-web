@@ -39,7 +39,7 @@ export class GuiTasks extends GuiElement {
         {
           index: gc.runtime.Task.$fields.user_id,
           header: 'User',
-          value: (value) => {
+          value: ({ value }) => {
             const user_id = Number(value);
             return this._users[user_id] ?? user_id;
           },
@@ -62,12 +62,12 @@ export class GuiTasks extends GuiElement {
         {
           index: gc.runtime.Task.$fields.start,
           header: 'Started',
-          value: (value) => value ?? '',
+          value: ({ value }) => value ?? '',
         },
         {
           index: gc.runtime.Task.$fields.duration,
           header: 'Duration',
-          value: (value) => value ?? '',
+          value: ({ value }) => value ?? '',
         },
         {
           index: gc.runtime.Task.$fields.status,
