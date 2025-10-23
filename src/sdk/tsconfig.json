@@ -27,6 +27,8 @@
   "files": [
     "polyfill.ts",
     "wasm.ts",
+    "emitter.ts",
+    "poll.ts",
     "GCObject.ts",
     "GCEnum.ts",
     "abi.ts",

@@ -101,8 +101,8 @@ declare namespace gc {
     }
 
     class nodeTime<T = any> extends gc.sdk.std_n.core.nodeTime<T> {
-      static info(nodes: globalThis.Array<gc.core.nodeTime>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>;
-      static sample(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeTime>], globalThis.Array<gc.core.NodeInfo<gc.core.time>>>;
+      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeTime>, gc.core.time | null, gc.core.time | null, number | bigint, gc.core.SamplingMode, gc.core.duration | null | undefined, gc.core.TimeZone | null | undefined], gc.core.Table>;
     }
 
     class node$resolve_all$args extends gc.sdk.GCObject {
@@ -174,8 +174,8 @@ declare namespace gc {
     class field extends gc.sdk.std_n.core.field {}
 
     class nodeList<T = any> extends gc.sdk.std_n.core.nodeList<T> {
-      static info(nodes: globalThis.Array<gc.core.nodeList>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<number | bigint>>>;
-      static sample(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeList>], globalThis.Array<gc.core.NodeInfo<number | bigint>>>;
+      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeList>, number | bigint | null, number | bigint | null, number | bigint, gc.core.SamplingMode, number | bigint | null | undefined], gc.core.Table>;
     }
 
     class t3 extends gc.sdk.std_n.core.t3 {}
@@ -898,7 +898,7 @@ declare namespace gc {
     class t4f extends gc.sdk.std_n.core.t4f {}
 
     class node<T = any> extends gc.sdk.std_n.core.node<T> {
-      static resolve_all(n: globalThis.Array<gc.core.node | null>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<any | null>>;
+      static resolve_all: gc.sdk.ExposedFn<[globalThis.Array<gc.core.node | null>], globalThis.Array<any | null>>;
     }
 
     class SamplingMode extends gc.sdk.GCEnum {
@@ -989,9 +989,9 @@ declare namespace gc {
     }
 
     class nodeIndex<K = any, V = any> extends gc.sdk.std_n.core.nodeIndex<K, V> {
-      static search_closest(i: gc.core.nodeIndex, key: any, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.SearchResult>>;
-      static info(nodes: globalThis.Array<gc.core.nodeIndex>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo>>;
-      static sample(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+      static search_closest: gc.sdk.ExposedFn<[gc.core.nodeIndex, any, number | bigint], globalThis.Array<gc.core.SearchResult>>;
+      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeIndex>], globalThis.Array<gc.core.NodeInfo>>;
+      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode], gc.core.Table>;
     }
 
     class CalendarUnit extends gc.sdk.GCEnum {
@@ -1050,7 +1050,7 @@ declare namespace gc {
     }
 
     class Table<T = any> extends gc.sdk.std_n.core.Table<T> {
-      static applyMappings(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+      static applyMappings: gc.sdk.ExposedFn<[gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>], gc.core.Table>;
     }
 
     class MathConstants extends gc.sdk.GCObject {
@@ -1124,8 +1124,8 @@ declare namespace gc {
     class Map<K = any, V = any> extends gc.sdk.std_n.core.Map<K, V> {}
 
     class nodeGeo<T = any> extends gc.sdk.std_n.core.nodeGeo<T> {
-      static info(nodes: globalThis.Array<gc.core.nodeGeo>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>;
-      static sample(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
+      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeGeo>], globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>;
+      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeGeo>, gc.core.geo | null, gc.core.geo | null, number | bigint, gc.core.SamplingMode], gc.core.Table>;
     }
 
     class char extends gc.sdk.std_n.core.char {}
@@ -1610,9 +1610,9 @@ declare namespace gc {
 
     class Csv extends gc.sdk.GCObject {
       static readonly _type = 'io::Csv';
-      static sample(reader: gc.io.CsvReader, max_lines?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-      static analyze(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.io.CsvStatistics>;
-      static generate(stats: gc.io.CsvStatistics, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
+      static sample: gc.sdk.ExposedFn<[gc.io.CsvReader, number | bigint | null | undefined], gc.core.Table>;
+      static analyze: gc.sdk.ExposedFn<[globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null | undefined], gc.io.CsvStatistics>;
+      static generate: gc.sdk.ExposedFn<[gc.io.CsvStatistics], string>;
     }
 
     class Csv$generate$args extends gc.sdk.GCObject {
@@ -1827,8 +1827,8 @@ declare namespace gc {
       id: number | bigint;
       name: string;
       activated: boolean;
-      static set(entity: gc.runtime.SecurityEntity, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<number | bigint | null>;
-      static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.SecurityEntity>>;
+      static set: gc.sdk.ExposedFn<[gc.runtime.SecurityEntity], number | bigint | null>;
+      static all: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.SecurityEntity>>;
     }
     namespace SecurityEntity {
       interface $Fields {
@@ -2132,11 +2132,11 @@ declare namespace gc {
 
     class Scheduler extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Scheduler';
-      static deactivate(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<boolean>;
-      static activate(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<boolean>;
-      static find(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.PeriodicTask | null>;
-      static list($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.PeriodicTask>>;
-      static add(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+      static deactivate: gc.sdk.ExposedFn<[gc.core.function_], boolean>;
+      static activate: gc.sdk.ExposedFn<[gc.core.function_], boolean>;
+      static find: gc.sdk.ExposedFn<[gc.core.function_], gc.runtime.PeriodicTask | null>;
+      static list: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.PeriodicTask>>;
+      static add: gc.sdk.ExposedFn<[gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null | undefined], unknown>;
     }
 
     class UserGroup extends gc.sdk.GCObject {
@@ -2171,8 +2171,8 @@ declare namespace gc {
       groups: globalThis.Map<string, string> | null;
       constructor(email?: string | null, name?: string | null, first_name?: string | null, last_name?: string | null, roles?: globalThis.Map<string, string> | null, groups?: globalThis.Map<string, string> | null);
       static createFrom(fields: {email?: string | null, name?: string | null, first_name?: string | null, last_name?: string | null, roles?: globalThis.Map<string, string> | null, groups?: globalThis.Map<string, string> | null}): SecurityFields;
-      static get($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.SecurityFields | null>;
-      static set(f: gc.runtime.SecurityFields, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
+      static get: gc.sdk.ExposedFn<[], gc.runtime.SecurityFields | null>;
+      static set: gc.sdk.ExposedFn<[gc.runtime.SecurityFields], unknown>;
     }
     namespace SecurityFields {
       interface $Fields {
@@ -2307,7 +2307,7 @@ declare namespace gc {
 
     class OpenApi extends gc.sdk.GCObject {
       static readonly _type = 'runtime::OpenApi';
-      static v3($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenApiV3>;
+      static v3: gc.sdk.ExposedFn<[], gc.runtime.OpenApiV3>;
     }
 
     class Debug extends gc.sdk.GCObject {
@@ -2318,9 +2318,9 @@ declare namespace gc {
       root: any;
       constructor(id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any);
       static createFrom(fields: {id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any}): Debug;
-      static resume(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-      static get(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
-      static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
+      static resume: gc.sdk.ExposedFn<[number | bigint], unknown>;
+      static get: gc.sdk.ExposedFn<[number | bigint], gc.runtime.Debug>;
+      static all: gc.sdk.ExposedFn<[], globalThis.Array<number | bigint>>;
     }
     namespace Debug {
       interface $Fields {
@@ -2550,7 +2550,7 @@ declare namespace gc {
       permissions: globalThis.Array<string>;
       constructor(name: string, permissions: globalThis.Array<string>);
       static createFrom(fields: {name: string, permissions: globalThis.Array<string>}): Role;
-      static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Role>>;
+      static all: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.Role>>;
     }
     namespace Role {
       interface $Fields {
@@ -2659,7 +2659,7 @@ declare namespace gc {
       clientId: string;
       constructor(url: string, clientId: string);
       static createFrom(fields: {url: string, clientId: string}): OpenIDConnect;
-      static config($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
+      static config: gc.sdk.ExposedFn<[], gc.runtime.OpenIDConnect | null>;
     }
     namespace OpenIDConnect {
       interface $Fields {
@@ -2675,7 +2675,7 @@ declare namespace gc {
       description: string;
       constructor(name: string, description: string);
       static createFrom(fields: {name: string, description: string}): Permission;
-      static all($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Permission>>;
+      static all: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.Permission>>;
     }
     namespace Permission {
       interface $Fields {
@@ -2686,9 +2686,9 @@ declare namespace gc {
 
     class Runtime extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Runtime';
-      static root($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<any>;
-      static abi($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-      static info($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.RuntimeInfo>;
+      static root: gc.sdk.ExposedFn<[], any>;
+      static abi: gc.sdk.ExposedFn<[], unknown>;
+      static info: gc.sdk.ExposedFn<[], gc.runtime.RuntimeInfo>;
     }
 
     class SchemaObject extends gc.sdk.GCObject {
@@ -2768,7 +2768,7 @@ declare namespace gc {
       static readonly _type = 'runtime::Runtime$root$args';
     }
 
-    class Task extends gc.sdk.GCObject {
+    class Task<T = any> extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Task';
       static readonly $fields: Task.$Fields;
       user_id: number | bigint;
@@ -2783,10 +2783,10 @@ declare namespace gc {
       progress: number | null;
       constructor(user_id: number | bigint, task_id: number | bigint, mod: string | null, type: string | null, fun: string | null, creation: gc.core.time, start: gc.core.time | null, duration: gc.core.duration | null, status: gc.runtime.TaskStatus, progress?: number | null);
       static createFrom(fields: {user_id: number | bigint, task_id: number | bigint, mod?: string | null, type?: string | null, fun?: string | null, creation: gc.core.time, start?: gc.core.time | null, duration?: gc.core.duration | null, status: gc.runtime.TaskStatus, progress?: number | null}): Task;
-      static is_running(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<boolean>;
-      static cancel(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<boolean>;
-      static history(offset: number | bigint, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
-      static running($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
+      static is_running: gc.sdk.ExposedFn<[number | bigint], boolean>;
+      static cancel: gc.sdk.ExposedFn<[number | bigint], boolean>;
+      static history: gc.sdk.ExposedFn<[number | bigint, number | bigint], globalThis.Array<gc.runtime.Task>>;
+      static running: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.Task>>;
     }
     namespace Task {
       interface $Fields {
@@ -2872,14 +2872,14 @@ declare namespace gc {
       external: boolean;
       constructor(id: number | bigint, name: string, activated: boolean, full_name: string | null, email: string | null, role: string | null, groups: globalThis.Array<gc.runtime.UserGroupPolicy> | null, groups_flags: number | bigint | null, external: boolean);
       static createFrom(fields: {id: number | bigint, name: string, activated: boolean, full_name?: string | null, email?: string | null, role?: string | null, groups?: globalThis.Array<gc.runtime.UserGroupPolicy> | null, groups_flags?: number | bigint | null, external: boolean}): User;
-      static setPassword(name: string, pass: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<boolean>;
-      static permissions($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<globalThis.Array<string>>;
-      static me($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.User>;
-      static current($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<number | bigint>;
-      static renew(use_cookie: boolean, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
-      static logout($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<unknown>;
-      static tokenLogin(token: string, use_cookie: boolean, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
-      static login(credentials: string, use_cookie: boolean, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<string>;
+      static setPassword: gc.sdk.ExposedFn<[string, string], boolean>;
+      static permissions: gc.sdk.ExposedFn<[], globalThis.Array<string>>;
+      static me: gc.sdk.ExposedFn<[], gc.runtime.User>;
+      static current: gc.sdk.ExposedFn<[], number | bigint>;
+      static renew: gc.sdk.ExposedFn<[boolean], string>;
+      static logout: gc.sdk.ExposedFn<[], unknown>;
+      static tokenLogin: gc.sdk.ExposedFn<[string, boolean], string>;
+      static login: gc.sdk.ExposedFn<[string, boolean], string>;
     }
     namespace User {
       interface $Fields {
@@ -3397,143 +3397,4 @@ declare namespace gc {
 
   }
 
-  namespace sdk {
-    interface GreyCat {
-        call(method: 'core::nodeTime::info', args: [globalThis.Array<gc.core.nodeTime>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>;
-        spawn(method: 'core::nodeTime::info', args: [globalThis.Array<gc.core.nodeTime>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeTime::info', args: [globalThis.Array<gc.core.nodeTime>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>;
-        call(method: 'core::nodeTime::sample', args: [globalThis.Array<gc.core.nodeTime>, gc.core.time | null, gc.core.time | null, number | bigint, gc.core.SamplingMode, gc.core.duration | null, gc.core.TimeZone | null], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'core::nodeTime::sample', args: [globalThis.Array<gc.core.nodeTime>, gc.core.time | null, gc.core.time | null, number | bigint, gc.core.SamplingMode, gc.core.duration | null, gc.core.TimeZone | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeTime::sample', args: [globalThis.Array<gc.core.nodeTime>, gc.core.time | null, gc.core.time | null, number | bigint, gc.core.SamplingMode, gc.core.duration | null, gc.core.TimeZone | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'core::nodeList::info', args: [globalThis.Array<gc.core.nodeList>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<number | bigint>>>;
-        spawn(method: 'core::nodeList::info', args: [globalThis.Array<gc.core.nodeList>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeList::info', args: [globalThis.Array<gc.core.nodeList>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<number | bigint>>>;
-        call(method: 'core::nodeList::sample', args: [globalThis.Array<gc.core.nodeList>, number | bigint | null, number | bigint | null, number | bigint, gc.core.SamplingMode, number | bigint | null], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'core::nodeList::sample', args: [globalThis.Array<gc.core.nodeList>, number | bigint | null, number | bigint | null, number | bigint, gc.core.SamplingMode, number | bigint | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeList::sample', args: [globalThis.Array<gc.core.nodeList>, number | bigint | null, number | bigint | null, number | bigint, gc.core.SamplingMode, number | bigint | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'core::node::resolve_all', args: [globalThis.Array<gc.core.node | null>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<any | null>>;
-        spawn(method: 'core::node::resolve_all', args: [globalThis.Array<gc.core.node | null>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::node::resolve_all', args: [globalThis.Array<gc.core.node | null>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<any | null>>;
-        call(method: 'core::nodeIndex::search_closest', args: [gc.core.nodeIndex, any, number | bigint], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.SearchResult>>;
-        spawn(method: 'core::nodeIndex::search_closest', args: [gc.core.nodeIndex, any, number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeIndex::search_closest', args: [gc.core.nodeIndex, any, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.SearchResult>>;
-        call(method: 'core::nodeIndex::info', args: [globalThis.Array<gc.core.nodeIndex>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo>>;
-        spawn(method: 'core::nodeIndex::info', args: [globalThis.Array<gc.core.nodeIndex>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeIndex::info', args: [globalThis.Array<gc.core.nodeIndex>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo>>;
-        call(method: 'core::nodeIndex::sample', args: [globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'core::nodeIndex::sample', args: [globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeIndex::sample', args: [globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'core::Table::applyMappings', args: [gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'core::Table::applyMappings', args: [gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::Table::applyMappings', args: [gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'core::nodeGeo::info', args: [globalThis.Array<gc.core.nodeGeo>], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>;
-        spawn(method: 'core::nodeGeo::info', args: [globalThis.Array<gc.core.nodeGeo>], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeGeo::info', args: [globalThis.Array<gc.core.nodeGeo>], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>;
-        call(method: 'core::nodeGeo::sample', args: [globalThis.Array<gc.core.nodeGeo>, gc.core.geo | null, gc.core.geo | null, number | bigint, gc.core.SamplingMode], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'core::nodeGeo::sample', args: [globalThis.Array<gc.core.nodeGeo>, gc.core.geo | null, gc.core.geo | null, number | bigint, gc.core.SamplingMode], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'core::nodeGeo::sample', args: [globalThis.Array<gc.core.nodeGeo>, gc.core.geo | null, gc.core.geo | null, number | bigint, gc.core.SamplingMode], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'io::Csv::sample', args: [gc.io.CsvReader, number | bigint | null], signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        spawn(method: 'io::Csv::sample', args: [gc.io.CsvReader, number | bigint | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'io::Csv::sample', args: [gc.io.CsvReader, number | bigint | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.core.Table>;
-        call(method: 'io::Csv::analyze', args: [globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null], signal?: globalThis.AbortSignal): Promise<gc.io.CsvStatistics>;
-        spawn(method: 'io::Csv::analyze', args: [globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'io::Csv::analyze', args: [globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.io.CsvStatistics>;
-        call(method: 'io::Csv::generate', args: [gc.io.CsvStatistics], signal?: globalThis.AbortSignal): Promise<string>;
-        spawn(method: 'io::Csv::generate', args: [gc.io.CsvStatistics], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'io::Csv::generate', args: [gc.io.CsvStatistics], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
-        call(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], signal?: globalThis.AbortSignal): Promise<number | bigint | null>;
-        spawn(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::SecurityEntity::set', args: [gc.runtime.SecurityEntity], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<number | bigint | null>;
-        call(method: 'runtime::SecurityEntity::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.SecurityEntity>>;
-        spawn(method: 'runtime::SecurityEntity::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::SecurityEntity::all', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.SecurityEntity>>;
-        call(method: 'runtime::Scheduler::deactivate', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<boolean>;
-        spawn(method: 'runtime::Scheduler::deactivate', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Scheduler::deactivate', args: [gc.core.function_], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<boolean>;
-        call(method: 'runtime::Scheduler::activate', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<boolean>;
-        spawn(method: 'runtime::Scheduler::activate', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Scheduler::activate', args: [gc.core.function_], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<boolean>;
-        call(method: 'runtime::Scheduler::find', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<gc.runtime.PeriodicTask | null>;
-        spawn(method: 'runtime::Scheduler::find', args: [gc.core.function_], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Scheduler::find', args: [gc.core.function_], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.PeriodicTask | null>;
-        call(method: 'runtime::Scheduler::list', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.PeriodicTask>>;
-        spawn(method: 'runtime::Scheduler::list', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Scheduler::list', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.PeriodicTask>>;
-        call(method: 'runtime::Scheduler::add', args: [gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::Scheduler::add', args: [gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Scheduler::add', args: [gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'runtime::SecurityFields::get', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.SecurityFields | null>;
-        spawn(method: 'runtime::SecurityFields::get', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::SecurityFields::get', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.SecurityFields | null>;
-        call(method: 'runtime::SecurityFields::set', args: [gc.runtime.SecurityFields], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::SecurityFields::set', args: [gc.runtime.SecurityFields], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::SecurityFields::set', args: [gc.runtime.SecurityFields], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'runtime::OpenApi::v3', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenApiV3>;
-        spawn(method: 'runtime::OpenApi::v3', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::OpenApi::v3', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenApiV3>;
-        call(method: 'runtime::Debug::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::Debug::resume', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Debug::resume', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'runtime::Debug::get', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
-        spawn(method: 'runtime::Debug::get', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Debug::get', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.Debug>;
-        call(method: 'runtime::Debug::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
-        spawn(method: 'runtime::Debug::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Debug::all', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<number | bigint>>;
-        call(method: 'runtime::Role::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Role>>;
-        spawn(method: 'runtime::Role::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Role::all', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Role>>;
-        call(method: 'runtime::OpenIDConnect::config', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
-        spawn(method: 'runtime::OpenIDConnect::config', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::OpenIDConnect::config', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.OpenIDConnect | null>;
-        call(method: 'runtime::Permission::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Permission>>;
-        spawn(method: 'runtime::Permission::all', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Permission::all', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Permission>>;
-        call(method: 'runtime::Runtime::root', args?: undefined, signal?: globalThis.AbortSignal): Promise<any>;
-        spawn(method: 'runtime::Runtime::root', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Runtime::root', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<any>;
-        call(method: 'runtime::Runtime::abi', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::Runtime::abi', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Runtime::abi', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'runtime::Runtime::info', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.RuntimeInfo>;
-        spawn(method: 'runtime::Runtime::info', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Runtime::info', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.RuntimeInfo>;
-        call(method: 'runtime::Task::is_running', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<boolean>;
-        spawn(method: 'runtime::Task::is_running', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Task::is_running', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<boolean>;
-        call(method: 'runtime::Task::cancel', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<boolean>;
-        spawn(method: 'runtime::Task::cancel', args: [number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Task::cancel', args: [number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<boolean>;
-        call(method: 'runtime::Task::history', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
-        spawn(method: 'runtime::Task::history', args: [number | bigint, number | bigint], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Task::history', args: [number | bigint, number | bigint], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
-        call(method: 'runtime::Task::running', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
-        spawn(method: 'runtime::Task::running', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::Task::running', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<gc.runtime.Task>>;
-        call(method: 'runtime::User::setPassword', args: [string, string], signal?: globalThis.AbortSignal): Promise<boolean>;
-        spawn(method: 'runtime::User::setPassword', args: [string, string], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::setPassword', args: [string, string], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<boolean>;
-        call(method: 'runtime::User::permissions', args?: undefined, signal?: globalThis.AbortSignal): Promise<globalThis.Array<string>>;
-        spawn(method: 'runtime::User::permissions', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::permissions', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<globalThis.Array<string>>;
-        call(method: 'runtime::User::me', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.User>;
-        spawn(method: 'runtime::User::me', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::me', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<gc.runtime.User>;
-        call(method: 'runtime::User::current', args?: undefined, signal?: globalThis.AbortSignal): Promise<number | bigint>;
-        spawn(method: 'runtime::User::current', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::current', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<number | bigint>;
-        call(method: 'runtime::User::renew', args: [boolean], signal?: globalThis.AbortSignal): Promise<string>;
-        spawn(method: 'runtime::User::renew', args: [boolean], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::renew', args: [boolean], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
-        call(method: 'runtime::User::logout', args?: undefined, signal?: globalThis.AbortSignal): Promise<unknown>;
-        spawn(method: 'runtime::User::logout', args?: undefined, signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::logout', args?: undefined, pollEvery?: number, signal?: globalThis.AbortSignal): Promise<unknown>;
-        call(method: 'runtime::User::tokenLogin', args: [string, boolean], signal?: globalThis.AbortSignal): Promise<string>;
-        spawn(method: 'runtime::User::tokenLogin', args: [string, boolean], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::tokenLogin', args: [string, boolean], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
-        call(method: 'runtime::User::login', args: [string, boolean], signal?: globalThis.AbortSignal): Promise<string>;
-        spawn(method: 'runtime::User::login', args: [string, boolean], signal?: globalThis.AbortSignal): Promise<gc.runtime.Task>;
-        spawnAwait(method: 'runtime::User::login', args: [string, boolean], pollEvery?: number, signal?: globalThis.AbortSignal): Promise<string>;
-    }
-  }
 }

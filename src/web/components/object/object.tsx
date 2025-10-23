@@ -45,11 +45,17 @@ export class GuiObject<T = unknown> extends GuiElement {
   private _resolve = false;
   private _props: ObjectProps = {};
   private _factory: GuiFactory = GuiFactory.global;
+  private _dispose: (() => void) | undefined;
 
   connectedCallback() {
     this.classList.add('gui-object');
     this._factory = GuiFactory.closest(this);
     this.update();
+  }
+
+  disconnectedCallback() {
+    this._dispose?.();
+    this._dispose = undefined;
   }
 
   setAttrs({
@@ -66,6 +72,8 @@ export class GuiObject<T = unknown> extends GuiElement {
     this._nested = nested;
     this._expanded = expanded;
     this._resolve = resolve;
+    this._dispose?.();
+    this._dispose = undefined;
     this.update();
   }
 
@@ -226,6 +234,32 @@ export class GuiObject<T = unknown> extends GuiElement {
 
     if (value instanceof gc.sdk.GCEnum) {
       this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
+      return;
+    }
+
+    if (value instanceof gc.runtime.Task) {
+      this._dispose = gc.$.default.pollRegister(
+        `gui-object#task-${value.task_id}`,
+        2000,
+        (tasks) => {
+          const task = tasks.find((t) => t.task_id === value.task_id);
+          if (task) {
+            this._renderAsGCObject(task);
+            switch (task.status.key) {
+              case 'await':
+              case 'running':
+              case 'waiting':
+                // TODO add a cancel button?
+                break;
+              default:
+                this._dispose?.();
+                this._dispose = undefined;
+                break;
+            }
+          }
+        },
+      );
+      this._renderAsGCObject(value);
       return;
     }
 
@@ -467,7 +501,9 @@ export class GuiObject<T = unknown> extends GuiElement {
     this.shadowRoot.replaceChildren(
       <gui-card className="gui-object-card" part="base">
         {header}
-        <div className={['gui-object', 'gui-object-grid']} part="grid">{fragment}</div>
+        <div className={['gui-object', 'gui-object-grid']} part="grid">
+          {fragment}
+        </div>
       </gui-card>,
     );
     return;

@@ -90,7 +90,7 @@ type Person2 {
 }
 
 @expose
-fn persons() {
+fn persons(): Array<Person2> {
     return [
         Person2 { id: 0, name: "Alice", age: 28, children: 1 },
         Person2 { id: 1, name: "Charlie", age: 33, children: 2 },

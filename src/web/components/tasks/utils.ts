@@ -1,5 +1,3 @@
-import { TaskInfoLike } from './task-info/common.js';
-
 export enum TaskStatusEnum {
   empty,
   waiting,
@@ -9,12 +7,16 @@ export enum TaskStatusEnum {
   ended,
 }
 
-export async function parseTaskArgs(g: gc.sdk.GreyCat, t: TaskInfoLike): Promise<gc.sdk.Value[]> {
+export async function parseTaskArgs(
+  g: gc.sdk.GreyCat,
+  t: gc.runtime.Task,
+): Promise<gc.sdk.Value[]> {
   const params: gc.sdk.Value[] = [];
 
-  const response = await fetch(`${g.api}/files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`);
+  const filepath = `files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`;
+  const response = await fetch(`${g.api}/${filepath}`);
   if (!response.ok) {
-    throw new Error('Network response error');
+    throw new Error(`Unable to fetch ${filepath}`);
   }
 
   const data = await response.arrayBuffer();

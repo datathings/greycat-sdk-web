@@ -7,6 +7,20 @@ namespace gc {
   export const $: { [name: string]: sdk.GreyCat } = {};
 
   export namespace sdk {
+    export type ExposedFn<Params extends any[] = any[], ReturnType = unknown> = ((
+      ...args: [...Params, $g?: gc.sdk.GreyCat, $signal?: AbortSignal]
+    ) => Promise<ReturnType>) & {
+      /**
+       * Spawns the function as a task.
+       *
+       * @param g override the GreyCat instance to use for the call (defaults to `gc.$.default`)
+       * @param signal an optional `AbortSignal` to cancel the underlying fetch call
+       */
+      spawn: (
+        ...args: [...Params, $g?: gc.sdk.GreyCat, $signal?: AbortSignal]
+      ) => Promise<gc.runtime.Task<ReturnType>>;
+    };
+
     export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
 
     const findGreyCat = async () => {
@@ -295,23 +309,27 @@ namespace gc {
        *
        * @param method the exposed GreyCat function to spawn, without leading slash
        * (eg. `'runtime::User::me'`)
-       * @param pollEvery the delay to wait between each poll in milliseconds (defaults to 2000ms)
        * @param args the function's arguments to send along.
        *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
+       * @param opts configuration options for the wait
        * @param signal an optional `AbortSignal` to cancel the underlying fetch call
        */
       spawnAwait<T = unknown>(
         method: string,
         args?: Value[] | ArrayBuffer,
-        pollEvery?: number,
+        opts?: sdk.TaskOptions,
         signal?: AbortSignal,
       ): Promise<T>;
 
       /**
        * Awaits the completion of the given GreyCat task.
        */
-      await<T = unknown>(task: sdk.TaskLike, pollEvery?: number, signal?: AbortSignal): Promise<T>;
+      await<T = unknown>(
+        task: sdk.TaskLike<T>,
+        opts?: sdk.TaskOptions,
+        signal?: AbortSignal,
+      ): Promise<T>;
 
       getFile<T = unknown>(
         filepath: `${string}.gcb`,
@@ -325,6 +343,12 @@ namespace gc {
         max?: number,
         signal?: AbortSignal,
       ): Promise<T | T[]>;
+    }
+
+    interface GreyCatEvents {
+      'task-poll-start': void;
+      'task-poll-update': gc.runtime.Task[];
+      'task-poll-stop': void;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -356,10 +380,10 @@ namespace gc {
       /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
       abiMismatchHandler: (() => void) | undefined;
 
-      private _tasks_polling: number | undefined;
-      private _tasks_polling_delay: number;
       private _max_tasks: number;
       private _fields_map: Map<string, AbiAttribute>;
+      private _emitter: gc.sdk.GreyCatEmitter<GreyCatEvents>;
+      private _poll: gc.sdk.Poll;
 
       constructor(
         api: string,
@@ -381,7 +405,6 @@ namespace gc {
         this.abi = abi;
         this.capacity = capacity;
         this.cache = cache;
-        this._tasks_polling_delay = pollTasks;
         this._max_tasks = maxTasks;
         this.token = token;
         this.permissions = permissions;
@@ -390,6 +413,15 @@ namespace gc {
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
         this._fields_map = new Map();
+        this._emitter = new sdk.GreyCatEmitter();
+        this._poll = new sdk.Poll(async () => {
+          try {
+            await this.pollTasks();
+            this._emitter.emit('task-poll-update', this.tasks);
+          } catch {
+            /* noop */
+          }
+        });
 
         if (timezone === undefined) {
           this.timezone =
@@ -405,7 +437,7 @@ namespace gc {
         // initialize runtime RPCs based on Abi
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         for (const fn of this.abi.functions) {
-          const theFn = (...args: unknown[]) => {
+          const call = (...args: unknown[]) => {
             // oxlint-disable-next-line no-new-array
             const args_ = new Array(fn.params.length);
             for (let i = 0; i < fn.params.length; i++) {
@@ -415,11 +447,27 @@ namespace gc {
             const signal = args[fn.params.length + 1] as AbortSignal | undefined;
             return g.call(fn.fqn, args_, signal);
           };
-          Object.defineProperty(theFn, 'name', {
+          Object.defineProperty(call, 'name', {
             value: fn.fqn,
             writable: false,
             enumerable: false,
           });
+          const spawn = (...args: unknown[]) => {
+            // oxlint-disable-next-line no-new-array
+            const args_ = new Array(fn.params.length);
+            for (let i = 0; i < fn.params.length; i++) {
+              args_[i] = args[i];
+            }
+            const g = (args[fn.params.length] as GreyCat | undefined) ?? this;
+            const signal = args[fn.params.length + 1] as AbortSignal | undefined;
+            return g.spawn(fn.fqn, args_, signal);
+          };
+          Object.defineProperty(spawn, 'name', {
+            value: `task#${fn.fqn}`,
+            writable: false,
+            enumerable: false,
+          });
+          Object.defineProperty(call, 'spawn', { value: spawn });
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const g = gc as any;
           if (!g[fn.module]) {
@@ -429,33 +477,19 @@ namespace gc {
             if (!g[fn.module][fn.type]) {
               g[fn.module][fn.type] = {};
             }
-            g[fn.module][fn.type][fn.name] = theFn;
+            g[fn.module][fn.type][fn.name] = call;
           } else {
-            g[fn.module][fn.name] = theFn;
+            g[fn.module][fn.name] = call;
           }
         }
 
-        this.startPollingTasks();
-      }
-
-      stopPollingTasks(): void {
-        clearInterval(this._tasks_polling);
-      }
-
-      startPollingTasks(): void {
-        if (this._tasks_polling_delay <= 0) {
-          return;
+        if (pollTasks > 0) {
+          this._poll.register('greycat', pollTasks);
         }
-        // trigger a poll right away
-        this.pollTasks().catch(() => {
-          // ignore errors
-        });
-        // and setup the interval
-        this._tasks_polling = setInterval(() => {
-          this.pollTasks().catch(() => {
-            // ignore errors
-          });
-        }, this._tasks_polling_delay);
+      }
+
+      isPollingTasks(): boolean {
+        return this._poll.isRunning();
       }
 
       /**
@@ -470,6 +504,15 @@ namespace gc {
           }
         }
         return;
+      }
+
+      pollRegister(id: sdk.PollId, everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
+        this._poll.register(id, everyMs);
+        const dispose = this._emitter.on('task-poll-update', callback);
+        return () => {
+          this._poll.unregister(id);
+          dispose();
+        };
       }
 
       async pollTasks(): Promise<void> {
@@ -506,26 +549,41 @@ namespace gc {
       async spawnAwait<T = unknown>(
         method: string,
         args?: Value[] | ArrayBuffer,
-        pollEvery?: number,
+        opts?: sdk.TaskOptions,
         signal?: AbortSignal,
       ): Promise<T> {
         const task = await this.rawCall<runtime.Task>(method, args, signal, true);
-        return this.await(task, pollEvery, signal);
+        return this.await(task, opts, signal);
       }
 
       async await<T = unknown>(
-        task: sdk.TaskLike,
-        pollEvery?: number,
+        task: sdk.TaskLike<T>,
+        opts: sdk.TaskOptions = {},
         signal?: AbortSignal,
       ): Promise<T> {
-        const delay = pollEvery ?? 2000;
-        let running = await runtime.Task.is_running(task.task_id, this, signal);
-        // eslint-disable-next-line no-constant-condition
-        while (running) {
-          // re-fetch task info while running
-          await sleep(delay, signal);
-          running = await runtime.Task.is_running(task.task_id, this, signal);
+        // trigger a poll right away to improve UX
+        await this.pollTasks();
+
+        const updated = this.getTask(task.task_id);
+        if (updated === undefined || isTaskRunning(updated)) {
+          this._poll.register(task.task_id, opts.pollEvery ?? 2000);
+          const { promise, resolve } = Promise.withResolvers<void>();
+          const disposeTaskPollUpdate = this._emitter.on('task-poll-update', async (tasks) => {
+            const updated = tasks.find((t) => t.task_id === task.task_id);
+            if (updated) {
+              if (!isTaskRunning(updated)) {
+                disposeTaskPollUpdate();
+                resolve();
+                return;
+              }
+              opts.onprogress?.(updated.progress);
+            }
+          });
+          await promise; // wait for completion
+          this._poll.unregister(task.task_id);
         }
+
+        opts.onprogress?.(1);
 
         // download and parse 'result.gcb' if found
         const result_route = `files/${task.user_id}/tasks/${task.task_id}/result.gcb`;
@@ -1154,6 +1212,17 @@ namespace gc {
         return (await res.json()) as string;
       }
       throw new Error(`unable to login (${res.status} ${res.statusText})`);
+    }
+
+    function isTaskRunning(task: gc.runtime.Task): boolean {
+      switch (task.status.key) {
+        case 'empty':
+        case 'running':
+        case 'waiting':
+          return true;
+        default:
+          return false;
+      }
     }
 
     export type LogoutOptions = {

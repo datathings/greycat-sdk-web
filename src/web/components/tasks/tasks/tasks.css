@@ -1,7 +1,6 @@
 :host {
   display: flex;
   flex-direction: column;
-  background-color: var(--bg-1);
 }
 
 input[type='search'].gui-tasks-search {

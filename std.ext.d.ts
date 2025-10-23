@@ -46,9 +46,14 @@ declare namespace gc {
   export type $Functions = AllFunctions;
 
   namespace runtime {
-    interface Task {
+    // @ts-ignore
+    interface Task<T> {
       /**
-       * Downloads a task file.
+       * Downloads the returned value of a task (its `result.gcb`) and deserializes it.
+       */
+      getFile(filepath: 'result.gcb', g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
+      /**
+       * Downloads a GCB task file.
        *
        * The given `filepath` will be concatenated with the task path eg. `/files/${task.user_id}/tasks/${task.task_id}/${filepath}`
        *
@@ -80,29 +85,28 @@ declare namespace gc {
       ): Promise<T | T[]>;
 
       /**
-       * Returns the result of the task.
+       * Awaits for the completion of the task and returns the deserialized content of its `result.gcb`.
        *
-       * *This is equivalent to `task.getFile('result.gcb')`*
-       */
-      result<T = unknown>(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
-
-      /**
-       * Awaits for the completion of the task.
+       * If an error has been thrown during the execution of the task then this call will also throw an error with the `core.Error`
        *
-       * *NB: "completion" does not mean success*
-       *
-       * @param pollEvery will check the status of the task once every `pollEvery` milliseconds
+       * @param opts configuration options for the wait
        * @param g
        * @param signal
        */
-      await<T = unknown>(pollEvery?: number, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
+      result(opts?: sdk.TaskOptions, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
 
       /**
        * Whether or not this task is live or completed.
        * @param g
        * @param signal
        */
-      is_running(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
+      isRunning(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
+      on(type: 'progress', callback: (p: number | null | undefined) => void, pollEvery?: number): void;
+      /**
+       * Returns the current progress of the task.
+       * @param g
+       */
+      getProgress(g?: gc.sdk.GreyCat): number | undefined | null;
     }
   }
 

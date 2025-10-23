@@ -1,7 +1,6 @@
 import {
   toast,
   type GuiTable,
-  TaskInfoLike,
   GuiClickEvent,
   sl,
   modal,
@@ -16,10 +15,10 @@ export class GuiTasks extends GuiElement {
 
   /** The table used to display the task list */
   readonly table: GuiTable;
-  private _updateId: number;
   private _updateDelay: number;
   private _users: Record<number, string> = {};
   private _tasks: gc.runtime.Task[] = [];
+  private _dispose: (() => void) | undefined;
 
   constructor() {
     super();
@@ -139,22 +138,18 @@ export class GuiTasks extends GuiElement {
       ],
     });
 
-    this._updateId = -1;
     this._updateDelay = 5000;
-
     this.shadowRoot.appendChild(this.table);
   }
 
   connectedCallback() {
-    if (this._updateDelay > 0) {
-      this._updateId = setInterval(() => this.reload(), this._updateDelay);
-    }
+    this._dispose = gc.$.default.pollRegister('gui-tasks', this._updateDelay, () => this.reload());
     this.reload();
   }
 
   disconnectedCallback() {
+    this._dispose?.();
     this.replaceChildren();
-    clearInterval(this._updateId);
   }
 
   get updateDelay() {
@@ -168,10 +163,8 @@ export class GuiTasks extends GuiElement {
    */
   set updateDelay(delay: number) {
     this._updateDelay = delay;
-    clearInterval(this._updateId);
-    if (delay > 0) {
-      this._updateId = setInterval(() => this.reload(), this._updateDelay);
-    }
+    this._dispose?.();
+    this._dispose = gc.$.default.pollRegister('gui-tasks', this._updateDelay, () => this.reload());
   }
 
   get filter() {
@@ -201,8 +194,6 @@ export class GuiTasks extends GuiElement {
     }
 
     try {
-      // force a task refresh
-      await gc.$.default.pollTasks();
       // clone the global tasks array
       this._tasks = Array.from(gc.$.default.tasks);
       // update table data
@@ -219,7 +210,7 @@ declare global {
   }
 
   interface GuiTasksEventMap {
-    [GuiClickEvent.NAME]: GuiClickEvent<TaskInfoLike>;
+    [GuiClickEvent.NAME]: GuiClickEvent<gc.runtime.Task>;
   }
 
   namespace GreyCat {

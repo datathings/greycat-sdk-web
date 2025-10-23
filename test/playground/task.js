@@ -1,17 +1,12 @@
 // @ts-check
 import '@greycat/web/sdk';
-import { displayValue } from './_utils.js';
 
-const greycat = await gc.sdk.init();
+await gc.sdk.init();
 
 // spawns a task
-const task = await greycat.spawn('project::task_with_params', ['Hello world', 42]);
-displayValue(task);
+const task = await gc.project.sum.spawn(30, 12);
+const result = await task.result();
+console.log('Result:', result);
 
-// await for completion
-console.log('await completion...');
-const result = await task.await();
-displayValue(result);
-
-const res = await greycat.spawnAwait('project::task_without_result');
-console.log(res);
+const resFile = await task.getFile('result.gcb');
+console.log(resFile);

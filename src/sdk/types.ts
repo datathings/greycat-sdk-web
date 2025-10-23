@@ -1,7 +1,16 @@
 namespace gc {
   export namespace sdk {
     // using Pick<...> to catch bug earlier if `runtime.Task` changes
-    export type TaskLike = Pick<runtime.Task, 'user_id' | 'task_id'>;
+    export type TaskLike<T = any> = Pick<runtime.Task<T>, 'user_id' | 'task_id'>;
+
+    export type TaskOptions = {
+      /** Will poll the task once every `pollEvery` milliseconds. Defaults to `2000` */
+      pollEvery?: number;
+      /**
+       * Will be called with the current progress of the task at least once every `pollEvery` milliseconds.
+       */
+      onprogress?: (progress: number | null) => void;
+    };
 
     type ExtractValues<T> = T[keyof T];
 

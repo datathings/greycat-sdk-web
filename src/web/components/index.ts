@@ -9,7 +9,6 @@ export * from './multi-select-checkbox/index.js';
 export * from './value/index.js';
 export * from './donut/index.js';
 export * from './chart/index.js';
-export * from './tasks/task-info/index.js';
 export * from './tasks/tasks/index.js';
 export * from './object/index.js';
 export * from './select/index.js';

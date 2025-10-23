@@ -1,7 +1,7 @@
 namespace gc {
   export namespace sdk {
     export function __extend_std() {
-      Object.assign(core.Error.prototype, {
+      const core_Error_ext = {
         toString(this: core.Error) {
           let err_msg = `${this.message ?? 'RuntimeError'}\n`;
           for (const frame of this.stack.reverse()) {
@@ -9,51 +9,60 @@ namespace gc {
           }
           return err_msg;
         },
-      });
+      };
+      Object.assign(core.Error.prototype, core_Error_ext);
 
       // augment runtime.Task
-      Object.assign(runtime.Task.prototype, {
-        getFile<T = unknown>(
+      const runtime_Task_ext = {
+        async getFile(
           this: runtime.Task,
           filepath: string,
           g: GreyCat = gc.$.default,
           signal?: AbortSignal,
-        ): Promise<T | T[]> {
-          return g.getFile<T>(
+        ) {
+          if (filepath === 'result.gcb') {
+            const res = await g.getFile(
+              `${this.user_id}/tasks/${this.task_id}/${filepath}`,
+              undefined,
+              undefined,
+              signal,
+            );
+            return res[0];
+          }
+          return g.getFile(
             `${this.user_id}/tasks/${this.task_id}/${filepath}`,
             undefined,
             undefined,
             signal,
           );
         },
-        await(
+        result(
           this: runtime.Task,
-          pollEvery?: number,
+          opts?: sdk.TaskOptions,
           g: GreyCat = gc.$.default,
           signal?: AbortSignal,
         ) {
-          return g.await(this, pollEvery, signal);
+          return g.await(this, opts, signal);
         },
-        async result<T = unknown>(
-          this: runtime.Task,
-          g: GreyCat = gc.$.default,
-          signal?: AbortSignal,
-        ): Promise<T> {
-          const results = await g.getFile<T>(
-            `${this.user_id}/tasks/${this.task_id}/result.gcb`,
-            undefined,
-            undefined,
-            signal,
-          );
-          return results[0];
-        },
-        is_running(this: runtime.Task, g: GreyCat = gc.$.default, signal?: AbortSignal) {
+        isRunning(this: runtime.Task, g: GreyCat = gc.$.default, signal?: AbortSignal) {
           return runtime.Task.is_running(this.task_id, g, signal);
         },
-      });
+        on(
+          _type: string,
+          _callback: (...args: unknown[]) => void,
+          _pollEvery = 2000,
+          _g: GreyCat = gc.$.default,
+        ) {
+          // TODO
+        },
+        getProgress(this: runtime.Task, g: GreyCat = gc.$.default): number | undefined | null {
+          return g.getTask(this.task_id)?.progress;
+        },
+      };
+      Object.assign(runtime.Task.prototype, runtime_Task_ext);
 
       // extend io.File
-      Object.assign(io.File.prototype, {
+      const io_File_ext = {
         list(
           this: io.File,
           g: GreyCat = gc.$.default,
@@ -82,10 +91,11 @@ namespace gc {
         ): Promise<T> {
           return g.getFile(this.path, offset, max, signal);
         },
-      });
+      };
+      Object.assign(io.File.prototype, io_File_ext);
 
       // extend core.Date
-      Object.assign(core.Date.prototype, {
+      const core_Date_ext = {
         toString(
           this: core.Date,
           _opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
@@ -101,7 +111,8 @@ namespace gc {
             return `${this.year}-${month}-${day}T${hour}:${min}:${sec}`;
           }
         },
-      });
+      };
+      Object.assign(core.Date.prototype, core_Date_ext);
     }
 
     // eslint-disable-next-line no-inner-declarations

@@ -24,3 +24,16 @@ document.body.appendChild(
     </div>
   </app-layout>,
 );
+
+(async function main() {
+  try {
+    const task = await gc.project.controlled_task.spawn(gc.core.duration.from_secs(10));
+    const res = await task.result({
+      pollEvery: 500,
+      onprogress: (p) => console.log(`task ${task.task_id} progress`, p),
+    });
+    console.log('result', res);
+  } catch (err) {
+    console.log('ERROR:', gc.sdk.prettyError(err, 'oops'));
+  }
+})();
