@@ -1,6 +1,7 @@
 namespace gc {
   export namespace sdk {
     // using Pick<...> to catch bug earlier if `runtime.Task` changes
+    // oxlint-disable-next-line no-explicit-any
     export type TaskLike<T = any> = Pick<runtime.Task<T>, 'user_id' | 'task_id'>;
 
     export type TaskOptions = {

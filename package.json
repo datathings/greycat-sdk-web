@@ -48,7 +48,7 @@
     "prepare:test": "./test/prepare-test.sh",
     "test": "./test/test.sh",
     "dev": "vite -c playground/vite.config.ts",
-    "lint": "eslint src  --max-warnings 0 --ext .js,.jsx,.ts,.tsx",
+    "lint": "oxlint -c oxlint.json",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
@@ -62,11 +62,10 @@
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
     "@types/node": "22.5.0",
-    "@typescript-eslint/eslint-plugin": "6.2.1",
     "esbuild": "0.24.2",
-    "eslint": "8.46.0",
     "lightningcss": "1.29.2",
     "lightningcss-cli": "1.29.2",
+    "oxlint": "^1.24.0",
     "prettier": "3.3.3",
     "rollup": "4.36.0",
     "rollup-plugin-dts": "6.2.0",

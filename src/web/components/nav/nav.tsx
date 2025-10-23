@@ -240,7 +240,7 @@ export class GuiNav extends GuiElement {
         return { ok: true, value: data };
       }
       return { ok: false, err: 'fetch' };
-    } catch (err) {
+    } catch {
       return { ok: false, err: 'fetch' };
     }
   }

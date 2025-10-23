@@ -7,6 +7,7 @@ namespace gc {
   export const $: { [name: string]: sdk.GreyCat } = {};
 
   export namespace sdk {
+    // oxlint-disable-next-line no-explicit-any
     export type ExposedFn<Params extends any[] = any[], ReturnType = unknown> = ((
       ...args: [...Params, $g?: gc.sdk.GreyCat, $signal?: AbortSignal]
     ) => Promise<ReturnType>) & {

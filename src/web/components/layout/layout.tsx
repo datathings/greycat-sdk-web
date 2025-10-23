@@ -30,7 +30,9 @@ export class GuiLayout extends GuiElement {
             className="menu-btn"
             onclick={this._toggleMenu}
             onkeyup={(ev) => {
-              ev.key === 'Enter' && this._toggleMenu();
+              if (ev.key === 'Enter') {
+                this._toggleMenu();
+              }
             }}
             tabIndex={0}
           >

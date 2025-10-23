@@ -404,7 +404,6 @@ export class GuiHeatmap extends GuiElement {
           const y = Math.round(yScale(yLabels[row])!);
           const w = Math.round(xScale.bandwidth());
           const h = Math.round(yScale.bandwidth());
-          xScale.bandwidth(), yScale.bandwidth();
           this._ctx.ctx.fillStyle = color;
           this._ctx.ctx.fillRect(x, y, w, h);
           if (this.config.displayValue) {

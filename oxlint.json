@@ -1,0 +1,9 @@
+{
+  "ignorePatterns": ["test/playground", "vendor", "dist"],
+  "rules": {
+    "no-unused-vars": "warn",
+    "no-new-array": "allow",
+    "@typescript-eslint/no-explicit-any": "warn"
+  },
+  "overrides": [{ "files": ["src/sdk/**"], "rules": { "no-unused-vars": "off" } }]
+}

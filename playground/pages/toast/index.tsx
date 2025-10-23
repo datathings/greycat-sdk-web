@@ -12,8 +12,9 @@ document.body.appendChild(
       <sl-button
         onclick={() => {
           try {
-            let x;
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            // oxlint-disable-next-line no-unassigned-vars
+            let x: number | undefined;
+            // oxlint-disable-next-line no-unused-expressions, no-explicit-any
             (x as any)[42];
           } catch (err) {
             toast.error(err);
