@@ -71,7 +71,7 @@ export class GuiFactory extends GuiElement {
     public mappings: FactoryMap = {},
     /**
      * GreyCat instance name to use for sdk calls.
-     * 
+     *
      * *By default the 'default' instance is used.*
      */
     public greycatName: string = 'default',
@@ -158,8 +158,7 @@ export class GuiFactory extends GuiElement {
     if (this === GuiFactory.global) {
       return this.valueTag;
     }
-    const parentFactory = GuiFactory.closest(this);
-    return parentFactory.getValue(type);
+    return GuiFactory.closest(this).getValue(type);
   }
 
   /**
@@ -170,7 +169,14 @@ export class GuiFactory extends GuiElement {
    * If unable to find a factory in the tree, the global factory is returned (eg. `GuiFactory.global`).
    */
   static closest(node: Node): GuiFactory {
-    let current = node;
+    let current: Node | null = node.parentElement;
+    if (current === null) {
+      const root = node.getRootNode();
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+      }
+    }
+
     while (current !== null) {
       if (current instanceof GuiFactory) {
         return current;
@@ -324,7 +330,14 @@ export class GuiInputFactory extends GuiElement {
    * If unable to find a factory in the tree, the global factory is returned (eg. `GuiInputFactory.global`).
    */
   static closest(node: Node): GuiInputFactory {
-    let current = node;
+    let current: Node | null = node.parentElement;
+    if (current === null) {
+      const root = node.getRootNode();
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+      }
+    }
+
     while (current !== null) {
       if (current instanceof GuiInputFactory) {
         return current;
