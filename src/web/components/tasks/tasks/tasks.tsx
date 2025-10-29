@@ -72,7 +72,7 @@ export class GuiTasks extends GuiElement {
           index: gc.runtime.Task.$fields.status,
           header: 'Status',
           width: 120,
-          value: ({ value }: CellValueData<gc.sdk.GCEnum>) => value.key,
+          value: ({ value }: CellValueData<gc.runtime.TaskStatus>) => value.key,
         },
         {
           index: gc.runtime.Task.$fields.progress,
@@ -91,7 +91,8 @@ export class GuiTasks extends GuiElement {
             const cancellable =
               task.status === gc.runtime.TaskStatus.waiting ||
               task.status === gc.runtime.TaskStatus.running ||
-              task.status === gc.runtime.TaskStatus.await;
+              task.status === gc.runtime.TaskStatus.await ||
+              task.status === gc.runtime.TaskStatus.breakpoint;
 
             return cancellable ? (
               <sl-button

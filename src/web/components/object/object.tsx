@@ -238,7 +238,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     if (value instanceof gc.runtime.Task) {
-      this._dispose = gc.$.default.pollRegister(
+      this._dispose = gc.$[this._factory.greycatName].pollRegister(
         `gui-object#task-${value.task_id}`,
         2000,
         (tasks) => {
@@ -249,6 +249,7 @@ export class GuiObject<T = unknown> extends GuiElement {
               case 'await':
               case 'running':
               case 'waiting':
+              case 'breakpoint':
                 // TODO add a cancel button?
                 break;
               default:

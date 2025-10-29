@@ -135,14 +135,6 @@ namespace gc {
        */
       cache?: Cache;
       /**
-       * The delay in milliseconds between refreshes of the tasks information.
-       *
-       * If the value is less or equal to `0` then polling is disabled.
-       *
-       * Defaults to `0` (deactivated)
-       */
-      pollTasks?: number;
-      /**
        * The maximum number of tasks polled from the history.
        *
        * Defaults to `100`

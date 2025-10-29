@@ -180,7 +180,6 @@ namespace gc {
         timezone,
         numFmt,
         cache,
-        pollTasks,
         maxTasks,
         signal,
         auth,
@@ -192,7 +191,6 @@ namespace gc {
         auth,
         capacity,
         cache,
-        pollTasks,
         maxTasks,
         unauthorizedHandler,
         abiMismatchHandler,
@@ -212,7 +210,6 @@ namespace gc {
         timezone,
         numFmt,
         cache,
-        pollTasks,
         maxTasks,
         undefined,
         token,
@@ -238,7 +235,6 @@ namespace gc {
       timezone,
       numFmt,
       cache,
-      pollTasks,
       maxTasks,
       abi,
       module,
@@ -258,7 +254,6 @@ namespace gc {
         timezone,
         numFmt,
         cache,
-        pollTasks,
         maxTasks,
         permissions,
         token,
@@ -395,7 +390,6 @@ namespace gc {
         timezone: gc.core.TimeZone.Field | undefined,
         numFmt: Intl.NumberFormat | undefined,
         cache: Cache = new NoopCache(),
-        pollTasks = 0,
         maxTasks = 100,
         permissions: string[] = [],
         token?: string,
@@ -482,10 +476,6 @@ namespace gc {
           } else {
             g[fn.module][fn.name] = call;
           }
-        }
-
-        if (pollTasks > 0) {
-          this._poll.register('greycat', pollTasks);
         }
       }
 
@@ -1217,9 +1207,9 @@ namespace gc {
 
     function isTaskRunning(task: gc.runtime.Task): boolean {
       switch (task.status.key) {
-        case 'empty':
         case 'running':
         case 'waiting':
+        case 'breakpoint':
           return true;
         default:
           return false;

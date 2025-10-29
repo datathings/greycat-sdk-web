@@ -69,8 +69,16 @@ export class GuiFactory extends GuiElement {
      * see `GuiFactory.defineFromClass` and `GuiFactory.defineFromFn`*
      */
     public mappings: FactoryMap = {},
+    /**
+     * GreyCat instance name to use for sdk calls.
+     * 
+     * *By default the 'default' instance is used.*
+     */
+    public greycatName: string = 'default',
   ) {
     super();
+
+    this.shadowRoot.appendChild(document.createElement('slot'));
   }
 
   set(name: string, tagName: keyof HTMLElementTagNameMap): void {
@@ -162,12 +170,25 @@ export class GuiFactory extends GuiElement {
    * If unable to find a factory in the tree, the global factory is returned (eg. `GuiFactory.global`).
    */
   static closest(node: Node): GuiFactory {
-    let parent = node.parentElement;
-    while (parent !== null) {
-      if (parent instanceof GuiFactory) {
-        return parent;
+    let current = node;
+    while (current !== null) {
+      if (current instanceof GuiFactory) {
+        return current;
       }
-      parent = parent.parentElement;
+      // try DOM parent
+      let parent = current.parentElement;
+      if (parent !== null) {
+        current = parent;
+        continue;
+      }
+      // try light DOM
+      const root = current.getRootNode();
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+        continue;
+      }
+      // reached DOM root
+      break;
     }
     return GuiFactory.global;
   }
@@ -265,6 +286,8 @@ export class GuiInputFactory extends GuiElement {
     public mappings: InputFactoryMap = {},
   ) {
     super();
+
+    this.shadowRoot.appendChild(document.createElement('slot'));
   }
 
   get(type: string): keyof InputElementTagNameMap | undefined {
@@ -301,12 +324,25 @@ export class GuiInputFactory extends GuiElement {
    * If unable to find a factory in the tree, the global factory is returned (eg. `GuiInputFactory.global`).
    */
   static closest(node: Node): GuiInputFactory {
-    let parent = node.parentElement;
-    while (parent !== null) {
-      if (parent instanceof GuiInputFactory) {
-        return parent;
+    let current = node;
+    while (current !== null) {
+      if (current instanceof GuiInputFactory) {
+        return current;
       }
-      parent = parent.parentElement;
+      // try DOM parent
+      let parent = current.parentElement;
+      if (parent !== null) {
+        current = parent;
+        continue;
+      }
+      // try light DOM
+      const root = current.getRootNode();
+      if (root instanceof ShadowRoot) {
+        current = root.host;
+        continue;
+      }
+      // reached DOM root
+      break;
     }
     return GuiInputFactory.global;
   }

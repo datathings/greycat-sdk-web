@@ -193,9 +193,9 @@ export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): strin
       return gc.core.String._type;
     case 'object': {
       if (Array.isArray(value)) {
-        return gc.core.Array._type;
+        return value.$type?.name ?? gc.core.Array._type;
       } else if (value instanceof Map) {
-        return gc.core.Map._type;
+        return value.$type?.name ?? gc.core.Map._type;
       } else if (value instanceof gc.sdk.GCObject) {
         return g.abi.types[value.$type.mapped_type_off].name;
       }
@@ -204,6 +204,27 @@ export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): strin
     default:
       return 'core::any';
   }
+}
+
+export type GreyCatValueTypeOptions = {
+  g?: gc.sdk.GreyCat;
+  stripCore?: boolean;
+};
+
+export const DEFAULT_GREYCAT_VALUE_TYPE_OPTIONS: GreyCatValueTypeOptions = {
+  g: gc.$.default,
+  stripCore: false,
+};
+
+const STRIP_CORE = /core::/g;
+
+export function greycatValueType(value: unknown, options: GreyCatValueTypeOptions = {}): string {
+  options = { ...DEFAULT_GREYCAT_VALUE_TYPE_OPTIONS, ...options };
+  const type = greycatTypeFromValueStr(value, options.g);
+  if (options.stripCore) {
+    return type.replaceAll(STRIP_CORE, '');
+  }
+  return type;
 }
 
 /**
@@ -277,7 +298,6 @@ export function querySelectorAllWithShadow(
   });
   return elements;
 }
-
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
