@@ -50,7 +50,7 @@ namespace gc {
         on(
           _type: string,
           _callback: (...args: unknown[]) => void,
-          _pollEvery = 2000,
+          _pollEvery = 500,
           _g: GreyCat = gc.$.default,
         ) {
           // TODO

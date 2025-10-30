@@ -240,7 +240,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     if (value instanceof gc.runtime.Task) {
       this._dispose = gc.$[this._factory.greycatName].pollRegister(
         `gui-object#task-${value.task_id}`,
-        2000,
+        500,
         (tasks) => {
           const task = tasks.find((t) => t.task_id === value.task_id);
           if (task) {
