@@ -1,4 +1,4 @@
-import { init, runtime } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 
 // var g = await sdk.GreyCat.init({url:new URL("http://localhost:8080")});
 // // const newRole = sdk.std.runtime.UserRole.create(
@@ -11,7 +11,7 @@ import { init, runtime } from '@greycat/web/sdk';
 // var p = await sdk.std.runtime.SecurityPolicy.permissions(g);
 // console.log(p);
 
-const greycat = await init({ url: new URL('http://localhost:8080') });
+const greycat = await gc.sdk.init({ url: new URL('http://localhost:8080') });
 
 //const t = await fetch('http://localhost:8080/project::whatever', { method: 'POST' });
 
@@ -22,7 +22,7 @@ const greycat = await init({ url: new URL('http://localhost:8080') });
 
 const history = await greycat.call('runtime::Task::history', [0, 100]);
 console.log(history);
-const history2 = await runtime.Task.history(0, 100, greycat);
+const history2 = await gc.runtime.Task.history(0, 100, greycat);
 console.log(history2);
 
 //console.log(t);

@@ -1,6 +1,5 @@
-// @ts-check
-import { GreyCat } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 
-const greycat = await GreyCat.init();
+const greycat = await gc.sdk.init();
 const root = await greycat.root();
 console.dir(root, { getters: true });

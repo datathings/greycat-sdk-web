@@ -1,7 +1,6 @@
-// @ts-check
-import { GreyCat } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 
-const greycat = (global.greycat.default = await GreyCat.init());
+const greycat = await gc.sdk.init();
 
 const file = new File([new TextEncoder().encode(JSON.stringify({ hello: 42, foo: false }, null, 2))], 'foo.json');
 await greycat.putFile('subdir/foo.json', file);

@@ -22,6 +22,69 @@ namespace gc {
       ) => Promise<gc.runtime.Task<ReturnType>>;
     };
 
+    /**
+     * Registers a GreyCat instance in the map of all known instances: `gc.$`
+     */
+    export function register(name: string, greycat: GreyCat): void {
+      $[name] = greycat;
+    }
+
+    /**
+     * Removes the GreyCat instance from the map of all known instances
+     */
+    export function unregister(name: string): void {
+      delete $[name];
+    }
+
+    function initialize_functions(name: string, g: GreyCat): void {
+      for (const fn of g.abi.functions) {
+        const call = (...args: unknown[]) => {
+          // oxlint-disable-next-line no-new-array
+          const args_ = new Array(fn.params.length);
+          for (let i = 0; i < fn.params.length; i++) {
+            args_[i] = args[i];
+          }
+          const g = (args[fn.params.length] as GreyCat | undefined) ?? gc.$[name];
+          const signal = args[fn.params.length + 1] as AbortSignal | undefined;
+          return g.call(fn.fqn, args_, signal);
+        };
+        Object.defineProperty(call, 'name', {
+          value: fn.fqn,
+          writable: false,
+          enumerable: false,
+        });
+        const spawn = (...args: unknown[]) => {
+          // oxlint-disable-next-line no-new-array
+          const args_ = new Array(fn.params.length);
+          for (let i = 0; i < fn.params.length; i++) {
+            args_[i] = args[i];
+          }
+          const g = (args[fn.params.length] as GreyCat | undefined) ?? gc.$[name];
+          const signal = args[fn.params.length + 1] as AbortSignal | undefined;
+          return g.spawn(fn.fqn, args_, signal);
+        };
+        Object.defineProperty(spawn, 'name', {
+          value: `task#${fn.fqn}`,
+          writable: false,
+          enumerable: false,
+        });
+        Object.defineProperty(call, 'spawn', { value: spawn });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const globalGc = gc as any;
+        if (!globalGc[fn.module]) {
+          globalGc[fn.module] = {};
+        }
+        if (fn.type) {
+          if (!globalGc[fn.module][fn.type]) {
+            globalGc[fn.module][fn.type] = {};
+          }
+          globalGc[fn.module][fn.type][fn.name] = call;
+        } else {
+          globalGc[fn.module][fn.name] = call;
+        }
+      }
+    }
+
     export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
 
     const findGreyCat = async () => {
@@ -222,10 +285,8 @@ namespace gc {
       } catch {
         // we probably don't have the permission to access this endpoint
       }
-
-      // register the instance
-      $[name] = g;
-
+      register(name, g);
+      initialize_functions(name, g);
       return g;
     }
 
@@ -245,7 +306,7 @@ namespace gc {
       permissions = [],
       url = DEFAULT_URL,
     }: WithAbiOptions): GreyCat {
-      const greycat = new GreyCat(
+      const g = new GreyCat(
         normalizeUrl(url),
         abi,
         module,
@@ -260,8 +321,11 @@ namespace gc {
         unauthorizedHandler,
         abiMismatchHandler,
       );
-      $[name] = greycat;
-      return greycat;
+      // register the instance
+      register(name, g);
+      // initialize runtime RPCs based on Abi
+      initialize_functions(name, g);
+      return g;
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
@@ -380,6 +444,7 @@ namespace gc {
       private _fields_map: Map<string, AbiAttribute>;
       private _emitter: gc.sdk.GreyCatEmitter<GreyCatEvents>;
       private _poll: gc.sdk.Poll;
+      private _debug_id: number | bigint | undefined;
 
       constructor(
         api: string,
@@ -428,55 +493,28 @@ namespace gc {
         }
 
         this.numFmt = numFmt ?? new Intl.NumberFormat(navigator.language, {});
+      }
 
-        // initialize runtime RPCs based on Abi
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        for (const fn of this.abi.functions) {
-          const call = (...args: unknown[]) => {
-            // oxlint-disable-next-line no-new-array
-            const args_ = new Array(fn.params.length);
-            for (let i = 0; i < fn.params.length; i++) {
-              args_[i] = args[i];
-            }
-            const g = (args[fn.params.length] as GreyCat | undefined) ?? this;
-            const signal = args[fn.params.length + 1] as AbortSignal | undefined;
-            return g.call(fn.fqn, args_, signal);
-          };
-          Object.defineProperty(call, 'name', {
-            value: fn.fqn,
-            writable: false,
-            enumerable: false,
-          });
-          const spawn = (...args: unknown[]) => {
-            // oxlint-disable-next-line no-new-array
-            const args_ = new Array(fn.params.length);
-            for (let i = 0; i < fn.params.length; i++) {
-              args_[i] = args[i];
-            }
-            const g = (args[fn.params.length] as GreyCat | undefined) ?? this;
-            const signal = args[fn.params.length + 1] as AbortSignal | undefined;
-            return g.spawn(fn.fqn, args_, signal);
-          };
-          Object.defineProperty(spawn, 'name', {
-            value: `task#${fn.fqn}`,
-            writable: false,
-            enumerable: false,
-          });
-          Object.defineProperty(call, 'spawn', { value: spawn });
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          const g = gc as any;
-          if (!g[fn.module]) {
-            g[fn.module] = {};
-          }
-          if (fn.type) {
-            if (!g[fn.module][fn.type]) {
-              g[fn.module][fn.type] = {};
-            }
-            g[fn.module][fn.type][fn.name] = call;
-          } else {
-            g[fn.module][fn.name] = call;
-          }
-        }
+      clone(): GreyCat {
+        return new GreyCat(
+          this.api,
+          this.abi,
+          this.module,
+          this._exports,
+          this.capacity,
+          this.timezone.key,
+          this.numFmt,
+          this.cache,
+          this._max_tasks,
+          this.permissions,
+          this.token,
+          this.unauthorizedHandler,
+          this.abiMismatchHandler,
+        );
+      }
+
+      setDebugId(id: number | bigint | undefined) {
+        this._debug_id = id;
       }
 
       isPollingTasks(): boolean {
@@ -654,6 +692,10 @@ namespace gc {
         if (task) {
           headers['task'] = '';
         }
+        if (this._debug_id !== undefined) {
+          headers['task'] = '';
+          headers['x-gc-debug'] = `${this._debug_id}`;
+        }
         const key: CacheKey = [uri, body];
         const cachedRes = await this.cache.read(key);
         if (cachedRes) {
@@ -675,6 +717,13 @@ namespace gc {
             await this.cache.write(key, { etag, data });
           }
           debugLogger(res.status, uri, args, value);
+          if (this._debug_id !== undefined) {
+            if (value instanceof gc.runtime.Task) {
+              return (value as gc.runtime.Task<T>).result({ pollEvery: 1000 }, $.default);
+            } else {
+              throw new Error(`expecting a core.Task response when debugId is set`);
+            }
+          }
           return value as T;
         } else if (res.status === 304) {
           if (cachedRes === null) {
@@ -1096,7 +1145,7 @@ namespace gc {
         return this.abi.root();
       }
 
-      root(signal?: AbortSignal): Promise<Record<string, unknown>> {
+      root(signal?: AbortSignal): Promise<gc.project.Root> {
         return runtime.Runtime.root(this, signal);
       }
 

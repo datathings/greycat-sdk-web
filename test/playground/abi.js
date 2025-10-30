@@ -1,4 +1,3 @@
-// @ts-check
 import '@greycat/web/sdk';
 
 const greycat = await gc.sdk.init();

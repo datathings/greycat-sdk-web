@@ -1,11 +1,11 @@
 // @ts-check
-import { Abi } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 import { readBytes } from './_utils.js';
 
 try {
   const [filter = ''] = process.argv.slice(2);
   const searchString = filter.toLowerCase();
-  const abi = new Abi(readBytes('gcdata/abi'));
+  const abi = new gc.sdk.Abi(readBytes('gcdata/abi'));
   const type_map = new Map(
     abi.types
       .filter((t) => t.name.toLowerCase().indexOf(searchString) !== -1)

@@ -3,8 +3,12 @@
     "target": "ES2024",
     "module": "NodeNext",
     "moduleResolution": "nodenext",
+    "allowJs": true,
     "checkJs": true,
+    "strict": true,
     "noEmit": true,
     "lib": ["DOM", "ES2024"],
-  }
+    "types": ["node", "./project.d.ts"],
+  },
+  "include": ["*.js", "playground/**/*.js"]
 }

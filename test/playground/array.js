@@ -1,8 +1,7 @@
-// @ts-check
-import { GreyCat } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 import { displayValue, writeBytes } from './_utils.js';
 
-const g = await GreyCat.init();
+const g = await gc.sdk.init();
 
 const arr = ['hello', 'world'];
 writeBytes('stringlit_js.bin', g.serializeWithHeaders(arr));

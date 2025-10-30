@@ -101,7 +101,11 @@ declare namespace gc {
        * @param signal
        */
       isRunning(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
-      on(type: 'progress', callback: (p: number | null | undefined) => void, pollEvery?: number): void;
+      on(
+        type: 'progress',
+        callback: (p: number | null | undefined) => void,
+        pollEvery?: number,
+      ): void;
       /**
        * Returns the current progress of the task.
        * @param g
@@ -152,5 +156,9 @@ declare namespace gc {
        */
       toString(opts?: gc.sdk.ToStringOptions): string;
     }
+  }
+
+  namespace project {
+    interface Root extends gc.sdk.GCObject {}
   }
 }

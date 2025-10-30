@@ -1,10 +1,9 @@
-// @ts-check
-import { inspect } from 'util';
-import { GreyCat, std } from '@greycat/web/sdk';
+import { inspect } from 'node:util';
+import '@greycat/web/sdk';
 
-await GreyCat.init();
+await gc.sdk.init();
 
-const root = std.io.File.create('/', null, null);
+const root = new gc.io.File('/', null, null);
 await root.resolve();
 
 console.log(inspect(structuredClone(root), { depth: Infinity, colors: true }));

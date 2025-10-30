@@ -1,37 +1,32 @@
-//
-// use this file to debug quickly a problem
-//
-//
-// run with: `node --inspect-brk debug.js`
-// then in VSCode: `ctrl+shift+p` > `Debug: Attach to Node Process`
-//
-import { readFileSync } from 'node:fs';
 import '@greycat/web/sdk';
-const [filepath] = process.argv.slice(2);
-if (!filepath) {
-  throw new Error('usage: <filepath>');
-}
+import assert from 'node:assert';
 
-const abi = new gc.sdk.Abi(readFile('./gcdata/store/abi'));
-const reader = new gc.sdk.AbiReader(abi, readFile(filepath));
+const greycat = await gc.sdk.init();
+const root = await greycat.root();
+const debug_node = root['project::debug_node'];
+console.log(debug_node);
 
-const value = reader.deserializeWithHeaders();
-console.log(structuredClone(value));
+const task = await gc.project.debug_fn.spawn(); // breakpoint
 
-const writer = new gc.sdk.AbiWriter(abi);
-writer.serialize(value);
+const debug_ids = await gc.runtime.Debug.all();
+assert.equal(debug_ids.length, 1);
+const debug_id = debug_ids[0];
+console.log('debug id:', debug_id);
 
-const value2 = new gc.sdk.AbiReader(abi, writer.buffer.buffer).deserialize();
-console.log(structuredClone(value2));
+const debug = greycat.clone();
+debug.setDebugId(debug_id);
 
-/**
- * Node.js API can return re-used buffers from `readFileSync`
- * so we have to slice to the proper offset to get our own shrinked
- * `ArrayBuffer` from it.
- * @param {string} filepath
- * @returns
- */
-function readFile(filepath) {
-  const b = readFileSync(filepath);
-  return b.buffer.slice(b.byteOffset, b.byteOffset + b.byteLength);
-}
+const res0 = await gc.core.node.resolve_all([debug_node], debug);
+assert.equal(res0[0], null);
+
+await gc.runtime.Debug.resume(debug_id);
+
+const res1 = await gc.core.node.resolve_all([debug_node], debug);
+assert.equal(res1[0], 'No longer null');
+
+await gc.runtime.Debug.resume(debug_id);
+
+const res = await task.result();
+assert.equal(res, 42);
+
+console.log('All good');

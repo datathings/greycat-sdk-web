@@ -1,15 +1,14 @@
-// @ts-check
-import { GreyCat, AbiTypeEvol } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 
-const greycat = await GreyCat.init();
+const greycat = await gc.sdk.init();
 
-const RelayApp = greycat.findType('project::RelayApp');
-if (!RelayApp) {
+const type = greycat.findType('project::Baz');
+if (!type) {
   throw 'unable to find RelayApp';
 }
 
-const evol = new AbiTypeEvol(RelayApp);
-console.log(evol.size, `updates for ${RelayApp.name}`);
+const evol = new gc.sdk.AbiTypeEvol(type);
+console.log(evol.size, `updates for ${type.name}`);
 console.log('backward', Array.from(evol.backward()).map((ty) => ty.data.offset));
 console.log('forward', Array.from(evol.forward()).map((ty) => ty.data.offset));
 

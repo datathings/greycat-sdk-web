@@ -1,4 +1,4 @@
-import { Abi, AbiReader } from '@greycat/web/sdk';
+import '@greycat/web/sdk';
 import { readBytes } from './_utils.js';
 
 const [filepath] = process.argv.slice(2);
@@ -7,8 +7,8 @@ if (!filepath) {
   process.exit(1);
 }
 
-const abi = new Abi(readBytes('gcdata/abi'));
-const reader = new AbiReader(abi, readBytes(filepath));
+const abi = new gc.sdk.Abi(readBytes('gcdata/abi'));
+const reader = new gc.sdk.AbiReader(abi, readBytes(filepath));
 
 try {
   reader.headers();

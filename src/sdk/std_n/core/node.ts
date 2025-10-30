@@ -19,7 +19,7 @@ namespace gc {
             return new ty.ctor(value) as core.node;
           }
 
-          /***
+          /**
            * Resolves the value of this node.
            *
            * *This is sugar above a call to `core::node::resolve_all([this])` that returns the first element of the array*

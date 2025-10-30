@@ -61,7 +61,7 @@
   "devDependencies": {
     "@tabler/icons": "2.47.0",
     "@types/d3": "7.4.0",
-    "@types/node": "22.5.0",
+    "@types/node": "24.9.2",
     "esbuild": "0.24.2",
     "lightningcss": "1.29.2",
     "lightningcss-cli": "1.29.2",
