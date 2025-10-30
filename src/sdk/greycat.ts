@@ -721,7 +721,7 @@ namespace gc {
           debugLogger(res.status, uri, args, value);
           if (this._debug_id !== undefined) {
             if (value instanceof gc.runtime.Task) {
-              return (value as gc.runtime.Task<T>).result({ pollEvery: 1000 }, $.default);
+              return (value as gc.runtime.Task<T>).result(undefined, $.default);
             } else {
               throw new Error(`expecting a core.Task response when debugId is set`);
             }
