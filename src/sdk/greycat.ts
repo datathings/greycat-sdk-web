@@ -280,13 +280,15 @@ namespace gc {
         abiMismatchHandler,
       );
 
+      register(name, g);
+      initialize_functions(name, g);
+
       try {
         g.permissions = await runtime.User.permissions(g);
       } catch {
         // we probably don't have the permission to access this endpoint
       }
-      register(name, g);
-      initialize_functions(name, g);
+
       return g;
     }
 
