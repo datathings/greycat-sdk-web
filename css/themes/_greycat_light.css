@@ -298,6 +298,14 @@
   --color-error: #f74318;
 
   --shadow: 0px 1px 1px 0px rgb(var(--base-1));
+  --shadow-color: hsla(0, 0%, 0%, 0.25);
+
+  /* Elevations */
+  --sl-shadow-x-small: 0 1px 2px var(--shadow-color);
+  --sl-shadow-small: 0 1px 2px var(--shadow-color);
+  --sl-shadow-medium: 0 2px 4px var(--shadow-color);
+  --sl-shadow-large: 0 2px 8px var(--shadow-color);
+  --sl-shadow-x-large: 0 4px 16px var(--shadow-color);
 
   --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(15,15,15)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");
   --icon-search: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='rgb(15,15,15)' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='11' cy='11' r='8'%3E%3C/circle%3E%3Cline x1='21' y1='21' x2='16.65' y2='16.65'%3E%3C/line%3E%3C/svg%3E");

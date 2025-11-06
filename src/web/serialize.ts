@@ -1,5 +1,7 @@
 const JS_OBJECT = 254 as gc.sdk.PrimitiveType;
 const JS_UNDEFINED = 253 as gc.sdk.PrimitiveType;
+const ABI_FUNCTION = 252 as gc.sdk.PrimitiveType;
+const ABI_TYPE = 251 as gc.sdk.PrimitiveType;
 
 export class BinaryWriter extends gc.sdk.AbiWriter {
   constructor(abi: gc.sdk.Abi = gc.$.default.abi) {
@@ -11,6 +13,22 @@ export class BinaryWriter extends gc.sdk.AbiWriter {
   }
 
   override js_object(value: object): void {
+    if (value instanceof gc.sdk.AbiFunction) {
+      this.write_u8(ABI_FUNCTION);
+      const bytes = this.txt.encode(value.fqn);
+      this.write_vu32(bytes.length);
+      this.write_all(bytes);
+      return;
+    }
+
+    if (value instanceof gc.sdk.AbiType) {
+      this.write_u8(ABI_TYPE);
+      const bytes = this.txt.encode(value.name);
+      this.write_vu32(bytes.length);
+      this.write_all(bytes);
+      return;
+    }
+
     try {
       gc.sdk.GCObject.from(value, this.abi).save(this);
     } catch {
@@ -45,6 +63,18 @@ export class BinaryReader extends gc.sdk.AbiReader {
       return object as unknown as gc.sdk.Value;
     };
     this.deserializers[JS_UNDEFINED] = () => undefined;
+    this.deserializers[ABI_FUNCTION] = (r) => {
+      const len = r.read_vu32();
+      const bytes = r.take(len);
+      const fqn = this.txt.decode(bytes);
+      return r.abi.fn_by_fqn.get(fqn);
+    };
+    this.deserializers[ABI_TYPE] = (r) => {
+      const len = r.read_vu32();
+      const bytes = r.take(len);
+      const fqn = this.txt.decode(bytes);
+      return r.abi.type_by_fqn.get(fqn);
+    };
   }
 
   static fromHex<T = unknown>(hex: string): T {

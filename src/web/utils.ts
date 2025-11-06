@@ -132,12 +132,12 @@ export function putFileProgress(
         // forbidden
         // unauthorized
         const logger = gc.sdk.getDebuggerLogger();
-        logger(xhr.status, route);
+        logger(g.name, xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
         // unauthorized
         const logger = gc.sdk.getDebuggerLogger();
-        logger(xhr.status, route);
+        logger(g.name, xhr.status, route);
         g.token = undefined;
         g.unauthorizedHandler?.();
         reject(new Error(`you must be logged-in to upload files`));

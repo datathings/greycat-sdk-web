@@ -1,127 +1,127 @@
-import { createElement } from '@greycat/web/jsx-runtime';
-import { GuiElement, css, GuiFactory, sl } from '../../exports.js';
-import style from './object2.css?inline';
+// import { createElement } from '@greycat/web/jsx-runtime';
+// import { GuiElement, css, GuiFactory, sl } from '../../exports.js';
+// import style from './object2.css?inline';
 
-export interface GuiObject2Attrs {
-  value: unknown;
-  [key: string]: unknown;
-}
+// export interface GuiObject2Attrs {
+//   value: unknown;
+//   [key: string]: unknown;
+// }
 
-export class GuiObject2 extends GuiElement {
-  static override styles = [css(style)];
+// export class GuiObject2 extends GuiElement {
+//   static override styles = [css(style)];
 
-  private _attrs: GuiObject2Attrs = { value: undefined };
-  private _factory = GuiFactory.global;
+//   private _attrs: GuiObject2Attrs = { value: undefined };
+//   private _factory = GuiFactory.global;
 
-  connectedCallback() {
-    this._factory = GuiFactory.closest(this);
-    this.update();
-  }
+//   connectedCallback() {
+//     this._factory = GuiFactory.closest(this);
+//     this.update();
+//   }
 
-  setAttrs(attrs: GuiObject2Attrs) {
-    this._attrs = attrs;
-    this.update();
-  }
+//   setAttrs(attrs: GuiObject2Attrs) {
+//     this._attrs = attrs;
+//     this.update();
+//   }
 
-  update(): void {
-    if (!this.isConnected) {
-      return;
-    }
+//   update(): void {
+//     if (!this.isConnected) {
+//       return;
+//     }
 
-    const factory = this._factory;
-    const value = this._attrs.value;
-    if (value instanceof gc.sdk.GCObject) {
-      const tagName = factory.mappings[value.$type.name];
-      if (tagName) {
-        this.shadowRoot.replaceChildren(createElement(tagName, this._attrs) as Node);
-        return;
-      }
+//     const factory = this._factory;
+//     const value = this._attrs.value;
+//     if (value instanceof gc.sdk.GCObject) {
+//       const tagName = factory.mappings[value.$type.name];
+//       if (tagName) {
+//         this.shadowRoot.replaceChildren(createElement(tagName, this._attrs) as Node);
+//         return;
+//       }
 
-      if (value instanceof gc.sdk.GCEnum) {
-        this._renderEnum(value);
-        return;
-      }
-      this._renderObject(value);
-      return;
-    }
-    if (Array.isArray(value)) {
-      // TODO array
-      return;
-    }
-    if (value instanceof Map) {
-      // TODO map
-      return;
-    }
-    this.shadowRoot.replaceChildren(createElement('gui-value', this._attrs));
-  }
+//       if (value instanceof gc.sdk.GCEnum) {
+//         this._renderEnum(value);
+//         return;
+//       }
+//       this._renderObject(value);
+//       return;
+//     }
+//     if (Array.isArray(value)) {
+//       // TODO array
+//       return;
+//     }
+//     if (value instanceof Map) {
+//       // TODO map
+//       return;
+//     }
+//     this.shadowRoot.replaceChildren(createElement('gui-value', this._attrs));
+//   }
 
-  private _renderObject(value: gc.sdk.GCObject): void {
-    const abi = value.$type.abi;
-    const fields = document.createDocumentFragment();
-    for (const attr of value.$type.attrs) {
-      const node = this._createObjField(
-        value.$type,
-        attr.name,
-        abi.types[attr.abi_type],
-        value[attr.name],
-      );
-      fields.appendChild(node);
-    }
-    this.shadowRoot.replaceChildren(
-      <sl-card>
-        <header slot="header">{value.$type.name}</header>
-        <div className="fields">{fields}</div>
-      </sl-card>,
-    );
-  }
+//   private _renderObject(value: gc.sdk.GCObject): void {
+//     const abi = value.$type.abi;
+//     const fields = document.createDocumentFragment();
+//     for (const attr of value.$type.attrs) {
+//       const node = this._createObjField(
+//         value.$type,
+//         attr.name,
+//         abi.types[attr.abi_type],
+//         value[attr.name],
+//       );
+//       fields.appendChild(node);
+//     }
+//     this.shadowRoot.replaceChildren(
+//       <sl-card>
+//         <header slot="header">{value.$type.name}</header>
+//         <div className="fields">{fields}</div>
+//       </sl-card>,
+//     );
+//   }
 
-  private _renderEnum(value: gc.sdk.GCEnum): void {
-    this.shadowRoot.replaceChildren(<>{value.toString()}</>);
-  }
+//   private _renderEnum(value: gc.sdk.GCEnum): void {
+//     this.shadowRoot.replaceChildren(<>{value.toString()}</>);
+//   }
 
-  private _createObjField(
-    objType: gc.sdk.AbiType,
-    attrName: string,
-    attrType: gc.sdk.AbiType,
-    value: unknown,
-  ) {
-    const slottedField = this.querySelector(`[slot="${attrName}"]`);
-    let field: Node;
-    if (slottedField) {
-      field = slottedField;
-      if (field instanceof sl.SlButton) {
-        field.textContent = value?.toString() ?? `${value}`;
-      } else if (field instanceof sl.SlIconButton) {
-        field.label = value?.toString() ?? `${value}`;
-      } else if ('value' in field) {
-        field.value = value;
-      } else {
-        field.textContent = value?.toString() ?? `${value}`;
-      }
-    } else {
-      field = this._factory.createAttrObject(objType, attrName, attrType, { value });
-    }
-    return (
-      <div className="field">
-        <span className="field-name">{attrName}</span>
-        <span className="field-value">
-          <slot name={attrName}>{slottedField ? undefined : field}</slot>
-        </span>
-      </div>
-    );
-  }
-}
+//   private _createObjField(
+//     objType: gc.sdk.AbiType,
+//     attrName: string,
+//     attrType: gc.sdk.AbiType,
+//     value: unknown,
+//   ) {
+//     const slottedField = this.querySelector(`[slot="${attrName}"]`);
+//     let field: Node;
+//     if (slottedField) {
+//       field = slottedField;
+//       if (field instanceof sl.SlButton) {
+//         field.textContent = value?.toString() ?? `${value}`;
+//       } else if (field instanceof sl.SlIconButton) {
+//         field.label = value?.toString() ?? `${value}`;
+//       } else if ('value' in field) {
+//         field.value = value;
+//       } else {
+//         field.textContent = value?.toString() ?? `${value}`;
+//       }
+//     } else {
+//       field = this._factory.createAttrObject(objType, attrName, attrType, { value });
+//     }
+//     return (
+//       <div className="field">
+//         <span className="field-name">{attrName}</span>
+//         <span className="field-value">
+//           <slot name={attrName}>{slottedField ? undefined : field}</slot>
+//         </span>
+//       </div>
+//     );
+//   }
+// }
 
-declare global {
-  interface HTMLElementTagNameMap {
-    'gui-object2': GuiObject2;
-  }
+// declare global {
+//   interface HTMLElementTagNameMap {
+//     'gui-object2': GuiObject2;
+//   }
 
-  namespace GreyCat {
-    namespace JSX {
-      interface IntrinsicElements {
-        'gui-object2': GreyCat.Element<GuiObject2 & GuiObject2Attrs>;
-      }
-    }
-  }
-}
+//   namespace GreyCat {
+//     namespace JSX {
+//       interface IntrinsicElements {
+//         'gui-object2': GreyCat.Element<GuiObject2 & GuiObject2Attrs>;
+//       }
+//     }
+//   }
+// }

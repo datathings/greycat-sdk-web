@@ -116,17 +116,23 @@ namespace gc {
 
     const NOOP = (): void => void 0;
     export const DEFAULT_LOGGER = (
+      name: string,
       status: number,
       method: string,
       args?: unknown,
       value?: unknown,
     ): void => {
       const bg = status >= 400 ? '#e8590c' : '#1983c1';
-      console.log('%cGreyCat', `background:${bg};color:#fff;padding:2px;font-weight:bold`, {
-        method,
-        args,
-        response: value,
-      });
+      console.log(
+        '%cGreyCat',
+        `background:${bg};color:#fff;padding:2px;font-weight:bold`,
+        `[${name}]`,
+        {
+          method,
+          args,
+          response: value,
+        },
+      );
     };
     export type DebugLogger = typeof DEFAULT_LOGGER;
     let debugLogger: DebugLogger = NOOP;
@@ -193,7 +199,7 @@ namespace gc {
       });
       if (res.status === 401) {
         // unauthorized
-        debugLogger(res.status, method);
+        debugLogger('_', res.status, method);
         // call handler if any
         unauthorizedHandler?.();
         throw new Error(`you need to be logged-in to access '${method}'`);
@@ -265,6 +271,7 @@ namespace gc {
       const wasm = await compileWasm();
 
       const g = new GreyCat(
+        name,
         cleanUrl,
         abi,
         wasm.module,
@@ -309,6 +316,7 @@ namespace gc {
       url = DEFAULT_URL,
     }: WithAbiOptions): GreyCat {
       const g = new GreyCat(
+        name,
         normalizeUrl(url),
         abi,
         module,
@@ -414,7 +422,9 @@ namespace gc {
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-    export class GreyCat {
+    export class GreyCat extends sdk.GreyCatEmitter<GreyCatEvents> {
+      /** This instance name (must be the name registered in `gc.$`) */
+      readonly name: string;
       /** GreyCat's api endpoint normalized (does not contain a trailing slash) */
       readonly api: string;
       /** The current GreyCat ABI */
@@ -444,11 +454,11 @@ namespace gc {
 
       private _max_tasks: number;
       private _fields_map: Map<string, AbiAttribute>;
-      private _emitter: gc.sdk.GreyCatEmitter<GreyCatEvents>;
       private _poll: gc.sdk.Poll;
       private _debug_id: number | bigint | undefined;
 
       constructor(
+        name: string,
         api: string,
         abi: Abi,
         module: WebAssembly.Module,
@@ -463,6 +473,9 @@ namespace gc {
         unauthorizedHandler?: () => void,
         abiMismatchHandler?: () => void,
       ) {
+        super();
+
+        this.name = name;
         this.api = api;
         this.abi = abi;
         this.capacity = capacity;
@@ -475,11 +488,10 @@ namespace gc {
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
         this._fields_map = new Map();
-        this._emitter = new sdk.GreyCatEmitter();
         this._poll = new sdk.Poll(async () => {
           try {
             await this.pollTasks();
-            this._emitter.emit('task-poll-update', this.tasks);
+            this.emit('task-poll-update', this.tasks);
           } catch {
             /* noop */
           }
@@ -497,8 +509,9 @@ namespace gc {
         this.numFmt = numFmt ?? new Intl.NumberFormat(navigator.language, {});
       }
 
-      clone(): GreyCat {
-        return new GreyCat(
+      clone(name: string): GreyCat {
+        const greycat = new GreyCat(
+          name,
           this.api,
           this.abi,
           this.module,
@@ -513,6 +526,8 @@ namespace gc {
           this.unauthorizedHandler,
           this.abiMismatchHandler,
         );
+        register(name, greycat);
+        return greycat;
       }
 
       setDebugId(id: number | bigint | undefined) {
@@ -539,7 +554,7 @@ namespace gc {
 
       pollRegister(id: sdk.PollId, everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
         this._poll.register(id, everyMs);
-        const dispose = this._emitter.on('task-poll-update', callback);
+        const dispose = this.on('task-poll-update', callback);
         return () => {
           this._poll.unregister(id);
           dispose();
@@ -599,7 +614,7 @@ namespace gc {
         if (updated === undefined || isTaskRunning(updated)) {
           this._poll.register(task.task_id, opts.pollEvery ?? 500);
           const { promise, resolve } = Promise.withResolvers<void>();
-          const disposeTaskPollUpdate = this._emitter.on('task-poll-update', async (tasks) => {
+          const disposeTaskPollUpdate = this.on('task-poll-update', async (tasks) => {
             const updated = tasks.find((t) => t.task_id === task.task_id);
             if (updated) {
               if (!isTaskRunning(updated)) {
@@ -621,7 +636,7 @@ namespace gc {
         const url = new URL(`${this.api}/${result_route}`);
         const res = await fetch(url, { signal });
         if (res.ok) {
-          debugLogger(res.status, url.pathname);
+          debugLogger(this.name, res.status, url.pathname);
           const data = await res.arrayBuffer();
           if (data.byteLength === 0) {
             return undefined as T;
@@ -638,16 +653,16 @@ namespace gc {
           return value as T;
         }
         if (res.status === 404) {
-          debugLogger(res.status, url.pathname);
+          debugLogger(this.name, res.status, url.pathname);
           // 404 on result.gcb might probably mean that the task returned 'void', therefore we do not fail in this case
           return undefined as T;
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, url.pathname);
+          debugLogger(this.name, res.status, url.pathname);
           throw new Error(`file '${result_route}' access forbidden`);
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, url.pathname);
+          debugLogger(this.name, res.status, url.pathname);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -718,7 +733,7 @@ namespace gc {
           if (etag) {
             await this.cache.write(key, { etag, data });
           }
-          debugLogger(res.status, uri, args, value);
+          debugLogger(this.name, res.status, uri, args, value);
           if (this._debug_id !== undefined) {
             if (value instanceof gc.runtime.Task) {
               return (value as gc.runtime.Task<T>).result(undefined, $.default);
@@ -733,11 +748,11 @@ namespace gc {
             return this.rawCall(uri, args, signal);
           }
           const value = this.deserializeWithHeader(cachedRes.data);
-          debugLogger(res.status, uri, args, value);
+          debugLogger(this.name, res.status, uri, args, value);
           return value as T;
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, uri, args);
+          debugLogger(this.name, res.status, uri, args);
           // reset token
           this.token = undefined;
           // call handler if any
@@ -745,15 +760,15 @@ namespace gc {
           throw new Error(`you need to be logged-in to access '${uri}'`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, uri, args);
+          debugLogger(this.name, res.status, uri, args);
           throw new Error(`access to '${uri}' is forbidden`);
         } else if (res.status === 404) {
           // not found
-          debugLogger(res.status, uri, args, null);
+          debugLogger(this.name, res.status, uri, args, null);
           throw new Error(`unknown method '${uri}'`);
         } else if (res.status === 422) {
           // unprocessable content (abi mismatch)
-          debugLogger(res.status, uri, args);
+          debugLogger(this.name, res.status, uri, args);
           // call handler if any
           this.abiMismatchHandler?.();
           throw new Error('ABI mismatch error');
@@ -761,7 +776,7 @@ namespace gc {
         const data = await res.arrayBuffer();
         const value = this.deserializeWithHeader(data);
         const err = value as core.Error | null;
-        debugLogger(res.status, uri, args, value);
+        debugLogger(this.name, res.status, uri, args, value);
         if (err === null) {
           throw new Error(`calling '${uri}' failed`);
         }
@@ -901,19 +916,19 @@ namespace gc {
         }
         const res = await fetch(url, { signal });
         if (res.ok) {
-          debugLogger(res.status, url.pathname + url.search);
+          debugLogger(this.name, res.status, url.pathname + url.search);
           return res;
         }
         if (res.status === 404) {
-          debugLogger(res.status, url.pathname + url.search);
+          debugLogger(this.name, res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' not found`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, url.pathname + url.search);
+          debugLogger(this.name, res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' access forbidden`);
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, url.pathname + url.search);
+          debugLogger(this.name, res.status, url.pathname + url.search);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -936,11 +951,11 @@ namespace gc {
         }
         if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, route);
+          debugLogger(this.name, res.status, route);
           throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, route);
+          debugLogger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -962,11 +977,11 @@ namespace gc {
         }
         if (res.status === 403) {
           // forbidden
-          debugLogger(res.status, route);
+          debugLogger(this.name, res.status, route);
           throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(res.status, route);
+          debugLogger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -1236,14 +1251,22 @@ namespace gc {
 
     /**
      *
-     * @param {LoginOptions} opts
+     * @param {LoginOptions} options
      * @returns the user token
      */
     export async function login(options: LoginOptions): Promise<string> {
-      const { username, password, use_cookie = false, url = await findGreyCat(), signal } = options;
-      const credentials = btoa(`${username}:${sha256hex(password)}`);
-      const body = JSON.stringify([credentials, use_cookie]);
-      const res = await fetch(`${normalizeUrl(url)}/runtime::User::login`, {
+      const { url = await findGreyCat(), signal, useCookie = false, ...auth } = options;
+      let arg: string;
+      let method: 'login' | 'tokenLogin';
+      if ('token' in auth) {
+        method = 'tokenLogin';
+        arg = auth.token;
+      } else {
+        method = 'login';
+        arg = btoa(`${auth.username}:${sha256hex(auth.password)}`);
+      }
+      const body = JSON.stringify([arg, useCookie]);
+      const res = await fetch(`${normalizeUrl(url)}/runtime::User::${method}`, {
         method: 'POST',
         body,
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -1253,7 +1276,7 @@ namespace gc {
       if (res.ok) {
         return (await res.json()) as string;
       }
-      throw new Error(`unable to login (${res.status} ${res.statusText})`);
+      throw new Error(`unable to ${method} (${res.status} ${res.statusText})`);
     }
 
     function isTaskRunning(task: gc.runtime.Task): boolean {

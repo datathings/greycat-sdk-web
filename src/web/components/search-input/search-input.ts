@@ -1,5 +1,10 @@
 import { sl, SlInputEventMap } from '../../exports.js';
 
+/**
+ * Thin wrapper around `sl.SlInput` that adds a search icon.
+ *
+ * *This component emits the same events as `sl.SlInput`.*
+ */
 export class GuiSearchInput extends sl.SlInput {
   override connectedCallback() {
     super.connectedCallback();

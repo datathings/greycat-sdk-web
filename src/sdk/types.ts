@@ -168,14 +168,20 @@ namespace gc {
       read(key: CacheKey): Promise<CacheData | null>;
     }
 
-    export interface Auth {
+    export interface UsernameAuth {
       username: string;
       password: string;
-      use_cookie?: boolean;
+      useCookie?: boolean;
+    }
+    export interface TokenAuth {
+      token: string;
+      useCookie?: boolean;
     }
 
+    export type Auth = UsernameAuth | TokenAuth;
+
     export interface WithoutAbiOptions extends Options {
-      /** If defined, will call `runtime::User::login` prior to initialization */
+      /** If defined, will call `runtime::User::login` or `runtime::User::tokenLogin` prior to initialization */
       auth?: Auth;
       /** This signal is given to the request that loads the ABI. */
       signal?: AbortSignal;

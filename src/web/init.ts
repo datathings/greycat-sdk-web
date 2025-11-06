@@ -62,7 +62,7 @@ import {
   GuiInputField,
   GuiLayout,
   GuiMultiSelectCheckbox,
-  GuiObject2,
+  // GuiObject2,
   GuiPeriodicTaskList,
   GuiRoles,
   GuiRolePermissions,
@@ -180,7 +180,7 @@ function preInit(options: WebOptions) {
   registerCustomElement('gui-input', GuiInput);
   registerCustomElement('gui-layout', GuiLayout);
   registerCustomElement('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
-  registerCustomElement('gui-object2', GuiObject2);
+  // registerCustomElement('gui-object2', GuiObject2);
   registerCustomElement('gui-periodic-task-list', GuiPeriodicTaskList);
   registerCustomElement('gui-roles', GuiRoles);
   registerCustomElement('gui-role-permissions', GuiRolePermissions);
@@ -230,26 +230,31 @@ function postInit() {
     [gc.core.function_._type]: 'gui-input-fnptr',
   });
 
-  GuiFactory.global = new GuiFactory('gui-object', 'gui-value', {
-    [gc.core.Table._type]: 'gui-table',
-    [gc.core.Map._type]: 'gui-table',
-    [gc.core.Array._type]: 'gui-table',
-    [gc.core.String._type]: 'gui-value',
-    [gc.core.int._type]: 'gui-value',
-    [gc.core.float._type]: 'gui-value',
-    [gc.core.bool._type]: 'gui-value',
-    [gc.core.geo._type]: 'gui-value',
-    [gc.core.time._type]: 'gui-value',
-    [gc.core.str._type]: 'gui-value',
-    [gc.core.Date._type]: 'gui-value',
-    [gc.core.node._type]: 'gui-value',
-    [gc.core.nodeTime._type]: 'gui-value',
-    [gc.core.nodeIndex._type]: 'gui-value',
-    [gc.core.nodeGeo._type]: 'gui-value',
-    [gc.core.nodeList._type]: 'gui-value',
-    [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
-    [gc.util.HistogramStats._type]: 'gui-histogram',
-  });
+  GuiFactory.global = new GuiFactory(
+    'gui-object',
+    'gui-value',
+    {
+      [gc.core.Table._type]: 'gui-table',
+      [gc.core.Map._type]: 'gui-table',
+      [gc.core.Array._type]: 'gui-table',
+      [gc.core.String._type]: 'gui-value',
+      [gc.core.int._type]: 'gui-value',
+      [gc.core.float._type]: 'gui-value',
+      [gc.core.bool._type]: 'gui-value',
+      [gc.core.geo._type]: 'gui-value',
+      [gc.core.time._type]: 'gui-value',
+      [gc.core.str._type]: 'gui-value',
+      [gc.core.Date._type]: 'gui-value',
+      [gc.core.node._type]: 'gui-value',
+      [gc.core.nodeTime._type]: 'gui-value',
+      [gc.core.nodeIndex._type]: 'gui-value',
+      [gc.core.nodeGeo._type]: 'gui-value',
+      [gc.core.nodeList._type]: 'gui-value',
+      [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
+      [gc.util.HistogramStats._type]: 'gui-histogram',
+    },
+    'default',
+  );
 }
 
 declare global {
@@ -318,7 +323,7 @@ declare global {
       GuiInputField,
       GuiLayout,
       GuiMultiSelectCheckbox,
-      GuiObject2,
+      // GuiObject2,
       GuiPeriodicTaskList,
       GuiRoles,
       GuiRolePermissions,

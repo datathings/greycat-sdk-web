@@ -48,51 +48,116 @@ export class GuiFactory extends GuiElement {
    */
   static global: GuiFactory;
 
+  private _parent: GuiFactory;
+
+  private _objectTag: keyof HTMLElementTagNameMap | undefined;
+  private _valueTag: keyof HTMLElementTagNameMap | undefined;
+  private _greycatName: string | undefined;
+  /**
+   * Mapping of GreyCat fqn to HTMLElement tagName.
+   *
+   * *Note: `GuiFactory` comes with 2 helpers to easily register a custom element from either a class or a function,
+   * see `GuiFactory.defineFromClass` and `GuiFactory.defineFromFn`*
+   */
+  private _mappings: FactoryMap;
+
   constructor(
-    /**
-     * This is used when unable to find a specific mapping for a type.
-     *
-     * *Defaults to `'gui-object'`*
-     */
-    public objectTag: keyof HTMLElementTagNameMap = 'gui-object',
-    /**
-     * Some components prefer to display values as strings, therefore
-     * they use the `valueFactory` rather than the `mappings` or `objectFactory`.
-     *
-     * *Defaults to `'gui-value'`*
-     */
-    public valueTag: keyof HTMLElementTagNameMap = 'gui-value',
-    /**
-     * Mapping of GreyCat fqn to HTMLElement tagName.
-     *
-     * *Note: `GuiFactory` comes with 2 helpers to easily register a custom element from either a class or a function,
-     * see `GuiFactory.defineFromClass` and `GuiFactory.defineFromFn`*
-     */
-    public mappings: FactoryMap = {},
-    /**
-     * GreyCat instance name to use for sdk calls.
-     *
-     * *By default the 'default' instance is used.*
-     */
-    public greycatName: string = 'default',
+    objectTag: keyof HTMLElementTagNameMap | undefined,
+    valueTag: keyof HTMLElementTagNameMap | undefined,
+    mappings: FactoryMap = {},
+    greycatName: string | undefined,
   ) {
     super();
+
+    // default parent is always the global factory
+    // but this might change when the factory is connected to the DOM
+    this._parent = GuiFactory.global;
+    this._objectTag = objectTag;
+    this._valueTag = valueTag;
+    this._mappings = mappings;
+    this._greycatName = greycatName;
 
     this.shadowRoot.appendChild(document.createElement('slot'));
   }
 
+  connectedCallback(): void {
+    this._parent = GuiFactory.closest(this);
+  }
+
+  /**
+   * Some components prefer to display values as strings, therefore
+   * they use the `valueFactory` rather than the `mappings` or `objectFactory`.
+   *
+   * *Defaults to `GuiFactory.global.valueTag`*
+   */
+  get valueTag(): keyof HTMLElementTagNameMap {
+    if (this._valueTag !== undefined) {
+      return this._valueTag;
+    }
+    if (this === GuiFactory.global) {
+      return this._valueTag ?? 'gui-value';
+    }
+    return this._parent.valueTag;
+  }
+
+  set valueTag(tag: keyof HTMLElementTagNameMap) {
+    this._valueTag = tag;
+  }
+
+  /**
+   * This is used when unable to find a specific mapping for a type.
+   *
+   * *Defaults to `GuiFactory.global.objectTag`*
+   */
+  get objectTag(): keyof HTMLElementTagNameMap {
+    if (this._objectTag !== undefined) {
+      return this._objectTag;
+    }
+    if (this === GuiFactory.global) {
+      return this._objectTag ?? 'gui-object';
+    }
+    return this._parent.objectTag;
+  }
+
+  set objectTag(tag: keyof HTMLElementTagNameMap) {
+    this._valueTag = tag;
+  }
+
+  /**
+   * GreyCat instance name to use for sdk calls.
+   *
+   * *Defaults to `GuiFactory.global.greycatName`*
+   */
+  get greycatName(): string {
+    if (this._greycatName !== undefined) {
+      return this._greycatName;
+    }
+    if (this === GuiFactory.global) {
+      return this._greycatName ?? 'default';
+    }
+    return this._parent.greycatName;
+  }
+
+  set greycatName(name: string) {
+    this._greycatName = name;
+  }
+
+  set mappings(mappings: FactoryMap) {
+    this._mappings = mappings;
+  }
+
   set(name: string, tagName: keyof HTMLElementTagNameMap): void {
-    this.mappings[name] = tagName;
+    this._mappings[name] = tagName;
   }
 
   setClass(name: string, klass: CustomElementConstructor): void {
     const tagName = GuiFactory.defineFromClass(klass);
-    this.mappings[name] = tagName;
+    this._mappings[name] = tagName;
   }
 
   setFn(name: string, fn: CustomElementFn): void {
     const tagName = GuiFactory.defineFromFn(fn);
-    this.mappings[name] = tagName;
+    this._mappings[name] = tagName;
   }
 
   createObject(props: Props = {}): Node {
@@ -110,7 +175,7 @@ export class GuiFactory extends GuiElement {
       tagName = this.get(attrType.name);
     }
     if (tagName === undefined) {
-      tagName = this.objectTag;
+      return createElement(this.objectTag, props) as Node;
     }
     return createElement(tagName, props) as Node;
   }
@@ -120,45 +185,35 @@ export class GuiFactory extends GuiElement {
   }
 
   createAttrValue(type: gc.sdk.AbiType, attrName: string, props: Props = {}): Node {
-    const tagName = this.getValue(`${type.name}::${attrName}`);
-    return createElement(tagName, props) as Node;
+    const tagName = this.get(`${type.name}::${attrName}`);
+    if (tagName !== undefined) {
+      return createElement(tagName, props) as Node;
+    }
+    return createElement(this.valueTag, props) as Node;
   }
 
   create(type: string, props: Props = {}): Node {
     const tagName = this.get(type);
-    if (tagName === undefined) {
-      return createElement(this.objectTag, props);
+    if (tagName) {
+      return createElement(tagName, props) as Node;
     }
-    return createElement(tagName, props) as Node;
+    return createElement(this.objectTag, props);
   }
 
   /**
-   * Looks for the given `type` in this factory's mappings.
-   * If found, returns it.
-   * If not found, asks the parent factory.
-   * When the global factory is reached, it tries to look for the type in the global mappings,
-   * if unable to find it, returns `undefined`.
+   * Gets an element tag from a type in the mappings.
+   *
+   * Walks the factory tree upwards until the root.
    */
   get(type: string): keyof HTMLElementTagNameMap | undefined {
-    const tagName = this.mappings[type];
+    const tagName = this._mappings[type];
     if (tagName) {
       return tagName;
     }
     if (this === GuiFactory.global) {
-      return;
+      return undefined;
     }
-    return GuiFactory.closest(this).get(type);
-  }
-
-  getValue(type: string): keyof HTMLElementTagNameMap {
-    const tagName = this.mappings[type];
-    if (tagName) {
-      return tagName;
-    }
-    if (this === GuiFactory.global) {
-      return this.valueTag;
-    }
-    return GuiFactory.closest(this).getValue(type);
+    return this._parent.get(type);
   }
 
   /**
@@ -196,6 +251,7 @@ export class GuiFactory extends GuiElement {
       // reached DOM root
       break;
     }
+
     return GuiFactory.global;
   }
 
