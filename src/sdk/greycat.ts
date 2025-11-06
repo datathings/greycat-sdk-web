@@ -1140,10 +1140,18 @@ namespace gc {
      * @returns the user token
      */
     export async function login(options: LoginOptions): Promise<string> {
-      const { username, password, use_cookie = false, url = await findGreyCat(), signal } = options;
-      const credentials = btoa(`${username}:${sha256hex(password)}`);
-      const body = JSON.stringify([credentials, use_cookie]);
-      const res = await fetch(`${normalizeUrl(url)}/runtime::User::login`, {
+      const { url = await findGreyCat(), signal, use_cookie = false, ...auth } = options;
+      let method: 'login' | 'tokenLogin';
+      let arg: string;
+      if ('token' in auth) {
+        method = 'tokenLogin';
+        arg = auth.token;
+      } else {
+        method = 'login';
+        arg = btoa(`${auth.username}:${sha256hex(auth.password)}`);
+      }
+      const body = JSON.stringify([arg, use_cookie]);
+      const res = await fetch(`${normalizeUrl(url)}/runtime::User::${method}`, {
         method: 'POST',
         body,
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
@@ -1153,7 +1161,7 @@ namespace gc {
       if (res.ok) {
         return (await res.json()) as string;
       }
-      throw new Error(`unable to login (${res.status} ${res.statusText})`);
+      throw new Error(`unable to ${method} (${res.status} ${res.statusText})`);
     }
 
     export type LogoutOptions = {
