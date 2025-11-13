@@ -21,26 +21,30 @@ export interface StringifyProps extends gc.sdk.ToStringOptions {
  * Best-effort to stringify the given value.
  */
 export function stringify(props: StringifyProps): string {
-  const { text, value, name, tiny, pretty = false, ...opts } = props;
+  const text = props.text;
+  const value = props.value;
+  const name = props.name;
+  const tiny = props.tiny;
+  const pretty = props.pretty ?? false;
   if (text) {
     return text;
   } else if (value instanceof gc.core.time) {
-    return value.toString(opts);
+    return value.toString(props);
   } else if (value instanceof gc.core.duration) {
-    return value.toString(opts);
+    return value.toString(props);
   } else if (typeof value === 'string') {
     if (tiny) {
       return props.quotedString ? `"${toStrTiny(value)}"` : toStrTiny(value);
     }
     return props.quotedString ? `"${value}"` : value;
   } else if (typeof value === 'number') {
-    return opts.numFmt ? opts.numFmt.format(value) : `${value}`;
+    return props.numFmt ? props.numFmt.format(value) : `${value}`;
   } else if (value instanceof Date) {
-    return gc.core.time.fromDate(value).toString(opts);
+    return gc.core.time.fromDate(value).toString(props);
   } else if (value instanceof gc.core.Date) {
-    return value.toString(opts);
+    return value.toString(props);
   } else if (value instanceof gc.core.str) {
-    return value.toString(opts);
+    return value.toString(props);
   } else if (value instanceof gc.core.Tuple) {
     const tmp = props.value;
     const tmpQuotedString = props.quotedString;
@@ -57,7 +61,7 @@ export function stringify(props: StringifyProps): string {
       const type = Object.getPrototypeOf(value).constructor._type.split('::')[1];
       return `${type}/${encodeURIComponent(name)}`;
     }
-    return value.toString(opts);
+    return value.toString(props);
   } else if (value instanceof gc.core.geo) {
     if (tiny) {
       return `${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}`;
@@ -96,9 +100,22 @@ export function stringify(props: StringifyProps): string {
     value instanceof gc.core.t4 ||
     value instanceof gc.core.t4f
   ) {
-    return value.toString(opts);
+    return value.toString(props);
   } else if (value instanceof Map) {
     return `Map { size: ${value.size} }`;
+  } else if (value instanceof gc.runtime.Task) {
+    const fn = value.type
+      ? `${value.mod}::${value.type}::${value.fun}`
+      : `${value.mod}::${value.fun}`;
+    switch (value.status.key) {
+      case 'ended':
+      case 'ended_with_errors':
+      case 'cancelled':
+      case 'error':
+        return `${value.user_id}/${value.task_id} ${fn} ${value.status.key}, started at ${value.start?.toString()} took ${value.duration?.toString()}`;
+      default:
+        return `${value.user_id}/${value.task_id} ${fn} ${value.status.key}, created at ${value.creation.toString()}`;
+    }
   } else if (typeof value === 'object') {
     if (value) {
       if (tiny) {

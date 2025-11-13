@@ -4,7 +4,7 @@ import '~/common';
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const chart = document.createElement('gui-chart');
 

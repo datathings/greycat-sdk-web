@@ -2,7 +2,7 @@ import '@greycat/web';
 import type { Serie } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const data = Array.from({ length: 1000 }, (_) => [
   Math.random(),

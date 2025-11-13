@@ -18,7 +18,6 @@ export class GuiTasks extends GuiElement {
   private _updateDelay: number;
   private _users: Record<number, string> = {};
   private _tasks: gc.runtime.Task[] = [];
-  private _dispose: (() => void) | undefined;
 
   constructor() {
     super();
@@ -144,13 +143,8 @@ export class GuiTasks extends GuiElement {
   }
 
   connectedCallback() {
-    this._dispose = gc.$.default.pollRegister('gui-tasks', this._updateDelay, () => this.reload());
+    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, () => this.reload()));
     this.reload();
-  }
-
-  disconnectedCallback() {
-    this._dispose?.();
-    this.replaceChildren();
   }
 
   get updateDelay() {
@@ -164,8 +158,8 @@ export class GuiTasks extends GuiElement {
    */
   set updateDelay(delay: number) {
     this._updateDelay = delay;
-    this._dispose?.();
-    this._dispose = gc.$.default.pollRegister('gui-tasks', this._updateDelay, () => this.reload());
+    this.dispose();
+    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, () => this.reload()));
   }
 
   get filter() {

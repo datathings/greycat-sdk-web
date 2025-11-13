@@ -2,7 +2,7 @@ import '@greycat/web';
 import '~/common';
 import './index.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const select = document.createElement('gui-select');
 select.value = 'Option 2';

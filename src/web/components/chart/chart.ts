@@ -16,7 +16,6 @@ import type {
 } from './types.js';
 import { vMap } from './internals.js';
 import {
-  Disposer,
   createFormatter,
   smartTimeFormatSpecifier,
   CanvasContext,
@@ -67,7 +66,6 @@ type ComputedState = {
 export class GuiChart extends GuiElement {
   static override styles = [css(style)];
 
-  private _disposer: Disposer;
   private _resizeObs: ResizeObserver;
   private _table: gc.core.Table;
   private _config: ChartConfig;
@@ -112,7 +110,6 @@ export class GuiChart extends GuiElement {
   constructor() {
     super();
 
-    this._disposer = new Disposer();
     this._resizeObs = new ResizeObserver(debounce(() => this._resize(), 50));
     this._table = gc.core.Table.create();
     this._config = { series: [], xAxis: {}, yAxes: {} };
@@ -430,8 +427,8 @@ export class GuiChart extends GuiElement {
     // trigger a resize before the observer to prevent resize-flickering on mount
     this._resize();
 
-    document.addEventListener('mouseup', this._onmouseup, { signal: this._disposer.signal });
-    document.addEventListener('mousemove', this._onmousemove, { signal: this._disposer.signal });
+    document.addEventListener('mouseup', this._onmouseup, { signal: this.abortSignal() });
+    document.addEventListener('mousemove', this._onmousemove, { signal: this.abortSignal() });
     this._resizeObs.observe(this);
 
     const animRef = { id: -1 };
@@ -440,12 +437,7 @@ export class GuiChart extends GuiElement {
       animRef.id = requestAnimationFrame(animationCallback);
     };
     animRef.id = requestAnimationFrame(animationCallback);
-    this._disposer.disposables.push(() => cancelAnimationFrame(animRef.id));
-  }
-
-  disconnectedCallback() {
-    this._disposer.dispose();
-    this._resizeObs.disconnect();
+    this.addDisposable(() => cancelAnimationFrame(animRef.id))
   }
 
   private _onmouseup = (ev: MouseEvent) => {

@@ -45,17 +45,11 @@ export class GuiObject<T = unknown> extends GuiElement {
   private _resolve = false;
   private _props: ObjectProps = {};
   private _factory: GuiFactory = GuiFactory.global;
-  private _dispose: (() => void) | undefined;
 
   connectedCallback() {
     this.classList.add('gui-object');
     this._factory = GuiFactory.closest(this);
     this.update();
-  }
-
-  disconnectedCallback() {
-    this._dispose?.();
-    this._dispose = undefined;
   }
 
   setAttrs({
@@ -72,8 +66,6 @@ export class GuiObject<T = unknown> extends GuiElement {
     this._nested = nested;
     this._expanded = expanded;
     this._resolve = resolve;
-    this._dispose?.();
-    this._dispose = undefined;
     this.update();
   }
 
@@ -238,10 +230,8 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     if (value instanceof gc.runtime.Task) {
-      this._dispose = gc.$[this._factory.greycatName].pollRegister(
-        `gui-object#task-${value.task_id}`,
-        500,
-        (tasks) => {
+      this.addDisposable(
+        gc.$[this._factory.greycatName].subscribeToTaskPoll(500, (tasks) => {
           const task = tasks.find((t) => t.task_id === value.task_id);
           if (task) {
             this._renderAsGCObject(task);
@@ -253,12 +243,11 @@ export class GuiObject<T = unknown> extends GuiElement {
                 // TODO add a cancel button?
                 break;
               default:
-                this._dispose?.();
-                this._dispose = undefined;
+                this.dispose();
                 break;
             }
           }
-        },
+        }),
       );
       this._renderAsGCObject(value);
       return;

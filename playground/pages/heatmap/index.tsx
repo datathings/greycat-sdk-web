@@ -2,7 +2,7 @@ import { type GuiHeatmap, sl } from '@greycat/web';
 import '~/common';
 import './index.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const table = await gc.project.heatmap();
 console.log('heatmap table', table);

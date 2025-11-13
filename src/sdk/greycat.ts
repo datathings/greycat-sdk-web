@@ -114,7 +114,7 @@ namespace gc {
       return DEFAULT_URL;
     };
 
-    const NOOP = (): void => void 0;
+    const NOOP_LOGGER = (): void => void 0;
     export const DEFAULT_LOGGER = (
       name: string,
       status: number,
@@ -135,44 +135,15 @@ namespace gc {
       );
     };
     export type DebugLogger = typeof DEFAULT_LOGGER;
-    let debugLogger: DebugLogger = NOOP;
-
-    /**
-     * Registers a global debug logger that will be called for every remote procedure call.
-     *
-     * If `customLogger` is `undefined` the default console logger will be used.
-     */
-    export function registerDebugLogger(customLogger: DebugLogger = DEFAULT_LOGGER): void {
-      debugLogger = customLogger;
-    }
-
-    /**
-     * Unregisters the global debug logger by replacing it with a no-op function and returns it.
-     */
-    export function unregisterDebugLogger(): DebugLogger {
-      const logger = debugLogger;
-      debugLogger = NOOP;
-      return logger;
-    }
-
-    export function getDebuggerLogger(): DebugLogger {
-      return debugLogger;
-    }
 
     /**
      * @returns {[ArrayBuffer, string | undefined]} returns a tuple containing the ABI data and optionally the token if a login has occured
      */
     export async function downloadAbi(
       options: WithoutAbiOptions = {},
+      logger: DebugLogger,
     ): Promise<[ArrayBuffer, string | undefined]> {
-      const {
-        auth,
-        signal,
-        cache,
-        capacity,
-        unauthorizedHandler,
-        url = await findGreyCat(),
-      } = options;
+      const { auth, signal, cache, unauthorizedHandler, url = await findGreyCat() } = options;
       let token: string | undefined;
 
       if (auth) {
@@ -199,7 +170,7 @@ namespace gc {
       });
       if (res.status === 401) {
         // unauthorized
-        debugLogger('_', res.status, method);
+        logger('_', res.status, method);
         // call handler if any
         unauthorizedHandler?.();
         throw new Error(`you need to be logged-in to access '${method}'`);
@@ -208,14 +179,16 @@ namespace gc {
           return [cachedRes.data, token];
         } else {
           // re-attempt
-          return downloadAbi({
-            auth,
-            cache,
-            capacity,
-            signal,
-            unauthorizedHandler,
-            url,
-          });
+          return downloadAbi(
+            {
+              auth,
+              cache,
+              signal,
+              unauthorizedHandler,
+              url,
+            },
+            logger,
+          );
         }
       } else if (!res.ok) {
         throw new Error(`unable to fetch ABI (${res.status} ${res.statusText})`);
@@ -245,26 +218,30 @@ namespace gc {
       const {
         name = 'default',
         url = await findGreyCat(),
-        capacity,
         timezone,
         numFmt,
         cache,
         maxTasks,
         signal,
         auth,
+        debug = false,
         unauthorizedHandler,
         abiMismatchHandler,
       } = options;
-      const [data, token] = await downloadAbi({
-        url,
-        auth,
-        capacity,
-        cache,
-        maxTasks,
-        unauthorizedHandler,
-        abiMismatchHandler,
-        signal,
-      });
+      const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
+
+      const [data, token] = await downloadAbi(
+        {
+          url,
+          auth,
+          cache,
+          maxTasks,
+          unauthorizedHandler,
+          abiMismatchHandler,
+          signal,
+        },
+        logger,
+      );
       const abi = new Abi(data);
       const cleanUrl = normalizeUrl(url);
 
@@ -272,11 +249,11 @@ namespace gc {
 
       const g = new GreyCat(
         name,
+        logger,
         cleanUrl,
         abi,
         wasm.module,
         wasm.instance.exports as unknown as gc.sdk.GreyCatWasmExports,
-        capacity,
         timezone,
         numFmt,
         cache,
@@ -301,7 +278,7 @@ namespace gc {
 
     export function initWithAbi({
       name = 'default',
-      capacity,
+      debug = false,
       timezone,
       numFmt,
       cache,
@@ -317,11 +294,11 @@ namespace gc {
     }: WithAbiOptions): GreyCat {
       const g = new GreyCat(
         name,
+        debug ? DEFAULT_LOGGER : NOOP_LOGGER,
         normalizeUrl(url),
         abi,
         module,
         exports,
-        capacity,
         timezone,
         numFmt,
         cache,
@@ -413,24 +390,50 @@ namespace gc {
         max?: number,
         signal?: AbortSignal,
       ): Promise<T | T[]>;
+      /**
+       * Emitted everytime a task is spawn on this instance
+       */
+      on(ev: 'task', callback: sdk.EmitterCallback<gc.runtime.Task>): sdk.EmitterDisposable;
+      /**
+       * Emitted everytime this instance polls for tasks.
+       * The array only contains the current history of tasks
+       */
+      on(
+        ev: 'tasks-history',
+        callback: sdk.EmitterCallback<gc.runtime.Task[]>,
+      ): sdk.EmitterDisposable;
+      /**
+       * Emitted everytime this instance polls for tasks.
+       * The array only contains the current running tasks
+       */
+      on(
+        ev: 'tasks-running',
+        callback: sdk.EmitterCallback<gc.runtime.Task[]>,
+      ): sdk.EmitterDisposable;
+      /**
+       * Emitted everytime this instance polls for tasks.
+       * The array contains the history and the running tasks
+       */
+      on(ev: 'tasks', callback: sdk.EmitterCallback<gc.runtime.Task[]>): sdk.EmitterDisposable;
     }
 
     interface GreyCatEvents {
-      'task-poll-start': void;
-      'task-poll-update': gc.runtime.Task[];
-      'task-poll-stop': void;
+      // prettier-ignore
+      'task': gc.runtime.Task;
+      'tasks-history': gc.runtime.Task[];
+      'tasks-running': gc.runtime.Task[];
+      // prettier-ignore
+      'tasks': gc.runtime.Task[];
     }
 
     // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-    export class GreyCat extends sdk.GreyCatEmitter<GreyCatEvents> {
+    export class GreyCat extends sdk.Emitter<GreyCatEvents> {
       /** This instance name (must be the name registered in `gc.$`) */
       readonly name: string;
       /** GreyCat's api endpoint normalized (does not contain a trailing slash) */
       readonly api: string;
       /** The current GreyCat ABI */
       readonly abi: Abi;
-      /** used by `WriteBuffer` to initialize its capacity */
-      readonly capacity: number;
       /** cache layer for request/response. Defaults to the `NoopCache`. */
       readonly cache: Cache;
       /** the default timezone of this instance */
@@ -451,7 +454,10 @@ namespace gc {
       unauthorizedHandler: (() => void) | undefined;
       /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
       abiMismatchHandler: (() => void) | undefined;
-
+      logger: DebugLogger;
+      
+      /** Re-used by the serialize methods to prevent re-allocations */
+      private _writer: sdk.AbiWriter;
       private _max_tasks: number;
       private _fields_map: Map<string, AbiAttribute>;
       private _poll: gc.sdk.Poll;
@@ -459,11 +465,11 @@ namespace gc {
 
       constructor(
         name: string,
+        logger: DebugLogger,
         api: string,
         abi: Abi,
         module: WebAssembly.Module,
         exports: GreyCatWasmExports,
-        capacity = 4096,
         timezone: gc.core.TimeZone.Field | undefined,
         numFmt: Intl.NumberFormat | undefined,
         cache: Cache = new NoopCache(),
@@ -476,22 +482,22 @@ namespace gc {
         super();
 
         this.name = name;
+        this.logger = logger;
         this.api = api;
         this.abi = abi;
-        this.capacity = capacity;
         this.cache = cache;
         this._max_tasks = maxTasks;
         this.token = token;
         this.permissions = permissions;
         this.module = module;
         this._exports = exports;
+        this._writer = new sdk.AbiWriter(abi, 4096);
         this.unauthorizedHandler = unauthorizedHandler;
         this.abiMismatchHandler = abiMismatchHandler;
         this._fields_map = new Map();
         this._poll = new sdk.Poll(async () => {
           try {
             await this.pollTasks();
-            this.emit('task-poll-update', this.tasks);
           } catch {
             /* noop */
           }
@@ -512,11 +518,11 @@ namespace gc {
       clone(name: string): GreyCat {
         const greycat = new GreyCat(
           name,
+          this.logger,
           this.api,
           this.abi,
           this.module,
           this._exports,
-          this.capacity,
           this.timezone.key,
           this.numFmt,
           this.cache,
@@ -552,24 +558,68 @@ namespace gc {
         return;
       }
 
-      pollRegister(id: sdk.PollId, everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
-        this._poll.register(id, everyMs);
-        const dispose = this.on('task-poll-update', callback);
+      /**
+       * Subscribes to task updates that occur at least every `everyMs` milliseconds.
+       *
+       * GreyCat manages a single shared poller for all subscriptions. The backend is polled at the
+       * fastest interval requested by any subscriber, and all registered callbacks are invoked at
+       * that same frequency with the latest list of tasks.
+       *
+       * This lets multiple components receive up-to-date task data without each performing its own
+       * network fetch — the polling is multiplexed through GreyCat.
+       *
+       * If you only need to react when tasks are refreshed (without triggering polling yourself),
+       * use the event emitter directly via `greycat.on('tasks', ...)`.
+       *
+       * *Note that GreyCat will only start polling for tasks if at least one subscription exists
+       * and will stop polling for tasks when the last subscription is disposed*
+       *
+       * @param everyMs Desired polling interval in milliseconds
+       * @param callback Function called with the updated list of tasks
+       * @returns A function that unsubscribes from the poller when invoked
+       */
+      subscribeToTaskPoll(everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
+        const id = this._poll.register(everyMs);
+        const dispose = this.on('tasks', callback);
         return () => {
           this._poll.unregister(id);
           dispose();
         };
       }
 
-      async pollTasks(): Promise<void> {
-        const logger = unregisterDebugLogger();
+      /**
+       * Manually trigger a fetch of the `runtime::Task::history` and `runtime::Task::running`.
+       *
+       * *Calling this will also emit tasks events*
+       */
+      async pollTasks(): Promise<gc.runtime.Task[]> {
+        const logger = this.unregisterLogger();
         const history = await gc.runtime.Task.history(0, this._max_tasks);
+        this.registerLogger(logger);
+        this.emit('tasks-history', history);
+
+        const logger2 = this.unregisterLogger();
         const running = await gc.runtime.Task.running();
-        registerDebugLogger(logger);
+        this.registerLogger(logger2);
+        this.emit('tasks-running', running);
 
         this.tasks.length = 0;
         this.tasks.push(...history);
         this.tasks.push(...running);
+
+        this.emit('tasks', this.tasks);
+
+        return this.tasks;
+      }
+
+      unregisterLogger(): DebugLogger {
+        const logger = this.logger;
+        this.logger = NOOP_LOGGER;
+        return logger;
+      }
+
+      registerLogger(logger: DebugLogger): void {
+        this.logger = logger;
       }
 
       hasPermission(permission: string): boolean {
@@ -612,9 +662,9 @@ namespace gc {
 
         const updated = this.getTask(task.task_id);
         if (updated === undefined || isTaskRunning(updated)) {
-          this._poll.register(task.task_id, opts.pollEvery ?? 500);
+          const poll_id = this._poll.register(opts.pollEvery ?? 500);
           const { promise, resolve } = Promise.withResolvers<void>();
-          const disposeTaskPollUpdate = this.on('task-poll-update', async (tasks) => {
+          const disposeTaskPollUpdate = this.on('tasks', async (tasks) => {
             const updated = tasks.find((t) => t.task_id === task.task_id);
             if (updated) {
               if (!isTaskRunning(updated)) {
@@ -626,7 +676,7 @@ namespace gc {
             }
           });
           await promise; // wait for completion
-          this._poll.unregister(task.task_id);
+          this._poll.unregister(poll_id);
         }
 
         opts.onprogress?.(1);
@@ -636,14 +686,13 @@ namespace gc {
         const url = new URL(`${this.api}/${result_route}`);
         const res = await fetch(url, { signal });
         if (res.ok) {
-          debugLogger(this.name, res.status, url.pathname);
+          this.logger(this.name, res.status, url.pathname);
           const data = await res.arrayBuffer();
           if (data.byteLength === 0) {
             return undefined as T;
           }
           const reader = new AbiReader(this.abi, data);
-          reader.headers(); // TODO do not ignore headers
-          const value = reader.deserialize();
+          const value = reader.deserializeWithHeaders();
           if (!reader.is_empty) {
             throw new Error(`The request buffer for '${result_route}' has bytes left in it`);
           }
@@ -653,16 +702,16 @@ namespace gc {
           return value as T;
         }
         if (res.status === 404) {
-          debugLogger(this.name, res.status, url.pathname);
+          this.logger(this.name, res.status, url.pathname);
           // 404 on result.gcb might probably mean that the task returned 'void', therefore we do not fail in this case
           return undefined as T;
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(this.name, res.status, url.pathname);
+          this.logger(this.name, res.status, url.pathname);
           throw new Error(`file '${result_route}' access forbidden`);
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(this.name, res.status, url.pathname);
+          this.logger(this.name, res.status, url.pathname);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -695,7 +744,7 @@ namespace gc {
           if (!fn) {
             throw new Error(`function '${uri}' is not registered in the abi`);
           }
-          body = fn.serialize(args, this.capacity);
+          body = fn.serialize(args);
         } else {
           body = this.serialize(args);
         }
@@ -733,7 +782,10 @@ namespace gc {
           if (etag) {
             await this.cache.write(key, { etag, data });
           }
-          debugLogger(this.name, res.status, uri, args, value);
+          this.logger(this.name, res.status, uri, args, value);
+          if (task) {
+            this.emit('task', value as gc.runtime.Task);
+          }
           if (this._debug_id !== undefined) {
             if (value instanceof gc.runtime.Task) {
               return (value as gc.runtime.Task<T>).result(undefined, $.default);
@@ -748,11 +800,11 @@ namespace gc {
             return this.rawCall(uri, args, signal);
           }
           const value = this.deserializeWithHeader(cachedRes.data);
-          debugLogger(this.name, res.status, uri, args, value);
+          this.logger(this.name, res.status, uri, args, value);
           return value as T;
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(this.name, res.status, uri, args);
+          this.logger(this.name, res.status, uri, args);
           // reset token
           this.token = undefined;
           // call handler if any
@@ -760,15 +812,15 @@ namespace gc {
           throw new Error(`you need to be logged-in to access '${uri}'`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(this.name, res.status, uri, args);
+          this.logger(this.name, res.status, uri, args);
           throw new Error(`access to '${uri}' is forbidden`);
         } else if (res.status === 404) {
           // not found
-          debugLogger(this.name, res.status, uri, args, null);
+          this.logger(this.name, res.status, uri, args, null);
           throw new Error(`unknown method '${uri}'`);
         } else if (res.status === 422) {
           // unprocessable content (abi mismatch)
-          debugLogger(this.name, res.status, uri, args);
+          this.logger(this.name, res.status, uri, args);
           // call handler if any
           this.abiMismatchHandler?.();
           throw new Error('ABI mismatch error');
@@ -776,7 +828,7 @@ namespace gc {
         const data = await res.arrayBuffer();
         const value = this.deserializeWithHeader(data);
         const err = value as core.Error | null;
-        debugLogger(this.name, res.status, uri, args, value);
+        this.logger(this.name, res.status, uri, args, value);
         if (err === null) {
           throw new Error(`calling '${uri}' failed`);
         }
@@ -785,13 +837,11 @@ namespace gc {
 
       /**
        * Serializes the given `value` into ABI-compliant binary format.
-       *
-       * *If you want to re-use the write buffer, to reduce allocations, use `AbiWriter` directly*
        */
       serialize(value: Value): ArrayBuffer {
-        const writer = new AbiWriter(this.abi, this.capacity);
-        writer.serialize(value);
-        return writer.buffer.buffer;
+        this._writer.clear();
+        this._writer.serialize(value);
+        return this._writer.buffer.buffer; // a slice copy of the writer buffer
       }
 
       /**
@@ -803,10 +853,10 @@ namespace gc {
        * @returns
        */
       serializeWithHeaders(value: Value): ArrayBuffer {
-        const writer = new AbiWriter(this.abi, this.capacity);
-        writer.headers();
-        writer.serialize(value);
-        return writer.buffer.buffer;
+        this._writer.clear();
+        this._writer.headers();
+        this._writer.serialize(value);
+        return this._writer.buffer.buffer; // a slice copy of the writer buffer
       }
 
       /**
@@ -916,19 +966,19 @@ namespace gc {
         }
         const res = await fetch(url, { signal });
         if (res.ok) {
-          debugLogger(this.name, res.status, url.pathname + url.search);
+          this.logger(this.name, res.status, url.pathname + url.search);
           return res;
         }
         if (res.status === 404) {
-          debugLogger(this.name, res.status, url.pathname + url.search);
+          this.logger(this.name, res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' not found`);
         } else if (res.status === 403) {
           // forbidden
-          debugLogger(this.name, res.status, url.pathname + url.search);
+          this.logger(this.name, res.status, url.pathname + url.search);
           throw new Error(`file '${filepath}' access forbidden`);
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(this.name, res.status, url.pathname + url.search);
+          this.logger(this.name, res.status, url.pathname + url.search);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -951,11 +1001,11 @@ namespace gc {
         }
         if (res.status === 403) {
           // forbidden
-          debugLogger(this.name, res.status, route);
+          this.logger(this.name, res.status, route);
           throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(this.name, res.status, route);
+          this.logger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -977,11 +1027,11 @@ namespace gc {
         }
         if (res.status === 403) {
           // forbidden
-          debugLogger(this.name, res.status, route);
+          this.logger(this.name, res.status, route);
           throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
-          debugLogger(this.name, res.status, route);
+          this.logger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
           throw new Error('unauthorized');
@@ -1255,7 +1305,7 @@ namespace gc {
      * @returns the user token
      */
     export async function login(options: LoginOptions): Promise<string> {
-      const { url = await findGreyCat(), signal, useCookie = false, ...auth } = options;
+      const { url = await findGreyCat(), signal, use_cookie = false, ...auth } = options;
       let arg: string;
       let method: 'login' | 'tokenLogin';
       if ('token' in auth) {
@@ -1265,14 +1315,13 @@ namespace gc {
         method = 'login';
         arg = btoa(`${auth.username}:${sha256hex(auth.password)}`);
       }
-      const body = JSON.stringify([arg, useCookie]);
+      const body = JSON.stringify([arg, use_cookie]);
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::${method}`, {
         method: 'POST',
         body,
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         signal,
       });
-
       if (res.ok) {
         return (await res.json()) as string;
       }

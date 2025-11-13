@@ -1,5 +1,7 @@
 import {
+  css,
   sl,
+  GuiElement,
   GuiInputFactory,
   getIndexInParent,
   GuiChangeEvent,
@@ -7,7 +9,7 @@ import {
   GuiSelect,
   GuiOption,
 } from '../../exports.js';
-import { css, getBooleanAttribute, GuiElement } from '../common.js';
+import { getBooleanAttribute } from '../common.js';
 
 import InputStyle from './input.css?inline';
 import ArrayStyle from './input-array.css?inline';

@@ -3,10 +3,10 @@ namespace gc {
     type SyncRun = () => void;
     type AsyncRun = () => Promise<void>;
     type Run = SyncRun | AsyncRun;
-    export type PollId = string | number | bigint;
 
     export class Poll {
-      private _delays: Map<PollId, number> = new Map();
+      private _id_generator = 0;
+      private _delays: Map<number, number> = new Map();
       private _run: Run;
       private _running = false;
       private _timeout: ReturnType<typeof setTimeout> | undefined;
@@ -17,24 +17,25 @@ namespace gc {
       }
 
       /**
-       * @param id 
-       * @param every running delay in milliseconds; if `every <= 0` unregisters the id
-       * @returns 
+       * @param every running delay in milliseconds; if `every <= 0` it does nothing and returns `-1`
+       * @returns the id of this registration
        */
-      register(id: PollId, every: number): void {
+      register(every: number): number {
         if (every <= 0) {
-          this.unregister(id);
-          return;
+          return -1;
         }
+        const id = this._id_generator;
+        this._id_generator += 1;
         this._delays.set(id, every);
         this._computeSleep();
         if (!this._running) {
           this._running = true;
           this._loop();
         }
+        return id;
       }
 
-      unregister(id: PollId): void {
+      unregister(id: number): void {
         this._delays.delete(id);
         this._computeSleep();
       }

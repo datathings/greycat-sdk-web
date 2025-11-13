@@ -3,7 +3,7 @@ import '~/common';
 import './app-value';
 import { GuiFactory } from '@greycat/web';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 GuiFactory.global.valueTag = 'app-value';
 

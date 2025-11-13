@@ -185,9 +185,11 @@ export class GuiLayout extends GuiElement {
     }
 
     this._resizeObs.observe(this);
+    this.addDisposable(() => this._resizeObs.disconnect());
   }
 
-  disconnectedCallback() {
+  override disconnectedCallback() {
+    super.disconnectedCallback();
     this.shadowRoot.replaceChildren(
       <>
         {this._header}
@@ -199,7 +201,6 @@ export class GuiLayout extends GuiElement {
         <slot name="footer" />
       </>,
     );
-    this._resizeObs.disconnect();
   }
 
   private _toggleMenu = () => {

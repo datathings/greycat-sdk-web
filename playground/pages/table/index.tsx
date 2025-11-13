@@ -1,7 +1,10 @@
-import { getGlobalNumberFormat } from '@greycat/web';
+import type { CellValueData } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({
+  debug: true,
+  numFmt: new Intl.NumberFormat(undefined, { maximumFractionDigits: 3 }),
+});
 
 const { actions } = await import('./actions');
 
@@ -23,26 +26,21 @@ document.body.appendChild(
         },
         {
           index: 1,
-          cell: ({ value, row, container }) => {
-            const klass = table.cols[2][row] as 'low' | 'normal' | 'high';
-            switch (klass) {
+          value: ({ value, container, row }: CellValueData<number | bigint | null>) => {
+            switch (table.cols[2][row] as 'low' | 'normal' | 'high') {
               case 'low':
                 container.style.color = 'cyan';
-                break;
+                return value;
               case 'normal':
                 container.style.color = 'lightgreen';
-                break;
+                return value;
               case 'high':
                 container.style.color = 'orange';
-                break;
+                return value;
               default:
-                container.style.color = 'unset';
-                break;
+                container.style.color = 'var(--text-muted)';
+                return 'N/A';
             }
-            if (value === null) {
-              return <code>null</code>;
-            }
-            return document.createTextNode(getGlobalNumberFormat().format(value));
           },
         },
         {

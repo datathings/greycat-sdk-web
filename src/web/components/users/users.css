@@ -15,6 +15,10 @@ gui-table {
   min-height: var(--gui-table-min-height);
 }
 
+gui-table::part(cell):hover {
+  cursor: var(--table-cell-cursor);
+}
+
 gui-table::part(filter-base) {
   border-radius: 0;
 }

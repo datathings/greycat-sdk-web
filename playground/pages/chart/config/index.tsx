@@ -2,7 +2,7 @@ import '@greycat/web';
 import { chartConfig, inferConfig } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const earthquakes = await gc.heatmap.all_earthquakes();
 

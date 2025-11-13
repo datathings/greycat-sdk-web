@@ -16,16 +16,14 @@ export class GuiCsvStatistics2 extends GuiElement {
 
     this._table = document.createElement('gui-table');
     this._dialog = document.createElement('gui-dialog');
+    this.addDisposable(() => this._dialog.remove());
+
     this.shadowRoot.append(this._table);
   }
 
   connectedCallback() {
     document.body.appendChild(this._dialog);
     this.update();
-  }
-
-  disconnectedCallback() {
-    this._dialog.remove();
   }
 
   get value() {

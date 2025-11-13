@@ -2,7 +2,7 @@ import { GuiFnSelect, GuiInputFn } from '@greycat/web';
 import '~/common';
 import './index.css';
 
-const g = await gc.sdk.init();
+const g = await gc.sdk.init({ debug: true });
 
 const argumentsEl = document.createElement('gui-object');
 const resultEl = document.createElement('gui-object');

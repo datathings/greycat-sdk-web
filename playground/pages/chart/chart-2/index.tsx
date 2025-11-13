@@ -2,7 +2,7 @@ import { type GuiChart2 } from '@greycat/web';
 import '~/common';
 import './index.css';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 const chart = (
   <gui-chart2

@@ -1,10 +1,11 @@
 namespace gc {
   export namespace sdk {
-    type Listener<T> = (data: T) => void;
+    export type EmitterCallback<T> = (data: T) => void;
+    export type EmitterDisposable = () => void;
 
     
     // oxlint-disable-next-line no-explicit-any
-    export class GreyCatEmitter<Events extends Record<string, any> = Record<string, unknown>> {
+    export class Emitter<Events extends Record<string, any> = Record<string, unknown>> {
       // internal native event target
       #emitter: EventTarget;
 
@@ -21,7 +22,7 @@ namespace gc {
       }
 
       // add an event listener and return an unsubscribe function
-      on<K extends keyof Events>(type: K, listener: Listener<Events[K]>) {
+      on<K extends keyof Events>(type: K, listener: EmitterCallback<Events[K]>): EmitterDisposable {
         function callback(ev: CustomEvent<Events[K]>) {
           listener(ev.detail);
         }
@@ -31,12 +32,12 @@ namespace gc {
         };
       }
 
-      off<K extends keyof Events>(type: K, listener: Listener<Events[K]>) {
+      off<K extends keyof Events>(type: K, listener: EmitterCallback<Events[K]>) {
         this.#emitter.removeEventListener(String(type), listener as EventListener);
       }
 
       // add a listener that triggers only once
-      once<K extends keyof Events>(type: K, listener: Listener<Events[K]>) {
+      once<K extends keyof Events>(type: K, listener: EmitterCallback<Events[K]>) {
         const callback = (ev: Event) => {
           this.#emitter.removeEventListener(String(type), callback);
           listener((ev as CustomEvent<Events[K]>).detail);

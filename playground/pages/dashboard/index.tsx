@@ -2,7 +2,7 @@ import { defineComp, greycatFetcher } from '@greycat/web';
 import '~/common';
 import './custom-comp';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const chart = defineComp({
   component: 'gui-chart',

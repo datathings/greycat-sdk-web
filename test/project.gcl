@@ -1065,3 +1065,10 @@ fn debug_fn() {
     breakpoint;
     return 42;
 }
+
+fn write_serde_gdb() {
+    var w = GcbWriter {
+        path: "serde_data.gcb"
+    };
+    w.write(Stack<String> { values: Array<String> { "one", "two", "three" } });
+}

@@ -3,7 +3,7 @@ import '@greycat/web/greycat.css';
 import '~/common';
 import s from './index.module.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
   <app-layout title="Index">

@@ -2,7 +2,7 @@ import '@greycat/web';
 import { inferConfig } from '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 const root = await greycat.root();
 const n1 = root['project::non_overlapping_1'] as gc.core.nodeTime<number>;

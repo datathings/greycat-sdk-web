@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init({ timezone: 'Europe/Paris' });
+const greycat = await gc.sdk.init({ debug: true, timezone: 'Europe/Paris' });
 
 const global_timezone_select = document.createElement('gui-input-enum');
 global_timezone_select.value = greycat.timezone;

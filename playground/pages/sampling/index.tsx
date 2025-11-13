@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 const simple_index = (await greycat.root())['project::simple_index'] as gc.core.nodeIndex;
 

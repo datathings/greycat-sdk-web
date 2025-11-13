@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 const { actions } = await import('./actions');
 
 const root = await greycat.root();

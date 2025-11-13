@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 const r = gc.Table.fromCols([
   [
     new Date('2020-01-01T00:00:00'),

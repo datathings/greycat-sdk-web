@@ -1,4 +1,5 @@
 export * from './common.js';
+export * from './element.js';
 export * from './events.js';
 
 export * from './csv/csv-statistics/index.js';

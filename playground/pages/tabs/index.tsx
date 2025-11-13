@@ -2,7 +2,7 @@ import { sl } from '@greycat/web';
 import '~/common';
 import './index.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 // async function getTable() {
 //   const nt = core.nodeTime.create(41943357n);

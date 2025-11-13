@@ -2,7 +2,7 @@ import { createElement } from '@greycat/web';
 import '~/common';
 import actions from './actions';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const selector = createElement('gui-fn-select', {
   'ongui-change': (ev) => {

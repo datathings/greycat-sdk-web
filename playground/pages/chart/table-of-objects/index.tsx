@@ -2,7 +2,7 @@ import '@greycat/web';
 import { chartConfig } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const table = await gc.project.table_of_objects();
 const table2 = await gc.project.table_of_objects3();

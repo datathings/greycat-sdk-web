@@ -1,5 +1,4 @@
 import { GuiElement, css } from '../../exports.js';
-import { Disposable } from '../../internals.js';
 import { stringify } from './utils.js';
 import style from './value.css?inline';
 
@@ -49,7 +48,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
   protected _format: string | undefined;
   protected _data: unknown;
   protected _onClick: ClickHandler = NOOP;
-  protected _disposeClickHandler: Disposable | undefined;
 
   get value(): unknown {
     return this._value;
@@ -207,10 +205,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
     this.update();
   }
 
-  disconnectedCallback() {
-    this._disposeClickHandler?.();
-  }
-
   update() {
     if (!this.isConnected) {
       return;
@@ -241,7 +235,6 @@ export class GuiValue extends GuiElement implements GuiValueProps {
       });
 
       // make sure previous handlers are removed
-      this._disposeClickHandler?.();
       let linkify = false;
       if (typeof this._linkify === 'boolean') {
         linkify = this._linkify;

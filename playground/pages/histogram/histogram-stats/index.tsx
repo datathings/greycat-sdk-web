@@ -2,7 +2,7 @@ import '@greycat/web';
 import { GuiHistogram } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const stats = await gc.project.histogram_stats();
 const histo = (<gui-histogram value={stats ?? undefined}></gui-histogram>) as GuiHistogram;

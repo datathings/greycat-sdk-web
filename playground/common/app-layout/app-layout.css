@@ -8,13 +8,13 @@ div[slot='main'] {
 
 .actions {
   margin: 0;
-  margin-left: 85px;
   padding: 0;
   display: flex;
   flex: 1;
   justify-content: space-between;
   gap: calc(var(--spacing) * 2);
   align-items: center;
+  overflow: scroll;
 }
 
 .actions-right {

@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const t = gc.core.time.fromDate(new Date());
 const grid: Partial<CSSStyleDeclaration> = {

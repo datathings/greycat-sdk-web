@@ -2,7 +2,7 @@ import '@greycat/web';
 import { GuiFactory } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const customValueTag = GuiFactory.defineFromFn((v) => (
   <div>

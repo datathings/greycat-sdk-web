@@ -1,7 +1,7 @@
 import { type GuiGauge } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const gauge = (<gui-gauge value={0} />) as GuiGauge;
 

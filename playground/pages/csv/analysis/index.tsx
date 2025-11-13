@@ -1,7 +1,7 @@
 import { modal, type GuiCsvStatistics2, type GuiTable } from '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init({ pollTasks: 1000 });
+const greycat = await gc.sdk.init({ debug: true });
 
 async function runAnalysis(filepath: string) {
   const task = await greycat.spawn('io::CsvAnalysis::analyze', [

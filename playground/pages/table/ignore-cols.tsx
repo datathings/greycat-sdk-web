@@ -5,7 +5,7 @@ import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 import { GuiValueElement } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const { actions } = await import('./actions');
 

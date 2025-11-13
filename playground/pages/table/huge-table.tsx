@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const layoutEl = document.createElement('app-layout');
 layoutEl.title = 'Table (huge)';

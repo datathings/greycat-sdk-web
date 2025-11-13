@@ -2,7 +2,7 @@ import '@greycat/web';
 import '~/common';
 import { toast } from '@greycat/web';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 const root = (await greycat.root()) as gc.project.Root;
 

@@ -270,10 +270,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
   connectedCallback() {
     this._colors = getColors(this);
     this._resizeObserver.observe(this);
-  }
-
-  disconnectedCallback() {
-    this._resizeObserver.unobserve(this);
+    this.addDisposable(() => this._resizeObserver.disconnect());
   }
 
   private _handleResize(event: ResizeObserverEntry[]) {

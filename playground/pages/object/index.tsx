@@ -2,7 +2,7 @@ import { GuiFactory, GuiObject, GuiObjectFieldValue, type sl } from '@greycat/we
 import '~/common';
 import './index.css';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 GuiFactory.global.mappings['core::Tuple<core::String,core::String>'] = GuiFactory.defineFromFn(
   (tuple: gc.core.Tuple<string, string>) => {

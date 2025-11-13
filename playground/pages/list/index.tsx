@@ -2,7 +2,7 @@ import '@greycat/web';
 import { css, GuiElement } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 type Item = { title: string; content: string };
 const items = [

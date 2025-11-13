@@ -6,7 +6,10 @@ import '@greycat/web/sdk';
 const { Abi, AbiReader, AbiWriter, GCEnum } = gc.sdk;
 
 describe('project', () => {
-  let abi, reader;
+  /** @type {gc.sdk.Abi} */
+  let abi;
+  /** @type {gc.sdk.AbiReader} */
+  let reader;
 
   const expected_values = [
     // std::core
@@ -387,7 +390,7 @@ describe('project', () => {
       writer.serialize(actual);
       // create a temporary deserializer
       const reader2 = new AbiReader(abi, writer.buffer.buffer);
-      // deserialize the value again from what we serialize
+      // deserialize the value again from what we serialized
       const roundtrip_value = reader2.deserialize();
       // ensure the actual deserialized value and our roundtrip are equals
       if (Number.isFinite(actual) && !Number.isInteger(actual)) {
@@ -410,10 +413,21 @@ describe('project', () => {
 });
 
 // check float equality with tolerance
+/**
+ *
+ * @param {any} a
+ * @param {any} b
+ * @param {number} epsilon
+ * @returns
+ */
 function almostEqual(a, b, epsilon = 1e-12) {
   return Math.abs(a - b) <= epsilon;
 }
 
+/**
+ * @param {string} value
+ * @returns
+ */
 function fromJson(value) {
   return JSON.parse(value, (_, value) => {
     if (typeof value === 'string' && value.startsWith('$bigint:')) {
@@ -424,6 +438,10 @@ function fromJson(value) {
   });
 }
 
+/**
+ * @param {unknown} value
+ * @returns
+ */
 function toJson(value) {
   return JSON.stringify(value, (_, value) => {
     if (typeof value === 'bigint') {
@@ -432,6 +450,7 @@ function toJson(value) {
       }
       return `$bigint:${value}`;
     } else if (value instanceof Map) {
+      /** @type {Record<string, unknown>} */
       const json = {};
       value.forEach((value, key) => {
         if (key === null) {

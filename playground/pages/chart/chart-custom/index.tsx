@@ -3,7 +3,7 @@ import { ChartConfig } from '@greycat/web';
 import '~/common';
 import data from './data.json';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const chart = document.createElement('gui-chart');
 chart.style.height = '80vh';

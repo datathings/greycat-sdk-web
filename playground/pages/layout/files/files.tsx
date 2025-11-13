@@ -10,7 +10,7 @@ import '@greycat/web/greycat.css';
 import './styles.css';
 import LogoIcon from './logo.svg?raw';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const files = (
   <gui-files

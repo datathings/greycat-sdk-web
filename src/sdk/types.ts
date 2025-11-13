@@ -103,6 +103,10 @@ namespace gc {
        */
       name?: string;
       /**
+       * Whether or not to enable debug logging
+       */
+      debug?: boolean;
+      /**
        * URL of the GreyCat server
        *
        * Defaults to:
@@ -122,10 +126,6 @@ namespace gc {
        * Defaults to the navigator language
        */
       numFmt?: Intl.NumberFormat;
-      /**
-       * Write buffer capacity. Defaults to `4096` (4KB)
-       */
-      capacity?: number;
       /**
        * A cache layer to use for requests/responses caching.
        *
@@ -171,11 +171,11 @@ namespace gc {
     export interface UsernameAuth {
       username: string;
       password: string;
-      useCookie?: boolean;
+      use_cookie?: boolean;
     }
     export interface TokenAuth {
       token: string;
-      useCookie?: boolean;
+      use_cookie?: boolean;
     }
 
     export type Auth = UsernameAuth | TokenAuth;

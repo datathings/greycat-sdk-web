@@ -247,7 +247,7 @@
   /* GreyCat base */
   --primary: #37c43e;
   --primary-hover: #4fd24a;
-  --primary-focus: rgba(205, 249, 127, 0.6);
+  --primary-focus: rgba(205, 249, 127, 0.2);
   --primary-inverse: #fff;
 
   --secondary: #5684f1;

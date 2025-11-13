@@ -1210,3 +1210,18 @@ fn data_array(): Array<MyData> {
         MyData { level: Level::Normal, value: 6.8 },
     };
 }
+
+@volatile
+type UrlEntry {
+    name: String;
+    value: String;
+}
+
+@expose
+fn table_with_urls(): Array<UrlEntry> {
+    return [
+        UrlEntry { name: "Example", value: "https://example.com" },
+        UrlEntry { name: "Not a url", value: "Hello world" },
+        UrlEntry { name: "GreyCat", value: "https://get.greycat.io" },
+    ];
+}

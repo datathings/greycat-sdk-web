@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 //const oneDHisto = await gc.project.twod_histogram_bins();
 document.body.appendChild(

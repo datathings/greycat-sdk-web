@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 const periodicTaskType = greycat.abi.type_by_fqn.get(gc.runtime.PeriodicTask._type);
 if (!periodicTaskType) {

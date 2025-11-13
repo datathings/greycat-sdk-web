@@ -2,7 +2,7 @@ import '@greycat/web';
 import '~/common';
 import './custom-style.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 const { actions } = await import('./actions');
 
 const table = [

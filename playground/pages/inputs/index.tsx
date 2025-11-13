@@ -11,7 +11,7 @@ import '~/common';
 import './project-sensor-form';
 import IndexStyle from './index.css?inline';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 // One can override any form by providing a tagName that
 // matches a WebComponent that inherits GuiInputElement:

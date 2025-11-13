@@ -1,7 +1,7 @@
 import { type GuiInputObject } from '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const object = (
   <gui-input-object value={new gc.Person('John', 42, true)}>

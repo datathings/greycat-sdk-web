@@ -20,7 +20,7 @@ const styleMapping: Record<string, SerieStyle> = {
   },
 };
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const chart = (
   <gui-chart

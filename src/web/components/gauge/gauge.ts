@@ -34,10 +34,7 @@ export class GuiGauge extends GuiElement {
 
   connectedCallback() {
     this._resizeObs.observe(this);
-  }
-
-  disconnectedCallback() {
-    this._resizeObs.disconnect();
+    this.addDisposable(() => this._resizeObs.disconnect());
   }
 
   get value(): number {

@@ -3,7 +3,7 @@ import '~/common';
 import maplibregl from 'maplibre-gl';
 import { GeoData, GuiMap } from '@greycat/web';
 
-const greycat = await gc.sdk.init({ maplibregl });
+const greycat = await gc.sdk.init({ debug: true, maplibregl });
 
 const markers = document.createElement('gui-map-markers');
 

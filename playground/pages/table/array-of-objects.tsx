@@ -1,15 +1,22 @@
 import '~/common';
 import { GuiTable, TableLike } from '@greycat/web';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 const { actions } = await import('./actions');
 
 const table = (
   <gui-table
     globalFilter
+    drawerEnabled
     value={(await gc.project.persons()) as TableLike}
-    style={{ height: '250px' }}
+    columns={[
+      { index: gc.project.Person2.$fields.id, filterable: false, hide: true },
+      { index: gc.project.Person2.$fields.age, filterable: false },
+      { index: gc.project.Person2.$fields.name, filterable: false },
+      { index: gc.project.Person2.$fields.children, filterable: false },
+    ]}
+    // style={{ height: '250px' }}
   />
 ) as GuiTable;
 

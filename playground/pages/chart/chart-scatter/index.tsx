@@ -2,7 +2,7 @@ import * as d3 from 'd3';
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init();
+await gc.sdk.init({ debug: true });
 
 let nbPoints = 100;
 const randomTable = () => {

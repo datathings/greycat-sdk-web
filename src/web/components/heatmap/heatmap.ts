@@ -2,7 +2,6 @@ import * as d3 from 'd3';
 
 import { debounce } from '../../utils.js';
 import {
-  Disposer,
   TableLike,
   Cursor,
   CanvasContext,
@@ -41,7 +40,6 @@ type ComputedState = {
 export class GuiHeatmap extends GuiElement {
   static override styles = [css(style)];
 
-  private _disposer: Disposer;
   private _table: gc.core.Table;
   private _config: HeatmapConfig;
   private _colors: string[] = [];
@@ -87,7 +85,6 @@ export class GuiHeatmap extends GuiElement {
   constructor() {
     super();
 
-    this._disposer = new Disposer();
     this._table = gc.core.Table.create();
     this._config = { xAxis: {}, yAxis: {} };
 
@@ -176,11 +173,11 @@ export class GuiHeatmap extends GuiElement {
           this._cursor.y = -1;
         }
       },
-      { signal: this._disposer.signal },
+      { signal: this.abortSignal() },
     );
 
     const obs = new ResizeObserver(debounce(() => this._resize(), 50));
-    this._disposer.disposables.push(() => obs.disconnect());
+    this.addDisposable(() => obs.disconnect());
     obs.observe(this);
 
     const animRef = { id: -1 };
@@ -189,7 +186,7 @@ export class GuiHeatmap extends GuiElement {
       animRef.id = window.requestAnimationFrame(animationCallback);
     };
     animRef.id = window.requestAnimationFrame(animationCallback);
-    this._disposer.disposables.push(() => window.cancelAnimationFrame(animRef.id));
+    this.addDisposable(() => window.cancelAnimationFrame(animRef.id));
   }
 
   /**
@@ -214,11 +211,6 @@ export class GuiHeatmap extends GuiElement {
     this.compute();
 
     this.update();
-  }
-
-  disconnectedCallback() {
-    this.replaceChildren(); // cleanup
-    this._disposer.dispose();
   }
 
   private _resetCursor() {

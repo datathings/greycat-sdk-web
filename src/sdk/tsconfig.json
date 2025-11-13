@@ -34,6 +34,7 @@
     "abi.ts",
     "types.ts",
     "io.ts",
+    "serde.ts",
     "crypto.ts",
     "../../std.d.ts",
     "../../std.ext.d.ts",

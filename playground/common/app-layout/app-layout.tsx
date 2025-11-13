@@ -5,8 +5,6 @@ import './main.css';
 
 import style from './app-layout.css?inline';
 
-gc.sdk.registerDebugLogger();
-
 export class AppLayout extends GuiElement {
   static override styles = [css(style)];
 

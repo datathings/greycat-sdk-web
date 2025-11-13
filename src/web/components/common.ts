@@ -1,4 +1,4 @@
-import componentStyle from './component.styles.css?inline';
+import { GuiValueElement } from './element.js';
 
 declare global {
   interface HTMLElementEventMap {
@@ -42,61 +42,6 @@ export function attr() {
       configurable: false,
     });
   };
-}
-
-export abstract class GuiElement extends HTMLElement {
-  static readonly BASE_STYLE = css(componentStyle);
-  static readonly styles = [GuiElement.BASE_STYLE];
-
-  /** Returns this element's shadow root */
-  override shadowRoot!: ShadowRoot;
-
-  constructor() {
-    super();
-
-    this.attachShadow({ mode: 'open' });
-    this.shadowRoot.adoptedStyleSheets = [
-      GuiElement.BASE_STYLE,
-      ...(this.constructor as typeof GuiElement).styles,
-    ];
-  }
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export type AnyValueElement = HTMLElement & { value: any };
-
-export abstract class GuiValueElement<T = unknown> extends GuiElement {
-  abstract value: T;
-  protected _updatePending: boolean;
-  updateComplete: Promise<void>;
-
-  constructor() {
-    super();
-    this._updatePending = false;
-    this.updateComplete = Promise.resolve();
-  }
-
-  connectedCallback(): void {
-    this._internalUpdate();
-  }
-
-  disconnectedCallback(): void {}
-
-  protected _internalUpdate(): void {
-    if (this._updatePending || !this.isConnected) {
-      return;
-    }
-    this._updatePending = true;
-    const { promise, resolve } = Promise.withResolvers<void>();
-    this.updateComplete = promise;
-    queueMicrotask(() => {
-      this.update();
-      this._updatePending = false;
-      resolve();
-    });
-  }
-
-  update(): void {}
 }
 
 export class GuiRenderEvent extends CustomEvent<number> {

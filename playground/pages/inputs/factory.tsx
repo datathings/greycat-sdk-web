@@ -1,7 +1,7 @@
 import { findParentInputElement, GuiChangeEvent, GuiInputObject, GuiSelect } from '@greycat/web';
 import '~/common';
 
-const greycat = await gc.sdk.init();
+const greycat = await gc.sdk.init({ debug: true });
 
 class TxIdSelect extends GuiSelect {
   private _onChange = async (ev: GuiChangeEvent) => {

@@ -20,7 +20,7 @@ namespace gc {
       protected _view: DataView;
       readonly txt: TextDecoder;
 
-      constructor(buf: ArrayBuffer) {
+      constructor(buf = new ArrayBuffer(4096)) {
         this._buf = new Uint8Array(buf);
         // see https://v8.dev/blog/dataview if you don't trust me on using DataView rather than manual LE reads on _buf
         this._view = new DataView(buf);
@@ -432,8 +432,11 @@ namespace gc {
       }
 
       /**
-       * Reads `major(u16)`, `magic(u16)` and `version(u32)` prior to calling `deserialize()`
-       * @returns {Value}
+       * Reads `major(u16)`, `magic(u16)` and `version(u32)` prior to calling `deserialize()`.
+       * 
+       * Discards the headers and does not validate them against anything.
+       * 
+       * Returns only the actual value.
        */
       deserializeWithHeaders(): Value {
         this.headers();

@@ -1,4 +1,4 @@
-import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline'
+import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline';
 import { css, GuiElement } from '../../exports.js';
 import { GuiMapLayer } from './map-layer.js';
 import { GuiMapSource } from './map-source.js';
@@ -43,10 +43,7 @@ export class GuiMap extends GuiElement {
   connectedCallback(): void {
     this.update();
     this._observer.observe(this, { childList: true });
-  }
-
-  disconnectedCallback(): void {
-    this._observer.disconnect();
+    this.addDisposable(() => this._observer.disconnect());
   }
 
   get options() {

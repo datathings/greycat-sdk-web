@@ -1,7 +1,7 @@
 import '@greycat/web';
 import '~/common';
 
-await gc.sdk.init({ /* timezone: 'Australia/Adelaide' */ });
+await gc.sdk.init({ debug: true, /* timezone: 'Australia/Adelaide' */ });
 
 const currentValue = (<span slot="action" />) as HTMLElement;
 const chart = document.createElement('gui-chart');
