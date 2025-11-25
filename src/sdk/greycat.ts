@@ -1306,8 +1306,8 @@ namespace gc {
      */
     export async function login(options: LoginOptions): Promise<string> {
       const { url = await findGreyCat(), signal, use_cookie = false, ...auth } = options;
-      let arg: string;
       let method: 'login' | 'tokenLogin';
+      let arg: string;
       if ('token' in auth) {
         method = 'tokenLogin';
         arg = auth.token;

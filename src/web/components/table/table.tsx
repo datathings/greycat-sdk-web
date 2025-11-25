@@ -206,6 +206,7 @@ export interface TableState {
 export class GuiTable extends GuiElement implements GuiTableProps {
   static override styles = [css(style)];
   static COLLATOR = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+  private static gen_id = 0;
 
   private _value: TableLike = [];
   private _table = gc.core.Table.create();
@@ -235,6 +236,8 @@ export class GuiTable extends GuiElement implements GuiTableProps {
 
   constructor() {
     super();
+
+    GuiTable.gen_id += 1;
 
     this._factory = GuiFactory.closest(this);
     this.updateComplete = Promise.resolve();
@@ -1155,7 +1158,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
         return { tag: cellFactory.toUpperCase() };
       }
       case 'function': {
-        const tagName = `gui-table-col-${displayIndex}-${Date.now()}`;
+        const tagName = `gui-table-${GuiTable.gen_id}-col-${displayIndex}-${performance.now().toString(36).replace('.', '-')}`;
         customElements.define(
           tagName,
           class extends GuiValue {

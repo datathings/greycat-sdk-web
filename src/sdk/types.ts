@@ -168,17 +168,16 @@ namespace gc {
       read(key: CacheKey): Promise<CacheData | null>;
     }
 
-    export interface UsernameAuth {
+    export type UserAuth = {
       username: string;
       password: string;
       use_cookie?: boolean;
-    }
-    export interface TokenAuth {
+    };
+    export type TokenAuth = {
       token: string;
       use_cookie?: boolean;
-    }
-
-    export type Auth = UsernameAuth | TokenAuth;
+    };
+    export type Auth = UserAuth | TokenAuth;
 
     export interface WithoutAbiOptions extends Options {
       /** If defined, will call `runtime::User::login` or `runtime::User::tokenLogin` prior to initialization */
