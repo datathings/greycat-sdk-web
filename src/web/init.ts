@@ -62,8 +62,6 @@ import {
   GuiInputField,
   GuiLayout,
   GuiMultiSelectCheckbox,
-  // GuiObject2,
-  GuiPeriodicTaskList,
   GuiRoles,
   GuiRolePermissions,
   GuiSearchInput,
@@ -180,8 +178,6 @@ function preInit(options: WebOptions) {
   registerCustomElement('gui-input', GuiInput);
   registerCustomElement('gui-layout', GuiLayout);
   registerCustomElement('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
-  // registerCustomElement('gui-object2', GuiObject2);
-  registerCustomElement('gui-periodic-task-list', GuiPeriodicTaskList);
   registerCustomElement('gui-roles', GuiRoles);
   registerCustomElement('gui-role-permissions', GuiRolePermissions);
   registerCustomElement('gui-search-input', GuiSearchInput);
@@ -323,8 +319,6 @@ declare global {
       GuiInputField,
       GuiLayout,
       GuiMultiSelectCheckbox,
-      // GuiObject2,
-      GuiPeriodicTaskList,
       GuiRoles,
       GuiRolePermissions,
       GuiSearchInput,

@@ -195,10 +195,6 @@
     "route": "pages/object/"
   },
   {
-    "label": "Periodic Tasks",
-    "route": "pages/periodic-tasks/"
-  },
-  {
     "label": "Roles",
     "route": "pages/roles/"
   },

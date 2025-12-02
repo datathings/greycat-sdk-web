@@ -71,20 +71,6 @@ export function stringify(props: StringifyProps): string {
   } else if (Array.isArray(value)) {
     return `Array { size: ${value.length} }`;
   } else if (value instanceof gc.sdk.GCEnum) {
-    if (value.value) {
-      const tmp = props.value;
-      const tmpQuotedString = props.quotedString;
-      props.value = value.value;
-      props.quotedString = true;
-      const en_value = stringify(props);
-      props.value = tmp;
-      props.quotedString = tmpQuotedString;
-      if (value.$type.name.startsWith('core::')) {
-        return `${value.$type.name.slice(6)}::${value.key}(${en_value})`;
-      } else {
-        return `${value.$type.name}::${value.key}(${en_value})`;
-      }
-    }
     if (value.$type.name.startsWith('core::')) {
       return `${value.$type.name.slice(6)}::${value.key}`;
     } else {

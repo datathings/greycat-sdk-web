@@ -8,24 +8,24 @@ import {
   GuiInputEvent,
   GuiSelect,
   GuiOption,
-} from '../../exports.js';
-import { getBooleanAttribute } from '../common.js';
+} from "../../exports.js";
+import { getBooleanAttribute } from "../common.js";
 
-import InputStyle from './input.css?inline';
-import ArrayStyle from './input-array.css?inline';
-import MapStyle from './input-map.css?inline';
-import ObjectStyle from './input-object.css?inline';
-import AbstractStyle from './input-abstract.css?inline';
-import AnyStyle from './input-any.css?inline';
-import DurationStyle from './input-duration.css?inline';
-import GeoStyle from './input-geo.css?inline';
-import UnsupportedStyle from './input-unsupported.css?inline';
+import InputStyle from "./input.css?inline";
+import ArrayStyle from "./input-array.css?inline";
+import MapStyle from "./input-map.css?inline";
+import ObjectStyle from "./input-object.css?inline";
+import AbstractStyle from "./input-abstract.css?inline";
+import AnyStyle from "./input-any.css?inline";
+import DurationStyle from "./input-duration.css?inline";
+import GeoStyle from "./input-geo.css?inline";
+import UnsupportedStyle from "./input-unsupported.css?inline";
 
 export abstract class GuiInputElement<T> extends GuiElement {
   static override styles = [css(InputStyle)];
 
   connectedCallback() {
-    this.classList.add('gui-input');
+    this.classList.add("gui-input");
   }
 
   abstract get value(): T;
@@ -34,23 +34,23 @@ export abstract class GuiInputElement<T> extends GuiElement {
   update(): void {}
 
   get name() {
-    return '';
+    return "";
   }
   set name(_name: string) {}
   get autocomplete() {
-    return '';
+    return "";
   }
   set autocomplete(_value: string) {}
   get placeholder(): string {
-    return '';
+    return "";
   }
   set placeholder(_value: string) {}
   get label() {
-    return '';
+    return "";
   }
   set label(_label: string) {}
   get helpText() {
-    return '';
+    return "";
   }
   set helpText(_helpText: string) {}
   get required() {
@@ -62,9 +62,9 @@ export abstract class GuiInputElement<T> extends GuiElement {
   }
   set disabled(_disabled: boolean) {}
   get size() {
-    return 'medium';
+    return "medium";
   }
-  set size(_size: sl.SlInput['size']) {}
+  set size(_size: sl.SlInput["size"]) {}
 }
 
 export class GuiInput extends GuiInputElement<unknown> {
@@ -73,7 +73,7 @@ export class GuiInput extends GuiInputElement<unknown> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
+    this.input = document.createElement("gui-input-string");
   }
 
   get value() {
@@ -130,7 +130,7 @@ export class GuiInput extends GuiInputElement<unknown> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
@@ -148,13 +148,13 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
-    this.input.setAttribute('exportparts', 'base');
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input = document.createElement("sl-input");
+    this.input.setAttribute("exportparts", "base");
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -207,7 +207,7 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
@@ -220,7 +220,7 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
       value = value.value;
     }
     if (value === null || value === undefined) {
-      this.input.value = '';
+      this.input.value = "";
     } else {
       this.input.value = value;
     }
@@ -228,7 +228,7 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
   }
 }
 
@@ -238,16 +238,16 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
+    this.input = document.createElement("sl-input");
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -300,7 +300,7 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
@@ -312,7 +312,7 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
       value = value.toString();
     }
     if (value === null || value === undefined) {
-      this.input.value = '';
+      this.input.value = "";
     } else {
       this.input.value = value;
     }
@@ -320,7 +320,7 @@ export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
   }
 }
 
@@ -330,19 +330,19 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
-    this.input.type = 'number';
-    this.input.step = 'any';
+    this.input = document.createElement("sl-input");
+    this.input.type = "number";
+    this.input.step = "any";
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
 
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -361,7 +361,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined,
   ) {
     if (value === null || value === undefined) {
-      this.input.value = '';
+      this.input.value = "";
     } else {
       this.input.value = `${value}`;
     }
@@ -412,13 +412,13 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
   }
 }
 
@@ -428,14 +428,14 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-checkbox');
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input = document.createElement("sl-checkbox");
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
     this.input.setAttribute(
-      'exportparts',
-      'base,control,control--checked,control--indeterminate,checked-icon,label,form-control-help-text',
+      "exportparts",
+      "base,control,control--checked,control--indeterminate,checked-icon,label,form-control-help-text",
     );
     this.shadowRoot.replaceChildren(this.input);
   }
@@ -459,7 +459,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
     this.input.name = name;
   }
   override get label() {
-    return this.input.textContent ?? '';
+    return this.input.textContent ?? "";
   }
   override set label(label: string) {
     this.input.textContent = label;
@@ -485,7 +485,7 @@ export class GuiInputBool extends GuiInputElement<boolean | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -498,20 +498,20 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
+    this.input = document.createElement("sl-input");
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
-    this.input.type = 'datetime-local';
+    this.input.type = "datetime-local";
     this.input.step = 1;
 
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this._update_value();
       this.dispatchEvent(new GuiInputEvent(this._value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this._value));
     });
@@ -593,7 +593,7 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
@@ -622,7 +622,7 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
       this.input.input.value = this._value.toInputValue(tz);
       this.input.value = this.input.input.value;
     } else {
-      this.input.value = '';
+      this.input.value = "";
     }
   }
 }
@@ -634,13 +634,13 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
+    this.input = document.createElement("sl-input");
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
     this.input.placeholder = `Specify a type fqn (eg. 'runtime::User')`;
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       const type = gc.$.default.findType(this.input.value);
       if (type) {
@@ -650,7 +650,7 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
       }
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -712,13 +712,13 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
     this.input.updateComplete.then(() => this.update());
   }
 
@@ -730,7 +730,7 @@ export class GuiInputType extends GuiInputElement<gc.core.type | null> {
     if (this._value) {
       this.input.value = this._value.toString();
     } else {
-      this.input.value = '';
+      this.input.value = "";
     }
   }
 }
@@ -742,15 +742,15 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
+    this.input = document.createElement("sl-input");
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
     this.input.placeholder = `Specify a field fqn (eg. 'runtime::User::name')`;
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
-      const index = this.input.value.lastIndexOf('::');
+      const index = this.input.value.lastIndexOf("::");
       if (index < 0) {
         this._value = null;
       } else {
@@ -770,7 +770,7 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
       }
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -832,7 +832,7 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
@@ -849,7 +849,7 @@ export class GuiInputField extends GuiInputElement<gc.core.field | null> {
     if (this._value) {
       this.input.value = this._value.toString();
     } else {
-      this.input.value = '';
+      this.input.value = "";
     }
   }
 }
@@ -861,12 +861,12 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-select');
+    this.input = document.createElement("gui-select");
     this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
+      "exportparts",
+      "form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix",
     );
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -879,7 +879,7 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
   }
 
   set type(type: gc.sdk.AbiType | string | undefined) {
-    if (typeof type === 'string') {
+    if (typeof type === "string") {
       type = gc.$.default.findType(type);
     }
 
@@ -888,7 +888,7 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
         return;
       }
       if (!type.is_enum) {
-        throw new Error('Type is not an enum');
+        throw new Error("Type is not an enum");
       }
       this._type = type;
       this.input.placeholder = this._type.name;
@@ -900,7 +900,7 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
         .sort((a, b) => a.text.localeCompare(b.text));
     } else {
       this._type = undefined;
-      this.input.placeholder = '';
+      this.input.placeholder = "";
       this.input.value = undefined;
       this.input.options = [];
     }
@@ -965,13 +965,13 @@ export class GuiInputEnum extends GuiInputElement<gc.sdk.GCEnum | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
   }
 }
 export class GuiInputAbstract extends GuiInputElement<unknown> {
@@ -983,10 +983,10 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
   constructor() {
     super();
 
-    this._select = document.createElement('sl-select');
-    this._select.placeholder = 'Select a concrete type';
-    this._select.setAttribute('exportparts', 'base');
-    this._select.addEventListener('sl-change', (ev) => {
+    this._select = document.createElement("sl-select");
+    this._select.placeholder = "Select a concrete type";
+    this._select.setAttribute("exportparts", "base");
+    this._select.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       const type = gc.$.default.findType(this._select.value as string);
       if (!type) {
@@ -996,7 +996,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    this.input = document.createElement('gui-input-object');
+    this.input = document.createElement("gui-input-object");
 
     this.shadowRoot.replaceChildren(
       <div className="base">
@@ -1045,18 +1045,18 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
     this._select.size = size;
   }
 
   set type(type: gc.sdk.AbiType | string | null) {
     if (type === null) {
-      this._select.placeholder = 'No type';
+      this._select.placeholder = "No type";
       this._select.disabled = true;
       this._select.replaceChildren();
       return;
-    } else if (typeof type === 'string') {
+    } else if (typeof type === "string") {
       const ty = gc.$.default.findType(type);
       if (!ty) {
         this._select.placeholder = `Unknown type '${type}'`;
@@ -1093,7 +1093,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
+    this.setAttribute("exportparts", "base");
   }
 }
 
@@ -1175,8 +1175,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this._inline = getBooleanAttribute(this, 'inline') || this._inline;
-    this._noTypes = getBooleanAttribute(this, 'no-types') || this._noTypes;
+    this._inline = getBooleanAttribute(this, "inline") || this._inline;
+    this._noTypes = getBooleanAttribute(this, "no-types") || this._noTypes;
     this.update();
   }
 
@@ -1195,7 +1195,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
         this._value,
         this._value.$type,
         attr,
-        this._value[attr.name],
+        // oxlint-disable-next-line no-explicit-any
+        (this._value as any)[attr.name],
       );
       fields.appendChild(attrEl);
       if (inputEl) {
@@ -1221,7 +1222,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
       return true;
     }
     for (const attr of this._value.$type.attrs) {
-      const value = this._value[attr.name];
+      // oxlint-disable-next-line no-explicit-any
+      const value = (this._value as any)[attr.name];
       if (!attr.nullable && (value === null || value === undefined)) {
         return false;
       }
@@ -1240,14 +1242,15 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
     const attrType = abi.types[attr.abi_type];
     if (attr.nullable) {
       if (value === null || value === undefined) {
-        object[attr.name] = null; // ensures the value is 'null' rather than maybe 'undefined'
+        // oxlint-disable-next-line no-explicit-any
+        (object as any)[attr.name] = null; // ensures the value is 'null' rather than maybe 'undefined'
         const field = (
           <div className="field" part={`field ${attr.name}`}>
             <label className="label" part="label">
               <span className="field-name" part="field-name">
                 {attr.name}
               </span>
-              <span className={{ 'field-type': true, hide: this.noTypes }} part="field-type">
+              <span className={{ "field-type": true, hide: this.noTypes }} part="field-type">
                 {this._attrType(attr, abi)}
               </span>
             </label>
@@ -1260,7 +1263,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
                   const [node, input] = this._createAttr(abi, factory, object, type, attr, value);
                   field.replaceWith(node);
                   if (input instanceof GuiInputElement) {
-                    object[attr.name] = input.value;
+                    // oxlint-disable-next-line no-explicit-any
+                    (object as any)[attr.name] = input.value;
                   }
                   this.dispatchEvent(new GuiChangeEvent(this.value));
                 }}
@@ -1274,7 +1278,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
       }
     } else if (value === null || value === undefined) {
       // default initialization
-      value = object[attr.name] = new attrType.ctor();
+      // oxlint-disable-next-line no-explicit-any
+      value = (object as any)[attr.name] = new attrType.ctor();
     }
 
     const slottedAttr = this.querySelector(`[slot="${attr.name}"]`);
@@ -1285,7 +1290,7 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
       const tagName = factory.get(`${type.name}::${attr.name}`);
       input = tagName ? document.createElement(tagName) : factory.createElement(value, attrType);
     }
-    if ('value' in input) {
+    if ("value" in input) {
       input.value = value;
     } else {
       input.textContent = value?.toString() ?? `${value}`;
@@ -1293,9 +1298,11 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
     if (input instanceof GuiInputElement) {
       input.name = `${type.name}::${attr.name}`;
       input.required = true;
-      object[attr.name] = input.value;
-      input.addEventListener('gui-change', () => {
-        object[attr.name] = input.value;
+      // oxlint-disable-next-line no-explicit-any
+      (object as any)[attr.name] = input.value;
+      input.addEventListener("gui-change", () => {
+        // oxlint-disable-next-line no-explicit-any
+        (object as any)[attr.name] = input.value;
         this.validate();
       });
     }
@@ -1305,7 +1312,7 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
           <span className="field-name" part="field-name">
             {attr.name}
           </span>
-          <span className={{ 'field-type': true, hide: this.noTypes }} part="field-type">
+          <span className={{ "field-type": true, hide: this.noTypes }} part="field-type">
             {this._attrType(attr, abi)}
           </span>
         </label>
@@ -1318,7 +1325,8 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
                 size="small"
                 onclick={() => {
                   const [node] = this._createAttr(abi, factory, object, type, attr, null);
-                  object[attr.name] = null;
+                  // oxlint-disable-next-line no-explicit-any
+                  (object as any)[attr.name] = null;
                   field.replaceWith(node);
                   this.dispatchEvent(new GuiChangeEvent(this.value));
                 }}
@@ -1381,31 +1389,31 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
-    this.input.placeholder = 'Value';
-    this.input.type = 'number';
+    this.input = document.createElement("sl-input");
+    this.input.placeholder = "Value";
+    this.input.type = "number";
     this.input.required = true;
-    this.input.part.add('value');
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.part.add("value");
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    this.select = document.createElement('sl-select');
-    this.select.placeholder = 'Unit';
+    this.select = document.createElement("sl-select");
+    this.select.placeholder = "Unit";
     this.select.required = true;
-    this.select.part.add('unit');
-    this.select.addEventListener('sl-change', (ev) => {
+    this.select.part.add("unit");
+    this.select.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
     const durationUnit = gc.$.default.findType(gc.core.DurationUnit._type);
     if (!durationUnit || !durationUnit.enum_values) {
-      throw new Error('Unable to find core.DurationUnit in ABI');
+      throw new Error("Unable to find core.DurationUnit in ABI");
     }
     this._units = durationUnit.enum_values as gc.core.DurationUnit[];
     for (const field of durationUnit.enum_values) {
@@ -1428,8 +1436,8 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
 
   set value(value: gc.core.duration | null | undefined) {
     if (value === null || value === undefined) {
-      this.input.value = '';
-      this.select.value = '';
+      this.input.value = "";
+      this.select.value = "";
     } else {
       const [val, unit] = gc.sdk.decomposeDuration(value);
       this.input.value = `${val}`;
@@ -1453,7 +1461,7 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
     if (value) {
       this.select.value = value.key;
     } else {
-      this.select.value = '';
+      this.select.value = "";
     }
   }
 
@@ -1516,9 +1524,9 @@ export class GuiInputAny extends GuiInputElement<unknown> {
   constructor() {
     super();
 
-    this.select = document.createElement('gui-select');
-    this.select.part.add('select');
-    this.select.addEventListener('gui-change', (ev) => {
+    this.select = document.createElement("gui-select");
+    this.select.part.add("select");
+    this.select.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       if (ev.detail === null) {
         this.input.value = null;
@@ -1538,8 +1546,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
     this.select.options = opts;
 
-    this.input = document.createElement('gui-input-string');
-    this.input.part.add('input');
+    this.input = document.createElement("gui-input-string");
+    this.input.part.add("input");
     this.input.value = null;
 
     this.shadowRoot.replaceChildren(
@@ -1560,8 +1568,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
     const abi = gc.$.default.abi;
     let input: GuiInputElement<unknown>;
     switch (typeof value) {
-      case 'bigint':
-      case 'number': {
+      case "bigint":
+      case "number": {
         if (Number.isInteger(value)) {
           this.select.value = abi.core.int;
           input = factory.createElement(value, abi.types[abi.core.int]);
@@ -1571,11 +1579,11 @@ export class GuiInputAny extends GuiInputElement<unknown> {
         }
         break;
       }
-      case 'boolean':
+      case "boolean":
         this.select.value = abi.core.bool;
         input = factory.createElement(value, abi.types[abi.core.bool]);
         break;
-      case 'object': {
+      case "object": {
         if (Array.isArray(value)) {
           this.select.value = abi.core.array;
           input = factory.createElement(value, abi.types[abi.core.array]);
@@ -1585,7 +1593,7 @@ export class GuiInputAny extends GuiInputElement<unknown> {
         } else if (value instanceof gc.sdk.GCObject) {
           if (value.$type.offset === 0) {
             this.select.value = abi.core.string;
-            input = document.createElement('gui-input-string');
+            input = document.createElement("gui-input-string");
           } else {
             const type = abi.type_by_fqn.get(value.$type.name);
             if (type) {
@@ -1593,15 +1601,15 @@ export class GuiInputAny extends GuiInputElement<unknown> {
               input = factory.createElement(value, type);
             } else {
               this.select.value = undefined;
-              const unsupported = document.createElement('gui-input-unsupported');
+              const unsupported = document.createElement("gui-input-unsupported");
               unsupported.message = `Unable to find type '${value.$type.name}'`;
               input = unsupported;
             }
           }
         } else {
           this.select.value = undefined;
-          const unsupported = document.createElement('gui-input-unsupported');
-          unsupported.message = 'Unsupported value';
+          const unsupported = document.createElement("gui-input-unsupported");
+          unsupported.message = "Unsupported value";
           input = unsupported;
         }
         break;
@@ -1615,8 +1623,8 @@ export class GuiInputAny extends GuiInputElement<unknown> {
 
     this.input.replaceWith(input);
     this.input = input;
-    this.input.part.add('input');
-    this.input.addEventListener('gui-change', () => {
+    this.input.part.add("input");
+    this.input.addEventListener("gui-change", () => {
       this._value = this.input.value;
     });
     if (!(value instanceof gc.sdk.GCObject && value.$type.offset === 0)) {
@@ -1719,9 +1727,9 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
     }
 
     const factory = GuiInputFactory.closest(this);
-    const items = document.createElement('div');
-    items.className = 'items';
-    items.part.add('items');
+    const items = document.createElement("div");
+    items.className = "items";
+    items.part.add("items");
     for (const item of this._value) {
       const [node] = this._createItem(factory, items, item);
       items.appendChild(node);
@@ -1760,7 +1768,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
       // so let's fallback to 'any'
       this._generic_param = gc.$.default.abi.types[gc.$.default.abi.core.any];
       // and give a default value of an empty string
-      value = '';
+      value = "";
     }
 
     if (
@@ -1808,7 +1816,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
 
     const input = factory.createElement(value, this._generic_param);
     input.value = value;
-    input.addEventListener('gui-change', () => {
+    input.addEventListener("gui-change", () => {
       const index = getIndexInParent(item);
       this._value[index] = input.value;
     });
@@ -1887,8 +1895,8 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
   constructor() {
     super();
 
-    this._entries = document.createElement('div');
-    this._entries.className = 'entries';
+    this._entries = document.createElement("div");
+    this._entries.className = "entries";
   }
 
   override connectedCallback(): void {
@@ -2003,7 +2011,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
       // so let's fallback to 'any'
       this._key_type = gc.$.default.abi.types[gc.$.default.abi.core.any];
       // and give a default value of an empty string
-      key = '';
+      key = "";
     }
     if (this._value_type) {
       if ((value === null || value === undefined) && !this._value_type_nullable) {
@@ -2014,7 +2022,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
       // so let's fallback to 'any'
       this._value_type = gc.$.default.abi.types[gc.$.default.abi.core.any];
       // and give a default value of an empty string
-      value = '';
+      value = "";
     }
 
     const keyInput = factory.createElement(key, this._key_type);
@@ -2028,7 +2036,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
         this._value.set(newKey, null);
         prevKey = newKey;
       };
-      keyInput.addEventListener('gui-change', entryUpdate);
+      keyInput.addEventListener("gui-change", entryUpdate);
 
       const value_type = this._value_type;
       const entry = (
@@ -2083,11 +2091,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
       this._value.set(newKey, valInput.value);
       prevKey = newKey;
     };
-    keyInput.addEventListener('gui-change', entryUpdate);
+    keyInput.addEventListener("gui-change", entryUpdate);
 
     const valInput = factory.createElement(value, this._value_type);
     valInput.value = value;
-    valInput.addEventListener('gui-change', entryUpdate);
+    valInput.addEventListener("gui-change", entryUpdate);
     const entry = (
       <div className="entry">
         {this._value_type_nullable ? (
@@ -2156,12 +2164,12 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input = document.createElement("gui-input-string");
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2233,7 +2241,7 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2244,12 +2252,12 @@ export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null>
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input = document.createElement("gui-input-string");
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2321,7 +2329,7 @@ export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null>
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2332,12 +2340,12 @@ export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input = document.createElement("gui-input-string");
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2409,7 +2417,7 @@ export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2420,12 +2428,12 @@ export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input = document.createElement("gui-input-string");
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2497,7 +2505,7 @@ export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2508,12 +2516,12 @@ export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
+    this.input = document.createElement("gui-input-string");
+    this.input.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.input.addEventListener('gui-input', (ev) => {
+    this.input.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2585,7 +2593,7 @@ export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2599,22 +2607,22 @@ export class GuiInputGeo extends GuiInputElement<gc.core.geo | null> {
   constructor() {
     super();
 
-    this.latInput = document.createElement('gui-input-number');
-    this.latInput.addEventListener('gui-change', (ev) => {
+    this.latInput = document.createElement("gui-input-number");
+    this.latInput.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.latInput.addEventListener('gui-input', (ev) => {
+    this.latInput.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
 
-    this.lngInput = document.createElement('gui-input-number');
-    this.lngInput.addEventListener('gui-change', (ev) => {
+    this.lngInput = document.createElement("gui-input-number");
+    this.lngInput.addEventListener("gui-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
-    this.lngInput.addEventListener('gui-input', (ev) => {
+    this.lngInput.addEventListener("gui-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
@@ -2631,7 +2639,7 @@ export class GuiInputGeo extends GuiInputElement<gc.core.geo | null> {
 
   override connectedCallback(): void {
     super.connectedCallback();
-    this.setAttribute('part', 'input-geo');
+    this.setAttribute("part", "input-geo");
   }
 
   get value(): gc.core.geo | null {
@@ -2665,14 +2673,14 @@ export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
   constructor() {
     super();
 
-    this.input = document.createElement('sl-input');
+    this.input = document.createElement("sl-input");
     this.input.placeholder = `Specify a function fqn (eg. 'runtime::User::me')`;
     this.input.clearable = true;
-    this.input.addEventListener('sl-input', (ev) => {
+    this.input.addEventListener("sl-input", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiInputEvent(this.value));
     });
-    this.input.addEventListener('sl-change', (ev) => {
+    this.input.addEventListener("sl-change", (ev) => {
       ev.stopPropagation();
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
@@ -2694,7 +2702,7 @@ export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
     if (fn) {
       this.input.value = fn.fqn;
     } else {
-      this.input.value = '';
+      this.input.value = "";
     }
   }
 
@@ -2743,7 +2751,7 @@ export class GuiInputFnPtr extends GuiInputElement<gc.core.function_ | null> {
   override get size() {
     return this.input.size;
   }
-  override set size(size: sl.SlInput['size']) {
+  override set size(size: sl.SlInput["size"]) {
     this.input.size = size;
   }
 }
@@ -2762,7 +2770,7 @@ export class GuiInputUnsupported extends GuiInputElement<undefined> {
   static override styles = [...GuiInputElement.styles, css(UnsupportedStyle)];
 
   value = undefined;
-  private _message = document.createTextNode('');
+  private _message = document.createTextNode("");
 
   constructor() {
     super();
@@ -2804,36 +2812,36 @@ export function findParentInputElement(
       level -= 1;
     }
   }
-  throw new Error('Looks like element `from` is not in a DOM');
+  throw new Error("Looks like element `from` is not in a DOM");
 }
 
 declare global {
   interface HTMLElementTagNameMap {
-    'gui-input': GuiInput;
-    'gui-input-string': GuiInputString;
-    'gui-input-str': GuiInputStr;
-    'gui-input-number': GuiInputNumber;
-    'gui-input-bool': GuiInputBool;
-    'gui-input-time': GuiInputTime;
-    'gui-input-enum': GuiInputEnum;
-    'gui-input-object': GuiInputObject;
-    'gui-input-abstract': GuiInputAbstract;
-    'gui-input-fn': GuiInputFn;
-    'gui-input-duration': GuiInputDuration;
-    'gui-input-any': GuiInputAny;
-    'gui-input-array': GuiInputArray;
-    'gui-input-map': GuiInputMap;
-    'gui-input-node': GuiInputNode;
-    'gui-input-node-index': GuiInputNodeIndex;
-    'gui-input-node-list': GuiInputNodeList;
-    'gui-input-node-time': GuiInputNodeTime;
-    'gui-input-node-geo': GuiInputNodeGeo;
-    'gui-input-geo': GuiInputGeo;
-    'gui-input-fnptr': GuiInputFnPtr;
-    'gui-input-unsupported': GuiInputUnsupported;
-    'gui-input-null': GuiInputNull;
-    'gui-input-type': GuiInputType;
-    'gui-input-field': GuiInputField;
+    "gui-input": GuiInput;
+    "gui-input-string": GuiInputString;
+    "gui-input-str": GuiInputStr;
+    "gui-input-number": GuiInputNumber;
+    "gui-input-bool": GuiInputBool;
+    "gui-input-time": GuiInputTime;
+    "gui-input-enum": GuiInputEnum;
+    "gui-input-object": GuiInputObject;
+    "gui-input-abstract": GuiInputAbstract;
+    "gui-input-fn": GuiInputFn;
+    "gui-input-duration": GuiInputDuration;
+    "gui-input-any": GuiInputAny;
+    "gui-input-array": GuiInputArray;
+    "gui-input-map": GuiInputMap;
+    "gui-input-node": GuiInputNode;
+    "gui-input-node-index": GuiInputNodeIndex;
+    "gui-input-node-list": GuiInputNodeList;
+    "gui-input-node-time": GuiInputNodeTime;
+    "gui-input-node-geo": GuiInputNodeGeo;
+    "gui-input-geo": GuiInputGeo;
+    "gui-input-fnptr": GuiInputFnPtr;
+    "gui-input-unsupported": GuiInputUnsupported;
+    "gui-input-null": GuiInputNull;
+    "gui-input-type": GuiInputType;
+    "gui-input-field": GuiInputField;
   }
 
   interface GuiInputEventMap {
@@ -2846,31 +2854,31 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        'gui-input': GreyCat.Element<GuiInput, GuiInputEventMap>;
-        'gui-input-string': GreyCat.Element<GuiInputString, GuiInputEventMap>;
-        'gui-input-str': GreyCat.Element<GuiInputStr, GuiInputEventMap>;
-        'gui-input-number': GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
-        'gui-input-bool': GreyCat.Element<GuiInputBool, GuiInputEventMap>;
-        'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;
-        'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
-        'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
-        'gui-input-abstract': GreyCat.Element<GuiInputAbstract, GuiInputEventMap>;
-        'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
-        'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
-        'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
-        'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
-        'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
-        'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
-        'gui-input-node-time': GreyCat.Element<GuiInputNodeTime, GuiInputEventMap>;
-        'gui-input-node-index': GreyCat.Element<GuiInputNodeIndex, GuiInputEventMap>;
-        'gui-input-node-list': GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
-        'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
-        'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
-        'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
-        'gui-input-unsupported': GreyCat.Element<GuiInputUnsupported, GuiInputEventMap>;
-        'gui-input-null': GreyCat.Element<GuiInputNull, GuiInputEventMap>;
-        'gui-input-type': GreyCat.Element<GuiInputType, GuiInputEventMap>;
-        'gui-input-field': GreyCat.Element<GuiInputField, GuiInputEventMap>;
+        "gui-input": GreyCat.Element<GuiInput, GuiInputEventMap>;
+        "gui-input-string": GreyCat.Element<GuiInputString, GuiInputEventMap>;
+        "gui-input-str": GreyCat.Element<GuiInputStr, GuiInputEventMap>;
+        "gui-input-number": GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
+        "gui-input-bool": GreyCat.Element<GuiInputBool, GuiInputEventMap>;
+        "gui-input-time": GreyCat.Element<GuiInputTime, GuiInputEventMap>;
+        "gui-input-enum": GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
+        "gui-input-object": GreyCat.Element<GuiInputObject, GuiInputEventMap>;
+        "gui-input-abstract": GreyCat.Element<GuiInputAbstract, GuiInputEventMap>;
+        "gui-input-fn": GreyCat.Element<GuiInputFn, GuiInputEventMap>;
+        "gui-input-duration": GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
+        "gui-input-any": GreyCat.Element<GuiInputAny, GuiInputEventMap>;
+        "gui-input-array": GreyCat.Element<GuiInputArray, GuiInputEventMap>;
+        "gui-input-map": GreyCat.Element<GuiInputMap, GuiInputEventMap>;
+        "gui-input-node": GreyCat.Element<GuiInputNode, GuiInputEventMap>;
+        "gui-input-node-time": GreyCat.Element<GuiInputNodeTime, GuiInputEventMap>;
+        "gui-input-node-index": GreyCat.Element<GuiInputNodeIndex, GuiInputEventMap>;
+        "gui-input-node-list": GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
+        "gui-input-node-geo": GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
+        "gui-input-geo": GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
+        "gui-input-fnptr": GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
+        "gui-input-unsupported": GreyCat.Element<GuiInputUnsupported, GuiInputEventMap>;
+        "gui-input-null": GreyCat.Element<GuiInputNull, GuiInputEventMap>;
+        "gui-input-type": GreyCat.Element<GuiInputType, GuiInputEventMap>;
+        "gui-input-field": GreyCat.Element<GuiInputField, GuiInputEventMap>;
       }
     }
   }

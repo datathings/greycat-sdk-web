@@ -1,3 +1,4 @@
 {
-  "oxc.configPath": "oxlint.json"
+  "oxc.configPath": "oxlint.json",
+  "oxc.fmt.experimental": true
 }

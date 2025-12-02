@@ -6,7 +6,7 @@ namespace gc {
       readonly $fields?: Value[];
       // because we don't know what could be inside
       // we need to allow any key to be potentially a value
-      [key: string]: Value;
+      // [key: string]: Value;
     }
 
     export interface ToStringOptions {

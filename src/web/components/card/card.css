@@ -6,6 +6,7 @@
   background-color: var(--bg-0);
   font-weight: bold;
 }
+
 .card__body {
   flex-grow: 1;
   background-color: var(--bg-1);
