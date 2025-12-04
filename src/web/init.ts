@@ -100,21 +100,21 @@ declare global {
 
 const sdkInit = gc.sdk.init;
 gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
-  preInit(options);
   const g = await sdkInit(options);
-  postInit();
+  registerWebComponents(options);
+  postWebComponents();
   return g;
 };
 
 const sdkInitWithAbi = gc.sdk.initWithAbi;
 gc.sdk.initWithAbi = function webInitWithAbi(options: WebWithAbiOptions) {
-  preInit(options);
   const g = sdkInitWithAbi(options);
-  postInit();
+  registerWebComponents(options);
+  postWebComponents();
   return g;
 };
 
-function preInit(options: WebOptions) {
+function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-factory', GuiFactory);
   registerCustomElement('gui-input-factory', GuiInputFactory);
   registerCustomElement('gui-time', GuiTime);
@@ -201,7 +201,7 @@ function preInit(options: WebOptions) {
   }
 }
 
-function postInit() {
+function postWebComponents() {
   GuiInputFactory.global = new GuiInputFactory({
     ['core::any']: 'gui-input-any',
     [gc.core.int._type]: 'gui-input-number',
