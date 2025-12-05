@@ -1,13 +1,13 @@
 # @greycat/web
 
-[Documentation](https://datathings.github.io/greycat-sdk-web/)
+[Documentation](https://doc.greycat.io/sdk/web/index.html)
 
 ## Install
 Add the dependency to your project:
 ```sh
-pnpm install https://get.greycat.io/files/sdk/web/6.4/6.4.10-dev.tgz
+pnpm install https://get.greycat.io/files/sdk/web/7.4/7.4.22-stable.tgz
 ```
-> Update with the latest [version](https://get.greycat.io/files/sdk/web/dev/latest)
+> Update with the latest [version](https://get.greycat.io/files/sdk/web/stable/latest)
 
 ## Usage
 ```ts [src/index.ts]

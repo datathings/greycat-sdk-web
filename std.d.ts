@@ -1813,17 +1813,8 @@ declare namespace gc {
       }
     }
 
-    class Scheduler$find$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$find$args';
-      static readonly $fields: Scheduler$find$args.$Fields;
-      function: gc.core.function_;
-      constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$find$args;
-    }
-    namespace Scheduler$find$args {
-      interface $Fields {
-        function: 0;
-      }
+    class Scheduler$list$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$list$args';
     }
 
     class Month extends gc.sdk.GCEnum {
@@ -1850,22 +1841,23 @@ declare namespace gc {
 
     class Runtime extends gc.sdk.GCObject {
       static readonly _type = 'runtime::Runtime';
+      static backup_full: gc.sdk.ExposedFn<[], unknown>;
       static root: gc.sdk.ExposedFn<[], any>;
       static abi: gc.sdk.ExposedFn<[], unknown>;
       static info: gc.sdk.ExposedFn<[], gc.runtime.RuntimeInfo>;
     }
 
-    class User$tokenLogin$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$tokenLogin$args';
-      static readonly $fields: User$tokenLogin$args.$Fields;
-      token: string;
+    class User$login$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$login$args';
+      static readonly $fields: User$login$args.$Fields;
+      credentials: string;
       use_cookie: boolean;
-      constructor(token: string, use_cookie: boolean);
-      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
+      constructor(credentials: string, use_cookie: boolean);
+      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
     }
-    namespace User$tokenLogin$args {
+    namespace User$login$args {
       interface $Fields {
-        token: 0;
+        credentials: 0;
         use_cookie: 1;
       }
     }
@@ -1898,32 +1890,12 @@ declare namespace gc {
       }
     }
 
-    class Task$history$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$history$args';
-      static readonly $fields: Task$history$args.$Fields;
-      offset: number | bigint;
-      max: number | bigint;
-      constructor(offset: number | bigint, max: number | bigint);
-      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
-    }
-    namespace Task$history$args {
-      interface $Fields {
-        offset: 0;
-        max: 1;
-      }
+    class Task$running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$running$args';
     }
 
-    class User$renew$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$renew$args';
-      static readonly $fields: User$renew$args.$Fields;
-      use_cookie: boolean;
-      constructor(use_cookie: boolean);
-      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
-    }
-    namespace User$renew$args {
-      interface $Fields {
-        use_cookie: 0;
-      }
+    class User$logout$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$logout$args';
     }
 
     class Frame extends gc.sdk.GCObject {
@@ -1980,8 +1952,8 @@ declare namespace gc {
       }
     }
 
-    class User$me$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$me$args';
+    class User$current$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$current$args';
     }
 
     class MediaTypeObject extends gc.sdk.GCObject {
@@ -1997,19 +1969,8 @@ declare namespace gc {
       }
     }
 
-    class User$setPassword$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$setPassword$args';
-      static readonly $fields: User$setPassword$args.$Fields;
-      name: string;
-      pass: string;
-      constructor(name: string, pass: string);
-      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
-    }
-    namespace User$setPassword$args {
-      interface $Fields {
-        name: 0;
-        pass: 1;
-      }
+    class User$permissions$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$permissions$args';
     }
 
     class UserGroupPolicyType extends gc.sdk.GCEnum {
@@ -2025,17 +1986,8 @@ declare namespace gc {
       type Field = "read"|"write"|"execute";
     }
 
-    class SecurityEntity$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$set$args';
-      static readonly $fields: SecurityEntity$set$args.$Fields;
-      entity: gc.runtime.SecurityEntity;
-      constructor(entity: gc.runtime.SecurityEntity);
-      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
-    }
-    namespace SecurityEntity$set$args {
-      interface $Fields {
-        entity: 0;
-      }
+    class SecurityEntity$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$all$args';
     }
 
     class SecurityEntity extends gc.sdk.GCObject {
@@ -2250,8 +2202,17 @@ declare namespace gc {
       }
     }
 
-    class OpenIDConnect$config$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::OpenIDConnect$config$args';
+    class SecurityEntity$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityEntity$set$args';
+      static readonly $fields: SecurityEntity$set$args.$Fields;
+      entity: gc.runtime.SecurityEntity;
+      constructor(entity: gc.runtime.SecurityEntity);
+      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
+    }
+    namespace SecurityEntity$set$args {
+      interface $Fields {
+        entity: 0;
+      }
     }
 
     class YearlyPeriodicity extends gc.sdk.GCObject {
@@ -2383,37 +2344,33 @@ declare namespace gc {
       }
     }
 
-    class SecurityEntity$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityEntity$all$args';
+    class SecurityFields$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$get$args';
     }
 
-    class Task$is_running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$is_running$args';
-      static readonly $fields: Task$is_running$args.$Fields;
+    class Task$cancel$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$cancel$args';
+      static readonly $fields: Task$cancel$args.$Fields;
       task_id: number | bigint;
       constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
+      static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
     }
-    namespace Task$is_running$args {
+    namespace Task$cancel$args {
       interface $Fields {
         task_id: 0;
       }
     }
 
-    class Scheduler$add$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$add$args';
-      static readonly $fields: Scheduler$add$args.$Fields;
-      function: gc.core.function_;
-      periodicity: gc.runtime.Periodicity;
-      options: gc.runtime.PeriodicOptions | null;
-      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null);
-      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null}): Scheduler$add$args;
+    class Debug$resume$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$resume$args';
+      static readonly $fields: Debug$resume$args.$Fields;
+      id: number | bigint;
+      constructor(id: number | bigint);
+      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
     }
-    namespace Scheduler$add$args {
+    namespace Debug$resume$args {
       interface $Fields {
-        function: 0;
-        periodicity: 1;
-        options: 2;
+        id: 0;
       }
     }
 
@@ -2430,8 +2387,17 @@ declare namespace gc {
       type Field = "strict"|"first_wins"|"last_wins";
     }
 
-    class OpenApi$v3$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::OpenApi$v3$args';
+    class Scheduler$deactivate$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$deactivate$args';
+      static readonly $fields: Scheduler$deactivate$args.$Fields;
+      function: gc.core.function_;
+      constructor(function_: gc.core.function_);
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$deactivate$args;
+    }
+    namespace Scheduler$deactivate$args {
+      interface $Fields {
+        function: 0;
+      }
     }
 
     class InfoObject extends gc.sdk.GCObject {
@@ -2468,8 +2434,21 @@ declare namespace gc {
       }
     }
 
-    class SecurityFields$get$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$get$args';
+    class SecurityFields$set$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::SecurityFields$set$args';
+      static readonly $fields: SecurityFields$set$args.$Fields;
+      f: gc.runtime.SecurityFields;
+      constructor(f: gc.runtime.SecurityFields);
+      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
+    }
+    namespace SecurityFields$set$args {
+      interface $Fields {
+        f: 0;
+      }
+    }
+
+    class OpenApi$v3$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::OpenApi$v3$args';
     }
 
     class LicenseType extends gc.sdk.GCEnum {
@@ -2592,8 +2571,21 @@ declare namespace gc {
       }
     }
 
-    class Scheduler$list$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$list$args';
+    class Scheduler$add$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$add$args';
+      static readonly $fields: Scheduler$add$args.$Fields;
+      function: gc.core.function_;
+      periodicity: gc.runtime.Periodicity;
+      options: gc.runtime.PeriodicOptions | null;
+      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null);
+      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null}): Scheduler$add$args;
+    }
+    namespace Scheduler$add$args {
+      interface $Fields {
+        function: 0;
+        periodicity: 1;
+        options: 2;
+      }
     }
 
     class Task<T = any> extends gc.sdk.GCObject {
@@ -2635,20 +2627,42 @@ declare namespace gc {
       static readonly _type = 'runtime::Permission$all$args';
     }
 
-    class Debug$all$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$all$args';
+    class User$setPassword$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$setPassword$args';
+      static readonly $fields: User$setPassword$args.$Fields;
+      name: string;
+      pass: string;
+      constructor(name: string, pass: string);
+      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
+    }
+    namespace User$setPassword$args {
+      interface $Fields {
+        name: 0;
+        pass: 1;
+      }
     }
 
-    class User$permissions$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$permissions$args';
+    class User$me$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$me$args';
     }
 
     class System extends gc.sdk.GCObject {
       static readonly _type = 'runtime::System';
     }
 
-    class User$logout$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$logout$args';
+    class User$tokenLogin$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$tokenLogin$args';
+      static readonly $fields: User$tokenLogin$args.$Fields;
+      token: string;
+      use_cookie: boolean;
+      constructor(token: string, use_cookie: boolean);
+      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
+    }
+    namespace User$tokenLogin$args {
+      interface $Fields {
+        token: 0;
+        use_cookie: 1;
+      }
     }
 
     class SecurityFields extends gc.sdk.GCObject {
@@ -2780,14 +2794,14 @@ declare namespace gc {
       }
     }
 
-    class Scheduler$activate$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$activate$args';
-      static readonly $fields: Scheduler$activate$args.$Fields;
+    class Scheduler$find$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$find$args';
+      static readonly $fields: Scheduler$find$args.$Fields;
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$activate$args;
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$find$args;
     }
-    namespace Scheduler$activate$args {
+    namespace Scheduler$find$args {
       interface $Fields {
         function: 0;
       }
@@ -2831,32 +2845,21 @@ declare namespace gc {
       type Field = "int32"|"int64"|"float"|"double"|"byte"|"binary"|"date"|"date-time"|"password";
     }
 
-    class Scheduler$deactivate$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Scheduler$deactivate$args';
-      static readonly $fields: Scheduler$deactivate$args.$Fields;
+    class Scheduler$activate$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Scheduler$activate$args';
+      static readonly $fields: Scheduler$activate$args.$Fields;
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$deactivate$args;
+      static createFrom(fields: {function_: gc.core.function_}): Scheduler$activate$args;
     }
-    namespace Scheduler$deactivate$args {
+    namespace Scheduler$activate$args {
       interface $Fields {
         function: 0;
       }
     }
 
-    class User$login$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$login$args';
-      static readonly $fields: User$login$args.$Fields;
-      credentials: string;
-      use_cookie: boolean;
-      constructor(credentials: string, use_cookie: boolean);
-      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
-    }
-    namespace User$login$args {
-      interface $Fields {
-        credentials: 0;
-        use_cookie: 1;
-      }
+    class OpenIDConnect$config$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::OpenIDConnect$config$args';
     }
 
     class SchemaType extends gc.sdk.GCEnum {
@@ -2896,14 +2899,14 @@ declare namespace gc {
       }
     }
 
-    class Debug$resume$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$resume$args';
-      static readonly $fields: Debug$resume$args.$Fields;
+    class Debug$get$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$get$args';
+      static readonly $fields: Debug$get$args.$Fields;
       id: number | bigint;
       constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
+      static createFrom(fields: {id: number | bigint}): Debug$get$args;
     }
-    namespace Debug$resume$args {
+    namespace Debug$get$args {
       interface $Fields {
         id: 0;
       }
@@ -2942,25 +2945,25 @@ declare namespace gc {
       }
     }
 
-    class User$current$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::User$current$args';
+    class User$renew$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::User$renew$args';
+      static readonly $fields: User$renew$args.$Fields;
+      use_cookie: boolean;
+      constructor(use_cookie: boolean);
+      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
     }
-
-    class Debug$get$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Debug$get$args';
-      static readonly $fields: Debug$get$args.$Fields;
-      id: number | bigint;
-      constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$get$args;
-    }
-    namespace Debug$get$args {
+    namespace User$renew$args {
       interface $Fields {
-        id: 0;
+        use_cookie: 0;
       }
     }
 
-    class Task$running$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$running$args';
+    class Debug$all$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Debug$all$args';
+    }
+
+    class Runtime$backup_full$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Runtime$backup_full$args';
     }
 
     class Job<T = any> extends gc.sdk.GCObject {
@@ -2993,29 +2996,31 @@ declare namespace gc {
       }
     }
 
-    class Task$cancel$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::Task$cancel$args';
-      static readonly $fields: Task$cancel$args.$Fields;
-      task_id: number | bigint;
-      constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
+    class Task$history$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$history$args';
+      static readonly $fields: Task$history$args.$Fields;
+      offset: number | bigint;
+      max: number | bigint;
+      constructor(offset: number | bigint, max: number | bigint);
+      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
     }
-    namespace Task$cancel$args {
+    namespace Task$history$args {
       interface $Fields {
-        task_id: 0;
+        offset: 0;
+        max: 1;
       }
     }
 
-    class SecurityFields$set$args extends gc.sdk.GCObject {
-      static readonly _type = 'runtime::SecurityFields$set$args';
-      static readonly $fields: SecurityFields$set$args.$Fields;
-      f: gc.runtime.SecurityFields;
-      constructor(f: gc.runtime.SecurityFields);
-      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
+    class Task$is_running$args extends gc.sdk.GCObject {
+      static readonly _type = 'runtime::Task$is_running$args';
+      static readonly $fields: Task$is_running$args.$Fields;
+      task_id: number | bigint;
+      constructor(task_id: number | bigint);
+      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
     }
-    namespace SecurityFields$set$args {
+    namespace Task$is_running$args {
       interface $Fields {
-        f: 0;
+        task_id: 0;
       }
     }
 

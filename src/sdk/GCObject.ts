@@ -19,9 +19,9 @@ namespace gc {
       /** The format used to display number */
       numFmt?: Intl.NumberFormat;
       /** Whether or not to display the enum key only, default to `false` which results in `'enum_name::enum_key'` */
-      enumKeyOnly: boolean;
+      enumKeyOnly?: boolean;
       /** Used between every parts of a duration, defaults to `' '` */
-      durationSep: string;
+      durationSep?: string;
     }
 
     export const DEFAULT_TO_STRING_OPTIONS: ToStringOptions = {
