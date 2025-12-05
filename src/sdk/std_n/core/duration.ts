@@ -169,6 +169,7 @@ namespace gc {
           }
 
           override toString(opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS) {
+            opts.durationSep = opts.durationSep ?? ' ';
             const us = typeof this.value === 'bigint' ? this.value : BigInt(this.value);
 
             if (us === 0n) {
