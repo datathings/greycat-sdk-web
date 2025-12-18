@@ -55,7 +55,7 @@ private type Record {
     /// column=13
     place: String;
     /// column=14
-    type: Type;
+    type: String;
     /// column=15, min=2.88, max=17.47, avg=8.7943456376
     horizontalError: float?;
     /// column=16, min=0.972, max=22.5, avg=4.4283683333
@@ -70,15 +70,6 @@ private type Record {
     locationSource: String;
     /// column=21
     magSource: String;
-}
-
-@volatile
-private enum Type {
-    explosion,
-    earthquake,
-    landslide,
-    "quarry blast",
-    rockslide,
 }
 
 @volatile

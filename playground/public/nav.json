@@ -279,7 +279,18 @@
   },
   {
     "label": "Tasks",
-    "route": "pages/tasks/"
+    "route": "pages/tasks/",
+    "link": true,
+    "children": [
+      {
+        "label": "Info",
+        "route": "info.html"
+      },
+      {
+        "label": "Big",
+        "route": "big.html"
+      }
+    ]
   },
   {
     "label": "Toast",

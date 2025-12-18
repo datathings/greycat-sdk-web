@@ -1,0 +1,58 @@
+type BigRecord {
+    timestamp: time;
+    aimp: float?;
+    amud: float;
+    arnd: float;
+    asin1: float;
+    asin2: float;
+    adbr: any?;
+    adfl: float;
+    bed1: float;
+    bed2: float;
+    bfo1: bool?;
+    bfo2: float;
+    bso1: float;
+    bso2: float;
+    bso3: float;
+    ced1: float;
+    cfo1: float;
+    cso1: float;
+    y: float;
+    category: String;
+}
+
+type BigResult {
+    start_time: time;
+    records: Array<BigRecord>;
+    end_time: time;
+}
+
+@expose
+fn get_huge_object(): BigResult {
+    var start_time = time::now();
+
+    var reader = CsvReader<BigRecord> {
+        path: "files/large.csv",
+        format: CsvFormat { header_lines: 1 },
+    };
+
+    var records = Array<BigRecord> {};
+
+    while (reader.can_read()) {
+        records.add(reader.read());
+    }
+    for (var i = 0; i < 50; i++) {
+        reader.pos = 0;
+        while (reader.can_read()) {
+            records.add(reader.read());
+        }
+    }
+
+    info("records ${records.size()}");
+
+    return BigResult {
+        start_time: start_time,
+        records: records,
+        end_time: time::now(),
+    };
+}

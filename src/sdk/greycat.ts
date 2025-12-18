@@ -1335,6 +1335,7 @@ namespace gc {
       switch (task.status.key) {
         case "running":
         case "waiting":
+        case "await":
         case "breakpoint":
           return true;
         default:
