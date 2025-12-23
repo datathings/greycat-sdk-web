@@ -127,10 +127,7 @@ namespace gc {
       js_factory?: BinaryReaderFactory;
     };
 
-    export function deserializeFromHex<T = unknown>(
-      hex: string,
-      options: BinaryWriterOptions = {},
-    ): T {
+    export function deserializeFromHex<T = unknown>(hex: string, options: BinaryWriterOptions = {}): T {
       const buf = fromHex(hex);
       const reader = new BinaryReader(buf, options.abi, options.js_factory);
       return reader.deserialize() as T;
@@ -142,7 +139,7 @@ namespace gc {
       return (b0 << 4) | b1;
     }
 
-    function fromHex(hex: string): ArrayBuffer {
+    export function fromHex(hex: string): ArrayBuffer {
       const bytes = new Uint8Array(hex.length / 2);
       for (let i = 0, j = 0; i < hex.length; i += 2, j++) {
         bytes[j] = hexByte(hex.charCodeAt(i), hex.charCodeAt(i + 1));
@@ -153,7 +150,7 @@ namespace gc {
     // Pre-computed hex lookup-table: 0..255 -> "00".."ff"
     const HEX_TABLE = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(2, '0'));
 
-    const toHex = (buffer: ArrayBuffer) => {
+    export const toHex = (buffer: ArrayBufferLike) => {
       const bytes = new Uint8Array(buffer);
       const chars = new Array(bytes.length);
       for (let i = 0; i < bytes.length; i++) {

@@ -297,6 +297,10 @@
     "route": "pages/toast/"
   },
   {
+    "label": "Tensor",
+    "route": "pages/tensor/"
+  },
+  {
     "label": "Users",
     "route": "pages/users/"
   },

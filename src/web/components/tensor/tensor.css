@@ -1,0 +1,45 @@
+:host {
+  display: contents;
+}
+
+.base {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.desc {
+  display: flex;
+  gap: calc(4 * var(--spacing));
+}
+
+.item {
+  display: flex;
+  flex-direction: column;
+}
+
+.label {
+  font-weight: bold;
+}
+
+.selectors {
+  & {
+    display: flex;
+    gap: calc(4 * var(--spacing));
+  }
+
+  .selector {
+    width: 100px;
+  }
+}
+
+.tables {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing);
+}
+
+gui-table {
+  min-height: 200px;
+}

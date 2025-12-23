@@ -17,6 +17,7 @@ export interface StringifyProps extends gc.sdk.ToStringOptions {
   quotedString?: boolean;
 }
 
+// TODO: remove `value` from `props` and pass it as its own argument
 /**
  * Best-effort to stringify the given value.
  */
@@ -69,6 +70,15 @@ export function stringify(props: StringifyProps): string {
       return `${value.lat}, ${value.lng}`;
     }
   } else if (Array.isArray(value)) {
+    if (value.length < 10) {
+      const str = JSON.stringify(value, bigintAsStringOrNumber);
+      if (str.length < 50) {
+        return str;
+      }
+    }
+    if (value.$type) {
+      return `${value.$type.name} { size: ${value.length} }`;
+    }
     return `Array { size: ${value.length} }`;
   } else if (value instanceof gc.sdk.GCEnum) {
     if (value.$type.name.startsWith('core::')) {
@@ -119,7 +129,7 @@ export function stringify(props: StringifyProps): string {
         return value.toString();
       }
     }
-    return JSON.stringify(value, bigintsAsString, pretty ? '  ' : undefined);
+    return JSON.stringify(value, bigintAsStringOrNumber, pretty ? '  ' : undefined);
   }
   return String(value);
 }
@@ -130,7 +140,6 @@ export function stringify(props: StringifyProps): string {
  * @param max
  * @returns
  */
-// eslint-disable-next-line no-inner-declarations
 function toStrTiny(s: string, max = 100) {
   if (s.length > max) {
     return `${s.slice(0, max)}...`;
@@ -141,10 +150,12 @@ function toStrTiny(s: string, max = 100) {
 /**
  * Stringifies `bigint`, the rest is left unchanged
  */
-// eslint-disable-next-line no-inner-declarations
-function bigintsAsString(_key: string, value: unknown): unknown {
+function bigintAsStringOrNumber(_key: string, value: unknown): unknown {
   if (typeof value === 'bigint') {
-    return `${value}`;
+    if (value < Number.MIN_SAFE_INTEGER || value > Number.MAX_SAFE_INTEGER) {
+      return `${value}`;
+    }
+    return Number(value);
   }
   return value;
 }

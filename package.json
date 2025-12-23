@@ -52,11 +52,11 @@
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },
   "dependencies": {
-    "@shoelace-style/shoelace": "2.20.0",
+    "@shoelace-style/shoelace": "2.20.1",
     "d3": "7.9.0",
     "dockview-core": "3.2.0",
-    "lit": "3.2.1",
-    "lit-html": "3.2.1"
+    "lit": "3.3.1",
+    "lit-html": "3.3.1"
   },
   "devDependencies": {
     "@tabler/icons": "2.47.0",
@@ -65,8 +65,8 @@
     "esbuild": "0.24.2",
     "lightningcss": "1.29.2",
     "lightningcss-cli": "1.29.2",
-    "oxlint": "^1.24.0",
-    "prettier": "3.3.3",
+    "oxlint": "1.34.0",
+    "oxfmt": "0.19.0",
     "rollup": "4.36.0",
     "rollup-plugin-dts": "6.2.0",
     "tslib": "2.6.3",

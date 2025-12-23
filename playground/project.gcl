@@ -1225,3 +1225,309 @@ fn table_with_urls(): Array<UrlEntry> {
         UrlEntry { name: "GreyCat", value: "https://get.greycat.io" },
     ];
 }
+
+@expose
+fn tensor(): Tensor {
+    var tensor = Tensor {};
+    // [5]                   => 1 row x 5 col
+    // [3, 5]                => 3 house * (1 row x 5 col)
+    // [10, 24, 800, 600, 3] => 10 videos * 24fps * 800 * 600 * 3rgb
+    // [10, 24, 3, 800, 600] => 10 videos * 24fps * 800 * 600 * 3rgb
+    tensor.init(TensorType::f32, Array<int> { 5 });
+    tensor.add(Array<int> { 0 }, 1.0);
+    tensor.add(Array<int> { 1 }, 2.0);
+    tensor.add(Array<int> { 2 }, 3.0);
+    tensor.add(Array<int> { 3 }, 4.0);
+    tensor.add(Array<int> { 4 }, 5.0);
+
+    pprint(tensor.toString());
+    return tensor;
+}
+
+/// `[2, 3, 5] => 2 table * (3 row x 5 col)`
+@expose
+fn tensor_2_3_5(): Tensor {
+    var nb_tables = 2;
+    var nb_rows = 3;
+    var nb_cols = 5;
+
+    var tensor = Tensor {};
+    tensor.init(TensorType::f32, Array<int> { nb_tables, nb_rows, nb_cols });
+
+    var value = 0.001;
+    for (var table = 0; table < nb_tables; table++) {
+        for (var row = 0; row < nb_rows; row++) {
+            for (var col = 0; col < nb_cols; col++) {
+                tensor.add(Array<int> { table, row, col }, value);
+                value = value + 0.001;
+            }
+        }
+    }
+
+    return tensor;
+}
+
+@expose
+fn tensor_3_5(): Tensor {
+    var tensor = Tensor {};
+    tensor.init(TensorType::f32, Array<int> { 3, 5 });
+    tensor.add(Array<int> { 0, 0 }, 1.0);
+    tensor.add(Array<int> { 0, 1 }, 2.0);
+    tensor.add(Array<int> { 0, 2 }, 3.0);
+    tensor.add(Array<int> { 0, 3 }, 4.0);
+    tensor.add(Array<int> { 0, 4 }, 5.0);
+    tensor.add(Array<int> { 1, 0 }, 10.0);
+    tensor.add(Array<int> { 1, 1 }, 20.0);
+    tensor.add(Array<int> { 1, 2 }, 30.0);
+    tensor.add(Array<int> { 1, 3 }, 40.0);
+    tensor.add(Array<int> { 1, 4 }, 50.0);
+    return tensor;
+}
+
+@expose
+fn getTensor(): Tensor {
+    var t = Tensor {};
+    t.init(TensorType::f32, Array<int> { 2, 3, 4, 5 });
+
+    var pos = t.initPos();
+    t.set(pos, 4.471);
+    t.incPos(pos);
+    t.set(pos, 1.831);
+    t.incPos(pos);
+    t.set(pos, 2.841);
+    t.incPos(pos);
+    t.set(pos, 0.180);
+    t.incPos(pos);
+    t.set(pos, 5.323);
+    t.incPos(pos);
+    t.set(pos, 6.038);
+    t.incPos(pos);
+    t.set(pos, 6.030);
+    t.incPos(pos);
+    t.set(pos, 6.635);
+    t.incPos(pos);
+    t.set(pos, 0.225);
+    t.incPos(pos);
+    t.set(pos, 1.315);
+    t.incPos(pos);
+    t.set(pos, 4.038);
+    t.incPos(pos);
+    t.set(pos, 8.571);
+    t.incPos(pos);
+    t.set(pos, 7.754);
+    t.incPos(pos);
+    t.set(pos, 4.512);
+    t.incPos(pos);
+    t.set(pos, 6.383);
+    t.incPos(pos);
+    t.set(pos, 0.468);
+    t.incPos(pos);
+    t.set(pos, 5.487);
+    t.incPos(pos);
+    t.set(pos, 8.459);
+    t.incPos(pos);
+    t.set(pos, 7.324);
+    t.incPos(pos);
+    t.set(pos, 0.873);
+    t.incPos(pos);
+    t.set(pos, 3.735);
+    t.incPos(pos);
+    t.set(pos, 0.695);
+    t.incPos(pos);
+    t.set(pos, 3.227);
+    t.incPos(pos);
+    t.set(pos, 7.951);
+    t.incPos(pos);
+    t.set(pos, 7.969);
+    t.incPos(pos);
+    t.set(pos, 3.145);
+    t.incPos(pos);
+    t.set(pos, 9.936);
+    t.incPos(pos);
+    t.set(pos, 3.477);
+    t.incPos(pos);
+    t.set(pos, 0.563);
+    t.incPos(pos);
+    t.set(pos, 4.210);
+    t.incPos(pos);
+    t.set(pos, 5.736);
+    t.incPos(pos);
+    t.set(pos, 6.131);
+    t.incPos(pos);
+    t.set(pos, 9.203);
+    t.incPos(pos);
+    t.set(pos, 2.617);
+    t.incPos(pos);
+    t.set(pos, 2.817);
+    t.incPos(pos);
+    t.set(pos, 3.240);
+    t.incPos(pos);
+    t.set(pos, 1.500);
+    t.incPos(pos);
+    t.set(pos, 6.525);
+    t.incPos(pos);
+    t.set(pos, 4.990);
+    t.incPos(pos);
+    t.set(pos, 6.992);
+    t.incPos(pos);
+    t.set(pos, 8.707);
+    t.incPos(pos);
+    t.set(pos, 8.085);
+    t.incPos(pos);
+    t.set(pos, 9.308);
+    t.incPos(pos);
+    t.set(pos, 0.093);
+    t.incPos(pos);
+    t.set(pos, 8.109);
+    t.incPos(pos);
+    t.set(pos, 1.863);
+    t.incPos(pos);
+    t.set(pos, 9.138);
+    t.incPos(pos);
+    t.set(pos, 8.781);
+    t.incPos(pos);
+    t.set(pos, 7.659);
+    t.incPos(pos);
+    t.set(pos, 2.946);
+    t.incPos(pos);
+    t.set(pos, 3.259);
+    t.incPos(pos);
+    t.set(pos, 8.593);
+    t.incPos(pos);
+    t.set(pos, 2.982);
+    t.incPos(pos);
+    t.set(pos, 8.910);
+    t.incPos(pos);
+    t.set(pos, 0.955);
+    t.incPos(pos);
+    t.set(pos, 2.152);
+    t.incPos(pos);
+    t.set(pos, 0.311);
+    t.incPos(pos);
+    t.set(pos, 8.647);
+    t.incPos(pos);
+    t.set(pos, 5.176);
+    t.incPos(pos);
+    t.set(pos, 6.119);
+    t.incPos(pos);
+    t.set(pos, 6.027);
+    t.incPos(pos);
+    t.set(pos, 1.237);
+    t.incPos(pos);
+    t.set(pos, 9.632);
+    t.incPos(pos);
+    t.set(pos, 2.825);
+    t.incPos(pos);
+    t.set(pos, 5.754);
+    t.incPos(pos);
+    t.set(pos, 5.731);
+    t.incPos(pos);
+    t.set(pos, 6.164);
+    t.incPos(pos);
+    t.set(pos, 8.634);
+    t.incPos(pos);
+    t.set(pos, 7.513);
+    t.incPos(pos);
+    t.set(pos, 3.789);
+    t.incPos(pos);
+    t.set(pos, 8.245);
+    t.incPos(pos);
+    t.set(pos, 8.139);
+    t.incPos(pos);
+    t.set(pos, 1.708);
+    t.incPos(pos);
+    t.set(pos, 3.676);
+    t.incPos(pos);
+    t.set(pos, 7.298);
+    t.incPos(pos);
+    t.set(pos, 2.137);
+    t.incPos(pos);
+    t.set(pos, 3.077);
+    t.incPos(pos);
+    t.set(pos, 4.250);
+    t.incPos(pos);
+    t.set(pos, 0.793);
+    t.incPos(pos);
+    t.set(pos, 3.673);
+    t.incPos(pos);
+    t.set(pos, 8.184);
+    t.incPos(pos);
+    t.set(pos, 2.215);
+    t.incPos(pos);
+    t.set(pos, 7.080);
+    t.incPos(pos);
+    t.set(pos, 8.802);
+    t.incPos(pos);
+    t.set(pos, 7.602);
+    t.incPos(pos);
+    t.set(pos, 8.400);
+    t.incPos(pos);
+    t.set(pos, 4.432);
+    t.incPos(pos);
+    t.set(pos, 6.530);
+    t.incPos(pos);
+    t.set(pos, 1.942);
+    t.incPos(pos);
+    t.set(pos, 0.267);
+    t.incPos(pos);
+    t.set(pos, 8.568);
+    t.incPos(pos);
+    t.set(pos, 4.821);
+    t.incPos(pos);
+    t.set(pos, 4.206);
+    t.incPos(pos);
+    t.set(pos, 9.564);
+    t.incPos(pos);
+    t.set(pos, 5.815);
+    t.incPos(pos);
+    t.set(pos, 5.857);
+    t.incPos(pos);
+    t.set(pos, 8.070);
+    t.incPos(pos);
+    t.set(pos, 8.712);
+    t.incPos(pos);
+    t.set(pos, 1.223);
+    t.incPos(pos);
+    t.set(pos, 3.094);
+    t.incPos(pos);
+    t.set(pos, 4.983);
+    t.incPos(pos);
+    t.set(pos, 3.803);
+    t.incPos(pos);
+    t.set(pos, 9.195);
+    t.incPos(pos);
+    t.set(pos, 6.935);
+    t.incPos(pos);
+    t.set(pos, 4.667);
+    t.incPos(pos);
+    t.set(pos, 2.749);
+    t.incPos(pos);
+    t.set(pos, 3.052);
+    t.incPos(pos);
+    t.set(pos, 3.686);
+    t.incPos(pos);
+    t.set(pos, 1.291);
+    t.incPos(pos);
+    t.set(pos, 9.339);
+    t.incPos(pos);
+    t.set(pos, 7.698);
+    t.incPos(pos);
+    t.set(pos, 5.366);
+    t.incPos(pos);
+    t.set(pos, 3.301);
+    t.incPos(pos);
+    t.set(pos, 7.609);
+    t.incPos(pos);
+    t.set(pos, 9.427);
+    t.incPos(pos);
+    t.set(pos, 5.140);
+    t.incPos(pos);
+    t.set(pos, 9.267);
+    t.incPos(pos);
+    t.set(pos, 8.959);
+    t.incPos(pos);
+    t.set(pos, 0.162);
+    t.incPos(pos);
+    t.set(pos, 6.910);
+    return t;
+}

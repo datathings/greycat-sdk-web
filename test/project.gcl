@@ -148,15 +148,15 @@ fn write_std_core(out: GcbWriter) {
     );
     out.write(Tensor {});
     var tensor = Tensor {};
-    tensor.init(TensorType::f64, Array<int> { 1, 1 });
-    tensor.add(Array<int> { 0, 0 }, 3.14);
+    tensor.init(TensorType::f64, Array<int> { 2 });
+    tensor.add(Array<int> { 0 }, 3.14);
     out.write(tensor);
     out.write(GeoCircle { center: geo { 49.59634473860023, 6.128470332224678 }, radius: 13.37 });
     out.write(Date { year: 2012, month: 12, day: 12, hour: 12, minute: 12, second: 12, microsecond: 120012 });
     out.write(nodeTime<nodeGeo> {});
     out.write(Array<nodeTime> {});
     // out.write(([], Map<any, any?> {}));
-    out.write(Tuple { x: 42, y: "hello" });
+    out.write(Tuple<int, String> { x: 42, y: "hello" });
     out.write(nodeIndex<Tuple, any?> {});
     out.write(GeoPoly { points: Array<geo> { geo { 1, 2 }, geo { 1.5, 2.01 }, geo { 1, 2 } } });
     out.write(CalendarUnit::day);
@@ -1071,4 +1071,10 @@ fn write_serde_gdb() {
         path: "serde_data.gcb"
     };
     w.write(Stack<String> { values: Array<String> { "one", "two", "three" } });
+}
+
+@expose
+@permission("admin")
+fn protected() {
+    return "You are admin";
 }

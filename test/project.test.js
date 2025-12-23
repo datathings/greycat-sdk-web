@@ -109,14 +109,14 @@ describe('project', () => {
       dim: 0,
       shape: [],
       type: 'i32',
-      data: null,
+      data: [],
     },
     {
       _type: 'core::Tensor',
-      dim: 1,
-      shape: [1, 1],
+      dim: 2,
+      shape: [2],
       type: 'f64',
-      data: [[3.14]],
+      data: [3.14,0],
     },
     {
       _type: 'core::GeoCircle',
@@ -138,8 +138,7 @@ describe('project', () => {
     },
     61440,
     [],
-    // { _type: 'core::Tuple', x: [], y: {} },
-    { _type: 'core::Tuple', x: 42, y: 'hello' },
+    { _type: 'core::Tuple<core::int,core::String>', x: 42, y: 'hello' },
     65536,
     {
       _type: 'core::GeoPoly',
