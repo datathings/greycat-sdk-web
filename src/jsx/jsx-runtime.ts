@@ -156,7 +156,7 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
           element.addEventListener(key.substring(2), value as EventListener);
         }
       } else if (key.startsWith('attr:')) {
-        element.setAttribute(key.substring(5), value);
+        element.setAttribute(key.substring(5), value.toString());
       } else if (!eventsOnly) {
         if (key in element) {
           // safety: we just validated that 'key' was a property in 'element'

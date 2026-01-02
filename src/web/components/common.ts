@@ -151,6 +151,23 @@ export type HTMLElementConstructor<K extends keyof HTMLElementTagNameMap> = new 
  *
  * *This method strictly types the `constructor` relative to the `tagName` to prevent
  * developper from forgetting to declare there element in `HTMLElementTagNameMap`.*
+ * 
+ * Make sure to define your web component when using TypeScript with something like:
+ * ```ts
+ * declare global {
+ *   interface HTMLElementTagNameMap {
+ *     'my-comp': MyComp;
+ *   }
+ * 
+ *   namespace GreyCat {
+ *     namespace JSX {
+ *       interface IntrinsicElements {
+ *         'my-comp': GreyCat.Element<MyComp>;
+ *       }
+ *     }
+ *   }
+ * }
+ * ```
  *
  * @param tagName
  * @param constructor

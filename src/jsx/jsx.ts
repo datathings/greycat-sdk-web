@@ -2,6 +2,10 @@ export {};
 
 declare global {
   namespace GreyCat {
+    type AttrPrefixed = {
+      [key: `attr:${string}`]: { toString(): string } | null | undefined;
+    };
+
     type ExtendedHTMLProperties = {
       className?: string | string[] | { [className: string]: boolean };
       style?: Partial<CSSStyleDeclaration & { [key: `--${string}`]: string }> | string;
@@ -25,8 +29,7 @@ declare global {
       // eslint-disable-next-line @typescript-eslint/ban-types
       [K in keyof T as T[K] extends Function ? K : never]: T[K];
     };
-    type IfEquals<X, Y, A = X, B = never> =
-      (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+    type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
     type OmitFunctions<T> = Omit<T, FunctionKeys<T>>;
     type HTMLElementFunctionsKeys = Pick<HTMLElement, FunctionKeys<HTMLElement>>;
     type UnwantedKeys =
@@ -43,6 +46,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/ban-types
     type Element<T, EventMap = HTMLElementEventMap> = WrapElement<T> &
       ExtendedHTMLProperties &
+      AttrPrefixed &
       ElementEventMap<T, EventMap> & {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onclick?: (this: T, ev: MouseEvent) => any;
