@@ -46,7 +46,7 @@ declare global {
     // eslint-disable-next-line @typescript-eslint/ban-types
     type Element<T, EventMap = HTMLElementEventMap> = WrapElement<T> &
       ExtendedHTMLProperties &
-      AttrPrefixed &
+      (T extends DocumentFragment ? {} : AttrPrefixed) &
       ElementEventMap<T, EventMap> & {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         onclick?: (this: T, ev: MouseEvent) => any;
