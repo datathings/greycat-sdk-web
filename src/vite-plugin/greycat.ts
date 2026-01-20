@@ -17,6 +17,10 @@ export interface GreyCatPluginOptions {
    */
   debug?: boolean;
   /**
+   * Disables the default configuration that this plugins sets by default
+   */
+  noDefaultConfig?: boolean;
+  /**
    * Assets compression options.
    *
    * If `true` is given, the default gzip options are used.
@@ -69,6 +73,10 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
     name: 'greycat',
 
     config(config) {
+      if (options.noDefaultConfig) {
+        return config;
+      }
+
       const project_dir = process.cwd();
       const app_root = config.root || 'app';
       const app_root_absolute = resolve(project_dir, app_root);
