@@ -56,8 +56,6 @@ declare class TrustedHTML {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-
 /**
  * Contains types that are part of the unstable debug API.
  *
@@ -87,7 +85,7 @@ declare namespace LitUnstable {
             kind: 'begin render';
             id: number;
             value: unknown;
-            container: HTMLElement | DocumentFragment;
+            container: RenderRootNode;
             options: RenderOptions | undefined;
             part: ChildPart | undefined;
         }
@@ -95,7 +93,7 @@ declare namespace LitUnstable {
             kind: 'end render';
             id: number;
             value: unknown;
-            container: HTMLElement | DocumentFragment;
+            container: RenderRootNode;
             options: RenderOptions | undefined;
             part: ChildPart;
         }
@@ -426,6 +424,10 @@ interface RenderOptions {
      */
     isConnected?: boolean;
 }
+/**
+ * The root DOM node for rendering.
+ */
+type RenderRootNode = HTMLElement | SVGElement | DocumentFragment;
 interface DirectiveParent {
     _$parent?: DirectiveParent;
     _$isConnected: boolean;
@@ -444,8 +446,6 @@ interface Disconnectable {
     _$isConnected: boolean;
 }
 declare function resolveDirective(part: ChildPart | AttributePart | ElementPart, value: unknown, parent?: DirectiveParent, attributeIndex?: number): unknown;
-
-
 
 /**
  * An updateable instance of a Template. Holds references to the Parts used to
@@ -486,8 +486,6 @@ type CommentTemplatePart = {
  */
 type TemplatePart = ChildTemplatePart | AttributeTemplatePart | ElementTemplatePart | CommentTemplatePart;
 type Part = ChildPart | AttributePart | PropertyPart | BooleanAttributePart | ElementPart | EventPart;
-
-
 
 declare class ChildPart implements Disconnectable {
     readonly type = 2;
@@ -555,8 +553,6 @@ interface RootPart extends ChildPart {
     setConnected(isConnected: boolean): void;
 }
 
-
-
 declare class AttributePart implements Disconnectable {
     readonly type: typeof ATTRIBUTE_PART | typeof PROPERTY_PART | typeof BOOLEAN_ATTRIBUTE_PART | typeof EVENT_PART;
     readonly element: HTMLElement;
@@ -574,38 +570,19 @@ declare class AttributePart implements Disconnectable {
     constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
 }
 
-
-
 declare class PropertyPart extends AttributePart {
     readonly type = 3;
 }
 
-
-
 declare class BooleanAttributePart extends AttributePart {
     readonly type = 4;
 }
-/**
- * An AttributePart that manages an event listener via add/removeEventListener.
- *
- * This part works by adding itself as the event listener on an element, then
- * delegating to the value passed to it. This reduces the number of calls to
- * add/removeEventListener if the listener changes frequently, such as when an
- * inline function is used as a listener.
- *
- * Because event options are passed when adding listeners, we must take case
- * to add and remove the part as a listener when the event options change.
- */
-
-
 
 declare class EventPart extends AttributePart {
     readonly type = 5;
     constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
     handleEvent(event: Event): void;
 }
-
-
 
 declare class ElementPart implements Disconnectable {
     element: Element;
@@ -676,12 +653,12 @@ declare const _$LH: {
  * {@link https://lit.dev/docs/libraries/standalone-templates/#rendering-lit-html-templates| Rendering Lit HTML Templates}
  */
 declare const render: {
-    (value: unknown, container: HTMLElement | DocumentFragment, options?: RenderOptions): RootPart;
+    (value: unknown, container: RenderRootNode, options?: RenderOptions): RootPart;
     setSanitizer: (newSanitizer: SanitizerFactory) => void;
     createSanitizer: SanitizerFactory;
     _testOnlyClearSanitizerFactoryDoNotCallOrElse: () => void;
 };
 
-export { LitUnstable, _$LH, html, mathml, noChange, nothing, render, svg };
-export type { AttributePart, BooleanAttributePart, ChildPart, CompiledTemplate, CompiledTemplateResult, DirectiveParent, Disconnectable, ElementPart, EventPart, HTMLTemplateResult, MathMLTemplateResult, MaybeCompiledTemplateResult, Part, PropertyPart, RenderOptions, RootPart, SVGTemplateResult, SanitizerFactory, TemplateInstance, TemplateResult, UncompiledTemplateResult, ValueSanitizer };
+export { AttributePart, BooleanAttributePart, ChildPart, ElementPart, EventPart, LitUnstable, PropertyPart, TemplateInstance, _$LH, html, mathml, noChange, nothing, render, svg };
+export type { CompiledTemplate, CompiledTemplateResult, DirectiveParent, Disconnectable, HTMLTemplateResult, MathMLTemplateResult, MaybeCompiledTemplateResult, Part, RenderOptions, RenderRootNode, RootPart, SVGTemplateResult, SanitizerFactory, TemplateResult, UncompiledTemplateResult, ValueSanitizer };
 }

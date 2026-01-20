@@ -57,7 +57,7 @@ declare const css: (strings: TemplateStringsArray, ...values: (CSSResultGroup | 
 /**
  * Applies the given styles to a `shadowRoot`. When Shadow DOM is
  * available but `adoptedStyleSheets` is not, styles are appended to the
- * `shadowRoot` to [mimic spec behavior](https://wicg.github.io/construct-stylesheets/#using-constructed-stylesheets).
+ * `shadowRoot` to [mimic the native feature](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/adoptedStyleSheets).
  * Note, when shimming is used, any styles that are subsequently placed into
  * the shadowRoot should be placed *before* any shimmed adopted styles. This
  * will match spec behavior that gives adopted sheets precedence over styles in
@@ -153,11 +153,6 @@ interface ReactiveController {
  * {@link ReactiveElement}.
  * @packageDocumentation
  */
-
-
-
-
-
 
 /**
  * Contains types that are part of the unstable debug API.
@@ -263,6 +258,24 @@ interface PropertyDeclaration<Type = unknown, TypeHint = unknown> {
      * the property changes.
      */
     readonly noAccessor?: boolean;
+    /**
+     * When `true`, uses the initial value of the property as the default value,
+     * which changes how attributes are handled:
+     *  - The initial value does *not* reflect, even if the `reflect` option is `true`.
+     *    Subsequent changes to the property will reflect, even if they are equal to the
+     *     default value.
+     *  - When the attribute is removed, the property is set to the default value
+     *  - The initial value will not trigger an old value in the `changedProperties` map
+     *    argument to update lifecycle methods.
+     *
+     * When set, properties must be initialized, either with a field initializer, or an
+     * assignment in the constructor. Not initializing the property may lead to
+     * improper handling of subsequent property assignments.
+     *
+     * While this behavior is opt-in, most properties that reflect to attributes should
+     * use `useDefault: true` so that their initial values do not reflect.
+     */
+    useDefault?: boolean;
 }
 /**
  * Map of properties to PropertyDeclaration options. For each property an
@@ -637,6 +650,11 @@ declare abstract class ReactiveElement extends HTMLElement implements ReactiveCo
      */
     hasUpdated: boolean;
     /**
+     * Records property default values when the
+     * `useDefault` option is used.
+     */
+    private __defaultValues?;
+    /**
      * Properties that should be reflected when updated.
      */
     private __reflectingProperties?;
@@ -673,13 +691,7 @@ declare abstract class ReactiveElement extends HTMLElement implements ReactiveCo
      * Fixes any properties set on the instance before upgrade time.
      * Otherwise these would shadow the accessor and break these properties.
      * The properties are stored in a Map which is played back after the
-     * constructor runs. Note, on very old versions of Safari (<=9) or Chrome
-     * (<=41), properties created for native platform properties like (`id` or
-     * `name`) may not have default values set in the element constructor. On
-     * these browsers native properties appear on instances and therefore their
-     * default value will overwrite any element default (e.g. if the element sets
-     * this.id = 'id' in the constructor, the 'id' will become '' since this is
-     * the native platform default).
+     * constructor runs.
      */
     private __saveInstanceProperties;
     /**
@@ -720,7 +732,7 @@ declare abstract class ReactiveElement extends HTMLElement implements ReactiveCo
      * overridden, `super.attributeChangedCallback(name, _old, value)` must be
      * called.
      *
-     * See [using the lifecycle callbacks](https://developer.mozilla.org/en-US/docs/Web/Web_Components/Using_custom_elements#using_the_lifecycle_callbacks)
+     * See [responding to attribute changes](https://developer.mozilla.org/en-US/docs/Web/API/Web_components/Using_custom_elements#responding_to_attribute_changes)
      * on MDN for more information about the `attributeChangedCallback`.
      * @category attributes
      */
@@ -944,8 +956,6 @@ declare class TrustedHTML {
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
-
-
 /**
  * Contains types that are part of the unstable debug API.
  *
@@ -975,7 +985,7 @@ declare namespace LitUnstable {
             kind: 'begin render';
             id: number;
             value: unknown;
-            container: HTMLElement | DocumentFragment;
+            container: RenderRootNode;
             options: RenderOptions | undefined;
             part: ChildPart | undefined;
         }
@@ -983,7 +993,7 @@ declare namespace LitUnstable {
             kind: 'end render';
             id: number;
             value: unknown;
-            container: HTMLElement | DocumentFragment;
+            container: RenderRootNode;
             options: RenderOptions | undefined;
             part: ChildPart;
         }
@@ -1314,6 +1324,10 @@ interface RenderOptions {
      */
     isConnected?: boolean;
 }
+/**
+ * The root DOM node for rendering.
+ */
+type RenderRootNode = HTMLElement | SVGElement | DocumentFragment;
 interface DirectiveParent {
     _$parent?: DirectiveParent;
     _$isConnected: boolean;
@@ -1332,8 +1346,6 @@ interface Disconnectable {
     _$isConnected: boolean;
 }
 declare function resolveDirective(part: ChildPart | AttributePart | ElementPart, value: unknown, parent?: DirectiveParent, attributeIndex?: number): unknown;
-
-
 
 /**
  * An updateable instance of a Template. Holds references to the Parts used to
@@ -1374,8 +1386,6 @@ type CommentTemplatePart = {
  */
 type TemplatePart = ChildTemplatePart | AttributeTemplatePart | ElementTemplatePart | CommentTemplatePart;
 type Part = ChildPart | AttributePart | PropertyPart | BooleanAttributePart | ElementPart | EventPart;
-
-
 
 declare class ChildPart implements Disconnectable {
     readonly type = 2;
@@ -1443,8 +1453,6 @@ interface RootPart extends ChildPart {
     setConnected(isConnected: boolean): void;
 }
 
-
-
 declare class AttributePart implements Disconnectable {
     readonly type: typeof ATTRIBUTE_PART | typeof PROPERTY_PART | typeof BOOLEAN_ATTRIBUTE_PART | typeof EVENT_PART;
     readonly element: HTMLElement;
@@ -1462,38 +1470,19 @@ declare class AttributePart implements Disconnectable {
     constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
 }
 
-
-
 declare class PropertyPart extends AttributePart {
     readonly type = 3;
 }
 
-
-
 declare class BooleanAttributePart extends AttributePart {
     readonly type = 4;
 }
-/**
- * An AttributePart that manages an event listener via add/removeEventListener.
- *
- * This part works by adding itself as the event listener on an element, then
- * delegating to the value passed to it. This reduces the number of calls to
- * add/removeEventListener if the listener changes frequently, such as when an
- * inline function is used as a listener.
- *
- * Because event options are passed when adding listeners, we must take case
- * to add and remove the part as a listener when the event options change.
- */
-
-
 
 declare class EventPart extends AttributePart {
     readonly type = 5;
     constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
     handleEvent(event: Event): void;
 }
-
-
 
 declare class ElementPart implements Disconnectable {
     element: Element;
@@ -1564,7 +1553,7 @@ declare const _$LH: {
  * {@link https://lit.dev/docs/libraries/standalone-templates/#rendering-lit-html-templates| Rendering Lit HTML Templates}
  */
 declare const render: {
-    (value: unknown, container: HTMLElement | DocumentFragment, options?: RenderOptions): RootPart;
+    (value: unknown, container: RenderRootNode, options?: RenderOptions): RootPart;
     setSanitizer: (newSanitizer: SanitizerFactory) => void;
     createSanitizer: SanitizerFactory;
     _testOnlyClearSanitizerFactoryDoNotCallOrElse: () => void;
@@ -1754,6 +1743,6 @@ declare const _$LE: {
  */
 declare const isServer = false;
 
-export { CSSResult, LitElement, LitUnstable, ReactiveElement, ReactiveUnstable, Unstable, _$LE, _$LH, adoptStyles, css, defaultConverter, getCompatibleStyle, html, isServer, mathml, noChange, notEqual, nothing, render, supportsAdoptingStyleSheets, svg, unsafeCSS };
-export type { AttributePart, BooleanAttributePart, CSSResultArray, CSSResultGroup, CSSResultOrNative, ChildPart, CompiledTemplate, CompiledTemplateResult, ComplexAttributeConverter, DirectiveParent, Disconnectable, ElementPart, EventPart, HTMLTemplateResult, HasChanged, Initializer, MathMLTemplateResult, MaybeCompiledTemplateResult, Part, PropertyDeclaration, PropertyDeclarations, PropertyPart, PropertyValueMap, PropertyValues, ReactiveController, ReactiveControllerHost, RenderOptions, RootPart, SVGTemplateResult, SanitizerFactory, TemplateInstance, TemplateResult, UncompiledTemplateResult, ValueSanitizer, WarningKind };
+export { AttributePart, BooleanAttributePart, CSSResult, ChildPart, ElementPart, EventPart, LitElement, LitUnstable, PropertyPart, ReactiveElement, ReactiveUnstable, TemplateInstance, Unstable, _$LE, _$LH, adoptStyles, css, defaultConverter, getCompatibleStyle, html, isServer, mathml, noChange, notEqual, nothing, render, supportsAdoptingStyleSheets, svg, unsafeCSS };
+export type { CSSResultArray, CSSResultGroup, CSSResultOrNative, CompiledTemplate, CompiledTemplateResult, ComplexAttributeConverter, DirectiveParent, Disconnectable, HTMLTemplateResult, HasChanged, Initializer, MathMLTemplateResult, MaybeCompiledTemplateResult, Part, PropertyDeclaration, PropertyDeclarations, PropertyValueMap, PropertyValues, ReactiveController, ReactiveControllerHost, RenderOptions, RenderRootNode, RootPart, SVGTemplateResult, SanitizerFactory, TemplateResult, UncompiledTemplateResult, ValueSanitizer, WarningKind };
 }

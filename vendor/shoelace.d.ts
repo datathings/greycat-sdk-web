@@ -1,7 +1,6 @@
 declare module '@shoelace-style/shoelace' {
 import * as lit_html from 'lit-html';
-import { LitElement } from 'lit';
-import type { CSSResultGroup, HTMLTemplateResult, PropertyValueMap, ReactiveController, ReactiveControllerHost, TemplateResult } from 'lit';
+import { LitElement, CSSResultGroup, HTMLTemplateResult, PropertyValueMap, ReactiveController, ReactiveControllerHost, TemplateResult } from 'lit';
 
 type EventTypeRequiresDetail<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>> ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>> ? never : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail'] ? never : T : never : never;
 type EventTypeDoesNotRequireDetail<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>> ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>> ? T : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail'] ? T : never : T : T;
@@ -53,10 +52,6 @@ interface ShoelaceFormControl extends ShoelaceElement {
     setCustomValidity: (message: string) => void;
 }
 
-
-
-
-
 /**
  * @summary Icons are symbols that can be used to represent various options within an application.
  * @documentation https://shoelace.style/components/icon
@@ -97,8 +92,6 @@ declare class SlIcon extends ShoelaceElement {
     setIcon(): Promise<void>;
     render(): SVGElement | HTMLTemplateResult | null;
 }
-
-
 
 /**
  * @summary Icons buttons are simple, icon-only buttons that can be used for actions and in toolbars.
@@ -153,8 +146,6 @@ declare class SlIconButton extends ShoelaceElement {
     blur(): void;
     render(): lit_html.TemplateResult;
 }
-
-
 
 /**
  * @summary Alerts are used to display important messages inline or as toast notifications.
@@ -243,8 +234,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary A component for displaying animated GIFs and WEBPs that play and pause on interaction.
  * @documentation https://shoelace.style/components/animated-image
@@ -291,8 +280,6 @@ declare global {
         'sl-animated-image': SlAnimatedImage;
     }
 };
-
-
 
 /**
  * @summary Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes. Powered by the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API).
@@ -375,8 +362,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Avatars are used to represent a person or object.
  * @documentation https://shoelace.style/components/avatar
@@ -424,8 +409,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Badges are used to draw attention and display statuses or counts.
  * @documentation https://shoelace.style/components/badge
@@ -452,8 +435,6 @@ declare global {
         'sl-badge': SlBadge;
     }
 };
-
-
 
 /**
  * @summary Breadcrumbs provide a group of links so users can easily navigate a website's hierarchy.
@@ -492,8 +473,6 @@ declare global {
         'sl-breadcrumb': SlBreadcrumb;
     }
 };
-
-
 
 /**
  * @summary Breadcrumb Items are used inside [breadcrumbs](/components/breadcrumb) to represent different links.
@@ -539,8 +518,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Spinners are used to show the progress of an indeterminate operation.
  * @documentation https://shoelace.style/components/spinner
@@ -559,9 +536,6 @@ declare class SlSpinner extends ShoelaceElement {
     private readonly localize;
     render(): lit_html.TemplateResult<1>;
 }
-
-
-
 
 /**
  * @summary Buttons represent actions that are available to the user.
@@ -697,8 +671,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Button groups can be used to group related buttons into sections.
  * @documentation https://shoelace.style/components/button-group
@@ -731,8 +703,6 @@ declare global {
         'sl-button-group': SlButtonGroup;
     }
 };
-
-
 
 /**
  * @summary Cards can be used to group related subjects in a container.
@@ -767,10 +737,6 @@ declare global {
         'sl-card': SlCard;
     }
 };
-
-
-
-
 
 /**
  * @summary Carousels display an arbitrary number of content slides along a horizontal or vertical axis.
@@ -892,8 +858,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary A carousel item represent a slide within a [carousel](/components/carousel).
  *
@@ -916,9 +880,6 @@ declare global {
         'sl-carousel-item': SlCarouselItem;
     }
 };
-
-
-
 
 /**
  * @summary Checkboxes allow the user to toggle an option on or off.
@@ -1020,8 +981,6 @@ declare global {
         'sl-checkbox': SlCheckbox;
     }
 };
-
-
 
 interface VirtualElement {
     getBoundingClientRect: () => DOMRect;
@@ -1172,8 +1131,6 @@ declare class SlPopup extends ShoelaceElement {
     render(): lit_html.TemplateResult<1>;
 }
 
-
-
 /**
  * @summary Menu items provide options for the user to pick from in a menu.
  * @documentation https://shoelace.style/components/menu-item
@@ -1237,8 +1194,6 @@ declare class SlMenuItem extends ShoelaceElement {
     render(): lit_html.TemplateResult<1>;
 }
 
-
-
 /**
  * @summary Menus provide a list of options for the user to choose from.
  * @documentation https://shoelace.style/components/menu
@@ -1278,9 +1233,6 @@ declare global {
         'sl-menu': SlMenu;
     }
 };
-
-
-
 
 /**
  * @summary Dropdowns expose additional content that "drops down" in a panel.
@@ -1379,9 +1331,6 @@ declare class SlDropdown extends ShoelaceElement {
     handleOpenChange(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
 }
-
-
-
 
 /**
  * @summary Inputs collect data from the user.
@@ -1559,8 +1508,6 @@ declare class SlInput extends ShoelaceElement implements ShoelaceFormControl {
     render(): lit_html.TemplateResult<1>;
 }
 
-
-
 /**
  * @summary The visually hidden utility makes content accessible to assistive devices without displaying it on the screen.
  * @documentation https://shoelace.style/components/visually-hidden
@@ -1573,9 +1520,6 @@ declare class SlVisuallyHidden extends ShoelaceElement {
     static styles: CSSResultGroup;
     render(): lit_html.TemplateResult<1>;
 }
-
-
-
 
 /**
  * @summary Color pickers allow the user to select a color.
@@ -1765,8 +1709,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Tooltips display additional information based on a specific action.
  * @documentation https://shoelace.style/components/tooltip
@@ -1853,8 +1795,6 @@ declare class SlTooltip extends ShoelaceElement {
     render(): lit_html.TemplateResult<1>;
 }
 
-
-
 /**
  * @summary Copies text data to the clipboard when the user clicks the trigger.
  * @documentation https://shoelace.style/components/copy
@@ -1936,8 +1876,6 @@ declare global {
         'sl-copy-button': SlCopyButton;
     }
 };
-
-
 
 /**
  * @summary Details show a brief summary and expand to show additional content.
@@ -2028,8 +1966,6 @@ declare class Modal {
     private handleKeyDown;
     private handleKeyUp;
 }
-
-
 
 /**
  * @summary Dialogs, sometimes called "modals", appear above the page and require the user's immediate attention.
@@ -2129,8 +2065,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Dividers are used to visually separate or group elements.
  * @documentation https://shoelace.style/components/divider
@@ -2154,8 +2088,6 @@ declare global {
         'sl-divider': SlDivider;
     }
 };
-
-
 
 /**
  * @summary Drawers slide in from a container to expose additional options and information.
@@ -2393,8 +2325,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Compare visual differences between similar photos with a sliding panel.
  * @documentation https://shoelace.style/components/image-comparer
@@ -2439,8 +2369,6 @@ declare global {
         'sl-image-comparer': SlImageComparer;
     }
 };
-
-
 
 /**
  * @summary Includes give you the power to embed external HTML files into the page.
@@ -2488,8 +2416,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Menu labels are used to describe a group of menu items.
  * @documentation https://shoelace.style/components/menu-label
@@ -2515,8 +2441,6 @@ declare global {
         'sl-menu-label': SlMenuLabel;
     }
 };
-
-
 
 /**
  * @summary The Mutation Observer component offers a thin, declarative interface to the [`MutationObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
@@ -2561,8 +2485,6 @@ declare global {
         'sl-mutation-observer': SlMutationObserver;
     }
 };
-
-
 
 /**
  * @summary Options define the selectable items within various form controls such as [select](/components/select).
@@ -2625,8 +2547,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Progress bars are used to show the status of an ongoing operation.
  * @documentation https://shoelace.style/components/progress-bar
@@ -2661,8 +2581,6 @@ declare global {
         'sl-progress-bar': SlProgressBar;
     }
 };
-
-
 
 /**
  * @summary Progress rings are used to show the progress of a determinate operation in a circular fashion.
@@ -2701,8 +2619,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Generates a [QR code](https://www.qrcode.com/) and renders it using the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
  * @documentation https://shoelace.style/components/qr-code
@@ -2738,8 +2654,6 @@ declare global {
         'sl-qr-code': SlQrCode;
     }
 };
-
-
 
 /**
  * @summary Radios allow the user to select a single option from a group.
@@ -2792,8 +2706,6 @@ declare global {
         'sl-radio': SlRadio;
     }
 };
-
-
 
 /**
  * @summary Radios buttons allow the user to select a single option from a group using a button-like control.
@@ -2854,11 +2766,6 @@ declare global {
         'sl-radio-button': SlRadioButton;
     }
 };
-
-
-
-
-
 
 interface FormControlControllerOptions {
     /** A function that returns the form containing the form control. */
@@ -2932,9 +2839,6 @@ declare class FormControlController implements ReactiveController {
      */
     emitInvalidEvent(originalInvalidEvent?: Event): void;
 }
-
-
-
 
 /**
  * @summary Radio groups are used to group multiple [radios](/components/radio) or [radio buttons](/components/radio-button) so they function as a single form control.
@@ -3029,9 +2933,6 @@ declare global {
         'sl-radio-group': SlRadioGroup;
     }
 };
-
-
-
 
 /**
  * @summary Ranges allow the user to select a single value within a given range using a slider.
@@ -3148,8 +3049,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Ratings give users a way to quickly view and provide feedback.
  * @documentation https://shoelace.style/components/rating
@@ -3264,8 +3163,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary The Resize Observer component offers a thin, declarative interface to the [`ResizeObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver).
  * @documentation https://shoelace.style/components/resize-observer
@@ -3302,8 +3199,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Tags are used as labels to organize things or to indicate a selection.
  * @documentation https://shoelace.style/components/tag
@@ -3338,12 +3233,6 @@ declare class SlTag extends ShoelaceElement {
     private handleRemoveClick;
     render(): lit_html.TemplateResult<1>;
 }
-
-
-
-
-
-
 
 /**
  * @summary Selects allow you to choose items from a menu of predefined options.
@@ -3536,8 +3425,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Skeletons are used to provide a visual representation of where content will eventually be drawn.
  * @documentation https://shoelace.style/components/skeleton
@@ -3569,8 +3456,6 @@ declare global {
         'sl-spinner': SlSpinner;
     }
 };
-
-
 
 interface SnapFunctionParams {
     /** The position the divider has been dragged to, in pixels. */
@@ -3677,9 +3562,6 @@ declare global {
     }
 };
 
-
-
-
 /**
  * @summary Switches allow the user to toggle an option on or off.
  * @documentation https://shoelace.style/components/switch
@@ -3775,8 +3657,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Tabs are used inside [tab groups](/components/tab-group) to represent and activate [tab panels](/components/tab-panel).
  * @documentation https://shoelace.style/components/tab
@@ -3832,8 +3712,6 @@ declare global {
         'sl-tab': SlTab;
     }
 };
-
-
 
 /**
  * @summary Tab groups organize content into a container that shows one section at a time.
@@ -3934,8 +3812,6 @@ declare global {
     }
 };
 
-
-
 /**
  * @summary Tab panels are used inside [tab groups](/components/tab-group) to display tabbed content.
  * @documentation https://shoelace.style/components/tab-panel
@@ -3972,9 +3848,6 @@ declare global {
         'sl-tag': SlTag;
     }
 };
-
-
-
 
 /**
  * @summary Textareas collect data from the user and allow multiple lines of text.
@@ -4120,10 +3993,6 @@ declare global {
     }
 };
 
-
-
-
-
 /**
  * @summary A tree item serves as a hierarchical node that lives inside a [tree](/components/tree).
  * @documentation https://shoelace.style/components/tree-item
@@ -4213,8 +4082,6 @@ declare class SlTreeItem extends ShoelaceElement {
     }): SlTreeItem[];
     render(): lit_html.TemplateResult<1>;
 }
-
-
 
 /**
  * @summary Trees allow you to display a hierarchical list of selectable [tree items](/components/tree-item). Items with children can be expanded and collapsed as desired by the user.
@@ -4419,8 +4286,6 @@ declare function setBasePath(path: string): void;
  * @param subpath - An optional path to append to the base path.
  */
 declare function getBasePath(subpath?: string): string;
-
-
 
 type IconLibraryResolver = (name: string) => string;
 type IconLibraryMutator = (svg: SVGElement) => void;
@@ -4656,8 +4521,6 @@ declare global {
     }
 };
 
-
-
 type SlSelectEvent = CustomEvent<{
     item: SlMenuItem;
 }>;
@@ -4666,8 +4529,6 @@ declare global {
         'sl-select': SlSelectEvent;
     }
 };
-
-
 
 type SlSelectionChangeEvent = CustomEvent<{
     selection: SlTreeItem[];
@@ -4684,8 +4545,6 @@ declare global {
         'sl-show': SlShowEvent;
     }
 };
-
-
 
 type SlSlideChangeEvent = CustomEvent<{
     index: number;
@@ -4722,42 +4581,6 @@ declare global {
     }
 };
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-export { SlAlert, SlAnimatedImage, SlAnimation, SlAvatar, SlBadge, SlBreadcrumb, SlBreadcrumbItem, SlButtonGroup, SlCard, SlCarousel, SlCheckbox, SlColorPicker, SlCopyButton, SlDetails, SlDialog, SlDivider, SlDrawer, SlDropdown, SlFormatBytes, SlFormatDate, SlFormatNumber, SlIconButton, SlImageComparer, SlInclude, SlInput, SlMenuLabel, SlMutationObserver, SlPopup, SlProgressBar, SlProgressRing, SlQrCode, SlRadio, SlRadioButton, SlRadioGroup, SlRange, SlRating, SlRelativeTime, SlResizeObserver, SlSelect, SlSkeleton, SlSpinner, SlSplitPanel, SlSwitch, SlTab, SlTabGroup, SlTabPanel, SlTag, SlTextarea, SlTooltip, SlTree, SlVisuallyHidden, getAnimationNames, getBasePath, getEasingNames, getFormControls, registerIconLibrary, serialize, setBasePath, unregisterIconLibrary };
-export type { SlAfterCollapseEvent, SlAfterExpandEvent, SlAfterHideEvent, SlAfterShowEvent, SlBlurEvent, SlButton, SlCancelEvent, SlCarouselItem, SlChangeEvent, SlClearEvent, SlCloseEvent, SlCollapseEvent, SlCopyEvent, SlErrorEvent, SlExpandEvent, SlFinishEvent, SlFocusEvent, SlHideEvent, SlHoverEvent, SlIcon, SlInitialFocusEvent, SlInputEvent, SlInvalidEvent, SlLazyChangeEvent, SlLazyLoadEvent, SlLoadEvent, SlMenu, SlMenuItem, SlMutationEvent, SlOption, SlRemoveEvent, SlRepositionEvent, SlRequestCloseEvent, SlResizeEvent, SlSelectEvent, SlSelectionChangeEvent, SlShowEvent, SlSlideChangeEvent, SlStartEvent, SlTabHideEvent, SlTabShowEvent, SlTreeItem };
+export { SlAlert, SlAnimatedImage, SlAnimation, SlAvatar, SlBadge, SlBreadcrumb, SlBreadcrumbItem, SlButton, SlButtonGroup, SlCard, SlCarousel, SlCarouselItem, SlCheckbox, SlColorPicker, SlCopyButton, SlDetails, SlDialog, SlDivider, SlDrawer, SlDropdown, SlFormatBytes, SlFormatDate, SlFormatNumber, SlIcon, SlIconButton, SlImageComparer, SlInclude, SlInput, SlMenu, SlMenuItem, SlMenuLabel, SlMutationObserver, SlOption, SlPopup, SlProgressBar, SlProgressRing, SlQrCode, SlRadio, SlRadioButton, SlRadioGroup, SlRange, SlRating, SlRelativeTime, SlResizeObserver, SlSelect, SlSkeleton, SlSpinner, SlSplitPanel, SlSwitch, SlTab, SlTabGroup, SlTabPanel, SlTag, SlTextarea, SlTooltip, SlTree, SlTreeItem, SlVisuallyHidden, getAnimationNames, getBasePath, getEasingNames, getFormControls, registerIconLibrary, serialize, setBasePath, unregisterIconLibrary };
+export type { SlAfterCollapseEvent, SlAfterExpandEvent, SlAfterHideEvent, SlAfterShowEvent, SlBlurEvent, SlCancelEvent, SlChangeEvent, SlClearEvent, SlCloseEvent, SlCollapseEvent, SlCopyEvent, SlErrorEvent, SlExpandEvent, SlFinishEvent, SlFocusEvent, SlHideEvent, SlHoverEvent, SlInitialFocusEvent, SlInputEvent, SlInvalidEvent, SlLazyChangeEvent, SlLazyLoadEvent, SlLoadEvent, SlMutationEvent, SlRemoveEvent, SlRepositionEvent, SlRequestCloseEvent, SlResizeEvent, SlSelectEvent, SlSelectionChangeEvent, SlShowEvent, SlSlideChangeEvent, SlStartEvent, SlTabHideEvent, SlTabShowEvent };
 }

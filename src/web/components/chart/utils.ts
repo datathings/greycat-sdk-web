@@ -115,7 +115,7 @@ export function inferConfig(table: gc.core.Table, g: gc.sdk.GreyCat = gc.$.defau
   const config: ChartConfig = {
     cursor: true,
     selection: {
-      orientation: 'both',
+      orientation: 'horizontal',
     },
     xAxis: {},
     yAxes: {},

@@ -4,6 +4,7 @@
     "outDir": "../../dist/types",
     "declaration": true,
     "emitDeclarationOnly": true,
+    "skipLibCheck": true,
 
     "target": "ES2024",
     "module": "ESNext",

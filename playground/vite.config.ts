@@ -6,7 +6,7 @@ import greycat from '@greycat/web/vite-plugin';
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),
   base: '',
-  plugins: [greycat()],
+  plugins: [greycat({ debug: true })],
   css: {
     transformer: 'lightningcss',
     lightningcss: {

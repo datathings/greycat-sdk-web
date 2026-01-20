@@ -1,5 +1,5 @@
-import { greycat } from './greycat.js';
+import { greycat, GreyCatPluginOptions } from './greycat.js';
 import { gzip } from './gzip.js';
 
-export { greycat, gzip };
+export { greycat, GreyCatPluginOptions, gzip };
 export default greycat;
