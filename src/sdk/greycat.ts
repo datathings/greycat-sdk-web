@@ -48,7 +48,7 @@ namespace gc {
           const signal = args[fn.params.length + 1] as AbortSignal | undefined;
           return g.call(fn.fqn, args_, signal);
         };
-        Object.defineProperty(call, "name", {
+        Object.defineProperty(call, 'name', {
           value: fn.fqn,
           writable: false,
           enumerable: false,
@@ -63,12 +63,12 @@ namespace gc {
           const signal = args[fn.params.length + 1] as AbortSignal | undefined;
           return g.spawn(fn.fqn, args_, signal);
         };
-        Object.defineProperty(spawn, "name", {
+        Object.defineProperty(spawn, 'name', {
           value: `task#${fn.fqn}`,
           writable: false,
           enumerable: false,
         });
-        Object.defineProperty(call, "spawn", { value: spawn });
+        Object.defineProperty(call, 'spawn', { value: spawn });
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const globalGc = gc as any;
         if (!globalGc[fn.module]) {
@@ -88,7 +88,7 @@ namespace gc {
       }
     }
 
-    export const DEFAULT_URL = new URL("http://127.0.0.1:8080");
+    export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
 
     const findGreyCat = async () => {
       if (globalThis.location === undefined) {
@@ -97,21 +97,21 @@ namespace gc {
       }
 
       // in a browser context, we can try to find the best candidate by walking up the pathname
-      const opts = { method: "POST" };
-      const attempts = location.pathname.split("/").length - 1;
-      let prefix = ".";
+      const opts = { method: 'POST' };
+      const attempts = location.pathname.split('/').length - 1;
+      let prefix = '.';
       for (let i = 0; i < attempts; i++) {
         const res = await fetch(`${prefix}/runtime::User::me`, opts);
         if (res.status === 401 || res.status === 200) {
           let url: URL;
-          if (location.pathname.endsWith("/")) {
+          if (location.pathname.endsWith('/')) {
             url = new URL(`${location.origin}${location.pathname}${prefix}`);
           } else {
             url = new URL(`${location.origin}${location.pathname}/${prefix}/..`);
           }
           return url;
         }
-        prefix += "/..";
+        prefix += '/..';
       }
       // unable to discover the endpoint, fallback to the default
       return DEFAULT_URL;
@@ -125,9 +125,9 @@ namespace gc {
       args?: unknown,
       value?: unknown,
     ): void => {
-      const bg = status >= 400 ? "#e8590c" : "#1983c1";
+      const bg = status >= 400 ? '#e8590c' : '#1983c1';
       console.log(
-        "%cGreyCat",
+        '%cGreyCat',
         `background:${bg};color:#fff;padding:2px;font-weight:bold`,
         `[${name}]`,
         {
@@ -153,27 +153,27 @@ namespace gc {
         token = await login({ ...auth, url, signal });
       }
 
-      const headers: RequestInit["headers"] = { Accept: "application/octet-stream" };
+      const headers: RequestInit['headers'] = { Accept: 'application/octet-stream' };
       if (token) {
-        headers["Authorization"] = token;
+        headers['Authorization'] = token;
       }
 
-      const method = "runtime::Runtime::abi";
+      const method = 'runtime::Runtime::abi';
       const key: CacheKey = [method];
       const cachedRes = await cache?.read(key);
       if (cachedRes) {
-        headers["If-None-Match"] = cachedRes.etag;
+        headers['If-None-Match'] = cachedRes.etag;
       }
 
       const cleanUrl = normalizeUrl(url);
       const res = await fetch(`${cleanUrl}/${method}`, {
-        method: "POST",
+        method: 'POST',
         headers,
         signal,
       });
       if (res.status === 401) {
         // unauthorized
-        logger("_", res.status, method);
+        logger('_', res.status, method);
         // call handler if any
         unauthorizedHandler?.();
         throw new Error(`you need to be logged-in to access '${method}'`);
@@ -197,7 +197,7 @@ namespace gc {
         throw new Error(`unable to fetch ABI (${res.status} ${res.statusText})`);
       }
       const data = await res.arrayBuffer();
-      const etag = res.headers.get("etag");
+      const etag = res.headers.get('etag');
       if (etag && cache) {
         await cache.write(key, { etag, data });
       }
@@ -219,7 +219,7 @@ namespace gc {
      */
     export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat> {
       const {
-        name = "default",
+        name = 'default',
         url = await findGreyCat(),
         timezone,
         numFmt,
@@ -280,7 +280,7 @@ namespace gc {
     }
 
     export function initWithAbi({
-      name = "default",
+      name = 'default',
       debug = false,
       timezone,
       numFmt,
@@ -396,13 +396,13 @@ namespace gc {
       /**
        * Emitted everytime a task is spawn on this instance
        */
-      on(ev: "task", callback: sdk.EmitterCallback<gc.runtime.Task>): sdk.EmitterDisposable;
+      on(ev: 'task', callback: sdk.EmitterCallback<gc.runtime.Task>): sdk.EmitterDisposable;
       /**
        * Emitted everytime this instance polls for tasks.
        * The array only contains the current history of tasks
        */
       on(
-        ev: "tasks-history",
+        ev: 'tasks-history',
         callback: sdk.EmitterCallback<gc.runtime.Task[]>,
       ): sdk.EmitterDisposable;
       /**
@@ -410,21 +410,21 @@ namespace gc {
        * The array only contains the current running tasks
        */
       on(
-        ev: "tasks-running",
+        ev: 'tasks-running',
         callback: sdk.EmitterCallback<gc.runtime.Task[]>,
       ): sdk.EmitterDisposable;
       /**
        * Emitted everytime this instance polls for tasks.
        * The array contains the history and the running tasks
        */
-      on(ev: "tasks", callback: sdk.EmitterCallback<gc.runtime.Task[]>): sdk.EmitterDisposable;
+      on(ev: 'tasks', callback: sdk.EmitterCallback<gc.runtime.Task[]>): sdk.EmitterDisposable;
     }
 
     interface GreyCatEvents {
       // prettier-ignore
       'task': gc.runtime.Task;
-      "tasks-history": gc.runtime.Task[];
-      "tasks-running": gc.runtime.Task[];
+      'tasks-history': gc.runtime.Task[];
+      'tasks-running': gc.runtime.Task[];
       // prettier-ignore
       'tasks': gc.runtime.Task[];
     }
@@ -583,7 +583,7 @@ namespace gc {
        */
       subscribeToTaskPoll(everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
         const id = this._poll.register(everyMs);
-        const dispose = this.on("tasks", callback);
+        const dispose = this.on('tasks', callback);
         return () => {
           this._poll.unregister(id);
           dispose();
@@ -599,18 +599,18 @@ namespace gc {
         const logger = this.unregisterLogger();
         const history = await gc.runtime.Task.history(0, this._max_tasks);
         this.registerLogger(logger);
-        this.emit("tasks-history", history);
+        this.emit('tasks-history', history);
 
         const logger2 = this.unregisterLogger();
         const running = await gc.runtime.Task.running();
         this.registerLogger(logger2);
-        this.emit("tasks-running", running);
+        this.emit('tasks-running', running);
 
         this.tasks.length = 0;
         this.tasks.push(...history);
         this.tasks.push(...running);
 
-        this.emit("tasks", this.tasks);
+        this.emit('tasks', this.tasks);
 
         return this.tasks;
       }
@@ -667,7 +667,7 @@ namespace gc {
         if (updated === undefined || isTaskRunning(updated)) {
           const poll_id = this._poll.register(opts.pollEvery ?? 500);
           const { promise, resolve } = Promise.withResolvers<void>();
-          const disposeTaskPollUpdate = this.on("tasks", async (tasks) => {
+          const disposeTaskPollUpdate = this.on('tasks', async (tasks) => {
             const updated = tasks.find((t) => t.task_id === task.task_id);
             if (updated) {
               if (!isTaskRunning(updated)) {
@@ -717,7 +717,7 @@ namespace gc {
           this.logger(this.name, res.status, url.pathname);
           this.token = undefined;
           this.unauthorizedHandler?.();
-          throw new Error("unauthorized");
+          throw new Error('unauthorized');
         }
         throw new Error(`unexpected error while getting file '${result_route}'`);
       }
@@ -736,13 +736,13 @@ namespace gc {
         args?: Value[] | ArrayBuffer,
         signal?: AbortSignal,
         task = false,
-        httpMethod: "POST" | "GET" = "POST",
+        httpMethod: 'POST' | 'GET' = 'POST',
       ): Promise<T> {
         const url = `${this.api}/${uri}`;
         let body: ArrayBuffer;
         if (args instanceof ArrayBuffer) {
           body = args;
-        } else if (httpMethod === "POST") {
+        } else if (httpMethod === 'POST') {
           const fn = this.abi.fn_by_fqn.get(uri);
           if (!fn) {
             throw new Error(`function '${uri}' is not registered in the abi`);
@@ -752,26 +752,26 @@ namespace gc {
           body = this.serialize(args);
         }
         const headers: HeadersInit = {
-          accept: "application/octet-stream",
-          "content-type": "application/octet-stream",
+          accept: 'application/octet-stream',
+          'content-type': 'application/octet-stream',
         };
         if (this.token) {
-          headers["Authorization"] = this.token;
+          headers['Authorization'] = this.token;
         }
         if (task) {
-          headers["task"] = "";
+          headers['task'] = '';
         }
         if (this._debug_id !== undefined) {
-          headers["task"] = "";
-          headers["x-gc-debug"] = `${this._debug_id}`;
+          headers['task'] = '';
+          headers['x-gc-debug'] = `${this._debug_id}`;
         }
         const key: CacheKey = [uri, body];
         const cachedRes = await this.cache.read(key);
         if (cachedRes) {
-          headers["If-None-Match"] = cachedRes.etag;
+          headers['If-None-Match'] = cachedRes.etag;
         }
         const init: RequestInit = { method: httpMethod, headers, signal };
-        if (httpMethod === "POST") {
+        if (httpMethod === 'POST') {
           init.body = body;
         }
         const res = await fetch(url, init);
@@ -781,13 +781,13 @@ namespace gc {
             return null as T;
           }
           const value = this.deserializeWithHeader(data);
-          const etag = res.headers.get("etag");
+          const etag = res.headers.get('etag');
           if (etag) {
             await this.cache.write(key, { etag, data });
           }
           this.logger(this.name, res.status, uri, args, value);
           if (task) {
-            this.emit("task", value as gc.runtime.Task);
+            this.emit('task', value as gc.runtime.Task);
           }
           if (this._debug_id !== undefined) {
             if (value instanceof gc.runtime.Task) {
@@ -826,7 +826,7 @@ namespace gc {
           this.logger(this.name, res.status, uri, args);
           // call handler if any
           this.abiMismatchHandler?.();
-          throw new Error("ABI mismatch error");
+          throw new Error('ABI mismatch error');
         }
         const data = await res.arrayBuffer();
         const value = this.deserializeWithHeader(data);
@@ -928,9 +928,9 @@ namespace gc {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       async getFile(filepath: string, offset?: number, max?: number, signal?: AbortSignal) {
         const res = await this.getFileResponse(filepath, offset, max, signal);
-        if (filepath.endsWith(".json")) {
+        if (filepath.endsWith('.json')) {
           return res.json();
-        } else if (filepath.endsWith(".gcb")) {
+        } else if (filepath.endsWith('.gcb')) {
           const data = await res.arrayBuffer();
           if (data.byteLength === 0) {
             return undefined;
@@ -962,10 +962,10 @@ namespace gc {
         const route = `files/${filepath}`;
         const url = new URL(`${this.api}/${route}`);
         if (offset !== undefined) {
-          url.searchParams.set("offset", `${offset}`);
+          url.searchParams.set('offset', `${offset}`);
         }
         if (max !== undefined) {
-          url.searchParams.set("max", `${max}`);
+          url.searchParams.set('max', `${max}`);
         }
         const res = await fetch(url, { signal });
         if (res.ok) {
@@ -984,7 +984,7 @@ namespace gc {
           this.logger(this.name, res.status, url.pathname + url.search);
           this.token = undefined;
           this.unauthorizedHandler?.();
-          throw new Error("unauthorized");
+          throw new Error('unauthorized');
         }
         throw new Error(`unexpected error while getting file '${filepath}'`);
       }
@@ -998,20 +998,20 @@ namespace gc {
        */
       async putFile(filepath: string, file: globalThis.File, signal?: AbortSignal): Promise<void> {
         const route = `files/${filepath}`;
-        const res = await fetch(`${this.api}/${route}`, { method: "PUT", body: file, signal });
+        const res = await fetch(`${this.api}/${route}`, { method: 'PUT', body: file, signal });
         if (res.ok) {
           return;
         }
         if (res.status === 403) {
           // forbidden
           this.logger(this.name, res.status, route);
-          throw new Error("forbidden");
+          throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
           this.logger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
-          throw new Error("unauthorized");
+          throw new Error('unauthorized');
         }
         throw new Error(`unexpected error while uploading file '${filepath}'`);
       }
@@ -1024,20 +1024,20 @@ namespace gc {
        */
       async deleteFile(filepath: string, signal?: AbortSignal): Promise<void> {
         const route = `files/${filepath}`;
-        const res = await fetch(`${this.api}/${route}`, { method: "DELETE", signal });
+        const res = await fetch(`${this.api}/${route}`, { method: 'DELETE', signal });
         if (res.ok) {
           return;
         }
         if (res.status === 403) {
           // forbidden
           this.logger(this.name, res.status, route);
-          throw new Error("forbidden");
+          throw new Error('forbidden');
         } else if (res.status === 401) {
           // unauthorized
           this.logger(this.name, res.status, route);
           this.token = undefined;
           this.unauthorizedHandler?.();
-          throw new Error("unauthorized");
+          throw new Error('unauthorized');
         }
         throw new Error(`unexpected error while deleting file '${filepath}'`);
       }
@@ -1095,11 +1095,11 @@ namespace gc {
       }
 
       createTime(value: bigint | number): core.time {
-        return this.abi.createTime(typeof value === "bigint" ? value : BigInt(value));
+        return this.abi.createTime(typeof value === 'bigint' ? value : BigInt(value));
       }
 
       createDuration(value: bigint | number): core.duration {
-        return this.abi.createDuration(typeof value === "bigint" ? value : BigInt(value));
+        return this.abi.createDuration(typeof value === 'bigint' ? value : BigInt(value));
       }
 
       createT2(x0: bigint | number, x1: bigint | number): core.t2 {
@@ -1153,7 +1153,7 @@ namespace gc {
         if (field) {
           return field;
         }
-        const last_dcolon = fqn.lastIndexOf("::");
+        const last_dcolon = fqn.lastIndexOf('::');
         if (last_dcolon === -1) {
           throw new Error(`malformed fqn (expecting: "module::type::field_name")`);
         }
@@ -1176,7 +1176,7 @@ namespace gc {
         if (field) {
           return field;
         }
-        const last_dcolon = fqn.lastIndexOf("::");
+        const last_dcolon = fqn.lastIndexOf('::');
         if (last_dcolon === -1) {
           return;
         }
@@ -1267,7 +1267,7 @@ namespace gc {
       printTime(
         time: gc.core.time,
         tz = this.timezone,
-        format = "%Y-%m-%dT%H:%M:%S%.3f%z",
+        format = '%Y-%m-%dT%H:%M:%S%.3f%z',
       ): string {
         // NOTE:
         // Wasm uses its stack backwards, starting by default at 1 page (64KB)
@@ -1309,20 +1309,20 @@ namespace gc {
      */
     export async function login(options: LoginOptions): Promise<string> {
       const { url = await findGreyCat(), signal, use_cookie = false, ...auth } = options;
-      let method: "login" | "tokenLogin";
+      let method: 'login' | 'tokenLogin';
       let arg: string;
-      if ("token" in auth) {
-        method = "tokenLogin";
+      if ('token' in auth) {
+        method = 'tokenLogin';
         arg = auth.token;
       } else {
-        method = "login";
+        method = 'login';
         arg = btoa(`${auth.username}:${sha256hex(auth.password)}`);
       }
       const body = JSON.stringify([arg, use_cookie]);
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::${method}`, {
-        method: "POST",
+        method: 'POST',
         body,
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         signal,
       });
       if (res.ok) {
@@ -1333,10 +1333,10 @@ namespace gc {
 
     function isTaskRunning(task: gc.runtime.Task): boolean {
       switch (task.status.key) {
-        case "running":
-        case "waiting":
-        case "await":
-        case "breakpoint":
+        case 'running':
+        case 'waiting':
+        case 'await':
+        case 'breakpoint':
           return true;
         default:
           return false;
@@ -1351,8 +1351,8 @@ namespace gc {
     export async function logout(options: LogoutOptions = {}): Promise<void> {
       const { url = await findGreyCat(), signal } = options;
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::logout`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         signal,
       });
       if (res.ok) {
@@ -1383,7 +1383,7 @@ namespace gc {
       }
       return new Promise((resolve) => {
         const timeoutId = setTimeout(() => resolve(false), delay);
-        signal?.addEventListener("abort", () => {
+        signal?.addEventListener('abort', () => {
           clearTimeout(timeoutId);
           resolve(true);
         });
@@ -1392,7 +1392,7 @@ namespace gc {
 
     export function normalizeUrl(url: URL): string {
       let end = url.href.length - 1;
-      while (url.href[end] === "/") {
+      while (url.href[end] === '/') {
         end -= 1;
       }
       return url.href.slice(0, end + 1);

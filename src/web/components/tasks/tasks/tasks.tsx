@@ -16,6 +16,7 @@ export class GuiTasks extends GuiElement {
   /** The table used to display the task list */
   readonly table: GuiTable;
   private _updateDelay: number;
+  private _showDefrags = false;
   private _users: Record<number, string> = {};
   private _tasks: gc.runtime.Task[] = [];
 
@@ -170,6 +171,20 @@ export class GuiTasks extends GuiElement {
     this.table.filter = filter;
   }
 
+  /**
+   * Whether or not to show `runtime::Runtime::defrag` in the list.
+   *
+   * Default: `false`
+   */
+  get showDefrags(): boolean {
+    return this._showDefrags;
+  }
+
+  set showDefrags(enable: boolean) {
+    this._showDefrags = enable;
+    this.reload();
+  }
+
   async reload(): Promise<void> {
     if (!this.isConnected) {
       return;
@@ -177,6 +192,8 @@ export class GuiTasks extends GuiElement {
 
     // reset users
     this._users = {};
+
+    // try to retrieve user names
     try {
       const entities = await gc.runtime.SecurityEntity.all();
       for (let i = 0; i < entities.length; i++) {
@@ -184,13 +201,20 @@ export class GuiTasks extends GuiElement {
         this._users[Number(entity.id)] = entity.name;
       }
     } catch {
-      // failing to access SecurityEntity.all() is not a failure point
-      // we just cannot know the name of a user by id.
+      // failing to access `SecurityEntity.all()` is not fatal
+      // it probably just means we do not have the permission
     }
 
     try {
-      // clone the global tasks array
-      this._tasks = Array.from(gc.$.default.tasks);
+      // Keep our own shallow copy of tasks, filtered or not
+      if (this._showDefrags) {
+        this._tasks = Array.from(gc.$.default.tasks);
+      } else {
+        this._tasks = gc.$.default.tasks.filter(
+          (t) => `${t.mod}::${t.type}::${t.fun}` !== 'runtime::Runtime::defrag',
+        );
+      }
+
       // update table data
       this.table.value = this._tasks;
     } catch (err) {

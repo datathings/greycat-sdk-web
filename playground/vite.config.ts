@@ -6,7 +6,7 @@ import greycat from '@greycat/web/vite-plugin';
 export default defineConfig(({ mode }) => ({
   root: resolve(__dirname),
   base: '',
-  plugins: [greycat({ debug: true })],
+  plugins: [greycat()],
   css: {
     transformer: 'lightningcss',
     lightningcss: {
@@ -29,7 +29,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: resolve(__dirname, '../dist/playground'),
-    emptyOutDir: true,
     target: 'esnext',
     rollupOptions: {
       input: {
