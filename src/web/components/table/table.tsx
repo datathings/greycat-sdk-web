@@ -9,12 +9,10 @@ import {
   TableLike,
   GuiValue,
   GuiValueProps,
-  stringify,
   GuiTableMappings,
   modal,
   createElement,
   GuiFactory,
-  StringifyProps,
 } from '../../exports.js';
 import '../search-input/index.js';
 import style from './table.css?inline';
@@ -287,18 +285,12 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           >
             Download as CSV
           </sl-button>
-          <sl-tooltip
-            content="Shrink column widths to fit header text"
-            style={{ '--show-delay': '500' }}
-          >
+          <sl-tooltip content="Shrink column widths to fit header text" style={{ '--show-delay': '500' }}>
             <sl-button size="small" onclick={() => this.fitColumns()}>
               Fit columns
             </sl-button>
           </sl-tooltip>
-          <sl-tooltip
-            content="Reset column widths to their default"
-            style={{ '--show-delay': '500' }}
-          >
+          <sl-tooltip content="Reset column widths to their default" style={{ '--show-delay': '500' }}>
             <sl-button size="small" onclick={() => this.resetColumns()}>
               Reset columns
             </sl-button>
@@ -325,9 +317,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(
-            new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, mouseEvent: e }),
-          );
+          this.dispatchEvent(new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, mouseEvent: e }));
         }
       }
     };
@@ -338,9 +328,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(
-            new GuiTableDblClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }),
-          );
+          this.dispatchEvent(new GuiTableDblClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
         }
       }
     });
@@ -427,18 +415,12 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     let taken = 0;
     for (let i = 0; i < unspecified_col_idx.length - 1; i++) {
       const col = this._state.columns[unspecified_col_idx[i]];
-      col.width = Math.max(
-        col.minWidth ?? this._state.minColWidth,
-        Math.floor(available / unspecified_col_idx.length),
-      );
+      col.width = Math.max(col.minWidth ?? this._state.minColWidth, Math.floor(available / unspecified_col_idx.length));
       taken += col.width;
     }
     if (unspecified_col_idx.length > 0) {
       const lastCol = this._state.columns[unspecified_col_idx[unspecified_col_idx.length - 1]];
-      lastCol.width = Math.max(
-        total_width - incompressible - taken,
-        lastCol.minWidth ?? this._state.minColWidth,
-      );
+      lastCol.width = Math.max(total_width - incompressible - taken, lastCol.minWidth ?? this._state.minColWidth);
     }
   }
 
@@ -535,11 +517,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       const mappings = this.mappings;
       if (mappings.length > 0) {
         const offset = this._table.cols.length;
-        const new_table = await gc.core.Table.applyMappings(
-          table,
-          mappings,
-          gc.$[this._factory.greycatName],
-        );
+        const new_table = await gc.core.Table.applyMappings(table, mappings, gc.$[this._factory.greycatName]);
         // oxlint-disable-next-line no-new-array
         const headers: string[] = new Array(new_table.cols.length);
         for (let i = 0; i < offset; i++) {
@@ -658,11 +636,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           >
             Timestamp
           </sl-checkbox>
-          <sl-select
-            helpText="The unit of the timestamp for core.time"
-            size="small"
-            value={options.timestampUnit}
-          >
+          <sl-select helpText="The unit of the timestamp for core.time" size="small" value={options.timestampUnit}>
             <sl-option value="s">Seconds</sl-option>
             <sl-option value="ms">Milliseconds</sl-option>
             <sl-option value="us">Microseconds</sl-option>
@@ -1046,10 +1020,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._thead.update(this._state, this._sortCol);
     const containerStyle = this._tableContainer.style;
     for (const col of this._state.columns) {
-      containerStyle.setProperty(
-        `--column-${col.displayIdx}-width`,
-        `${col.resizedWidth ?? col.width}px`,
-      );
+      containerStyle.setProperty(`--column-${col.displayIdx}-width`, `${col.resizedWidth ?? col.width}px`);
     }
 
     resolve();
@@ -1122,10 +1093,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             }
           } else {
             const props = { ...col.factory.props, value };
-            const cell = createElement(
-              col.factory.tag as keyof HTMLElementTagNameMap,
-              props,
-            ) as AnyValueElement;
+            const cell = createElement(col.factory.tag as keyof HTMLElementTagNameMap, props) as AnyValueElement;
             this.shadowRoot.appendChild(cell);
             csv += s(cell.shadowRoot?.textContent ?? cell.textContent ?? '');
             this.shadowRoot.removeChild(cell);
@@ -1149,10 +1117,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._table.sort(this._state.columns[this._sortCol.displayIdx].column.index, ord);
   }
 
-  private _sanitizeCellFactory(
-    displayIndex: number,
-    cellFactory: CleanCellFactory | CellFactory,
-  ): CleanCellFactory {
+  private _sanitizeCellFactory(displayIndex: number, cellFactory: CleanCellFactory | CellFactory): CleanCellFactory {
     switch (typeof cellFactory) {
       case 'string': {
         return { tag: cellFactory.toUpperCase() };
@@ -1641,30 +1606,36 @@ export class GuiTableBody extends HTMLElement {
   private _rowMatchesFilters(
     table: gc.core.Table,
     state: TableState,
-    filterText: string,
-    filterColumns: Array<string | undefined | null>,
+    globalFilter: string,
+    columnFilters: Array<string | undefined | null>,
     rowIdx: number,
   ): boolean {
     // If no filters are applied, always match.
-    if (
-      filterText.length === 0 &&
-      filterColumns.every((filter) => !filter || filter.length === 0)
-    ) {
+    if (globalFilter.length === 0 && columnFilters.every((filter) => !filter || filter.length === 0)) {
       return true;
     }
 
     let globalMatchFound = false;
 
-    const props: StringifyProps = { value: undefined, ...gc.sdk.DEFAULT_TO_STRING_OPTIONS };
+    const stub = new GuiTableBodyCell();
+
     for (let index = 0; index < state.columns.length; index++) {
-      const colIdx = state.columns[index].column.index;
-      const colFilter = filterColumns[colIdx];
+      const colFilter = columnFilters[index];
       let cellText: string | undefined;
 
       // Only compute cell text if needed (for col filter or global filter)
-      if ((colFilter && colFilter.length > 0) || filterText.length > 0) {
-        props.value = table.cols[colIdx][rowIdx];
-        cellText = stringify(props).toLowerCase();
+      if ((colFilter && colFilter.length > 0) || globalFilter.length > 0) {
+        const def = state.columns[index];
+        const value = def.column.value
+          ? def.column.value({
+              value: table.cols[def.column.index][rowIdx],
+              table,
+              row: rowIdx,
+              col: def.column.index,
+              container: stub,
+            })
+          : table.cols[def.column.index][rowIdx];
+        cellText = value?.toString().toLowerCase();
       }
 
       // Column-specific filter must match.
@@ -1675,12 +1646,12 @@ export class GuiTableBody extends HTMLElement {
       }
 
       // For global filter, at least one cell must match.
-      if (!globalMatchFound && filterText.length > 0 && cellText?.includes(filterText)) {
+      if (!globalMatchFound && globalFilter.length > 0 && cellText?.includes(globalFilter)) {
         globalMatchFound = true;
       }
     }
 
-    if (filterText.length > 0 && !globalMatchFound) {
+    if (globalFilter.length > 0 && !globalMatchFound) {
       return false;
     }
 
@@ -1750,15 +1721,11 @@ export class GuiTableBodyRow extends HTMLElement {
     // cell.part.add('cell', `cell-${index}`);
     cell.addEventListener('gui-input', (ev) => {
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(
-        new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
-      );
+      this.dispatchEvent(new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }));
     });
     cell.addEventListener('gui-change', (ev) => {
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(
-        new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
-      );
+      this.dispatchEvent(new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }));
     });
     this.appendChild(cell);
     return cell;
@@ -1819,11 +1786,7 @@ export class GuiTableBodyCell extends HTMLElement {
    * updated. So we have to make this a promise, so that the underlying elements get a chance to actually
    * render and we get proper height reporting post-update.
    */
-  async update(
-    table: gc.core.Table,
-    rowIdx: number,
-    column: TableColumnDefResolved,
-  ): Promise<void> {
+  async update(table: gc.core.Table, rowIdx: number, column: TableColumnDefResolved): Promise<void> {
     this.rowIdx = rowIdx;
     const colIdx = column.column.index;
     if (this.colIdx != colIdx) {
