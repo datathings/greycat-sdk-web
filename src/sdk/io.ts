@@ -433,9 +433,9 @@ namespace gc {
 
       /**
        * Reads `major(u16)`, `magic(u16)` and `version(u32)` prior to calling `deserialize()`.
-       * 
+       *
        * Discards the headers and does not validate them against anything.
-       * 
+       *
        * Returns only the actual value.
        */
       deserializeWithHeaders(): Value {
@@ -910,22 +910,71 @@ namespace gc {
         this.write_u32(this.abi.version);
       }
 
-      serialize(value: Value): void {
-        // Typescript does not understand that 'value' as param must be of the right type
-        // in regard to the method because we used typeof value;
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this[typeof value] as any)(value);
+      serialize(value: Value, target_type?: AbiType): void {
+        if (!target_type) {
+          // Typescript does not understand that 'value' as param must be of the right type
+          // in regard to the method because we used typeof value;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (this[typeof value] as any)(value);
+        } else if (target_type.offset === this.abi.core.float) {
+          if (value === null) {
+            this.null();
+          } else if (typeof value === 'number') {
+            this.float(value as number);
+          } else {
+            this.serialize(value);
+          }
+        } else if (target_type.offset === this.abi.core.char) {
+          if (value === null) {
+            this.null();
+          } else if (typeof value === 'string') {
+            this.char(value as string);
+          } else {
+            this.serialize(value);
+          }
+        } else if (target_type.generic_abi_type === this.abi.core.array && Array.isArray(value)) {
+          // monomorphic array
+          this.write_u8(PrimitiveType.object);
+          this.write_vu32(target_type.offset);
+          this.write_vu32(value.length);
+          this.write_array(value, undefined, target_type);
+        } else if (target_type.generic_abi_type === this.abi.core.map && value instanceof Map) {
+          // monomorphic map
+          this.write_u8(PrimitiveType.object);
+          this.write_vu32(target_type.offset);
+          this.write_vu32(value.size);
+          this.write_map(value, target_type);
+        } else if (
+          target_type.generic_abi_type === this.abi.core.table &&
+          value instanceof core.Table
+        ) {
+          this.write_u8(PrimitiveType.object);
+          this.write_vu32(target_type.offset);
+          value.saveContent(this);
+        } else if (
+          value instanceof GCObject &&
+          target_type.generic_abi_type !== value.$type.generic_abi_type
+        ) {
+          // transtype the value
+          Object.assign(value, { $type: target_type });
+          this.serialize(value);
+        } else {
+          // Typescript does not understand that 'value' as param must be of the right type
+          // in regard to the method because we used typeof value;
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          (this[typeof value] as any)(value);
+        }
       }
 
       /**
        * Serializes the given value without type header
        * @param value
        */
-      serializeRaw(value: Value): void {
+      serializeRaw(value: Value, target_type?: AbiType): void {
         // Typescript does not understand that 'value' as param must be of the right type
         // in regard to the method because we used typeof value;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (this[`raw_${typeof value}`] as any)(value);
+        (this[`raw_${typeof value}`] as any)(value, target_type);
       }
 
       /**
@@ -941,8 +990,12 @@ namespace gc {
         }
       }
 
-      raw_number(value: number): void {
-        if (Number.isInteger(value)) {
+      raw_number(value: number, target_type?: AbiType): void {
+        if (target_type && target_type.offset == this.abi.core.int) {
+          this.write_vi64(BigInt(value));
+        } else if (target_type && target_type.offset === this.abi.core.float) {
+          this.write_f64(value);
+        } else if (Number.isInteger(value)) {
           this.write_vi64(BigInt(value));
         } else {
           this.write_f64(value);
@@ -1158,10 +1211,14 @@ namespace gc {
        * *Note: this does not write the length*
        * @param map
        */
-      write_map(map: Map<unknown, unknown>): void {
+      write_map(map: Map<unknown, unknown>, type?: AbiType): void {
+        const key_type_off = type?.g1();
+        const key_type = key_type_off === undefined ? undefined : this.abi.types[key_type_off];
+        const val_type_off = type?.g2();
+        const val_type = val_type_off === undefined ? undefined : this.abi.types[val_type_off];
         map.forEach((value, key) => {
-          this.serialize(key);
-          this.serialize(value);
+          this.serialize(key, key_type);
+          this.serialize(value, val_type);
         });
       }
 
@@ -1172,9 +1229,13 @@ namespace gc {
        * @param arr
        * @returns
        */
-      write_array(arr: Value[], can_skip = true): void {
+      write_array(arr: Value[], can_skip = true, target_type?: AbiType): void {
         if (arr.length === 0 && can_skip) {
           return;
+        }
+        let elem_type: AbiType | undefined;
+        if (target_type) {
+          elem_type = this.abi.types[target_type.g1()];
         }
         const nullable_slot = this.write_bool_slot();
 
@@ -1199,7 +1260,13 @@ namespace gc {
               break;
             }
             case 'number': {
-              if (Number.isInteger(value)) {
+              if (elem_type && elem_type.offset === this.abi.core.float) {
+                slot_type_and &= PrimitiveType.float;
+                slot_type_or |= PrimitiveType.float;
+              } else if (elem_type && elem_type.offset === this.abi.core.int) {
+                slot_type_and &= PrimitiveType.int;
+                slot_type_or |= PrimitiveType.int;
+              } else if (Number.isInteger(value)) {
                 slot_type_and &= PrimitiveType.int;
                 slot_type_or |= PrimitiveType.int;
               } else {
@@ -1310,7 +1377,7 @@ namespace gc {
           for (let i = 0; i < arr.length; i++) {
             const elem = arr[i];
             if (elem !== null && elem !== undefined) {
-              this.serialize(elem);
+              this.serialize(elem, elem_type);
             }
           }
         } else if (slot_type === PrimitiveType.object || slot_type === PrimitiveType.enum) {
@@ -1333,7 +1400,7 @@ namespace gc {
           for (let i = 0; i < arr.length; i++) {
             const elem = arr[i];
             if (elem !== null && elem !== undefined) {
-              this.serializeRaw(elem);
+              this.serializeRaw(elem, elem_type);
             }
           }
         }

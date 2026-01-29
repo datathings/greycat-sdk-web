@@ -1078,3 +1078,36 @@ fn write_serde_gdb() {
 fn protected() {
     return "You are admin";
 }
+
+@expose
+fn monomorphic_map(cost: float, m: Map<int, float>) {
+    println("${cost} (${type::of(cost)})");
+    for (k, v in m) {
+        println("${k} (${type::of(k)}), ${v} (${type::of(v)})");
+    }
+    return m;
+}
+
+@expose
+fn monomorphic_arr(a: Array<float>) {
+    for (_, v in a) {
+        println("${v} (${type::of(v)})");
+    }
+    return a;
+}
+
+@expose
+fn monomorphic_arr_obj(a: Array<Shape>) {
+    for (_, v in a) {
+        println("${v} (${type::of(v)})");
+    }
+    return a;
+}
+
+@expose
+fn arr_any(a: Array<any>) {
+    for (_, v in a) {
+        println("${v} (${type::of(v)})");
+    }
+    return a;
+}

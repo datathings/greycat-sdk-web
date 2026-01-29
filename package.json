@@ -43,7 +43,7 @@
     "build:css": "pnpm run build:css:greycat && pnpm run build:css:greycat-full",
     "build:css:greycat": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
     "build:css:greycat-full": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat-full.css -o dist/greycat-full.css",
-    "build:vendor": "NODE_OPTIONS=\"--max-old-space-size=12000\" rollup -c rollup.vendor.js",
+    "build:vendor": "NODE_OPTIONS=\"--max-old-space-size=16000\" rollup -c rollup.vendor.js",
     "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare-test.sh",
     "test": "./test/test.sh",

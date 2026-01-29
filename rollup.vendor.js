@@ -4,7 +4,7 @@
  * You are supposed to run that on your dev machine everytime
  * one of the re-exported dependency is changed.
  *
- * BEWARE that this take 4 minutes on my machine and takes up to 12GB of RAM.
+ * BEWARE that this take 4 minutes on my machine and takes up to 14GB of RAM.
  * This is not a joke, even if it sounds like it is..
  * The reason is that 'rollup-plugin-dts' compiles stuff in-mem rather than
  * outputting to file directly. Pretty sure it is a wrongful usage of the
