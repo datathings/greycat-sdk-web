@@ -72,7 +72,12 @@ export class GuiTasks extends GuiElement {
           index: gc.runtime.Task.$fields.status,
           header: 'Status',
           width: 120,
-          value: ({ value }: CellValueData<gc.runtime.TaskStatus>) => value.key,
+          value: ({ value }: CellValueData<gc.runtime.TaskStatus>) => {
+            if (value.key == 'await') {
+              return 'running';
+            }
+            return value.key;
+          },
         },
         {
           index: gc.runtime.Task.$fields.progress,
