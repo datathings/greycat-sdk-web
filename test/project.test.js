@@ -241,6 +241,7 @@ describe('project', () => {
       email: null,
       first_name: null,
       groups: null,
+      groups_claim: null,
       last_name: null,
       name: null,
       roles: null,
