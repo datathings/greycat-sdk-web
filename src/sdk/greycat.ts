@@ -1291,7 +1291,13 @@ namespace gc {
       module: WebAssembly.Module;
       instance: WebAssembly.Instance & { exports: GreyCatWasmExports };
     }> {
-      return WebAssembly.instantiate(gc.sdk.WASM_BYTES) as unknown as {
+      const importObject = {
+        env: {
+          js__on_memory_growth: () => {},
+        },
+      };
+
+      return WebAssembly.instantiate(gc.sdk.WASM_BYTES, importObject) as unknown as {
         module: WebAssembly.Module;
         instance: WebAssembly.Instance & { exports: GreyCatWasmExports };
       };

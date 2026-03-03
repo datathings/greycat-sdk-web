@@ -396,14 +396,10 @@ fn longTask() {
 @expose
 fn controlled_task(duration: duration) {
     var steps = 100;
-    var progress = ProgressTracker {
-        start: time::now(),
-        total: steps,
-    };
-    var sleep = duration::new(duration.to(DurationUnit::milliseconds) / steps, DurationUnit::milliseconds);
+    Task::expected_steps(steps);
+    var sleep = duration / steps;
     for (var i = 0; i < steps; i++) {
-        progress.update(i);
-        Task::progress(progress.progress ?? 0.0);
+        Task::add_steps(1);
         Runtime::sleep(sleep);
     }
 }

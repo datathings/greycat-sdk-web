@@ -2,7 +2,7 @@ import '@greycat/web/sdk';
 
 const greycat = await gc.sdk.init();
 
-print(greycat);
+// print(greycat);
 
 /**
  * @param {gc.sdk.GreyCat} g 
