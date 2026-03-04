@@ -66,48 +66,42 @@ export class GuiCsvStatistics2 extends GuiElement {
         ...this._stats.columns.map((c, offset) => {
           if (c.enumerable_count.size > 0) {
             return (
-              <div>
-                <sl-button
-                  variant="text"
-                  size="small"
-                  onclick={(ev) => {
-                    ev.preventDefault();
-                    this.showEnumerables(offset, c);
-                  }}
-                >
-                  Enumerables
-                </sl-button>
-              </div>
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={(ev) => {
+                  ev.preventDefault();
+                  this.showEnumerables(offset, c);
+                }}
+              >
+                Enumerables
+              </sl-button>
             );
           } else if (c.date_format_count.size > 0) {
             return (
-              <div>
-                <sl-button
-                  variant="text"
-                  size="small"
-                  onclick={(ev) => {
-                    ev.preventDefault();
-                    this.showDateFormats(offset, c);
-                  }}
-                >
-                  Date Formats
-                </sl-button>
-              </div>
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={(ev) => {
+                  ev.preventDefault();
+                  this.showDateFormats(offset, c);
+                }}
+              >
+                Date Formats
+              </sl-button>
             );
           } else if (c.profile.sum != null) {
             return (
-              <div>
-                <sl-button
-                  variant="text"
-                  size="small"
-                  onclick={(ev) => {
-                    ev.preventDefault();
-                    this.showProfile(offset, c);
-                  }}
-                >
-                  Profile
-                </sl-button>
-              </div>
+              <sl-button
+                variant="text"
+                size="small"
+                onclick={(ev) => {
+                  ev.preventDefault();
+                  this.showProfile(offset, c);
+                }}
+              >
+                Profile
+              </sl-button>
             );
           }
           return '';

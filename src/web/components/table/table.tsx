@@ -285,12 +285,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           >
             Download as CSV
           </sl-button>
-          <sl-tooltip content="Shrink column widths to fit header text" style={{ '--show-delay': '500' }}>
+          <sl-tooltip
+            content="Shrink column widths to fit header text"
+            style={{ '--show-delay': '500' }}
+          >
             <sl-button size="small" onclick={() => this.fitColumns()}>
               Fit columns
             </sl-button>
           </sl-tooltip>
-          <sl-tooltip content="Reset column widths to their default" style={{ '--show-delay': '500' }}>
+          <sl-tooltip
+            content="Reset column widths to their default"
+            style={{ '--show-delay': '500' }}
+          >
             <sl-button size="small" onclick={() => this.resetColumns()}>
               Reset columns
             </sl-button>
@@ -317,7 +323,9 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, mouseEvent: e }));
+          this.dispatchEvent(
+            new GuiTableClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, mouseEvent: e }),
+          );
         }
       }
     };
@@ -328,7 +336,9 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       if (e.target instanceof Element) {
         const cell = e.target.closest('gui-tbody-cell');
         if (cell) {
-          this.dispatchEvent(new GuiTableDblClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }));
+          this.dispatchEvent(
+            new GuiTableDblClickEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx }),
+          );
         }
       }
     });
@@ -415,12 +425,18 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     let taken = 0;
     for (let i = 0; i < unspecified_col_idx.length - 1; i++) {
       const col = this._state.columns[unspecified_col_idx[i]];
-      col.width = Math.max(col.minWidth ?? this._state.minColWidth, Math.floor(available / unspecified_col_idx.length));
+      col.width = Math.max(
+        col.minWidth ?? this._state.minColWidth,
+        Math.floor(available / unspecified_col_idx.length),
+      );
       taken += col.width;
     }
     if (unspecified_col_idx.length > 0) {
       const lastCol = this._state.columns[unspecified_col_idx[unspecified_col_idx.length - 1]];
-      lastCol.width = Math.max(total_width - incompressible - taken, lastCol.minWidth ?? this._state.minColWidth);
+      lastCol.width = Math.max(
+        total_width - incompressible - taken,
+        lastCol.minWidth ?? this._state.minColWidth,
+      );
     }
   }
 
@@ -517,7 +533,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
       const mappings = this.mappings;
       if (mappings.length > 0) {
         const offset = this._table.cols.length;
-        const new_table = await gc.core.Table.applyMappings(table, mappings, gc.$[this._factory.greycatName]);
+        const new_table = await gc.core.Table.applyMappings(
+          table,
+          mappings,
+          gc.$[this._factory.greycatName],
+        );
         // oxlint-disable-next-line no-new-array
         const headers: string[] = new Array(new_table.cols.length);
         for (let i = 0; i < offset; i++) {
@@ -636,7 +656,11 @@ export class GuiTable extends GuiElement implements GuiTableProps {
           >
             Timestamp
           </sl-checkbox>
-          <sl-select helpText="The unit of the timestamp for core.time" size="small" value={options.timestampUnit}>
+          <sl-select
+            helpText="The unit of the timestamp for core.time"
+            size="small"
+            value={options.timestampUnit}
+          >
             <sl-option value="s">Seconds</sl-option>
             <sl-option value="ms">Milliseconds</sl-option>
             <sl-option value="us">Microseconds</sl-option>
@@ -1020,7 +1044,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._thead.update(this._state, this._sortCol);
     const containerStyle = this._tableContainer.style;
     for (const col of this._state.columns) {
-      containerStyle.setProperty(`--column-${col.displayIdx}-width`, `${col.resizedWidth ?? col.width}px`);
+      containerStyle.setProperty(
+        `--column-${col.displayIdx}-width`,
+        `${col.resizedWidth ?? col.width}px`,
+      );
     }
 
     resolve();
@@ -1093,7 +1120,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
             }
           } else {
             const props = { ...col.factory.props, value };
-            const cell = createElement(col.factory.tag as keyof HTMLElementTagNameMap, props) as AnyValueElement;
+            const cell = createElement(
+              col.factory.tag as keyof HTMLElementTagNameMap,
+              props,
+            ) as AnyValueElement;
             this.shadowRoot.appendChild(cell);
             csv += s(cell.shadowRoot?.textContent ?? cell.textContent ?? '');
             this.shadowRoot.removeChild(cell);
@@ -1117,7 +1147,10 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     this._table.sort(this._state.columns[this._sortCol.displayIdx].column.index, ord);
   }
 
-  private _sanitizeCellFactory(displayIndex: number, cellFactory: CleanCellFactory | CellFactory): CleanCellFactory {
+  private _sanitizeCellFactory(
+    displayIndex: number,
+    cellFactory: CleanCellFactory | CellFactory,
+  ): CleanCellFactory {
     switch (typeof cellFactory) {
       case 'string': {
         return { tag: cellFactory.toUpperCase() };
@@ -1611,7 +1644,10 @@ export class GuiTableBody extends HTMLElement {
     rowIdx: number,
   ): boolean {
     // If no filters are applied, always match.
-    if (globalFilter.length === 0 && columnFilters.every((filter) => !filter || filter.length === 0)) {
+    if (
+      globalFilter.length === 0 &&
+      columnFilters.every((filter) => !filter || filter.length === 0)
+    ) {
       return true;
     }
 
@@ -1721,11 +1757,15 @@ export class GuiTableBodyRow extends HTMLElement {
     // cell.part.add('cell', `cell-${index}`);
     cell.addEventListener('gui-input', (ev) => {
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }));
+      this.dispatchEvent(
+        new GuiTableInputEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
+      );
     });
     cell.addEventListener('gui-change', (ev) => {
       table.cols[cell.colIdx][cell.rowIdx] = ev.detail;
-      this.dispatchEvent(new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }));
+      this.dispatchEvent(
+        new GuiTableChangeEvent({ rowIdx: cell.rowIdx, colIdx: cell.colIdx, value: ev.detail }),
+      );
     });
     this.appendChild(cell);
     return cell;
@@ -1786,7 +1826,11 @@ export class GuiTableBodyCell extends HTMLElement {
    * updated. So we have to make this a promise, so that the underlying elements get a chance to actually
    * render and we get proper height reporting post-update.
    */
-  async update(table: gc.core.Table, rowIdx: number, column: TableColumnDefResolved): Promise<void> {
+  async update(
+    table: gc.core.Table,
+    rowIdx: number,
+    column: TableColumnDefResolved,
+  ): Promise<void> {
     this.rowIdx = rowIdx;
     const colIdx = column.column.index;
     if (this.colIdx != colIdx) {
@@ -1796,48 +1840,39 @@ export class GuiTableBodyCell extends HTMLElement {
 
     const rawValue = table.cols[colIdx][rowIdx];
 
-    if (this._cell === undefined || this._cell.tagName !== column.factory.tag) {
-      // different tag: create+replace
+    if (rawValue instanceof Node) {
+      this._cell = rawValue as AnyValueElement;
+      this.replaceChildren(this._cell);
+    } else if (this._cell?.tagName !== column.factory.tag) {
+      // Recreate the cell element if the tag changed, or if we don't have one yet
       this._cell = document.createElement(column.factory.tag) as AnyValueElement;
+
+      // Some cell types need to know their row index
       if ('rowIdx' in this._cell && typeof this._cell.rowIdx === 'function') {
         this._cell.rowIdx = rowIdx;
       }
-      const value = column.column.value
-        ? column.column.value({
-            value: rawValue,
-            table,
-            row: rowIdx,
-            col: colIdx,
-            container: this._cell,
-          })
-        : rawValue;
-      this._cell.value = value;
+
       this.replaceChildren(this._cell);
     }
 
+    // Compute the resolved value once, now that we're sure _cell exists
+    const value = column.column.value
+      ? column.column.value({
+          value: rawValue,
+          table,
+          row: rowIdx,
+          col: colIdx,
+          container: this._cell,
+        })
+      : rawValue;
+
+    const props = { ...column.factory.props, value };
+
+    // Apply props and the resolved value
     if ('setAttrs' in this._cell && typeof this._cell.setAttrs === 'function') {
-      const value = column.column.value
-        ? column.column.value({
-            value: rawValue,
-            table,
-            row: rowIdx,
-            col: colIdx,
-            container: this._cell,
-          })
-        : rawValue;
-      this._cell.setAttrs({ ...column.factory.props, value });
+      this._cell.setAttrs(props);
     } else {
-      Object.assign(this._cell, column.factory.props);
-      const value = column.column.value
-        ? column.column.value({
-            value: rawValue,
-            table,
-            row: rowIdx,
-            col: colIdx,
-            container: this._cell,
-          })
-        : rawValue;
-      this._cell.value = value;
+      Object.assign(this._cell, props);
     }
 
     // this.style.width = `${column.width}px`;
