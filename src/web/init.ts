@@ -17,6 +17,7 @@ import {
   GuiObjectFieldValue,
   GuiChart,
   GuiChart2,
+  GuiChart2Config,
   GuiChartConfig,
   GuiChartYAxesInput,
   GuiChartAxisInput,
@@ -189,6 +190,7 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-chart-config', GuiChartConfig);
   registerCustomElement('gui-chart', GuiChart);
   registerCustomElement('gui-chart2', GuiChart2);
+  registerCustomElement('gui-chart2-config', GuiChart2Config);
   registerCustomElement('gui-csv-statistics', GuiCsvStatistics);
   registerCustomElement('gui-csv-statistics2', GuiCsvStatistics2);
   registerCustomElement('gui-dashboard', GuiDashboard);
@@ -271,6 +273,7 @@ declare global {
       GuiObjectFieldValue,
       GuiChart,
       GuiChart2,
+      GuiChart2Config,
       GuiChartConfig,
       GuiChartYAxesInput,
       GuiChartAxisInput,

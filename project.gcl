@@ -1,4 +1,14 @@
 @library("std", "7.7.170-dev");
 
+@volatile
+type HttpBinResponse {
+    headers: Map<float, String>;
+    args: Map<String, any?>;
+    url: String;
+    origin: String;
+}
+
 fn main() {
+    var res = Http<HttpBinResponse> {}.get("https://httpbin.org/get", null);
+    pprint(res);
 }

@@ -63,6 +63,57 @@
     ]
   },
   {
+    "label": "Chart2",
+    "route": "pages/chart2/",
+    "link": true,
+    "children": [
+      {
+        "label": "Line",
+        "route": "line/"
+      },
+      {
+        "label": "Bar",
+        "route": "bar/"
+      },
+      {
+        "label": "Scatter",
+        "route": "scatter/"
+      },
+      {
+        "label": "Pie",
+        "route": "pie/"
+      },
+      {
+        "label": "Candlestick",
+        "route": "candlestick/"
+      },
+      {
+        "label": "Heatmap",
+        "route": "heatmap/"
+      },
+      {
+        "label": "Boxplot",
+        "route": "boxplot/"
+      },
+      {
+        "label": "Multi-Axis",
+        "route": "multi-axis/"
+      },
+      {
+        "label": "Stacked Area",
+        "route": "stacked-area/"
+      },
+      {
+        "label": "Mixed",
+        "route": "mixed/"
+      },
+      {
+        "label": "Table of Objects",
+        "route": "table-of-objects/"
+      }
+    ]
+  },
+  {
     "label": "Csv",
     "route": "pages/csv/",
     "children": [

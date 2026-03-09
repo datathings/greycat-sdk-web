@@ -444,26 +444,18 @@ fn task_with_params(name: String, age: int) {
 
 @expose
 fn task_long_running() {
-    var progress = ProgressTracker {
-        start: time::now(),
-        total: 60,
-    };
+    Task::expected_steps(60);
     for (var i = 0; i < 60; i++) {
-        progress.update(i + 1);
-        Task::progress(progress.progress ?? 0.0);
+        Task::add_steps(1);
         Runtime::sleep(1_s);
     }
 }
 
 @expose
 fn task_long_running2() {
-    var progress = ProgressTracker {
-        start: time::now(),
-        total: 60,
-    };
+    Task::expected_steps(60);
     for (var i = 0; i < 60; i++) {
-        progress.update(i + 1);
-        Task::progress(progress.progress ?? 0.0);
+        Task::add_steps(1);
         Runtime::sleep(1_s);
     }
 }
@@ -471,14 +463,10 @@ fn task_long_running2() {
 @expose
 fn controlled_task(duration: duration) {
     var steps = 100;
-    var progress = ProgressTracker {
-        start: time::now(),
-        total: steps,
-    };
+    Task::expected_steps(steps);
     var sleep = duration::new(duration.to(DurationUnit::milliseconds) / steps, DurationUnit::milliseconds);
     for (var i = 0; i < steps; i++) {
-        progress.update(i);
-        Task::progress(progress.progress ?? 0.0);
+        Task::add_steps(1);
         Runtime::sleep(sleep);
     }
 }
