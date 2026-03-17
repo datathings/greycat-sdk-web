@@ -14,12 +14,7 @@ namespace gc {
 
       // augment runtime.Task
       const runtime_Task_ext = {
-        async getFile(
-          this: runtime.Task,
-          filepath: string,
-          g: GreyCat = gc.$.default,
-          signal?: AbortSignal,
-        ) {
+        async getFile(this: runtime.Task, filepath: string, g: GreyCat = gc.$.default, signal?: AbortSignal) {
           if (filepath === 'result.gcb') {
             const res = await g.getFile(
               `${this.user_id}/tasks/${this.task_id}/${filepath}`,
@@ -29,30 +24,15 @@ namespace gc {
             );
             return res[0];
           }
-          return g.getFile(
-            `${this.user_id}/tasks/${this.task_id}/${filepath}`,
-            undefined,
-            undefined,
-            signal,
-          );
+          return g.getFile(`${this.user_id}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
         },
-        result(
-          this: runtime.Task,
-          opts?: sdk.TaskOptions,
-          g: GreyCat = gc.$.default,
-          signal?: AbortSignal,
-        ) {
+        result(this: runtime.Task, opts?: sdk.TaskOptions, g: GreyCat = gc.$.default, signal?: AbortSignal) {
           return g.await(this, opts, signal);
         },
         isRunning(this: runtime.Task, g: GreyCat = gc.$.default, signal?: AbortSignal) {
           return runtime.Task.is_running(this.task_id, g, signal);
         },
-        on(
-          _type: string,
-          _callback: (...args: unknown[]) => void,
-          _pollEvery = 500,
-          _g: GreyCat = gc.$.default,
-        ) {
+        on(_type: string, _callback: (...args: unknown[]) => void, _pollEvery = 500, _g: GreyCat = gc.$.default) {
           // TODO
         },
         getProgress(this: runtime.Task, g: GreyCat = gc.$.default): number | undefined | null {
@@ -63,23 +43,14 @@ namespace gc {
 
       // extend io.File
       const io_File_ext = {
-        list(
-          this: io.File,
-          g: GreyCat = gc.$.default,
-          signal?: AbortSignal,
-        ): Promise<io.File[] | undefined> {
+        list(this: io.File, g: GreyCat = gc.$.default, signal?: AbortSignal): Promise<io.File[] | undefined> {
           if (this.path.endsWith('/')) {
             // directory
             return g.rawCall(`files${this.path}`, undefined, signal, false, 'GET');
           }
           return Promise.resolve(undefined);
         },
-        resolve(
-          this: io.File,
-          maxDepth = 5,
-          g: GreyCat = gc.$.default,
-          signal?: AbortSignal,
-        ): Promise<void> {
+        resolve(this: io.File, maxDepth = 5, g: GreyCat = gc.$.default, signal?: AbortSignal): Promise<void> {
           return resolveFileChildrenRecursively(this, maxDepth, 0, g, signal);
         },
         download<T = unknown>(
@@ -96,10 +67,7 @@ namespace gc {
 
       // extend core.Date
       const core_Date_ext = {
-        toString(
-          this: core.Date,
-          _opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
-        ) {
+        toString(this: core.Date, _opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS) {
           const month = this.month.toString().padStart(2, '0');
           const day = this.day.toString().padStart(2, '0');
           const hour = this.hour.toString().padStart(2, '0');

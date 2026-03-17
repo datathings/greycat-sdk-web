@@ -58,11 +58,11 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `series[].valueCol` | Column for the color-mapped value (third dimension) |
-| `series[].yCol` | Column for the y-axis position |
-| `echarts.visualMap` | ECharts passthrough for the color scale legend |
+| Option               | Description                                           |
+| -------------------- | ----------------------------------------------------- |
+| `series[].valueCol`  | Column for the color-mapped value (third dimension)   |
+| `series[].yCol`      | Column for the y-axis position                        |
+| `echarts.visualMap`  | ECharts passthrough for the color scale legend        |
 | `xAxis.echarts.data` | Explicit category labels via the ECharts escape hatch |
 
 Heatmap data is built as `[x, y, value]` triples from the three columns.

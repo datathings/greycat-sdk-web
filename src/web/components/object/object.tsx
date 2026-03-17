@@ -1,11 +1,4 @@
-import {
-  css,
-  GuiCard,
-  GuiElement,
-  GuiFactory,
-  type GuiValueElement,
-  type sl,
-} from '../../exports.js';
+import { css, GuiCard, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 
@@ -444,12 +437,7 @@ export class GuiObject<T = unknown> extends GuiElement {
           value: attrVal,
           data: attr.name,
         });
-        const child = this._factory.createAttrObject(
-          obj.$type,
-          attr.name,
-          obj.$type.abi.types[attr.abi_type],
-          props,
-        );
+        const child = this._factory.createAttrObject(obj.$type, attr.name, obj.$type.abi.types[attr.abi_type], props);
         fragment.appendChild(
           <>
             <gui-object-fieldname value={attr.name} />
@@ -506,8 +494,7 @@ export class GuiObject<T = unknown> extends GuiElement {
       const val = (value as Record<string, unknown>)[key];
       if (this._needsCollapsible(val)) {
         const open =
-          (this.shadowRoot.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)
-            ?.open ?? false;
+          (this.shadowRoot.children?.[index * 2 + 1]?.children?.[0] as sl.SlDetails | undefined)?.open ?? false;
         const details = (
           <sl-details summary={this._typeName(val)} open={this._expanded || open}>
             {this._factory.createObject(

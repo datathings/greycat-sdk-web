@@ -17,9 +17,7 @@ namespace gc {
        * @param g override the GreyCat instance to use for the call (defaults to `gc.$.default`)
        * @param signal an optional `AbortSignal` to cancel the underlying fetch call
        */
-      spawn: (
-        ...args: [...Params, $g?: gc.sdk.GreyCat, $signal?: AbortSignal]
-      ) => Promise<gc.runtime.Task<ReturnType>>;
+      spawn: (...args: [...Params, $g?: gc.sdk.GreyCat, $signal?: AbortSignal]) => Promise<gc.runtime.Task<ReturnType>>;
     };
 
     /**
@@ -126,16 +124,11 @@ namespace gc {
       value?: unknown,
     ): void => {
       const bg = status >= 400 ? '#e8590c' : '#1983c1';
-      console.log(
-        '%cGreyCat',
-        `background:${bg};color:#fff;padding:2px;font-weight:bold`,
-        `[${name}]`,
-        {
-          method,
-          args,
-          response: value,
-        },
-      );
+      console.log('%cGreyCat', `background:${bg};color:#fff;padding:2px;font-weight:bold`, `[${name}]`, {
+        method,
+        args,
+        response: value,
+      });
     };
     export type DebugLogger = typeof DEFAULT_LOGGER;
 
@@ -330,11 +323,7 @@ namespace gc {
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
        * @param signal an optional `AbortSignal` to cancel the underlying fetch call
        */
-      call<T = unknown>(
-        method: string,
-        args?: Value[] | ArrayBuffer,
-        signal?: AbortSignal,
-      ): Promise<T>;
+      call<T = unknown>(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<T>;
 
       /**
        * Spawns a GreyCat task.
@@ -346,11 +335,7 @@ namespace gc {
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
        * @param signal an optional `AbortSignal` to cancel the underlying fetch call
        */
-      spawn(
-        method: string,
-        args?: Value[] | ArrayBuffer,
-        signal?: AbortSignal,
-      ): Promise<runtime.Task>;
+      spawn(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<runtime.Task>;
 
       /**
        * Spawns a GreyCat task and actively awaits for its completion.
@@ -375,11 +360,7 @@ namespace gc {
       /**
        * Awaits the completion of the given GreyCat task.
        */
-      await<T = unknown>(
-        task: sdk.TaskLike<T>,
-        opts?: sdk.TaskOptions,
-        signal?: AbortSignal,
-      ): Promise<T>;
+      await<T = unknown>(task: sdk.TaskLike<T>, opts?: sdk.TaskOptions, signal?: AbortSignal): Promise<T>;
 
       getFile<T = unknown>(
         filepath: `${string}.gcb`,
@@ -387,12 +368,7 @@ namespace gc {
         max?: number,
         signal?: AbortSignal,
       ): Promise<T[]>;
-      getFile<T = unknown>(
-        filepath: string,
-        offset?: number,
-        max?: number,
-        signal?: AbortSignal,
-      ): Promise<T | T[]>;
+      getFile<T = unknown>(filepath: string, offset?: number, max?: number, signal?: AbortSignal): Promise<T | T[]>;
       /**
        * Emitted everytime a task is spawn on this instance
        */
@@ -401,18 +377,12 @@ namespace gc {
        * Emitted everytime this instance polls for tasks.
        * The array only contains the current history of tasks
        */
-      on(
-        ev: 'tasks-history',
-        callback: sdk.EmitterCallback<gc.runtime.Task[]>,
-      ): sdk.EmitterDisposable;
+      on(ev: 'tasks-history', callback: sdk.EmitterCallback<gc.runtime.Task[]>): sdk.EmitterDisposable;
       /**
        * Emitted everytime this instance polls for tasks.
        * The array only contains the current running tasks
        */
-      on(
-        ev: 'tasks-running',
-        callback: sdk.EmitterCallback<gc.runtime.Task[]>,
-      ): sdk.EmitterDisposable;
+      on(ev: 'tasks-running', callback: sdk.EmitterCallback<gc.runtime.Task[]>): sdk.EmitterDisposable;
       /**
        * Emitted everytime this instance polls for tasks.
        * The array contains the history and the running tasks
@@ -508,9 +478,7 @@ namespace gc {
 
         if (timezone === undefined) {
           this.timezone =
-            gc.core.TimeZone[
-              new Intl.DateTimeFormat().resolvedOptions().timeZone as gc.core.TimeZone.Field
-            ];
+            gc.core.TimeZone[new Intl.DateTimeFormat().resolvedOptions().timeZone as gc.core.TimeZone.Field];
         } else {
           this.timezone = gc.core.TimeZone[timezone];
         }
@@ -629,19 +597,11 @@ namespace gc {
         return this.permissions.indexOf(permission) !== -1;
       }
 
-      call<T = unknown>(
-        method: string,
-        args?: Value[] | ArrayBuffer,
-        signal?: AbortSignal,
-      ): Promise<T> {
+      call<T = unknown>(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<T> {
         return this.rawCall(method, args, signal, false);
       }
 
-      spawn(
-        method: string,
-        args?: Value[] | ArrayBuffer,
-        signal?: AbortSignal,
-      ): Promise<runtime.Task> {
+      spawn(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<runtime.Task> {
         return this.rawCall<runtime.Task>(method, args, signal, true);
       }
 
@@ -655,11 +615,7 @@ namespace gc {
         return this.await(task, opts, signal);
       }
 
-      async await<T = unknown>(
-        task: sdk.TaskLike<T>,
-        opts: sdk.TaskOptions = {},
-        signal?: AbortSignal,
-      ): Promise<T> {
+      async await<T = unknown>(task: sdk.TaskLike<T>, opts: sdk.TaskOptions = {}, signal?: AbortSignal): Promise<T> {
         // trigger a poll right away to improve UX
         await this.pollTasks();
 
@@ -953,12 +909,7 @@ namespace gc {
        * @param signal optional `AbortSignal` to cancel the request prematurely
        * @returns
        */
-      async getFileResponse(
-        filepath: string,
-        offset?: number,
-        max?: number,
-        signal?: AbortSignal,
-      ): Promise<Response> {
+      async getFileResponse(filepath: string, offset?: number, max?: number, signal?: AbortSignal): Promise<Response> {
         const route = `files/${filepath}`;
         const url = new URL(`${this.api}/${route}`);
         if (offset !== undefined) {
@@ -1110,12 +1061,7 @@ namespace gc {
         return this.abi.createT3(x0, x1, x2);
       }
 
-      createT4(
-        x0: bigint | number,
-        x1: bigint | number,
-        x2: bigint | number,
-        x3: bigint | number,
-      ): core.t4 {
+      createT4(x0: bigint | number, x1: bigint | number, x2: bigint | number, x3: bigint | number): core.t4 {
         return this.abi.createT4(x0, x1, x2, x3);
       }
 
@@ -1249,12 +1195,7 @@ namespace gc {
         const str_buf = new Uint8Array(this._exports.memory.buffer, str_ptr, isoDate.length);
         new TextEncoder().encodeInto(isoDate, str_buf);
 
-        const res = this._exports.gc_dtz_time__parse(
-          str_ptr,
-          str_buf.byteLength,
-          tz.offset,
-          res_ptr,
-        );
+        const res = this._exports.gc_dtz_time__parse(str_ptr, str_buf.byteLength, tz.offset, res_ptr);
 
         if (!res) {
           throw new Error(`Invalid date`);
@@ -1264,11 +1205,7 @@ namespace gc {
         return new gc.core.time(epoch_us);
       }
 
-      printTime(
-        time: gc.core.time,
-        tz = this.timezone,
-        format = '%Y-%m-%dT%H:%M:%S%.3f%z',
-      ): string {
+      printTime(time: gc.core.time, tz = this.timezone, format = '%Y-%m-%dT%H:%M:%S%.3f%z'): string {
         // NOTE:
         // Wasm uses its stack backwards, starting by default at 1 page (64KB)
         // and going down towards 0. So we use the bottom of the stack for our data passing

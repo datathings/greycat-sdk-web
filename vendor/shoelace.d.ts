@@ -1,27 +1,69 @@
 declare module '@shoelace-style/shoelace' {
-import * as lit_html from 'lit-html';
-import { LitElement, CSSResultGroup, HTMLTemplateResult, PropertyValueMap, ReactiveController, ReactiveControllerHost, TemplateResult } from 'lit';
+  import * as lit_html from 'lit-html';
+  import {
+    LitElement,
+    CSSResultGroup,
+    HTMLTemplateResult,
+    PropertyValueMap,
+    ReactiveController,
+    ReactiveControllerHost,
+    TemplateResult,
+  } from 'lit';
 
-type EventTypeRequiresDetail<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>> ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>> ? never : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail'] ? never : T : never : never;
-type EventTypeDoesNotRequireDetail<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>> ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>> ? T : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail'] ? T : never : T : T;
-type EventTypesWithRequiredDetail = {
+  type EventTypeRequiresDetail<T> = T extends keyof GlobalEventHandlersEventMap
+    ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>>
+      ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>>
+        ? never
+        : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail']
+          ? never
+          : T
+      : never
+    : never;
+  type EventTypeDoesNotRequireDetail<T> = T extends keyof GlobalEventHandlersEventMap
+    ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>>
+      ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>>
+        ? T
+        : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail']
+          ? T
+          : never
+      : T
+    : T;
+  type EventTypesWithRequiredDetail = {
     [EventType in keyof GlobalEventHandlersEventMap as EventTypeRequiresDetail<EventType>]: true;
-};
-type EventTypesWithoutRequiredDetail = {
+  };
+  type EventTypesWithoutRequiredDetail = {
     [EventType in keyof GlobalEventHandlersEventMap as EventTypeDoesNotRequireDetail<EventType>]: true;
-};
-type WithRequired<T, K extends keyof T> = T & {
+  };
+  type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
-};
-type SlEventInit<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>> ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>> ? CustomEventInit<GlobalEventHandlersEventMap[T]['detail']> : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail'] ? CustomEventInit<GlobalEventHandlersEventMap[T]['detail']> : WithRequired<CustomEventInit<GlobalEventHandlersEventMap[T]['detail']>, 'detail'> : CustomEventInit : CustomEventInit;
-type GetCustomEventType<T> = T extends keyof GlobalEventHandlersEventMap ? GlobalEventHandlersEventMap[T] extends CustomEvent<unknown> ? GlobalEventHandlersEventMap[T] : CustomEvent<unknown> : CustomEvent<unknown>;
-declare class ShoelaceElement extends LitElement {
+  };
+  type SlEventInit<T> = T extends keyof GlobalEventHandlersEventMap
+    ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, unknown>>
+      ? GlobalEventHandlersEventMap[T] extends CustomEvent<Record<PropertyKey, never>>
+        ? CustomEventInit<GlobalEventHandlersEventMap[T]['detail']>
+        : Partial<GlobalEventHandlersEventMap[T]['detail']> extends GlobalEventHandlersEventMap[T]['detail']
+          ? CustomEventInit<GlobalEventHandlersEventMap[T]['detail']>
+          : WithRequired<CustomEventInit<GlobalEventHandlersEventMap[T]['detail']>, 'detail'>
+      : CustomEventInit
+    : CustomEventInit;
+  type GetCustomEventType<T> = T extends keyof GlobalEventHandlersEventMap
+    ? GlobalEventHandlersEventMap[T] extends CustomEvent<unknown>
+      ? GlobalEventHandlersEventMap[T]
+      : CustomEvent<unknown>
+    : CustomEvent<unknown>;
+  declare class ShoelaceElement extends LitElement {
     #private;
     dir: string;
     lang: string;
     /** Emits a custom event with more convenient defaults. */
-    emit<T extends string & keyof EventTypesWithoutRequiredDetail>(name: EventTypeDoesNotRequireDetail<T>, options?: SlEventInit<T> | undefined): GetCustomEventType<T>;
-    emit<T extends string & keyof EventTypesWithRequiredDetail>(name: EventTypeRequiresDetail<T>, options: SlEventInit<T>): GetCustomEventType<T>;
+    emit<T extends string & keyof EventTypesWithoutRequiredDetail>(
+      name: EventTypeDoesNotRequireDetail<T>,
+      options?: SlEventInit<T> | undefined,
+    ): GetCustomEventType<T>;
+    emit<T extends string & keyof EventTypesWithRequiredDetail>(
+      name: EventTypeRequiresDetail<T>,
+      options: SlEventInit<T>,
+    ): GetCustomEventType<T>;
     static version: any;
     static define(name: string, elementConstructor?: typeof ShoelaceElement, options?: ElementDefinitionOptions): void;
     static dependencies: Record<string, typeof ShoelaceElement>;
@@ -29,8 +71,8 @@ declare class ShoelaceElement extends LitElement {
     initialReflectedProperties: Map<string, unknown>;
     attributeChangedCallback(name: string, oldValue: string | null, newValue: string | null): void;
     protected willUpdate(changedProperties: Parameters<LitElement['willUpdate']>[0]): void;
-}
-interface ShoelaceFormControl extends ShoelaceElement {
+  }
+  interface ShoelaceFormControl extends ShoelaceElement {
     name: string;
     value: unknown;
     disabled?: boolean;
@@ -50,21 +92,21 @@ interface ShoelaceFormControl extends ShoelaceElement {
     getForm: () => HTMLFormElement | null;
     reportValidity: () => boolean;
     setCustomValidity: (message: string) => void;
-}
+  }
 
-/**
- * @summary Icons are symbols that can be used to represent various options within an application.
- * @documentation https://shoelace.style/components/icon
- * @status stable
- * @since 2.0
- *
- * @event sl-load - Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.
- * @event sl-error - Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.
- *
- * @csspart svg - The internal SVG element.
- * @csspart use - The <use> element generated when using `spriteSheet: true`
- */
-declare class SlIcon extends ShoelaceElement {
+  /**
+   * @summary Icons are symbols that can be used to represent various options within an application.
+   * @documentation https://shoelace.style/components/icon
+   * @status stable
+   * @since 2.0
+   *
+   * @event sl-load - Emitted when the icon has loaded. When using `spriteSheet: true` this will not emit.
+   * @event sl-error - Emitted when the icon fails to load due to an error. When using `spriteSheet: true` this will not emit.
+   *
+   * @csspart svg - The internal SVG element.
+   * @csspart use - The <use> element generated when using `spriteSheet: true`
+   */
+  declare class SlIcon extends ShoelaceElement {
     static styles: CSSResultGroup;
     private initialRender;
     /** Given a URL, this function returns the resulting SVG element or an appropriate error symbol. */
@@ -91,25 +133,25 @@ declare class SlIcon extends ShoelaceElement {
     handleLabelChange(): void;
     setIcon(): Promise<void>;
     render(): SVGElement | HTMLTemplateResult | null;
-}
+  }
 
-/**
- * @summary Icons buttons are simple, icon-only buttons that can be used for actions and in toolbars.
- * @documentation https://shoelace.style/components/icon-button
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @event sl-blur - Emitted when the icon button loses focus.
- * @event sl-focus - Emitted when the icon button gains focus.
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlIconButton extends ShoelaceElement {
+  /**
+   * @summary Icons buttons are simple, icon-only buttons that can be used for actions and in toolbars.
+   * @documentation https://shoelace.style/components/icon-button
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @event sl-blur - Emitted when the icon button loses focus.
+   * @event sl-focus - Emitted when the icon button gains focus.
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlIconButton extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     button: HTMLButtonElement | HTMLLinkElement;
     private hasFocus;
@@ -145,37 +187,37 @@ declare class SlIconButton extends ShoelaceElement {
     /** Removes focus from the icon button. */
     blur(): void;
     render(): lit_html.TemplateResult;
-}
+  }
 
-/**
- * @summary Alerts are used to display important messages inline or as toast notifications.
- * @documentation https://shoelace.style/components/alert
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - The alert's main content.
- * @slot icon - An icon to show in the alert. Works best with `<sl-icon>`.
- *
- * @event sl-show - Emitted when the alert opens.
- * @event sl-after-show - Emitted after the alert opens and all animations are complete.
- * @event sl-hide - Emitted when the alert closes.
- * @event sl-after-hide - Emitted after the alert closes and all animations are complete.
- *
- * @csspart base - The component's base wrapper.
- * @csspart icon - The container that wraps the optional icon.
- * @csspart message - The container that wraps the alert's main content.
- * @csspart close-button - The close button, an `<sl-icon-button>`.
- * @csspart close-button__base - The close button's exported `base` part.
- *
- * @animation alert.show - The animation to use when showing the alert.
- * @animation alert.hide - The animation to use when hiding the alert.
- */
-declare class SlAlert extends ShoelaceElement {
+  /**
+   * @summary Alerts are used to display important messages inline or as toast notifications.
+   * @documentation https://shoelace.style/components/alert
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - The alert's main content.
+   * @slot icon - An icon to show in the alert. Works best with `<sl-icon>`.
+   *
+   * @event sl-show - Emitted when the alert opens.
+   * @event sl-after-show - Emitted after the alert opens and all animations are complete.
+   * @event sl-hide - Emitted when the alert closes.
+   * @event sl-after-hide - Emitted after the alert closes and all animations are complete.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart icon - The container that wraps the optional icon.
+   * @csspart message - The container that wraps the alert's main content.
+   * @csspart close-button - The close button, an `<sl-icon-button>`.
+   * @csspart close-button__base - The close button's exported `base` part.
+   *
+   * @animation alert.show - The animation to use when showing the alert.
+   * @animation alert.hide - The animation to use when hiding the alert.
+   */
+  declare class SlAlert extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
+      'sl-icon-button': typeof SlIconButton;
     };
     private autoHideTimeout;
     private remainingTimeInterval;
@@ -226,37 +268,37 @@ declare class SlAlert extends ShoelaceElement {
      */
     toast(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-alert': SlAlert;
+      'sl-alert': SlAlert;
     }
-};
+  }
 
-/**
- * @summary A component for displaying animated GIFs and WEBPs that play and pause on interaction.
- * @documentation https://shoelace.style/components/animated-image
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @event sl-load - Emitted when the image loads successfully.
- * @event sl-error - Emitted when the image fails to load.
- *
- * @slot play-icon - Optional play icon to use instead of the default. Works best with `<sl-icon>`.
- * @slot pause-icon - Optional pause icon to use instead of the default. Works best with `<sl-icon>`.
- *
- * @part control-box - The container that surrounds the pause/play icons and provides their background.
- *
- * @cssproperty --control-box-size - The size of the icon box.
- * @cssproperty --icon-size - The size of the play/pause icons.
- */
-declare class SlAnimatedImage extends ShoelaceElement {
+  /**
+   * @summary A component for displaying animated GIFs and WEBPs that play and pause on interaction.
+   * @documentation https://shoelace.style/components/animated-image
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @event sl-load - Emitted when the image loads successfully.
+   * @event sl-error - Emitted when the image fails to load.
+   *
+   * @slot play-icon - Optional play icon to use instead of the default. Works best with `<sl-icon>`.
+   * @slot pause-icon - Optional pause icon to use instead of the default. Works best with `<sl-icon>`.
+   *
+   * @part control-box - The container that surrounds the pause/play icons and provides their background.
+   *
+   * @cssproperty --control-box-size - The size of the icon box.
+   * @cssproperty --icon-size - The size of the play/pause icons.
+   */
+  declare class SlAnimatedImage extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     animatedImage: HTMLImageElement;
     frozenFrame: string;
@@ -273,28 +315,28 @@ declare class SlAnimatedImage extends ShoelaceElement {
     handlePlayChange(): void;
     handleSrcChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-animated-image': SlAnimatedImage;
+      'sl-animated-image': SlAnimatedImage;
     }
-};
+  }
 
-/**
- * @summary Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes. Powered by the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API).
- * @documentation https://shoelace.style/components/animation
- * @status stable
- * @since 2.0
- *
- * @event sl-cancel - Emitted when the animation is canceled.
- * @event sl-finish - Emitted when the animation finishes.
- * @event sl-start - Emitted when the animation starts or restarts.
- *
- * @slot - The element to animate. Avoid slotting in more than one element, as subsequent ones will be ignored. To
- *  animate multiple elements, either wrap them in a single container or use multiple `<sl-animation>` elements.
- */
-declare class SlAnimation extends ShoelaceElement {
+  /**
+   * @summary Animate elements declaratively with nearly 100 baked-in presets, or roll your own with custom keyframes. Powered by the [Web Animations API](https://developer.mozilla.org/en-US/docs/Web/API/Web_Animations_API).
+   * @documentation https://shoelace.style/components/animation
+   * @status stable
+   * @since 2.0
+   *
+   * @event sl-cancel - Emitted when the animation is canceled.
+   * @event sl-finish - Emitted when the animation finishes.
+   * @event sl-start - Emitted when the animation starts or restarts.
+   *
+   * @slot - The element to animate. Avoid slotting in more than one element, as subsequent ones will be ignored. To
+   *  animate multiple elements, either wrap them in a single container or use multiple `<sl-animation>` elements.
+   */
+  declare class SlAnimation extends ShoelaceElement {
     static styles: CSSResultGroup;
     private animation?;
     private hasStarted;
@@ -354,38 +396,38 @@ declare class SlAnimation extends ShoelaceElement {
     /** Sets the playback time to the end of the animation corresponding to the current playback direction. */
     finish(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-animation': SlAnimation;
+      'sl-animation': SlAnimation;
     }
-};
+  }
 
-/**
- * @summary Avatars are used to represent a person or object.
- * @documentation https://shoelace.style/components/avatar
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @event sl-error - The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some
- * unknown cause.
- *
- * @slot icon - The default icon to use when no image or initials are present. Works best with `<sl-icon>`.
- *
- * @csspart base - The component's base wrapper.
- * @csspart icon - The container that wraps the avatar's icon.
- * @csspart initials - The container that wraps the avatar's initials.
- * @csspart image - The avatar image. Only shown when the `image` attribute is set.
- *
- * @cssproperty --size - The size of the avatar.
- */
-declare class SlAvatar extends ShoelaceElement {
+  /**
+   * @summary Avatars are used to represent a person or object.
+   * @documentation https://shoelace.style/components/avatar
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @event sl-error - The image could not be loaded. This may because of an invalid URL, a temporary network condition, or some
+   * unknown cause.
+   *
+   * @slot icon - The default icon to use when no image or initials are present. Works best with `<sl-icon>`.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart icon - The container that wraps the avatar's icon.
+   * @csspart initials - The container that wraps the avatar's initials.
+   * @csspart image - The avatar image. Only shown when the `image` attribute is set.
+   *
+   * @cssproperty --size - The size of the avatar.
+   */
+  declare class SlAvatar extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private hasError;
     /** The image source to use for the avatar. */
@@ -401,25 +443,25 @@ declare class SlAvatar extends ShoelaceElement {
     handleImageChange(): void;
     private handleImageLoadError;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-avatar': SlAvatar;
+      'sl-avatar': SlAvatar;
     }
-};
+  }
 
-/**
- * @summary Badges are used to draw attention and display statuses or counts.
- * @documentation https://shoelace.style/components/badge
- * @status stable
- * @since 2.0
- *
- * @slot - The badge's content.
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlBadge extends ShoelaceElement {
+  /**
+   * @summary Badges are used to draw attention and display statuses or counts.
+   * @documentation https://shoelace.style/components/badge
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The badge's content.
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlBadge extends ShoelaceElement {
     static styles: CSSResultGroup;
     /** The badge's theme variant. */
     variant: 'primary' | 'success' | 'neutral' | 'warning' | 'danger';
@@ -428,31 +470,31 @@ declare class SlBadge extends ShoelaceElement {
     /** Makes the badge pulsate to draw attention. */
     pulse: boolean;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-badge': SlBadge;
+      'sl-badge': SlBadge;
     }
-};
+  }
 
-/**
- * @summary Breadcrumbs provide a group of links so users can easily navigate a website's hierarchy.
- * @documentation https://shoelace.style/components/breadcrumb
- * @status stable
- * @since 2.0
- *
- * @slot - One or more breadcrumb items to display.
- * @slot separator - The separator to use between breadcrumb items. Works best with `<sl-icon>`.
- *
- * @dependency sl-icon
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlBreadcrumb extends ShoelaceElement {
+  /**
+   * @summary Breadcrumbs provide a group of links so users can easily navigate a website's hierarchy.
+   * @documentation https://shoelace.style/components/breadcrumb
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - One or more breadcrumb items to display.
+   * @slot separator - The separator to use between breadcrumb items. Works best with `<sl-icon>`.
+   *
+   * @dependency sl-icon
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlBreadcrumb extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly localize;
     private separatorDir;
@@ -466,33 +508,33 @@ declare class SlBreadcrumb extends ShoelaceElement {
     private getSeparator;
     private handleSlotChange;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-breadcrumb': SlBreadcrumb;
+      'sl-breadcrumb': SlBreadcrumb;
     }
-};
+  }
 
-/**
- * @summary Breadcrumb Items are used inside [breadcrumbs](/components/breadcrumb) to represent different links.
- * @documentation https://shoelace.style/components/breadcrumb-item
- * @status stable
- * @since 2.0
- *
- * @slot - The breadcrumb item's label.
- * @slot prefix - An optional prefix, usually an icon or icon button.
- * @slot suffix - An optional suffix, usually an icon or icon button.
- * @slot separator - The separator to use for the breadcrumb item. This will only change the separator for this item. If
- * you want to change it for all items in the group, set the separator on `<sl-breadcrumb>` instead.
- *
- * @csspart base - The component's base wrapper.
- * @csspart label - The breadcrumb item's label.
- * @csspart prefix - The container that wraps the prefix.
- * @csspart suffix - The container that wraps the suffix.
- * @csspart separator - The container that wraps the separator.
- */
-declare class SlBreadcrumbItem extends ShoelaceElement {
+  /**
+   * @summary Breadcrumb Items are used inside [breadcrumbs](/components/breadcrumb) to represent different links.
+   * @documentation https://shoelace.style/components/breadcrumb-item
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The breadcrumb item's label.
+   * @slot prefix - An optional prefix, usually an icon or icon button.
+   * @slot suffix - An optional suffix, usually an icon or icon button.
+   * @slot separator - The separator to use for the breadcrumb item. This will only change the separator for this item. If
+   * you want to change it for all items in the group, set the separator on `<sl-breadcrumb>` instead.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart label - The breadcrumb item's label.
+   * @csspart prefix - The container that wraps the prefix.
+   * @csspart suffix - The container that wraps the suffix.
+   * @csspart separator - The container that wraps the separator.
+   */
+  declare class SlBreadcrumbItem extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly hasSlotController;
     defaultSlot: HTMLSlotElement;
@@ -510,62 +552,62 @@ declare class SlBreadcrumbItem extends ShoelaceElement {
     hrefChanged(): void;
     handleSlotChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-breadcrumb-item': SlBreadcrumbItem;
+      'sl-breadcrumb-item': SlBreadcrumbItem;
     }
-};
+  }
 
-/**
- * @summary Spinners are used to show the progress of an indeterminate operation.
- * @documentation https://shoelace.style/components/spinner
- * @status stable
- * @since 2.0
- *
- * @csspart base - The component's base wrapper.
- *
- * @cssproperty --track-width - The width of the track.
- * @cssproperty --track-color - The color of the track.
- * @cssproperty --indicator-color - The color of the spinner's indicator.
- * @cssproperty --speed - The time it takes for the spinner to complete one animation cycle.
- */
-declare class SlSpinner extends ShoelaceElement {
+  /**
+   * @summary Spinners are used to show the progress of an indeterminate operation.
+   * @documentation https://shoelace.style/components/spinner
+   * @status stable
+   * @since 2.0
+   *
+   * @csspart base - The component's base wrapper.
+   *
+   * @cssproperty --track-width - The width of the track.
+   * @cssproperty --track-color - The color of the track.
+   * @cssproperty --indicator-color - The color of the spinner's indicator.
+   * @cssproperty --speed - The time it takes for the spinner to complete one animation cycle.
+   */
+  declare class SlSpinner extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly localize;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Buttons represent actions that are available to the user.
- * @documentation https://shoelace.style/components/button
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- * @dependency sl-spinner
- *
- * @event sl-blur - Emitted when the button loses focus.
- * @event sl-focus - Emitted when the button gains focus.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @slot - The button's label.
- * @slot prefix - A presentational prefix icon or similar element.
- * @slot suffix - A presentational suffix icon or similar element.
- *
- * @csspart base - The component's base wrapper.
- * @csspart prefix - The container that wraps the prefix.
- * @csspart label - The button's label.
- * @csspart suffix - The container that wraps the suffix.
- * @csspart caret - The button's caret icon, an `<sl-icon>` element.
- * @csspart spinner - The spinner that shows when the button is in the loading state.
- */
-declare class SlButton extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Buttons represent actions that are available to the user.
+   * @documentation https://shoelace.style/components/button
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   * @dependency sl-spinner
+   *
+   * @event sl-blur - Emitted when the button loses focus.
+   * @event sl-focus - Emitted when the button gains focus.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @slot - The button's label.
+   * @slot prefix - A presentational prefix icon or similar element.
+   * @slot suffix - A presentational suffix icon or similar element.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart prefix - The container that wraps the prefix.
+   * @csspart label - The button's label.
+   * @csspart suffix - The container that wraps the suffix.
+   * @csspart caret - The button's caret icon, an `<sl-icon>` element.
+   * @csspart spinner - The spinner that shows when the button is in the loading state.
+   */
+  declare class SlButton extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
-        'sl-spinner': typeof SlSpinner;
+      'sl-icon': typeof SlIcon;
+      'sl-spinner': typeof SlSpinner;
     };
     private readonly formControlController;
     private readonly hasSlotController;
@@ -663,25 +705,25 @@ declare class SlButton extends ShoelaceElement implements ShoelaceFormControl {
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-button': SlButton;
+      'sl-button': SlButton;
     }
-};
+  }
 
-/**
- * @summary Button groups can be used to group related buttons into sections.
- * @documentation https://shoelace.style/components/button-group
- * @status stable
- * @since 2.0
- *
- * @slot - One or more `<sl-button>` elements to display in the button group.
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlButtonGroup extends ShoelaceElement {
+  /**
+   * @summary Button groups can be used to group related buttons into sections.
+   * @documentation https://shoelace.style/components/button-group
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - One or more `<sl-button>` elements to display in the button group.
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlButtonGroup extends ShoelaceElement {
     static styles: CSSResultGroup;
     defaultSlot: HTMLSlotElement;
     disableRole: boolean;
@@ -696,81 +738,81 @@ declare class SlButtonGroup extends ShoelaceElement {
     private handleMouseOut;
     private handleSlotChange;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-button-group': SlButtonGroup;
+      'sl-button-group': SlButtonGroup;
     }
-};
+  }
 
-/**
- * @summary Cards can be used to group related subjects in a container.
- * @documentation https://shoelace.style/components/card
- * @status stable
- * @since 2.0
- *
- * @slot - The card's main content.
- * @slot header - An optional header for the card.
- * @slot footer - An optional footer for the card.
- * @slot image - An optional image to render at the start of the card.
- *
- * @csspart base - The component's base wrapper.
- * @csspart image - The container that wraps the card's image.
- * @csspart header - The container that wraps the card's header.
- * @csspart body - The container that wraps the card's main content.
- * @csspart footer - The container that wraps the card's footer.
- *
- * @cssproperty --border-color - The card's border color, including borders that occur inside the card.
- * @cssproperty --border-radius - The border radius for the card's edges.
- * @cssproperty --border-width - The width of the card's borders.
- * @cssproperty --padding - The padding to use for the card's sections.
- */
-declare class SlCard extends ShoelaceElement {
+  /**
+   * @summary Cards can be used to group related subjects in a container.
+   * @documentation https://shoelace.style/components/card
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The card's main content.
+   * @slot header - An optional header for the card.
+   * @slot footer - An optional footer for the card.
+   * @slot image - An optional image to render at the start of the card.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart image - The container that wraps the card's image.
+   * @csspart header - The container that wraps the card's header.
+   * @csspart body - The container that wraps the card's main content.
+   * @csspart footer - The container that wraps the card's footer.
+   *
+   * @cssproperty --border-color - The card's border color, including borders that occur inside the card.
+   * @cssproperty --border-radius - The border radius for the card's edges.
+   * @cssproperty --border-width - The width of the card's borders.
+   * @cssproperty --padding - The padding to use for the card's sections.
+   */
+  declare class SlCard extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly hasSlotController;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-card': SlCard;
+      'sl-card': SlCard;
     }
-};
+  }
 
-/**
- * @summary Carousels display an arbitrary number of content slides along a horizontal or vertical axis.
- *
- * @since 2.2
- * @status experimental
- *
- * @dependency sl-icon
- *
- * @event {{ index: number, slide: SlCarouselItem }} sl-slide-change - Emitted when the active slide changes.
- *
- * @slot - The carousel's main content, one or more `<sl-carousel-item>` elements.
- * @slot next-icon - Optional next icon to use instead of the default. Works best with `<sl-icon>`.
- * @slot previous-icon - Optional previous icon to use instead of the default. Works best with `<sl-icon>`.
- *
- * @csspart base - The carousel's internal wrapper.
- * @csspart scroll-container - The scroll container that wraps the slides.
- * @csspart pagination - The pagination indicators wrapper.
- * @csspart pagination-item - The pagination indicator.
- * @csspart pagination-item--active - Applied when the item is active.
- * @csspart navigation - The navigation wrapper.
- * @csspart navigation-button - The navigation button.
- * @csspart navigation-button--previous - Applied to the previous button.
- * @csspart navigation-button--next - Applied to the next button.
- *
- * @cssproperty --slide-gap - The space between each slide.
- * @cssproperty [--aspect-ratio=16/9] - The aspect ratio of each slide.
- * @cssproperty --scroll-hint - The amount of padding to apply to the scroll area, allowing adjacent slides to become
- *  partially visible as a scroll hint.
- */
-declare class SlCarousel extends ShoelaceElement {
+  /**
+   * @summary Carousels display an arbitrary number of content slides along a horizontal or vertical axis.
+   *
+   * @since 2.2
+   * @status experimental
+   *
+   * @dependency sl-icon
+   *
+   * @event {{ index: number, slide: SlCarouselItem }} sl-slide-change - Emitted when the active slide changes.
+   *
+   * @slot - The carousel's main content, one or more `<sl-carousel-item>` elements.
+   * @slot next-icon - Optional next icon to use instead of the default. Works best with `<sl-icon>`.
+   * @slot previous-icon - Optional previous icon to use instead of the default. Works best with `<sl-icon>`.
+   *
+   * @csspart base - The carousel's internal wrapper.
+   * @csspart scroll-container - The scroll container that wraps the slides.
+   * @csspart pagination - The pagination indicators wrapper.
+   * @csspart pagination-item - The pagination indicator.
+   * @csspart pagination-item--active - Applied when the item is active.
+   * @csspart navigation - The navigation wrapper.
+   * @csspart navigation-button - The navigation button.
+   * @csspart navigation-button--previous - Applied to the previous button.
+   * @csspart navigation-button--next - Applied to the next button.
+   *
+   * @cssproperty --slide-gap - The space between each slide.
+   * @cssproperty [--aspect-ratio=16/9] - The aspect ratio of each slide.
+   * @cssproperty --scroll-hint - The amount of padding to apply to the scroll area, allowing adjacent slides to become
+   *  partially visible as a scroll hint.
+   */
+  declare class SlCarousel extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     /** When set, allows the user to navigate the carousel in the same direction indefinitely. */
     loop: boolean;
@@ -850,67 +892,67 @@ declare class SlCarousel extends ShoelaceElement {
     goToSlide(index: number, behavior?: ScrollBehavior): void;
     private scrollToSlide;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-carousel': SlCarousel;
+      'sl-carousel': SlCarousel;
     }
-};
+  }
 
-/**
- * @summary A carousel item represent a slide within a [carousel](/components/carousel).
- *
- * @since 2.0
- * @status experimental
- *
- * @slot - The carousel item's content..
- *
- * @cssproperty --aspect-ratio - The slide's aspect ratio. Inherited from the carousel by default.
- *
- */
-declare class SlCarouselItem extends ShoelaceElement {
+  /**
+   * @summary A carousel item represent a slide within a [carousel](/components/carousel).
+   *
+   * @since 2.0
+   * @status experimental
+   *
+   * @slot - The carousel item's content..
+   *
+   * @cssproperty --aspect-ratio - The slide's aspect ratio. Inherited from the carousel by default.
+   *
+   */
+  declare class SlCarouselItem extends ShoelaceElement {
     static styles: CSSResultGroup;
     connectedCallback(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-carousel-item': SlCarouselItem;
+      'sl-carousel-item': SlCarouselItem;
     }
-};
+  }
 
-/**
- * @summary Checkboxes allow the user to toggle an option on or off.
- * @documentation https://shoelace.style/components/checkbox
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot - The checkbox's label.
- * @slot help-text - Text that describes how to use the checkbox. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-blur - Emitted when the checkbox loses focus.
- * @event sl-change - Emitted when the checked state changes.
- * @event sl-focus - Emitted when the checkbox gains focus.
- * @event sl-input - Emitted when the checkbox receives input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart base - The component's base wrapper.
- * @csspart control - The square container that wraps the checkbox's checked state.
- * @csspart control--checked - Matches the control part when the checkbox is checked.
- * @csspart control--indeterminate - Matches the control part when the checkbox is indeterminate.
- * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
- * @csspart indeterminate-icon - The indeterminate icon, an `<sl-icon>` element.
- * @csspart label - The container that wraps the checkbox's label.
- * @csspart form-control-help-text - The help text's wrapper.
- */
-declare class SlCheckbox extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Checkboxes allow the user to toggle an option on or off.
+   * @documentation https://shoelace.style/components/checkbox
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot - The checkbox's label.
+   * @slot help-text - Text that describes how to use the checkbox. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-blur - Emitted when the checkbox loses focus.
+   * @event sl-change - Emitted when the checked state changes.
+   * @event sl-focus - Emitted when the checkbox gains focus.
+   * @event sl-input - Emitted when the checkbox receives input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart control - The square container that wraps the checkbox's checked state.
+   * @csspart control--checked - Matches the control part when the checkbox is checked.
+   * @csspart control--indeterminate - Matches the control part when the checkbox is indeterminate.
+   * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
+   * @csspart indeterminate-icon - The indeterminate icon, an `<sl-icon>` element.
+   * @csspart label - The container that wraps the checkbox's label.
+   * @csspart form-control-help-text - The help text's wrapper.
+   */
+  declare class SlCheckbox extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly formControlController;
     private readonly hasSlotController;
@@ -974,48 +1016,48 @@ declare class SlCheckbox extends ShoelaceElement implements ShoelaceFormControl 
      */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-checkbox': SlCheckbox;
+      'sl-checkbox': SlCheckbox;
     }
-};
+  }
 
-interface VirtualElement {
+  interface VirtualElement {
     getBoundingClientRect: () => DOMRect;
     contextElement?: Element;
-}
-/**
- * @summary Popup is a utility that lets you declaratively anchor "popup" containers to another element.
- * @documentation https://shoelace.style/components/popup
- * @status stable
- * @since 2.0
- *
- * @event sl-reposition - Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive
- *  operations in your listener or consider debouncing it.
- *
- * @slot - The popup's content.
- * @slot anchor - The element the popup will be anchored to. If the anchor lives outside of the popup, you can use the
- *  `anchor` attribute or property instead.
- *
- * @csspart arrow - The arrow's container. Avoid setting `top|bottom|left|right` properties, as these values are
- *  assigned dynamically as the popup moves. This is most useful for applying a background color to match the popup, and
- *  maybe a border or box shadow.
- * @csspart popup - The popup's container. Useful for setting a background color, box shadow, etc.
- * @csspart hover-bridge - The hover bridge element. Only available when the `hover-bridge` option is enabled.
- *
- * @cssproperty [--arrow-size=6px] - The size of the arrow. Note that an arrow won't be shown unless the `arrow`
- *  attribute is used.
- * @cssproperty [--arrow-color=var(--sl-color-neutral-0)] - The color of the arrow.
- * @cssproperty [--auto-size-available-width] - A read-only custom property that determines the amount of width the
- *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
- *  available when using `auto-size`.
- * @cssproperty [--auto-size-available-height] - A read-only custom property that determines the amount of height the
- *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
- *  available when using `auto-size`.
- */
-declare class SlPopup extends ShoelaceElement {
+  }
+  /**
+   * @summary Popup is a utility that lets you declaratively anchor "popup" containers to another element.
+   * @documentation https://shoelace.style/components/popup
+   * @status stable
+   * @since 2.0
+   *
+   * @event sl-reposition - Emitted when the popup is repositioned. This event can fire a lot, so avoid putting expensive
+   *  operations in your listener or consider debouncing it.
+   *
+   * @slot - The popup's content.
+   * @slot anchor - The element the popup will be anchored to. If the anchor lives outside of the popup, you can use the
+   *  `anchor` attribute or property instead.
+   *
+   * @csspart arrow - The arrow's container. Avoid setting `top|bottom|left|right` properties, as these values are
+   *  assigned dynamically as the popup moves. This is most useful for applying a background color to match the popup, and
+   *  maybe a border or box shadow.
+   * @csspart popup - The popup's container. Useful for setting a background color, box shadow, etc.
+   * @csspart hover-bridge - The hover bridge element. Only available when the `hover-bridge` option is enabled.
+   *
+   * @cssproperty [--arrow-size=6px] - The size of the arrow. Note that an arrow won't be shown unless the `arrow`
+   *  attribute is used.
+   * @cssproperty [--arrow-color=var(--sl-color-neutral-0)] - The color of the arrow.
+   * @cssproperty [--auto-size-available-width] - A read-only custom property that determines the amount of width the
+   *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
+   *  available when using `auto-size`.
+   * @cssproperty [--auto-size-available-height] - A read-only custom property that determines the amount of height the
+   *  popup can be before overflowing. Useful for positioning child elements that need to overflow. This property is only
+   *  available when using `auto-size`.
+   */
+  declare class SlPopup extends ShoelaceElement {
     static styles: CSSResultGroup;
     private anchorEl;
     private cleanup;
@@ -1038,7 +1080,19 @@ declare class SlPopup extends ShoelaceElement {
      * The preferred placement of the popup. Note that the actual placement will vary as configured to keep the
      * panel inside of the viewport.
      */
-    placement: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+    placement:
+      | 'top'
+      | 'top-start'
+      | 'top-end'
+      | 'bottom'
+      | 'bottom-start'
+      | 'bottom-end'
+      | 'right'
+      | 'right-start'
+      | 'right-end'
+      | 'left'
+      | 'left-start'
+      | 'left-end';
     /**
      * Determines how the popup is positioned. The `absolute` strategy works well in most cases, but if overflow is
      * clipped, using a `fixed` position strategy can often workaround it.
@@ -1129,40 +1183,40 @@ declare class SlPopup extends ShoelaceElement {
     reposition(): void;
     private updateHoverBridge;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Menu items provide options for the user to pick from in a menu.
- * @documentation https://shoelace.style/components/menu-item
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- * @dependency sl-popup
- * @dependency sl-spinner
- *
- * @slot - The menu item's label.
- * @slot prefix - Used to prepend an icon or similar element to the menu item.
- * @slot suffix - Used to append an icon or similar element to the menu item.
- * @slot submenu - Used to denote a nested menu.
- *
- * @csspart base - The component's base wrapper.
- * @csspart checked-icon - The checked icon, which is only visible when the menu item is checked.
- * @csspart prefix - The prefix container.
- * @csspart label - The menu item label.
- * @csspart suffix - The suffix container.
- * @csspart spinner - The spinner that shows when the menu item is in the loading state.
- * @csspart spinner__base - The spinner's base part.
- * @csspart submenu-icon - The submenu icon, visible only when the menu item has a submenu (not yet implemented).
- *
- * @cssproperty [--submenu-offset=-2px] - The distance submenus shift to overlap the parent menu.
- */
-declare class SlMenuItem extends ShoelaceElement {
+  /**
+   * @summary Menu items provide options for the user to pick from in a menu.
+   * @documentation https://shoelace.style/components/menu-item
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   * @dependency sl-popup
+   * @dependency sl-spinner
+   *
+   * @slot - The menu item's label.
+   * @slot prefix - Used to prepend an icon or similar element to the menu item.
+   * @slot suffix - Used to append an icon or similar element to the menu item.
+   * @slot submenu - Used to denote a nested menu.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart checked-icon - The checked icon, which is only visible when the menu item is checked.
+   * @csspart prefix - The prefix container.
+   * @csspart label - The menu item label.
+   * @csspart suffix - The suffix container.
+   * @csspart spinner - The spinner that shows when the menu item is in the loading state.
+   * @csspart spinner__base - The spinner's base part.
+   * @csspart submenu-icon - The submenu icon, visible only when the menu item has a submenu (not yet implemented).
+   *
+   * @cssproperty [--submenu-offset=-2px] - The distance submenus shift to overlap the parent menu.
+   */
+  declare class SlMenuItem extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
-        'sl-popup': typeof SlPopup;
-        'sl-spinner': typeof SlSpinner;
+      'sl-icon': typeof SlIcon;
+      'sl-popup': typeof SlPopup;
+      'sl-spinner': typeof SlSpinner;
     };
     private cachedTextLabel;
     private readonly localize;
@@ -1192,19 +1246,19 @@ declare class SlMenuItem extends ShoelaceElement {
     getTextLabel(): string;
     isSubmenu(): boolean;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Menus provide a list of options for the user to choose from.
- * @documentation https://shoelace.style/components/menu
- * @status stable
- * @since 2.0
- *
- * @slot - The menu's content, including menu items, menu labels, and dividers.
- *
- * @event {{ item: SlMenuItem }} sl-select - Emitted when a menu item is selected.
- */
-declare class SlMenu extends ShoelaceElement {
+  /**
+   * @summary Menus provide a list of options for the user to choose from.
+   * @documentation https://shoelace.style/components/menu
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The menu's content, including menu items, menu labels, and dividers.
+   *
+   * @event {{ item: SlMenuItem }} sl-select - Emitted when a menu item is selected.
+   */
+  declare class SlMenu extends ShoelaceElement {
     static styles: CSSResultGroup;
     defaultSlot: HTMLSlotElement;
     connectedCallback(): void;
@@ -1226,42 +1280,42 @@ declare class SlMenu extends ShoelaceElement {
      */
     setCurrentItem(item: SlMenuItem): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-menu': SlMenu;
+      'sl-menu': SlMenu;
     }
-};
+  }
 
-/**
- * @summary Dropdowns expose additional content that "drops down" in a panel.
- * @documentation https://shoelace.style/components/dropdown
- * @status stable
- * @since 2.0
- *
- * @dependency sl-popup
- *
- * @slot - The dropdown's main content.
- * @slot trigger - The dropdown's trigger, usually a `<sl-button>` element.
- *
- * @event sl-show - Emitted when the dropdown opens.
- * @event sl-after-show - Emitted after the dropdown opens and all animations are complete.
- * @event sl-hide - Emitted when the dropdown closes.
- * @event sl-after-hide - Emitted after the dropdown closes and all animations are complete.
- *
- * @csspart base - The component's base wrapper, an `<sl-popup>` element.
- * @csspart base__popup - The popup's exported `popup` part. Use this to target the tooltip's popup container.
- * @csspart trigger - The container that wraps the trigger.
- * @csspart panel - The panel that gets shown when the dropdown is open.
- *
- * @animation dropdown.show - The animation to use when showing the dropdown.
- * @animation dropdown.hide - The animation to use when hiding the dropdown.
- */
-declare class SlDropdown extends ShoelaceElement {
+  /**
+   * @summary Dropdowns expose additional content that "drops down" in a panel.
+   * @documentation https://shoelace.style/components/dropdown
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-popup
+   *
+   * @slot - The dropdown's main content.
+   * @slot trigger - The dropdown's trigger, usually a `<sl-button>` element.
+   *
+   * @event sl-show - Emitted when the dropdown opens.
+   * @event sl-after-show - Emitted after the dropdown opens and all animations are complete.
+   * @event sl-hide - Emitted when the dropdown closes.
+   * @event sl-after-hide - Emitted after the dropdown closes and all animations are complete.
+   *
+   * @csspart base - The component's base wrapper, an `<sl-popup>` element.
+   * @csspart base__popup - The popup's exported `popup` part. Use this to target the tooltip's popup container.
+   * @csspart trigger - The container that wraps the trigger.
+   * @csspart panel - The panel that gets shown when the dropdown is open.
+   *
+   * @animation dropdown.show - The animation to use when showing the dropdown.
+   * @animation dropdown.hide - The animation to use when hiding the dropdown.
+   */
+  declare class SlDropdown extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-popup': typeof SlPopup;
+      'sl-popup': typeof SlPopup;
     };
     popup: SlPopup;
     trigger: HTMLSlotElement;
@@ -1277,7 +1331,19 @@ declare class SlDropdown extends ShoelaceElement {
      * The preferred placement of the dropdown panel. Note that the actual placement may vary as needed to keep the panel
      * inside of the viewport.
      */
-    placement: 'top' | 'top-start' | 'top-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'right' | 'right-start' | 'right-end' | 'left' | 'left-start' | 'left-end';
+    placement:
+      | 'top'
+      | 'top-start'
+      | 'top-end'
+      | 'bottom'
+      | 'bottom-start'
+      | 'bottom-end'
+      | 'right'
+      | 'right-start'
+      | 'right-end'
+      | 'left'
+      | 'left-start'
+      | 'left-end';
     /** Disables the dropdown so the panel will not open. */
     disabled: boolean;
     /**
@@ -1330,46 +1396,46 @@ declare class SlDropdown extends ShoelaceElement {
     removeOpenListeners(): void;
     handleOpenChange(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Inputs collect data from the user.
- * @documentation https://shoelace.style/components/input
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot label - The input's label. Alternatively, you can use the `label` attribute.
- * @slot prefix - Used to prepend a presentational icon or similar element to the input.
- * @slot suffix - Used to append a presentational icon or similar element to the input.
- * @slot clear-icon - An icon to use in lieu of the default clear icon.
- * @slot show-password-icon - An icon to use in lieu of the default show password icon.
- * @slot hide-password-icon - An icon to use in lieu of the default hide password icon.
- * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
- * @event sl-clear - Emitted when the clear button is activated.
- * @event sl-focus - Emitted when the control gains focus.
- * @event sl-input - Emitted when the control receives input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart form-control - The form control that wraps the label, input, and help text.
- * @csspart form-control-label - The label's wrapper.
- * @csspart form-control-input - The input's wrapper.
- * @csspart form-control-help-text - The help text's wrapper.
- * @csspart base - The component's base wrapper.
- * @csspart input - The internal `<input>` control.
- * @csspart prefix - The container that wraps the prefix.
- * @csspart clear-button - The clear button.
- * @csspart password-toggle-button - The password toggle button.
- * @csspart suffix - The container that wraps the suffix.
- */
-declare class SlInput extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Inputs collect data from the user.
+   * @documentation https://shoelace.style/components/input
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot label - The input's label. Alternatively, you can use the `label` attribute.
+   * @slot prefix - Used to prepend a presentational icon or similar element to the input.
+   * @slot suffix - Used to append a presentational icon or similar element to the input.
+   * @slot clear-icon - An icon to use in lieu of the default clear icon.
+   * @slot show-password-icon - An icon to use in lieu of the default show password icon.
+   * @slot hide-password-icon - An icon to use in lieu of the default hide password icon.
+   * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
+   * @event sl-clear - Emitted when the clear button is activated.
+   * @event sl-focus - Emitted when the control gains focus.
+   * @event sl-input - Emitted when the control receives input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart form-control - The form control that wraps the label, input, and help text.
+   * @csspart form-control-label - The label's wrapper.
+   * @csspart form-control-input - The input's wrapper.
+   * @csspart form-control-help-text - The help text's wrapper.
+   * @csspart base - The component's base wrapper.
+   * @csspart input - The internal `<input>` control.
+   * @csspart prefix - The container that wraps the prefix.
+   * @csspart clear-button - The clear button.
+   * @csspart password-toggle-button - The password toggle button.
+   * @csspart suffix - The container that wraps the suffix.
+   */
+  declare class SlInput extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly formControlController;
     private readonly hasSlotController;
@@ -1488,9 +1554,18 @@ declare class SlInput extends ShoelaceElement implements ShoelaceFormControl {
     /** Selects all the text in the input. */
     select(): void;
     /** Sets the start and end positions of the text selection (0-based). */
-    setSelectionRange(selectionStart: number, selectionEnd: number, selectionDirection?: 'forward' | 'backward' | 'none'): void;
+    setSelectionRange(
+      selectionStart: number,
+      selectionEnd: number,
+      selectionDirection?: 'forward' | 'backward' | 'none',
+    ): void;
     /** Replaces a range of text with a new string. */
-    setRangeText(replacement: string, start?: number, end?: number, selectMode?: 'select' | 'start' | 'end' | 'preserve'): void;
+    setRangeText(
+      replacement: string,
+      start?: number,
+      end?: number,
+      selectMode?: 'select' | 'start' | 'end' | 'preserve',
+    ): void;
     /** Displays the browser picker for an input element (only works if the browser supports it for the input type). */
     showPicker(): void;
     /** Increments the value of a numeric input type by the value of the step attribute. */
@@ -1506,84 +1581,84 @@ declare class SlInput extends ShoelaceElement implements ShoelaceFormControl {
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary The visually hidden utility makes content accessible to assistive devices without displaying it on the screen.
- * @documentation https://shoelace.style/components/visually-hidden
- * @status stable
- * @since 2.0
- *
- * @slot - The content to be visually hidden.
- */
-declare class SlVisuallyHidden extends ShoelaceElement {
+  /**
+   * @summary The visually hidden utility makes content accessible to assistive devices without displaying it on the screen.
+   * @documentation https://shoelace.style/components/visually-hidden
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The content to be visually hidden.
+   */
+  declare class SlVisuallyHidden extends ShoelaceElement {
     static styles: CSSResultGroup;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Color pickers allow the user to select a color.
- * @documentation https://shoelace.style/components/color-picker
- * @status stable
- * @since 2.0
- *
- * @dependency sl-button
- * @dependency sl-button-group
- * @dependency sl-dropdown
- * @dependency sl-input
- * @dependency sl-visually-hidden
- *
- * @slot label - The color picker's form label. Alternatively, you can use the `label` attribute.
- *
- * @event sl-blur - Emitted when the color picker loses focus.
- * @event sl-change - Emitted when the color picker's value changes.
- * @event sl-focus - Emitted when the color picker receives focus.
- * @event sl-input - Emitted when the color picker receives input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart base - The component's base wrapper.
- * @csspart trigger - The color picker's dropdown trigger.
- * @csspart swatches - The container that holds the swatches.
- * @csspart swatch - Each individual swatch.
- * @csspart grid - The color grid.
- * @csspart grid-handle - The color grid's handle.
- * @csspart slider - Hue and opacity sliders.
- * @csspart slider-handle - Hue and opacity slider handles.
- * @csspart hue-slider - The hue slider.
- * @csspart hue-slider-handle - The hue slider's handle.
- * @csspart opacity-slider - The opacity slider.
- * @csspart opacity-slider-handle - The opacity slider's handle.
- * @csspart preview - The preview color.
- * @csspart input - The text input.
- * @csspart eye-dropper-button - The eye dropper button.
- * @csspart eye-dropper-button__base - The eye dropper button's exported `button` part.
- * @csspart eye-dropper-button__prefix - The eye dropper button's exported `prefix` part.
- * @csspart eye-dropper-button__label - The eye dropper button's exported `label` part.
- * @csspart eye-dropper-button__suffix - The eye dropper button's exported `suffix` part.
- * @csspart eye-dropper-button__caret - The eye dropper button's exported `caret` part.
- * @csspart format-button - The format button.
- * @csspart format-button__base - The format button's exported `button` part.
- * @csspart format-button__prefix - The format button's exported `prefix` part.
- * @csspart format-button__label - The format button's exported `label` part.
- * @csspart format-button__suffix - The format button's exported `suffix` part.
- * @csspart format-button__caret - The format button's exported `caret` part.
- *
- * @cssproperty --grid-width - The width of the color grid.
- * @cssproperty --grid-height - The height of the color grid.
- * @cssproperty --grid-handle-size - The size of the color grid's handle.
- * @cssproperty --slider-height - The height of the hue and alpha sliders.
- * @cssproperty --slider-handle-size - The diameter of the slider's handle.
- * @cssproperty --swatch-size - The size of each predefined color swatch.
- */
-declare class SlColorPicker extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Color pickers allow the user to select a color.
+   * @documentation https://shoelace.style/components/color-picker
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-button
+   * @dependency sl-button-group
+   * @dependency sl-dropdown
+   * @dependency sl-input
+   * @dependency sl-visually-hidden
+   *
+   * @slot label - The color picker's form label. Alternatively, you can use the `label` attribute.
+   *
+   * @event sl-blur - Emitted when the color picker loses focus.
+   * @event sl-change - Emitted when the color picker's value changes.
+   * @event sl-focus - Emitted when the color picker receives focus.
+   * @event sl-input - Emitted when the color picker receives input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart trigger - The color picker's dropdown trigger.
+   * @csspart swatches - The container that holds the swatches.
+   * @csspart swatch - Each individual swatch.
+   * @csspart grid - The color grid.
+   * @csspart grid-handle - The color grid's handle.
+   * @csspart slider - Hue and opacity sliders.
+   * @csspart slider-handle - Hue and opacity slider handles.
+   * @csspart hue-slider - The hue slider.
+   * @csspart hue-slider-handle - The hue slider's handle.
+   * @csspart opacity-slider - The opacity slider.
+   * @csspart opacity-slider-handle - The opacity slider's handle.
+   * @csspart preview - The preview color.
+   * @csspart input - The text input.
+   * @csspart eye-dropper-button - The eye dropper button.
+   * @csspart eye-dropper-button__base - The eye dropper button's exported `button` part.
+   * @csspart eye-dropper-button__prefix - The eye dropper button's exported `prefix` part.
+   * @csspart eye-dropper-button__label - The eye dropper button's exported `label` part.
+   * @csspart eye-dropper-button__suffix - The eye dropper button's exported `suffix` part.
+   * @csspart eye-dropper-button__caret - The eye dropper button's exported `caret` part.
+   * @csspart format-button - The format button.
+   * @csspart format-button__base - The format button's exported `button` part.
+   * @csspart format-button__prefix - The format button's exported `prefix` part.
+   * @csspart format-button__label - The format button's exported `label` part.
+   * @csspart format-button__suffix - The format button's exported `suffix` part.
+   * @csspart format-button__caret - The format button's exported `caret` part.
+   *
+   * @cssproperty --grid-width - The width of the color grid.
+   * @cssproperty --grid-height - The height of the color grid.
+   * @cssproperty --grid-handle-size - The size of the color grid's handle.
+   * @cssproperty --slider-height - The height of the hue and alpha sliders.
+   * @cssproperty --slider-handle-size - The diameter of the slider's handle.
+   * @cssproperty --swatch-size - The size of each predefined color swatch.
+   */
+  declare class SlColorPicker extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-button-group': typeof SlButtonGroup;
-        'sl-button': typeof SlButton;
-        'sl-dropdown': typeof SlDropdown;
-        'sl-icon': typeof SlIcon;
-        'sl-input': typeof SlInput;
-        'sl-visually-hidden': typeof SlVisuallyHidden;
+      'sl-button-group': typeof SlButtonGroup;
+      'sl-button': typeof SlButton;
+      'sl-dropdown': typeof SlDropdown;
+      'sl-icon': typeof SlIcon;
+      'sl-input': typeof SlInput;
+      'sl-visually-hidden': typeof SlVisuallyHidden;
     };
     private readonly formControlController;
     private isSafeValue;
@@ -1701,46 +1776,46 @@ declare class SlColorPicker extends ShoelaceElement implements ShoelaceFormContr
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-color-picker': SlColorPicker;
+      'sl-color-picker': SlColorPicker;
     }
-};
+  }
 
-/**
- * @summary Tooltips display additional information based on a specific action.
- * @documentation https://shoelace.style/components/tooltip
- * @status stable
- * @since 2.0
- *
- * @dependency sl-popup
- *
- * @slot - The tooltip's target element. Avoid slotting in more than one element, as subsequent ones will be ignored.
- * @slot content - The content to render in the tooltip. Alternatively, you can use the `content` attribute.
- *
- * @event sl-show - Emitted when the tooltip begins to show.
- * @event sl-after-show - Emitted after the tooltip has shown and all animations are complete.
- * @event sl-hide - Emitted when the tooltip begins to hide.
- * @event sl-after-hide - Emitted after the tooltip has hidden and all animations are complete.
- *
- * @csspart base - The component's base wrapper, an `<sl-popup>` element.
- * @csspart base__popup - The popup's exported `popup` part. Use this to target the tooltip's popup container.
- * @csspart base__arrow - The popup's exported `arrow` part. Use this to target the tooltip's arrow.
- * @csspart body - The tooltip's body where its content is rendered.
- *
- * @cssproperty --max-width - The maximum width of the tooltip before its content will wrap.
- * @cssproperty --hide-delay - The amount of time to wait before hiding the tooltip when hovering.
- * @cssproperty --show-delay - The amount of time to wait before showing the tooltip when hovering.
- *
- * @animation tooltip.show - The animation to use when showing the tooltip.
- * @animation tooltip.hide - The animation to use when hiding the tooltip.
- */
-declare class SlTooltip extends ShoelaceElement {
+  /**
+   * @summary Tooltips display additional information based on a specific action.
+   * @documentation https://shoelace.style/components/tooltip
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-popup
+   *
+   * @slot - The tooltip's target element. Avoid slotting in more than one element, as subsequent ones will be ignored.
+   * @slot content - The content to render in the tooltip. Alternatively, you can use the `content` attribute.
+   *
+   * @event sl-show - Emitted when the tooltip begins to show.
+   * @event sl-after-show - Emitted after the tooltip has shown and all animations are complete.
+   * @event sl-hide - Emitted when the tooltip begins to hide.
+   * @event sl-after-hide - Emitted after the tooltip has hidden and all animations are complete.
+   *
+   * @csspart base - The component's base wrapper, an `<sl-popup>` element.
+   * @csspart base__popup - The popup's exported `popup` part. Use this to target the tooltip's popup container.
+   * @csspart base__arrow - The popup's exported `arrow` part. Use this to target the tooltip's arrow.
+   * @csspart body - The tooltip's body where its content is rendered.
+   *
+   * @cssproperty --max-width - The maximum width of the tooltip before its content will wrap.
+   * @cssproperty --hide-delay - The amount of time to wait before hiding the tooltip when hovering.
+   * @cssproperty --show-delay - The amount of time to wait before showing the tooltip when hovering.
+   *
+   * @animation tooltip.show - The animation to use when showing the tooltip.
+   * @animation tooltip.hide - The animation to use when hiding the tooltip.
+   */
+  declare class SlTooltip extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-popup': typeof SlPopup;
+      'sl-popup': typeof SlPopup;
     };
     private hoverTimeout;
     private readonly localize;
@@ -1754,7 +1829,19 @@ declare class SlTooltip extends ShoelaceElement {
      * The preferred placement of the tooltip. Note that the actual placement may vary as needed to keep the tooltip
      * inside of the viewport.
      */
-    placement: 'top' | 'top-start' | 'top-end' | 'right' | 'right-start' | 'right-end' | 'bottom' | 'bottom-start' | 'bottom-end' | 'left' | 'left-start' | 'left-end';
+    placement:
+      | 'top'
+      | 'top-start'
+      | 'top-end'
+      | 'right'
+      | 'right-start'
+      | 'right-end'
+      | 'bottom'
+      | 'bottom-start'
+      | 'bottom-end'
+      | 'left'
+      | 'left-start'
+      | 'left-end';
     /** Disables the tooltip so it won't show when triggered. */
     disabled: boolean;
     /** The distance in pixels from which to offset the tooltip away from its target. */
@@ -1793,44 +1880,44 @@ declare class SlTooltip extends ShoelaceElement {
     /** Hides the tooltip */
     hide(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Copies text data to the clipboard when the user clicks the trigger.
- * @documentation https://shoelace.style/components/copy
- * @status experimental
- * @since 2.7
- *
- * @dependency sl-icon
- * @dependency sl-tooltip
- *
- * @event sl-copy - Emitted when the data has been copied.
- * @event sl-error - Emitted when the data could not be copied.
- *
- * @slot copy-icon - The icon to show in the default copy state. Works best with `<sl-icon>`.
- * @slot success-icon - The icon to show when the content is copied. Works best with `<sl-icon>`.
- * @slot error-icon - The icon to show when a copy error occurs. Works best with `<sl-icon>`.
- *
- * @csspart button - The internal `<button>` element.
- * @csspart copy-icon - The container that holds the copy icon.
- * @csspart success-icon - The container that holds the success icon.
- * @csspart error-icon - The container that holds the error icon.
- * @csspart tooltip__base - The tooltip's exported `base` part.
- * @csspart tooltip__base__popup - The tooltip's exported `popup` part.
- * @csspart tooltip__base__arrow - The tooltip's exported `arrow` part.
- * @csspart tooltip__body - The tooltip's exported `body` part.
- *
- * @cssproperty --success-color - The color to use for success feedback.
- * @cssproperty --error-color - The color to use for error feedback.
- *
- * @animation copy.in - The animation to use when feedback icons animate in.
- * @animation copy.out - The animation to use when feedback icons animate out.
- */
-declare class SlCopyButton extends ShoelaceElement {
+  /**
+   * @summary Copies text data to the clipboard when the user clicks the trigger.
+   * @documentation https://shoelace.style/components/copy
+   * @status experimental
+   * @since 2.7
+   *
+   * @dependency sl-icon
+   * @dependency sl-tooltip
+   *
+   * @event sl-copy - Emitted when the data has been copied.
+   * @event sl-error - Emitted when the data could not be copied.
+   *
+   * @slot copy-icon - The icon to show in the default copy state. Works best with `<sl-icon>`.
+   * @slot success-icon - The icon to show when the content is copied. Works best with `<sl-icon>`.
+   * @slot error-icon - The icon to show when a copy error occurs. Works best with `<sl-icon>`.
+   *
+   * @csspart button - The internal `<button>` element.
+   * @csspart copy-icon - The container that holds the copy icon.
+   * @csspart success-icon - The container that holds the success icon.
+   * @csspart error-icon - The container that holds the error icon.
+   * @csspart tooltip__base - The tooltip's exported `base` part.
+   * @csspart tooltip__base__popup - The tooltip's exported `popup` part.
+   * @csspart tooltip__base__arrow - The tooltip's exported `arrow` part.
+   * @csspart tooltip__body - The tooltip's exported `body` part.
+   *
+   * @cssproperty --success-color - The color to use for success feedback.
+   * @cssproperty --error-color - The color to use for error feedback.
+   *
+   * @animation copy.in - The animation to use when feedback icons animate in.
+   * @animation copy.out - The animation to use when feedback icons animate out.
+   */
+  declare class SlCopyButton extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
-        'sl-tooltip': typeof SlTooltip;
+      'sl-icon': typeof SlIcon;
+      'sl-tooltip': typeof SlTooltip;
     };
     private readonly localize;
     copyIcon: HTMLSlotElement;
@@ -1869,45 +1956,45 @@ declare class SlCopyButton extends ShoelaceElement {
     private handleCopy;
     private showStatus;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-copy-button': SlCopyButton;
+      'sl-copy-button': SlCopyButton;
     }
-};
+  }
 
-/**
- * @summary Details show a brief summary and expand to show additional content.
- * @documentation https://shoelace.style/components/details
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot - The details' main content.
- * @slot summary - The details' summary. Alternatively, you can use the `summary` attribute.
- * @slot expand-icon - Optional expand icon to use instead of the default. Works best with `<sl-icon>`.
- * @slot collapse-icon - Optional collapse icon to use instead of the default. Works best with `<sl-icon>`.
- *
- * @event sl-show - Emitted when the details opens.
- * @event sl-after-show - Emitted after the details opens and all animations are complete.
- * @event sl-hide - Emitted when the details closes.
- * @event sl-after-hide - Emitted after the details closes and all animations are complete.
- *
- * @csspart base - The component's base wrapper.
- * @csspart header - The header that wraps both the summary and the expand/collapse icon.
- * @csspart summary - The container that wraps the summary.
- * @csspart summary-icon - The container that wraps the expand/collapse icons.
- * @csspart content - The details content.
- *
- * @animation details.show - The animation to use when showing details. You can use `height: auto` with this animation.
- * @animation details.hide - The animation to use when hiding details. You can use `height: auto` with this animation.
- */
-declare class SlDetails extends ShoelaceElement {
+  /**
+   * @summary Details show a brief summary and expand to show additional content.
+   * @documentation https://shoelace.style/components/details
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot - The details' main content.
+   * @slot summary - The details' summary. Alternatively, you can use the `summary` attribute.
+   * @slot expand-icon - Optional expand icon to use instead of the default. Works best with `<sl-icon>`.
+   * @slot collapse-icon - Optional collapse icon to use instead of the default. Works best with `<sl-icon>`.
+   *
+   * @event sl-show - Emitted when the details opens.
+   * @event sl-after-show - Emitted after the details opens and all animations are complete.
+   * @event sl-hide - Emitted when the details closes.
+   * @event sl-after-hide - Emitted after the details closes and all animations are complete.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart header - The header that wraps both the summary and the expand/collapse icon.
+   * @csspart summary - The container that wraps the summary.
+   * @csspart summary-icon - The container that wraps the expand/collapse icons.
+   * @csspart content - The details content.
+   *
+   * @animation details.show - The animation to use when showing details. You can use `height: auto` with this animation.
+   * @animation details.hide - The animation to use when hiding details. You can use `height: auto` with this animation.
+   */
+  declare class SlDetails extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly localize;
     details: HTMLDetailsElement;
@@ -1934,15 +2021,15 @@ declare class SlDetails extends ShoelaceElement {
     /** Hides the details */
     hide(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-details': SlDetails;
+      'sl-details': SlDetails;
     }
-};
+  }
 
-declare class Modal {
+  declare class Modal {
     element: HTMLElement;
     isExternalActivated: boolean;
     tabDirection: 'forward' | 'backward';
@@ -1965,62 +2052,62 @@ declare class Modal {
     private possiblyHasTabbableChildren;
     private handleKeyDown;
     private handleKeyUp;
-}
+  }
 
-/**
- * @summary Dialogs, sometimes called "modals", appear above the page and require the user's immediate attention.
- * @documentation https://shoelace.style/components/dialog
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - The dialog's main content.
- * @slot label - The dialog's label. Alternatively, you can use the `label` attribute.
- * @slot header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
- * @slot footer - The dialog's footer, usually one or more buttons representing various options.
- *
- * @event sl-show - Emitted when the dialog opens.
- * @event sl-after-show - Emitted after the dialog opens and all animations are complete.
- * @event sl-hide - Emitted when the dialog closes.
- * @event sl-after-hide - Emitted after the dialog closes and all animations are complete.
- * @event sl-initial-focus - Emitted when the dialog opens and is ready to receive focus. Calling
- *   `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input.
- * @event {{ source: 'close-button' | 'keyboard' | 'overlay' }} sl-request-close - Emitted when the user attempts to
- *   close the dialog by clicking the close button, clicking the overlay, or pressing escape. Calling
- *   `event.preventDefault()` will keep the dialog open. Avoid using this unless closing the dialog will result in
- *   destructive behavior such as data loss.
- *
- * @csspart base - The component's base wrapper.
- * @csspart overlay - The overlay that covers the screen behind the dialog.
- * @csspart panel - The dialog's panel (where the dialog and its content are rendered).
- * @csspart header - The dialog's header. This element wraps the title and header actions.
- * @csspart header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
- * @csspart title - The dialog's title.
- * @csspart close-button - The close button, an `<sl-icon-button>`.
- * @csspart close-button__base - The close button's exported `base` part.
- * @csspart body - The dialog's body.
- * @csspart footer - The dialog's footer.
- *
- * @cssproperty --width - The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
- * @cssproperty --header-spacing - The amount of padding to use for the header.
- * @cssproperty --body-spacing - The amount of padding to use for the body.
- * @cssproperty --footer-spacing - The amount of padding to use for the footer.
- *
- * @animation dialog.show - The animation to use when showing the dialog.
- * @animation dialog.hide - The animation to use when hiding the dialog.
- * @animation dialog.denyClose - The animation to use when a request to close the dialog is denied.
- * @animation dialog.overlay.show - The animation to use when showing the dialog's overlay.
- * @animation dialog.overlay.hide - The animation to use when hiding the dialog's overlay.
- *
- * @property modal - Exposes the internal modal utility that controls focus trapping. To temporarily disable focus
- *   trapping and allow third-party modals spawned from an active Shoelace modal, call `modal.activateExternal()` when
- *   the third-party modal opens. Upon closing, call `modal.deactivateExternal()` to restore Shoelace's focus trapping.
- */
-declare class SlDialog extends ShoelaceElement {
+  /**
+   * @summary Dialogs, sometimes called "modals", appear above the page and require the user's immediate attention.
+   * @documentation https://shoelace.style/components/dialog
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - The dialog's main content.
+   * @slot label - The dialog's label. Alternatively, you can use the `label` attribute.
+   * @slot header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
+   * @slot footer - The dialog's footer, usually one or more buttons representing various options.
+   *
+   * @event sl-show - Emitted when the dialog opens.
+   * @event sl-after-show - Emitted after the dialog opens and all animations are complete.
+   * @event sl-hide - Emitted when the dialog closes.
+   * @event sl-after-hide - Emitted after the dialog closes and all animations are complete.
+   * @event sl-initial-focus - Emitted when the dialog opens and is ready to receive focus. Calling
+   *   `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input.
+   * @event {{ source: 'close-button' | 'keyboard' | 'overlay' }} sl-request-close - Emitted when the user attempts to
+   *   close the dialog by clicking the close button, clicking the overlay, or pressing escape. Calling
+   *   `event.preventDefault()` will keep the dialog open. Avoid using this unless closing the dialog will result in
+   *   destructive behavior such as data loss.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart overlay - The overlay that covers the screen behind the dialog.
+   * @csspart panel - The dialog's panel (where the dialog and its content are rendered).
+   * @csspart header - The dialog's header. This element wraps the title and header actions.
+   * @csspart header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
+   * @csspart title - The dialog's title.
+   * @csspart close-button - The close button, an `<sl-icon-button>`.
+   * @csspart close-button__base - The close button's exported `base` part.
+   * @csspart body - The dialog's body.
+   * @csspart footer - The dialog's footer.
+   *
+   * @cssproperty --width - The preferred width of the dialog. Note that the dialog will shrink to accommodate smaller screens.
+   * @cssproperty --header-spacing - The amount of padding to use for the header.
+   * @cssproperty --body-spacing - The amount of padding to use for the body.
+   * @cssproperty --footer-spacing - The amount of padding to use for the footer.
+   *
+   * @animation dialog.show - The animation to use when showing the dialog.
+   * @animation dialog.hide - The animation to use when hiding the dialog.
+   * @animation dialog.denyClose - The animation to use when a request to close the dialog is denied.
+   * @animation dialog.overlay.show - The animation to use when showing the dialog's overlay.
+   * @animation dialog.overlay.hide - The animation to use when hiding the dialog's overlay.
+   *
+   * @property modal - Exposes the internal modal utility that controls focus trapping. To temporarily disable focus
+   *   trapping and allow third-party modals spawned from an active Shoelace modal, call `modal.activateExternal()` when
+   *   the third-party modal opens. Upon closing, call `modal.deactivateExternal()` to restore Shoelace's focus trapping.
+   */
+  declare class SlDialog extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
+      'sl-icon-button': typeof SlIconButton;
     };
     private readonly hasSlotController;
     private readonly localize;
@@ -2057,99 +2144,99 @@ declare class SlDialog extends ShoelaceElement {
     /** Hides the dialog */
     hide(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-dialog': SlDialog;
+      'sl-dialog': SlDialog;
     }
-};
+  }
 
-/**
- * @summary Dividers are used to visually separate or group elements.
- * @documentation https://shoelace.style/components/divider
- * @status stable
- * @since 2.0
- *
- * @cssproperty --color - The color of the divider.
- * @cssproperty --width - The width of the divider.
- * @cssproperty --spacing - The spacing of the divider.
- */
-declare class SlDivider extends ShoelaceElement {
+  /**
+   * @summary Dividers are used to visually separate or group elements.
+   * @documentation https://shoelace.style/components/divider
+   * @status stable
+   * @since 2.0
+   *
+   * @cssproperty --color - The color of the divider.
+   * @cssproperty --width - The width of the divider.
+   * @cssproperty --spacing - The spacing of the divider.
+   */
+  declare class SlDivider extends ShoelaceElement {
     static styles: CSSResultGroup;
     /** Draws the divider in a vertical orientation. */
     vertical: boolean;
     connectedCallback(): void;
     handleVerticalChange(): void;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-divider': SlDivider;
+      'sl-divider': SlDivider;
     }
-};
+  }
 
-/**
- * @summary Drawers slide in from a container to expose additional options and information.
- * @documentation https://shoelace.style/components/drawer
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - The drawer's main content.
- * @slot label - The drawer's label. Alternatively, you can use the `label` attribute.
- * @slot header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
- * @slot footer - The drawer's footer, usually one or more buttons representing various options.
- *
- * @event sl-show - Emitted when the drawer opens.
- * @event sl-after-show - Emitted after the drawer opens and all animations are complete.
- * @event sl-hide - Emitted when the drawer closes.
- * @event sl-after-hide - Emitted after the drawer closes and all animations are complete.
- * @event sl-initial-focus - Emitted when the drawer opens and is ready to receive focus. Calling
- *   `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input.
- * @event {{ source: 'close-button' | 'keyboard' | 'overlay' }} sl-request-close - Emitted when the user attempts to
- *   close the drawer by clicking the close button, clicking the overlay, or pressing escape. Calling
- *   `event.preventDefault()` will keep the drawer open. Avoid using this unless closing the drawer will result in
- *   destructive behavior such as data loss.
- *
- * @csspart base - The component's base wrapper.
- * @csspart overlay - The overlay that covers the screen behind the drawer.
- * @csspart panel - The drawer's panel (where the drawer and its content are rendered).
- * @csspart header - The drawer's header. This element wraps the title and header actions.
- * @csspart header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
- * @csspart title - The drawer's title.
- * @csspart close-button - The close button, an `<sl-icon-button>`.
- * @csspart close-button__base - The close button's exported `base` part.
- * @csspart body - The drawer's body.
- * @csspart footer - The drawer's footer.
- *
- * @cssproperty --size - The preferred size of the drawer. This will be applied to the drawer's width or height
- *   depending on its `placement`. Note that the drawer will shrink to accommodate smaller screens.
- * @cssproperty --header-spacing - The amount of padding to use for the header.
- * @cssproperty --body-spacing - The amount of padding to use for the body.
- * @cssproperty --footer-spacing - The amount of padding to use for the footer.
- *
- * @animation drawer.showTop - The animation to use when showing a drawer with `top` placement.
- * @animation drawer.showEnd - The animation to use when showing a drawer with `end` placement.
- * @animation drawer.showBottom - The animation to use when showing a drawer with `bottom` placement.
- * @animation drawer.showStart - The animation to use when showing a drawer with `start` placement.
- * @animation drawer.hideTop - The animation to use when hiding a drawer with `top` placement.
- * @animation drawer.hideEnd - The animation to use when hiding a drawer with `end` placement.
- * @animation drawer.hideBottom - The animation to use when hiding a drawer with `bottom` placement.
- * @animation drawer.hideStart - The animation to use when hiding a drawer with `start` placement.
- * @animation drawer.denyClose - The animation to use when a request to close the drawer is denied.
- * @animation drawer.overlay.show - The animation to use when showing the drawer's overlay.
- * @animation drawer.overlay.hide - The animation to use when hiding the drawer's overlay.
- *
- * @property modal - Exposes the internal modal utility that controls focus trapping. To temporarily disable focus
- *   trapping and allow third-party modals spawned from an active Shoelace modal, call `modal.activateExternal()` when
- *   the third-party modal opens. Upon closing, call `modal.deactivateExternal()` to restore Shoelace's focus trapping.
- */
-declare class SlDrawer extends ShoelaceElement {
+  /**
+   * @summary Drawers slide in from a container to expose additional options and information.
+   * @documentation https://shoelace.style/components/drawer
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - The drawer's main content.
+   * @slot label - The drawer's label. Alternatively, you can use the `label` attribute.
+   * @slot header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
+   * @slot footer - The drawer's footer, usually one or more buttons representing various options.
+   *
+   * @event sl-show - Emitted when the drawer opens.
+   * @event sl-after-show - Emitted after the drawer opens and all animations are complete.
+   * @event sl-hide - Emitted when the drawer closes.
+   * @event sl-after-hide - Emitted after the drawer closes and all animations are complete.
+   * @event sl-initial-focus - Emitted when the drawer opens and is ready to receive focus. Calling
+   *   `event.preventDefault()` will prevent focusing and allow you to set it on a different element, such as an input.
+   * @event {{ source: 'close-button' | 'keyboard' | 'overlay' }} sl-request-close - Emitted when the user attempts to
+   *   close the drawer by clicking the close button, clicking the overlay, or pressing escape. Calling
+   *   `event.preventDefault()` will keep the drawer open. Avoid using this unless closing the drawer will result in
+   *   destructive behavior such as data loss.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart overlay - The overlay that covers the screen behind the drawer.
+   * @csspart panel - The drawer's panel (where the drawer and its content are rendered).
+   * @csspart header - The drawer's header. This element wraps the title and header actions.
+   * @csspart header-actions - Optional actions to add to the header. Works best with `<sl-icon-button>`.
+   * @csspart title - The drawer's title.
+   * @csspart close-button - The close button, an `<sl-icon-button>`.
+   * @csspart close-button__base - The close button's exported `base` part.
+   * @csspart body - The drawer's body.
+   * @csspart footer - The drawer's footer.
+   *
+   * @cssproperty --size - The preferred size of the drawer. This will be applied to the drawer's width or height
+   *   depending on its `placement`. Note that the drawer will shrink to accommodate smaller screens.
+   * @cssproperty --header-spacing - The amount of padding to use for the header.
+   * @cssproperty --body-spacing - The amount of padding to use for the body.
+   * @cssproperty --footer-spacing - The amount of padding to use for the footer.
+   *
+   * @animation drawer.showTop - The animation to use when showing a drawer with `top` placement.
+   * @animation drawer.showEnd - The animation to use when showing a drawer with `end` placement.
+   * @animation drawer.showBottom - The animation to use when showing a drawer with `bottom` placement.
+   * @animation drawer.showStart - The animation to use when showing a drawer with `start` placement.
+   * @animation drawer.hideTop - The animation to use when hiding a drawer with `top` placement.
+   * @animation drawer.hideEnd - The animation to use when hiding a drawer with `end` placement.
+   * @animation drawer.hideBottom - The animation to use when hiding a drawer with `bottom` placement.
+   * @animation drawer.hideStart - The animation to use when hiding a drawer with `start` placement.
+   * @animation drawer.denyClose - The animation to use when a request to close the drawer is denied.
+   * @animation drawer.overlay.show - The animation to use when showing the drawer's overlay.
+   * @animation drawer.overlay.hide - The animation to use when hiding the drawer's overlay.
+   *
+   * @property modal - Exposes the internal modal utility that controls focus trapping. To temporarily disable focus
+   *   trapping and allow third-party modals spawned from an active Shoelace modal, call `modal.activateExternal()` when
+   *   the third-party modal opens. Upon closing, call `modal.deactivateExternal()` to restore Shoelace's focus trapping.
+   */
+  declare class SlDrawer extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
+      'sl-icon-button': typeof SlIconButton;
     };
     private readonly hasSlotController;
     private readonly localize;
@@ -2194,27 +2281,27 @@ declare class SlDrawer extends ShoelaceElement {
     /** Hides the drawer */
     hide(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-drawer': SlDrawer;
+      'sl-drawer': SlDrawer;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-dropdown': SlDropdown;
+      'sl-dropdown': SlDropdown;
     }
-};
+  }
 
-/**
- * @summary Formats a number as a human readable bytes value.
- * @documentation https://shoelace.style/components/format-bytes
- * @status stable
- * @since 2.0
- */
-declare class SlFormatBytes extends ShoelaceElement {
+  /**
+   * @summary Formats a number as a human readable bytes value.
+   * @documentation https://shoelace.style/components/format-bytes
+   * @status stable
+   * @since 2.0
+   */
+  declare class SlFormatBytes extends ShoelaceElement {
     private readonly localize;
     /** The number to format in bytes. */
     value: number;
@@ -2223,21 +2310,21 @@ declare class SlFormatBytes extends ShoelaceElement {
     /** Determines how to display the result, e.g. "100 bytes", "100 b", or "100b". */
     display: 'long' | 'short' | 'narrow';
     render(): string;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-format-bytes': SlFormatBytes;
+      'sl-format-bytes': SlFormatBytes;
     }
-};
+  }
 
-/**
- * @summary Formats a date/time using the specified locale and options.
- * @documentation https://shoelace.style/components/format-date
- * @status stable
- * @since 2.0
- */
-declare class SlFormatDate extends ShoelaceElement {
+  /**
+   * @summary Formats a date/time using the specified locale and options.
+   * @documentation https://shoelace.style/components/format-date
+   * @status stable
+   * @since 2.0
+   */
+  declare class SlFormatDate extends ShoelaceElement {
     private readonly localize;
     /**
      * The date/time to format. If not set, the current date and time will be used. When passing a string, it's strongly
@@ -2268,21 +2355,21 @@ declare class SlFormatDate extends ShoelaceElement {
     /** The format for displaying the hour. */
     hourFormat: 'auto' | '12' | '24';
     render(): lit_html.TemplateResult<1> | undefined;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-format-date': SlFormatDate;
+      'sl-format-date': SlFormatDate;
     }
-};
+  }
 
-/**
- * @summary Formats a number using the specified locale and options.
- * @documentation https://shoelace.style/components/format-number
- * @status stable
- * @since 2.0
- */
-declare class SlFormatNumber extends ShoelaceElement {
+  /**
+   * @summary Formats a number using the specified locale and options.
+   * @documentation https://shoelace.style/components/format-number
+   * @status stable
+   * @since 2.0
+   */
+  declare class SlFormatNumber extends ShoelaceElement {
     private readonly localize;
     /** The number to format. */
     value: number;
@@ -2305,53 +2392,53 @@ declare class SlFormatNumber extends ShoelaceElement {
     /** The maximum number of significant digits to use,. Possible values are 1-21. */
     maximumSignificantDigits: number;
     render(): string;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-format-number': SlFormatNumber;
+      'sl-format-number': SlFormatNumber;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-icon': SlIcon;
+      'sl-icon': SlIcon;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-icon-button': SlIconButton;
+      'sl-icon-button': SlIconButton;
     }
-};
+  }
 
-/**
- * @summary Compare visual differences between similar photos with a sliding panel.
- * @documentation https://shoelace.style/components/image-comparer
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot before - The before image, an `<img>` or `<svg>` element.
- * @slot after - The after image, an `<img>` or `<svg>` element.
- * @slot handle - The icon used inside the handle.
- *
- * @event sl-change - Emitted when the position changes.
- *
- * @csspart base - The component's base wrapper.
- * @csspart before - The container that wraps the before image.
- * @csspart after - The container that wraps the after image.
- * @csspart divider - The divider that separates the images.
- * @csspart handle - The handle that the user drags to expose the after image.
- *
- * @cssproperty --divider-width - The width of the dividing line.
- * @cssproperty --handle-size - The size of the compare handle.
- */
-declare class SlImageComparer extends ShoelaceElement {
+  /**
+   * @summary Compare visual differences between similar photos with a sliding panel.
+   * @documentation https://shoelace.style/components/image-comparer
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot before - The before image, an `<img>` or `<svg>` element.
+   * @slot after - The after image, an `<img>` or `<svg>` element.
+   * @slot handle - The icon used inside the handle.
+   *
+   * @event sl-change - Emitted when the position changes.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart before - The container that wraps the before image.
+   * @csspart after - The container that wraps the after image.
+   * @csspart divider - The divider that separates the images.
+   * @csspart handle - The handle that the user drags to expose the after image.
+   *
+   * @cssproperty --divider-width - The width of the dividing line.
+   * @cssproperty --handle-size - The size of the compare handle.
+   */
+  declare class SlImageComparer extends ShoelaceElement {
     static styles: CSSResultGroup;
     static scopedElement: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly localize;
     base: HTMLElement;
@@ -2362,24 +2449,24 @@ declare class SlImageComparer extends ShoelaceElement {
     private handleKeyDown;
     handlePositionChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-image-comparer': SlImageComparer;
+      'sl-image-comparer': SlImageComparer;
     }
-};
+  }
 
-/**
- * @summary Includes give you the power to embed external HTML files into the page.
- * @documentation https://shoelace.style/components/include
- * @status stable
- * @since 2.0
- *
- * @event sl-load - Emitted when the included file is loaded.
- * @event {{ status: number }} sl-error - Emitted when the included file fails to load due to an error.
- */
-declare class SlInclude extends ShoelaceElement {
+  /**
+   * @summary Includes give you the power to embed external HTML files into the page.
+   * @documentation https://shoelace.style/components/include
+   * @status stable
+   * @since 2.0
+   *
+   * @event sl-load - Emitted when the included file is loaded.
+   * @event {{ status: number }} sl-error - Emitted when the included file fails to load due to an error.
+   */
+  declare class SlInclude extends ShoelaceElement {
     static styles: CSSResultGroup;
     /**
      * The location of the HTML file to include. Be sure you trust the content you are including as it will be executed as
@@ -2396,63 +2483,63 @@ declare class SlInclude extends ShoelaceElement {
     private executeScript;
     handleSrcChange(): Promise<void>;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-include': SlInclude;
+      'sl-include': SlInclude;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-input': SlInput;
+      'sl-input': SlInput;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-menu-item': SlMenuItem;
+      'sl-menu-item': SlMenuItem;
     }
-};
+  }
 
-/**
- * @summary Menu labels are used to describe a group of menu items.
- * @documentation https://shoelace.style/components/menu-label
- * @status stable
- * @since 2.0
- *
- * @slot - The menu label's content.
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlMenuLabel extends ShoelaceElement {
+  /**
+   * @summary Menu labels are used to describe a group of menu items.
+   * @documentation https://shoelace.style/components/menu-label
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The menu label's content.
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlMenuLabel extends ShoelaceElement {
     static styles: CSSResultGroup;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-menu-label': SlMenuLabel;
+      'sl-menu-label': SlMenuLabel;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-menu-label': SlMenuLabel;
+      'sl-menu-label': SlMenuLabel;
     }
-};
+  }
 
-/**
- * @summary The Mutation Observer component offers a thin, declarative interface to the [`MutationObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
- * @documentation https://shoelace.style/components/mutation-observer
- * @status stable
- * @since 2.0
- *
- * @event {{ mutationList: MutationRecord[] }} sl-mutation - Emitted when a mutation occurs.
- *
- * @slot - The content to watch for mutations.
- */
-declare class SlMutationObserver extends ShoelaceElement {
+  /**
+   * @summary The Mutation Observer component offers a thin, declarative interface to the [`MutationObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/MutationObserver).
+   * @documentation https://shoelace.style/components/mutation-observer
+   * @status stable
+   * @since 2.0
+   *
+   * @event {{ mutationList: MutationRecord[] }} sl-mutation - Emitted when a mutation occurs.
+   *
+   * @slot - The content to watch for mutations.
+   */
+  declare class SlMutationObserver extends ShoelaceElement {
     static styles: CSSResultGroup;
     private mutationObserver;
     /**
@@ -2478,36 +2565,36 @@ declare class SlMutationObserver extends ShoelaceElement {
     handleDisabledChange(): void;
     handleChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-mutation-observer': SlMutationObserver;
+      'sl-mutation-observer': SlMutationObserver;
     }
-};
+  }
 
-/**
- * @summary Options define the selectable items within various form controls such as [select](/components/select).
- * @documentation https://shoelace.style/components/option
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot - The option's label.
- * @slot prefix - Used to prepend an icon or similar element to the menu item.
- * @slot suffix - Used to append an icon or similar element to the menu item.
- *
- * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
- * @csspart base - The component's base wrapper.
- * @csspart label - The option's label.
- * @csspart prefix - The container that wraps the prefix.
- * @csspart suffix - The container that wraps the suffix.
- */
-declare class SlOption extends ShoelaceElement {
+  /**
+   * @summary Options define the selectable items within various form controls such as [select](/components/select).
+   * @documentation https://shoelace.style/components/option
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot - The option's label.
+   * @slot prefix - Used to prepend an icon or similar element to the menu item.
+   * @slot suffix - Used to append an icon or similar element to the menu item.
+   *
+   * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
+   * @csspart base - The component's base wrapper.
+   * @csspart label - The option's label.
+   * @csspart prefix - The container that wraps the prefix.
+   * @csspart suffix - The container that wraps the suffix.
+   */
+  declare class SlOption extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly localize;
     private isInitialized;
@@ -2533,38 +2620,38 @@ declare class SlOption extends ShoelaceElement {
     /** Returns a plain text label based on the option's content. */
     getTextLabel(): string;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-option': SlOption;
+      'sl-option': SlOption;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-popup': SlPopup;
+      'sl-popup': SlPopup;
     }
-};
+  }
 
-/**
- * @summary Progress bars are used to show the status of an ongoing operation.
- * @documentation https://shoelace.style/components/progress-bar
- * @status stable
- * @since 2.0
- *
- * @slot - A label to show inside the progress indicator.
- *
- * @csspart base - The component's base wrapper.
- * @csspart indicator - The progress bar's indicator.
- * @csspart label - The progress bar's label.
- *
- * @cssproperty --height - The progress bar's height.
- * @cssproperty --track-color - The color of the track.
- * @cssproperty --indicator-color - The color of the indicator.
- * @cssproperty --label-color - The color of the label.
- */
-declare class SlProgressBar extends ShoelaceElement {
+  /**
+   * @summary Progress bars are used to show the status of an ongoing operation.
+   * @documentation https://shoelace.style/components/progress-bar
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - A label to show inside the progress indicator.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart indicator - The progress bar's indicator.
+   * @csspart label - The progress bar's label.
+   *
+   * @cssproperty --height - The progress bar's height.
+   * @cssproperty --track-color - The color of the track.
+   * @cssproperty --indicator-color - The color of the indicator.
+   * @cssproperty --label-color - The color of the label.
+   */
+  declare class SlProgressBar extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly localize;
     /** The current progress as a percentage, 0 to 100. */
@@ -2574,33 +2661,33 @@ declare class SlProgressBar extends ShoelaceElement {
     /** A custom label for assistive devices. */
     label: string;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-progress-bar': SlProgressBar;
+      'sl-progress-bar': SlProgressBar;
     }
-};
+  }
 
-/**
- * @summary Progress rings are used to show the progress of a determinate operation in a circular fashion.
- * @documentation https://shoelace.style/components/progress-ring
- * @status stable
- * @since 2.0
- *
- * @slot - A label to show inside the ring.
- *
- * @csspart base - The component's base wrapper.
- * @csspart label - The progress ring label.
- *
- * @cssproperty --size - The diameter of the progress ring (cannot be a percentage).
- * @cssproperty --track-width - The width of the track.
- * @cssproperty --track-color - The color of the track.
- * @cssproperty --indicator-width - The width of the indicator. Defaults to the track width.
- * @cssproperty --indicator-color - The color of the indicator.
- * @cssproperty --indicator-transition-duration - The duration of the indicator's transition when the value changes.
- */
-declare class SlProgressRing extends ShoelaceElement {
+  /**
+   * @summary Progress rings are used to show the progress of a determinate operation in a circular fashion.
+   * @documentation https://shoelace.style/components/progress-ring
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - A label to show inside the ring.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart label - The progress ring label.
+   *
+   * @cssproperty --size - The diameter of the progress ring (cannot be a percentage).
+   * @cssproperty --track-width - The width of the track.
+   * @cssproperty --track-color - The color of the track.
+   * @cssproperty --indicator-width - The width of the indicator. Defaults to the track width.
+   * @cssproperty --indicator-color - The color of the indicator.
+   * @cssproperty --indicator-transition-duration - The duration of the indicator's transition when the value changes.
+   */
+  declare class SlProgressRing extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly localize;
     indicator: SVGCircleElement;
@@ -2611,23 +2698,23 @@ declare class SlProgressRing extends ShoelaceElement {
     label: string;
     updated(changedProps: Map<string, unknown>): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-progress-ring': SlProgressRing;
+      'sl-progress-ring': SlProgressRing;
     }
-};
+  }
 
-/**
- * @summary Generates a [QR code](https://www.qrcode.com/) and renders it using the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
- * @documentation https://shoelace.style/components/qr-code
- * @status stable
- * @since 2.0
- *
- * @csspart base - The component's base wrapper.
- */
-declare class SlQrCode extends ShoelaceElement {
+  /**
+   * @summary Generates a [QR code](https://www.qrcode.com/) and renders it using the [Canvas API](https://developer.mozilla.org/en-US/docs/Web/API/Canvas_API).
+   * @documentation https://shoelace.style/components/qr-code
+   * @status stable
+   * @since 2.0
+   *
+   * @csspart base - The component's base wrapper.
+   */
+  declare class SlQrCode extends ShoelaceElement {
     static styles: CSSResultGroup;
     canvas: HTMLElement;
     /** The QR code's value. */
@@ -2647,37 +2734,37 @@ declare class SlQrCode extends ShoelaceElement {
     firstUpdated(): void;
     generate(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-qr-code': SlQrCode;
+      'sl-qr-code': SlQrCode;
     }
-};
+  }
 
-/**
- * @summary Radios allow the user to select a single option from a group.
- * @documentation https://shoelace.style/components/radio
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @slot - The radio's label.
- *
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-focus - Emitted when the control gains focus.
- *
- * @csspart base - The component's base wrapper.
- * @csspart control - The circular container that wraps the radio's checked state.
- * @csspart control--checked - The radio control when the radio is checked.
- * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
- * @csspart label - The container that wraps the radio's label.
- */
-declare class SlRadio extends ShoelaceElement {
+  /**
+   * @summary Radios allow the user to select a single option from a group.
+   * @documentation https://shoelace.style/components/radio
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @slot - The radio's label.
+   *
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-focus - Emitted when the control gains focus.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart control - The circular container that wraps the radio's checked state.
+   * @csspart control--checked - The radio control when the radio is checked.
+   * @csspart checked-icon - The checked icon, an `<sl-icon>` element.
+   * @csspart label - The container that wraps the radio's label.
+   */
+  declare class SlRadio extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     checked: boolean;
     protected hasFocus: boolean;
@@ -2699,35 +2786,35 @@ declare class SlRadio extends ShoelaceElement {
     handleCheckedChange(): void;
     handleDisabledChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-radio': SlRadio;
+      'sl-radio': SlRadio;
     }
-};
+  }
 
-/**
- * @summary Radios buttons allow the user to select a single option from a group using a button-like control.
- * @documentation https://shoelace.style/components/radio-button
- * @status stable
- * @since 2.0
- *
- * @slot - The radio button's label.
- * @slot prefix - A presentational prefix icon or similar element.
- * @slot suffix - A presentational suffix icon or similar element.
- *
- * @event sl-blur - Emitted when the button loses focus.
- * @event sl-focus - Emitted when the button gains focus.
- *
- * @csspart base - The component's base wrapper.
- * @csspart button - The internal `<button>` element.
- * @csspart button--checked - The internal button element when the radio button is checked.
- * @csspart prefix - The container that wraps the prefix.
- * @csspart label - The container that wraps the radio button's label.
- * @csspart suffix - The container that wraps the suffix.
- */
-declare class SlRadioButton extends ShoelaceElement {
+  /**
+   * @summary Radios buttons allow the user to select a single option from a group using a button-like control.
+   * @documentation https://shoelace.style/components/radio-button
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The radio button's label.
+   * @slot prefix - A presentational prefix icon or similar element.
+   * @slot suffix - A presentational suffix icon or similar element.
+   *
+   * @event sl-blur - Emitted when the button loses focus.
+   * @event sl-focus - Emitted when the button gains focus.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart button - The internal `<button>` element.
+   * @csspart button--checked - The internal button element when the radio button is checked.
+   * @csspart prefix - The container that wraps the prefix.
+   * @csspart label - The container that wraps the radio button's label.
+   * @csspart suffix - The container that wraps the suffix.
+   */
+  declare class SlRadioButton extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly hasSlotController;
     input: HTMLInputElement;
@@ -2759,15 +2846,15 @@ declare class SlRadioButton extends ShoelaceElement {
     /** Removes focus from the radio button. */
     blur(): void;
     render(): lit_html.TemplateResult;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-radio-button': SlRadioButton;
+      'sl-radio-button': SlRadioButton;
     }
-};
+  }
 
-interface FormControlControllerOptions {
+  interface FormControlControllerOptions {
     /** A function that returns the form containing the form control. */
     form: (input: ShoelaceFormControl) => HTMLFormElement | null;
     /** A function that returns the form control's name, which will be submitted with the form data. */
@@ -2794,9 +2881,9 @@ interface FormControlControllerOptions {
      * An array of event names to listen to. When all events in the list are emitted, the control will receive validity
      * states such as user-valid and user-invalid.user interacted validity states. */
     assumeInteractionOn: string[];
-}
-/** A reactive controller to allow form controls to participate in form submission, validation, etc. */
-declare class FormControlController implements ReactiveController {
+  }
+  /** A reactive controller to allow form controls to participate in form submission, validation, etc. */
+  declare class FormControlController implements ReactiveController {
     host: ShoelaceFormControl & ReactiveControllerHost;
     form?: HTMLFormElement | null;
     options: FormControlControllerOptions;
@@ -2838,36 +2925,36 @@ declare class FormControlController implements ReactiveController {
      * event will be cancelled before being dispatched.
      */
     emitInvalidEvent(originalInvalidEvent?: Event): void;
-}
+  }
 
-/**
- * @summary Radio groups are used to group multiple [radios](/components/radio) or [radio buttons](/components/radio-button) so they function as a single form control.
- * @documentation https://shoelace.style/components/radio-group
- * @status stable
- * @since 2.0
- *
- * @dependency sl-button-group
- *
- * @slot - The default slot where `<sl-radio>` or `<sl-radio-button>` elements are placed.
- * @slot label - The radio group's label. Required for proper accessibility. Alternatively, you can use the `label`
- *  attribute.
- * @slot help-text - Text that describes how to use the radio group. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-change - Emitted when the radio group's selected value changes.
- * @event sl-input - Emitted when the radio group receives user input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart form-control - The form control that wraps the label, input, and help text.
- * @csspart form-control-label - The label's wrapper.
- * @csspart form-control-input - The input's wrapper.
- * @csspart form-control-help-text - The help text's wrapper.
- * @csspart button-group - The button group that wraps radio buttons.
- * @csspart button-group__base - The button group's `base` part.
- */
-declare class SlRadioGroup extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Radio groups are used to group multiple [radios](/components/radio) or [radio buttons](/components/radio-button) so they function as a single form control.
+   * @documentation https://shoelace.style/components/radio-group
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-button-group
+   *
+   * @slot - The default slot where `<sl-radio>` or `<sl-radio-button>` elements are placed.
+   * @slot label - The radio group's label. Required for proper accessibility. Alternatively, you can use the `label`
+   *  attribute.
+   * @slot help-text - Text that describes how to use the radio group. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-change - Emitted when the radio group's selected value changes.
+   * @event sl-input - Emitted when the radio group receives user input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart form-control - The form control that wraps the label, input, and help text.
+   * @csspart form-control-label - The label's wrapper.
+   * @csspart form-control-input - The input's wrapper.
+   * @csspart form-control-help-text - The help text's wrapper.
+   * @csspart button-group - The button group that wraps radio buttons.
+   * @csspart button-group__base - The button group's `base` part.
+   */
+  declare class SlRadioGroup extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-button-group': typeof SlButtonGroup;
+      'sl-button-group': typeof SlButtonGroup;
     };
     protected readonly formControlController: FormControlController;
     private readonly hasSlotController;
@@ -2926,45 +3013,45 @@ declare class SlRadioGroup extends ShoelaceElement implements ShoelaceFormContro
     /** Sets focus on the radio-group. */
     focus(options?: FocusOptions): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-radio-group': SlRadioGroup;
+      'sl-radio-group': SlRadioGroup;
     }
-};
+  }
 
-/**
- * @summary Ranges allow the user to select a single value within a given range using a slider.
- * @documentation https://shoelace.style/components/range
- * @status stable
- * @since 2.0
- *
- * @slot label - The range's label. Alternatively, you can use the `label` attribute.
- * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
- * @event sl-focus - Emitted when the control gains focus.
- * @event sl-input - Emitted when the control receives input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart form-control - The form control that wraps the label, input, and help text.
- * @csspart form-control-label - The label's wrapper.
- * @csspart form-control-input - The range's wrapper.
- * @csspart form-control-help-text - The help text's wrapper.
- * @csspart base - The component's base wrapper.
- * @csspart input - The internal `<input>` element.
- * @csspart tooltip - The range's tooltip.
- *
- * @cssproperty --thumb-size - The size of the thumb.
- * @cssproperty --tooltip-offset - The vertical distance the tooltip is offset from the track.
- * @cssproperty --track-color-active - The color of the portion of the track that represents the current value.
- * @cssproperty --track-color-inactive - The of the portion of the track that represents the remaining value.
- * @cssproperty --track-height - The height of the track.
- * @cssproperty --track-active-offset - The point of origin of the active track.
- */
-declare class SlRange extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Ranges allow the user to select a single value within a given range using a slider.
+   * @documentation https://shoelace.style/components/range
+   * @status stable
+   * @since 2.0
+   *
+   * @slot label - The range's label. Alternatively, you can use the `label` attribute.
+   * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
+   * @event sl-focus - Emitted when the control gains focus.
+   * @event sl-input - Emitted when the control receives input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart form-control - The form control that wraps the label, input, and help text.
+   * @csspart form-control-label - The label's wrapper.
+   * @csspart form-control-input - The range's wrapper.
+   * @csspart form-control-help-text - The help text's wrapper.
+   * @csspart base - The component's base wrapper.
+   * @csspart input - The internal `<input>` element.
+   * @csspart tooltip - The range's tooltip.
+   *
+   * @cssproperty --thumb-size - The size of the thumb.
+   * @cssproperty --tooltip-offset - The vertical distance the tooltip is offset from the track.
+   * @cssproperty --track-color-active - The color of the portion of the track that represents the current value.
+   * @cssproperty --track-color-inactive - The of the portion of the track that represents the remaining value.
+   * @cssproperty --track-height - The height of the track.
+   * @cssproperty --track-active-offset - The point of origin of the active track.
+   */
+  declare class SlRange extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     private readonly formControlController;
     private readonly hasSlotController;
@@ -3041,38 +3128,38 @@ declare class SlRange extends ShoelaceElement implements ShoelaceFormControl {
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-range': SlRange;
+      'sl-range': SlRange;
     }
-};
+  }
 
-/**
- * @summary Ratings give users a way to quickly view and provide feedback.
- * @documentation https://shoelace.style/components/rating
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- *
- * @event sl-change - Emitted when the rating's value changes.
- * @event {{ phase: 'start' | 'move' | 'end', value: number }} sl-hover - Emitted when the user hovers over a value. The
- *  `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the
- *  rating's value would be if the user were to commit to the hovered value.
- *
- * @csspart base - The component's base wrapper.
- *
- * @cssproperty --symbol-color - The inactive color for symbols.
- * @cssproperty --symbol-color-active - The active color for symbols.
- * @cssproperty --symbol-size - The size of symbols.
- * @cssproperty --symbol-spacing - The spacing to use around symbols.
- */
-declare class SlRating extends ShoelaceElement {
+  /**
+   * @summary Ratings give users a way to quickly view and provide feedback.
+   * @documentation https://shoelace.style/components/rating
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   *
+   * @event sl-change - Emitted when the rating's value changes.
+   * @event {{ phase: 'start' | 'move' | 'end', value: number }} sl-hover - Emitted when the user hovers over a value. The
+   *  `phase` property indicates when hovering starts, moves to a new value, or ends. The `value` property tells what the
+   *  rating's value would be if the user were to commit to the hovered value.
+   *
+   * @csspart base - The component's base wrapper.
+   *
+   * @cssproperty --symbol-color - The inactive color for symbols.
+   * @cssproperty --symbol-color-active - The active color for symbols.
+   * @cssproperty --symbol-size - The size of symbols.
+   * @cssproperty --symbol-spacing - The spacing to use around symbols.
+   */
+  declare class SlRating extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
+      'sl-icon': typeof SlIcon;
     };
     private readonly localize;
     rating: HTMLElement;
@@ -3119,21 +3206,21 @@ declare class SlRating extends ShoelaceElement {
     /** Removes focus from the rating. */
     blur(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-rating': SlRating;
+      'sl-rating': SlRating;
     }
-};
+  }
 
-/**
- * @summary Outputs a localized time phrase relative to the current date and time.
- * @documentation https://shoelace.style/components/relative-time
- * @status stable
- * @since 2.0
- */
-declare class SlRelativeTime extends ShoelaceElement {
+  /**
+   * @summary Outputs a localized time phrase relative to the current date and time.
+   * @documentation https://shoelace.style/components/relative-time
+   * @status stable
+   * @since 2.0
+   */
+  declare class SlRelativeTime extends ShoelaceElement {
     private readonly localize;
     private updateTimeout;
     private isoTime;
@@ -3154,26 +3241,26 @@ declare class SlRelativeTime extends ShoelaceElement {
     /** Keep the displayed value up to date as time passes. */
     sync: boolean;
     disconnectedCallback(): void;
-    render(): "" | lit_html.TemplateResult<1>;
-}
+    render(): '' | lit_html.TemplateResult<1>;
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-relative-time': SlRelativeTime;
+      'sl-relative-time': SlRelativeTime;
     }
-};
+  }
 
-/**
- * @summary The Resize Observer component offers a thin, declarative interface to the [`ResizeObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver).
- * @documentation https://shoelace.style/components/resize-observer
- * @status stable
- * @since 2.0
- *
- * @slot - One or more elements to watch for resizing.
- *
- * @event {{ entries: ResizeObserverEntry[] }} sl-resize - Emitted when the element is resized.
- */
-declare class SlResizeObserver extends ShoelaceElement {
+  /**
+   * @summary The Resize Observer component offers a thin, declarative interface to the [`ResizeObserver API`](https://developer.mozilla.org/en-US/docs/Web/API/ResizeObserver).
+   * @documentation https://shoelace.style/components/resize-observer
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - One or more elements to watch for resizing.
+   *
+   * @event {{ entries: ResizeObserverEntry[] }} sl-resize - Emitted when the element is resized.
+   */
+  declare class SlResizeObserver extends ShoelaceElement {
     static styles: CSSResultGroup;
     private resizeObserver;
     private observedElements;
@@ -3186,40 +3273,40 @@ declare class SlResizeObserver extends ShoelaceElement {
     private stopObserver;
     handleDisabledChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-resize-observer': SlResizeObserver;
+      'sl-resize-observer': SlResizeObserver;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-resize-observer': SlResizeObserver;
+      'sl-resize-observer': SlResizeObserver;
     }
-};
+  }
 
-/**
- * @summary Tags are used as labels to organize things or to indicate a selection.
- * @documentation https://shoelace.style/components/tag
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - The tag's content.
- *
- * @event sl-remove - Emitted when the remove button is activated.
- *
- * @csspart base - The component's base wrapper.
- * @csspart content - The tag's content.
- * @csspart remove-button - The tag's remove button, an `<sl-icon-button>`.
- * @csspart remove-button__base - The remove button's exported `base` part.
- */
-declare class SlTag extends ShoelaceElement {
+  /**
+   * @summary Tags are used as labels to organize things or to indicate a selection.
+   * @documentation https://shoelace.style/components/tag
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - The tag's content.
+   *
+   * @event sl-remove - Emitted when the remove button is activated.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart content - The tag's content.
+   * @csspart remove-button - The tag's remove button, an `<sl-icon-button>`.
+   * @csspart remove-button__base - The remove button's exported `base` part.
+   */
+  declare class SlTag extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
+      'sl-icon-button': typeof SlIconButton;
     };
     private readonly localize;
     /** The tag's theme variant. */
@@ -3232,61 +3319,61 @@ declare class SlTag extends ShoelaceElement {
     removable: boolean;
     private handleRemoveClick;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Selects allow you to choose items from a menu of predefined options.
- * @documentation https://shoelace.style/components/select
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon
- * @dependency sl-popup
- * @dependency sl-tag
- *
- * @slot - The listbox options. Must be `<sl-option>` elements. You can use `<sl-divider>` to group items visually.
- * @slot label - The input's label. Alternatively, you can use the `label` attribute.
- * @slot prefix - Used to prepend a presentational icon or similar element to the combobox.
- * @slot suffix - Used to append a presentational icon or similar element to the combobox.
- * @slot clear-icon - An icon to use in lieu of the default clear icon.
- * @slot expand-icon - The icon to show when the control is expanded and collapsed. Rotates on open and close.
- * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-change - Emitted when the control's value changes.
- * @event sl-clear - Emitted when the control's value is cleared.
- * @event sl-input - Emitted when the control receives input.
- * @event sl-focus - Emitted when the control gains focus.
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-show - Emitted when the select's menu opens.
- * @event sl-after-show - Emitted after the select's menu opens and all animations are complete.
- * @event sl-hide - Emitted when the select's menu closes.
- * @event sl-after-hide - Emitted after the select's menu closes and all animations are complete.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart form-control - The form control that wraps the label, input, and help text.
- * @csspart form-control-label - The label's wrapper.
- * @csspart form-control-input - The select's wrapper.
- * @csspart form-control-help-text - The help text's wrapper.
- * @csspart combobox - The container the wraps the prefix, suffix, combobox, clear icon, and expand button.
- * @csspart prefix - The container that wraps the prefix slot.
- * @csspart suffix - The container that wraps the suffix slot.
- * @csspart display-input - The element that displays the selected option's label, an `<input>` element.
- * @csspart listbox - The listbox container where options are slotted.
- * @csspart tags - The container that houses option tags when `multiselect` is used.
- * @csspart tag - The individual tags that represent each multiselect option.
- * @csspart tag__base - The tag's base part.
- * @csspart tag__content - The tag's content part.
- * @csspart tag__remove-button - The tag's remove button.
- * @csspart tag__remove-button__base - The tag's remove button base part.
- * @csspart clear-button - The clear button.
- * @csspart expand-icon - The container that wraps the expand icon.
- */
-declare class SlSelect extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Selects allow you to choose items from a menu of predefined options.
+   * @documentation https://shoelace.style/components/select
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon
+   * @dependency sl-popup
+   * @dependency sl-tag
+   *
+   * @slot - The listbox options. Must be `<sl-option>` elements. You can use `<sl-divider>` to group items visually.
+   * @slot label - The input's label. Alternatively, you can use the `label` attribute.
+   * @slot prefix - Used to prepend a presentational icon or similar element to the combobox.
+   * @slot suffix - Used to append a presentational icon or similar element to the combobox.
+   * @slot clear-icon - An icon to use in lieu of the default clear icon.
+   * @slot expand-icon - The icon to show when the control is expanded and collapsed. Rotates on open and close.
+   * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-change - Emitted when the control's value changes.
+   * @event sl-clear - Emitted when the control's value is cleared.
+   * @event sl-input - Emitted when the control receives input.
+   * @event sl-focus - Emitted when the control gains focus.
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-show - Emitted when the select's menu opens.
+   * @event sl-after-show - Emitted after the select's menu opens and all animations are complete.
+   * @event sl-hide - Emitted when the select's menu closes.
+   * @event sl-after-hide - Emitted after the select's menu closes and all animations are complete.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart form-control - The form control that wraps the label, input, and help text.
+   * @csspart form-control-label - The label's wrapper.
+   * @csspart form-control-input - The select's wrapper.
+   * @csspart form-control-help-text - The help text's wrapper.
+   * @csspart combobox - The container the wraps the prefix, suffix, combobox, clear icon, and expand button.
+   * @csspart prefix - The container that wraps the prefix slot.
+   * @csspart suffix - The container that wraps the suffix slot.
+   * @csspart display-input - The element that displays the selected option's label, an `<input>` element.
+   * @csspart listbox - The listbox container where options are slotted.
+   * @csspart tags - The container that houses option tags when `multiselect` is used.
+   * @csspart tag - The individual tags that represent each multiselect option.
+   * @csspart tag__base - The tag's base part.
+   * @csspart tag__content - The tag's content part.
+   * @csspart tag__remove-button - The tag's remove button.
+   * @csspart tag__remove-button__base - The tag's remove button base part.
+   * @csspart clear-button - The clear button.
+   * @csspart expand-icon - The container that wraps the expand icon.
+   */
+  declare class SlSelect extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon': typeof SlIcon;
-        'sl-popup': typeof SlPopup;
-        'sl-tag': typeof SlTag;
+      'sl-icon': typeof SlIcon;
+      'sl-popup': typeof SlPopup;
+      'sl-tag': typeof SlTag;
     };
     private readonly formControlController;
     private readonly hasSlotController;
@@ -3417,47 +3504,47 @@ declare class SlSelect extends ShoelaceElement implements ShoelaceFormControl {
     /** Removes focus from the control. */
     blur(): void;
     render(): TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-select': SlSelect;
+      'sl-select': SlSelect;
     }
-};
+  }
 
-/**
- * @summary Skeletons are used to provide a visual representation of where content will eventually be drawn.
- * @documentation https://shoelace.style/components/skeleton
- * @status stable
- * @since 2.0
- *
- * @csspart base - The component's base wrapper.
- * @csspart indicator - The skeleton's indicator which is responsible for its color and animation.
- *
- * @cssproperty --border-radius - The skeleton's border radius.
- * @cssproperty --color - The color of the skeleton.
- * @cssproperty --sheen-color - The sheen color when the skeleton is in its loading state.
- */
-declare class SlSkeleton extends ShoelaceElement {
+  /**
+   * @summary Skeletons are used to provide a visual representation of where content will eventually be drawn.
+   * @documentation https://shoelace.style/components/skeleton
+   * @status stable
+   * @since 2.0
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart indicator - The skeleton's indicator which is responsible for its color and animation.
+   *
+   * @cssproperty --border-radius - The skeleton's border radius.
+   * @cssproperty --color - The color of the skeleton.
+   * @cssproperty --sheen-color - The sheen color when the skeleton is in its loading state.
+   */
+  declare class SlSkeleton extends ShoelaceElement {
     static styles: CSSResultGroup;
     /** Determines which effect the skeleton will use. */
     effect: 'pulse' | 'sheen' | 'none';
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-skeleton': SlSkeleton;
+      'sl-skeleton': SlSkeleton;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-spinner': SlSpinner;
+      'sl-spinner': SlSpinner;
     }
-};
+  }
 
-interface SnapFunctionParams {
+  interface SnapFunctionParams {
     /** The position the divider has been dragged to, in pixels. */
     pos: number;
     /** The size of the split-panel across its primary axis, in pixels. */
@@ -3468,33 +3555,33 @@ interface SnapFunctionParams {
     isRtl: boolean;
     /** Whether or not the split panel is vertical. */
     vertical: boolean;
-}
-/** Used by sl-split-panel to convert an input position into a snapped position. */
-type SnapFunction = (opt: SnapFunctionParams) => number | null;
-/**
- * @summary Split panels display two adjacent panels, allowing the user to reposition them.
- * @documentation https://shoelace.style/components/split-panel
- * @status stable
- * @since 2.0
- *
- * @event sl-reposition - Emitted when the divider's position changes.
- *
- * @slot start - Content to place in the start panel.
- * @slot end - Content to place in the end panel.
- * @slot divider - The divider. Useful for slotting in a custom icon that renders as a handle.
- *
- * @csspart start - The start panel.
- * @csspart end - The end panel.
- * @csspart panel - Targets both the start and end panels.
- * @csspart divider - The divider that separates the start and end panels.
- *
- * @cssproperty [--divider-width=4px] - The width of the visible divider.
- * @cssproperty [--divider-hit-area=12px] - The invisible region around the divider where dragging can occur. This is
- *  usually wider than the divider to facilitate easier dragging.
- * @cssproperty [--min=0] - The minimum allowed size of the primary panel.
- * @cssproperty [--max=100%] - The maximum allowed size of the primary panel.
- */
-declare class SlSplitPanel extends ShoelaceElement {
+  }
+  /** Used by sl-split-panel to convert an input position into a snapped position. */
+  type SnapFunction = (opt: SnapFunctionParams) => number | null;
+  /**
+   * @summary Split panels display two adjacent panels, allowing the user to reposition them.
+   * @documentation https://shoelace.style/components/split-panel
+   * @status stable
+   * @since 2.0
+   *
+   * @event sl-reposition - Emitted when the divider's position changes.
+   *
+   * @slot start - Content to place in the start panel.
+   * @slot end - Content to place in the end panel.
+   * @slot divider - The divider. Useful for slotting in a custom icon that renders as a handle.
+   *
+   * @csspart start - The start panel.
+   * @csspart end - The end panel.
+   * @csspart panel - Targets both the start and end panels.
+   * @csspart divider - The divider that separates the start and end panels.
+   *
+   * @cssproperty [--divider-width=4px] - The width of the visible divider.
+   * @cssproperty [--divider-hit-area=12px] - The invisible region around the divider where dragging can occur. This is
+   *  usually wider than the divider to facilitate easier dragging.
+   * @cssproperty [--min=0] - The minimum allowed size of the primary panel.
+   * @cssproperty [--max=100%] - The maximum allowed size of the primary panel.
+   */
+  declare class SlSplitPanel extends ShoelaceElement {
     static styles: CSSResultGroup;
     private cachedPositionInPixels;
     private isCollapsed;
@@ -3549,45 +3636,45 @@ declare class SlSplitPanel extends ShoelaceElement {
     handlePositionInPixelsChange(): void;
     handleVerticalChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-split-panel': SlSplitPanel;
+      'sl-split-panel': SlSplitPanel;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-split-panel': SlSplitPanel;
+      'sl-split-panel': SlSplitPanel;
     }
-};
+  }
 
-/**
- * @summary Switches allow the user to toggle an option on or off.
- * @documentation https://shoelace.style/components/switch
- * @status stable
- * @since 2.0
- *
- * @slot - The switch's label.
- * @slot help-text - Text that describes how to use the switch. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-change - Emitted when the control's checked state changes.
- * @event sl-input - Emitted when the control receives input.
- * @event sl-focus - Emitted when the control gains focus.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart base - The component's base wrapper.
- * @csspart control - The control that houses the switch's thumb.
- * @csspart thumb - The switch's thumb.
- * @csspart label - The switch's label.
- * @csspart form-control-help-text - The help text's wrapper.
- *
- * @cssproperty --width - The width of the switch.
- * @cssproperty --height - The height of the switch.
- * @cssproperty --thumb-size - The size of the thumb.
- */
-declare class SlSwitch extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Switches allow the user to toggle an option on or off.
+   * @documentation https://shoelace.style/components/switch
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The switch's label.
+   * @slot help-text - Text that describes how to use the switch. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-change - Emitted when the control's checked state changes.
+   * @event sl-input - Emitted when the control receives input.
+   * @event sl-focus - Emitted when the control gains focus.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart control - The control that houses the switch's thumb.
+   * @csspart thumb - The switch's thumb.
+   * @csspart label - The switch's label.
+   * @csspart form-control-help-text - The help text's wrapper.
+   *
+   * @cssproperty --width - The width of the switch.
+   * @cssproperty --height - The height of the switch.
+   * @cssproperty --thumb-size - The size of the thumb.
+   */
+  declare class SlSwitch extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     private readonly formControlController;
     private readonly hasSlotController;
@@ -3644,39 +3731,39 @@ declare class SlSwitch extends ShoelaceElement implements ShoelaceFormControl {
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-switch': SlSwitch;
+      'sl-switch': SlSwitch;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-switch': SlSwitch;
+      'sl-switch': SlSwitch;
     }
-};
+  }
 
-/**
- * @summary Tabs are used inside [tab groups](/components/tab-group) to represent and activate [tab panels](/components/tab-panel).
- * @documentation https://shoelace.style/components/tab
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - The tab's label.
- *
- * @event sl-close - Emitted when the tab is closable and the close button is activated.
- *
- * @csspart base - The component's base wrapper.
- * @csspart close-button - The close button, an `<sl-icon-button>`.
- * @csspart close-button__base - The close button's exported `base` part.
- */
-declare class SlTab extends ShoelaceElement {
+  /**
+   * @summary Tabs are used inside [tab groups](/components/tab-group) to represent and activate [tab panels](/components/tab-panel).
+   * @documentation https://shoelace.style/components/tab
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - The tab's label.
+   *
+   * @event sl-close - Emitted when the tab is closable and the close button is activated.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart close-button - The close button, an `<sl-icon-button>`.
+   * @csspart close-button__base - The close button's exported `base` part.
+   */
+  declare class SlTab extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
+      'sl-icon-button': typeof SlIconButton;
     };
     private readonly localize;
     private readonly attrId;
@@ -3700,52 +3787,52 @@ declare class SlTab extends ShoelaceElement {
     handleActiveChange(): void;
     handleDisabledChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tab': SlTab;
+      'sl-tab': SlTab;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tab': SlTab;
+      'sl-tab': SlTab;
     }
-};
+  }
 
-/**
- * @summary Tab groups organize content into a container that shows one section at a time.
- * @documentation https://shoelace.style/components/tab-group
- * @status stable
- * @since 2.0
- *
- * @dependency sl-icon-button
- *
- * @slot - Used for grouping tab panels in the tab group. Must be `<sl-tab-panel>` elements.
- * @slot nav - Used for grouping tabs in the tab group. Must be `<sl-tab>` elements.
- *
- * @event {{ name: String }} sl-tab-show - Emitted when a tab is shown.
- * @event {{ name: String }} sl-tab-hide - Emitted when a tab is hidden.
- *
- * @csspart base - The component's base wrapper.
- * @csspart nav - The tab group's navigation container where tabs are slotted in.
- * @csspart tabs - The container that wraps the tabs.
- * @csspart active-tab-indicator - The line that highlights the currently selected tab.
- * @csspart body - The tab group's body where tab panels are slotted in.
- * @csspart scroll-button - The previous/next scroll buttons that show when tabs are scrollable, an `<sl-icon-button>`.
- * @csspart scroll-button--start - The starting scroll button.
- * @csspart scroll-button--end - The ending scroll button.
- * @csspart scroll-button__base - The scroll button's exported `base` part.
- *
- * @cssproperty --indicator-color - The color of the active tab indicator.
- * @cssproperty --track-color - The color of the indicator's track (the line that separates tabs from panels).
- * @cssproperty --track-width - The width of the indicator's track (the line that separates tabs from panels).
- */
-declare class SlTabGroup extends ShoelaceElement {
+  /**
+   * @summary Tab groups organize content into a container that shows one section at a time.
+   * @documentation https://shoelace.style/components/tab-group
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-icon-button
+   *
+   * @slot - Used for grouping tab panels in the tab group. Must be `<sl-tab-panel>` elements.
+   * @slot nav - Used for grouping tabs in the tab group. Must be `<sl-tab>` elements.
+   *
+   * @event {{ name: String }} sl-tab-show - Emitted when a tab is shown.
+   * @event {{ name: String }} sl-tab-hide - Emitted when a tab is hidden.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart nav - The tab group's navigation container where tabs are slotted in.
+   * @csspart tabs - The container that wraps the tabs.
+   * @csspart active-tab-indicator - The line that highlights the currently selected tab.
+   * @csspart body - The tab group's body where tab panels are slotted in.
+   * @csspart scroll-button - The previous/next scroll buttons that show when tabs are scrollable, an `<sl-icon-button>`.
+   * @csspart scroll-button--start - The starting scroll button.
+   * @csspart scroll-button--end - The ending scroll button.
+   * @csspart scroll-button__base - The scroll button's exported `base` part.
+   *
+   * @cssproperty --indicator-color - The color of the active tab indicator.
+   * @cssproperty --track-color - The color of the indicator's track (the line that separates tabs from panels).
+   * @cssproperty --track-width - The width of the indicator's track (the line that separates tabs from panels).
+   */
+  declare class SlTabGroup extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-icon-button': typeof SlIconButton;
-        'sl-resize-observer': typeof SlResizeObserver;
+      'sl-icon-button': typeof SlIconButton;
+      'sl-resize-observer': typeof SlResizeObserver;
     };
     private activeTab?;
     private mutationObserver;
@@ -3799,32 +3886,32 @@ declare class SlTabGroup extends ShoelaceElement {
     /** Shows the specified tab panel. */
     show(panel: string): void;
     render(): lit_html.TemplateResult<1>;
-}
-declare global {
+  }
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tab-group': SlTabGroup;
+      'sl-tab-group': SlTabGroup;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tab-group': SlTabGroup;
+      'sl-tab-group': SlTabGroup;
     }
-};
+  }
 
-/**
- * @summary Tab panels are used inside [tab groups](/components/tab-group) to display tabbed content.
- * @documentation https://shoelace.style/components/tab-panel
- * @status stable
- * @since 2.0
- *
- * @slot - The tab panel's content.
- *
- * @csspart base - The component's base wrapper.
- *
- * @cssproperty --padding - The tab panel's padding.
- */
-declare class SlTabPanel extends ShoelaceElement {
+  /**
+   * @summary Tab panels are used inside [tab groups](/components/tab-group) to display tabbed content.
+   * @documentation https://shoelace.style/components/tab-panel
+   * @status stable
+   * @since 2.0
+   *
+   * @slot - The tab panel's content.
+   *
+   * @csspart base - The component's base wrapper.
+   *
+   * @cssproperty --padding - The tab panel's padding.
+   */
+  declare class SlTabPanel extends ShoelaceElement {
     static styles: CSSResultGroup;
     private readonly attrId;
     private readonly componentId;
@@ -3835,43 +3922,43 @@ declare class SlTabPanel extends ShoelaceElement {
     connectedCallback(): void;
     handleActiveChange(): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tab-panel': SlTabPanel;
+      'sl-tab-panel': SlTabPanel;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tag': SlTag;
+      'sl-tag': SlTag;
     }
-};
+  }
 
-/**
- * @summary Textareas collect data from the user and allow multiple lines of text.
- * @documentation https://shoelace.style/components/textarea
- * @status stable
- * @since 2.0
- *
- * @slot label - The textarea's label. Alternatively, you can use the `label` attribute.
- * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
- *
- * @event sl-blur - Emitted when the control loses focus.
- * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
- * @event sl-focus - Emitted when the control gains focus.
- * @event sl-input - Emitted when the control receives input.
- * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
- *
- * @csspart form-control - The form control that wraps the label, input, and help text.
- * @csspart form-control-label - The label's wrapper.
- * @csspart form-control-input - The input's wrapper.
- * @csspart form-control-help-text - The help text's wrapper.
- * @csspart base - The component's base wrapper.
- * @csspart textarea - The internal `<textarea>` control.
- */
-declare class SlTextarea extends ShoelaceElement implements ShoelaceFormControl {
+  /**
+   * @summary Textareas collect data from the user and allow multiple lines of text.
+   * @documentation https://shoelace.style/components/textarea
+   * @status stable
+   * @since 2.0
+   *
+   * @slot label - The textarea's label. Alternatively, you can use the `label` attribute.
+   * @slot help-text - Text that describes how to use the input. Alternatively, you can use the `help-text` attribute.
+   *
+   * @event sl-blur - Emitted when the control loses focus.
+   * @event sl-change - Emitted when an alteration to the control's value is committed by the user.
+   * @event sl-focus - Emitted when the control gains focus.
+   * @event sl-input - Emitted when the control receives input.
+   * @event sl-invalid - Emitted when the form control has been checked for validity and its constraints aren't satisfied.
+   *
+   * @csspart form-control - The form control that wraps the label, input, and help text.
+   * @csspart form-control-label - The label's wrapper.
+   * @csspart form-control-input - The input's wrapper.
+   * @csspart form-control-help-text - The help text's wrapper.
+   * @csspart base - The component's base wrapper.
+   * @csspart textarea - The internal `<textarea>` control.
+   */
+  declare class SlTextarea extends ShoelaceElement implements ShoelaceFormControl {
     static styles: CSSResultGroup;
     private readonly formControlController;
     private readonly hasSlotController;
@@ -3959,17 +4046,25 @@ declare class SlTextarea extends ShoelaceElement implements ShoelaceFormControl 
     /** Selects all the text in the textarea. */
     select(): void;
     /** Gets or sets the textarea's scroll position. */
-    scrollPosition(position?: {
-        top?: number;
-        left?: number;
-    }): {
-        top: number;
-        left: number;
-    } | undefined;
+    scrollPosition(position?: { top?: number; left?: number }):
+      | {
+          top: number;
+          left: number;
+        }
+      | undefined;
     /** Sets the start and end positions of the text selection (0-based). */
-    setSelectionRange(selectionStart: number, selectionEnd: number, selectionDirection?: 'forward' | 'backward' | 'none'): void;
+    setSelectionRange(
+      selectionStart: number,
+      selectionEnd: number,
+      selectionDirection?: 'forward' | 'backward' | 'none',
+    ): void;
     /** Replaces a range of text with a new string. */
-    setRangeText(replacement: string, start?: number, end?: number, selectMode?: 'select' | 'start' | 'end' | 'preserve'): void;
+    setRangeText(
+      replacement: string,
+      start?: number,
+      end?: number,
+      selectMode?: 'select' | 'start' | 'end' | 'preserve',
+    ): void;
     /** Checks for validity but does not show a validation message. Returns `true` when valid and `false` when invalid. */
     checkValidity(): boolean;
     /** Gets the associated form, if one exists. */
@@ -3979,70 +4074,70 @@ declare class SlTextarea extends ShoelaceElement implements ShoelaceFormControl 
     /** Sets a custom validation message. Pass an empty string to restore validity. */
     setCustomValidity(message: string): void;
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-textarea': SlTextarea;
+      'sl-textarea': SlTextarea;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tooltip': SlTooltip;
+      'sl-tooltip': SlTooltip;
     }
-};
+  }
 
-/**
- * @summary A tree item serves as a hierarchical node that lives inside a [tree](/components/tree).
- * @documentation https://shoelace.style/components/tree-item
- * @status stable
- * @since 2.0
- *
- * @dependency sl-checkbox
- * @dependency sl-icon
- * @dependency sl-spinner
- *
- * @event sl-expand - Emitted when the tree item expands.
- * @event sl-after-expand - Emitted after the tree item expands and all animations are complete.
- * @event sl-collapse - Emitted when the tree item collapses.
- * @event sl-after-collapse - Emitted after the tree item collapses and all animations are complete.
- * @event sl-lazy-change - Emitted when the tree item's lazy state changes.
- * @event sl-lazy-load - Emitted when a lazy item is selected. Use this event to asynchronously load data and append
- *  items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading
- *  state and update the tree.
- *
- * @slot - The default slot.
- * @slot expand-icon - The icon to show when the tree item is expanded.
- * @slot collapse-icon - The icon to show when the tree item is collapsed.
- *
- * @csspart base - The component's base wrapper.
- * @csspart item - The tree item's container. This element wraps everything except slotted tree item children.
- * @csspart item--disabled - Applied when the tree item is disabled.
- * @csspart item--expanded - Applied when the tree item is expanded.
- * @csspart item--indeterminate - Applied when the selection is indeterminate.
- * @csspart item--selected - Applied when the tree item is selected.
- * @csspart indentation - The tree item's indentation container.
- * @csspart expand-button - The container that wraps the tree item's expand button and spinner.
- * @csspart spinner - The spinner that shows when a lazy tree item is in the loading state.
- * @csspart spinner__base - The spinner's base part.
- * @csspart label - The tree item's label.
- * @csspart children - The container that wraps the tree item's nested children.
- * @csspart checkbox - The checkbox that shows when using multiselect.
- * @csspart checkbox__base - The checkbox's exported `base` part.
- * @csspart checkbox__control - The checkbox's exported `control` part.
- * @csspart checkbox__control--checked - The checkbox's exported `control--checked` part.
- * @csspart checkbox__control--indeterminate - The checkbox's exported `control--indeterminate` part.
- * @csspart checkbox__checked-icon - The checkbox's exported `checked-icon` part.
- * @csspart checkbox__indeterminate-icon - The checkbox's exported `indeterminate-icon` part.
- * @csspart checkbox__label - The checkbox's exported `label` part.
- */
-declare class SlTreeItem extends ShoelaceElement {
+  /**
+   * @summary A tree item serves as a hierarchical node that lives inside a [tree](/components/tree).
+   * @documentation https://shoelace.style/components/tree-item
+   * @status stable
+   * @since 2.0
+   *
+   * @dependency sl-checkbox
+   * @dependency sl-icon
+   * @dependency sl-spinner
+   *
+   * @event sl-expand - Emitted when the tree item expands.
+   * @event sl-after-expand - Emitted after the tree item expands and all animations are complete.
+   * @event sl-collapse - Emitted when the tree item collapses.
+   * @event sl-after-collapse - Emitted after the tree item collapses and all animations are complete.
+   * @event sl-lazy-change - Emitted when the tree item's lazy state changes.
+   * @event sl-lazy-load - Emitted when a lazy item is selected. Use this event to asynchronously load data and append
+   *  items to the tree before expanding. After appending new items, remove the `lazy` attribute to remove the loading
+   *  state and update the tree.
+   *
+   * @slot - The default slot.
+   * @slot expand-icon - The icon to show when the tree item is expanded.
+   * @slot collapse-icon - The icon to show when the tree item is collapsed.
+   *
+   * @csspart base - The component's base wrapper.
+   * @csspart item - The tree item's container. This element wraps everything except slotted tree item children.
+   * @csspart item--disabled - Applied when the tree item is disabled.
+   * @csspart item--expanded - Applied when the tree item is expanded.
+   * @csspart item--indeterminate - Applied when the selection is indeterminate.
+   * @csspart item--selected - Applied when the tree item is selected.
+   * @csspart indentation - The tree item's indentation container.
+   * @csspart expand-button - The container that wraps the tree item's expand button and spinner.
+   * @csspart spinner - The spinner that shows when a lazy tree item is in the loading state.
+   * @csspart spinner__base - The spinner's base part.
+   * @csspart label - The tree item's label.
+   * @csspart children - The container that wraps the tree item's nested children.
+   * @csspart checkbox - The checkbox that shows when using multiselect.
+   * @csspart checkbox__base - The checkbox's exported `base` part.
+   * @csspart checkbox__control - The checkbox's exported `control` part.
+   * @csspart checkbox__control--checked - The checkbox's exported `control--checked` part.
+   * @csspart checkbox__control--indeterminate - The checkbox's exported `control--indeterminate` part.
+   * @csspart checkbox__checked-icon - The checkbox's exported `checked-icon` part.
+   * @csspart checkbox__indeterminate-icon - The checkbox's exported `indeterminate-icon` part.
+   * @csspart checkbox__label - The checkbox's exported `label` part.
+   */
+  declare class SlTreeItem extends ShoelaceElement {
     static styles: CSSResultGroup;
     static dependencies: {
-        'sl-checkbox': typeof SlCheckbox;
-        'sl-icon': typeof SlIcon;
-        'sl-spinner': typeof SlSpinner;
+      'sl-checkbox': typeof SlCheckbox;
+      'sl-icon': typeof SlIcon;
+      'sl-spinner': typeof SlSpinner;
     };
     static isTreeItem(node: Node): boolean;
     private readonly localize;
@@ -4077,34 +4172,32 @@ declare class SlTreeItem extends ShoelaceElement {
     handleExpandAnimation(): void;
     handleLazyChange(): void;
     /** Gets all the nested tree items in this node. */
-    getChildrenItems({ includeDisabled }?: {
-        includeDisabled?: boolean;
-    }): SlTreeItem[];
+    getChildrenItems({ includeDisabled }?: { includeDisabled?: boolean }): SlTreeItem[];
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-/**
- * @summary Trees allow you to display a hierarchical list of selectable [tree items](/components/tree-item). Items with children can be expanded and collapsed as desired by the user.
- * @documentation https://shoelace.style/components/tree
- * @status stable
- * @since 2.0
- *
- * @event {{ selection: SlTreeItem[] }} sl-selection-change - Emitted when a tree item is selected or deselected.
- *
- * @slot - The default slot.
- * @slot expand-icon - The icon to show when the tree item is expanded. Works best with `<sl-icon>`.
- * @slot collapse-icon - The icon to show when the tree item is collapsed. Works best with `<sl-icon>`.
- *
- * @csspart base - The component's base wrapper.
- *
- * @cssproperty [--indent-size=var(--sl-spacing-medium)] - The size of the indentation for nested items.
- * @cssproperty [--indent-guide-color=var(--sl-color-neutral-200)] - The color of the indentation line.
- * @cssproperty [--indent-guide-offset=0] - The amount of vertical spacing to leave between the top and bottom of the
- *  indentation line's starting position.
- * @cssproperty [--indent-guide-style=solid] - The style of the indentation line, e.g. solid, dotted, dashed.
- * @cssproperty [--indent-guide-width=0] - The width of the indentation line.
- */
-declare class SlTree extends ShoelaceElement {
+  /**
+   * @summary Trees allow you to display a hierarchical list of selectable [tree items](/components/tree-item). Items with children can be expanded and collapsed as desired by the user.
+   * @documentation https://shoelace.style/components/tree
+   * @status stable
+   * @since 2.0
+   *
+   * @event {{ selection: SlTreeItem[] }} sl-selection-change - Emitted when a tree item is selected or deselected.
+   *
+   * @slot - The default slot.
+   * @slot expand-icon - The icon to show when the tree item is expanded. Works best with `<sl-icon>`.
+   * @slot collapse-icon - The icon to show when the tree item is collapsed. Works best with `<sl-icon>`.
+   *
+   * @csspart base - The component's base wrapper.
+   *
+   * @cssproperty [--indent-size=var(--sl-spacing-medium)] - The size of the indentation for nested items.
+   * @cssproperty [--indent-guide-color=var(--sl-color-neutral-200)] - The color of the indentation line.
+   * @cssproperty [--indent-guide-offset=0] - The amount of vertical spacing to leave between the top and bottom of the
+   *  indentation line's starting position.
+   * @cssproperty [--indent-guide-style=solid] - The style of the indentation line, e.g. solid, dotted, dashed.
+   * @cssproperty [--indent-guide-width=0] - The width of the indentation line.
+   */
+  declare class SlTree extends ShoelaceElement {
     static styles: CSSResultGroup;
     defaultSlot: HTMLSlotElement;
     expandedIconSlot: HTMLSlotElement;
@@ -4139,448 +4232,551 @@ declare class SlTree extends ShoelaceElement {
     /** @internal Gets focusable tree items in the tree. */
     getFocusableItems(): SlTreeItem[];
     render(): lit_html.TemplateResult<1>;
-}
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tree': SlTree;
+      'sl-tree': SlTree;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-tree-item': SlTreeItem;
+      'sl-tree-item': SlTreeItem;
     }
-};
+  }
 
-declare global {
+  declare global {
     interface HTMLElementTagNameMap {
-        'sl-visually-hidden': SlVisuallyHidden;
+      'sl-visually-hidden': SlVisuallyHidden;
     }
-};
+  }
 
-declare module '@shoelace-style/animations' {
-  export type Animation = Keyframe[];
-  export const animations: Animation[];
-  export const easings: { [key: string]: string };
-  export const bounce: Animation;
-  export const flash: Animation;
-  export const headShake: Animation;
-  export const heartBeat: Animation;
-  export const jello: Animation;
-  export const pulse: Animation;
-  export const rubberBand: Animation;
-  export const shake: Animation;
-  export const shakeX: Animation;
-  export const shakeY: Animation;
-  export const swing: Animation;
-  export const tada: Animation;
-  export const wobble: Animation;
-  export const backInDown: Animation;
-  export const backInLeft: Animation;
-  export const backInRight: Animation;
-  export const backInUp: Animation;
-  export const backOutDown: Animation;
-  export const backOutLeft: Animation;
-  export const backOutRight: Animation;
-  export const backOutUp: Animation;
-  export const bounceIn: Animation;
-  export const bounceInDown: Animation;
-  export const bounceInLeft: Animation;
-  export const bounceInRight: Animation;
-  export const bounceInUp: Animation;
-  export const bounceOut: Animation;
-  export const bounceOutDown: Animation;
-  export const bounceOutLeft: Animation;
-  export const bounceOutRight: Animation;
-  export const bounceOutUp: Animation;
-  export const fadeIn: Animation;
-  export const fadeInBottomLeft: Animation;
-  export const fadeInBottomRight: Animation;
-  export const fadeInDown: Animation;
-  export const fadeInDownBig: Animation;
-  export const fadeInLeft: Animation;
-  export const fadeInLeftBig: Animation;
-  export const fadeInRight: Animation;
-  export const fadeInRightBig: Animation;
-  export const fadeInTopLeft: Animation;
-  export const fadeInTopRight: Animation;
-  export const fadeInUp: Animation;
-  export const fadeInUpBig: Animation;
-  export const fadeOut: Animation;
-  export const fadeOutBottomLeft: Animation;
-  export const fadeOutBottomRight: Animation;
-  export const fadeOutDown: Animation;
-  export const fadeOutDownBig: Animation;
-  export const fadeOutLeft: Animation;
-  export const fadeOutLeftBig: Animation;
-  export const fadeOutRight: Animation;
-  export const fadeOutRightBig: Animation;
-  export const fadeOutTopLeft: Animation;
-  export const fadeOutTopRight: Animation;
-  export const fadeOutUp: Animation;
-  export const fadeOutUpBig: Animation;
-  export const flip: Animation;
-  export const flipInX: Animation;
-  export const flipInY: Animation;
-  export const flipOutX: Animation;
-  export const flipOutY: Animation;
-  export const lightSpeedInLeft: Animation;
-  export const lightSpeedInRight: Animation;
-  export const lightSpeedOutLeft: Animation;
-  export const lightSpeedOutRight: Animation;
-  export const rotateIn: Animation;
-  export const rotateInDownLeft: Animation;
-  export const rotateInDownRight: Animation;
-  export const rotateInUpLeft: Animation;
-  export const rotateInUpRight: Animation;
-  export const rotateOut: Animation;
-  export const rotateOutDownLeft: Animation;
-  export const rotateOutDownRight: Animation;
-  export const rotateOutUpLeft: Animation;
-  export const rotateOutUpRight: Animation;
-  export const slideInDown: Animation;
-  export const slideInLeft: Animation;
-  export const slideInRight: Animation;
-  export const slideInUp: Animation;
-  export const slideOutDown: Animation;
-  export const slideOutLeft: Animation;
-  export const slideOutRight: Animation;
-  export const slideOutUp: Animation;
-  export const hinge: Animation;
-  export const jackInTheBox: Animation;
-  export const rollIn: Animation;
-  export const rollOut: Animation;
-  export const zoomIn: Animation;
-  export const zoomInDown: Animation;
-  export const zoomInLeft: Animation;
-  export const zoomInRight: Animation;
-  export const zoomInUp: Animation;
-  export const zoomOut: Animation;
-  export const zoomOutDown: Animation;
-  export const zoomOutLeft: Animation;
-  export const zoomOutRight: Animation;
-  export const zoomOutUp: Animation;
-};
+  declare module '@shoelace-style/animations' {
+    export type Animation = Keyframe[];
+    export const animations: Animation[];
+    export const easings: { [key: string]: string };
+    export const bounce: Animation;
+    export const flash: Animation;
+    export const headShake: Animation;
+    export const heartBeat: Animation;
+    export const jello: Animation;
+    export const pulse: Animation;
+    export const rubberBand: Animation;
+    export const shake: Animation;
+    export const shakeX: Animation;
+    export const shakeY: Animation;
+    export const swing: Animation;
+    export const tada: Animation;
+    export const wobble: Animation;
+    export const backInDown: Animation;
+    export const backInLeft: Animation;
+    export const backInRight: Animation;
+    export const backInUp: Animation;
+    export const backOutDown: Animation;
+    export const backOutLeft: Animation;
+    export const backOutRight: Animation;
+    export const backOutUp: Animation;
+    export const bounceIn: Animation;
+    export const bounceInDown: Animation;
+    export const bounceInLeft: Animation;
+    export const bounceInRight: Animation;
+    export const bounceInUp: Animation;
+    export const bounceOut: Animation;
+    export const bounceOutDown: Animation;
+    export const bounceOutLeft: Animation;
+    export const bounceOutRight: Animation;
+    export const bounceOutUp: Animation;
+    export const fadeIn: Animation;
+    export const fadeInBottomLeft: Animation;
+    export const fadeInBottomRight: Animation;
+    export const fadeInDown: Animation;
+    export const fadeInDownBig: Animation;
+    export const fadeInLeft: Animation;
+    export const fadeInLeftBig: Animation;
+    export const fadeInRight: Animation;
+    export const fadeInRightBig: Animation;
+    export const fadeInTopLeft: Animation;
+    export const fadeInTopRight: Animation;
+    export const fadeInUp: Animation;
+    export const fadeInUpBig: Animation;
+    export const fadeOut: Animation;
+    export const fadeOutBottomLeft: Animation;
+    export const fadeOutBottomRight: Animation;
+    export const fadeOutDown: Animation;
+    export const fadeOutDownBig: Animation;
+    export const fadeOutLeft: Animation;
+    export const fadeOutLeftBig: Animation;
+    export const fadeOutRight: Animation;
+    export const fadeOutRightBig: Animation;
+    export const fadeOutTopLeft: Animation;
+    export const fadeOutTopRight: Animation;
+    export const fadeOutUp: Animation;
+    export const fadeOutUpBig: Animation;
+    export const flip: Animation;
+    export const flipInX: Animation;
+    export const flipInY: Animation;
+    export const flipOutX: Animation;
+    export const flipOutY: Animation;
+    export const lightSpeedInLeft: Animation;
+    export const lightSpeedInRight: Animation;
+    export const lightSpeedOutLeft: Animation;
+    export const lightSpeedOutRight: Animation;
+    export const rotateIn: Animation;
+    export const rotateInDownLeft: Animation;
+    export const rotateInDownRight: Animation;
+    export const rotateInUpLeft: Animation;
+    export const rotateInUpRight: Animation;
+    export const rotateOut: Animation;
+    export const rotateOutDownLeft: Animation;
+    export const rotateOutDownRight: Animation;
+    export const rotateOutUpLeft: Animation;
+    export const rotateOutUpRight: Animation;
+    export const slideInDown: Animation;
+    export const slideInLeft: Animation;
+    export const slideInRight: Animation;
+    export const slideInUp: Animation;
+    export const slideOutDown: Animation;
+    export const slideOutLeft: Animation;
+    export const slideOutRight: Animation;
+    export const slideOutUp: Animation;
+    export const hinge: Animation;
+    export const jackInTheBox: Animation;
+    export const rollIn: Animation;
+    export const rollOut: Animation;
+    export const zoomIn: Animation;
+    export const zoomInDown: Animation;
+    export const zoomInLeft: Animation;
+    export const zoomInRight: Animation;
+    export const zoomInUp: Animation;
+    export const zoomOut: Animation;
+    export const zoomOutDown: Animation;
+    export const zoomOutLeft: Animation;
+    export const zoomOutRight: Animation;
+    export const zoomOutUp: Animation;
+  }
 
-/** Gets a list of all supported animation names. */
-declare function getAnimationNames(): string[];
-/** Gets a list of all supported easing function names. */
-declare function getEasingNames(): string[];
+  /** Gets a list of all supported animation names. */
+  declare function getAnimationNames(): string[];
+  /** Gets a list of all supported easing function names. */
+  declare function getEasingNames(): string[];
 
-/** Sets the library's base path to the specified directory. */
-declare function setBasePath(path: string): void;
-/**
- * Gets the library's base path.
- *
- * The base path is used to load assets such as icons and images, so it needs to be set for components to work properly.
- * By default, this script will look for a script ending in shoelace.js or shoelace-autoloader.js and set the base path
- * to the directory that contains that file. To override this behavior, you can add the data-shoelace attribute to any
- * script on the page (it probably makes the most sense to attach it to the Shoelace script, but it could also be on a
- * bundle). The value can be a local folder or it can point to a CORS-enabled endpoint such as a CDN.
- *
- *   <script src="bundle.js" data-shoelace="/custom/base/path"></script>
- *
- * Alternatively, you can set the base path manually using the exported setBasePath() function.
- *
- * @param subpath - An optional path to append to the base path.
- */
-declare function getBasePath(subpath?: string): string;
+  /** Sets the library's base path to the specified directory. */
+  declare function setBasePath(path: string): void;
+  /**
+   * Gets the library's base path.
+   *
+   * The base path is used to load assets such as icons and images, so it needs to be set for components to work properly.
+   * By default, this script will look for a script ending in shoelace.js or shoelace-autoloader.js and set the base path
+   * to the directory that contains that file. To override this behavior, you can add the data-shoelace attribute to any
+   * script on the page (it probably makes the most sense to attach it to the Shoelace script, but it could also be on a
+   * bundle). The value can be a local folder or it can point to a CORS-enabled endpoint such as a CDN.
+   *
+   *   <script src="bundle.js" data-shoelace="/custom/base/path"></script>
+   *
+   * Alternatively, you can set the base path manually using the exported setBasePath() function.
+   *
+   * @param subpath - An optional path to append to the base path.
+   */
+  declare function getBasePath(subpath?: string): string;
 
-type IconLibraryResolver = (name: string) => string;
-type IconLibraryMutator = (svg: SVGElement) => void;
-interface IconLibrary {
+  type IconLibraryResolver = (name: string) => string;
+  type IconLibraryMutator = (svg: SVGElement) => void;
+  interface IconLibrary {
     name: string;
     resolver: IconLibraryResolver;
     mutator?: IconLibraryMutator;
     spriteSheet?: boolean;
-}
-/** Adds an icon library to the registry, or overrides an existing one. */
-declare function registerIconLibrary(name: string, options: Omit<IconLibrary, 'name'>): void;
-/** Removes an icon library from the registry. */
-declare function unregisterIconLibrary(name: string): void;
+  }
+  /** Adds an icon library to the registry, or overrides an existing one. */
+  declare function registerIconLibrary(name: string, options: Omit<IconLibrary, 'name'>): void;
+  /** Removes an icon library from the registry. */
+  declare function unregisterIconLibrary(name: string): void;
 
-/**
- * Serializes a form and returns a plain object. If a form control with the same name appears more than once, the
- * property will be converted to an array.
- */
-declare function serialize(form: HTMLFormElement): Record<string, unknown>;
-/**
- * Returns all form controls that are associated with the specified form. Includes both native and Shoelace form
- * controls. Use this function in lieu of the `HTMLFormElement.elements` property, which doesn't recognize Shoelace
- * form controls.
- */
-declare function getFormControls(form: HTMLFormElement): Element[];
+  /**
+   * Serializes a form and returns a plain object. If a form control with the same name appears more than once, the
+   * property will be converted to an array.
+   */
+  declare function serialize(form: HTMLFormElement): Record<string, unknown>;
+  /**
+   * Returns all form controls that are associated with the specified form. Includes both native and Shoelace form
+   * controls. Use this function in lieu of the `HTMLFormElement.elements` property, which doesn't recognize Shoelace
+   * form controls.
+   */
+  declare function getFormControls(form: HTMLFormElement): Element[];
 
-type SlAfterCollapseEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlAfterCollapseEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-after-collapse': SlAfterCollapseEvent;
+      'sl-after-collapse': SlAfterCollapseEvent;
     }
-};
+  }
 
-type SlAfterExpandEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlAfterExpandEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-after-expand': SlAfterExpandEvent;
+      'sl-after-expand': SlAfterExpandEvent;
     }
-};
+  }
 
-type SlAfterHideEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlAfterHideEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-after-hide': SlAfterHideEvent;
+      'sl-after-hide': SlAfterHideEvent;
     }
-};
+  }
 
-type SlAfterShowEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlAfterShowEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-after-show': SlAfterShowEvent;
+      'sl-after-show': SlAfterShowEvent;
     }
-};
+  }
 
-type SlBlurEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlBlurEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-blur': SlBlurEvent;
+      'sl-blur': SlBlurEvent;
     }
-};
+  }
 
-type SlCancelEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlCancelEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-cancel': SlCancelEvent;
+      'sl-cancel': SlCancelEvent;
     }
-};
+  }
 
-type SlChangeEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlChangeEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-change': SlChangeEvent;
+      'sl-change': SlChangeEvent;
     }
-};
+  }
 
-type SlClearEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlClearEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-clear': SlClearEvent;
+      'sl-clear': SlClearEvent;
     }
-};
+  }
 
-type SlCloseEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlCloseEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-close': SlCloseEvent;
+      'sl-close': SlCloseEvent;
     }
-};
+  }
 
-type SlCollapseEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlCollapseEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-collapse': SlCollapseEvent;
+      'sl-collapse': SlCollapseEvent;
     }
-};
+  }
 
-type SlCopyEvent = CustomEvent<{
+  type SlCopyEvent = CustomEvent<{
     value: string;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-copy': SlCopyEvent;
+      'sl-copy': SlCopyEvent;
     }
-};
+  }
 
-type SlErrorEvent = CustomEvent<{
+  type SlErrorEvent = CustomEvent<{
     status?: number;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-error': SlErrorEvent;
+      'sl-error': SlErrorEvent;
     }
-};
+  }
 
-type SlExpandEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlExpandEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-expand': SlExpandEvent;
+      'sl-expand': SlExpandEvent;
     }
-};
+  }
 
-type SlFinishEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlFinishEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-finish': SlFinishEvent;
+      'sl-finish': SlFinishEvent;
     }
-};
+  }
 
-type SlFocusEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlFocusEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-focus': SlFocusEvent;
+      'sl-focus': SlFocusEvent;
     }
-};
+  }
 
-type SlHideEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlHideEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-hide': SlHideEvent;
+      'sl-hide': SlHideEvent;
     }
-};
+  }
 
-type SlHoverEvent = CustomEvent<{
+  type SlHoverEvent = CustomEvent<{
     phase: 'start' | 'move' | 'end';
     value: number;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-hover': SlHoverEvent;
+      'sl-hover': SlHoverEvent;
     }
-};
+  }
 
-type SlInitialFocusEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlInitialFocusEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-initial-focus': SlInitialFocusEvent;
+      'sl-initial-focus': SlInitialFocusEvent;
     }
-};
+  }
 
-type SlInputEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlInputEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-input': SlInputEvent;
+      'sl-input': SlInputEvent;
     }
-};
+  }
 
-type SlInvalidEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlInvalidEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-invalid': SlInvalidEvent;
+      'sl-invalid': SlInvalidEvent;
     }
-};
+  }
 
-type SlLazyChangeEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlLazyChangeEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-lazy-change': SlLazyChangeEvent;
+      'sl-lazy-change': SlLazyChangeEvent;
     }
-};
+  }
 
-type SlLazyLoadEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlLazyLoadEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-lazy-load': SlLazyLoadEvent;
+      'sl-lazy-load': SlLazyLoadEvent;
     }
-};
+  }
 
-type SlLoadEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlLoadEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-load': SlLoadEvent;
+      'sl-load': SlLoadEvent;
     }
-};
+  }
 
-type SlMutationEvent = CustomEvent<{
+  type SlMutationEvent = CustomEvent<{
     mutationList: MutationRecord[];
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-mutation': SlMutationEvent;
+      'sl-mutation': SlMutationEvent;
     }
-};
+  }
 
-type SlRemoveEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlRemoveEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-remove': SlRemoveEvent;
+      'sl-remove': SlRemoveEvent;
     }
-};
+  }
 
-type SlRepositionEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlRepositionEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-reposition': SlRepositionEvent;
+      'sl-reposition': SlRepositionEvent;
     }
-};
+  }
 
-type SlRequestCloseEvent = CustomEvent<{
+  type SlRequestCloseEvent = CustomEvent<{
     source: 'close-button' | 'keyboard' | 'overlay';
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-request-close': SlRequestCloseEvent;
+      'sl-request-close': SlRequestCloseEvent;
     }
-};
+  }
 
-type SlResizeEvent = CustomEvent<{
+  type SlResizeEvent = CustomEvent<{
     entries: ResizeObserverEntry[];
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-resize': SlResizeEvent;
+      'sl-resize': SlResizeEvent;
     }
-};
+  }
 
-type SlSelectEvent = CustomEvent<{
+  type SlSelectEvent = CustomEvent<{
     item: SlMenuItem;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-select': SlSelectEvent;
+      'sl-select': SlSelectEvent;
     }
-};
+  }
 
-type SlSelectionChangeEvent = CustomEvent<{
+  type SlSelectionChangeEvent = CustomEvent<{
     selection: SlTreeItem[];
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-selection-change': SlSelectionChangeEvent;
+      'sl-selection-change': SlSelectionChangeEvent;
     }
-};
+  }
 
-type SlShowEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlShowEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-show': SlShowEvent;
+      'sl-show': SlShowEvent;
     }
-};
+  }
 
-type SlSlideChangeEvent = CustomEvent<{
+  type SlSlideChangeEvent = CustomEvent<{
     index: number;
     slide: SlCarouselItem;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-slide-change': SlSlideChangeEvent;
+      'sl-slide-change': SlSlideChangeEvent;
     }
-};
+  }
 
-type SlStartEvent = CustomEvent<Record<PropertyKey, never>>;
-declare global {
+  type SlStartEvent = CustomEvent<Record<PropertyKey, never>>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-start': SlStartEvent;
+      'sl-start': SlStartEvent;
     }
-};
+  }
 
-type SlTabHideEvent = CustomEvent<{
+  type SlTabHideEvent = CustomEvent<{
     name: string;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-tab-hide': SlTabHideEvent;
+      'sl-tab-hide': SlTabHideEvent;
     }
-};
+  }
 
-type SlTabShowEvent = CustomEvent<{
+  type SlTabShowEvent = CustomEvent<{
     name: string;
-}>;
-declare global {
+  }>;
+  declare global {
     interface GlobalEventHandlersEventMap {
-        'sl-tab-show': SlTabShowEvent;
+      'sl-tab-show': SlTabShowEvent;
     }
-};
+  }
 
-export { SlAlert, SlAnimatedImage, SlAnimation, SlAvatar, SlBadge, SlBreadcrumb, SlBreadcrumbItem, SlButton, SlButtonGroup, SlCard, SlCarousel, SlCarouselItem, SlCheckbox, SlColorPicker, SlCopyButton, SlDetails, SlDialog, SlDivider, SlDrawer, SlDropdown, SlFormatBytes, SlFormatDate, SlFormatNumber, SlIcon, SlIconButton, SlImageComparer, SlInclude, SlInput, SlMenu, SlMenuItem, SlMenuLabel, SlMutationObserver, SlOption, SlPopup, SlProgressBar, SlProgressRing, SlQrCode, SlRadio, SlRadioButton, SlRadioGroup, SlRange, SlRating, SlRelativeTime, SlResizeObserver, SlSelect, SlSkeleton, SlSpinner, SlSplitPanel, SlSwitch, SlTab, SlTabGroup, SlTabPanel, SlTag, SlTextarea, SlTooltip, SlTree, SlTreeItem, SlVisuallyHidden, getAnimationNames, getBasePath, getEasingNames, getFormControls, registerIconLibrary, serialize, setBasePath, unregisterIconLibrary };
-export type { SlAfterCollapseEvent, SlAfterExpandEvent, SlAfterHideEvent, SlAfterShowEvent, SlBlurEvent, SlCancelEvent, SlChangeEvent, SlClearEvent, SlCloseEvent, SlCollapseEvent, SlCopyEvent, SlErrorEvent, SlExpandEvent, SlFinishEvent, SlFocusEvent, SlHideEvent, SlHoverEvent, SlInitialFocusEvent, SlInputEvent, SlInvalidEvent, SlLazyChangeEvent, SlLazyLoadEvent, SlLoadEvent, SlMutationEvent, SlRemoveEvent, SlRepositionEvent, SlRequestCloseEvent, SlResizeEvent, SlSelectEvent, SlSelectionChangeEvent, SlShowEvent, SlSlideChangeEvent, SlStartEvent, SlTabHideEvent, SlTabShowEvent };
+  export {
+    SlAlert,
+    SlAnimatedImage,
+    SlAnimation,
+    SlAvatar,
+    SlBadge,
+    SlBreadcrumb,
+    SlBreadcrumbItem,
+    SlButton,
+    SlButtonGroup,
+    SlCard,
+    SlCarousel,
+    SlCarouselItem,
+    SlCheckbox,
+    SlColorPicker,
+    SlCopyButton,
+    SlDetails,
+    SlDialog,
+    SlDivider,
+    SlDrawer,
+    SlDropdown,
+    SlFormatBytes,
+    SlFormatDate,
+    SlFormatNumber,
+    SlIcon,
+    SlIconButton,
+    SlImageComparer,
+    SlInclude,
+    SlInput,
+    SlMenu,
+    SlMenuItem,
+    SlMenuLabel,
+    SlMutationObserver,
+    SlOption,
+    SlPopup,
+    SlProgressBar,
+    SlProgressRing,
+    SlQrCode,
+    SlRadio,
+    SlRadioButton,
+    SlRadioGroup,
+    SlRange,
+    SlRating,
+    SlRelativeTime,
+    SlResizeObserver,
+    SlSelect,
+    SlSkeleton,
+    SlSpinner,
+    SlSplitPanel,
+    SlSwitch,
+    SlTab,
+    SlTabGroup,
+    SlTabPanel,
+    SlTag,
+    SlTextarea,
+    SlTooltip,
+    SlTree,
+    SlTreeItem,
+    SlVisuallyHidden,
+    getAnimationNames,
+    getBasePath,
+    getEasingNames,
+    getFormControls,
+    registerIconLibrary,
+    serialize,
+    setBasePath,
+    unregisterIconLibrary,
+  };
+  export type {
+    SlAfterCollapseEvent,
+    SlAfterExpandEvent,
+    SlAfterHideEvent,
+    SlAfterShowEvent,
+    SlBlurEvent,
+    SlCancelEvent,
+    SlChangeEvent,
+    SlClearEvent,
+    SlCloseEvent,
+    SlCollapseEvent,
+    SlCopyEvent,
+    SlErrorEvent,
+    SlExpandEvent,
+    SlFinishEvent,
+    SlFocusEvent,
+    SlHideEvent,
+    SlHoverEvent,
+    SlInitialFocusEvent,
+    SlInputEvent,
+    SlInvalidEvent,
+    SlLazyChangeEvent,
+    SlLazyLoadEvent,
+    SlLoadEvent,
+    SlMutationEvent,
+    SlRemoveEvent,
+    SlRepositionEvent,
+    SlRequestCloseEvent,
+    SlResizeEvent,
+    SlSelectEvent,
+    SlSelectionChangeEvent,
+    SlShowEvent,
+    SlSlideChangeEvent,
+    SlStartEvent,
+    SlTabHideEvent,
+    SlTabShowEvent,
+  };
 }

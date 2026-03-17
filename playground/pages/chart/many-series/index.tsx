@@ -4,16 +4,8 @@ import '~/common';
 
 await gc.sdk.init({ debug: true });
 
-const data = Array.from({ length: 1000 }, (_) => [
-  Math.random(),
-  Math.random(),
-  Math.random(),
-  Math.random(),
-]);
-const series = Array.from(
-  { length: 1000 },
-  (_, i): Serie => ({ type: 'line', yCol: i, yAxis: 'y', color: 'blue' }),
-);
+const data = Array.from({ length: 1000 }, (_) => [Math.random(), Math.random(), Math.random(), Math.random()]);
+const series = Array.from({ length: 1000 }, (_, i): Serie => ({ type: 'line', yCol: i, yAxis: 'y', color: 'blue' }));
 
 const t = gc.Table.fromCols(data);
 

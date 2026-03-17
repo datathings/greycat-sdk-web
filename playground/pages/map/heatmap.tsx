@@ -160,10 +160,7 @@ document.body.appendChild(
       placement="start"
       style={{ '--size': '400px', position: 'absolute' }}
     >
-      <gui-object
-        $ref={(el) => (hoveredDisplay = el)}
-        value="Hover an earthquake to see its details"
-      />
+      <gui-object $ref={(el) => (hoveredDisplay = el)} value="Hover an earthquake to see its details" />
       <sl-button slot="footer" variant="primary" onclick={() => drawer?.hide()}>
         Close
       </sl-button>

@@ -211,14 +211,7 @@ namespace gc {
       ];
     }
 
-    export function interleave64_6d(
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      x4: number,
-      x5: number,
-    ): bigint {
+    export function interleave64_6d(x0: number, x1: number, x2: number, x3: number, x4: number, x5: number): bigint {
       // keep only 10 bits per dimension
       const x0o = x0 & 0x03ff;
       const x3o = x3 & 0x03ff;
@@ -229,11 +222,7 @@ namespace gc {
       const x2o = x2 & 0x03ff;
       const x5o = x5 & 0x03ff;
       const x52 = interleave64_2d(x2o, x5o);
-      return interleave64_3d(
-        Number(x30 & 0xffffffffn),
-        Number(x41 & 0xffffffffn),
-        Number(x52 & 0xffffffffn),
-      );
+      return interleave64_3d(Number(x30 & 0xffffffffn), Number(x41 & 0xffffffffn), Number(x52 & 0xffffffffn));
     }
 
     // prettier-ignore
@@ -402,20 +391,8 @@ namespace gc {
       return res;
     }
 
-    export function interleave64_5di(
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      x4: number,
-    ): bigint {
-      return interleave64_5d(
-        x0 + INT12_MIN,
-        x1 + INT12_MIN,
-        x2 + INT12_MIN,
-        x3 + INT12_MIN,
-        x4 + INT12_MIN,
-      );
+    export function interleave64_5di(x0: number, x1: number, x2: number, x3: number, x4: number): bigint {
+      return interleave64_5d(x0 + INT12_MIN, x1 + INT12_MIN, x2 + INT12_MIN, x3 + INT12_MIN, x4 + INT12_MIN);
     }
 
     export function deinterleave64_5di(x: bigint): [number, number, number, number, number] {
@@ -428,14 +405,7 @@ namespace gc {
       return res;
     }
 
-    export function interleave64_6di(
-      x0: number,
-      x1: number,
-      x2: number,
-      x3: number,
-      x4: number,
-      x5: number,
-    ): bigint {
+    export function interleave64_6di(x0: number, x1: number, x2: number, x3: number, x4: number, x5: number): bigint {
       return interleave64_6d(
         (x0 + 65024) & 0x3ff,
         (x1 + 65024) & 0x3ff,
@@ -446,9 +416,7 @@ namespace gc {
       );
     }
 
-    export function deinterleave64_6di(
-      x: bigint,
-    ): [number, number, number, number, number, number] {
+    export function deinterleave64_6di(x: bigint): [number, number, number, number, number, number] {
       const res = deinterleave64_6d(x);
       res[0] += INT10_MIN;
       res[1] += INT10_MIN;
@@ -624,16 +592,16 @@ namespace gc {
 
     export const gc_core_str_decoder = new Uint8Array(256);
     gc_core_str_decoder.set([
-      0, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115,
-      116, 117, 118, 119, 120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
+      0, 97, 98, 99, 100, 101, 102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117, 118, 119,
+      120, 121, 122, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
     ]);
 
     export const gc_core_str_encoder = new Uint8Array(256);
     gc_core_str_encoder.set(
       [
-        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,
-        11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0, 1, 2, 3,
-        4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+        27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
       ],
       48,
     );

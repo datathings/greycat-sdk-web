@@ -3,7 +3,6 @@ namespace gc {
     export type EmitterCallback<T> = (data: T) => void;
     export type EmitterDisposable = () => void;
 
-    
     // oxlint-disable-next-line no-explicit-any
     export class Emitter<Events extends Record<string, any> = Record<string, unknown>> {
       // internal native event target

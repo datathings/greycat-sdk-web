@@ -44,10 +44,7 @@ export class GuiRoles extends GuiElement {
       const rows: Array<[string, gc.runtime.Permission[]]> = new Array(roles.length);
       for (let i = 0; i < roles.length; i++) {
         const role = roles[i];
-        rows[i] = [
-          role.name,
-          role.permissions.map((name) => permissions.find((p) => p.name === name)!),
-        ];
+        rows[i] = [role.name, role.permissions.map((name) => permissions.find((p) => p.name === name)!)];
       }
 
       const table = gc.core.Table.fromRows(rows);

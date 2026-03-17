@@ -234,9 +234,7 @@ const nullCount = (c: gc.io.CsvColumnStatistics) => {
   return `${c.null_count} (${percentage}%)`;
 };
 
-type NullMapper = (
-  prop: keyof gc.io.CsvColumnStatistics,
-) => (c: gc.io.CsvColumnStatistics) => string;
+type NullMapper = (prop: keyof gc.io.CsvColumnStatistics) => (c: gc.io.CsvColumnStatistics) => string;
 const typeCount: NullMapper = (prop) => (c) => (c[prop] === 0 ? '' : (c[prop] as string));
 
 const example = (c: gc.io.CsvColumnStatistics) => {

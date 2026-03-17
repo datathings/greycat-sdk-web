@@ -84,11 +84,15 @@ customElements.define('app-inputs', AppInputs);
 document.body.appendChild(
   <app-layout title="Tabs" mainStyle={{ display: 'grid' }}>
     <gui-tabs>
-      <gui-tab slot="tab" active>simple</gui-tab>
+      <gui-tab slot="tab" active>
+        simple
+      </gui-tab>
       <gui-tab slot="tab">inputs</gui-tab>
       <gui-tab slot="tab">selects</gui-tab>
 
-      <gui-panel slot="panel" tab="simple">simple</gui-panel>
+      <gui-panel slot="panel" tab="simple">
+        simple
+      </gui-panel>
       <gui-panel slot="panel" tab="inputs">
         <app-inputs />
       </gui-panel>

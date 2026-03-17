@@ -128,18 +128,14 @@ class GuiList<T = unknown> extends GuiElement {
     if (this._collapsible) {
       this._container.replaceChildren(
         <gui-details open>
-          <summary slot="summary">
-            {this._title === undefined ? `${this._items.length} items` : this._title}
-          </summary>
+          <summary slot="summary">{this._title === undefined ? `${this._items.length} items` : this._title}</summary>
           <div className="gui-list">{fragment}</div>
         </gui-details>,
       );
     } else {
       this._container.replaceChildren(
         <gui-card>
-          <div slot="header">
-            {this._title === undefined ? `${this._items.length} items` : this._title}
-          </div>
+          <div slot="header">{this._title === undefined ? `${this._items.length} items` : this._title}</div>
           <div className="gui-list">{fragment}</div>
         </gui-card>,
       );
@@ -172,10 +168,7 @@ document.body.appendChild(
       renderItem={(item: Item, i, list) => (
         <gui-details>
           <summary slot="summary" style={{ display: 'grid', gridTemplateColumns: 'auto 1fr auto' }}>
-            <sl-checkbox
-              onsl-input={list.getSelectHandler(i)}
-              onclick={(ev) => ev.stopPropagation()}
-            />
+            <sl-checkbox onsl-input={list.getSelectHandler(i)} onclick={(ev) => ev.stopPropagation()} />
             <span>{item.title}</span>
           </summary>
           <div>{item.content}</div>

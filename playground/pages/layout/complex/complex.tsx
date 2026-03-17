@@ -56,19 +56,19 @@ document.body.appendChild(
         <h1>Lorem Ipsum Page</h1>
 
         <p>
-          Lorem ipsum dolor sit amet, <a href="#">consectetur adipiscing elit</a>. Sed do eiusmod
-          tempor incididunt ut labore et dolore magna aliqua.
+          Lorem ipsum dolor sit amet, <a href="#">consectetur adipiscing elit</a>. Sed do eiusmod tempor incididunt ut
+          labore et dolore magna aliqua.
         </p>
 
         <p>
-          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea
-          commodo consequat. <strong>Duis aute irure dolor</strong> in reprehenderit in voluptate
-          velit esse cillum dolore eu fugiat nulla pariatur.
+          Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.{' '}
+          <strong>Duis aute irure dolor</strong> in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
+          pariatur.
         </p>
 
         <p>
-          <em>Excepteur sint occaecat cupidatat non proident</em>, sunt in culpa qui officia
-          deserunt mollit anim id est laborum.
+          <em>Excepteur sint occaecat cupidatat non proident</em>, sunt in culpa qui officia deserunt mollit anim id est
+          laborum.
         </p>
 
         <h2>Example List</h2>
@@ -79,8 +79,8 @@ document.body.appendChild(
         </ul>
 
         <p>
-          At vero eos et accusamus et <a href="https://example.com">iusto odio dignissimos</a>{' '}
-          ducimus qui blanditiis praesentium voluptatum deleniti atque corrupti quos dolores.
+          At vero eos et accusamus et <a href="https://example.com">iusto odio dignissimos</a> ducimus qui blanditiis
+          praesentium voluptatum deleniti atque corrupti quos dolores.
         </p>
 
         <ol>
@@ -89,32 +89,26 @@ document.body.appendChild(
           <li>Third Step: Ut enim ad minim veniam.</li>
         </ol>
 
-        <p>
-          Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum
-          fuga.
-        </p>
+        <p>Similique sunt in culpa qui officia deserunt mollitia animi, id est laborum et dolorum fuga.</p>
 
         <h3>Another Section</h3>
         <p>
-          Lorem ipsum dolor sit amet, consectetur <a href="#">adipiscing elit</a>. Integer nec odio.
-          Praesent libero. Sed cursus ante dapibus diam.
+          Lorem ipsum dolor sit amet, consectetur <a href="#">adipiscing elit</a>. Integer nec odio. Praesent libero.
+          Sed cursus ante dapibus diam.
         </p>
 
         <p>
-          Phasellus volutpat metus eget egestas sodales. Sed pulvinar purus nec eros tincidunt, a
-          dignissim eros vehicula.
+          Phasellus volutpat metus eget egestas sodales. Sed pulvinar purus nec eros tincidunt, a dignissim eros
+          vehicula.
         </p>
 
         <p>
-          Donec ut nisi <a href="https://another-link.com">non metus ultrices tincidunt</a> id a
-          nulla. Vivamus eget urna eget ligula aliquet fringilla.
+          Donec ut nisi <a href="https://another-link.com">non metus ultrices tincidunt</a> id a nulla. Vivamus eget
+          urna eget ligula aliquet fringilla.
         </p>
 
         <h4>Subheading Example</h4>
-        <p>
-          Etiam rhoncus, justo vel porttitor placerat, nisi nisi efficitur enim, vitae mollis nunc
-          leo in lectus.
-        </p>
+        <p>Etiam rhoncus, justo vel porttitor placerat, nisi nisi efficitur enim, vitae mollis nunc leo in lectus.</p>
 
         <ul>
           <li>Fusce tincidunt dui vel tellus bibendum.</li>
@@ -125,39 +119,38 @@ document.body.appendChild(
         <p>Morbi ac turpis eu ligula commodo posuere ac et risus. Suspendisse potenti.</p>
 
         <p>
-          Vivamus consequat, <a href="#">arcu vel viverra dictum</a>, magna quam ultricies erat, vel
-          tristique ipsum elit in justo.
+          Vivamus consequat, <a href="#">arcu vel viverra dictum</a>, magna quam ultricies erat, vel tristique ipsum
+          elit in justo.
         </p>
 
         <p>
-          Pellentesque tincidunt, erat a <strong>venenatis fermentum</strong>, lectus sapien
-          efficitur justo, sit amet ullamcorper sapien leo a mi.
+          Pellentesque tincidunt, erat a <strong>venenatis fermentum</strong>, lectus sapien efficitur justo, sit amet
+          ullamcorper sapien leo a mi.
         </p>
 
         <h2>Final Section</h2>
         <p>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec lorem ut erat venenatis
-          consectetur sit amet vel metus.
+          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec nec lorem ut erat venenatis consectetur sit
+          amet vel metus.
         </p>
 
         <p>
-          Curabitur vel dui eget lorem scelerisque auctor in et lorem. Integer tempor nisi quis
-          lacus tempor, nec interdum sapien ultricies.
+          Curabitur vel dui eget lorem scelerisque auctor in et lorem. Integer tempor nisi quis lacus tempor, nec
+          interdum sapien ultricies.
         </p>
 
         <p>
-          Nam auctor velit sit amet est tincidunt, nec cursus orci pellentesque. Mauris non nisi
-          vitae sapien facilisis porttitor sed ac sapien.
+          Nam auctor velit sit amet est tincidunt, nec cursus orci pellentesque. Mauris non nisi vitae sapien facilisis
+          porttitor sed ac sapien.
         </p>
 
         <p>
-          Proin scelerisque magna in <a href="https://final-link.com">magna scelerisque</a>{' '}
-          scelerisque.
+          Proin scelerisque magna in <a href="https://final-link.com">magna scelerisque</a> scelerisque.
         </p>
 
         <p>
-          Donec vitae nisi auctor, suscipit magna sed, vulputate purus. Suspendisse efficitur erat
-          quis mauris cursus accumsan.
+          Donec vitae nisi auctor, suscipit magna sed, vulputate purus. Suspendisse efficitur erat quis mauris cursus
+          accumsan.
         </p>
       </div>
 

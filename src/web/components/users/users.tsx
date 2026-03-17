@@ -102,12 +102,7 @@ export class GuiUsers extends GuiElement {
                 for (const group_name of selected) {
                   const group = this._groups.find((g) => g.name === group_name);
                   if (group) {
-                    value.push(
-                      new gc.runtime.UserGroupPolicy(
-                        group.id,
-                        gc.runtime.UserGroupPolicyType.execute,
-                      ),
-                    );
+                    value.push(new gc.runtime.UserGroupPolicy(group.id, gc.runtime.UserGroupPolicyType.execute));
                   }
                 }
                 select.dispatchEvent(
@@ -118,9 +113,7 @@ export class GuiUsers extends GuiElement {
                   }),
                 );
               },
-              children: this._groups.map((group) => (
-                <sl-option value={group.name}>{group.name}</sl-option>
-              )),
+              children: this._groups.map((group) => <sl-option value={group.name}>{group.name}</sl-option>),
             });
             return select;
           },

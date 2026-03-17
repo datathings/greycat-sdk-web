@@ -5,7 +5,7 @@ const greycat = await gc.sdk.init();
 // print(greycat);
 
 /**
- * @param {gc.sdk.GreyCat} g 
+ * @param {gc.sdk.GreyCat} g
  */
 function print(g) {
   for (const ty of g.abi.types) {

@@ -282,9 +282,7 @@ export type LineOptions = {
 export type SerieTableColumn = number | string | (number | string)[];
 export type TypedSerieTableColumn = number | gc.$Fields | (number | gc.$Fields)[];
 
-export function chartConfig<K>(
-  config: ChartConfig<K, TypedSerieTableColumn>,
-): ChartConfig<K, SerieTableColumn> {
+export function chartConfig<K>(config: ChartConfig<K, TypedSerieTableColumn>): ChartConfig<K, SerieTableColumn> {
   return config;
 }
 

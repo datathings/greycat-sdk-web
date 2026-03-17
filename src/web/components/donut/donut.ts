@@ -479,9 +479,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
     if (isHovering) {
       const hoverEl = document.createElement('div');
       hoverEl.textContent =
-        hoveredValue > 999999
-          ? `${d3.format('.4s')(hoveredValue)}`
-          : `${d3.format(',')(hoveredValue)}`;
+        hoveredValue > 999999 ? `${d3.format('.4s')(hoveredValue)}` : `${d3.format(',')(hoveredValue)}`;
       hoverEl.style.color = hoveredColor;
       hoverEl.classList.add('pie-info-value');
 

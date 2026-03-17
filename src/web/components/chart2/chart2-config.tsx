@@ -1,26 +1,12 @@
 import type { ECharts } from 'echarts/core';
 import { sl, css, GuiElement } from '../../exports.js';
 import { GuiChart2ConfigUpdateEvent } from './chart2.js';
-import type {
-  Chart2Config,
-  Chart2Serie,
-  Chart2Axis,
-  Chart2SerieType,
-  Chart2AxisType,
-} from './types.js';
+import type { Chart2Config, Chart2Serie, Chart2Axis, Chart2SerieType, Chart2AxisType } from './types.js';
 import { getEffectiveGrid, getThemeColors } from './utils.js';
 
 import style from './chart2-config.css?inline';
 
-const SERIE_TYPES: Chart2SerieType[] = [
-  'line',
-  'bar',
-  'scatter',
-  'pie',
-  'candlestick',
-  'heatmap',
-  'boxplot',
-];
+const SERIE_TYPES: Chart2SerieType[] = ['line', 'bar', 'scatter', 'pie', 'candlestick', 'heatmap', 'boxplot'];
 const AXIS_TYPES: Chart2AxisType[] = ['value', 'time', 'category', 'log'];
 
 export class GuiChart2Config extends GuiElement {
@@ -110,14 +96,7 @@ export class GuiChart2Config extends GuiElement {
     // grid section
     const gridSection = this._renderGrid();
 
-    this._content.append(
-      actionsSection,
-      featuresSection,
-      seriesSection,
-      xAxisSection,
-      yAxisSection,
-      gridSection,
-    );
+    this._content.append(actionsSection, featuresSection, seriesSection, xAxisSection, yAxisSection, gridSection);
   }
 
   private _renderSerie(serie: Chart2Serie, idx: number): HTMLElement {
@@ -601,13 +580,7 @@ export class GuiChart2Config extends GuiElement {
       </sl-checkbox>
     ) as HTMLElement;
 
-    return this._details('Grid', [
-      topInput,
-      rightInput,
-      bottomInput,
-      leftInput,
-      containLabelCheckbox,
-    ]);
+    return this._details('Grid', [topInput, rightInput, bottomInput, leftInput, containLabelCheckbox]);
   }
 }
 

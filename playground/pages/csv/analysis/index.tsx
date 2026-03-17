@@ -26,9 +26,7 @@ const stats = await runAnalysis(defaultValue);
 console.log(stats);
 const csvStatistics = (<gui-csv-statistics2 value={stats} />) as GuiCsvStatistics2;
 
-const hiddenInput = (
-  <input type="file" onchange={uploadFile} style={{ display: 'none' }} />
-) as HTMLInputElement;
+const hiddenInput = (<input type="file" onchange={uploadFile} style={{ display: 'none' }} />) as HTMLInputElement;
 
 async function uploadFile() {
   if (hiddenInput.files === null) {

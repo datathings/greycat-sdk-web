@@ -446,9 +446,7 @@ namespace gc {
       headers(): [number, number, number] {
         const protocol = this.read_u16();
         if (protocol !== Abi.protocol_version) {
-          throw new Error(
-            `major version mismatch (expected=${Abi.protocol_version}, actual=${protocol})`,
-          );
+          throw new Error(`major version mismatch (expected=${Abi.protocol_version}, actual=${protocol})`);
         }
         const magic = this.read_u16();
         const version = this.read_u32();
@@ -604,9 +602,7 @@ namespace gc {
 
       constructor(capacityOrBuffer: number | ArrayBuffer = 2048) {
         this._buf =
-          typeof capacityOrBuffer === 'number'
-            ? new Uint8Array(capacityOrBuffer)
-            : new Uint8Array(capacityOrBuffer);
+          typeof capacityOrBuffer === 'number' ? new Uint8Array(capacityOrBuffer) : new Uint8Array(capacityOrBuffer);
         // see https://v8.dev/blog/dataview
         this._view = new DataView(this._buf.buffer);
         this.txt = new TextEncoder();
@@ -944,17 +940,11 @@ namespace gc {
           this.write_vu32(target_type.offset);
           this.write_vu32(value.size);
           this.write_map(value, target_type);
-        } else if (
-          target_type.generic_abi_type === this.abi.core.table &&
-          value instanceof core.Table
-        ) {
+        } else if (target_type.generic_abi_type === this.abi.core.table && value instanceof core.Table) {
           this.write_u8(PrimitiveType.object);
           this.write_vu32(target_type.offset);
           value.saveContent(this);
-        } else if (
-          value instanceof GCObject &&
-          target_type.generic_abi_type !== value.$type.generic_abi_type
-        ) {
+        } else if (value instanceof GCObject && target_type.generic_abi_type !== value.$type.generic_abi_type) {
           // transtype the value
           Object.assign(value, { $type: target_type });
           this.serialize(value);
@@ -1363,8 +1353,7 @@ namespace gc {
         }
 
         const slot_type = slot_type_and === slot_type_or ? slot_type_and : PrimitiveType.undefined;
-        const object_type_id =
-          object_type_and === object_type_or ? BigInt(object_type_and) : 4294967295n;
+        const object_type_id = object_type_and === object_type_or ? BigInt(object_type_and) : 4294967295n;
         this.write_u8(slot_type);
         if (slot_type == PrimitiveType.object || slot_type == PrimitiveType.enum) {
           this.write_vu64(object_type_id);

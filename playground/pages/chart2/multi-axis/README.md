@@ -45,8 +45,8 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `yAxis` (array) | Define multiple y-axes with different names, positions, and scales |
-| `yAxis[].position` | `'left'` or `'right'` side of the chart |
-| `series[].yAxisIndex` | 0-based index into the `yAxis` array |
+| Option                | Description                                                        |
+| --------------------- | ------------------------------------------------------------------ |
+| `yAxis` (array)       | Define multiple y-axes with different names, positions, and scales |
+| `yAxis[].position`    | `'left'` or `'right'` side of the chart                            |
+| `series[].yAxisIndex` | 0-based index into the `yAxis` array                               |

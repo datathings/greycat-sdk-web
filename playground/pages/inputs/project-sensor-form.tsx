@@ -17,17 +17,11 @@ export class ProjectSensorForm extends GuiInputElement<gc.project.Sensor> {
     this._id = document.createElement('gui-input-number');
     this._id.value = 0;
     this._id.addEventListener('gui-input', () => this.dispatchEvent(new GuiInputEvent(this.value)));
-    this._id.addEventListener('gui-change', () =>
-      this.dispatchEvent(new GuiChangeEvent(this.value)),
-    );
+    this._id.addEventListener('gui-change', () => this.dispatchEvent(new GuiChangeEvent(this.value)));
     this._kind = document.createElement('gui-input-enum');
     this._kind.value = gc.project.SensorKind.Temp;
-    this._kind.addEventListener('gui-input', () =>
-      this.dispatchEvent(new GuiInputEvent(this.value)),
-    );
-    this._kind.addEventListener('gui-change', () =>
-      this.dispatchEvent(new GuiChangeEvent(this.value)),
-    );
+    this._kind.addEventListener('gui-input', () => this.dispatchEvent(new GuiInputEvent(this.value)));
+    this._kind.addEventListener('gui-change', () => this.dispatchEvent(new GuiChangeEvent(this.value)));
 
     this.shadowRoot.replaceChildren(this._id, this._kind);
   }

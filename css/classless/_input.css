@@ -29,7 +29,6 @@
 input:not([type='submit'], [type='button'], [type='reset'])[disabled],
 select[disabled],
 textarea[disabled],
-:where(fieldset[disabled])
-  :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
+:where(fieldset[disabled]) :is(input:not([type='submit'], [type='button'], [type='reset']), select, textarea) {
   pointer-events: initial;
 }

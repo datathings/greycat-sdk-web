@@ -5,9 +5,7 @@ const greycat = await gc.sdk.init({ debug: true });
 const { actions } = await import('./actions');
 
 const root = await greycat.root();
-const earthquakes_by_time = root[
-  'heatmap::earthquakes_by_time'
-] as gc.core.nodeTime<gc.heatmap.Earthquake>;
+const earthquakes_by_time = root['heatmap::earthquakes_by_time'] as gc.core.nodeTime<gc.heatmap.Earthquake>;
 const table = await gc.core.nodeTime.sample(
   [earthquakes_by_time],
   null,
@@ -39,10 +37,7 @@ mappings.addEventListener('gui-table-mappings-apply', (ev) => {
 });
 
 document.body.appendChild(
-  <app-layout
-    title="Table (config)"
-    mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}
-  >
+  <app-layout title="Table (config)" mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}>
     {actions}
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 'var(--spacing)' }}>
       {mappings}

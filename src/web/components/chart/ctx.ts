@@ -126,13 +126,10 @@ export class CanvasContext {
 
     const isReverse =
       serie.xCol !== undefined &&
-      xScale(vMap(tableGetCell(table, serie.xCol, 0))) >
-        xScale(vMap(tableGetCell(table, serie.xCol, 1)));
+      xScale(vMap(tableGetCell(table, serie.xCol, 0))) > xScale(vMap(tableGetCell(table, serie.xCol, 1)));
 
     for (let i = 1; i < table.cols[0].length; i++) {
-      const prevX = xScale(
-        serie.xCol === undefined ? i - 1 : vMap(tableGetCell(table, serie.xCol, i - 1)),
-      );
+      const prevX = xScale(serie.xCol === undefined ? i - 1 : vMap(tableGetCell(table, serie.xCol, i - 1)));
       const prevY = yScale(vMap(tableGetCell(table, serie.yCol, i - 1)));
 
       const y = tableGetCell(table, serie.yCol, i);
@@ -178,29 +175,17 @@ export class CanvasContext {
         this.ctx.setLineDash(lineDash);
         this.ctx.beginPath();
         this.ctx.moveTo(prevX, prevY);
-        if (
-          (serie.curve === 'step-after' && !isReverse) ||
-          (serie.curve === 'step-before' && isReverse)
-        ) {
+        if ((serie.curve === 'step-after' && !isReverse) || (serie.curve === 'step-before' && isReverse)) {
           this.ctx.lineTo(sX, prevY);
-        } else if (
-          (serie.curve === 'step-before' && !isReverse) ||
-          (serie.curve === 'step-after' && isReverse)
-        ) {
+        } else if ((serie.curve === 'step-before' && !isReverse) || (serie.curve === 'step-after' && isReverse)) {
           this.ctx.lineTo(prevX, sY);
         }
         this.ctx.lineTo(sX, sY);
         first = false;
       } else {
-        if (
-          (serie.curve === 'step-after' && !isReverse) ||
-          (serie.curve === 'step-before' && isReverse)
-        ) {
+        if ((serie.curve === 'step-after' && !isReverse) || (serie.curve === 'step-before' && isReverse)) {
           this.ctx.lineTo(sX, prevY);
-        } else if (
-          (serie.curve === 'step-before' && !isReverse) ||
-          (serie.curve === 'step-after' && isReverse)
-        ) {
+        } else if ((serie.curve === 'step-before' && !isReverse) || (serie.curve === 'step-after' && isReverse)) {
           this.ctx.lineTo(prevX, sY);
         }
         this.ctx.lineTo(sX, sY);
@@ -366,10 +351,7 @@ export class CanvasContext {
         x = x0;
         w = x1 - x0;
       } else {
-        x =
-          xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) -
-          shift +
-          groupBarShift;
+        x = xScale(serie.xCol === undefined ? i : vMap(tableGetCell(table, serie.xCol, i))) - shift + groupBarShift;
         y = yScale(vMap(tableGetCell(table, serie.yCol, i)));
         w = serie.width;
         if (x + serie.width < xMin || x > xMax) {
@@ -497,8 +479,7 @@ export class CanvasContext {
 
     const isReverse =
       serie.xCol !== undefined &&
-      xScale(vMap(tableGetCell(table, serie.xCol, 0))) >
-        xScale(vMap(tableGetCell(table, serie.xCol, 1)));
+      xScale(vMap(tableGetCell(table, serie.xCol, 0))) > xScale(vMap(tableGetCell(table, serie.xCol, 1)));
     // line
     let iterations = 0;
     for (let i = 1; i < table.cols[0].length; i++) {
@@ -522,26 +503,17 @@ export class CanvasContext {
         first = false;
       }
 
-      if (
-        (serie.curve === 'step-after' && !isReverse) ||
-        (serie.curve === 'step-before' && isReverse)
-      ) {
+      if ((serie.curve === 'step-after' && !isReverse) || (serie.curve === 'step-before' && isReverse)) {
         const prevY = computePoint(table, serie.xCol, serie.yCol, i - 1).y;
         this.ctx.lineTo(pt.x, prevY);
-      } else if (
-        (serie.curve === 'step-before' && !isReverse) ||
-        (serie.curve === 'step-after' && isReverse)
-      ) {
+      } else if ((serie.curve === 'step-before' && !isReverse) || (serie.curve === 'step-after' && isReverse)) {
         const prevX = computePoint(table, serie.xCol, serie.yCol, i - 1).x;
         this.ctx.lineTo(prevX, pt.y);
       }
       this.ctx.lineTo(pt.x, pt.y);
       lastX = pt.x;
 
-      if (
-        (prevPt.fill !== pt.fill || prevPt.fillOpacity !== pt.fillOpacity) &&
-        !(pt.x === firstX && pt.y === firstY)
-      ) {
+      if ((prevPt.fill !== pt.fill || prevPt.fillOpacity !== pt.fillOpacity) && !(pt.x === firstX && pt.y === firstY)) {
         // we changed color, so we need to fill the current path, and start a new one
         if (serie.yCol2 === 'max' || serie.yCol2 === 'min') {
           // yCol2 === 'max': fill from line to top
@@ -595,16 +567,10 @@ export class CanvasContext {
         const y = yScale(vMap(tableGetCell(table, serie.yCol2, i)));
 
         this.ctx.lineTo(x, y);
-        if (
-          (serie.curve === 'step-after' && !isReverse) ||
-          (serie.curve === 'step-before' && isReverse)
-        ) {
+        if ((serie.curve === 'step-after' && !isReverse) || (serie.curve === 'step-before' && isReverse)) {
           const prevY = computePoint(table, serie.xCol, serie.yCol2, i - 1).y;
           this.ctx.lineTo(x, prevY);
-        } else if (
-          (serie.curve === 'step-before' && !isReverse) ||
-          (serie.curve === 'step-after' && isReverse)
-        ) {
+        } else if ((serie.curve === 'step-before' && !isReverse) || (serie.curve === 'step-after' && isReverse)) {
           const prevX = computePoint(table, serie.xCol, serie.yCol, i - 1).x;
           this.ctx.lineTo(prevX, y);
         }
@@ -840,12 +806,7 @@ export class CanvasContext {
       this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
       this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
-      this.ctx.rect(
-        boxPlot.crossValue - halfWidth,
-        boxPlot.q3,
-        opts.width,
-        boxPlot.q1 - boxPlot.q3,
-      );
+      this.ctx.rect(boxPlot.crossValue - halfWidth, boxPlot.q3, opts.width, boxPlot.q1 - boxPlot.q3);
       this.ctx.fill();
       this.ctx.globalAlpha = 1;
       this.ctx.stroke();
@@ -877,12 +838,7 @@ export class CanvasContext {
       this.ctx.fillStyle = opts.iqrColor ?? 'inherit';
       this.ctx.strokeStyle = opts.iqrColor ?? 'inherit';
       this.ctx.globalAlpha = 0.2;
-      this.ctx.rect(
-        boxPlot.q3,
-        boxPlot.crossValue - halfWidth,
-        boxPlot.q1 - boxPlot.q3,
-        opts.width,
-      );
+      this.ctx.rect(boxPlot.q3, boxPlot.crossValue - halfWidth, boxPlot.q1 - boxPlot.q3, opts.width);
       this.ctx.fill();
       this.ctx.globalAlpha = 1;
       this.ctx.stroke();

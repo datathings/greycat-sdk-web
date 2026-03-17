@@ -6,9 +6,7 @@ import fs from 'node:fs';
  */
 export function readBytes(filepath) {
   const buffer = fs.readFileSync(filepath);
-  return /** @type {ArrayBuffer} */ (
-    buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
-  );
+  return /** @type {ArrayBuffer} */ (buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength));
 }
 
 /**

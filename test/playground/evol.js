@@ -9,7 +9,11 @@ if (!type) {
 
 const evol = new gc.sdk.AbiTypeEvol(type);
 console.log(evol.size, `updates for ${type.name}`);
-console.log('backward', Array.from(evol.backward()).map((ty) => ty.data.offset));
-console.log('forward', Array.from(evol.forward()).map((ty) => ty.data.offset));
-
-
+console.log(
+  'backward',
+  Array.from(evol.backward()).map((ty) => ty.data.offset),
+);
+console.log(
+  'forward',
+  Array.from(evol.forward()).map((ty) => ty.data.offset),
+);

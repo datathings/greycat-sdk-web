@@ -9,11 +9,8 @@ export const DEFAULT_GRID = { top: 30, right: 15, bottom: 0, left: 15, containLa
  * Computes the effective grid, accounting for slider dataZoom needing extra bottom space.
  */
 export function getEffectiveGrid(config: Chart2Config): Record<string, number | string | boolean> {
-  const hasSlider = config.dataZoom?.enabled &&
-    (config.dataZoom.type === 'slider' || config.dataZoom.type === 'both');
-  const defaults = hasSlider && config.grid?.bottom === undefined
-    ? { ...DEFAULT_GRID, bottom: 50 }
-    : DEFAULT_GRID;
+  const hasSlider = config.dataZoom?.enabled && (config.dataZoom.type === 'slider' || config.dataZoom.type === 'both');
+  const defaults = hasSlider && config.grid?.bottom === undefined ? { ...DEFAULT_GRID, bottom: 50 } : DEFAULT_GRID;
   return { ...defaults, ...config.grid };
 }
 
@@ -43,7 +40,7 @@ export function buildEChartsOption(
   config: Chart2Config,
   colors: string[],
   theme: Chart2ThemeColors,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any> {
   const xAxes = normalizeAxes(config.xAxis);
   const yAxes = normalizeAxes(config.yAxis);
@@ -51,7 +48,7 @@ export function buildEChartsOption(
   const rows = table.cols.length > 0 ? table.cols[0].length : 0;
 
   // determine if x-axis is category type
-  const xAxisIsCategory = xAxes.length > 0 && (xAxes[0].type === 'category');
+  const xAxisIsCategory = xAxes.length > 0 && xAxes[0].type === 'category';
   const xCol: SerieTableColumn = config.xCol ?? 0;
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -122,9 +119,10 @@ export function buildEChartsOption(
             return '';
           }
           const axisVal = arr[0].axisValue ?? (Array.isArray(arr[0].value) ? arr[0].value[0] : undefined);
-          const header = typeof axisVal === 'number'
-            ? gc.$.default.printTime(gc.core.time.fromMs(Math.round(axisVal)), tz)
-            : String(axisVal ?? '');
+          const header =
+            typeof axisVal === 'number'
+              ? gc.$.default.printTime(gc.core.time.fromMs(Math.round(axisVal)), tz)
+              : String(axisVal ?? '');
           let html = header;
           for (const p of arr) {
             const y = Array.isArray(p.value) ? p.value[1] : p.value;
@@ -204,7 +202,7 @@ function buildSerie(
   rows: number,
   colors: string[],
   xAxisIsCategory: boolean,
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
 ): Record<string, any> {
   const type = s.type ?? 'line';
   const xCol: SerieTableColumn = s.xCol ?? config.xCol ?? 0;

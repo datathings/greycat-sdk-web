@@ -17,24 +17,15 @@ describe('std', () => {
   });
 
   it('time + duration => time', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(40).add(gc.core.duration.create(2)),
-      gc.core.time.create(42),
-    );
+    assert.deepStrictEqual(gc.core.time.create(40).add(gc.core.duration.create(2)), gc.core.time.create(42));
   });
 
   it('time - duration => time', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(45).sub(gc.core.duration.create(3)),
-      gc.core.time.create(42),
-    );
+    assert.deepStrictEqual(gc.core.time.create(45).sub(gc.core.duration.create(3)), gc.core.time.create(42));
   });
 
   it('time - time => duration', () => {
-    assert.deepStrictEqual(
-      gc.core.time.create(42).sub(gc.core.time.create(40)),
-      gc.core.duration.create(2),
-    );
+    assert.deepStrictEqual(gc.core.time.create(42).sub(gc.core.time.create(40)), gc.core.duration.create(2));
   });
 
   describe('duration', () => {
@@ -47,10 +38,7 @@ describe('std', () => {
     });
 
     it('100_000_000_000_000n => 1157day 9hour 46min 40s', () => {
-      assert.deepStrictEqual(
-        gc.core.duration.create(100_000_000_000_000n).toString(),
-        '1157day 9hour 46min 40s',
-      );
+      assert.deepStrictEqual(gc.core.duration.create(100_000_000_000_000n).toString(), '1157day 9hour 46min 40s');
     });
 
     it('1year > 2days', () => {

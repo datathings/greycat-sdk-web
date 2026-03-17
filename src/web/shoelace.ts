@@ -105,18 +105,8 @@ export type SlCheckboxEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInval
 export type SlColorPickerEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
 export type SlCopyButtonEventMap = SlCopy & SlError;
 export type SlDetailsEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
-export type SlDialogEventMap = SlShow &
-  SlAfterShow &
-  SlHide &
-  SlAfterHide &
-  SlInitialFocus &
-  SlRequestClose;
-export type SlDrawerEventMap = SlShow &
-  SlAfterShow &
-  SlHide &
-  SlAfterHide &
-  SlInitialFocus &
-  SlRequestClose;
+export type SlDialogEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide & SlInitialFocus & SlRequestClose;
+export type SlDrawerEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide & SlInitialFocus & SlRequestClose;
 export type SlDropdownEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
 export type SlIconEventMap = SlLoad & SlError;
 export type SlIconButtonEventMap = SlBlur & SlFocus;
@@ -149,17 +139,13 @@ export type SlTabGroupEventMap = SlTabShow & SlTabHide;
 export type SlTagEventMap = SlRemove;
 export type SlTextareaEventMap = SlBlur & SlChange & SlFocus & SlInput & SlInvalid;
 export type SlTooltipEventMap = SlShow & SlAfterShow & SlHide & SlAfterHide;
-export type SlTreeItemEventMap = SlExpand &
-  SlAfterExpand &
-  SlCollapse &
-  SlAfterCollapse &
-  SlLazyChange &
-  SlLazyLoad;
+export type SlTreeItemEventMap = SlExpand & SlAfterExpand & SlCollapse & SlAfterCollapse & SlLazyChange & SlLazyLoad;
 export type SlTreeEventMap = SlSelectionChange;
 
 declare global {
   interface HTMLElementEventMap
-    extends SlAfterCollapse,
+    extends
+      SlAfterCollapse,
       SlAfterExpand,
       SlAfterHide,
       SlAfterShow,

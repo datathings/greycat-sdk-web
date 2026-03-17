@@ -164,11 +164,5 @@ async function table_from_objects_different_shapes(_g: GreyCat) {
   assert.deepStrictEqual(table.getRow(1), ['user-1', 'password1', false, undefined, undefined]);
   assert.deepStrictEqual(table.getRow(2), ['admin-0', 'password2', undefined, true, undefined]);
   assert.deepStrictEqual(table.getRow(3), [undefined, undefined, undefined, undefined, undefined]);
-  assert.deepStrictEqual(table.getRow(4), [
-    'admin-1',
-    'password3',
-    undefined,
-    true,
-    ['aaa', 'bbb'],
-  ]);
+  assert.deepStrictEqual(table.getRow(4), ['admin-1', 'password3', undefined, true, ['aaa', 'bbb']]);
 }

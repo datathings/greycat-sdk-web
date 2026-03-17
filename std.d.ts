@@ -10,7 +10,7 @@ declare namespace gc {
       static readonly $fields: nodeList$info$args.$Fields;
       nodes: globalThis.Array<gc.core.nodeList>;
       constructor(nodes: globalThis.Array<gc.core.nodeList>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeList>}): nodeList$info$args;
+      static createFrom(fields: { nodes: globalThis.Array<gc.core.nodeList> }): nodeList$info$args;
     }
     namespace nodeList$info$args {
       interface $Fields {
@@ -24,8 +24,16 @@ declare namespace gc {
       vector: gc.core.node<gc.core.Tensor>;
       level_sizes: globalThis.Array<number | bigint>;
       neighbour_nodes: globalThis.Array<gc.core.node<gc.core.VectorVertex> | null>;
-      constructor(vector: gc.core.node<gc.core.Tensor>, level_sizes: globalThis.Array<number | bigint>, neighbour_nodes: globalThis.Array<gc.core.node<gc.core.VectorVertex> | null>);
-      static createFrom(fields: {vector: gc.core.node<gc.core.Tensor>, level_sizes: globalThis.Array<number | bigint>, neighbour_nodes: globalThis.Array<gc.core.node<gc.core.VectorVertex> | null>}): VectorVertex;
+      constructor(
+        vector: gc.core.node<gc.core.Tensor>,
+        level_sizes: globalThis.Array<number | bigint>,
+        neighbour_nodes: globalThis.Array<gc.core.node<gc.core.VectorVertex> | null>,
+      );
+      static createFrom(fields: {
+        vector: gc.core.node<gc.core.Tensor>;
+        level_sizes: globalThis.Array<number | bigint>;
+        neighbour_nodes: globalThis.Array<gc.core.node<gc.core.VectorVertex> | null>;
+      }): VectorVertex;
     }
     namespace VectorVertex {
       interface $Fields {
@@ -43,8 +51,20 @@ declare namespace gc {
       to: gc.core.geo | null;
       maxRows: number | bigint;
       mode: gc.core.SamplingMode;
-      constructor(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeGeo>, from?: gc.core.geo | null, to?: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeGeo$sample$args;
+      constructor(
+        refs: globalThis.Array<gc.core.nodeGeo>,
+        from: gc.core.geo | null,
+        to: gc.core.geo | null,
+        maxRows: number | bigint,
+        mode: gc.core.SamplingMode,
+      );
+      static createFrom(fields: {
+        refs: globalThis.Array<gc.core.nodeGeo>;
+        from?: gc.core.geo | null;
+        to?: gc.core.geo | null;
+        maxRows: number | bigint;
+        mode: gc.core.SamplingMode;
+      }): nodeGeo$sample$args;
     }
     namespace nodeGeo$sample$args {
       interface $Fields {
@@ -67,12 +87,25 @@ declare namespace gc {
        * Returns the NodeInfo of all the nodeList passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeList in input array parameter.
        */
-      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeList>], globalThis.Array<gc.core.NodeInfo<number | bigint>>>;
+      static info: gc.sdk.ExposedFn<
+        [globalThis.Array<gc.core.nodeList>],
+        globalThis.Array<gc.core.NodeInfo<number | bigint>>
+      >;
       /**
        * Sample, using `mode` sampling, the nodeLists in `refs` within the interval `[from, to]`.
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
-      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeList>, number | bigint | null, number | bigint | null, number | bigint, gc.core.SamplingMode, number | bigint | null | undefined], gc.core.Table>;
+      static sample: gc.sdk.ExposedFn<
+        [
+          globalThis.Array<gc.core.nodeList>,
+          number | bigint | null,
+          number | bigint | null,
+          number | bigint,
+          gc.core.SamplingMode,
+          number | bigint | null | undefined,
+        ],
+        gc.core.Table
+      >;
     }
 
     class Date extends gc.sdk.GCObject {
@@ -85,8 +118,24 @@ declare namespace gc {
       minute: number | bigint;
       second: number | bigint;
       microsecond: number | bigint;
-      constructor(year: number | bigint, month: number | bigint, day: number | bigint, hour: number | bigint, minute: number | bigint, second: number | bigint, microsecond: number | bigint);
-      static createFrom(fields: {year: number | bigint, month: number | bigint, day: number | bigint, hour: number | bigint, minute: number | bigint, second: number | bigint, microsecond: number | bigint}): Date;
+      constructor(
+        year: number | bigint,
+        month: number | bigint,
+        day: number | bigint,
+        hour: number | bigint,
+        minute: number | bigint,
+        second: number | bigint,
+        microsecond: number | bigint,
+      );
+      static createFrom(fields: {
+        year: number | bigint;
+        month: number | bigint;
+        day: number | bigint;
+        hour: number | bigint;
+        minute: number | bigint;
+        second: number | bigint;
+        microsecond: number | bigint;
+      }): Date;
     }
     namespace Date {
       interface $Fields {
@@ -110,8 +159,24 @@ declare namespace gc {
       mode: gc.core.SamplingMode;
       maxDephasing: gc.core.duration | null;
       tz: gc.core.TimeZone | null;
-      constructor(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeTime>, from?: gc.core.time | null, to?: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null}): nodeTime$sample$args;
+      constructor(
+        refs: globalThis.Array<gc.core.nodeTime>,
+        from: gc.core.time | null,
+        to: gc.core.time | null,
+        maxRows: number | bigint,
+        mode: gc.core.SamplingMode,
+        maxDephasing?: gc.core.duration | null,
+        tz?: gc.core.TimeZone | null,
+      );
+      static createFrom(fields: {
+        refs: globalThis.Array<gc.core.nodeTime>;
+        from?: gc.core.time | null;
+        to?: gc.core.time | null;
+        maxRows: number | bigint;
+        mode: gc.core.SamplingMode;
+        maxDephasing?: gc.core.duration | null;
+        tz?: gc.core.TimeZone | null;
+      }): nodeTime$sample$args;
     }
     namespace nodeTime$sample$args {
       interface $Fields {
@@ -132,7 +197,7 @@ declare namespace gc {
       static readonly $fields: node$resolve_all$args.$Fields;
       n: globalThis.Array<gc.core.node | null>;
       constructor(n: globalThis.Array<gc.core.node | null>);
-      static createFrom(fields: {n: globalThis.Array<gc.core.node | null>}): node$resolve_all$args;
+      static createFrom(fields: { n: globalThis.Array<gc.core.node | null> }): node$resolve_all$args;
     }
     namespace node$resolve_all$args {
       interface $Fields {
@@ -149,8 +214,18 @@ declare namespace gc {
       from: any | null;
       maxRows: number | bigint;
       mode: gc.core.SamplingMode;
-      constructor(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeIndex>, from?: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode}): nodeIndex$sample$args;
+      constructor(
+        refs: globalThis.Array<gc.core.nodeIndex>,
+        from: any | null,
+        maxRows: number | bigint,
+        mode: gc.core.SamplingMode,
+      );
+      static createFrom(fields: {
+        refs: globalThis.Array<gc.core.nodeIndex>;
+        from?: any | null;
+        maxRows: number | bigint;
+        mode: gc.core.SamplingMode;
+      }): nodeIndex$sample$args;
     }
     namespace nodeIndex$sample$args {
       interface $Fields {
@@ -166,12 +241,24 @@ declare namespace gc {
        * Returns the NodeInfo of all the nodeGeo passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeGeo in input array parameter.
        */
-      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeGeo>], globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>;
+      static info: gc.sdk.ExposedFn<
+        [globalThis.Array<gc.core.nodeGeo>],
+        globalThis.Array<gc.core.NodeInfo<gc.core.geo>>
+      >;
       /**
        * Sample, using `mode` sampling, the nodeLists in `refs` within the `GeoBox` initialized with the geo points `from` and `to`.
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
-      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeGeo>, gc.core.geo | null, gc.core.geo | null, number | bigint, gc.core.SamplingMode], gc.core.Table>;
+      static sample: gc.sdk.ExposedFn<
+        [
+          globalThis.Array<gc.core.nodeGeo>,
+          gc.core.geo | null,
+          gc.core.geo | null,
+          number | bigint,
+          gc.core.SamplingMode,
+        ],
+        gc.core.Table
+      >;
     }
 
     class str extends gc.sdk.std_n.core.str {}
@@ -194,8 +281,8 @@ declare namespace gc {
       static c64: TensorType;
       static c128: TensorType;
     }
-    namespace TensorType  {
-      type Field = "i32"|"i64"|"f32"|"f64"|"c64"|"c128";
+    namespace TensorType {
+      type Field = 'i32' | 'i64' | 'f32' | 'f64' | 'c64' | 'c128';
     }
 
     class nodeList$sample$args extends gc.sdk.GCObject {
@@ -207,8 +294,22 @@ declare namespace gc {
       maxRows: number | bigint;
       mode: gc.core.SamplingMode;
       maxDephasing: number | bigint | null;
-      constructor(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null);
-      static createFrom(fields: {refs: globalThis.Array<gc.core.nodeList>, from?: number | bigint | null, to?: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null}): nodeList$sample$args;
+      constructor(
+        refs: globalThis.Array<gc.core.nodeList>,
+        from: number | bigint | null,
+        to: number | bigint | null,
+        maxRows: number | bigint,
+        mode: gc.core.SamplingMode,
+        maxDephasing?: number | bigint | null,
+      );
+      static createFrom(fields: {
+        refs: globalThis.Array<gc.core.nodeList>;
+        from?: number | bigint | null;
+        to?: number | bigint | null;
+        maxRows: number | bigint;
+        mode: gc.core.SamplingMode;
+        maxDephasing?: number | bigint | null;
+      }): nodeList$sample$args;
     }
     namespace nodeList$sample$args {
       interface $Fields {
@@ -228,7 +329,7 @@ declare namespace gc {
       static readonly $fields: nodeIndex$info$args.$Fields;
       nodes: globalThis.Array<gc.core.nodeIndex>;
       constructor(nodes: globalThis.Array<gc.core.nodeIndex>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeIndex>}): nodeIndex$info$args;
+      static createFrom(fields: { nodes: globalThis.Array<gc.core.nodeIndex> }): nodeIndex$info$args;
     }
     namespace nodeIndex$info$args {
       interface $Fields {
@@ -250,8 +351,8 @@ declare namespace gc {
       static forbidden: ErrorCode;
       static runtime_error: ErrorCode;
     }
-    namespace ErrorCode  {
-      type Field = "none"|"interrupted"|"await"|"timeout"|"forbidden"|"runtime_error";
+    namespace ErrorCode {
+      type Field = 'none' | 'interrupted' | 'await' | 'timeout' | 'forbidden' | 'runtime_error';
     }
 
     class Table$applyMappings$args extends gc.sdk.GCObject {
@@ -260,7 +361,10 @@ declare namespace gc {
       table: gc.core.Table;
       mappings: globalThis.Array<gc.core.TableColumnMapping>;
       constructor(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>);
-      static createFrom(fields: {table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>}): Table$applyMappings$args;
+      static createFrom(fields: {
+        table: gc.core.Table;
+        mappings: globalThis.Array<gc.core.TableColumnMapping>;
+      }): Table$applyMappings$args;
     }
     namespace Table$applyMappings$args {
       interface $Fields {
@@ -288,7 +392,7 @@ declare namespace gc {
       x: T;
       y: U;
       constructor(x?: T, y?: U);
-      static createFrom<T, U>(fields: {x?: T, y?: U}): Tuple;
+      static createFrom<T, U>(fields: { x?: T; y?: U }): Tuple;
     }
     namespace Tuple {
       interface $Fields {
@@ -304,7 +408,11 @@ declare namespace gc {
       value: V;
       next: gc.core.nodeIndexBucket<K, V> | null;
       constructor(key?: K, value?: V, next?: gc.core.nodeIndexBucket<K, V> | null);
-      static createFrom<K, V>(fields: {key?: K, value?: V, next?: gc.core.nodeIndexBucket<K, V> | null}): nodeIndexBucket;
+      static createFrom<K, V>(fields: {
+        key?: K;
+        value?: V;
+        next?: gc.core.nodeIndexBucket<K, V> | null;
+      }): nodeIndexBucket;
     }
     namespace nodeIndexBucket {
       interface $Fields {
@@ -320,7 +428,7 @@ declare namespace gc {
       center: gc.core.geo;
       radius: number;
       constructor(center: gc.core.geo, radius: number);
-      static createFrom(fields: {center: gc.core.geo, radius: number}): GeoCircle;
+      static createFrom(fields: { center: gc.core.geo; radius: number }): GeoCircle;
     }
     namespace GeoCircle {
       interface $Fields {
@@ -337,7 +445,12 @@ declare namespace gc {
       line: number | bigint;
       column: number | bigint;
       constructor(module: string | null, function_: string, line: number | bigint, column: number | bigint);
-      static createFrom(fields: {module?: string | null, function_: string, line: number | bigint, column: number | bigint}): ErrorFrame;
+      static createFrom(fields: {
+        module?: string | null;
+        function_: string;
+        line: number | bigint;
+        column: number | bigint;
+      }): ErrorFrame;
     }
     namespace ErrorFrame {
       interface $Fields {
@@ -354,7 +467,7 @@ declare namespace gc {
       sw: gc.core.geo;
       ne: gc.core.geo;
       constructor(sw: gc.core.geo, ne: gc.core.geo);
-      static createFrom(fields: {sw: gc.core.geo, ne: gc.core.geo}): GeoBox;
+      static createFrom(fields: { sw: gc.core.geo; ne: gc.core.geo }): GeoBox;
     }
     namespace GeoBox {
       interface $Fields {
@@ -368,12 +481,26 @@ declare namespace gc {
        * Returns the NodeInfo of all the nodeTime passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeTime in input array parameter.
        */
-      static info: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeTime>], globalThis.Array<gc.core.NodeInfo<gc.core.time>>>;
+      static info: gc.sdk.ExposedFn<
+        [globalThis.Array<gc.core.nodeTime>],
+        globalThis.Array<gc.core.NodeInfo<gc.core.time>>
+      >;
       /**
        * Sample, using `mode` sampling, the nodeTimes in `refs` within the interval [`from`, `to`].
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
-      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeTime>, gc.core.time | null, gc.core.time | null, number | bigint, gc.core.SamplingMode, gc.core.duration | null | undefined, gc.core.TimeZone | null | undefined], gc.core.Table>;
+      static sample: gc.sdk.ExposedFn<
+        [
+          globalThis.Array<gc.core.nodeTime>,
+          gc.core.time | null,
+          gc.core.time | null,
+          number | bigint,
+          gc.core.SamplingMode,
+          gc.core.duration | null | undefined,
+          gc.core.TimeZone | null | undefined,
+        ],
+        gc.core.Table
+      >;
     }
 
     class SamplingMode extends gc.sdk.GCEnum {
@@ -386,8 +513,8 @@ declare namespace gc {
       static adaptative: SamplingMode;
       static dense: SamplingMode;
     }
-    namespace SamplingMode  {
-      type Field = "fixed"|"fixed_reg"|"adaptative"|"dense";
+    namespace SamplingMode {
+      type Field = 'fixed' | 'fixed_reg' | 'adaptative' | 'dense';
     }
 
     class t2 extends gc.sdk.std_n.core.t2 {}
@@ -400,8 +527,8 @@ declare namespace gc {
       static asc: SortOrder;
       static desc: SortOrder;
     }
-    namespace SortOrder  {
-      type Field = "asc"|"desc";
+    namespace SortOrder {
+      type Field = 'asc' | 'desc';
     }
 
     class nodeGeo$info$args extends gc.sdk.GCObject {
@@ -409,7 +536,7 @@ declare namespace gc {
       static readonly $fields: nodeGeo$info$args.$Fields;
       nodes: globalThis.Array<gc.core.nodeGeo>;
       constructor(nodes: globalThis.Array<gc.core.nodeGeo>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeGeo>}): nodeGeo$info$args;
+      static createFrom(fields: { nodes: globalThis.Array<gc.core.nodeGeo> }): nodeGeo$info$args;
     }
     namespace nodeGeo$info$args {
       interface $Fields {
@@ -422,7 +549,7 @@ declare namespace gc {
       static readonly $fields: Chars.$Fields;
       codepoints: globalThis.Array<string>;
       constructor(codepoints: globalThis.Array<string>);
-      static createFrom(fields: {codepoints: globalThis.Array<string>}): Chars;
+      static createFrom(fields: { codepoints: globalThis.Array<string> }): Chars;
     }
     namespace Chars {
       interface $Fields {
@@ -439,8 +566,8 @@ declare namespace gc {
       static l2sq: TensorDistance;
       static cosine: TensorDistance;
     }
-    namespace TensorDistance  {
-      type Field = "euclidean"|"l2sq"|"cosine";
+    namespace TensorDistance {
+      type Field = 'euclidean' | 'l2sq' | 'cosine';
     }
 
     class CalendarUnit extends gc.sdk.GCEnum {
@@ -456,8 +583,8 @@ declare namespace gc {
       static second: CalendarUnit;
       static microsecond: CalendarUnit;
     }
-    namespace CalendarUnit  {
-      type Field = "year"|"month"|"day"|"hour"|"minute"|"second"|"microsecond";
+    namespace CalendarUnit {
+      type Field = 'year' | 'month' | 'day' | 'hour' | 'minute' | 'second' | 'microsecond';
     }
 
     class t4f extends gc.sdk.std_n.core.t4f {}
@@ -467,7 +594,7 @@ declare namespace gc {
       static readonly $fields: nodeTime$info$args.$Fields;
       nodes: globalThis.Array<gc.core.nodeTime>;
       constructor(nodes: globalThis.Array<gc.core.nodeTime>);
-      static createFrom(fields: {nodes: globalThis.Array<gc.core.nodeTime>}): nodeTime$info$args;
+      static createFrom(fields: { nodes: globalThis.Array<gc.core.nodeTime> }): nodeTime$info$args;
     }
     namespace nodeTime$info$args {
       interface $Fields {
@@ -486,8 +613,22 @@ declare namespace gc {
       entry_node_ref: gc.core.node<gc.core.VectorVertex> | null;
       rng: gc.util.Random | null;
       distance: gc.core.TensorDistance | null;
-      constructor(values?: gc.core.nodeIndex<gc.core.node<gc.core.Tensor>, T> | null, count?: number | bigint | null, max_level?: number | bigint | null, entry_node_ref?: gc.core.node<gc.core.VectorVertex> | null, rng?: gc.util.Random | null, distance?: gc.core.TensorDistance | null);
-      static createFrom<T>(fields: {values?: gc.core.nodeIndex<gc.core.node<gc.core.Tensor>, T> | null, count?: number | bigint | null, max_level?: number | bigint | null, entry_node_ref?: gc.core.node<gc.core.VectorVertex> | null, rng?: gc.util.Random | null, distance?: gc.core.TensorDistance | null}): VectorIndex;
+      constructor(
+        values?: gc.core.nodeIndex<gc.core.node<gc.core.Tensor>, T> | null,
+        count?: number | bigint | null,
+        max_level?: number | bigint | null,
+        entry_node_ref?: gc.core.node<gc.core.VectorVertex> | null,
+        rng?: gc.util.Random | null,
+        distance?: gc.core.TensorDistance | null,
+      );
+      static createFrom<T>(fields: {
+        values?: gc.core.nodeIndex<gc.core.node<gc.core.Tensor>, T> | null;
+        count?: number | bigint | null;
+        max_level?: number | bigint | null;
+        entry_node_ref?: gc.core.node<gc.core.VectorVertex> | null;
+        rng?: gc.util.Random | null;
+        distance?: gc.core.TensorDistance | null;
+      }): VectorIndex;
     }
     namespace VectorIndex {
       interface $Fields {
@@ -506,7 +647,7 @@ declare namespace gc {
       message: string | null;
       stack: globalThis.Array<gc.core.ErrorFrame>;
       constructor(message: string | null, stack: globalThis.Array<gc.core.ErrorFrame>);
-      static createFrom(fields: {message?: string | null, stack: globalThis.Array<gc.core.ErrorFrame>}): Error;
+      static createFrom(fields: { message?: string | null; stack: globalThis.Array<gc.core.ErrorFrame> }): Error;
     }
     namespace Error {
       interface $Fields {
@@ -522,7 +663,11 @@ declare namespace gc {
       key: any;
       max: number | bigint;
       constructor(i: gc.core.nodeIndex, key: any, max: number | bigint);
-      static createFrom(fields: {i: gc.core.nodeIndex, key: any, max: number | bigint}): nodeIndex$search_closest$args;
+      static createFrom(fields: {
+        i: gc.core.nodeIndex;
+        key: any;
+        max: number | bigint;
+      }): nodeIndex$search_closest$args;
     }
     namespace nodeIndex$search_closest$args {
       interface $Fields {
@@ -553,15 +698,29 @@ declare namespace gc {
       static p1000000000: FloatPrecision;
       static p10000000000: FloatPrecision;
     }
-    namespace FloatPrecision  {
-      type Field = "p1"|"p10"|"p100"|"p1000"|"p10000"|"p100000"|"p1000000"|"p10000000"|"p100000000"|"p1000000000"|"p10000000000";
+    namespace FloatPrecision {
+      type Field =
+        | 'p1'
+        | 'p10'
+        | 'p100'
+        | 'p1000'
+        | 'p10000'
+        | 'p100000'
+        | 'p1000000'
+        | 'p10000000'
+        | 'p100000000'
+        | 'p1000000000'
+        | 'p10000000000';
     }
 
     class Table<T = any> extends gc.sdk.std_n.core.Table<T> {
       /**
        * Produces a new table by applying mappings to columns.
        */
-      static applyMappings: gc.sdk.ExposedFn<[gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>], gc.core.Table>;
+      static applyMappings: gc.sdk.ExposedFn<
+        [gc.core.Table, globalThis.Array<gc.core.TableColumnMapping>],
+        gc.core.Table
+      >;
     }
 
     class function_ extends gc.sdk.std_n.core.function_ {}
@@ -576,7 +735,7 @@ declare namespace gc {
       n: gc.core.nodeTime<T>;
       req_time: gc.core.time | null;
       constructor(n: gc.core.nodeTime<T>, req_time?: gc.core.time | null);
-      static createFrom<T>(fields: {n: gc.core.nodeTime<T>, req_time?: gc.core.time | null}): nodeTimeCursor;
+      static createFrom<T>(fields: { n: gc.core.nodeTime<T>; req_time?: gc.core.time | null }): nodeTimeCursor;
     }
     namespace nodeTimeCursor {
       interface $Fields {
@@ -586,7 +745,10 @@ declare namespace gc {
     }
 
     class nodeIndex<K = any, V = any> extends gc.sdk.std_n.core.nodeIndex<K, V> {
-      static search_closest: gc.sdk.ExposedFn<[gc.core.nodeIndex, any, number | bigint], globalThis.Array<gc.core.SearchResult>>;
+      static search_closest: gc.sdk.ExposedFn<
+        [gc.core.nodeIndex, any, number | bigint],
+        globalThis.Array<gc.core.SearchResult>
+      >;
       /**
        * Returns the NodeInfo of all the nodeIndex passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeIndex in input array parameter.
@@ -595,7 +757,10 @@ declare namespace gc {
       /**
        * Using `mode` sampling, samples maxRows elements from nodeIndexes in `refs`, starting from the key: from.
        */
-      static sample: gc.sdk.ExposedFn<[globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode], gc.core.Table>;
+      static sample: gc.sdk.ExposedFn<
+        [globalThis.Array<gc.core.nodeIndex>, any | null, number | bigint, gc.core.SamplingMode],
+        gc.core.Table
+      >;
     }
 
     class SearchResult<K = any, V = any> extends gc.sdk.GCObject {
@@ -605,7 +770,7 @@ declare namespace gc {
       value: V;
       distance: number;
       constructor(key: K, value: V, distance: number);
-      static createFrom<K, V>(fields: {key?: K, value?: V, distance: number}): SearchResult;
+      static createFrom<K, V>(fields: { key?: K; value?: V; distance: number }): SearchResult;
     }
     namespace SearchResult {
       interface $Fields {
@@ -622,7 +787,7 @@ declare namespace gc {
       static readonly $fields: GeoPoly.$Fields;
       points: globalThis.Array<gc.core.geo>;
       constructor(points: globalThis.Array<gc.core.geo>);
-      static createFrom(fields: {points: globalThis.Array<gc.core.geo>}): GeoPoly;
+      static createFrom(fields: { points: globalThis.Array<gc.core.geo> }): GeoPoly;
     }
     namespace GeoPoly {
       interface $Fields {
@@ -637,7 +802,7 @@ declare namespace gc {
       from: T | null;
       to: T | null;
       constructor(size: number | bigint, from?: T | null, to?: T | null);
-      static createFrom<T>(fields: {size: number | bigint, from?: T | null, to?: T | null}): NodeInfo;
+      static createFrom<T>(fields: { size: number | bigint; from?: T | null; to?: T | null }): NodeInfo;
     }
     namespace NodeInfo {
       interface $Fields {
@@ -653,519 +818,519 @@ declare namespace gc {
       key: TimeZone.Field;
       constructor(type: gc.sdk.AbiType, offset: number, key: TimeZone.Field);
       static UTC: TimeZone;
-      static "Africa/Abidjan": TimeZone;
-      static "Africa/Accra": TimeZone;
-      static "Africa/Addis_Ababa": TimeZone;
-      static "Africa/Algiers": TimeZone;
-      static "Africa/Asmara": TimeZone;
-      static "Africa/Asmera": TimeZone;
-      static "Africa/Bamako": TimeZone;
-      static "Africa/Bangui": TimeZone;
-      static "Africa/Banjul": TimeZone;
-      static "Africa/Bissau": TimeZone;
-      static "Africa/Blantyre": TimeZone;
-      static "Africa/Brazzaville": TimeZone;
-      static "Africa/Bujumbura": TimeZone;
-      static "Africa/Cairo": TimeZone;
-      static "Africa/Casablanca": TimeZone;
-      static "Africa/Ceuta": TimeZone;
-      static "Africa/Conakry": TimeZone;
-      static "Africa/Dakar": TimeZone;
-      static "Africa/Dar_es_Salaam": TimeZone;
-      static "Africa/Djibouti": TimeZone;
-      static "Africa/Douala": TimeZone;
-      static "Africa/El_Aaiun": TimeZone;
-      static "Africa/Freetown": TimeZone;
-      static "Africa/Gaborone": TimeZone;
-      static "Africa/Harare": TimeZone;
-      static "Africa/Johannesburg": TimeZone;
-      static "Africa/Juba": TimeZone;
-      static "Africa/Kampala": TimeZone;
-      static "Africa/Khartoum": TimeZone;
-      static "Africa/Kigali": TimeZone;
-      static "Africa/Kinshasa": TimeZone;
-      static "Africa/Lagos": TimeZone;
-      static "Africa/Libreville": TimeZone;
-      static "Africa/Lome": TimeZone;
-      static "Africa/Luanda": TimeZone;
-      static "Africa/Lubumbashi": TimeZone;
-      static "Africa/Lusaka": TimeZone;
-      static "Africa/Malabo": TimeZone;
-      static "Africa/Maputo": TimeZone;
-      static "Africa/Maseru": TimeZone;
-      static "Africa/Mbabane": TimeZone;
-      static "Africa/Mogadishu": TimeZone;
-      static "Africa/Monrovia": TimeZone;
-      static "Africa/Nairobi": TimeZone;
-      static "Africa/Ndjamena": TimeZone;
-      static "Africa/Niamey": TimeZone;
-      static "Africa/Nouakchott": TimeZone;
-      static "Africa/Ouagadougou": TimeZone;
-      static "Africa/Porto-Novo": TimeZone;
-      static "Africa/Sao_Tome": TimeZone;
-      static "Africa/Timbuktu": TimeZone;
-      static "Africa/Tripoli": TimeZone;
-      static "Africa/Tunis": TimeZone;
-      static "Africa/Windhoek": TimeZone;
-      static "America/Adak": TimeZone;
-      static "America/Anchorage": TimeZone;
-      static "America/Anguilla": TimeZone;
-      static "America/Antigua": TimeZone;
-      static "America/Araguaina": TimeZone;
-      static "America/Argentina/Buenos_Aires": TimeZone;
-      static "America/Argentina/Catamarca": TimeZone;
-      static "America/Argentina/ComodRivadavia": TimeZone;
-      static "America/Argentina/Cordoba": TimeZone;
-      static "America/Argentina/Jujuy": TimeZone;
-      static "America/Argentina/La_Rioja": TimeZone;
-      static "America/Argentina/Mendoza": TimeZone;
-      static "America/Argentina/Rio_Gallegos": TimeZone;
-      static "America/Argentina/Salta": TimeZone;
-      static "America/Argentina/San_Juan": TimeZone;
-      static "America/Argentina/San_Luis": TimeZone;
-      static "America/Argentina/Tucuman": TimeZone;
-      static "America/Argentina/Ushuaia": TimeZone;
-      static "America/Aruba": TimeZone;
-      static "America/Asuncion": TimeZone;
-      static "America/Atikokan": TimeZone;
-      static "America/Atka": TimeZone;
-      static "America/Bahia": TimeZone;
-      static "America/Bahia_Banderas": TimeZone;
-      static "America/Barbados": TimeZone;
-      static "America/Belem": TimeZone;
-      static "America/Belize": TimeZone;
-      static "America/Blanc-Sablon": TimeZone;
-      static "America/Boa_Vista": TimeZone;
-      static "America/Bogota": TimeZone;
-      static "America/Boise": TimeZone;
-      static "America/Buenos_Aires": TimeZone;
-      static "America/Cambridge_Bay": TimeZone;
-      static "America/Campo_Grande": TimeZone;
-      static "America/Cancun": TimeZone;
-      static "America/Caracas": TimeZone;
-      static "America/Catamarca": TimeZone;
-      static "America/Cayenne": TimeZone;
-      static "America/Cayman": TimeZone;
-      static "America/Chicago": TimeZone;
-      static "America/Chihuahua": TimeZone;
-      static "America/Ciudad_Juarez": TimeZone;
-      static "America/Coral_Harbour": TimeZone;
-      static "America/Cordoba": TimeZone;
-      static "America/Costa_Rica": TimeZone;
-      static "America/Coyhaique": TimeZone;
-      static "America/Creston": TimeZone;
-      static "America/Cuiaba": TimeZone;
-      static "America/Curacao": TimeZone;
-      static "America/Danmarkshavn": TimeZone;
-      static "America/Dawson": TimeZone;
-      static "America/Dawson_Creek": TimeZone;
-      static "America/Denver": TimeZone;
-      static "America/Detroit": TimeZone;
-      static "America/Dominica": TimeZone;
-      static "America/Edmonton": TimeZone;
-      static "America/Eirunepe": TimeZone;
-      static "America/El_Salvador": TimeZone;
-      static "America/Ensenada": TimeZone;
-      static "America/Fort_Nelson": TimeZone;
-      static "America/Fort_Wayne": TimeZone;
-      static "America/Fortaleza": TimeZone;
-      static "America/Glace_Bay": TimeZone;
-      static "America/Godthab": TimeZone;
-      static "America/Goose_Bay": TimeZone;
-      static "America/Grand_Turk": TimeZone;
-      static "America/Grenada": TimeZone;
-      static "America/Guadeloupe": TimeZone;
-      static "America/Guatemala": TimeZone;
-      static "America/Guayaquil": TimeZone;
-      static "America/Guyana": TimeZone;
-      static "America/Halifax": TimeZone;
-      static "America/Havana": TimeZone;
-      static "America/Hermosillo": TimeZone;
-      static "America/Indiana/Indianapolis": TimeZone;
-      static "America/Indiana/Knox": TimeZone;
-      static "America/Indiana/Marengo": TimeZone;
-      static "America/Indiana/Petersburg": TimeZone;
-      static "America/Indiana/Tell_City": TimeZone;
-      static "America/Indiana/Vevay": TimeZone;
-      static "America/Indiana/Vincennes": TimeZone;
-      static "America/Indiana/Winamac": TimeZone;
-      static "America/Indianapolis": TimeZone;
-      static "America/Inuvik": TimeZone;
-      static "America/Iqaluit": TimeZone;
-      static "America/Jamaica": TimeZone;
-      static "America/Jujuy": TimeZone;
-      static "America/Juneau": TimeZone;
-      static "America/Kentucky/Louisville": TimeZone;
-      static "America/Kentucky/Monticello": TimeZone;
-      static "America/Knox_IN": TimeZone;
-      static "America/Kralendijk": TimeZone;
-      static "America/La_Paz": TimeZone;
-      static "America/Lima": TimeZone;
-      static "America/Los_Angeles": TimeZone;
-      static "America/Louisville": TimeZone;
-      static "America/Lower_Princes": TimeZone;
-      static "America/Maceio": TimeZone;
-      static "America/Managua": TimeZone;
-      static "America/Manaus": TimeZone;
-      static "America/Marigot": TimeZone;
-      static "America/Martinique": TimeZone;
-      static "America/Matamoros": TimeZone;
-      static "America/Mazatlan": TimeZone;
-      static "America/Mendoza": TimeZone;
-      static "America/Menominee": TimeZone;
-      static "America/Merida": TimeZone;
-      static "America/Metlakatla": TimeZone;
-      static "America/Mexico_City": TimeZone;
-      static "America/Miquelon": TimeZone;
-      static "America/Moncton": TimeZone;
-      static "America/Monterrey": TimeZone;
-      static "America/Montevideo": TimeZone;
-      static "America/Montreal": TimeZone;
-      static "America/Montserrat": TimeZone;
-      static "America/Nassau": TimeZone;
-      static "America/New_York": TimeZone;
-      static "America/Nipigon": TimeZone;
-      static "America/Nome": TimeZone;
-      static "America/Noronha": TimeZone;
-      static "America/North_Dakota/Beulah": TimeZone;
-      static "America/North_Dakota/Center": TimeZone;
-      static "America/North_Dakota/New_Salem": TimeZone;
-      static "America/Nuuk": TimeZone;
-      static "America/Ojinaga": TimeZone;
-      static "America/Panama": TimeZone;
-      static "America/Pangnirtung": TimeZone;
-      static "America/Paramaribo": TimeZone;
-      static "America/Phoenix": TimeZone;
-      static "America/Port-au-Prince": TimeZone;
-      static "America/Port_of_Spain": TimeZone;
-      static "America/Porto_Acre": TimeZone;
-      static "America/Porto_Velho": TimeZone;
-      static "America/Puerto_Rico": TimeZone;
-      static "America/Punta_Arenas": TimeZone;
-      static "America/Rainy_River": TimeZone;
-      static "America/Rankin_Inlet": TimeZone;
-      static "America/Recife": TimeZone;
-      static "America/Regina": TimeZone;
-      static "America/Resolute": TimeZone;
-      static "America/Rio_Branco": TimeZone;
-      static "America/Rosario": TimeZone;
-      static "America/Santa_Isabel": TimeZone;
-      static "America/Santarem": TimeZone;
-      static "America/Santiago": TimeZone;
-      static "America/Santo_Domingo": TimeZone;
-      static "America/Sao_Paulo": TimeZone;
-      static "America/Scoresbysund": TimeZone;
-      static "America/Shiprock": TimeZone;
-      static "America/Sitka": TimeZone;
-      static "America/St_Barthelemy": TimeZone;
-      static "America/St_Johns": TimeZone;
-      static "America/St_Kitts": TimeZone;
-      static "America/St_Lucia": TimeZone;
-      static "America/St_Thomas": TimeZone;
-      static "America/St_Vincent": TimeZone;
-      static "America/Swift_Current": TimeZone;
-      static "America/Tegucigalpa": TimeZone;
-      static "America/Thule": TimeZone;
-      static "America/Thunder_Bay": TimeZone;
-      static "America/Tijuana": TimeZone;
-      static "America/Toronto": TimeZone;
-      static "America/Tortola": TimeZone;
-      static "America/Vancouver": TimeZone;
-      static "America/Virgin": TimeZone;
-      static "America/Whitehorse": TimeZone;
-      static "America/Winnipeg": TimeZone;
-      static "America/Yakutat": TimeZone;
-      static "America/Yellowknife": TimeZone;
-      static "Antarctica/Casey": TimeZone;
-      static "Antarctica/Davis": TimeZone;
-      static "Antarctica/DumontDUrville": TimeZone;
-      static "Antarctica/Macquarie": TimeZone;
-      static "Antarctica/Mawson": TimeZone;
-      static "Antarctica/McMurdo": TimeZone;
-      static "Antarctica/Palmer": TimeZone;
-      static "Antarctica/Rothera": TimeZone;
-      static "Antarctica/South_Pole": TimeZone;
-      static "Antarctica/Syowa": TimeZone;
-      static "Antarctica/Troll": TimeZone;
-      static "Antarctica/Vostok": TimeZone;
-      static "Arctic/Longyearbyen": TimeZone;
-      static "Asia/Aden": TimeZone;
-      static "Asia/Almaty": TimeZone;
-      static "Asia/Amman": TimeZone;
-      static "Asia/Anadyr": TimeZone;
-      static "Asia/Aqtau": TimeZone;
-      static "Asia/Aqtobe": TimeZone;
-      static "Asia/Ashgabat": TimeZone;
-      static "Asia/Ashkhabad": TimeZone;
-      static "Asia/Atyrau": TimeZone;
-      static "Asia/Baghdad": TimeZone;
-      static "Asia/Bahrain": TimeZone;
-      static "Asia/Baku": TimeZone;
-      static "Asia/Bangkok": TimeZone;
-      static "Asia/Barnaul": TimeZone;
-      static "Asia/Beirut": TimeZone;
-      static "Asia/Bishkek": TimeZone;
-      static "Asia/Brunei": TimeZone;
-      static "Asia/Calcutta": TimeZone;
-      static "Asia/Chita": TimeZone;
-      static "Asia/Choibalsan": TimeZone;
-      static "Asia/Chongqing": TimeZone;
-      static "Asia/Chungking": TimeZone;
-      static "Asia/Colombo": TimeZone;
-      static "Asia/Dacca": TimeZone;
-      static "Asia/Damascus": TimeZone;
-      static "Asia/Dhaka": TimeZone;
-      static "Asia/Dili": TimeZone;
-      static "Asia/Dubai": TimeZone;
-      static "Asia/Dushanbe": TimeZone;
-      static "Asia/Famagusta": TimeZone;
-      static "Asia/Gaza": TimeZone;
-      static "Asia/Harbin": TimeZone;
-      static "Asia/Hebron": TimeZone;
-      static "Asia/Ho_Chi_Minh": TimeZone;
-      static "Asia/Hong_Kong": TimeZone;
-      static "Asia/Hovd": TimeZone;
-      static "Asia/Irkutsk": TimeZone;
-      static "Asia/Istanbul": TimeZone;
-      static "Asia/Jakarta": TimeZone;
-      static "Asia/Jayapura": TimeZone;
-      static "Asia/Jerusalem": TimeZone;
-      static "Asia/Kabul": TimeZone;
-      static "Asia/Kamchatka": TimeZone;
-      static "Asia/Karachi": TimeZone;
-      static "Asia/Kashgar": TimeZone;
-      static "Asia/Kathmandu": TimeZone;
-      static "Asia/Katmandu": TimeZone;
-      static "Asia/Khandyga": TimeZone;
-      static "Asia/Kolkata": TimeZone;
-      static "Asia/Krasnoyarsk": TimeZone;
-      static "Asia/Kuala_Lumpur": TimeZone;
-      static "Asia/Kuching": TimeZone;
-      static "Asia/Kuwait": TimeZone;
-      static "Asia/Macao": TimeZone;
-      static "Asia/Macau": TimeZone;
-      static "Asia/Magadan": TimeZone;
-      static "Asia/Makassar": TimeZone;
-      static "Asia/Manila": TimeZone;
-      static "Asia/Muscat": TimeZone;
-      static "Asia/Nicosia": TimeZone;
-      static "Asia/Novokuznetsk": TimeZone;
-      static "Asia/Novosibirsk": TimeZone;
-      static "Asia/Omsk": TimeZone;
-      static "Asia/Oral": TimeZone;
-      static "Asia/Phnom_Penh": TimeZone;
-      static "Asia/Pontianak": TimeZone;
-      static "Asia/Pyongyang": TimeZone;
-      static "Asia/Qatar": TimeZone;
-      static "Asia/Qostanay": TimeZone;
-      static "Asia/Qyzylorda": TimeZone;
-      static "Asia/Rangoon": TimeZone;
-      static "Asia/Riyadh": TimeZone;
-      static "Asia/Saigon": TimeZone;
-      static "Asia/Sakhalin": TimeZone;
-      static "Asia/Samarkand": TimeZone;
-      static "Asia/Seoul": TimeZone;
-      static "Asia/Shanghai": TimeZone;
-      static "Asia/Singapore": TimeZone;
-      static "Asia/Srednekolymsk": TimeZone;
-      static "Asia/Taipei": TimeZone;
-      static "Asia/Tashkent": TimeZone;
-      static "Asia/Tbilisi": TimeZone;
-      static "Asia/Tehran": TimeZone;
-      static "Asia/Tel_Aviv": TimeZone;
-      static "Asia/Thimbu": TimeZone;
-      static "Asia/Thimphu": TimeZone;
-      static "Asia/Tokyo": TimeZone;
-      static "Asia/Tomsk": TimeZone;
-      static "Asia/Ujung_Pandang": TimeZone;
-      static "Asia/Ulaanbaatar": TimeZone;
-      static "Asia/Ulan_Bator": TimeZone;
-      static "Asia/Urumqi": TimeZone;
-      static "Asia/Ust-Nera": TimeZone;
-      static "Asia/Vientiane": TimeZone;
-      static "Asia/Vladivostok": TimeZone;
-      static "Asia/Yakutsk": TimeZone;
-      static "Asia/Yangon": TimeZone;
-      static "Asia/Yekaterinburg": TimeZone;
-      static "Asia/Yerevan": TimeZone;
-      static "Atlantic/Azores": TimeZone;
-      static "Atlantic/Bermuda": TimeZone;
-      static "Atlantic/Canary": TimeZone;
-      static "Atlantic/Cape_Verde": TimeZone;
-      static "Atlantic/Faeroe": TimeZone;
-      static "Atlantic/Faroe": TimeZone;
-      static "Atlantic/Jan_Mayen": TimeZone;
-      static "Atlantic/Madeira": TimeZone;
-      static "Atlantic/Reykjavik": TimeZone;
-      static "Atlantic/South_Georgia": TimeZone;
-      static "Atlantic/St_Helena": TimeZone;
-      static "Atlantic/Stanley": TimeZone;
-      static "Australia/ACT": TimeZone;
-      static "Australia/Adelaide": TimeZone;
-      static "Australia/Brisbane": TimeZone;
-      static "Australia/Broken_Hill": TimeZone;
-      static "Australia/Canberra": TimeZone;
-      static "Australia/Currie": TimeZone;
-      static "Australia/Darwin": TimeZone;
-      static "Australia/Eucla": TimeZone;
-      static "Australia/Hobart": TimeZone;
-      static "Australia/LHI": TimeZone;
-      static "Australia/Lindeman": TimeZone;
-      static "Australia/Lord_Howe": TimeZone;
-      static "Australia/Melbourne": TimeZone;
-      static "Australia/NSW": TimeZone;
-      static "Australia/North": TimeZone;
-      static "Australia/Perth": TimeZone;
-      static "Australia/Queensland": TimeZone;
-      static "Australia/South": TimeZone;
-      static "Australia/Sydney": TimeZone;
-      static "Australia/Tasmania": TimeZone;
-      static "Australia/Victoria": TimeZone;
-      static "Australia/West": TimeZone;
-      static "Australia/Yancowinna": TimeZone;
-      static "Brazil/Acre": TimeZone;
-      static "Brazil/DeNoronha": TimeZone;
-      static "Brazil/East": TimeZone;
-      static "Brazil/West": TimeZone;
+      static 'Africa/Abidjan': TimeZone;
+      static 'Africa/Accra': TimeZone;
+      static 'Africa/Addis_Ababa': TimeZone;
+      static 'Africa/Algiers': TimeZone;
+      static 'Africa/Asmara': TimeZone;
+      static 'Africa/Asmera': TimeZone;
+      static 'Africa/Bamako': TimeZone;
+      static 'Africa/Bangui': TimeZone;
+      static 'Africa/Banjul': TimeZone;
+      static 'Africa/Bissau': TimeZone;
+      static 'Africa/Blantyre': TimeZone;
+      static 'Africa/Brazzaville': TimeZone;
+      static 'Africa/Bujumbura': TimeZone;
+      static 'Africa/Cairo': TimeZone;
+      static 'Africa/Casablanca': TimeZone;
+      static 'Africa/Ceuta': TimeZone;
+      static 'Africa/Conakry': TimeZone;
+      static 'Africa/Dakar': TimeZone;
+      static 'Africa/Dar_es_Salaam': TimeZone;
+      static 'Africa/Djibouti': TimeZone;
+      static 'Africa/Douala': TimeZone;
+      static 'Africa/El_Aaiun': TimeZone;
+      static 'Africa/Freetown': TimeZone;
+      static 'Africa/Gaborone': TimeZone;
+      static 'Africa/Harare': TimeZone;
+      static 'Africa/Johannesburg': TimeZone;
+      static 'Africa/Juba': TimeZone;
+      static 'Africa/Kampala': TimeZone;
+      static 'Africa/Khartoum': TimeZone;
+      static 'Africa/Kigali': TimeZone;
+      static 'Africa/Kinshasa': TimeZone;
+      static 'Africa/Lagos': TimeZone;
+      static 'Africa/Libreville': TimeZone;
+      static 'Africa/Lome': TimeZone;
+      static 'Africa/Luanda': TimeZone;
+      static 'Africa/Lubumbashi': TimeZone;
+      static 'Africa/Lusaka': TimeZone;
+      static 'Africa/Malabo': TimeZone;
+      static 'Africa/Maputo': TimeZone;
+      static 'Africa/Maseru': TimeZone;
+      static 'Africa/Mbabane': TimeZone;
+      static 'Africa/Mogadishu': TimeZone;
+      static 'Africa/Monrovia': TimeZone;
+      static 'Africa/Nairobi': TimeZone;
+      static 'Africa/Ndjamena': TimeZone;
+      static 'Africa/Niamey': TimeZone;
+      static 'Africa/Nouakchott': TimeZone;
+      static 'Africa/Ouagadougou': TimeZone;
+      static 'Africa/Porto-Novo': TimeZone;
+      static 'Africa/Sao_Tome': TimeZone;
+      static 'Africa/Timbuktu': TimeZone;
+      static 'Africa/Tripoli': TimeZone;
+      static 'Africa/Tunis': TimeZone;
+      static 'Africa/Windhoek': TimeZone;
+      static 'America/Adak': TimeZone;
+      static 'America/Anchorage': TimeZone;
+      static 'America/Anguilla': TimeZone;
+      static 'America/Antigua': TimeZone;
+      static 'America/Araguaina': TimeZone;
+      static 'America/Argentina/Buenos_Aires': TimeZone;
+      static 'America/Argentina/Catamarca': TimeZone;
+      static 'America/Argentina/ComodRivadavia': TimeZone;
+      static 'America/Argentina/Cordoba': TimeZone;
+      static 'America/Argentina/Jujuy': TimeZone;
+      static 'America/Argentina/La_Rioja': TimeZone;
+      static 'America/Argentina/Mendoza': TimeZone;
+      static 'America/Argentina/Rio_Gallegos': TimeZone;
+      static 'America/Argentina/Salta': TimeZone;
+      static 'America/Argentina/San_Juan': TimeZone;
+      static 'America/Argentina/San_Luis': TimeZone;
+      static 'America/Argentina/Tucuman': TimeZone;
+      static 'America/Argentina/Ushuaia': TimeZone;
+      static 'America/Aruba': TimeZone;
+      static 'America/Asuncion': TimeZone;
+      static 'America/Atikokan': TimeZone;
+      static 'America/Atka': TimeZone;
+      static 'America/Bahia': TimeZone;
+      static 'America/Bahia_Banderas': TimeZone;
+      static 'America/Barbados': TimeZone;
+      static 'America/Belem': TimeZone;
+      static 'America/Belize': TimeZone;
+      static 'America/Blanc-Sablon': TimeZone;
+      static 'America/Boa_Vista': TimeZone;
+      static 'America/Bogota': TimeZone;
+      static 'America/Boise': TimeZone;
+      static 'America/Buenos_Aires': TimeZone;
+      static 'America/Cambridge_Bay': TimeZone;
+      static 'America/Campo_Grande': TimeZone;
+      static 'America/Cancun': TimeZone;
+      static 'America/Caracas': TimeZone;
+      static 'America/Catamarca': TimeZone;
+      static 'America/Cayenne': TimeZone;
+      static 'America/Cayman': TimeZone;
+      static 'America/Chicago': TimeZone;
+      static 'America/Chihuahua': TimeZone;
+      static 'America/Ciudad_Juarez': TimeZone;
+      static 'America/Coral_Harbour': TimeZone;
+      static 'America/Cordoba': TimeZone;
+      static 'America/Costa_Rica': TimeZone;
+      static 'America/Coyhaique': TimeZone;
+      static 'America/Creston': TimeZone;
+      static 'America/Cuiaba': TimeZone;
+      static 'America/Curacao': TimeZone;
+      static 'America/Danmarkshavn': TimeZone;
+      static 'America/Dawson': TimeZone;
+      static 'America/Dawson_Creek': TimeZone;
+      static 'America/Denver': TimeZone;
+      static 'America/Detroit': TimeZone;
+      static 'America/Dominica': TimeZone;
+      static 'America/Edmonton': TimeZone;
+      static 'America/Eirunepe': TimeZone;
+      static 'America/El_Salvador': TimeZone;
+      static 'America/Ensenada': TimeZone;
+      static 'America/Fort_Nelson': TimeZone;
+      static 'America/Fort_Wayne': TimeZone;
+      static 'America/Fortaleza': TimeZone;
+      static 'America/Glace_Bay': TimeZone;
+      static 'America/Godthab': TimeZone;
+      static 'America/Goose_Bay': TimeZone;
+      static 'America/Grand_Turk': TimeZone;
+      static 'America/Grenada': TimeZone;
+      static 'America/Guadeloupe': TimeZone;
+      static 'America/Guatemala': TimeZone;
+      static 'America/Guayaquil': TimeZone;
+      static 'America/Guyana': TimeZone;
+      static 'America/Halifax': TimeZone;
+      static 'America/Havana': TimeZone;
+      static 'America/Hermosillo': TimeZone;
+      static 'America/Indiana/Indianapolis': TimeZone;
+      static 'America/Indiana/Knox': TimeZone;
+      static 'America/Indiana/Marengo': TimeZone;
+      static 'America/Indiana/Petersburg': TimeZone;
+      static 'America/Indiana/Tell_City': TimeZone;
+      static 'America/Indiana/Vevay': TimeZone;
+      static 'America/Indiana/Vincennes': TimeZone;
+      static 'America/Indiana/Winamac': TimeZone;
+      static 'America/Indianapolis': TimeZone;
+      static 'America/Inuvik': TimeZone;
+      static 'America/Iqaluit': TimeZone;
+      static 'America/Jamaica': TimeZone;
+      static 'America/Jujuy': TimeZone;
+      static 'America/Juneau': TimeZone;
+      static 'America/Kentucky/Louisville': TimeZone;
+      static 'America/Kentucky/Monticello': TimeZone;
+      static 'America/Knox_IN': TimeZone;
+      static 'America/Kralendijk': TimeZone;
+      static 'America/La_Paz': TimeZone;
+      static 'America/Lima': TimeZone;
+      static 'America/Los_Angeles': TimeZone;
+      static 'America/Louisville': TimeZone;
+      static 'America/Lower_Princes': TimeZone;
+      static 'America/Maceio': TimeZone;
+      static 'America/Managua': TimeZone;
+      static 'America/Manaus': TimeZone;
+      static 'America/Marigot': TimeZone;
+      static 'America/Martinique': TimeZone;
+      static 'America/Matamoros': TimeZone;
+      static 'America/Mazatlan': TimeZone;
+      static 'America/Mendoza': TimeZone;
+      static 'America/Menominee': TimeZone;
+      static 'America/Merida': TimeZone;
+      static 'America/Metlakatla': TimeZone;
+      static 'America/Mexico_City': TimeZone;
+      static 'America/Miquelon': TimeZone;
+      static 'America/Moncton': TimeZone;
+      static 'America/Monterrey': TimeZone;
+      static 'America/Montevideo': TimeZone;
+      static 'America/Montreal': TimeZone;
+      static 'America/Montserrat': TimeZone;
+      static 'America/Nassau': TimeZone;
+      static 'America/New_York': TimeZone;
+      static 'America/Nipigon': TimeZone;
+      static 'America/Nome': TimeZone;
+      static 'America/Noronha': TimeZone;
+      static 'America/North_Dakota/Beulah': TimeZone;
+      static 'America/North_Dakota/Center': TimeZone;
+      static 'America/North_Dakota/New_Salem': TimeZone;
+      static 'America/Nuuk': TimeZone;
+      static 'America/Ojinaga': TimeZone;
+      static 'America/Panama': TimeZone;
+      static 'America/Pangnirtung': TimeZone;
+      static 'America/Paramaribo': TimeZone;
+      static 'America/Phoenix': TimeZone;
+      static 'America/Port-au-Prince': TimeZone;
+      static 'America/Port_of_Spain': TimeZone;
+      static 'America/Porto_Acre': TimeZone;
+      static 'America/Porto_Velho': TimeZone;
+      static 'America/Puerto_Rico': TimeZone;
+      static 'America/Punta_Arenas': TimeZone;
+      static 'America/Rainy_River': TimeZone;
+      static 'America/Rankin_Inlet': TimeZone;
+      static 'America/Recife': TimeZone;
+      static 'America/Regina': TimeZone;
+      static 'America/Resolute': TimeZone;
+      static 'America/Rio_Branco': TimeZone;
+      static 'America/Rosario': TimeZone;
+      static 'America/Santa_Isabel': TimeZone;
+      static 'America/Santarem': TimeZone;
+      static 'America/Santiago': TimeZone;
+      static 'America/Santo_Domingo': TimeZone;
+      static 'America/Sao_Paulo': TimeZone;
+      static 'America/Scoresbysund': TimeZone;
+      static 'America/Shiprock': TimeZone;
+      static 'America/Sitka': TimeZone;
+      static 'America/St_Barthelemy': TimeZone;
+      static 'America/St_Johns': TimeZone;
+      static 'America/St_Kitts': TimeZone;
+      static 'America/St_Lucia': TimeZone;
+      static 'America/St_Thomas': TimeZone;
+      static 'America/St_Vincent': TimeZone;
+      static 'America/Swift_Current': TimeZone;
+      static 'America/Tegucigalpa': TimeZone;
+      static 'America/Thule': TimeZone;
+      static 'America/Thunder_Bay': TimeZone;
+      static 'America/Tijuana': TimeZone;
+      static 'America/Toronto': TimeZone;
+      static 'America/Tortola': TimeZone;
+      static 'America/Vancouver': TimeZone;
+      static 'America/Virgin': TimeZone;
+      static 'America/Whitehorse': TimeZone;
+      static 'America/Winnipeg': TimeZone;
+      static 'America/Yakutat': TimeZone;
+      static 'America/Yellowknife': TimeZone;
+      static 'Antarctica/Casey': TimeZone;
+      static 'Antarctica/Davis': TimeZone;
+      static 'Antarctica/DumontDUrville': TimeZone;
+      static 'Antarctica/Macquarie': TimeZone;
+      static 'Antarctica/Mawson': TimeZone;
+      static 'Antarctica/McMurdo': TimeZone;
+      static 'Antarctica/Palmer': TimeZone;
+      static 'Antarctica/Rothera': TimeZone;
+      static 'Antarctica/South_Pole': TimeZone;
+      static 'Antarctica/Syowa': TimeZone;
+      static 'Antarctica/Troll': TimeZone;
+      static 'Antarctica/Vostok': TimeZone;
+      static 'Arctic/Longyearbyen': TimeZone;
+      static 'Asia/Aden': TimeZone;
+      static 'Asia/Almaty': TimeZone;
+      static 'Asia/Amman': TimeZone;
+      static 'Asia/Anadyr': TimeZone;
+      static 'Asia/Aqtau': TimeZone;
+      static 'Asia/Aqtobe': TimeZone;
+      static 'Asia/Ashgabat': TimeZone;
+      static 'Asia/Ashkhabad': TimeZone;
+      static 'Asia/Atyrau': TimeZone;
+      static 'Asia/Baghdad': TimeZone;
+      static 'Asia/Bahrain': TimeZone;
+      static 'Asia/Baku': TimeZone;
+      static 'Asia/Bangkok': TimeZone;
+      static 'Asia/Barnaul': TimeZone;
+      static 'Asia/Beirut': TimeZone;
+      static 'Asia/Bishkek': TimeZone;
+      static 'Asia/Brunei': TimeZone;
+      static 'Asia/Calcutta': TimeZone;
+      static 'Asia/Chita': TimeZone;
+      static 'Asia/Choibalsan': TimeZone;
+      static 'Asia/Chongqing': TimeZone;
+      static 'Asia/Chungking': TimeZone;
+      static 'Asia/Colombo': TimeZone;
+      static 'Asia/Dacca': TimeZone;
+      static 'Asia/Damascus': TimeZone;
+      static 'Asia/Dhaka': TimeZone;
+      static 'Asia/Dili': TimeZone;
+      static 'Asia/Dubai': TimeZone;
+      static 'Asia/Dushanbe': TimeZone;
+      static 'Asia/Famagusta': TimeZone;
+      static 'Asia/Gaza': TimeZone;
+      static 'Asia/Harbin': TimeZone;
+      static 'Asia/Hebron': TimeZone;
+      static 'Asia/Ho_Chi_Minh': TimeZone;
+      static 'Asia/Hong_Kong': TimeZone;
+      static 'Asia/Hovd': TimeZone;
+      static 'Asia/Irkutsk': TimeZone;
+      static 'Asia/Istanbul': TimeZone;
+      static 'Asia/Jakarta': TimeZone;
+      static 'Asia/Jayapura': TimeZone;
+      static 'Asia/Jerusalem': TimeZone;
+      static 'Asia/Kabul': TimeZone;
+      static 'Asia/Kamchatka': TimeZone;
+      static 'Asia/Karachi': TimeZone;
+      static 'Asia/Kashgar': TimeZone;
+      static 'Asia/Kathmandu': TimeZone;
+      static 'Asia/Katmandu': TimeZone;
+      static 'Asia/Khandyga': TimeZone;
+      static 'Asia/Kolkata': TimeZone;
+      static 'Asia/Krasnoyarsk': TimeZone;
+      static 'Asia/Kuala_Lumpur': TimeZone;
+      static 'Asia/Kuching': TimeZone;
+      static 'Asia/Kuwait': TimeZone;
+      static 'Asia/Macao': TimeZone;
+      static 'Asia/Macau': TimeZone;
+      static 'Asia/Magadan': TimeZone;
+      static 'Asia/Makassar': TimeZone;
+      static 'Asia/Manila': TimeZone;
+      static 'Asia/Muscat': TimeZone;
+      static 'Asia/Nicosia': TimeZone;
+      static 'Asia/Novokuznetsk': TimeZone;
+      static 'Asia/Novosibirsk': TimeZone;
+      static 'Asia/Omsk': TimeZone;
+      static 'Asia/Oral': TimeZone;
+      static 'Asia/Phnom_Penh': TimeZone;
+      static 'Asia/Pontianak': TimeZone;
+      static 'Asia/Pyongyang': TimeZone;
+      static 'Asia/Qatar': TimeZone;
+      static 'Asia/Qostanay': TimeZone;
+      static 'Asia/Qyzylorda': TimeZone;
+      static 'Asia/Rangoon': TimeZone;
+      static 'Asia/Riyadh': TimeZone;
+      static 'Asia/Saigon': TimeZone;
+      static 'Asia/Sakhalin': TimeZone;
+      static 'Asia/Samarkand': TimeZone;
+      static 'Asia/Seoul': TimeZone;
+      static 'Asia/Shanghai': TimeZone;
+      static 'Asia/Singapore': TimeZone;
+      static 'Asia/Srednekolymsk': TimeZone;
+      static 'Asia/Taipei': TimeZone;
+      static 'Asia/Tashkent': TimeZone;
+      static 'Asia/Tbilisi': TimeZone;
+      static 'Asia/Tehran': TimeZone;
+      static 'Asia/Tel_Aviv': TimeZone;
+      static 'Asia/Thimbu': TimeZone;
+      static 'Asia/Thimphu': TimeZone;
+      static 'Asia/Tokyo': TimeZone;
+      static 'Asia/Tomsk': TimeZone;
+      static 'Asia/Ujung_Pandang': TimeZone;
+      static 'Asia/Ulaanbaatar': TimeZone;
+      static 'Asia/Ulan_Bator': TimeZone;
+      static 'Asia/Urumqi': TimeZone;
+      static 'Asia/Ust-Nera': TimeZone;
+      static 'Asia/Vientiane': TimeZone;
+      static 'Asia/Vladivostok': TimeZone;
+      static 'Asia/Yakutsk': TimeZone;
+      static 'Asia/Yangon': TimeZone;
+      static 'Asia/Yekaterinburg': TimeZone;
+      static 'Asia/Yerevan': TimeZone;
+      static 'Atlantic/Azores': TimeZone;
+      static 'Atlantic/Bermuda': TimeZone;
+      static 'Atlantic/Canary': TimeZone;
+      static 'Atlantic/Cape_Verde': TimeZone;
+      static 'Atlantic/Faeroe': TimeZone;
+      static 'Atlantic/Faroe': TimeZone;
+      static 'Atlantic/Jan_Mayen': TimeZone;
+      static 'Atlantic/Madeira': TimeZone;
+      static 'Atlantic/Reykjavik': TimeZone;
+      static 'Atlantic/South_Georgia': TimeZone;
+      static 'Atlantic/St_Helena': TimeZone;
+      static 'Atlantic/Stanley': TimeZone;
+      static 'Australia/ACT': TimeZone;
+      static 'Australia/Adelaide': TimeZone;
+      static 'Australia/Brisbane': TimeZone;
+      static 'Australia/Broken_Hill': TimeZone;
+      static 'Australia/Canberra': TimeZone;
+      static 'Australia/Currie': TimeZone;
+      static 'Australia/Darwin': TimeZone;
+      static 'Australia/Eucla': TimeZone;
+      static 'Australia/Hobart': TimeZone;
+      static 'Australia/LHI': TimeZone;
+      static 'Australia/Lindeman': TimeZone;
+      static 'Australia/Lord_Howe': TimeZone;
+      static 'Australia/Melbourne': TimeZone;
+      static 'Australia/NSW': TimeZone;
+      static 'Australia/North': TimeZone;
+      static 'Australia/Perth': TimeZone;
+      static 'Australia/Queensland': TimeZone;
+      static 'Australia/South': TimeZone;
+      static 'Australia/Sydney': TimeZone;
+      static 'Australia/Tasmania': TimeZone;
+      static 'Australia/Victoria': TimeZone;
+      static 'Australia/West': TimeZone;
+      static 'Australia/Yancowinna': TimeZone;
+      static 'Brazil/Acre': TimeZone;
+      static 'Brazil/DeNoronha': TimeZone;
+      static 'Brazil/East': TimeZone;
+      static 'Brazil/West': TimeZone;
       static CET: TimeZone;
       static CST6CDT: TimeZone;
-      static "Canada/Atlantic": TimeZone;
-      static "Canada/Central": TimeZone;
-      static "Canada/Eastern": TimeZone;
-      static "Canada/Mountain": TimeZone;
-      static "Canada/Newfoundland": TimeZone;
-      static "Canada/Pacific": TimeZone;
-      static "Canada/Saskatchewan": TimeZone;
-      static "Canada/Yukon": TimeZone;
-      static "Chile/Continental": TimeZone;
-      static "Chile/EasterIsland": TimeZone;
+      static 'Canada/Atlantic': TimeZone;
+      static 'Canada/Central': TimeZone;
+      static 'Canada/Eastern': TimeZone;
+      static 'Canada/Mountain': TimeZone;
+      static 'Canada/Newfoundland': TimeZone;
+      static 'Canada/Pacific': TimeZone;
+      static 'Canada/Saskatchewan': TimeZone;
+      static 'Canada/Yukon': TimeZone;
+      static 'Chile/Continental': TimeZone;
+      static 'Chile/EasterIsland': TimeZone;
       static Cuba: TimeZone;
       static EET: TimeZone;
       static EST: TimeZone;
       static EST5EDT: TimeZone;
       static Egypt: TimeZone;
       static Eire: TimeZone;
-      static "Etc/GMT": TimeZone;
-      static "Etc/GMT+0": TimeZone;
-      static "Etc/GMT+1": TimeZone;
-      static "Etc/GMT+10": TimeZone;
-      static "Etc/GMT+11": TimeZone;
-      static "Etc/GMT+12": TimeZone;
-      static "Etc/GMT+2": TimeZone;
-      static "Etc/GMT+3": TimeZone;
-      static "Etc/GMT+4": TimeZone;
-      static "Etc/GMT+5": TimeZone;
-      static "Etc/GMT+6": TimeZone;
-      static "Etc/GMT+7": TimeZone;
-      static "Etc/GMT+8": TimeZone;
-      static "Etc/GMT+9": TimeZone;
-      static "Etc/GMT-0": TimeZone;
-      static "Etc/GMT-1": TimeZone;
-      static "Etc/GMT-10": TimeZone;
-      static "Etc/GMT-11": TimeZone;
-      static "Etc/GMT-12": TimeZone;
-      static "Etc/GMT-13": TimeZone;
-      static "Etc/GMT-14": TimeZone;
-      static "Etc/GMT-2": TimeZone;
-      static "Etc/GMT-3": TimeZone;
-      static "Etc/GMT-4": TimeZone;
-      static "Etc/GMT-5": TimeZone;
-      static "Etc/GMT-6": TimeZone;
-      static "Etc/GMT-7": TimeZone;
-      static "Etc/GMT-8": TimeZone;
-      static "Etc/GMT-9": TimeZone;
-      static "Etc/GMT0": TimeZone;
-      static "Etc/Greenwich": TimeZone;
-      static "Etc/UCT": TimeZone;
-      static "Etc/UTC": TimeZone;
-      static "Etc/Universal": TimeZone;
-      static "Etc/Zulu": TimeZone;
-      static "Europe/Amsterdam": TimeZone;
-      static "Europe/Andorra": TimeZone;
-      static "Europe/Astrakhan": TimeZone;
-      static "Europe/Athens": TimeZone;
-      static "Europe/Belfast": TimeZone;
-      static "Europe/Belgrade": TimeZone;
-      static "Europe/Berlin": TimeZone;
-      static "Europe/Bratislava": TimeZone;
-      static "Europe/Brussels": TimeZone;
-      static "Europe/Bucharest": TimeZone;
-      static "Europe/Budapest": TimeZone;
-      static "Europe/Busingen": TimeZone;
-      static "Europe/Chisinau": TimeZone;
-      static "Europe/Copenhagen": TimeZone;
-      static "Europe/Dublin": TimeZone;
-      static "Europe/Gibraltar": TimeZone;
-      static "Europe/Guernsey": TimeZone;
-      static "Europe/Helsinki": TimeZone;
-      static "Europe/Isle_of_Man": TimeZone;
-      static "Europe/Istanbul": TimeZone;
-      static "Europe/Jersey": TimeZone;
-      static "Europe/Kaliningrad": TimeZone;
-      static "Europe/Kiev": TimeZone;
-      static "Europe/Kirov": TimeZone;
-      static "Europe/Kyiv": TimeZone;
-      static "Europe/Lisbon": TimeZone;
-      static "Europe/Ljubljana": TimeZone;
-      static "Europe/London": TimeZone;
-      static "Europe/Luxembourg": TimeZone;
-      static "Europe/Madrid": TimeZone;
-      static "Europe/Malta": TimeZone;
-      static "Europe/Mariehamn": TimeZone;
-      static "Europe/Minsk": TimeZone;
-      static "Europe/Monaco": TimeZone;
-      static "Europe/Moscow": TimeZone;
-      static "Europe/Nicosia": TimeZone;
-      static "Europe/Oslo": TimeZone;
-      static "Europe/Paris": TimeZone;
-      static "Europe/Podgorica": TimeZone;
-      static "Europe/Prague": TimeZone;
-      static "Europe/Riga": TimeZone;
-      static "Europe/Rome": TimeZone;
-      static "Europe/Samara": TimeZone;
-      static "Europe/San_Marino": TimeZone;
-      static "Europe/Sarajevo": TimeZone;
-      static "Europe/Saratov": TimeZone;
-      static "Europe/Simferopol": TimeZone;
-      static "Europe/Skopje": TimeZone;
-      static "Europe/Sofia": TimeZone;
-      static "Europe/Stockholm": TimeZone;
-      static "Europe/Tallinn": TimeZone;
-      static "Europe/Tirane": TimeZone;
-      static "Europe/Tiraspol": TimeZone;
-      static "Europe/Ulyanovsk": TimeZone;
-      static "Europe/Uzhgorod": TimeZone;
-      static "Europe/Vaduz": TimeZone;
-      static "Europe/Vatican": TimeZone;
-      static "Europe/Vienna": TimeZone;
-      static "Europe/Vilnius": TimeZone;
-      static "Europe/Volgograd": TimeZone;
-      static "Europe/Warsaw": TimeZone;
-      static "Europe/Zagreb": TimeZone;
-      static "Europe/Zaporozhye": TimeZone;
-      static "Europe/Zurich": TimeZone;
+      static 'Etc/GMT': TimeZone;
+      static 'Etc/GMT+0': TimeZone;
+      static 'Etc/GMT+1': TimeZone;
+      static 'Etc/GMT+10': TimeZone;
+      static 'Etc/GMT+11': TimeZone;
+      static 'Etc/GMT+12': TimeZone;
+      static 'Etc/GMT+2': TimeZone;
+      static 'Etc/GMT+3': TimeZone;
+      static 'Etc/GMT+4': TimeZone;
+      static 'Etc/GMT+5': TimeZone;
+      static 'Etc/GMT+6': TimeZone;
+      static 'Etc/GMT+7': TimeZone;
+      static 'Etc/GMT+8': TimeZone;
+      static 'Etc/GMT+9': TimeZone;
+      static 'Etc/GMT-0': TimeZone;
+      static 'Etc/GMT-1': TimeZone;
+      static 'Etc/GMT-10': TimeZone;
+      static 'Etc/GMT-11': TimeZone;
+      static 'Etc/GMT-12': TimeZone;
+      static 'Etc/GMT-13': TimeZone;
+      static 'Etc/GMT-14': TimeZone;
+      static 'Etc/GMT-2': TimeZone;
+      static 'Etc/GMT-3': TimeZone;
+      static 'Etc/GMT-4': TimeZone;
+      static 'Etc/GMT-5': TimeZone;
+      static 'Etc/GMT-6': TimeZone;
+      static 'Etc/GMT-7': TimeZone;
+      static 'Etc/GMT-8': TimeZone;
+      static 'Etc/GMT-9': TimeZone;
+      static 'Etc/GMT0': TimeZone;
+      static 'Etc/Greenwich': TimeZone;
+      static 'Etc/UCT': TimeZone;
+      static 'Etc/UTC': TimeZone;
+      static 'Etc/Universal': TimeZone;
+      static 'Etc/Zulu': TimeZone;
+      static 'Europe/Amsterdam': TimeZone;
+      static 'Europe/Andorra': TimeZone;
+      static 'Europe/Astrakhan': TimeZone;
+      static 'Europe/Athens': TimeZone;
+      static 'Europe/Belfast': TimeZone;
+      static 'Europe/Belgrade': TimeZone;
+      static 'Europe/Berlin': TimeZone;
+      static 'Europe/Bratislava': TimeZone;
+      static 'Europe/Brussels': TimeZone;
+      static 'Europe/Bucharest': TimeZone;
+      static 'Europe/Budapest': TimeZone;
+      static 'Europe/Busingen': TimeZone;
+      static 'Europe/Chisinau': TimeZone;
+      static 'Europe/Copenhagen': TimeZone;
+      static 'Europe/Dublin': TimeZone;
+      static 'Europe/Gibraltar': TimeZone;
+      static 'Europe/Guernsey': TimeZone;
+      static 'Europe/Helsinki': TimeZone;
+      static 'Europe/Isle_of_Man': TimeZone;
+      static 'Europe/Istanbul': TimeZone;
+      static 'Europe/Jersey': TimeZone;
+      static 'Europe/Kaliningrad': TimeZone;
+      static 'Europe/Kiev': TimeZone;
+      static 'Europe/Kirov': TimeZone;
+      static 'Europe/Kyiv': TimeZone;
+      static 'Europe/Lisbon': TimeZone;
+      static 'Europe/Ljubljana': TimeZone;
+      static 'Europe/London': TimeZone;
+      static 'Europe/Luxembourg': TimeZone;
+      static 'Europe/Madrid': TimeZone;
+      static 'Europe/Malta': TimeZone;
+      static 'Europe/Mariehamn': TimeZone;
+      static 'Europe/Minsk': TimeZone;
+      static 'Europe/Monaco': TimeZone;
+      static 'Europe/Moscow': TimeZone;
+      static 'Europe/Nicosia': TimeZone;
+      static 'Europe/Oslo': TimeZone;
+      static 'Europe/Paris': TimeZone;
+      static 'Europe/Podgorica': TimeZone;
+      static 'Europe/Prague': TimeZone;
+      static 'Europe/Riga': TimeZone;
+      static 'Europe/Rome': TimeZone;
+      static 'Europe/Samara': TimeZone;
+      static 'Europe/San_Marino': TimeZone;
+      static 'Europe/Sarajevo': TimeZone;
+      static 'Europe/Saratov': TimeZone;
+      static 'Europe/Simferopol': TimeZone;
+      static 'Europe/Skopje': TimeZone;
+      static 'Europe/Sofia': TimeZone;
+      static 'Europe/Stockholm': TimeZone;
+      static 'Europe/Tallinn': TimeZone;
+      static 'Europe/Tirane': TimeZone;
+      static 'Europe/Tiraspol': TimeZone;
+      static 'Europe/Ulyanovsk': TimeZone;
+      static 'Europe/Uzhgorod': TimeZone;
+      static 'Europe/Vaduz': TimeZone;
+      static 'Europe/Vatican': TimeZone;
+      static 'Europe/Vienna': TimeZone;
+      static 'Europe/Vilnius': TimeZone;
+      static 'Europe/Volgograd': TimeZone;
+      static 'Europe/Warsaw': TimeZone;
+      static 'Europe/Zagreb': TimeZone;
+      static 'Europe/Zaporozhye': TimeZone;
+      static 'Europe/Zurich': TimeZone;
       static Factory: TimeZone;
       static GB: TimeZone;
-      static "GB-Eire": TimeZone;
+      static 'GB-Eire': TimeZone;
       static GMT: TimeZone;
-      static "GMT+0": TimeZone;
-      static "GMT-0": TimeZone;
+      static 'GMT+0': TimeZone;
+      static 'GMT-0': TimeZone;
       static GMT0: TimeZone;
       static Greenwich: TimeZone;
       static HST: TimeZone;
       static Hongkong: TimeZone;
       static Iceland: TimeZone;
-      static "Indian/Antananarivo": TimeZone;
-      static "Indian/Chagos": TimeZone;
-      static "Indian/Christmas": TimeZone;
-      static "Indian/Cocos": TimeZone;
-      static "Indian/Comoro": TimeZone;
-      static "Indian/Kerguelen": TimeZone;
-      static "Indian/Mahe": TimeZone;
-      static "Indian/Maldives": TimeZone;
-      static "Indian/Mauritius": TimeZone;
-      static "Indian/Mayotte": TimeZone;
-      static "Indian/Reunion": TimeZone;
+      static 'Indian/Antananarivo': TimeZone;
+      static 'Indian/Chagos': TimeZone;
+      static 'Indian/Christmas': TimeZone;
+      static 'Indian/Cocos': TimeZone;
+      static 'Indian/Comoro': TimeZone;
+      static 'Indian/Kerguelen': TimeZone;
+      static 'Indian/Mahe': TimeZone;
+      static 'Indian/Maldives': TimeZone;
+      static 'Indian/Mauritius': TimeZone;
+      static 'Indian/Mayotte': TimeZone;
+      static 'Indian/Reunion': TimeZone;
       static Iran: TimeZone;
       static Israel: TimeZone;
       static Jamaica: TimeZone;
@@ -1175,58 +1340,58 @@ declare namespace gc {
       static MET: TimeZone;
       static MST: TimeZone;
       static MST7MDT: TimeZone;
-      static "Mexico/BajaNorte": TimeZone;
-      static "Mexico/BajaSur": TimeZone;
-      static "Mexico/General": TimeZone;
+      static 'Mexico/BajaNorte': TimeZone;
+      static 'Mexico/BajaSur': TimeZone;
+      static 'Mexico/General': TimeZone;
       static NZ: TimeZone;
-      static "NZ-CHAT": TimeZone;
+      static 'NZ-CHAT': TimeZone;
       static Navajo: TimeZone;
       static PRC: TimeZone;
       static PST8PDT: TimeZone;
-      static "Pacific/Apia": TimeZone;
-      static "Pacific/Auckland": TimeZone;
-      static "Pacific/Bougainville": TimeZone;
-      static "Pacific/Chatham": TimeZone;
-      static "Pacific/Chuuk": TimeZone;
-      static "Pacific/Easter": TimeZone;
-      static "Pacific/Efate": TimeZone;
-      static "Pacific/Enderbury": TimeZone;
-      static "Pacific/Fakaofo": TimeZone;
-      static "Pacific/Fiji": TimeZone;
-      static "Pacific/Funafuti": TimeZone;
-      static "Pacific/Galapagos": TimeZone;
-      static "Pacific/Gambier": TimeZone;
-      static "Pacific/Guadalcanal": TimeZone;
-      static "Pacific/Guam": TimeZone;
-      static "Pacific/Honolulu": TimeZone;
-      static "Pacific/Johnston": TimeZone;
-      static "Pacific/Kanton": TimeZone;
-      static "Pacific/Kiritimati": TimeZone;
-      static "Pacific/Kosrae": TimeZone;
-      static "Pacific/Kwajalein": TimeZone;
-      static "Pacific/Majuro": TimeZone;
-      static "Pacific/Marquesas": TimeZone;
-      static "Pacific/Midway": TimeZone;
-      static "Pacific/Nauru": TimeZone;
-      static "Pacific/Niue": TimeZone;
-      static "Pacific/Norfolk": TimeZone;
-      static "Pacific/Noumea": TimeZone;
-      static "Pacific/Pago_Pago": TimeZone;
-      static "Pacific/Palau": TimeZone;
-      static "Pacific/Pitcairn": TimeZone;
-      static "Pacific/Pohnpei": TimeZone;
-      static "Pacific/Ponape": TimeZone;
-      static "Pacific/Port_Moresby": TimeZone;
-      static "Pacific/Rarotonga": TimeZone;
-      static "Pacific/Saipan": TimeZone;
-      static "Pacific/Samoa": TimeZone;
-      static "Pacific/Tahiti": TimeZone;
-      static "Pacific/Tarawa": TimeZone;
-      static "Pacific/Tongatapu": TimeZone;
-      static "Pacific/Truk": TimeZone;
-      static "Pacific/Wake": TimeZone;
-      static "Pacific/Wallis": TimeZone;
-      static "Pacific/Yap": TimeZone;
+      static 'Pacific/Apia': TimeZone;
+      static 'Pacific/Auckland': TimeZone;
+      static 'Pacific/Bougainville': TimeZone;
+      static 'Pacific/Chatham': TimeZone;
+      static 'Pacific/Chuuk': TimeZone;
+      static 'Pacific/Easter': TimeZone;
+      static 'Pacific/Efate': TimeZone;
+      static 'Pacific/Enderbury': TimeZone;
+      static 'Pacific/Fakaofo': TimeZone;
+      static 'Pacific/Fiji': TimeZone;
+      static 'Pacific/Funafuti': TimeZone;
+      static 'Pacific/Galapagos': TimeZone;
+      static 'Pacific/Gambier': TimeZone;
+      static 'Pacific/Guadalcanal': TimeZone;
+      static 'Pacific/Guam': TimeZone;
+      static 'Pacific/Honolulu': TimeZone;
+      static 'Pacific/Johnston': TimeZone;
+      static 'Pacific/Kanton': TimeZone;
+      static 'Pacific/Kiritimati': TimeZone;
+      static 'Pacific/Kosrae': TimeZone;
+      static 'Pacific/Kwajalein': TimeZone;
+      static 'Pacific/Majuro': TimeZone;
+      static 'Pacific/Marquesas': TimeZone;
+      static 'Pacific/Midway': TimeZone;
+      static 'Pacific/Nauru': TimeZone;
+      static 'Pacific/Niue': TimeZone;
+      static 'Pacific/Norfolk': TimeZone;
+      static 'Pacific/Noumea': TimeZone;
+      static 'Pacific/Pago_Pago': TimeZone;
+      static 'Pacific/Palau': TimeZone;
+      static 'Pacific/Pitcairn': TimeZone;
+      static 'Pacific/Pohnpei': TimeZone;
+      static 'Pacific/Ponape': TimeZone;
+      static 'Pacific/Port_Moresby': TimeZone;
+      static 'Pacific/Rarotonga': TimeZone;
+      static 'Pacific/Saipan': TimeZone;
+      static 'Pacific/Samoa': TimeZone;
+      static 'Pacific/Tahiti': TimeZone;
+      static 'Pacific/Tarawa': TimeZone;
+      static 'Pacific/Tongatapu': TimeZone;
+      static 'Pacific/Truk': TimeZone;
+      static 'Pacific/Wake': TimeZone;
+      static 'Pacific/Wallis': TimeZone;
+      static 'Pacific/Yap': TimeZone;
       static Poland: TimeZone;
       static Portugal: TimeZone;
       static ROC: TimeZone;
@@ -1234,25 +1399,623 @@ declare namespace gc {
       static Singapore: TimeZone;
       static Turkey: TimeZone;
       static UCT: TimeZone;
-      static "US/Alaska": TimeZone;
-      static "US/Aleutian": TimeZone;
-      static "US/Arizona": TimeZone;
-      static "US/Central": TimeZone;
-      static "US/East-Indiana": TimeZone;
-      static "US/Eastern": TimeZone;
-      static "US/Hawaii": TimeZone;
-      static "US/Indiana-Starke": TimeZone;
-      static "US/Michigan": TimeZone;
-      static "US/Mountain": TimeZone;
-      static "US/Pacific": TimeZone;
-      static "US/Samoa": TimeZone;
+      static 'US/Alaska': TimeZone;
+      static 'US/Aleutian': TimeZone;
+      static 'US/Arizona': TimeZone;
+      static 'US/Central': TimeZone;
+      static 'US/East-Indiana': TimeZone;
+      static 'US/Eastern': TimeZone;
+      static 'US/Hawaii': TimeZone;
+      static 'US/Indiana-Starke': TimeZone;
+      static 'US/Michigan': TimeZone;
+      static 'US/Mountain': TimeZone;
+      static 'US/Pacific': TimeZone;
+      static 'US/Samoa': TimeZone;
       static Universal: TimeZone;
-      static "W-SU": TimeZone;
+      static 'W-SU': TimeZone;
       static WET: TimeZone;
       static Zulu: TimeZone;
     }
-    namespace TimeZone  {
-      type Field = "UTC"|"Africa/Abidjan"|"Africa/Accra"|"Africa/Addis_Ababa"|"Africa/Algiers"|"Africa/Asmara"|"Africa/Asmera"|"Africa/Bamako"|"Africa/Bangui"|"Africa/Banjul"|"Africa/Bissau"|"Africa/Blantyre"|"Africa/Brazzaville"|"Africa/Bujumbura"|"Africa/Cairo"|"Africa/Casablanca"|"Africa/Ceuta"|"Africa/Conakry"|"Africa/Dakar"|"Africa/Dar_es_Salaam"|"Africa/Djibouti"|"Africa/Douala"|"Africa/El_Aaiun"|"Africa/Freetown"|"Africa/Gaborone"|"Africa/Harare"|"Africa/Johannesburg"|"Africa/Juba"|"Africa/Kampala"|"Africa/Khartoum"|"Africa/Kigali"|"Africa/Kinshasa"|"Africa/Lagos"|"Africa/Libreville"|"Africa/Lome"|"Africa/Luanda"|"Africa/Lubumbashi"|"Africa/Lusaka"|"Africa/Malabo"|"Africa/Maputo"|"Africa/Maseru"|"Africa/Mbabane"|"Africa/Mogadishu"|"Africa/Monrovia"|"Africa/Nairobi"|"Africa/Ndjamena"|"Africa/Niamey"|"Africa/Nouakchott"|"Africa/Ouagadougou"|"Africa/Porto-Novo"|"Africa/Sao_Tome"|"Africa/Timbuktu"|"Africa/Tripoli"|"Africa/Tunis"|"Africa/Windhoek"|"America/Adak"|"America/Anchorage"|"America/Anguilla"|"America/Antigua"|"America/Araguaina"|"America/Argentina/Buenos_Aires"|"America/Argentina/Catamarca"|"America/Argentina/ComodRivadavia"|"America/Argentina/Cordoba"|"America/Argentina/Jujuy"|"America/Argentina/La_Rioja"|"America/Argentina/Mendoza"|"America/Argentina/Rio_Gallegos"|"America/Argentina/Salta"|"America/Argentina/San_Juan"|"America/Argentina/San_Luis"|"America/Argentina/Tucuman"|"America/Argentina/Ushuaia"|"America/Aruba"|"America/Asuncion"|"America/Atikokan"|"America/Atka"|"America/Bahia"|"America/Bahia_Banderas"|"America/Barbados"|"America/Belem"|"America/Belize"|"America/Blanc-Sablon"|"America/Boa_Vista"|"America/Bogota"|"America/Boise"|"America/Buenos_Aires"|"America/Cambridge_Bay"|"America/Campo_Grande"|"America/Cancun"|"America/Caracas"|"America/Catamarca"|"America/Cayenne"|"America/Cayman"|"America/Chicago"|"America/Chihuahua"|"America/Ciudad_Juarez"|"America/Coral_Harbour"|"America/Cordoba"|"America/Costa_Rica"|"America/Coyhaique"|"America/Creston"|"America/Cuiaba"|"America/Curacao"|"America/Danmarkshavn"|"America/Dawson"|"America/Dawson_Creek"|"America/Denver"|"America/Detroit"|"America/Dominica"|"America/Edmonton"|"America/Eirunepe"|"America/El_Salvador"|"America/Ensenada"|"America/Fort_Nelson"|"America/Fort_Wayne"|"America/Fortaleza"|"America/Glace_Bay"|"America/Godthab"|"America/Goose_Bay"|"America/Grand_Turk"|"America/Grenada"|"America/Guadeloupe"|"America/Guatemala"|"America/Guayaquil"|"America/Guyana"|"America/Halifax"|"America/Havana"|"America/Hermosillo"|"America/Indiana/Indianapolis"|"America/Indiana/Knox"|"America/Indiana/Marengo"|"America/Indiana/Petersburg"|"America/Indiana/Tell_City"|"America/Indiana/Vevay"|"America/Indiana/Vincennes"|"America/Indiana/Winamac"|"America/Indianapolis"|"America/Inuvik"|"America/Iqaluit"|"America/Jamaica"|"America/Jujuy"|"America/Juneau"|"America/Kentucky/Louisville"|"America/Kentucky/Monticello"|"America/Knox_IN"|"America/Kralendijk"|"America/La_Paz"|"America/Lima"|"America/Los_Angeles"|"America/Louisville"|"America/Lower_Princes"|"America/Maceio"|"America/Managua"|"America/Manaus"|"America/Marigot"|"America/Martinique"|"America/Matamoros"|"America/Mazatlan"|"America/Mendoza"|"America/Menominee"|"America/Merida"|"America/Metlakatla"|"America/Mexico_City"|"America/Miquelon"|"America/Moncton"|"America/Monterrey"|"America/Montevideo"|"America/Montreal"|"America/Montserrat"|"America/Nassau"|"America/New_York"|"America/Nipigon"|"America/Nome"|"America/Noronha"|"America/North_Dakota/Beulah"|"America/North_Dakota/Center"|"America/North_Dakota/New_Salem"|"America/Nuuk"|"America/Ojinaga"|"America/Panama"|"America/Pangnirtung"|"America/Paramaribo"|"America/Phoenix"|"America/Port-au-Prince"|"America/Port_of_Spain"|"America/Porto_Acre"|"America/Porto_Velho"|"America/Puerto_Rico"|"America/Punta_Arenas"|"America/Rainy_River"|"America/Rankin_Inlet"|"America/Recife"|"America/Regina"|"America/Resolute"|"America/Rio_Branco"|"America/Rosario"|"America/Santa_Isabel"|"America/Santarem"|"America/Santiago"|"America/Santo_Domingo"|"America/Sao_Paulo"|"America/Scoresbysund"|"America/Shiprock"|"America/Sitka"|"America/St_Barthelemy"|"America/St_Johns"|"America/St_Kitts"|"America/St_Lucia"|"America/St_Thomas"|"America/St_Vincent"|"America/Swift_Current"|"America/Tegucigalpa"|"America/Thule"|"America/Thunder_Bay"|"America/Tijuana"|"America/Toronto"|"America/Tortola"|"America/Vancouver"|"America/Virgin"|"America/Whitehorse"|"America/Winnipeg"|"America/Yakutat"|"America/Yellowknife"|"Antarctica/Casey"|"Antarctica/Davis"|"Antarctica/DumontDUrville"|"Antarctica/Macquarie"|"Antarctica/Mawson"|"Antarctica/McMurdo"|"Antarctica/Palmer"|"Antarctica/Rothera"|"Antarctica/South_Pole"|"Antarctica/Syowa"|"Antarctica/Troll"|"Antarctica/Vostok"|"Arctic/Longyearbyen"|"Asia/Aden"|"Asia/Almaty"|"Asia/Amman"|"Asia/Anadyr"|"Asia/Aqtau"|"Asia/Aqtobe"|"Asia/Ashgabat"|"Asia/Ashkhabad"|"Asia/Atyrau"|"Asia/Baghdad"|"Asia/Bahrain"|"Asia/Baku"|"Asia/Bangkok"|"Asia/Barnaul"|"Asia/Beirut"|"Asia/Bishkek"|"Asia/Brunei"|"Asia/Calcutta"|"Asia/Chita"|"Asia/Choibalsan"|"Asia/Chongqing"|"Asia/Chungking"|"Asia/Colombo"|"Asia/Dacca"|"Asia/Damascus"|"Asia/Dhaka"|"Asia/Dili"|"Asia/Dubai"|"Asia/Dushanbe"|"Asia/Famagusta"|"Asia/Gaza"|"Asia/Harbin"|"Asia/Hebron"|"Asia/Ho_Chi_Minh"|"Asia/Hong_Kong"|"Asia/Hovd"|"Asia/Irkutsk"|"Asia/Istanbul"|"Asia/Jakarta"|"Asia/Jayapura"|"Asia/Jerusalem"|"Asia/Kabul"|"Asia/Kamchatka"|"Asia/Karachi"|"Asia/Kashgar"|"Asia/Kathmandu"|"Asia/Katmandu"|"Asia/Khandyga"|"Asia/Kolkata"|"Asia/Krasnoyarsk"|"Asia/Kuala_Lumpur"|"Asia/Kuching"|"Asia/Kuwait"|"Asia/Macao"|"Asia/Macau"|"Asia/Magadan"|"Asia/Makassar"|"Asia/Manila"|"Asia/Muscat"|"Asia/Nicosia"|"Asia/Novokuznetsk"|"Asia/Novosibirsk"|"Asia/Omsk"|"Asia/Oral"|"Asia/Phnom_Penh"|"Asia/Pontianak"|"Asia/Pyongyang"|"Asia/Qatar"|"Asia/Qostanay"|"Asia/Qyzylorda"|"Asia/Rangoon"|"Asia/Riyadh"|"Asia/Saigon"|"Asia/Sakhalin"|"Asia/Samarkand"|"Asia/Seoul"|"Asia/Shanghai"|"Asia/Singapore"|"Asia/Srednekolymsk"|"Asia/Taipei"|"Asia/Tashkent"|"Asia/Tbilisi"|"Asia/Tehran"|"Asia/Tel_Aviv"|"Asia/Thimbu"|"Asia/Thimphu"|"Asia/Tokyo"|"Asia/Tomsk"|"Asia/Ujung_Pandang"|"Asia/Ulaanbaatar"|"Asia/Ulan_Bator"|"Asia/Urumqi"|"Asia/Ust-Nera"|"Asia/Vientiane"|"Asia/Vladivostok"|"Asia/Yakutsk"|"Asia/Yangon"|"Asia/Yekaterinburg"|"Asia/Yerevan"|"Atlantic/Azores"|"Atlantic/Bermuda"|"Atlantic/Canary"|"Atlantic/Cape_Verde"|"Atlantic/Faeroe"|"Atlantic/Faroe"|"Atlantic/Jan_Mayen"|"Atlantic/Madeira"|"Atlantic/Reykjavik"|"Atlantic/South_Georgia"|"Atlantic/St_Helena"|"Atlantic/Stanley"|"Australia/ACT"|"Australia/Adelaide"|"Australia/Brisbane"|"Australia/Broken_Hill"|"Australia/Canberra"|"Australia/Currie"|"Australia/Darwin"|"Australia/Eucla"|"Australia/Hobart"|"Australia/LHI"|"Australia/Lindeman"|"Australia/Lord_Howe"|"Australia/Melbourne"|"Australia/NSW"|"Australia/North"|"Australia/Perth"|"Australia/Queensland"|"Australia/South"|"Australia/Sydney"|"Australia/Tasmania"|"Australia/Victoria"|"Australia/West"|"Australia/Yancowinna"|"Brazil/Acre"|"Brazil/DeNoronha"|"Brazil/East"|"Brazil/West"|"CET"|"CST6CDT"|"Canada/Atlantic"|"Canada/Central"|"Canada/Eastern"|"Canada/Mountain"|"Canada/Newfoundland"|"Canada/Pacific"|"Canada/Saskatchewan"|"Canada/Yukon"|"Chile/Continental"|"Chile/EasterIsland"|"Cuba"|"EET"|"EST"|"EST5EDT"|"Egypt"|"Eire"|"Etc/GMT"|"Etc/GMT+0"|"Etc/GMT+1"|"Etc/GMT+10"|"Etc/GMT+11"|"Etc/GMT+12"|"Etc/GMT+2"|"Etc/GMT+3"|"Etc/GMT+4"|"Etc/GMT+5"|"Etc/GMT+6"|"Etc/GMT+7"|"Etc/GMT+8"|"Etc/GMT+9"|"Etc/GMT-0"|"Etc/GMT-1"|"Etc/GMT-10"|"Etc/GMT-11"|"Etc/GMT-12"|"Etc/GMT-13"|"Etc/GMT-14"|"Etc/GMT-2"|"Etc/GMT-3"|"Etc/GMT-4"|"Etc/GMT-5"|"Etc/GMT-6"|"Etc/GMT-7"|"Etc/GMT-8"|"Etc/GMT-9"|"Etc/GMT0"|"Etc/Greenwich"|"Etc/UCT"|"Etc/UTC"|"Etc/Universal"|"Etc/Zulu"|"Europe/Amsterdam"|"Europe/Andorra"|"Europe/Astrakhan"|"Europe/Athens"|"Europe/Belfast"|"Europe/Belgrade"|"Europe/Berlin"|"Europe/Bratislava"|"Europe/Brussels"|"Europe/Bucharest"|"Europe/Budapest"|"Europe/Busingen"|"Europe/Chisinau"|"Europe/Copenhagen"|"Europe/Dublin"|"Europe/Gibraltar"|"Europe/Guernsey"|"Europe/Helsinki"|"Europe/Isle_of_Man"|"Europe/Istanbul"|"Europe/Jersey"|"Europe/Kaliningrad"|"Europe/Kiev"|"Europe/Kirov"|"Europe/Kyiv"|"Europe/Lisbon"|"Europe/Ljubljana"|"Europe/London"|"Europe/Luxembourg"|"Europe/Madrid"|"Europe/Malta"|"Europe/Mariehamn"|"Europe/Minsk"|"Europe/Monaco"|"Europe/Moscow"|"Europe/Nicosia"|"Europe/Oslo"|"Europe/Paris"|"Europe/Podgorica"|"Europe/Prague"|"Europe/Riga"|"Europe/Rome"|"Europe/Samara"|"Europe/San_Marino"|"Europe/Sarajevo"|"Europe/Saratov"|"Europe/Simferopol"|"Europe/Skopje"|"Europe/Sofia"|"Europe/Stockholm"|"Europe/Tallinn"|"Europe/Tirane"|"Europe/Tiraspol"|"Europe/Ulyanovsk"|"Europe/Uzhgorod"|"Europe/Vaduz"|"Europe/Vatican"|"Europe/Vienna"|"Europe/Vilnius"|"Europe/Volgograd"|"Europe/Warsaw"|"Europe/Zagreb"|"Europe/Zaporozhye"|"Europe/Zurich"|"Factory"|"GB"|"GB-Eire"|"GMT"|"GMT+0"|"GMT-0"|"GMT0"|"Greenwich"|"HST"|"Hongkong"|"Iceland"|"Indian/Antananarivo"|"Indian/Chagos"|"Indian/Christmas"|"Indian/Cocos"|"Indian/Comoro"|"Indian/Kerguelen"|"Indian/Mahe"|"Indian/Maldives"|"Indian/Mauritius"|"Indian/Mayotte"|"Indian/Reunion"|"Iran"|"Israel"|"Jamaica"|"Japan"|"Kwajalein"|"Libya"|"MET"|"MST"|"MST7MDT"|"Mexico/BajaNorte"|"Mexico/BajaSur"|"Mexico/General"|"NZ"|"NZ-CHAT"|"Navajo"|"PRC"|"PST8PDT"|"Pacific/Apia"|"Pacific/Auckland"|"Pacific/Bougainville"|"Pacific/Chatham"|"Pacific/Chuuk"|"Pacific/Easter"|"Pacific/Efate"|"Pacific/Enderbury"|"Pacific/Fakaofo"|"Pacific/Fiji"|"Pacific/Funafuti"|"Pacific/Galapagos"|"Pacific/Gambier"|"Pacific/Guadalcanal"|"Pacific/Guam"|"Pacific/Honolulu"|"Pacific/Johnston"|"Pacific/Kanton"|"Pacific/Kiritimati"|"Pacific/Kosrae"|"Pacific/Kwajalein"|"Pacific/Majuro"|"Pacific/Marquesas"|"Pacific/Midway"|"Pacific/Nauru"|"Pacific/Niue"|"Pacific/Norfolk"|"Pacific/Noumea"|"Pacific/Pago_Pago"|"Pacific/Palau"|"Pacific/Pitcairn"|"Pacific/Pohnpei"|"Pacific/Ponape"|"Pacific/Port_Moresby"|"Pacific/Rarotonga"|"Pacific/Saipan"|"Pacific/Samoa"|"Pacific/Tahiti"|"Pacific/Tarawa"|"Pacific/Tongatapu"|"Pacific/Truk"|"Pacific/Wake"|"Pacific/Wallis"|"Pacific/Yap"|"Poland"|"Portugal"|"ROC"|"ROK"|"Singapore"|"Turkey"|"UCT"|"US/Alaska"|"US/Aleutian"|"US/Arizona"|"US/Central"|"US/East-Indiana"|"US/Eastern"|"US/Hawaii"|"US/Indiana-Starke"|"US/Michigan"|"US/Mountain"|"US/Pacific"|"US/Samoa"|"Universal"|"W-SU"|"WET"|"Zulu";
+    namespace TimeZone {
+      type Field =
+        | 'UTC'
+        | 'Africa/Abidjan'
+        | 'Africa/Accra'
+        | 'Africa/Addis_Ababa'
+        | 'Africa/Algiers'
+        | 'Africa/Asmara'
+        | 'Africa/Asmera'
+        | 'Africa/Bamako'
+        | 'Africa/Bangui'
+        | 'Africa/Banjul'
+        | 'Africa/Bissau'
+        | 'Africa/Blantyre'
+        | 'Africa/Brazzaville'
+        | 'Africa/Bujumbura'
+        | 'Africa/Cairo'
+        | 'Africa/Casablanca'
+        | 'Africa/Ceuta'
+        | 'Africa/Conakry'
+        | 'Africa/Dakar'
+        | 'Africa/Dar_es_Salaam'
+        | 'Africa/Djibouti'
+        | 'Africa/Douala'
+        | 'Africa/El_Aaiun'
+        | 'Africa/Freetown'
+        | 'Africa/Gaborone'
+        | 'Africa/Harare'
+        | 'Africa/Johannesburg'
+        | 'Africa/Juba'
+        | 'Africa/Kampala'
+        | 'Africa/Khartoum'
+        | 'Africa/Kigali'
+        | 'Africa/Kinshasa'
+        | 'Africa/Lagos'
+        | 'Africa/Libreville'
+        | 'Africa/Lome'
+        | 'Africa/Luanda'
+        | 'Africa/Lubumbashi'
+        | 'Africa/Lusaka'
+        | 'Africa/Malabo'
+        | 'Africa/Maputo'
+        | 'Africa/Maseru'
+        | 'Africa/Mbabane'
+        | 'Africa/Mogadishu'
+        | 'Africa/Monrovia'
+        | 'Africa/Nairobi'
+        | 'Africa/Ndjamena'
+        | 'Africa/Niamey'
+        | 'Africa/Nouakchott'
+        | 'Africa/Ouagadougou'
+        | 'Africa/Porto-Novo'
+        | 'Africa/Sao_Tome'
+        | 'Africa/Timbuktu'
+        | 'Africa/Tripoli'
+        | 'Africa/Tunis'
+        | 'Africa/Windhoek'
+        | 'America/Adak'
+        | 'America/Anchorage'
+        | 'America/Anguilla'
+        | 'America/Antigua'
+        | 'America/Araguaina'
+        | 'America/Argentina/Buenos_Aires'
+        | 'America/Argentina/Catamarca'
+        | 'America/Argentina/ComodRivadavia'
+        | 'America/Argentina/Cordoba'
+        | 'America/Argentina/Jujuy'
+        | 'America/Argentina/La_Rioja'
+        | 'America/Argentina/Mendoza'
+        | 'America/Argentina/Rio_Gallegos'
+        | 'America/Argentina/Salta'
+        | 'America/Argentina/San_Juan'
+        | 'America/Argentina/San_Luis'
+        | 'America/Argentina/Tucuman'
+        | 'America/Argentina/Ushuaia'
+        | 'America/Aruba'
+        | 'America/Asuncion'
+        | 'America/Atikokan'
+        | 'America/Atka'
+        | 'America/Bahia'
+        | 'America/Bahia_Banderas'
+        | 'America/Barbados'
+        | 'America/Belem'
+        | 'America/Belize'
+        | 'America/Blanc-Sablon'
+        | 'America/Boa_Vista'
+        | 'America/Bogota'
+        | 'America/Boise'
+        | 'America/Buenos_Aires'
+        | 'America/Cambridge_Bay'
+        | 'America/Campo_Grande'
+        | 'America/Cancun'
+        | 'America/Caracas'
+        | 'America/Catamarca'
+        | 'America/Cayenne'
+        | 'America/Cayman'
+        | 'America/Chicago'
+        | 'America/Chihuahua'
+        | 'America/Ciudad_Juarez'
+        | 'America/Coral_Harbour'
+        | 'America/Cordoba'
+        | 'America/Costa_Rica'
+        | 'America/Coyhaique'
+        | 'America/Creston'
+        | 'America/Cuiaba'
+        | 'America/Curacao'
+        | 'America/Danmarkshavn'
+        | 'America/Dawson'
+        | 'America/Dawson_Creek'
+        | 'America/Denver'
+        | 'America/Detroit'
+        | 'America/Dominica'
+        | 'America/Edmonton'
+        | 'America/Eirunepe'
+        | 'America/El_Salvador'
+        | 'America/Ensenada'
+        | 'America/Fort_Nelson'
+        | 'America/Fort_Wayne'
+        | 'America/Fortaleza'
+        | 'America/Glace_Bay'
+        | 'America/Godthab'
+        | 'America/Goose_Bay'
+        | 'America/Grand_Turk'
+        | 'America/Grenada'
+        | 'America/Guadeloupe'
+        | 'America/Guatemala'
+        | 'America/Guayaquil'
+        | 'America/Guyana'
+        | 'America/Halifax'
+        | 'America/Havana'
+        | 'America/Hermosillo'
+        | 'America/Indiana/Indianapolis'
+        | 'America/Indiana/Knox'
+        | 'America/Indiana/Marengo'
+        | 'America/Indiana/Petersburg'
+        | 'America/Indiana/Tell_City'
+        | 'America/Indiana/Vevay'
+        | 'America/Indiana/Vincennes'
+        | 'America/Indiana/Winamac'
+        | 'America/Indianapolis'
+        | 'America/Inuvik'
+        | 'America/Iqaluit'
+        | 'America/Jamaica'
+        | 'America/Jujuy'
+        | 'America/Juneau'
+        | 'America/Kentucky/Louisville'
+        | 'America/Kentucky/Monticello'
+        | 'America/Knox_IN'
+        | 'America/Kralendijk'
+        | 'America/La_Paz'
+        | 'America/Lima'
+        | 'America/Los_Angeles'
+        | 'America/Louisville'
+        | 'America/Lower_Princes'
+        | 'America/Maceio'
+        | 'America/Managua'
+        | 'America/Manaus'
+        | 'America/Marigot'
+        | 'America/Martinique'
+        | 'America/Matamoros'
+        | 'America/Mazatlan'
+        | 'America/Mendoza'
+        | 'America/Menominee'
+        | 'America/Merida'
+        | 'America/Metlakatla'
+        | 'America/Mexico_City'
+        | 'America/Miquelon'
+        | 'America/Moncton'
+        | 'America/Monterrey'
+        | 'America/Montevideo'
+        | 'America/Montreal'
+        | 'America/Montserrat'
+        | 'America/Nassau'
+        | 'America/New_York'
+        | 'America/Nipigon'
+        | 'America/Nome'
+        | 'America/Noronha'
+        | 'America/North_Dakota/Beulah'
+        | 'America/North_Dakota/Center'
+        | 'America/North_Dakota/New_Salem'
+        | 'America/Nuuk'
+        | 'America/Ojinaga'
+        | 'America/Panama'
+        | 'America/Pangnirtung'
+        | 'America/Paramaribo'
+        | 'America/Phoenix'
+        | 'America/Port-au-Prince'
+        | 'America/Port_of_Spain'
+        | 'America/Porto_Acre'
+        | 'America/Porto_Velho'
+        | 'America/Puerto_Rico'
+        | 'America/Punta_Arenas'
+        | 'America/Rainy_River'
+        | 'America/Rankin_Inlet'
+        | 'America/Recife'
+        | 'America/Regina'
+        | 'America/Resolute'
+        | 'America/Rio_Branco'
+        | 'America/Rosario'
+        | 'America/Santa_Isabel'
+        | 'America/Santarem'
+        | 'America/Santiago'
+        | 'America/Santo_Domingo'
+        | 'America/Sao_Paulo'
+        | 'America/Scoresbysund'
+        | 'America/Shiprock'
+        | 'America/Sitka'
+        | 'America/St_Barthelemy'
+        | 'America/St_Johns'
+        | 'America/St_Kitts'
+        | 'America/St_Lucia'
+        | 'America/St_Thomas'
+        | 'America/St_Vincent'
+        | 'America/Swift_Current'
+        | 'America/Tegucigalpa'
+        | 'America/Thule'
+        | 'America/Thunder_Bay'
+        | 'America/Tijuana'
+        | 'America/Toronto'
+        | 'America/Tortola'
+        | 'America/Vancouver'
+        | 'America/Virgin'
+        | 'America/Whitehorse'
+        | 'America/Winnipeg'
+        | 'America/Yakutat'
+        | 'America/Yellowknife'
+        | 'Antarctica/Casey'
+        | 'Antarctica/Davis'
+        | 'Antarctica/DumontDUrville'
+        | 'Antarctica/Macquarie'
+        | 'Antarctica/Mawson'
+        | 'Antarctica/McMurdo'
+        | 'Antarctica/Palmer'
+        | 'Antarctica/Rothera'
+        | 'Antarctica/South_Pole'
+        | 'Antarctica/Syowa'
+        | 'Antarctica/Troll'
+        | 'Antarctica/Vostok'
+        | 'Arctic/Longyearbyen'
+        | 'Asia/Aden'
+        | 'Asia/Almaty'
+        | 'Asia/Amman'
+        | 'Asia/Anadyr'
+        | 'Asia/Aqtau'
+        | 'Asia/Aqtobe'
+        | 'Asia/Ashgabat'
+        | 'Asia/Ashkhabad'
+        | 'Asia/Atyrau'
+        | 'Asia/Baghdad'
+        | 'Asia/Bahrain'
+        | 'Asia/Baku'
+        | 'Asia/Bangkok'
+        | 'Asia/Barnaul'
+        | 'Asia/Beirut'
+        | 'Asia/Bishkek'
+        | 'Asia/Brunei'
+        | 'Asia/Calcutta'
+        | 'Asia/Chita'
+        | 'Asia/Choibalsan'
+        | 'Asia/Chongqing'
+        | 'Asia/Chungking'
+        | 'Asia/Colombo'
+        | 'Asia/Dacca'
+        | 'Asia/Damascus'
+        | 'Asia/Dhaka'
+        | 'Asia/Dili'
+        | 'Asia/Dubai'
+        | 'Asia/Dushanbe'
+        | 'Asia/Famagusta'
+        | 'Asia/Gaza'
+        | 'Asia/Harbin'
+        | 'Asia/Hebron'
+        | 'Asia/Ho_Chi_Minh'
+        | 'Asia/Hong_Kong'
+        | 'Asia/Hovd'
+        | 'Asia/Irkutsk'
+        | 'Asia/Istanbul'
+        | 'Asia/Jakarta'
+        | 'Asia/Jayapura'
+        | 'Asia/Jerusalem'
+        | 'Asia/Kabul'
+        | 'Asia/Kamchatka'
+        | 'Asia/Karachi'
+        | 'Asia/Kashgar'
+        | 'Asia/Kathmandu'
+        | 'Asia/Katmandu'
+        | 'Asia/Khandyga'
+        | 'Asia/Kolkata'
+        | 'Asia/Krasnoyarsk'
+        | 'Asia/Kuala_Lumpur'
+        | 'Asia/Kuching'
+        | 'Asia/Kuwait'
+        | 'Asia/Macao'
+        | 'Asia/Macau'
+        | 'Asia/Magadan'
+        | 'Asia/Makassar'
+        | 'Asia/Manila'
+        | 'Asia/Muscat'
+        | 'Asia/Nicosia'
+        | 'Asia/Novokuznetsk'
+        | 'Asia/Novosibirsk'
+        | 'Asia/Omsk'
+        | 'Asia/Oral'
+        | 'Asia/Phnom_Penh'
+        | 'Asia/Pontianak'
+        | 'Asia/Pyongyang'
+        | 'Asia/Qatar'
+        | 'Asia/Qostanay'
+        | 'Asia/Qyzylorda'
+        | 'Asia/Rangoon'
+        | 'Asia/Riyadh'
+        | 'Asia/Saigon'
+        | 'Asia/Sakhalin'
+        | 'Asia/Samarkand'
+        | 'Asia/Seoul'
+        | 'Asia/Shanghai'
+        | 'Asia/Singapore'
+        | 'Asia/Srednekolymsk'
+        | 'Asia/Taipei'
+        | 'Asia/Tashkent'
+        | 'Asia/Tbilisi'
+        | 'Asia/Tehran'
+        | 'Asia/Tel_Aviv'
+        | 'Asia/Thimbu'
+        | 'Asia/Thimphu'
+        | 'Asia/Tokyo'
+        | 'Asia/Tomsk'
+        | 'Asia/Ujung_Pandang'
+        | 'Asia/Ulaanbaatar'
+        | 'Asia/Ulan_Bator'
+        | 'Asia/Urumqi'
+        | 'Asia/Ust-Nera'
+        | 'Asia/Vientiane'
+        | 'Asia/Vladivostok'
+        | 'Asia/Yakutsk'
+        | 'Asia/Yangon'
+        | 'Asia/Yekaterinburg'
+        | 'Asia/Yerevan'
+        | 'Atlantic/Azores'
+        | 'Atlantic/Bermuda'
+        | 'Atlantic/Canary'
+        | 'Atlantic/Cape_Verde'
+        | 'Atlantic/Faeroe'
+        | 'Atlantic/Faroe'
+        | 'Atlantic/Jan_Mayen'
+        | 'Atlantic/Madeira'
+        | 'Atlantic/Reykjavik'
+        | 'Atlantic/South_Georgia'
+        | 'Atlantic/St_Helena'
+        | 'Atlantic/Stanley'
+        | 'Australia/ACT'
+        | 'Australia/Adelaide'
+        | 'Australia/Brisbane'
+        | 'Australia/Broken_Hill'
+        | 'Australia/Canberra'
+        | 'Australia/Currie'
+        | 'Australia/Darwin'
+        | 'Australia/Eucla'
+        | 'Australia/Hobart'
+        | 'Australia/LHI'
+        | 'Australia/Lindeman'
+        | 'Australia/Lord_Howe'
+        | 'Australia/Melbourne'
+        | 'Australia/NSW'
+        | 'Australia/North'
+        | 'Australia/Perth'
+        | 'Australia/Queensland'
+        | 'Australia/South'
+        | 'Australia/Sydney'
+        | 'Australia/Tasmania'
+        | 'Australia/Victoria'
+        | 'Australia/West'
+        | 'Australia/Yancowinna'
+        | 'Brazil/Acre'
+        | 'Brazil/DeNoronha'
+        | 'Brazil/East'
+        | 'Brazil/West'
+        | 'CET'
+        | 'CST6CDT'
+        | 'Canada/Atlantic'
+        | 'Canada/Central'
+        | 'Canada/Eastern'
+        | 'Canada/Mountain'
+        | 'Canada/Newfoundland'
+        | 'Canada/Pacific'
+        | 'Canada/Saskatchewan'
+        | 'Canada/Yukon'
+        | 'Chile/Continental'
+        | 'Chile/EasterIsland'
+        | 'Cuba'
+        | 'EET'
+        | 'EST'
+        | 'EST5EDT'
+        | 'Egypt'
+        | 'Eire'
+        | 'Etc/GMT'
+        | 'Etc/GMT+0'
+        | 'Etc/GMT+1'
+        | 'Etc/GMT+10'
+        | 'Etc/GMT+11'
+        | 'Etc/GMT+12'
+        | 'Etc/GMT+2'
+        | 'Etc/GMT+3'
+        | 'Etc/GMT+4'
+        | 'Etc/GMT+5'
+        | 'Etc/GMT+6'
+        | 'Etc/GMT+7'
+        | 'Etc/GMT+8'
+        | 'Etc/GMT+9'
+        | 'Etc/GMT-0'
+        | 'Etc/GMT-1'
+        | 'Etc/GMT-10'
+        | 'Etc/GMT-11'
+        | 'Etc/GMT-12'
+        | 'Etc/GMT-13'
+        | 'Etc/GMT-14'
+        | 'Etc/GMT-2'
+        | 'Etc/GMT-3'
+        | 'Etc/GMT-4'
+        | 'Etc/GMT-5'
+        | 'Etc/GMT-6'
+        | 'Etc/GMT-7'
+        | 'Etc/GMT-8'
+        | 'Etc/GMT-9'
+        | 'Etc/GMT0'
+        | 'Etc/Greenwich'
+        | 'Etc/UCT'
+        | 'Etc/UTC'
+        | 'Etc/Universal'
+        | 'Etc/Zulu'
+        | 'Europe/Amsterdam'
+        | 'Europe/Andorra'
+        | 'Europe/Astrakhan'
+        | 'Europe/Athens'
+        | 'Europe/Belfast'
+        | 'Europe/Belgrade'
+        | 'Europe/Berlin'
+        | 'Europe/Bratislava'
+        | 'Europe/Brussels'
+        | 'Europe/Bucharest'
+        | 'Europe/Budapest'
+        | 'Europe/Busingen'
+        | 'Europe/Chisinau'
+        | 'Europe/Copenhagen'
+        | 'Europe/Dublin'
+        | 'Europe/Gibraltar'
+        | 'Europe/Guernsey'
+        | 'Europe/Helsinki'
+        | 'Europe/Isle_of_Man'
+        | 'Europe/Istanbul'
+        | 'Europe/Jersey'
+        | 'Europe/Kaliningrad'
+        | 'Europe/Kiev'
+        | 'Europe/Kirov'
+        | 'Europe/Kyiv'
+        | 'Europe/Lisbon'
+        | 'Europe/Ljubljana'
+        | 'Europe/London'
+        | 'Europe/Luxembourg'
+        | 'Europe/Madrid'
+        | 'Europe/Malta'
+        | 'Europe/Mariehamn'
+        | 'Europe/Minsk'
+        | 'Europe/Monaco'
+        | 'Europe/Moscow'
+        | 'Europe/Nicosia'
+        | 'Europe/Oslo'
+        | 'Europe/Paris'
+        | 'Europe/Podgorica'
+        | 'Europe/Prague'
+        | 'Europe/Riga'
+        | 'Europe/Rome'
+        | 'Europe/Samara'
+        | 'Europe/San_Marino'
+        | 'Europe/Sarajevo'
+        | 'Europe/Saratov'
+        | 'Europe/Simferopol'
+        | 'Europe/Skopje'
+        | 'Europe/Sofia'
+        | 'Europe/Stockholm'
+        | 'Europe/Tallinn'
+        | 'Europe/Tirane'
+        | 'Europe/Tiraspol'
+        | 'Europe/Ulyanovsk'
+        | 'Europe/Uzhgorod'
+        | 'Europe/Vaduz'
+        | 'Europe/Vatican'
+        | 'Europe/Vienna'
+        | 'Europe/Vilnius'
+        | 'Europe/Volgograd'
+        | 'Europe/Warsaw'
+        | 'Europe/Zagreb'
+        | 'Europe/Zaporozhye'
+        | 'Europe/Zurich'
+        | 'Factory'
+        | 'GB'
+        | 'GB-Eire'
+        | 'GMT'
+        | 'GMT+0'
+        | 'GMT-0'
+        | 'GMT0'
+        | 'Greenwich'
+        | 'HST'
+        | 'Hongkong'
+        | 'Iceland'
+        | 'Indian/Antananarivo'
+        | 'Indian/Chagos'
+        | 'Indian/Christmas'
+        | 'Indian/Cocos'
+        | 'Indian/Comoro'
+        | 'Indian/Kerguelen'
+        | 'Indian/Mahe'
+        | 'Indian/Maldives'
+        | 'Indian/Mauritius'
+        | 'Indian/Mayotte'
+        | 'Indian/Reunion'
+        | 'Iran'
+        | 'Israel'
+        | 'Jamaica'
+        | 'Japan'
+        | 'Kwajalein'
+        | 'Libya'
+        | 'MET'
+        | 'MST'
+        | 'MST7MDT'
+        | 'Mexico/BajaNorte'
+        | 'Mexico/BajaSur'
+        | 'Mexico/General'
+        | 'NZ'
+        | 'NZ-CHAT'
+        | 'Navajo'
+        | 'PRC'
+        | 'PST8PDT'
+        | 'Pacific/Apia'
+        | 'Pacific/Auckland'
+        | 'Pacific/Bougainville'
+        | 'Pacific/Chatham'
+        | 'Pacific/Chuuk'
+        | 'Pacific/Easter'
+        | 'Pacific/Efate'
+        | 'Pacific/Enderbury'
+        | 'Pacific/Fakaofo'
+        | 'Pacific/Fiji'
+        | 'Pacific/Funafuti'
+        | 'Pacific/Galapagos'
+        | 'Pacific/Gambier'
+        | 'Pacific/Guadalcanal'
+        | 'Pacific/Guam'
+        | 'Pacific/Honolulu'
+        | 'Pacific/Johnston'
+        | 'Pacific/Kanton'
+        | 'Pacific/Kiritimati'
+        | 'Pacific/Kosrae'
+        | 'Pacific/Kwajalein'
+        | 'Pacific/Majuro'
+        | 'Pacific/Marquesas'
+        | 'Pacific/Midway'
+        | 'Pacific/Nauru'
+        | 'Pacific/Niue'
+        | 'Pacific/Norfolk'
+        | 'Pacific/Noumea'
+        | 'Pacific/Pago_Pago'
+        | 'Pacific/Palau'
+        | 'Pacific/Pitcairn'
+        | 'Pacific/Pohnpei'
+        | 'Pacific/Ponape'
+        | 'Pacific/Port_Moresby'
+        | 'Pacific/Rarotonga'
+        | 'Pacific/Saipan'
+        | 'Pacific/Samoa'
+        | 'Pacific/Tahiti'
+        | 'Pacific/Tarawa'
+        | 'Pacific/Tongatapu'
+        | 'Pacific/Truk'
+        | 'Pacific/Wake'
+        | 'Pacific/Wallis'
+        | 'Pacific/Yap'
+        | 'Poland'
+        | 'Portugal'
+        | 'ROC'
+        | 'ROK'
+        | 'Singapore'
+        | 'Turkey'
+        | 'UCT'
+        | 'US/Alaska'
+        | 'US/Aleutian'
+        | 'US/Arizona'
+        | 'US/Central'
+        | 'US/East-Indiana'
+        | 'US/Eastern'
+        | 'US/Hawaii'
+        | 'US/Indiana-Starke'
+        | 'US/Michigan'
+        | 'US/Mountain'
+        | 'US/Pacific'
+        | 'US/Samoa'
+        | 'Universal'
+        | 'W-SU'
+        | 'WET'
+        | 'Zulu';
     }
 
     class TableColumnMapping extends gc.sdk.GCObject {
@@ -1261,7 +2024,7 @@ declare namespace gc {
       column: number | bigint;
       extractors: globalThis.Array<any>;
       constructor(column: number | bigint, extractors: globalThis.Array<any>);
-      static createFrom(fields: {column: number | bigint, extractors: globalThis.Array<any>}): TableColumnMapping;
+      static createFrom(fields: { column: number | bigint; extractors: globalThis.Array<any> }): TableColumnMapping;
     }
     namespace TableColumnMapping {
       interface $Fields {
@@ -1284,10 +2047,9 @@ declare namespace gc {
       static hours: DurationUnit;
       static days: DurationUnit;
     }
-    namespace DurationUnit  {
-      type Field = "microseconds"|"milliseconds"|"seconds"|"minutes"|"hours"|"days";
+    namespace DurationUnit {
+      type Field = 'microseconds' | 'milliseconds' | 'seconds' | 'minutes' | 'hours' | 'days';
     }
-
   }
 
   namespace io {
@@ -1301,8 +2063,24 @@ declare namespace gc {
       to: globalThis.Array<string>;
       cc: globalThis.Array<string> | null;
       bcc: globalThis.Array<string> | null;
-      constructor(from: string, subject: string, body: string, body_is_html: boolean, to: globalThis.Array<string>, cc?: globalThis.Array<string> | null, bcc?: globalThis.Array<string> | null);
-      static createFrom(fields: {from: string, subject: string, body: string, body_is_html: boolean, to: globalThis.Array<string>, cc?: globalThis.Array<string> | null, bcc?: globalThis.Array<string> | null}): Email;
+      constructor(
+        from: string,
+        subject: string,
+        body: string,
+        body_is_html: boolean,
+        to: globalThis.Array<string>,
+        cc?: globalThis.Array<string> | null,
+        bcc?: globalThis.Array<string> | null,
+      );
+      static createFrom(fields: {
+        from: string;
+        subject: string;
+        body: string;
+        body_is_html: boolean;
+        to: globalThis.Array<string>;
+        cc?: globalThis.Array<string> | null;
+        bcc?: globalThis.Array<string> | null;
+      }): Email;
     }
     namespace Email {
       interface $Fields {
@@ -1322,7 +2100,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): Reader;
+      static createFrom<T>(fields: { path: string; pos?: number | bigint | null }): Reader;
     }
     namespace Reader {
       interface $Fields {
@@ -1342,8 +2120,18 @@ declare namespace gc {
       pos: number | bigint | null;
       format: gc.io.CsvFormat | null;
       sharding: gc.io.CsvSharding | null;
-      constructor(path: string, pos?: number | bigint | null, format?: gc.io.CsvFormat | null, sharding?: gc.io.CsvSharding | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null, format?: gc.io.CsvFormat | null, sharding?: gc.io.CsvSharding | null}): CsvReader;
+      constructor(
+        path: string,
+        pos?: number | bigint | null,
+        format?: gc.io.CsvFormat | null,
+        sharding?: gc.io.CsvSharding | null,
+      );
+      static createFrom<T>(fields: {
+        path: string;
+        pos?: number | bigint | null;
+        format?: gc.io.CsvFormat | null;
+        sharding?: gc.io.CsvSharding | null;
+      }): CsvReader;
     }
     namespace CsvReader {
       interface $Fields {
@@ -1361,8 +2149,18 @@ declare namespace gc {
       headers: globalThis.Map<string, string>;
       content: T | null;
       error_msg: string | null;
-      constructor(status_code: number | bigint, headers: globalThis.Map<string, string>, content?: T | null, error_msg?: string | null);
-      static createFrom<T>(fields: {status_code: number | bigint, headers: globalThis.Map<string, string>, content?: T | null, error_msg?: string | null}): HttpResponse;
+      constructor(
+        status_code: number | bigint,
+        headers: globalThis.Map<string, string>,
+        content?: T | null,
+        error_msg?: string | null,
+      );
+      static createFrom<T>(fields: {
+        status_code: number | bigint;
+        headers: globalThis.Map<string, string>;
+        content?: T | null;
+        error_msg?: string | null;
+      }): HttpResponse;
     }
     namespace HttpResponse {
       interface $Fields {
@@ -1378,7 +2176,7 @@ declare namespace gc {
       static readonly $fields: Csv$generate$args.$Fields;
       stats: gc.io.CsvStatistics;
       constructor(stats: gc.io.CsvStatistics);
-      static createFrom(fields: {stats: gc.io.CsvStatistics}): Csv$generate$args;
+      static createFrom(fields: { stats: gc.io.CsvStatistics }): Csv$generate$args;
     }
     namespace Csv$generate$args {
       interface $Fields {
@@ -1397,8 +2195,26 @@ declare namespace gc {
       password: string | null;
       params: globalThis.Map<string, string> | null;
       hash: string | null;
-      constructor(protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, user?: string | null, password?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null);
-      static createFrom(fields: {protocol?: string | null, host?: string | null, port?: number | bigint | null, path?: string | null, user?: string | null, password?: string | null, params?: globalThis.Map<string, string> | null, hash?: string | null}): Url;
+      constructor(
+        protocol?: string | null,
+        host?: string | null,
+        port?: number | bigint | null,
+        path?: string | null,
+        user?: string | null,
+        password?: string | null,
+        params?: globalThis.Map<string, string> | null,
+        hash?: string | null,
+      );
+      static createFrom(fields: {
+        protocol?: string | null;
+        host?: string | null;
+        port?: number | bigint | null;
+        path?: string | null;
+        user?: string | null;
+        password?: string | null;
+        params?: globalThis.Map<string, string> | null;
+        hash?: string | null;
+      }): Url;
     }
     namespace Url {
       interface $Fields {
@@ -1420,7 +2236,11 @@ declare namespace gc {
       append: boolean | null;
       format: gc.io.CsvFormat | null;
       constructor(path: string, append?: boolean | null, format?: gc.io.CsvFormat | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null, format?: gc.io.CsvFormat | null}): CsvWriter;
+      static createFrom<T>(fields: {
+        path: string;
+        append?: boolean | null;
+        format?: gc.io.CsvFormat | null;
+      }): CsvWriter;
     }
     namespace CsvWriter {
       interface $Fields {
@@ -1437,7 +2257,7 @@ declare namespace gc {
       column: number | bigint;
       modulo: number | bigint;
       constructor(id: number | bigint, column: number | bigint, modulo: number | bigint);
-      static createFrom(fields: {id: number | bigint, column: number | bigint, modulo: number | bigint}): CsvSharding;
+      static createFrom(fields: { id: number | bigint; column: number | bigint; modulo: number | bigint }): CsvSharding;
     }
     namespace CsvSharding {
       interface $Fields {
@@ -1453,7 +2273,7 @@ declare namespace gc {
       name: string;
       creation_date: gc.core.time;
       constructor(name: string, creation_date: gc.core.time);
-      static createFrom(fields: {name: string, creation_date: gc.core.time}): S3Bucket;
+      static createFrom(fields: { name: string; creation_date: gc.core.time }): S3Bucket;
     }
     namespace S3Bucket {
       interface $Fields {
@@ -1475,8 +2295,30 @@ declare namespace gc {
       tz: gc.core.TimeZone | null;
       strict: boolean | null;
       nearest_time: boolean | null;
-      constructor(header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null, nearest_time?: boolean | null);
-      static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, trim?: boolean | null, format?: string | null, tz?: gc.core.TimeZone | null, strict?: boolean | null, nearest_time?: boolean | null}): CsvFormat;
+      constructor(
+        header_lines?: number | bigint | null,
+        separator?: string | null,
+        string_delimiter?: string | null,
+        decimal_separator?: string | null,
+        thousands_separator?: string | null,
+        trim?: boolean | null,
+        format?: string | null,
+        tz?: gc.core.TimeZone | null,
+        strict?: boolean | null,
+        nearest_time?: boolean | null,
+      );
+      static createFrom(fields: {
+        header_lines?: number | bigint | null;
+        separator?: string | null;
+        string_delimiter?: string | null;
+        decimal_separator?: string | null;
+        thousands_separator?: string | null;
+        trim?: boolean | null;
+        format?: string | null;
+        tz?: gc.core.TimeZone | null;
+        strict?: boolean | null;
+        nearest_time?: boolean | null;
+      }): CsvFormat;
     }
     namespace CsvFormat {
       interface $Fields {
@@ -1500,7 +2342,11 @@ declare namespace gc {
       size: number | bigint | null;
       last_modification: gc.core.time | null;
       constructor(path: string, size?: number | bigint | null, last_modification?: gc.core.time | null);
-      static createFrom(fields: {path: string, size?: number | bigint | null, last_modification?: gc.core.time | null}): File;
+      static createFrom(fields: {
+        path: string;
+        size?: number | bigint | null;
+        last_modification?: gc.core.time | null;
+      }): File;
     }
     namespace File {
       interface $Fields {
@@ -1517,8 +2363,18 @@ declare namespace gc {
       region: string;
       credentials: gc.io.S3BasicCredentials;
       force_path_style: boolean | null;
-      constructor(host: string, region: string, credentials: gc.io.S3BasicCredentials, force_path_style?: boolean | null);
-      static createFrom(fields: {host: string, region: string, credentials: gc.io.S3BasicCredentials, force_path_style?: boolean | null}): S3;
+      constructor(
+        host: string,
+        region: string,
+        credentials: gc.io.S3BasicCredentials,
+        force_path_style?: boolean | null,
+      );
+      static createFrom(fields: {
+        host: string;
+        region: string;
+        credentials: gc.io.S3BasicCredentials;
+        force_path_style?: boolean | null;
+      }): S3;
     }
     namespace S3 {
       interface $Fields {
@@ -1535,7 +2391,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): JsonReader;
+      static createFrom<T>(fields: { path: string; pos?: number | bigint | null }): JsonReader;
     }
     namespace JsonReader {
       interface $Fields {
@@ -1550,7 +2406,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom(fields: {path: string, pos?: number | bigint | null}): BinReader;
+      static createFrom(fields: { path: string; pos?: number | bigint | null }): BinReader;
     }
     namespace BinReader {
       interface $Fields {
@@ -1574,8 +2430,8 @@ declare namespace gc {
       static TRACE: HttpMethod;
       static PATCH: HttpMethod;
     }
-    namespace HttpMethod  {
-      type Field = "GET"|"HEAD"|"POST"|"PUT"|"DELETE"|"CONNECT"|"OPTIONS"|"TRACE"|"PATCH";
+    namespace HttpMethod {
+      type Field = 'GET' | 'HEAD' | 'POST' | 'PUT' | 'DELETE' | 'CONNECT' | 'OPTIONS' | 'TRACE' | 'PATCH';
     }
 
     class CsvAnalysisConfig extends gc.sdk.GCObject {
@@ -1590,8 +2446,28 @@ declare namespace gc {
       enumerable_limit: number | bigint | null;
       date_check_limit: number | bigint | null;
       date_formats: globalThis.Array<string> | null;
-      constructor(header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, row_limit?: number | bigint | null, enumerable_limit?: number | bigint | null, date_check_limit?: number | bigint | null, date_formats?: globalThis.Array<string> | null);
-      static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, row_limit?: number | bigint | null, enumerable_limit?: number | bigint | null, date_check_limit?: number | bigint | null, date_formats?: globalThis.Array<string> | null}): CsvAnalysisConfig;
+      constructor(
+        header_lines?: number | bigint | null,
+        separator?: string | null,
+        string_delimiter?: string | null,
+        decimal_separator?: string | null,
+        thousands_separator?: string | null,
+        row_limit?: number | bigint | null,
+        enumerable_limit?: number | bigint | null,
+        date_check_limit?: number | bigint | null,
+        date_formats?: globalThis.Array<string> | null,
+      );
+      static createFrom(fields: {
+        header_lines?: number | bigint | null;
+        separator?: string | null;
+        string_delimiter?: string | null;
+        decimal_separator?: string | null;
+        thousands_separator?: string | null;
+        row_limit?: number | bigint | null;
+        enumerable_limit?: number | bigint | null;
+        date_check_limit?: number | bigint | null;
+        date_formats?: globalThis.Array<string> | null;
+      }): CsvAnalysisConfig;
     }
     namespace CsvAnalysisConfig {
       interface $Fields {
@@ -1616,8 +2492,8 @@ declare namespace gc {
       static plain: SmtpAuth;
       static login: SmtpAuth;
     }
-    namespace SmtpAuth  {
-      type Field = "none"|"plain"|"login";
+    namespace SmtpAuth {
+      type Field = 'none' | 'plain' | 'login';
     }
 
     class Http<T = any> extends gc.sdk.GCObject {
@@ -1630,7 +2506,7 @@ declare namespace gc {
       access_key: string;
       secret_key: string;
       constructor(access_key: string, secret_key: string);
-      static createFrom(fields: {access_key: string, secret_key: string}): S3BasicCredentials;
+      static createFrom(fields: { access_key: string; secret_key: string }): S3BasicCredentials;
     }
     namespace S3BasicCredentials {
       interface $Fields {
@@ -1645,7 +2521,7 @@ declare namespace gc {
       path: string;
       append: boolean | null;
       constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): TextWriter;
+      static createFrom<T>(fields: { path: string; append?: boolean | null }): TextWriter;
     }
     namespace TextWriter {
       interface $Fields {
@@ -1668,8 +2544,32 @@ declare namespace gc {
       date_format_count: globalThis.Map<string, number | bigint>;
       enumerable_count: globalThis.Map<any, number | bigint>;
       profile: gc.util.Gaussian;
-      constructor(name: string | null, example: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian);
-      static createFrom(fields: {name?: string | null, example?: any | null, null_count: number | bigint, bool_count: number | bigint, int_count: number | bigint, float_count: number | bigint, string_count: number | bigint, date_count: number | bigint, date_format_count: globalThis.Map<string, number | bigint>, enumerable_count: globalThis.Map<any, number | bigint>, profile: gc.util.Gaussian}): CsvColumnStatistics;
+      constructor(
+        name: string | null,
+        example: any | null,
+        null_count: number | bigint,
+        bool_count: number | bigint,
+        int_count: number | bigint,
+        float_count: number | bigint,
+        string_count: number | bigint,
+        date_count: number | bigint,
+        date_format_count: globalThis.Map<string, number | bigint>,
+        enumerable_count: globalThis.Map<any, number | bigint>,
+        profile: gc.util.Gaussian,
+      );
+      static createFrom(fields: {
+        name?: string | null;
+        example?: any | null;
+        null_count: number | bigint;
+        bool_count: number | bigint;
+        int_count: number | bigint;
+        float_count: number | bigint;
+        string_count: number | bigint;
+        date_count: number | bigint;
+        date_format_count: globalThis.Map<string, number | bigint>;
+        enumerable_count: globalThis.Map<any, number | bigint>;
+        profile: gc.util.Gaussian;
+      }): CsvColumnStatistics;
     }
     namespace CsvColumnStatistics {
       interface $Fields {
@@ -1698,7 +2598,10 @@ declare namespace gc {
       /**
        * Analyses a collection of csv files to infer statistics eventually to generate types
        */
-      static analyze: gc.sdk.ExposedFn<[globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null | undefined], gc.io.CsvStatistics>;
+      static analyze: gc.sdk.ExposedFn<
+        [globalThis.Array<gc.io.File>, gc.io.CsvAnalysisConfig | null | undefined],
+        gc.io.CsvStatistics
+      >;
       /**
        * Generates the necessary types and enums to read the records defined by this statistics
        */
@@ -1711,7 +2614,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): XmlReader;
+      static createFrom<T>(fields: { path: string; pos?: number | bigint | null }): XmlReader;
     }
     namespace XmlReader {
       interface $Fields {
@@ -1726,7 +2629,7 @@ declare namespace gc {
       reader: gc.io.CsvReader;
       max_lines: number | bigint | null;
       constructor(reader: gc.io.CsvReader, max_lines?: number | bigint | null);
-      static createFrom(fields: {reader: gc.io.CsvReader, max_lines?: number | bigint | null}): Csv$sample$args;
+      static createFrom(fields: { reader: gc.io.CsvReader; max_lines?: number | bigint | null }): Csv$sample$args;
     }
     namespace Csv$sample$args {
       interface $Fields {
@@ -1741,7 +2644,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom(fields: {path: string, pos?: number | bigint | null}): TextReader;
+      static createFrom(fields: { path: string; pos?: number | bigint | null }): TextReader;
     }
     namespace TextReader {
       interface $Fields {
@@ -1756,7 +2659,7 @@ declare namespace gc {
       path: string;
       pos: number | bigint | null;
       constructor(path: string, pos?: number | bigint | null);
-      static createFrom<T>(fields: {path: string, pos?: number | bigint | null}): GcbReader;
+      static createFrom<T>(fields: { path: string; pos?: number | bigint | null }): GcbReader;
     }
     namespace GcbReader {
       interface $Fields {
@@ -1771,7 +2674,7 @@ declare namespace gc {
       path: string;
       append: boolean | null;
       constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): Writer;
+      static createFrom<T>(fields: { path: string; append?: boolean | null }): Writer;
     }
     namespace Writer {
       interface $Fields {
@@ -1792,8 +2695,28 @@ declare namespace gc {
       line_count: number | bigint;
       fail_count: number | bigint;
       file_count: number | bigint;
-      constructor(header_lines: number | bigint | null, separator: string | null, string_delimiter: string | null, decimal_separator: string | null, thousands_separator: string | null, columns: globalThis.Array<gc.io.CsvColumnStatistics>, line_count: number | bigint, fail_count: number | bigint, file_count: number | bigint);
-      static createFrom(fields: {header_lines?: number | bigint | null, separator?: string | null, string_delimiter?: string | null, decimal_separator?: string | null, thousands_separator?: string | null, columns: globalThis.Array<gc.io.CsvColumnStatistics>, line_count: number | bigint, fail_count: number | bigint, file_count: number | bigint}): CsvStatistics;
+      constructor(
+        header_lines: number | bigint | null,
+        separator: string | null,
+        string_delimiter: string | null,
+        decimal_separator: string | null,
+        thousands_separator: string | null,
+        columns: globalThis.Array<gc.io.CsvColumnStatistics>,
+        line_count: number | bigint,
+        fail_count: number | bigint,
+        file_count: number | bigint,
+      );
+      static createFrom(fields: {
+        header_lines?: number | bigint | null;
+        separator?: string | null;
+        string_delimiter?: string | null;
+        decimal_separator?: string | null;
+        thousands_separator?: string | null;
+        columns: globalThis.Array<gc.io.CsvColumnStatistics>;
+        line_count: number | bigint;
+        fail_count: number | bigint;
+        file_count: number | bigint;
+      }): CsvStatistics;
     }
     namespace CsvStatistics {
       interface $Fields {
@@ -1817,8 +2740,20 @@ declare namespace gc {
       headers: globalThis.Map<string, string> | null;
       body: string | null;
       timeout: gc.core.duration | null;
-      constructor(method: gc.io.HttpMethod, url: string, headers?: globalThis.Map<string, string> | null, body?: string | null, timeout?: gc.core.duration | null);
-      static createFrom(fields: {method: gc.io.HttpMethod, url: string, headers?: globalThis.Map<string, string> | null, body?: string | null, timeout?: gc.core.duration | null}): HttpRequest;
+      constructor(
+        method: gc.io.HttpMethod,
+        url: string,
+        headers?: globalThis.Map<string, string> | null,
+        body?: string | null,
+        timeout?: gc.core.duration | null,
+      );
+      static createFrom(fields: {
+        method: gc.io.HttpMethod;
+        url: string;
+        headers?: globalThis.Map<string, string> | null;
+        body?: string | null;
+        timeout?: gc.core.duration | null;
+      }): HttpRequest;
     }
     namespace HttpRequest {
       interface $Fields {
@@ -1839,8 +2774,8 @@ declare namespace gc {
       static ssl_tls: SmtpMode;
       static starttls: SmtpMode;
     }
-    namespace SmtpMode  {
-      type Field = "plain"|"ssl_tls"|"starttls";
+    namespace SmtpMode {
+      type Field = 'plain' | 'ssl_tls' | 'starttls';
     }
 
     class GcbWriter<T = any> extends gc.sdk.GCObject {
@@ -1849,7 +2784,7 @@ declare namespace gc {
       path: string;
       append: boolean | null;
       constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): GcbWriter;
+      static createFrom<T>(fields: { path: string; append?: boolean | null }): GcbWriter;
     }
     namespace GcbWriter {
       interface $Fields {
@@ -1866,7 +2801,12 @@ declare namespace gc {
       size: number | bigint;
       etag: string;
       constructor(key: string, last_modified: gc.core.time, size: number | bigint, etag: string);
-      static createFrom(fields: {key: string, last_modified: gc.core.time, size: number | bigint, etag: string}): S3Object;
+      static createFrom(fields: {
+        key: string;
+        last_modified: gc.core.time;
+        size: number | bigint;
+        etag: string;
+      }): S3Object;
     }
     namespace S3Object {
       interface $Fields {
@@ -1883,7 +2823,10 @@ declare namespace gc {
       files: globalThis.Array<gc.io.File>;
       config: gc.io.CsvAnalysisConfig | null;
       constructor(files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null);
-      static createFrom(fields: {files: globalThis.Array<gc.io.File>, config?: gc.io.CsvAnalysisConfig | null}): Csv$analyze$args;
+      static createFrom(fields: {
+        files: globalThis.Array<gc.io.File>;
+        config?: gc.io.CsvAnalysisConfig | null;
+      }): Csv$analyze$args;
     }
     namespace Csv$analyze$args {
       interface $Fields {
@@ -1898,7 +2841,7 @@ declare namespace gc {
       path: string;
       append: boolean | null;
       constructor(path: string, append?: boolean | null);
-      static createFrom<T>(fields: {path: string, append?: boolean | null}): JsonWriter;
+      static createFrom<T>(fields: { path: string; append?: boolean | null }): JsonWriter;
     }
     namespace JsonWriter {
       interface $Fields {
@@ -1912,7 +2855,7 @@ declare namespace gc {
       static readonly $fields: FileWalker.$Fields;
       path: string;
       constructor(path: string);
-      static createFrom(fields: {path: string}): FileWalker;
+      static createFrom(fields: { path: string }): FileWalker;
     }
     namespace FileWalker {
       interface $Fields {
@@ -1929,8 +2872,22 @@ declare namespace gc {
       authenticate: gc.io.SmtpAuth | null;
       user: string | null;
       pass: string | null;
-      constructor(host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null);
-      static createFrom(fields: {host: string, port: number | bigint, mode?: gc.io.SmtpMode | null, authenticate?: gc.io.SmtpAuth | null, user?: string | null, pass?: string | null}): Smtp;
+      constructor(
+        host: string,
+        port: number | bigint,
+        mode?: gc.io.SmtpMode | null,
+        authenticate?: gc.io.SmtpAuth | null,
+        user?: string | null,
+        pass?: string | null,
+      );
+      static createFrom(fields: {
+        host: string;
+        port: number | bigint;
+        mode?: gc.io.SmtpMode | null;
+        authenticate?: gc.io.SmtpAuth | null;
+        user?: string | null;
+        pass?: string | null;
+      }): Smtp;
     }
     namespace Smtp {
       interface $Fields {
@@ -1942,7 +2899,6 @@ declare namespace gc {
         pass: 5;
       }
     }
-
   }
 
   namespace runtime {
@@ -1955,8 +2911,22 @@ declare namespace gc {
       inputSchema: gc.runtime.SchemaObject;
       outputSchema: gc.runtime.SchemaObject | null;
       annotations: globalThis.Map<string, any> | null;
-      constructor(name: string, title: string | null, description: string | null, inputSchema: gc.runtime.SchemaObject, outputSchema?: gc.runtime.SchemaObject | null, annotations?: globalThis.Map<string, any> | null);
-      static createFrom(fields: {name: string, title?: string | null, description?: string | null, inputSchema: gc.runtime.SchemaObject, outputSchema?: gc.runtime.SchemaObject | null, annotations?: globalThis.Map<string, any> | null}): McpTool;
+      constructor(
+        name: string,
+        title: string | null,
+        description: string | null,
+        inputSchema: gc.runtime.SchemaObject,
+        outputSchema?: gc.runtime.SchemaObject | null,
+        annotations?: globalThis.Map<string, any> | null,
+      );
+      static createFrom(fields: {
+        name: string;
+        title?: string | null;
+        description?: string | null;
+        inputSchema: gc.runtime.SchemaObject;
+        outputSchema?: gc.runtime.SchemaObject | null;
+        annotations?: globalThis.Map<string, any> | null;
+      }): McpTool;
     }
     namespace McpTool {
       interface $Fields {
@@ -1979,7 +2949,10 @@ declare namespace gc {
       function: gc.core.function_;
       arguments: globalThis.Array<any | null> | null;
       constructor(function_: gc.core.function_, arguments_?: globalThis.Array<any | null> | null);
-      static createFrom<T>(fields: {function_: gc.core.function_, arguments_?: globalThis.Array<any | null> | null}): Job;
+      static createFrom<T>(fields: {
+        function_: gc.core.function_;
+        arguments_?: globalThis.Array<any | null> | null;
+      }): Job;
     }
     namespace Job {
       interface $Fields {
@@ -1995,7 +2968,7 @@ declare namespace gc {
       frames: globalThis.Array<gc.runtime.Frame>;
       root: any;
       constructor(id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any);
-      static createFrom(fields: {id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any}): Debug;
+      static createFrom(fields: { id: number | bigint; frames: globalThis.Array<gc.runtime.Frame>; root: any }): Debug;
       static resume: gc.sdk.ExposedFn<[number | bigint], unknown>;
       static get: gc.sdk.ExposedFn<[number | bigint], gc.runtime.Debug>;
       static all: gc.sdk.ExposedFn<[], globalThis.Array<number | bigint>>;
@@ -2014,7 +2987,10 @@ declare namespace gc {
       description: string | null;
       post: gc.runtime.OperationObject | null;
       constructor(description?: string | null, post?: gc.runtime.OperationObject | null);
-      static createFrom(fields: {description?: string | null, post?: gc.runtime.OperationObject | null}): PathItemObject;
+      static createFrom(fields: {
+        description?: string | null;
+        post?: gc.runtime.OperationObject | null;
+      }): PathItemObject;
     }
     namespace PathItemObject {
       interface $Fields {
@@ -2029,7 +3005,7 @@ declare namespace gc {
       name: string;
       description: string;
       constructor(name: string, description: string);
-      static createFrom(fields: {name: string, description: string}): Permission;
+      static createFrom(fields: { name: string; description: string }): Permission;
       static all: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.Permission>>;
     }
     namespace Permission {
@@ -2045,7 +3021,7 @@ declare namespace gc {
       offset: number | bigint;
       max: number | bigint;
       constructor(offset: number | bigint, max: number | bigint);
-      static createFrom(fields: {offset: number | bigint, max: number | bigint}): Task$history$args;
+      static createFrom(fields: { offset: number | bigint; max: number | bigint }): Task$history$args;
     }
     namespace Task$history$args {
       interface $Fields {
@@ -2066,8 +3042,28 @@ declare namespace gc {
       groups: globalThis.Array<gc.runtime.UserGroupPolicy> | null;
       groups_flags: number | bigint | null;
       external: boolean;
-      constructor(id: number | bigint, name: string, activated: boolean, full_name: string | null, email: string | null, role: string | null, groups: globalThis.Array<gc.runtime.UserGroupPolicy> | null, groups_flags: number | bigint | null, external: boolean);
-      static createFrom(fields: {id: number | bigint, name: string, activated: boolean, full_name?: string | null, email?: string | null, role?: string | null, groups?: globalThis.Array<gc.runtime.UserGroupPolicy> | null, groups_flags?: number | bigint | null, external: boolean}): User;
+      constructor(
+        id: number | bigint,
+        name: string,
+        activated: boolean,
+        full_name: string | null,
+        email: string | null,
+        role: string | null,
+        groups: globalThis.Array<gc.runtime.UserGroupPolicy> | null,
+        groups_flags: number | bigint | null,
+        external: boolean,
+      );
+      static createFrom(fields: {
+        id: number | bigint;
+        name: string;
+        activated: boolean;
+        full_name?: string | null;
+        email?: string | null;
+        role?: string | null;
+        groups?: globalThis.Array<gc.runtime.UserGroupPolicy> | null;
+        groups_flags?: number | bigint | null;
+        external: boolean;
+      }): User;
       /**
        * Updates the password of the user `name`. If the user does not exist, `false` is returned.
        */
@@ -2134,7 +3130,7 @@ declare namespace gc {
       static readonly $fields: Debug$resume$args.$Fields;
       id: number | bigint;
       constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$resume$args;
+      static createFrom(fields: { id: number | bigint }): Debug$resume$args;
     }
     namespace Debug$resume$args {
       interface $Fields {
@@ -2152,8 +3148,16 @@ declare namespace gc {
       description: string;
       headers: globalThis.Map<string, gc.runtime.HeaderObject> | null;
       content: globalThis.Map<string, gc.runtime.MediaTypeObject> | null;
-      constructor(description: string, headers?: globalThis.Map<string, gc.runtime.HeaderObject> | null, content?: globalThis.Map<string, gc.runtime.MediaTypeObject> | null);
-      static createFrom(fields: {description: string, headers?: globalThis.Map<string, gc.runtime.HeaderObject> | null, content?: globalThis.Map<string, gc.runtime.MediaTypeObject> | null}): ResponseObject;
+      constructor(
+        description: string,
+        headers?: globalThis.Map<string, gc.runtime.HeaderObject> | null,
+        content?: globalThis.Map<string, gc.runtime.MediaTypeObject> | null,
+      );
+      static createFrom(fields: {
+        description: string;
+        headers?: globalThis.Map<string, gc.runtime.HeaderObject> | null;
+        content?: globalThis.Map<string, gc.runtime.MediaTypeObject> | null;
+      }): ResponseObject;
     }
     namespace ResponseObject {
       interface $Fields {
@@ -2179,7 +3183,7 @@ declare namespace gc {
       static readonly $fields: Debug$get$args.$Fields;
       id: number | bigint;
       constructor(id: number | bigint);
-      static createFrom(fields: {id: number | bigint}): Debug$get$args;
+      static createFrom(fields: { id: number | bigint }): Debug$get$args;
     }
     namespace Debug$get$args {
       interface $Fields {
@@ -2198,8 +3202,8 @@ declare namespace gc {
       static resource_link: McpContentType;
       static resource: McpContentType;
     }
-    namespace McpContentType  {
-      type Field = "text"|"image"|"audio"|"resource_link"|"resource";
+    namespace McpContentType {
+      type Field = 'text' | 'image' | 'audio' | 'resource_link' | 'resource';
     }
 
     class User$tokenLogin$args extends gc.sdk.GCObject {
@@ -2208,7 +3212,7 @@ declare namespace gc {
       token: string;
       use_cookie: boolean;
       constructor(token: string, use_cookie: boolean);
-      static createFrom(fields: {token: string, use_cookie: boolean}): User$tokenLogin$args;
+      static createFrom(fields: { token: string; use_cookie: boolean }): User$tokenLogin$args;
     }
     namespace User$tokenLogin$args {
       interface $Fields {
@@ -2228,8 +3232,26 @@ declare namespace gc {
       extra_1: number | bigint | null;
       extra_2: number | bigint | null;
       type: gc.runtime.LicenseType | null;
-      constructor(name: string | null, start: gc.core.time, end: gc.core.time, company: string | null, max_memory: number | bigint, extra_1?: number | bigint | null, extra_2?: number | bigint | null, type?: gc.runtime.LicenseType | null);
-      static createFrom(fields: {name?: string | null, start: gc.core.time, end: gc.core.time, company?: string | null, max_memory: number | bigint, extra_1?: number | bigint | null, extra_2?: number | bigint | null, type?: gc.runtime.LicenseType | null}): License;
+      constructor(
+        name: string | null,
+        start: gc.core.time,
+        end: gc.core.time,
+        company: string | null,
+        max_memory: number | bigint,
+        extra_1?: number | bigint | null,
+        extra_2?: number | bigint | null,
+        type?: gc.runtime.LicenseType | null,
+      );
+      static createFrom(fields: {
+        name?: string | null;
+        start: gc.core.time;
+        end: gc.core.time;
+        company?: string | null;
+        max_memory: number | bigint;
+        extra_1?: number | bigint | null;
+        extra_2?: number | bigint | null;
+        type?: gc.runtime.LicenseType | null;
+      }): License;
     }
     namespace License {
       interface $Fields {
@@ -2250,7 +3272,7 @@ declare namespace gc {
       description: string | null;
       required: boolean | null;
       constructor(description?: string | null, required?: boolean | null);
-      static createFrom(fields: {description?: string | null, required?: boolean | null}): HeaderObject;
+      static createFrom(fields: { description?: string | null; required?: boolean | null }): HeaderObject;
     }
     namespace HeaderObject {
       interface $Fields {
@@ -2265,7 +3287,7 @@ declare namespace gc {
       name: string | null;
       value: any | null;
       constructor(name?: string | null, value?: any | null);
-      static createFrom(fields: {name?: string | null, value?: any | null}): Variable;
+      static createFrom(fields: { name?: string | null; value?: any | null }): Variable;
     }
     namespace Variable {
       interface $Fields {
@@ -2279,7 +3301,7 @@ declare namespace gc {
       static readonly $fields: Scheduler$activate$args.$Fields;
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$activate$args;
+      static createFrom(fields: { function_: gc.core.function_ }): Scheduler$activate$args;
     }
     namespace Scheduler$activate$args {
       interface $Fields {
@@ -2300,8 +3322,30 @@ declare namespace gc {
       duration: gc.core.duration | null;
       status: gc.runtime.TaskStatus;
       progress: number | null;
-      constructor(user_id: number | bigint, task_id: number | bigint, mod: string | null, type: string | null, fun: string | null, creation: gc.core.time, start: gc.core.time | null, duration: gc.core.duration | null, status: gc.runtime.TaskStatus, progress?: number | null);
-      static createFrom(fields: {user_id: number | bigint, task_id: number | bigint, mod?: string | null, type?: string | null, fun?: string | null, creation: gc.core.time, start?: gc.core.time | null, duration?: gc.core.duration | null, status: gc.runtime.TaskStatus, progress?: number | null}): Task;
+      constructor(
+        user_id: number | bigint,
+        task_id: number | bigint,
+        mod: string | null,
+        type: string | null,
+        fun: string | null,
+        creation: gc.core.time,
+        start: gc.core.time | null,
+        duration: gc.core.duration | null,
+        status: gc.runtime.TaskStatus,
+        progress?: number | null,
+      );
+      static createFrom(fields: {
+        user_id: number | bigint;
+        task_id: number | bigint;
+        mod?: string | null;
+        type?: string | null;
+        fun?: string | null;
+        creation: gc.core.time;
+        start?: gc.core.time | null;
+        duration?: gc.core.duration | null;
+        status: gc.runtime.TaskStatus;
+        progress?: number | null;
+      }): Task;
       static is_running: gc.sdk.ExposedFn<[number | bigint], boolean>;
       static cancel: gc.sdk.ExposedFn<[number | bigint], boolean>;
       static history: gc.sdk.ExposedFn<[number | bigint, number | bigint], globalThis.Array<gc.runtime.Task>>;
@@ -2327,7 +3371,7 @@ declare namespace gc {
       static readonly $fields: mcp_tools_call$args.$Fields;
       params: gc.runtime.McpToolsCallParams;
       constructor(params: gc.runtime.McpToolsCallParams);
-      static createFrom(fields: {params: gc.runtime.McpToolsCallParams}): mcp_tools_call$args;
+      static createFrom(fields: { params: gc.runtime.McpToolsCallParams }): mcp_tools_call$args;
     }
     namespace mcp_tools_call$args {
       interface $Fields {
@@ -2342,7 +3386,11 @@ declare namespace gc {
       name: string;
       arguments: any | null;
       constructor(_meta: globalThis.Map<string, any> | null, name: string, arguments_?: any | null);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, name: string, arguments_?: any | null}): McpToolsCallParams;
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        name: string;
+        arguments_?: any | null;
+      }): McpToolsCallParams;
     }
     namespace McpToolsCallParams {
       interface $Fields {
@@ -2366,7 +3414,7 @@ declare namespace gc {
       day: number | bigint;
       month: gc.runtime.Month;
       constructor(day: number | bigint, month: gc.runtime.Month);
-      static createFrom(fields: {day: number | bigint, month: gc.runtime.Month}): DateTuple;
+      static createFrom(fields: { day: number | bigint; month: gc.runtime.Month }): DateTuple;
     }
     namespace DateTuple {
       interface $Fields {
@@ -2381,7 +3429,7 @@ declare namespace gc {
       title: string;
       version: string;
       constructor(title: string, version: string);
-      static createFrom(fields: {title: string, version: string}): InfoObject;
+      static createFrom(fields: { title: string; version: string }): InfoObject;
     }
     namespace InfoObject {
       interface $Fields {
@@ -2398,8 +3446,20 @@ declare namespace gc {
       fields: gc.runtime.SecurityFields | null;
       keys: globalThis.Map<string, string> | null;
       keys_last_refresh: gc.core.time | null;
-      constructor(entities?: globalThis.Array<gc.runtime.SecurityEntity> | null, credentials?: globalThis.Map<string, gc.runtime.UserCredential> | null, fields?: gc.runtime.SecurityFields | null, keys?: globalThis.Map<string, string> | null, keys_last_refresh?: gc.core.time | null);
-      static createFrom(fields: {entities?: globalThis.Array<gc.runtime.SecurityEntity> | null, credentials?: globalThis.Map<string, gc.runtime.UserCredential> | null, fields?: gc.runtime.SecurityFields | null, keys?: globalThis.Map<string, string> | null, keys_last_refresh?: gc.core.time | null}): SecurityPolicy;
+      constructor(
+        entities?: globalThis.Array<gc.runtime.SecurityEntity> | null,
+        credentials?: globalThis.Map<string, gc.runtime.UserCredential> | null,
+        fields?: gc.runtime.SecurityFields | null,
+        keys?: globalThis.Map<string, string> | null,
+        keys_last_refresh?: gc.core.time | null,
+      );
+      static createFrom(fields: {
+        entities?: globalThis.Array<gc.runtime.SecurityEntity> | null;
+        credentials?: globalThis.Map<string, gc.runtime.UserCredential> | null;
+        fields?: gc.runtime.SecurityFields | null;
+        keys?: globalThis.Map<string, string> | null;
+        keys_last_refresh?: gc.core.time | null;
+      }): SecurityPolicy;
     }
     namespace SecurityPolicy {
       interface $Fields {
@@ -2416,7 +3476,7 @@ declare namespace gc {
       static readonly $fields: SecurityFields$set$args.$Fields;
       f: gc.runtime.SecurityFields;
       constructor(f: gc.runtime.SecurityFields);
-      static createFrom(fields: {f: gc.runtime.SecurityFields}): SecurityFields$set$args;
+      static createFrom(fields: { f: gc.runtime.SecurityFields }): SecurityFields$set$args;
     }
     namespace SecurityFields$set$args {
       interface $Fields {
@@ -2430,7 +3490,7 @@ declare namespace gc {
       group_id: number | bigint;
       type: gc.runtime.UserGroupPolicyType;
       constructor(group_id: number | bigint, type: gc.runtime.UserGroupPolicyType);
-      static createFrom(fields: {group_id: number | bigint, type: gc.runtime.UserGroupPolicyType}): UserGroupPolicy;
+      static createFrom(fields: { group_id: number | bigint; type: gc.runtime.UserGroupPolicyType }): UserGroupPolicy;
     }
     namespace UserGroupPolicy {
       interface $Fields {
@@ -2444,7 +3504,7 @@ declare namespace gc {
       static readonly $fields: McpServerToolsCapabilities.$Fields;
       listChanged: boolean | null;
       constructor(listChanged?: boolean | null);
-      static createFrom(fields: {listChanged?: boolean | null}): McpServerToolsCapabilities;
+      static createFrom(fields: { listChanged?: boolean | null }): McpServerToolsCapabilities;
     }
     namespace McpServerToolsCapabilities {
       interface $Fields {
@@ -2471,8 +3531,8 @@ declare namespace gc {
       static MostImportant: McpPriority;
       static LeastImportant: McpPriority;
     }
-    namespace McpPriority  {
-      type Field = "MostImportant"|"LeastImportant";
+    namespace McpPriority {
+      type Field = 'MostImportant' | 'LeastImportant';
     }
 
     class McpServerPromptsCapabilities extends gc.sdk.GCObject {
@@ -2480,7 +3540,7 @@ declare namespace gc {
       static readonly $fields: McpServerPromptsCapabilities.$Fields;
       listChanged: boolean | null;
       constructor(listChanged?: boolean | null);
-      static createFrom(fields: {listChanged?: boolean | null}): McpServerPromptsCapabilities;
+      static createFrom(fields: { listChanged?: boolean | null }): McpServerPromptsCapabilities;
     }
     namespace McpServerPromptsCapabilities {
       interface $Fields {
@@ -2495,8 +3555,18 @@ declare namespace gc {
       minute: number | bigint | null;
       second: number | bigint | null;
       timezone: gc.core.TimeZone | null;
-      constructor(hour?: number | bigint | null, minute?: number | bigint | null, second?: number | bigint | null, timezone?: gc.core.TimeZone | null);
-      static createFrom(fields: {hour?: number | bigint | null, minute?: number | bigint | null, second?: number | bigint | null, timezone?: gc.core.TimeZone | null}): DailyPeriodicity;
+      constructor(
+        hour?: number | bigint | null,
+        minute?: number | bigint | null,
+        second?: number | bigint | null,
+        timezone?: gc.core.TimeZone | null,
+      );
+      static createFrom(fields: {
+        hour?: number | bigint | null;
+        minute?: number | bigint | null;
+        second?: number | bigint | null;
+        timezone?: gc.core.TimeZone | null;
+      }): DailyPeriodicity;
     }
     namespace DailyPeriodicity {
       interface $Fields {
@@ -2516,11 +3586,11 @@ declare namespace gc {
       static readonly $fields: OpenApiVersion[];
       key: OpenApiVersion.Field;
       constructor(type: gc.sdk.AbiType, offset: number, key: OpenApiVersion.Field);
-      static "3.0.4": OpenApiVersion;
-      static "3.1.0": OpenApiVersion;
+      static '3.0.4': OpenApiVersion;
+      static '3.1.0': OpenApiVersion;
     }
-    namespace OpenApiVersion  {
-      type Field = "3.0.4"|"3.1.0";
+    namespace OpenApiVersion {
+      type Field = '3.0.4' | '3.1.0';
     }
 
     class FixedPeriodicity extends gc.sdk.GCObject {
@@ -2528,7 +3598,7 @@ declare namespace gc {
       static readonly $fields: FixedPeriodicity.$Fields;
       every: gc.core.duration;
       constructor(every: gc.core.duration);
-      static createFrom(fields: {every: gc.core.duration}): FixedPeriodicity;
+      static createFrom(fields: { every: gc.core.duration }): FixedPeriodicity;
     }
     namespace FixedPeriodicity {
       interface $Fields {
@@ -2549,8 +3619,8 @@ declare namespace gc {
       static Sat: DayOfWeek;
       static Sun: DayOfWeek;
     }
-    namespace DayOfWeek  {
-      type Field = "Mon"|"Tue"|"Wed"|"Thu"|"Fri"|"Sat"|"Sun";
+    namespace DayOfWeek {
+      type Field = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
     }
 
     class ChildProcessResult extends gc.sdk.GCObject {
@@ -2560,7 +3630,7 @@ declare namespace gc {
       stdout: string;
       stderr: string;
       constructor(code: number | bigint, stdout: string, stderr: string);
-      static createFrom(fields: {code: number | bigint, stdout: string, stderr: string}): ChildProcessResult;
+      static createFrom(fields: { code: number | bigint; stdout: string; stderr: string }): ChildProcessResult;
     }
     namespace ChildProcessResult {
       interface $Fields {
@@ -2577,8 +3647,18 @@ declare namespace gc {
       protocolVersion: string;
       capabilities: gc.runtime.McpClientCapabilities;
       clientInfo: gc.runtime.McpImplementation;
-      constructor(_meta: globalThis.Map<string, any> | null, protocolVersion: string, capabilities: gc.runtime.McpClientCapabilities, clientInfo: gc.runtime.McpImplementation);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, protocolVersion: string, capabilities: gc.runtime.McpClientCapabilities, clientInfo: gc.runtime.McpImplementation}): McpInitializeParams;
+      constructor(
+        _meta: globalThis.Map<string, any> | null,
+        protocolVersion: string,
+        capabilities: gc.runtime.McpClientCapabilities,
+        clientInfo: gc.runtime.McpImplementation,
+      );
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        protocolVersion: string;
+        capabilities: gc.runtime.McpClientCapabilities;
+        clientInfo: gc.runtime.McpImplementation;
+      }): McpInitializeParams;
     }
     namespace McpInitializeParams {
       interface $Fields {
@@ -2595,7 +3675,7 @@ declare namespace gc {
       name: string;
       permissions: globalThis.Array<string>;
       constructor(name: string, permissions: globalThis.Array<string>);
-      static createFrom(fields: {name: string, permissions: globalThis.Array<string>}): Role;
+      static createFrom(fields: { name: string; permissions: globalThis.Array<string> }): Role;
       static all: gc.sdk.ExposedFn<[], globalThis.Array<gc.runtime.Role>>;
     }
     namespace Role {
@@ -2612,8 +3692,18 @@ declare namespace gc {
       roots: gc.runtime.McpClientRoots | null;
       sampling: globalThis.Map<string, any> | null;
       elicitation: globalThis.Map<string, any> | null;
-      constructor(experimental?: globalThis.Map<string, any> | null, roots?: gc.runtime.McpClientRoots | null, sampling?: globalThis.Map<string, any> | null, elicitation?: globalThis.Map<string, any> | null);
-      static createFrom(fields: {experimental?: globalThis.Map<string, any> | null, roots?: gc.runtime.McpClientRoots | null, sampling?: globalThis.Map<string, any> | null, elicitation?: globalThis.Map<string, any> | null}): McpClientCapabilities;
+      constructor(
+        experimental?: globalThis.Map<string, any> | null,
+        roots?: gc.runtime.McpClientRoots | null,
+        sampling?: globalThis.Map<string, any> | null,
+        elicitation?: globalThis.Map<string, any> | null,
+      );
+      static createFrom(fields: {
+        experimental?: globalThis.Map<string, any> | null;
+        roots?: gc.runtime.McpClientRoots | null;
+        sampling?: globalThis.Map<string, any> | null;
+        elicitation?: globalThis.Map<string, any> | null;
+      }): McpClientCapabilities;
     }
     namespace McpClientCapabilities {
       interface $Fields {
@@ -2635,7 +3725,10 @@ declare namespace gc {
       subscribe: boolean | null;
       listChanged: boolean | null;
       constructor(subscribe?: boolean | null, listChanged?: boolean | null);
-      static createFrom(fields: {subscribe?: boolean | null, listChanged?: boolean | null}): McpServerResourcesCapabilities;
+      static createFrom(fields: {
+        subscribe?: boolean | null;
+        listChanged?: boolean | null;
+      }): McpServerResourcesCapabilities;
     }
     namespace McpServerResourcesCapabilities {
       interface $Fields {
@@ -2663,8 +3756,17 @@ declare namespace gc {
       static ended_with_errors: TaskStatus;
       static breakpoint: TaskStatus;
     }
-    namespace TaskStatus  {
-      type Field = "empty"|"waiting"|"running"|"await"|"cancelled"|"error"|"ended"|"ended_with_errors"|"breakpoint";
+    namespace TaskStatus {
+      type Field =
+        | 'empty'
+        | 'waiting'
+        | 'running'
+        | 'await'
+        | 'cancelled'
+        | 'error'
+        | 'ended'
+        | 'ended_with_errors'
+        | 'breakpoint';
     }
 
     class SecurityEntity$all$args extends gc.sdk.GCObject {
@@ -2676,12 +3778,12 @@ declare namespace gc {
       static readonly $fields: ResponseCode[];
       key: ResponseCode.Field;
       constructor(type: gc.sdk.AbiType, offset: number, key: ResponseCode.Field);
-      static "200": ResponseCode;
-      static "400": ResponseCode;
-      static "404": ResponseCode;
+      static '200': ResponseCode;
+      static '400': ResponseCode;
+      static '404': ResponseCode;
     }
-    namespace ResponseCode  {
-      type Field = "200"|"400"|"404";
+    namespace ResponseCode {
+      type Field = '200' | '400' | '404';
     }
 
     class OpenIDConnect$config$args extends gc.sdk.GCObject {
@@ -2699,8 +3801,18 @@ declare namespace gc {
       content: globalThis.Array<gc.runtime.McpContentBlock>;
       structuredContent: any | null;
       isError: boolean | null;
-      constructor(_meta: globalThis.Map<string, any> | null, content: globalThis.Array<gc.runtime.McpContentBlock>, structuredContent?: any | null, isError?: boolean | null);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, content: globalThis.Array<gc.runtime.McpContentBlock>, structuredContent?: any | null, isError?: boolean | null}): McpToolsCallResult;
+      constructor(
+        _meta: globalThis.Map<string, any> | null,
+        content: globalThis.Array<gc.runtime.McpContentBlock>,
+        structuredContent?: any | null,
+        isError?: boolean | null,
+      );
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        content: globalThis.Array<gc.runtime.McpContentBlock>;
+        structuredContent?: any | null;
+        isError?: boolean | null;
+      }): McpToolsCallResult;
     }
     namespace McpToolsCallResult {
       interface $Fields {
@@ -2723,8 +3835,20 @@ declare namespace gc {
       annotations: gc.runtime.McpAnnotations | null;
       data: string;
       mimeType: string;
-      constructor(type: gc.runtime.McpContentType, _meta: globalThis.Map<string, any> | null, annotations: gc.runtime.McpAnnotations | null, data: string, mimeType: string);
-      static createFrom(fields: {type: gc.runtime.McpContentType, _meta?: globalThis.Map<string, any> | null, annotations?: gc.runtime.McpAnnotations | null, data: string, mimeType: string}): McpImageContent;
+      constructor(
+        type: gc.runtime.McpContentType,
+        _meta: globalThis.Map<string, any> | null,
+        annotations: gc.runtime.McpAnnotations | null,
+        data: string,
+        mimeType: string,
+      );
+      static createFrom(fields: {
+        type: gc.runtime.McpContentType;
+        _meta?: globalThis.Map<string, any> | null;
+        annotations?: gc.runtime.McpAnnotations | null;
+        data: string;
+        mimeType: string;
+      }): McpImageContent;
     }
     namespace McpImageContent {
       interface $Fields {
@@ -2744,8 +3868,20 @@ declare namespace gc {
       capabilities: gc.runtime.McpServerCapabilities;
       serverInfo: gc.runtime.McpImplementation;
       instructions: string | null;
-      constructor(_meta: globalThis.Map<string, any> | null, protocolVersion: string, capabilities: gc.runtime.McpServerCapabilities, serverInfo: gc.runtime.McpImplementation, instructions?: string | null);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, protocolVersion: string, capabilities: gc.runtime.McpServerCapabilities, serverInfo: gc.runtime.McpImplementation, instructions?: string | null}): McpInitializeResult;
+      constructor(
+        _meta: globalThis.Map<string, any> | null,
+        protocolVersion: string,
+        capabilities: gc.runtime.McpServerCapabilities,
+        serverInfo: gc.runtime.McpImplementation,
+        instructions?: string | null,
+      );
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        protocolVersion: string;
+        capabilities: gc.runtime.McpServerCapabilities;
+        serverInfo: gc.runtime.McpImplementation;
+        instructions?: string | null;
+      }): McpInitializeResult;
     }
     namespace McpInitializeResult {
       interface $Fields {
@@ -2777,7 +3913,7 @@ declare namespace gc {
       static readonly $fields: Task$cancel$args.$Fields;
       task_id: number | bigint;
       constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$cancel$args;
+      static createFrom(fields: { task_id: number | bigint }): Task$cancel$args;
     }
     namespace Task$cancel$args {
       interface $Fields {
@@ -2794,8 +3930,8 @@ declare namespace gc {
       static enterprise: LicenseType;
       static testing: LicenseType;
     }
-    namespace LicenseType  {
-      type Field = "community"|"enterprise"|"testing";
+    namespace LicenseType {
+      type Field = 'community' | 'enterprise' | 'testing';
     }
 
     class Runtime extends gc.sdk.GCObject {
@@ -2822,8 +3958,22 @@ declare namespace gc {
       prompts: gc.runtime.McpServerPromptsCapabilities | null;
       resources: gc.runtime.McpServerResourcesCapabilities | null;
       tools: gc.runtime.McpServerToolsCapabilities | null;
-      constructor(experimental?: globalThis.Map<string, globalThis.Map<string, any>> | null, logging?: globalThis.Map<string, any> | null, completions?: globalThis.Map<string, any> | null, prompts?: gc.runtime.McpServerPromptsCapabilities | null, resources?: gc.runtime.McpServerResourcesCapabilities | null, tools?: gc.runtime.McpServerToolsCapabilities | null);
-      static createFrom(fields: {experimental?: globalThis.Map<string, globalThis.Map<string, any>> | null, logging?: globalThis.Map<string, any> | null, completions?: globalThis.Map<string, any> | null, prompts?: gc.runtime.McpServerPromptsCapabilities | null, resources?: gc.runtime.McpServerResourcesCapabilities | null, tools?: gc.runtime.McpServerToolsCapabilities | null}): McpServerCapabilities;
+      constructor(
+        experimental?: globalThis.Map<string, globalThis.Map<string, any>> | null,
+        logging?: globalThis.Map<string, any> | null,
+        completions?: globalThis.Map<string, any> | null,
+        prompts?: gc.runtime.McpServerPromptsCapabilities | null,
+        resources?: gc.runtime.McpServerResourcesCapabilities | null,
+        tools?: gc.runtime.McpServerToolsCapabilities | null,
+      );
+      static createFrom(fields: {
+        experimental?: globalThis.Map<string, globalThis.Map<string, any>> | null;
+        logging?: globalThis.Map<string, any> | null;
+        completions?: globalThis.Map<string, any> | null;
+        prompts?: gc.runtime.McpServerPromptsCapabilities | null;
+        resources?: gc.runtime.McpServerResourcesCapabilities | null;
+        tools?: gc.runtime.McpServerToolsCapabilities | null;
+      }): McpServerCapabilities;
     }
     namespace McpServerCapabilities {
       interface $Fields {
@@ -2843,8 +3993,18 @@ declare namespace gc {
       description: string | null;
       requestBody: gc.runtime.RequestBodyObject | null;
       responses: globalThis.Map<string, gc.runtime.ResponseObject> | null;
-      constructor(tags?: globalThis.Array<string> | null, description?: string | null, requestBody?: gc.runtime.RequestBodyObject | null, responses?: globalThis.Map<string, gc.runtime.ResponseObject> | null);
-      static createFrom(fields: {tags?: globalThis.Array<string> | null, description?: string | null, requestBody?: gc.runtime.RequestBodyObject | null, responses?: globalThis.Map<string, gc.runtime.ResponseObject> | null}): OperationObject;
+      constructor(
+        tags?: globalThis.Array<string> | null,
+        description?: string | null,
+        requestBody?: gc.runtime.RequestBodyObject | null,
+        responses?: globalThis.Map<string, gc.runtime.ResponseObject> | null,
+      );
+      static createFrom(fields: {
+        tags?: globalThis.Array<string> | null;
+        description?: string | null;
+        requestBody?: gc.runtime.RequestBodyObject | null;
+        responses?: globalThis.Map<string, gc.runtime.ResponseObject> | null;
+      }): OperationObject;
     }
     namespace OperationObject {
       interface $Fields {
@@ -2864,7 +4024,7 @@ declare namespace gc {
       static readonly $fields: McpClientRoots.$Fields;
       listChanged: boolean | null;
       constructor(listChanged?: boolean | null);
-      static createFrom(fields: {listChanged?: boolean | null}): McpClientRoots;
+      static createFrom(fields: { listChanged?: boolean | null }): McpClientRoots;
     }
     namespace McpClientRoots {
       interface $Fields {
@@ -2882,8 +4042,24 @@ declare namespace gc {
       roles: globalThis.Map<string, string> | null;
       groups_claim: string | null;
       groups: globalThis.Map<string, string> | null;
-      constructor(email?: string | null, name?: string | null, first_name?: string | null, last_name?: string | null, roles?: globalThis.Map<string, string> | null, groups_claim?: string | null, groups?: globalThis.Map<string, string> | null);
-      static createFrom(fields: {email?: string | null, name?: string | null, first_name?: string | null, last_name?: string | null, roles?: globalThis.Map<string, string> | null, groups_claim?: string | null, groups?: globalThis.Map<string, string> | null}): SecurityFields;
+      constructor(
+        email?: string | null,
+        name?: string | null,
+        first_name?: string | null,
+        last_name?: string | null,
+        roles?: globalThis.Map<string, string> | null,
+        groups_claim?: string | null,
+        groups?: globalThis.Map<string, string> | null,
+      );
+      static createFrom(fields: {
+        email?: string | null;
+        name?: string | null;
+        first_name?: string | null;
+        last_name?: string | null;
+        roles?: globalThis.Map<string, string> | null;
+        groups_claim?: string | null;
+        groups?: globalThis.Map<string, string> | null;
+      }): SecurityFields;
       static get: gc.sdk.ExposedFn<[], gc.runtime.SecurityFields | null>;
       static set: gc.sdk.ExposedFn<[gc.runtime.SecurityFields], unknown>;
     }
@@ -2904,7 +4080,7 @@ declare namespace gc {
       static readonly $fields: Scheduler$deactivate$args.$Fields;
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$deactivate$args;
+      static createFrom(fields: { function_: gc.core.function_ }): Scheduler$deactivate$args;
     }
     namespace Scheduler$deactivate$args {
       interface $Fields {
@@ -2923,8 +4099,8 @@ declare namespace gc {
       static perf: LogLevel;
       static trace: LogLevel;
     }
-    namespace LogLevel  {
-      type Field = "error"|"warn"|"info"|"perf"|"trace";
+    namespace LogLevel {
+      type Field = 'error' | 'warn' | 'info' | 'perf' | 'trace';
     }
 
     class PeriodicTask extends gc.sdk.GCObject {
@@ -2936,8 +4112,22 @@ declare namespace gc {
       is_active: boolean;
       next_execution: gc.core.time;
       execution_count: number | bigint;
-      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options: gc.runtime.PeriodicOptions, is_active: boolean, next_execution: gc.core.time, execution_count: number | bigint);
-      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options: gc.runtime.PeriodicOptions, is_active: boolean, next_execution: gc.core.time, execution_count: number | bigint}): PeriodicTask;
+      constructor(
+        function_: gc.core.function_,
+        periodicity: gc.runtime.Periodicity,
+        options: gc.runtime.PeriodicOptions,
+        is_active: boolean,
+        next_execution: gc.core.time,
+        execution_count: number | bigint,
+      );
+      static createFrom(fields: {
+        function_: gc.core.function_;
+        periodicity: gc.runtime.Periodicity;
+        options: gc.runtime.PeriodicOptions;
+        is_active: boolean;
+        next_execution: gc.core.time;
+        execution_count: number | bigint;
+      }): PeriodicTask;
     }
     namespace PeriodicTask {
       interface $Fields {
@@ -2968,8 +4158,8 @@ declare namespace gc {
       static Nov: Month;
       static Dec: Month;
     }
-    namespace Month  {
-      type Field = "Jan"|"Feb"|"Mar"|"Apr"|"May"|"Jun"|"Jul"|"Aug"|"Sep"|"Oct"|"Nov"|"Dec";
+    namespace Month {
+      type Field = 'Jan' | 'Feb' | 'Mar' | 'Apr' | 'May' | 'Jun' | 'Jul' | 'Aug' | 'Sep' | 'Oct' | 'Nov' | 'Dec';
     }
 
     class Frame extends gc.sdk.GCObject {
@@ -2982,8 +4172,24 @@ declare namespace gc {
       line: number | bigint;
       column: number | bigint;
       scope: globalThis.Array<gc.runtime.Variable>;
-      constructor(module: string | null, type: string | null, function_: string | null, src: string | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>);
-      static createFrom(fields: {module?: string | null, type?: string | null, function_?: string | null, src?: string | null, line: number | bigint, column: number | bigint, scope: globalThis.Array<gc.runtime.Variable>}): Frame;
+      constructor(
+        module: string | null,
+        type: string | null,
+        function_: string | null,
+        src: string | null,
+        line: number | bigint,
+        column: number | bigint,
+        scope: globalThis.Array<gc.runtime.Variable>,
+      );
+      static createFrom(fields: {
+        module?: string | null;
+        type?: string | null;
+        function_?: string | null;
+        src?: string | null;
+        line: number | bigint;
+        column: number | bigint;
+        scope: globalThis.Array<gc.runtime.Variable>;
+      }): Frame;
     }
     namespace Frame {
       interface $Fields {
@@ -3002,7 +4208,7 @@ declare namespace gc {
       static readonly $fields: MediaTypeObject.$Fields;
       schema: gc.runtime.SchemaObject;
       constructor(schema: gc.runtime.SchemaObject);
-      static createFrom(fields: {schema: gc.runtime.SchemaObject}): MediaTypeObject;
+      static createFrom(fields: { schema: gc.runtime.SchemaObject }): MediaTypeObject;
     }
     namespace MediaTypeObject {
       interface $Fields {
@@ -3027,7 +4233,7 @@ declare namespace gc {
       static readonly $fields: ChildProcess.$Fields;
       pid: number | bigint;
       constructor(pid: number | bigint);
-      static createFrom(fields: {pid: number | bigint}): ChildProcess;
+      static createFrom(fields: { pid: number | bigint }): ChildProcess;
     }
     namespace ChildProcess {
       interface $Fields {
@@ -3040,7 +4246,7 @@ declare namespace gc {
       static readonly $fields: Scheduler$find$args.$Fields;
       function: gc.core.function_;
       constructor(function_: gc.core.function_);
-      static createFrom(fields: {function_: gc.core.function_}): Scheduler$find$args;
+      static createFrom(fields: { function_: gc.core.function_ }): Scheduler$find$args;
     }
     namespace Scheduler$find$args {
       interface $Fields {
@@ -3061,8 +4267,8 @@ declare namespace gc {
       static write: UserGroupPolicyType;
       static execute: UserGroupPolicyType;
     }
-    namespace UserGroupPolicyType  {
-      type Field = "read"|"write"|"execute";
+    namespace UserGroupPolicyType {
+      type Field = 'read' | 'write' | 'execute';
     }
 
     class SchemaFormat extends gc.sdk.GCEnum {
@@ -3077,11 +4283,11 @@ declare namespace gc {
       static byte: SchemaFormat;
       static binary: SchemaFormat;
       static date: SchemaFormat;
-      static "date-time": SchemaFormat;
+      static 'date-time': SchemaFormat;
       static password: SchemaFormat;
     }
-    namespace SchemaFormat  {
-      type Field = "int32"|"int64"|"float"|"double"|"byte"|"binary"|"date"|"date-time"|"password";
+    namespace SchemaFormat {
+      type Field = 'int32' | 'int64' | 'float' | 'double' | 'byte' | 'binary' | 'date' | 'date-time' | 'password';
     }
 
     class McpToolsListParams extends gc.sdk.GCObject {
@@ -3090,7 +4296,10 @@ declare namespace gc {
       _meta: globalThis.Map<string, any> | null;
       cursor: string | null;
       constructor(_meta?: globalThis.Map<string, any> | null, cursor?: string | null);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, cursor?: string | null}): McpToolsListParams;
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        cursor?: string | null;
+      }): McpToolsListParams;
     }
     namespace McpToolsListParams {
       interface $Fields {
@@ -3109,8 +4318,24 @@ declare namespace gc {
       write_hits: number | bigint;
       cache_bytes: number | bigint;
       cache_hits: number | bigint;
-      constructor(read_bytes: number | bigint, read_hits: number | bigint, read_wasted: number | bigint, write_bytes: number | bigint, write_hits: number | bigint, cache_bytes: number | bigint, cache_hits: number | bigint);
-      static createFrom(fields: {read_bytes: number | bigint, read_hits: number | bigint, read_wasted: number | bigint, write_bytes: number | bigint, write_hits: number | bigint, cache_bytes: number | bigint, cache_hits: number | bigint}): LogDataUsage;
+      constructor(
+        read_bytes: number | bigint,
+        read_hits: number | bigint,
+        read_wasted: number | bigint,
+        write_bytes: number | bigint,
+        write_hits: number | bigint,
+        cache_bytes: number | bigint,
+        cache_hits: number | bigint,
+      );
+      static createFrom(fields: {
+        read_bytes: number | bigint;
+        read_hits: number | bigint;
+        read_wasted: number | bigint;
+        write_bytes: number | bigint;
+        write_hits: number | bigint;
+        cache_bytes: number | bigint;
+        cache_hits: number | bigint;
+      }): LogDataUsage;
     }
     namespace LogDataUsage {
       interface $Fields {
@@ -3131,8 +4356,18 @@ declare namespace gc {
       _meta: globalThis.Map<string, any> | null;
       annotations: gc.runtime.McpAnnotations | null;
       text: string;
-      constructor(type: gc.runtime.McpContentType, _meta: globalThis.Map<string, any> | null, annotations: gc.runtime.McpAnnotations | null, text: string);
-      static createFrom(fields: {type: gc.runtime.McpContentType, _meta?: globalThis.Map<string, any> | null, annotations?: gc.runtime.McpAnnotations | null, text: string}): McpTextContent;
+      constructor(
+        type: gc.runtime.McpContentType,
+        _meta: globalThis.Map<string, any> | null,
+        annotations: gc.runtime.McpAnnotations | null,
+        text: string,
+      );
+      static createFrom(fields: {
+        type: gc.runtime.McpContentType;
+        _meta?: globalThis.Map<string, any> | null;
+        annotations?: gc.runtime.McpAnnotations | null;
+        text: string;
+      }): McpTextContent;
     }
     namespace McpTextContent {
       interface $Fields {
@@ -3148,7 +4383,7 @@ declare namespace gc {
       static readonly $fields: Task$is_running$args.$Fields;
       task_id: number | bigint;
       constructor(task_id: number | bigint);
-      static createFrom(fields: {task_id: number | bigint}): Task$is_running$args;
+      static createFrom(fields: { task_id: number | bigint }): Task$is_running$args;
     }
     namespace Task$is_running$args {
       interface $Fields {
@@ -3161,7 +4396,7 @@ declare namespace gc {
       static readonly $fields: SecurityEntity$set$args.$Fields;
       entity: gc.runtime.SecurityEntity;
       constructor(entity: gc.runtime.SecurityEntity);
-      static createFrom(fields: {entity: gc.runtime.SecurityEntity}): SecurityEntity$set$args;
+      static createFrom(fields: { entity: gc.runtime.SecurityEntity }): SecurityEntity$set$args;
     }
     namespace SecurityEntity$set$args {
       interface $Fields {
@@ -3174,7 +4409,7 @@ declare namespace gc {
       static readonly $fields: User$renew$args.$Fields;
       use_cookie: boolean;
       constructor(use_cookie: boolean);
-      static createFrom(fields: {use_cookie: boolean}): User$renew$args;
+      static createFrom(fields: { use_cookie: boolean }): User$renew$args;
     }
     namespace User$renew$args {
       interface $Fields {
@@ -3188,7 +4423,7 @@ declare namespace gc {
       credentials: string;
       use_cookie: boolean;
       constructor(credentials: string, use_cookie: boolean);
-      static createFrom(fields: {credentials: string, use_cookie: boolean}): User$login$args;
+      static createFrom(fields: { credentials: string; use_cookie: boolean }): User$login$args;
     }
     namespace User$login$args {
       interface $Fields {
@@ -3202,7 +4437,7 @@ declare namespace gc {
       static readonly $fields: ComponentsObject.$Fields;
       schemas: globalThis.Map<string, gc.runtime.SchemaObject> | null;
       constructor(schemas?: globalThis.Map<string, gc.runtime.SchemaObject> | null);
-      static createFrom(fields: {schemas?: globalThis.Map<string, gc.runtime.SchemaObject> | null}): ComponentsObject;
+      static createFrom(fields: { schemas?: globalThis.Map<string, gc.runtime.SchemaObject> | null }): ComponentsObject;
     }
     namespace ComponentsObject {
       interface $Fields {
@@ -3216,7 +4451,10 @@ declare namespace gc {
       _meta: globalThis.Map<string, any> | null;
       tools: globalThis.Array<gc.runtime.McpTool>;
       constructor(_meta: globalThis.Map<string, any> | null, tools: globalThis.Array<gc.runtime.McpTool>);
-      static createFrom(fields: {_meta?: globalThis.Map<string, any> | null, tools: globalThis.Array<gc.runtime.McpTool>}): McpToolsListResult;
+      static createFrom(fields: {
+        _meta?: globalThis.Map<string, any> | null;
+        tools: globalThis.Array<gc.runtime.McpTool>;
+      }): McpToolsListResult;
     }
     namespace McpToolsListResult {
       interface $Fields {
@@ -3241,8 +4479,16 @@ declare namespace gc {
       function: gc.core.function_;
       periodicity: gc.runtime.Periodicity;
       options: gc.runtime.PeriodicOptions | null;
-      constructor(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null);
-      static createFrom(fields: {function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null}): Scheduler$add$args;
+      constructor(
+        function_: gc.core.function_,
+        periodicity: gc.runtime.Periodicity,
+        options?: gc.runtime.PeriodicOptions | null,
+      );
+      static createFrom(fields: {
+        function_: gc.core.function_;
+        periodicity: gc.runtime.Periodicity;
+        options?: gc.runtime.PeriodicOptions | null;
+      }): Scheduler$add$args;
     }
     namespace Scheduler$add$args {
       interface $Fields {
@@ -3271,7 +4517,10 @@ declare namespace gc {
       content: globalThis.Map<string, gc.runtime.MediaTypeObject>;
       required: boolean | null;
       constructor(content: globalThis.Map<string, gc.runtime.MediaTypeObject>, required?: boolean | null);
-      static createFrom(fields: {content: globalThis.Map<string, gc.runtime.MediaTypeObject>, required?: boolean | null}): RequestBodyObject;
+      static createFrom(fields: {
+        content: globalThis.Map<string, gc.runtime.MediaTypeObject>;
+        required?: boolean | null;
+      }): RequestBodyObject;
     }
     namespace RequestBodyObject {
       interface $Fields {
@@ -3286,7 +4535,10 @@ declare namespace gc {
       days: globalThis.Array<number | bigint>;
       daily: gc.runtime.DailyPeriodicity | null;
       constructor(days: globalThis.Array<number | bigint>, daily?: gc.runtime.DailyPeriodicity | null);
-      static createFrom(fields: {days: globalThis.Array<number | bigint>, daily?: gc.runtime.DailyPeriodicity | null}): MonthlyPeriodicity;
+      static createFrom(fields: {
+        days: globalThis.Array<number | bigint>;
+        daily?: gc.runtime.DailyPeriodicity | null;
+      }): MonthlyPeriodicity;
     }
     namespace MonthlyPeriodicity {
       interface $Fields {
@@ -3303,8 +4555,20 @@ declare namespace gc {
       annotations: gc.runtime.McpAnnotations | null;
       data: string;
       mimeType: string;
-      constructor(type: gc.runtime.McpContentType, _meta: globalThis.Map<string, any> | null, annotations: gc.runtime.McpAnnotations | null, data: string, mimeType: string);
-      static createFrom(fields: {type: gc.runtime.McpContentType, _meta?: globalThis.Map<string, any> | null, annotations?: gc.runtime.McpAnnotations | null, data: string, mimeType: string}): McpAudioContent;
+      constructor(
+        type: gc.runtime.McpContentType,
+        _meta: globalThis.Map<string, any> | null,
+        annotations: gc.runtime.McpAnnotations | null,
+        data: string,
+        mimeType: string,
+      );
+      static createFrom(fields: {
+        type: gc.runtime.McpContentType;
+        _meta?: globalThis.Map<string, any> | null;
+        annotations?: gc.runtime.McpAnnotations | null;
+        data: string;
+        mimeType: string;
+      }): McpAudioContent;
     }
     namespace McpAudioContent {
       interface $Fields {
@@ -3324,8 +4588,8 @@ declare namespace gc {
       static user: McpRole;
       static assistant: McpRole;
     }
-    namespace McpRole  {
-      type Field = "user"|"assistant";
+    namespace McpRole {
+      type Field = 'user' | 'assistant';
     }
 
     class McpAnnotations extends gc.sdk.GCObject {
@@ -3334,8 +4598,16 @@ declare namespace gc {
       audience: globalThis.Array<gc.runtime.McpRole> | null;
       priority: gc.runtime.McpPriority | null;
       lastModified: string | null;
-      constructor(audience?: globalThis.Array<gc.runtime.McpRole> | null, priority?: gc.runtime.McpPriority | null, lastModified?: string | null);
-      static createFrom(fields: {audience?: globalThis.Array<gc.runtime.McpRole> | null, priority?: gc.runtime.McpPriority | null, lastModified?: string | null}): McpAnnotations;
+      constructor(
+        audience?: globalThis.Array<gc.runtime.McpRole> | null,
+        priority?: gc.runtime.McpPriority | null,
+        lastModified?: string | null,
+      );
+      static createFrom(fields: {
+        audience?: globalThis.Array<gc.runtime.McpRole> | null;
+        priority?: gc.runtime.McpPriority | null;
+        lastModified?: string | null;
+      }): McpAnnotations;
     }
     namespace McpAnnotations {
       interface $Fields {
@@ -3351,7 +4623,10 @@ declare namespace gc {
       days: globalThis.Array<gc.runtime.DayOfWeek>;
       daily: gc.runtime.DailyPeriodicity | null;
       constructor(days: globalThis.Array<gc.runtime.DayOfWeek>, daily?: gc.runtime.DailyPeriodicity | null);
-      static createFrom(fields: {days: globalThis.Array<gc.runtime.DayOfWeek>, daily?: gc.runtime.DailyPeriodicity | null}): WeeklyPeriodicity;
+      static createFrom(fields: {
+        days: globalThis.Array<gc.runtime.DayOfWeek>;
+        daily?: gc.runtime.DailyPeriodicity | null;
+      }): WeeklyPeriodicity;
     }
     namespace WeeklyPeriodicity {
       interface $Fields {
@@ -3366,7 +4641,7 @@ declare namespace gc {
       name: string;
       pass: string;
       constructor(name: string, pass: string);
-      static createFrom(fields: {name: string, pass: string}): User$setPassword$args;
+      static createFrom(fields: { name: string; pass: string }): User$setPassword$args;
     }
     namespace User$setPassword$args {
       interface $Fields {
@@ -3382,7 +4657,7 @@ declare namespace gc {
       title: string | null;
       version: string;
       constructor(name: string, title: string | null, version: string);
-      static createFrom(fields: {name: string, title?: string | null, version: string}): McpImplementation;
+      static createFrom(fields: { name: string; title?: string | null; version: string }): McpImplementation;
     }
     namespace McpImplementation {
       interface $Fields {
@@ -3397,7 +4672,7 @@ declare namespace gc {
       static readonly $fields: mcp_tools_list$args.$Fields;
       params: gc.runtime.McpToolsListParams | null;
       constructor(params?: gc.runtime.McpToolsListParams | null);
-      static createFrom(fields: {params?: gc.runtime.McpToolsListParams | null}): mcp_tools_list$args;
+      static createFrom(fields: { params?: gc.runtime.McpToolsListParams | null }): mcp_tools_list$args;
     }
     namespace mcp_tools_list$args {
       interface $Fields {
@@ -3415,8 +4690,24 @@ declare namespace gc {
       id2: number | bigint | null;
       src: gc.core.function_ | null;
       data: any | null;
-      constructor(level: gc.runtime.LogLevel, time: gc.core.time, user_id?: number | bigint | null, id?: number | bigint | null, id2?: number | bigint | null, src?: gc.core.function_ | null, data?: any | null);
-      static createFrom(fields: {level: gc.runtime.LogLevel, time: gc.core.time, user_id?: number | bigint | null, id?: number | bigint | null, id2?: number | bigint | null, src?: gc.core.function_ | null, data?: any | null}): Log;
+      constructor(
+        level: gc.runtime.LogLevel,
+        time: gc.core.time,
+        user_id?: number | bigint | null,
+        id?: number | bigint | null,
+        id2?: number | bigint | null,
+        src?: gc.core.function_ | null,
+        data?: any | null,
+      );
+      static createFrom(fields: {
+        level: gc.runtime.LogLevel;
+        time: gc.core.time;
+        user_id?: number | bigint | null;
+        id?: number | bigint | null;
+        id2?: number | bigint | null;
+        src?: gc.core.function_ | null;
+        data?: any | null;
+      }): Log;
     }
     namespace Log {
       interface $Fields {
@@ -3437,8 +4728,18 @@ declare namespace gc {
       info: gc.runtime.InfoObject;
       paths: globalThis.Map<string, gc.runtime.PathItemObject> | null;
       components: gc.runtime.ComponentsObject | null;
-      constructor(openapi: gc.runtime.OpenApiVersion, info: gc.runtime.InfoObject, paths?: globalThis.Map<string, gc.runtime.PathItemObject> | null, components?: gc.runtime.ComponentsObject | null);
-      static createFrom(fields: {openapi: gc.runtime.OpenApiVersion, info: gc.runtime.InfoObject, paths?: globalThis.Map<string, gc.runtime.PathItemObject> | null, components?: gc.runtime.ComponentsObject | null}): OpenApiV3;
+      constructor(
+        openapi: gc.runtime.OpenApiVersion,
+        info: gc.runtime.InfoObject,
+        paths?: globalThis.Map<string, gc.runtime.PathItemObject> | null,
+        components?: gc.runtime.ComponentsObject | null,
+      );
+      static createFrom(fields: {
+        openapi: gc.runtime.OpenApiVersion;
+        info: gc.runtime.InfoObject;
+        paths?: globalThis.Map<string, gc.runtime.PathItemObject> | null;
+        components?: gc.runtime.ComponentsObject | null;
+      }): OpenApiV3;
     }
     namespace OpenApiV3 {
       interface $Fields {
@@ -3472,7 +4773,7 @@ declare namespace gc {
       url: string;
       clientId: string;
       constructor(url: string, clientId: string);
-      static createFrom(fields: {url: string, clientId: string}): OpenIDConnect;
+      static createFrom(fields: { url: string; clientId: string }): OpenIDConnect;
       /**
        * get current configuration to enable OpenID connect capability
        */
@@ -3490,7 +4791,7 @@ declare namespace gc {
       static readonly $fields: mcp_initialize$args.$Fields;
       params: gc.runtime.McpInitializeParams;
       constructor(params: gc.runtime.McpInitializeParams);
-      static createFrom(fields: {params: gc.runtime.McpInitializeParams}): mcp_initialize$args;
+      static createFrom(fields: { params: gc.runtime.McpInitializeParams }): mcp_initialize$args;
     }
     namespace mcp_initialize$args {
       interface $Fields {
@@ -3511,8 +4812,8 @@ declare namespace gc {
       static array: SchemaType;
       static null: SchemaType;
     }
-    namespace SchemaType  {
-      type Field = "string"|"number"|"integer"|"boolean"|"object"|"array"|"null";
+    namespace SchemaType {
+      type Field = 'string' | 'number' | 'integer' | 'boolean' | 'object' | 'array' | 'null';
     }
 
     class RuntimeInfo extends gc.sdk.GCObject {
@@ -3529,8 +4830,32 @@ declare namespace gc {
       mem_total: number | bigint;
       mem_worker: number | bigint;
       disk_data_bytes: number | bigint;
-      constructor(version: string, program_version: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, bg_threads: number | bigint, fg_threads: number | bigint, mem_total: number | bigint, mem_worker: number | bigint, disk_data_bytes: number | bigint);
-      static createFrom(fields: {version: string, program_version?: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, bg_threads: number | bigint, fg_threads: number | bigint, mem_total: number | bigint, mem_worker: number | bigint, disk_data_bytes: number | bigint}): RuntimeInfo;
+      constructor(
+        version: string,
+        program_version: string | null,
+        arch: string,
+        timezone: gc.core.TimeZone,
+        license: gc.runtime.License,
+        io_threads: number | bigint,
+        bg_threads: number | bigint,
+        fg_threads: number | bigint,
+        mem_total: number | bigint,
+        mem_worker: number | bigint,
+        disk_data_bytes: number | bigint,
+      );
+      static createFrom(fields: {
+        version: string;
+        program_version?: string | null;
+        arch: string;
+        timezone: gc.core.TimeZone;
+        license: gc.runtime.License;
+        io_threads: number | bigint;
+        bg_threads: number | bigint;
+        fg_threads: number | bigint;
+        mem_total: number | bigint;
+        mem_worker: number | bigint;
+        disk_data_bytes: number | bigint;
+      }): RuntimeInfo;
     }
     namespace RuntimeInfo {
       interface $Fields {
@@ -3555,7 +4880,11 @@ declare namespace gc {
       start: gc.core.time | null;
       max_duration: gc.core.duration | null;
       constructor(activated?: boolean | null, start?: gc.core.time | null, max_duration?: gc.core.duration | null);
-      static createFrom(fields: {activated?: boolean | null, start?: gc.core.time | null, max_duration?: gc.core.duration | null}): PeriodicOptions;
+      static createFrom(fields: {
+        activated?: boolean | null;
+        start?: gc.core.time | null;
+        max_duration?: gc.core.duration | null;
+      }): PeriodicOptions;
     }
     namespace PeriodicOptions {
       interface $Fields {
@@ -3578,8 +4907,8 @@ declare namespace gc {
       static first_wins: MergeStrategy;
       static last_wins: MergeStrategy;
     }
-    namespace MergeStrategy  {
-      type Field = "strict"|"first_wins"|"last_wins";
+    namespace MergeStrategy {
+      type Field = 'strict' | 'first_wins' | 'last_wins';
     }
 
     class YearlyPeriodicity extends gc.sdk.GCObject {
@@ -3588,7 +4917,10 @@ declare namespace gc {
       dates: globalThis.Array<gc.runtime.DateTuple>;
       timezone: gc.core.TimeZone | null;
       constructor(dates: globalThis.Array<gc.runtime.DateTuple>, timezone?: gc.core.TimeZone | null);
-      static createFrom(fields: {dates: globalThis.Array<gc.runtime.DateTuple>, timezone?: gc.core.TimeZone | null}): YearlyPeriodicity;
+      static createFrom(fields: {
+        dates: globalThis.Array<gc.runtime.DateTuple>;
+        timezone?: gc.core.TimeZone | null;
+      }): YearlyPeriodicity;
     }
     namespace YearlyPeriodicity {
       interface $Fields {
@@ -3624,8 +4956,42 @@ declare namespace gc {
       maxItems: number | bigint | null;
       enum: globalThis.Array<string> | null;
       additionalProperties: gc.runtime.SchemaObject | null;
-      constructor($ref?: string | null, $defs?: globalThis.Map<string, gc.runtime.SchemaObject> | null, type?: any | null, format?: gc.runtime.SchemaFormat | null, description?: string | null, nullable?: boolean | null, properties?: globalThis.Map<string, gc.runtime.SchemaObject> | null, required?: globalThis.Array<string> | null, items?: gc.runtime.SchemaObject | null, oneOf?: globalThis.Array<gc.runtime.SchemaObject> | null, allOf?: globalThis.Array<gc.runtime.SchemaObject> | null, anyOf?: globalThis.Array<gc.runtime.SchemaObject> | null, minItems?: number | bigint | null, maxItems?: number | bigint | null, enum_?: globalThis.Array<string> | null, additionalProperties?: gc.runtime.SchemaObject | null);
-      static createFrom(fields: {$ref?: string | null, $defs?: globalThis.Map<string, gc.runtime.SchemaObject> | null, type?: any | null, format?: gc.runtime.SchemaFormat | null, description?: string | null, nullable?: boolean | null, properties?: globalThis.Map<string, gc.runtime.SchemaObject> | null, required?: globalThis.Array<string> | null, items?: gc.runtime.SchemaObject | null, oneOf?: globalThis.Array<gc.runtime.SchemaObject> | null, allOf?: globalThis.Array<gc.runtime.SchemaObject> | null, anyOf?: globalThis.Array<gc.runtime.SchemaObject> | null, minItems?: number | bigint | null, maxItems?: number | bigint | null, enum_?: globalThis.Array<string> | null, additionalProperties?: gc.runtime.SchemaObject | null}): SchemaObject;
+      constructor(
+        $ref?: string | null,
+        $defs?: globalThis.Map<string, gc.runtime.SchemaObject> | null,
+        type?: any | null,
+        format?: gc.runtime.SchemaFormat | null,
+        description?: string | null,
+        nullable?: boolean | null,
+        properties?: globalThis.Map<string, gc.runtime.SchemaObject> | null,
+        required?: globalThis.Array<string> | null,
+        items?: gc.runtime.SchemaObject | null,
+        oneOf?: globalThis.Array<gc.runtime.SchemaObject> | null,
+        allOf?: globalThis.Array<gc.runtime.SchemaObject> | null,
+        anyOf?: globalThis.Array<gc.runtime.SchemaObject> | null,
+        minItems?: number | bigint | null,
+        maxItems?: number | bigint | null,
+        enum_?: globalThis.Array<string> | null,
+        additionalProperties?: gc.runtime.SchemaObject | null,
+      );
+      static createFrom(fields: {
+        $ref?: string | null;
+        $defs?: globalThis.Map<string, gc.runtime.SchemaObject> | null;
+        type?: any | null;
+        format?: gc.runtime.SchemaFormat | null;
+        description?: string | null;
+        nullable?: boolean | null;
+        properties?: globalThis.Map<string, gc.runtime.SchemaObject> | null;
+        required?: globalThis.Array<string> | null;
+        items?: gc.runtime.SchemaObject | null;
+        oneOf?: globalThis.Array<gc.runtime.SchemaObject> | null;
+        allOf?: globalThis.Array<gc.runtime.SchemaObject> | null;
+        anyOf?: globalThis.Array<gc.runtime.SchemaObject> | null;
+        minItems?: number | bigint | null;
+        maxItems?: number | bigint | null;
+        enum_?: globalThis.Array<string> | null;
+        additionalProperties?: gc.runtime.SchemaObject | null;
+      }): SchemaObject;
     }
     namespace SchemaObject {
       interface $Fields {
@@ -3654,7 +5020,7 @@ declare namespace gc {
       offset: number | bigint;
       pass: string | null;
       constructor(offset: number | bigint, pass?: string | null);
-      static createFrom(fields: {offset: number | bigint, pass?: string | null}): UserCredential;
+      static createFrom(fields: { offset: number | bigint; pass?: string | null }): UserCredential;
     }
     namespace UserCredential {
       interface $Fields {
@@ -3670,7 +5036,7 @@ declare namespace gc {
       name: string;
       activated: boolean;
       constructor(id: number | bigint, name: string, activated: boolean);
-      static createFrom(fields: {id: number | bigint, name: string, activated: boolean}): UserGroup;
+      static createFrom(fields: { id: number | bigint; name: string; activated: boolean }): UserGroup;
     }
     namespace UserGroup {
       interface $Fields {
@@ -3690,8 +5056,24 @@ declare namespace gc {
       description: string | null;
       mimeType: string | null;
       size: number | bigint | null;
-      constructor(type: gc.runtime.McpContentType, _meta: globalThis.Map<string, any> | null, annotations: gc.runtime.McpAnnotations | null, uri: string, description?: string | null, mimeType?: string | null, size?: number | bigint | null);
-      static createFrom(fields: {type: gc.runtime.McpContentType, _meta?: globalThis.Map<string, any> | null, annotations?: gc.runtime.McpAnnotations | null, uri: string, description?: string | null, mimeType?: string | null, size?: number | bigint | null}): McpResourceContent;
+      constructor(
+        type: gc.runtime.McpContentType,
+        _meta: globalThis.Map<string, any> | null,
+        annotations: gc.runtime.McpAnnotations | null,
+        uri: string,
+        description?: string | null,
+        mimeType?: string | null,
+        size?: number | bigint | null,
+      );
+      static createFrom(fields: {
+        type: gc.runtime.McpContentType;
+        _meta?: globalThis.Map<string, any> | null;
+        annotations?: gc.runtime.McpAnnotations | null;
+        uri: string;
+        description?: string | null;
+        mimeType?: string | null;
+        size?: number | bigint | null;
+      }): McpResourceContent;
     }
     namespace McpResourceContent {
       interface $Fields {
@@ -3765,11 +5147,17 @@ declare namespace gc {
        * );
        * ```
        */
-      static add: gc.sdk.ExposedFn<[gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null | undefined], unknown>;
+      static add: gc.sdk.ExposedFn<
+        [gc.core.function_, gc.runtime.Periodicity, gc.runtime.PeriodicOptions | null | undefined],
+        unknown
+      >;
     }
 
     const mcp_initialize: gc.sdk.ExposedFn<[gc.runtime.McpInitializeParams], gc.runtime.McpInitializeResult>;
-    const mcp_tools_list: gc.sdk.ExposedFn<[gc.runtime.McpToolsListParams | null | undefined], gc.runtime.McpToolsListResult>;
+    const mcp_tools_list: gc.sdk.ExposedFn<
+      [gc.runtime.McpToolsListParams | null | undefined],
+      gc.runtime.McpToolsListResult
+    >;
     const mcp_tools_call: gc.sdk.ExposedFn<[gc.runtime.McpToolsCallParams], gc.runtime.McpToolsCallResult>;
   }
 
@@ -3781,7 +5169,7 @@ declare namespace gc {
       max: T;
       center: T;
       constructor(min?: T, max?: T, center?: T);
-      static createFrom<T>(fields: {min?: T, max?: T, center?: T}): QuantizerSlotBound;
+      static createFrom<T>(fields: { min?: T; max?: T; center?: T }): QuantizerSlotBound;
     }
     namespace QuantizerSlotBound {
       interface $Fields {
@@ -3801,7 +5189,7 @@ declare namespace gc {
       values: globalThis.Array<T> | null;
       capacity: number | bigint | null;
       constructor(values?: globalThis.Array<T> | null, capacity?: number | bigint | null);
-      static createFrom<T>(fields: {values?: globalThis.Array<T> | null, capacity?: number | bigint | null}): Queue;
+      static createFrom<T>(fields: { values?: globalThis.Array<T> | null; capacity?: number | bigint | null }): Queue;
     }
     namespace Queue {
       interface $Fields {
@@ -3820,8 +5208,24 @@ declare namespace gc {
       progress: number | null;
       speed: number | null;
       remaining: gc.core.duration | null;
-      constructor(start: gc.core.time, total?: number | bigint | null, counter?: number | bigint | null, duration?: gc.core.duration | null, progress?: number | null, speed?: number | null, remaining?: gc.core.duration | null);
-      static createFrom(fields: {start: gc.core.time, total?: number | bigint | null, counter?: number | bigint | null, duration?: gc.core.duration | null, progress?: number | null, speed?: number | null, remaining?: gc.core.duration | null}): ProgressTracker;
+      constructor(
+        start: gc.core.time,
+        total?: number | bigint | null,
+        counter?: number | bigint | null,
+        duration?: gc.core.duration | null,
+        progress?: number | null,
+        speed?: number | null,
+        remaining?: gc.core.duration | null,
+      );
+      static createFrom(fields: {
+        start: gc.core.time;
+        total?: number | bigint | null;
+        counter?: number | bigint | null;
+        duration?: gc.core.duration | null;
+        progress?: number | null;
+        speed?: number | null;
+        remaining?: gc.core.duration | null;
+      }): ProgressTracker;
     }
     namespace ProgressTracker {
       interface $Fields {
@@ -3840,7 +5244,7 @@ declare namespace gc {
       static readonly $fields: Stack.$Fields;
       values: globalThis.Array<T> | null;
       constructor(values?: globalThis.Array<T> | null);
-      static createFrom<T>(fields: {values?: globalThis.Array<T> | null}): Stack;
+      static createFrom<T>(fields: { values?: globalThis.Array<T> | null }): Stack;
     }
     namespace Stack {
       interface $Fields {
@@ -3860,8 +5264,20 @@ declare namespace gc {
       count: number | bigint | null;
       min: T | null;
       max: T | null;
-      constructor(sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: T | null, max?: T | null);
-      static createFrom<T>(fields: {sum?: number | null, sumsq?: number | null, count?: number | bigint | null, min?: T | null, max?: T | null}): Gaussian;
+      constructor(
+        sum?: number | null,
+        sumsq?: number | null,
+        count?: number | bigint | null,
+        min?: T | null,
+        max?: T | null,
+      );
+      static createFrom<T>(fields: {
+        sum?: number | null;
+        sumsq?: number | null;
+        count?: number | bigint | null;
+        min?: T | null;
+        max?: T | null;
+      }): Gaussian;
     }
     namespace Gaussian {
       interface $Fields {
@@ -3879,7 +5295,7 @@ declare namespace gc {
       seed: number | bigint | null;
       v: number | null;
       constructor(seed?: number | bigint | null, v?: number | null);
-      static createFrom(fields: {seed?: number | bigint | null, v?: number | null}): Random;
+      static createFrom(fields: { seed?: number | bigint | null; v?: number | null }): Random;
     }
     namespace Random {
       interface $Fields {
@@ -3899,8 +5315,26 @@ declare namespace gc {
       max: T | null;
       sum: number | null;
       sumsq: number | null;
-      constructor(quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null, min?: T | null, max?: T | null, sum?: number | null, sumsq?: number | null);
-      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, bins?: globalThis.Array<number | bigint | null> | null, nb_rejected?: number | bigint | null, nb_accepted?: number | bigint | null, min?: T | null, max?: T | null, sum?: number | null, sumsq?: number | null}): Histogram;
+      constructor(
+        quantizer: gc.util.Quantizer<T>,
+        bins?: globalThis.Array<number | bigint | null> | null,
+        nb_rejected?: number | bigint | null,
+        nb_accepted?: number | bigint | null,
+        min?: T | null,
+        max?: T | null,
+        sum?: number | null,
+        sumsq?: number | null,
+      );
+      static createFrom<T>(fields: {
+        quantizer: gc.util.Quantizer<T>;
+        bins?: globalThis.Array<number | bigint | null> | null;
+        nb_rejected?: number | bigint | null;
+        nb_accepted?: number | bigint | null;
+        min?: T | null;
+        max?: T | null;
+        sum?: number | null;
+        sumsq?: number | null;
+      }): Histogram;
     }
     namespace Histogram {
       interface $Fields {
@@ -3923,7 +5357,12 @@ declare namespace gc {
       step_starts: globalThis.Array<T>;
       open: boolean | null;
       constructor(min: T, max: T, step_starts: globalThis.Array<T>, open?: boolean | null);
-      static createFrom<T>(fields: {min?: T, max?: T, step_starts: globalThis.Array<T>, open?: boolean | null}): CustomQuantizer;
+      static createFrom<T>(fields: {
+        min?: T;
+        max?: T;
+        step_starts: globalThis.Array<T>;
+        open?: boolean | null;
+      }): CustomQuantizer;
     }
     namespace CustomQuantizer {
       interface $Fields {
@@ -3939,7 +5378,7 @@ declare namespace gc {
       static readonly $fields: MultiQuantizer.$Fields;
       quantizers: globalThis.Array<gc.util.Quantizer<T>>;
       constructor(quantizers: globalThis.Array<gc.util.Quantizer<T>>);
-      static createFrom<T>(fields: {quantizers: globalThis.Array<gc.util.Quantizer<T>>}): MultiQuantizer;
+      static createFrom<T>(fields: { quantizers: globalThis.Array<gc.util.Quantizer<T>> }): MultiQuantizer;
     }
     namespace MultiQuantizer {
       interface $Fields {
@@ -3973,8 +5412,48 @@ declare namespace gc {
       avg: T;
       std: T;
       size: number | bigint;
-      constructor(min: T, max: T, whisker_low: T, whisker_high: T, percentile1: T, percentile5: T, percentile10: T, percentile20: T, percentile25: T, percentile50: T, percentile75: T, percentile80: T, percentile90: T, percentile95: T, percentile99: T, sum: number, avg: T, std: T, size: number | bigint);
-      static createFrom<T>(fields: {min?: T, max?: T, whisker_low?: T, whisker_high?: T, percentile1?: T, percentile5?: T, percentile10?: T, percentile20?: T, percentile25?: T, percentile50?: T, percentile75?: T, percentile80?: T, percentile90?: T, percentile95?: T, percentile99?: T, sum: number, avg?: T, std?: T, size: number | bigint}): HistogramStats;
+      constructor(
+        min: T,
+        max: T,
+        whisker_low: T,
+        whisker_high: T,
+        percentile1: T,
+        percentile5: T,
+        percentile10: T,
+        percentile20: T,
+        percentile25: T,
+        percentile50: T,
+        percentile75: T,
+        percentile80: T,
+        percentile90: T,
+        percentile95: T,
+        percentile99: T,
+        sum: number,
+        avg: T,
+        std: T,
+        size: number | bigint,
+      );
+      static createFrom<T>(fields: {
+        min?: T;
+        max?: T;
+        whisker_low?: T;
+        whisker_high?: T;
+        percentile1?: T;
+        percentile5?: T;
+        percentile10?: T;
+        percentile20?: T;
+        percentile25?: T;
+        percentile50?: T;
+        percentile75?: T;
+        percentile80?: T;
+        percentile90?: T;
+        percentile95?: T;
+        percentile99?: T;
+        sum: number;
+        avg?: T;
+        std?: T;
+        size: number | bigint;
+      }): HistogramStats;
     }
     namespace HistogramStats {
       interface $Fields {
@@ -4008,8 +5487,20 @@ declare namespace gc {
       sum: number | null;
       sumsq: number | null;
       field: gc.core.field | null;
-      constructor(values: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
-      static createFrom<T>(fields: {values?: globalThis.Array<T> | null, span: number | bigint, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): SlidingWindow;
+      constructor(
+        values: globalThis.Array<T> | null,
+        span: number | bigint,
+        sum?: number | null,
+        sumsq?: number | null,
+        field?: gc.core.field | null,
+      );
+      static createFrom<T>(fields: {
+        values?: globalThis.Array<T> | null;
+        span: number | bigint;
+        sum?: number | null;
+        sumsq?: number | null;
+        field?: gc.core.field | null;
+      }): SlidingWindow;
     }
     namespace SlidingWindow {
       interface $Fields {
@@ -4029,8 +5520,20 @@ declare namespace gc {
       ratio: number;
       cumulative_count: number | bigint;
       cumulative_ratio: number;
-      constructor(bin: gc.util.QuantizerSlotBound<T>, count: number | bigint, ratio: number, cumulative_count: number | bigint, cumulative_ratio: number);
-      static createFrom<T>(fields: {bin: gc.util.QuantizerSlotBound<T>, count: number | bigint, ratio: number, cumulative_count: number | bigint, cumulative_ratio: number}): HistogramBin;
+      constructor(
+        bin: gc.util.QuantizerSlotBound<T>,
+        count: number | bigint,
+        ratio: number,
+        cumulative_count: number | bigint,
+        cumulative_ratio: number,
+      );
+      static createFrom<T>(fields: {
+        bin: gc.util.QuantizerSlotBound<T>;
+        count: number | bigint;
+        ratio: number;
+        cumulative_count: number | bigint;
+        cumulative_ratio: number;
+      }): HistogramBin;
     }
     namespace HistogramBin {
       interface $Fields {
@@ -4050,8 +5553,20 @@ declare namespace gc {
       bins: gc.core.Table<gc.util.GaussianProfileSlot | null> | null;
       value_min: number | null;
       nb_rejected: number | bigint | null;
-      constructor(quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null);
-      static createFrom<T>(fields: {quantizer: gc.util.Quantizer<T>, precision: gc.core.FloatPrecision, bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null, value_min?: number | null, nb_rejected?: number | bigint | null}): GaussianProfile;
+      constructor(
+        quantizer: gc.util.Quantizer<T>,
+        precision: gc.core.FloatPrecision,
+        bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null,
+        value_min?: number | null,
+        nb_rejected?: number | bigint | null,
+      );
+      static createFrom<T>(fields: {
+        quantizer: gc.util.Quantizer<T>;
+        precision: gc.core.FloatPrecision;
+        bins?: gc.core.Table<gc.util.GaussianProfileSlot | null> | null;
+        value_min?: number | null;
+        nb_rejected?: number | bigint | null;
+      }): GaussianProfile;
     }
     namespace GaussianProfile {
       interface $Fields {
@@ -4075,7 +5590,7 @@ declare namespace gc {
       bins: number | bigint;
       open: boolean | null;
       constructor(min: T, max: T, bins: number | bigint, open?: boolean | null);
-      static createFrom<T>(fields: {min?: T, max?: T, bins: number | bigint, open?: boolean | null}): LogQuantizer;
+      static createFrom<T>(fields: { min?: T; max?: T; bins: number | bigint; open?: boolean | null }): LogQuantizer;
     }
     namespace LogQuantizer {
       interface $Fields {
@@ -4094,8 +5609,20 @@ declare namespace gc {
       sum: number | null;
       sumsq: number | null;
       field: gc.core.field | null;
-      constructor(values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null);
-      static createFrom<T>(fields: {values?: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null, span: gc.core.duration, sum?: number | null, sumsq?: number | null, field?: gc.core.field | null}): TimeWindow;
+      constructor(
+        values: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null,
+        span: gc.core.duration,
+        sum?: number | null,
+        sumsq?: number | null,
+        field?: gc.core.field | null,
+      );
+      static createFrom<T>(fields: {
+        values?: gc.core.Table<gc.core.Tuple<gc.core.time, T>> | null;
+        span: gc.core.duration;
+        sum?: number | null;
+        sumsq?: number | null;
+        field?: gc.core.field | null;
+      }): TimeWindow;
     }
     namespace TimeWindow {
       interface $Fields {
@@ -4115,7 +5642,7 @@ declare namespace gc {
       bins: number | bigint;
       open: boolean | null;
       constructor(min: T, max: T, bins: number | bigint, open?: boolean | null);
-      static createFrom<T>(fields: {min?: T, max?: T, bins: number | bigint, open?: boolean | null}): LinearQuantizer;
+      static createFrom<T>(fields: { min?: T; max?: T; bins: number | bigint; open?: boolean | null }): LinearQuantizer;
     }
     namespace LinearQuantizer {
       interface $Fields {
@@ -4133,7 +5660,11 @@ declare namespace gc {
       sumsq: number | bigint;
       count: number | bigint;
       constructor(sum: number | bigint, sumsq: number | bigint, count: number | bigint);
-      static createFrom(fields: {sum: number | bigint, sumsq: number | bigint, count: number | bigint}): GaussianProfileSlot;
+      static createFrom(fields: {
+        sum: number | bigint;
+        sumsq: number | bigint;
+        count: number | bigint;
+      }): GaussianProfileSlot;
     }
     namespace GaussianProfileSlot {
       interface $Fields {
@@ -4142,7 +5673,5 @@ declare namespace gc {
         count: 2;
       }
     }
-
   }
-
 }

@@ -12,8 +12,22 @@ declare namespace gc {
       last_updated_stats: gc.core.time | null;
       governorates: gc.core.nodeIndex;
       meteo: gc.core.node<gc.project.Meteo>;
-      constructor(name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>);
-      static createFrom(fields: {name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats?: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>}): Country;
+      constructor(
+        name: string,
+        timezone: gc.core.TimeZone,
+        operating_stats: gc.core.node,
+        last_updated_stats: gc.core.time | null,
+        governorates: gc.core.nodeIndex,
+        meteo: gc.core.node<gc.project.Meteo>,
+      );
+      static createFrom(fields: {
+        name: string;
+        timezone: gc.core.TimeZone;
+        operating_stats: gc.core.node;
+        last_updated_stats?: gc.core.time | null;
+        governorates: gc.core.nodeIndex;
+        meteo: gc.core.node<gc.project.Meteo>;
+      }): Country;
     }
     namespace Country {
       interface $Fields {
@@ -36,7 +50,7 @@ declare namespace gc {
       width: number;
       height: number;
       constructor(width: number, height: number);
-      static createFrom(fields: {width: number, height: number}): Rect;
+      static createFrom(fields: { width: number; height: number }): Rect;
     }
     namespace Rect {
       interface $Fields {
@@ -51,7 +65,7 @@ declare namespace gc {
       shapes: globalThis.Array<gc.project.Shape>;
       shape: gc.project.Shape;
       constructor(shapes: globalThis.Array<gc.project.Shape>, shape: gc.project.Shape);
-      static createFrom(fields: {shapes: globalThis.Array<gc.project.Shape>, shape: gc.project.Shape}): ComplexForm;
+      static createFrom(fields: { shapes: globalThis.Array<gc.project.Shape>; shape: gc.project.Shape }): ComplexForm;
     }
     namespace ComplexForm {
       interface $Fields {
@@ -63,35 +77,35 @@ declare namespace gc {
     class Root extends gc.sdk.GCObject {
       static readonly _type = 'project::Root';
       static readonly $fields: Root.$Fields;
-      "project::sensor": gc.core.nodeTime<gc.project.SensorData>;
-      "project::serie_float": gc.core.nodeTime<number>;
-      "project::kline": gc.core.nodeTime<gc.project.KLine>;
-      "project::nt": gc.core.nodeTime;
-      "project::non_overlapping_1": gc.core.nodeTime<number>;
-      "project::non_overlapping_2": gc.core.nodeTime<number>;
-      "project::non_overlapping_3": gc.core.nodeTime<number>;
-      "project::simple_index": gc.core.nodeIndex<string, number | bigint>;
-      "project::person": gc.core.node<gc.project.Person2 | null>;
-      "project::huge_table": gc.core.node<gc.core.Table | null>;
-      "heatmap::earthquakes_by_geo": gc.core.nodeGeo<gc.heatmap.Earthquake>;
-      "heatmap::earthquakes_by_time": gc.core.nodeTime<gc.heatmap.Earthquake>;
-      "cities::cities": gc.core.nodeGeo<gc.cities.City>;
+      'project::sensor': gc.core.nodeTime<gc.project.SensorData>;
+      'project::serie_float': gc.core.nodeTime<number>;
+      'project::kline': gc.core.nodeTime<gc.project.KLine>;
+      'project::nt': gc.core.nodeTime;
+      'project::non_overlapping_1': gc.core.nodeTime<number>;
+      'project::non_overlapping_2': gc.core.nodeTime<number>;
+      'project::non_overlapping_3': gc.core.nodeTime<number>;
+      'project::simple_index': gc.core.nodeIndex<string, number | bigint>;
+      'project::person': gc.core.node<gc.project.Person2 | null>;
+      'project::huge_table': gc.core.node<gc.core.Table | null>;
+      'heatmap::earthquakes_by_geo': gc.core.nodeGeo<gc.heatmap.Earthquake>;
+      'heatmap::earthquakes_by_time': gc.core.nodeTime<gc.heatmap.Earthquake>;
+      'cities::cities': gc.core.nodeGeo<gc.cities.City>;
     }
     namespace Root {
       interface $Fields {
-        "project::sensor": 0;
-        "project::serie_float": 1;
-        "project::kline": 2;
-        "project::nt": 3;
-        "project::non_overlapping_1": 4;
-        "project::non_overlapping_2": 5;
-        "project::non_overlapping_3": 6;
-        "project::simple_index": 7;
-        "project::person": 8;
-        "project::huge_table": 9;
-        "heatmap::earthquakes_by_geo": 10;
-        "heatmap::earthquakes_by_time": 11;
-        "cities::cities": 12;
+        'project::sensor': 0;
+        'project::serie_float': 1;
+        'project::kline': 2;
+        'project::nt': 3;
+        'project::non_overlapping_1': 4;
+        'project::non_overlapping_2': 5;
+        'project::non_overlapping_3': 6;
+        'project::simple_index': 7;
+        'project::person': 8;
+        'project::huge_table': 9;
+        'heatmap::earthquakes_by_geo': 10;
+        'heatmap::earthquakes_by_time': 11;
+        'cities::cities': 12;
       }
     }
 
@@ -109,7 +123,7 @@ declare namespace gc {
       name: string;
       value: string;
       constructor(name: string, value: string);
-      static createFrom(fields: {name: string, value: string}): UrlEntry;
+      static createFrom(fields: { name: string; value: string }): UrlEntry;
     }
     namespace UrlEntry {
       interface $Fields {
@@ -127,8 +141,8 @@ declare namespace gc {
       static Yellow: TrafficLight;
       static Red: TrafficLight;
     }
-    namespace TrafficLight  {
-      type Field = "Green"|"Yellow"|"Red";
+    namespace TrafficLight {
+      type Field = 'Green' | 'Yellow' | 'Red';
     }
 
     class TimedComposed extends gc.sdk.GCObject {
@@ -138,7 +152,7 @@ declare namespace gc {
       a: number | bigint;
       b: number;
       constructor(time: gc.core.time, a: number | bigint, b: number);
-      static createFrom(fields: {time: gc.core.time, a: number | bigint, b: number}): TimedComposed;
+      static createFrom(fields: { time: gc.core.time; a: number | bigint; b: number }): TimedComposed;
     }
     namespace TimedComposed {
       interface $Fields {
@@ -169,7 +183,7 @@ declare namespace gc {
       static readonly $fields: anything$args.$Fields;
       v: any | null;
       constructor(v?: any | null);
-      static createFrom(fields: {v?: any | null}): anything$args;
+      static createFrom(fields: { v?: any | null }): anything$args;
     }
     namespace anything$args {
       interface $Fields {
@@ -191,7 +205,7 @@ declare namespace gc {
       id: number | bigint;
       kind: gc.project.SensorKind;
       constructor(id: number | bigint, kind: gc.project.SensorKind);
-      static createFrom(fields: {id: number | bigint, kind: gc.project.SensorKind}): Sensor;
+      static createFrom(fields: { id: number | bigint; kind: gc.project.SensorKind }): Sensor;
     }
     namespace Sensor {
       interface $Fields {
@@ -212,8 +226,8 @@ declare namespace gc {
       static Male: Sex;
       static Female: Sex;
     }
-    namespace Sex  {
-      type Field = "Male"|"Female";
+    namespace Sex {
+      type Field = 'Male' | 'Female';
     }
 
     class mapTest$args extends gc.sdk.GCObject {
@@ -228,7 +242,12 @@ declare namespace gc {
       item: gc.core.DurationUnit;
       optionalFlag: boolean | null;
       constructor(name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null);
-      static createFrom(fields: {name: string, flag: boolean, item: gc.core.DurationUnit, optionalFlag?: boolean | null}): goodFnForTestingFnCallInput$args;
+      static createFrom(fields: {
+        name: string;
+        flag: boolean;
+        item: gc.core.DurationUnit;
+        optionalFlag?: boolean | null;
+      }): goodFnForTestingFnCallInput$args;
     }
     namespace goodFnForTestingFnCallInput$args {
       interface $Fields {
@@ -244,7 +263,7 @@ declare namespace gc {
       static readonly $fields: SemiRecursive.$Fields;
       sub: gc.project.SemiRecursive | null;
       constructor(sub?: gc.project.SemiRecursive | null);
-      static createFrom(fields: {sub?: gc.project.SemiRecursive | null}): SemiRecursive;
+      static createFrom(fields: { sub?: gc.project.SemiRecursive | null }): SemiRecursive;
     }
     namespace SemiRecursive {
       interface $Fields {
@@ -279,8 +298,58 @@ declare namespace gc {
       t4f: gc.core.t4f;
       str: gc.core.str;
       date: gc.core.Date;
-      constructor(string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: gc.core.geo, null_: any | null, enum_: gc.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: gc.core.nodeTime, nodeIndex: gc.core.nodeIndex, nodeList: gc.core.nodeList, nodeGeo: gc.core.nodeGeo, nested: any | null, map: globalThis.Map<string, any>, tuple: gc.core.Tuple<any, any>, t2: gc.core.t2, t2f: gc.core.t2f, t3: gc.core.t3, t3f: gc.core.t3f, t4: gc.core.t4, t4f: gc.core.t4f, str: gc.core.str, date: gc.core.Date);
-      static createFrom(fields: {string: string, int: number | bigint, float: number, bool: boolean, char: string, geo: gc.core.geo, null_?: any | null, enum_: gc.core.TimeZone, array: globalThis.Array<any | null>, nodeTime: gc.core.nodeTime, nodeIndex: gc.core.nodeIndex, nodeList: gc.core.nodeList, nodeGeo: gc.core.nodeGeo, nested?: any | null, map: globalThis.Map<string, any>, tuple: gc.core.Tuple<any, any>, t2: gc.core.t2, t2f: gc.core.t2f, t3: gc.core.t3, t3f: gc.core.t3f, t4: gc.core.t4, t4f: gc.core.t4f, str: gc.core.str, date: gc.core.Date}): ComplexObject;
+      constructor(
+        string: string,
+        int: number | bigint,
+        float: number,
+        bool: boolean,
+        char: string,
+        geo: gc.core.geo,
+        null_: any | null,
+        enum_: gc.core.TimeZone,
+        array: globalThis.Array<any | null>,
+        nodeTime: gc.core.nodeTime,
+        nodeIndex: gc.core.nodeIndex,
+        nodeList: gc.core.nodeList,
+        nodeGeo: gc.core.nodeGeo,
+        nested: any | null,
+        map: globalThis.Map<string, any>,
+        tuple: gc.core.Tuple<any, any>,
+        t2: gc.core.t2,
+        t2f: gc.core.t2f,
+        t3: gc.core.t3,
+        t3f: gc.core.t3f,
+        t4: gc.core.t4,
+        t4f: gc.core.t4f,
+        str: gc.core.str,
+        date: gc.core.Date,
+      );
+      static createFrom(fields: {
+        string: string;
+        int: number | bigint;
+        float: number;
+        bool: boolean;
+        char: string;
+        geo: gc.core.geo;
+        null_?: any | null;
+        enum_: gc.core.TimeZone;
+        array: globalThis.Array<any | null>;
+        nodeTime: gc.core.nodeTime;
+        nodeIndex: gc.core.nodeIndex;
+        nodeList: gc.core.nodeList;
+        nodeGeo: gc.core.nodeGeo;
+        nested?: any | null;
+        map: globalThis.Map<string, any>;
+        tuple: gc.core.Tuple<any, any>;
+        t2: gc.core.t2;
+        t2f: gc.core.t2f;
+        t3: gc.core.t3;
+        t3f: gc.core.t3f;
+        t4: gc.core.t4;
+        t4f: gc.core.t4f;
+        str: gc.core.str;
+        date: gc.core.Date;
+      }): ComplexObject;
     }
     namespace ComplexObject {
       interface $Fields {
@@ -324,7 +393,7 @@ declare namespace gc {
       static readonly $fields: display_fn$args.$Fields;
       fn_: gc.core.function_;
       constructor(fn_: gc.core.function_);
-      static createFrom(fields: {fn_: gc.core.function_}): display_fn$args;
+      static createFrom(fields: { fn_: gc.core.function_ }): display_fn$args;
     }
     namespace display_fn$args {
       interface $Fields {
@@ -338,7 +407,7 @@ declare namespace gc {
       name: string;
       next: gc.project.Link | null;
       constructor(name: string, next?: gc.project.Link | null);
-      static createFrom(fields: {name: string, next?: gc.project.Link | null}): Link;
+      static createFrom(fields: { name: string; next?: gc.project.Link | null }): Link;
       static whatever: gc.sdk.ExposedFn<[gc.core.node<gc.project.Link>], unknown>;
     }
     namespace Link {
@@ -358,7 +427,10 @@ declare namespace gc {
       name: string;
       solar: gc.core.node<gc.project.SolarRadiation>;
       constructor(name: string, solar: gc.core.node<gc.project.SolarRadiation>);
-      static createFrom(fields: {name: string, solar: gc.core.node<gc.project.SolarRadiation>}): VisualCrossingProvider;
+      static createFrom(fields: {
+        name: string;
+        solar: gc.core.node<gc.project.SolarRadiation>;
+      }): VisualCrossingProvider;
     }
     namespace VisualCrossingProvider {
       interface $Fields {
@@ -373,7 +445,7 @@ declare namespace gc {
       a: number | bigint;
       b: number;
       constructor(a: number | bigint, b: number);
-      static createFrom(fields: {a: number | bigint, b: number}): Composed;
+      static createFrom(fields: { a: number | bigint; b: number }): Composed;
     }
     namespace Composed {
       interface $Fields {
@@ -388,7 +460,7 @@ declare namespace gc {
       level: gc.project.Level;
       value: number;
       constructor(level: gc.project.Level, value: number);
-      static createFrom(fields: {level: gc.project.Level, value: number}): MyData;
+      static createFrom(fields: { level: gc.project.Level; value: number }): MyData;
     }
     namespace MyData {
       interface $Fields {
@@ -420,7 +492,11 @@ declare namespace gc {
       radiance: gc.core.nodeTime;
       instant_power: gc.core.nodeTime;
       constructor(is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime);
-      static createFrom(fields: {is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime}): SolarRadiation;
+      static createFrom(fields: {
+        is_enabled: boolean;
+        radiance: gc.core.nodeTime;
+        instant_power: gc.core.nodeTime;
+      }): SolarRadiation;
     }
     namespace SolarRadiation {
       interface $Fields {
@@ -438,8 +514,20 @@ declare namespace gc {
       c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>;
       d: globalThis.Array<gc.project.Person | null>;
       e: globalThis.Map<string, string | null>;
-      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>);
-      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
+      constructor(
+        a: globalThis.Map<number | bigint, string>,
+        b: globalThis.Map<gc.core.TimeZone, string>,
+        c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>,
+        d: globalThis.Array<gc.project.Person | null>,
+        e: globalThis.Map<string, string | null>,
+      );
+      static createFrom(fields: {
+        a: globalThis.Map<number | bigint, string>;
+        b: globalThis.Map<gc.core.TimeZone, string>;
+        c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>;
+        d: globalThis.Array<gc.project.Person | null>;
+        e: globalThis.Map<string, string | null>;
+      }): MapContainer;
     }
     namespace MapContainer {
       interface $Fields {
@@ -458,7 +546,7 @@ declare namespace gc {
       value: any;
       link: gc.core.node<gc.project.Node> | null;
       constructor(id: string, value: any, link?: gc.core.node<gc.project.Node> | null);
-      static createFrom(fields: {id: string, value: any, link?: gc.core.node<gc.project.Node> | null}): Node;
+      static createFrom(fields: { id: string; value: any; link?: gc.core.node<gc.project.Node> | null }): Node;
     }
     namespace Node {
       interface $Fields {
@@ -481,7 +569,7 @@ declare namespace gc {
       static readonly $fields: hello$args.$Fields;
       name: string;
       constructor(name: string);
-      static createFrom(fields: {name: string}): hello$args;
+      static createFrom(fields: { name: string }): hello$args;
     }
     namespace hello$args {
       interface $Fields {
@@ -498,8 +586,14 @@ declare namespace gc {
       static readonly $fields: Meteo.$Fields;
       ideal_solar: gc.core.node<gc.project.SolarRadiation>;
       visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>;
-      constructor(ideal_solar: gc.core.node<gc.project.SolarRadiation>, visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>);
-      static createFrom(fields: {ideal_solar: gc.core.node<gc.project.SolarRadiation>, visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>}): Meteo;
+      constructor(
+        ideal_solar: gc.core.node<gc.project.SolarRadiation>,
+        visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>,
+      );
+      static createFrom(fields: {
+        ideal_solar: gc.core.node<gc.project.SolarRadiation>;
+        visual_crossing: gc.core.node<gc.project.VisualCrossingProvider>;
+      }): Meteo;
     }
     namespace Meteo {
       interface $Fields {
@@ -520,28 +614,48 @@ declare namespace gc {
       static readonly _type = 'project::People';
       static readonly $fields: People.$Fields;
       Index: number | bigint;
-      "User id": string;
-      "First Name": string;
-      "Last Name": string;
+      'User id': string;
+      'First Name': string;
+      'Last Name': string;
       Sex: gc.project.Sex;
       Email: string;
       Phone: string;
-      "Date of birth": gc.core.time;
-      "Job Title": string;
-      constructor(Index: number | bigint, User_id: string, First_Name: string, Last_Name: string, Sex: gc.project.Sex, Email: string, Phone: string, Date_of_birth: gc.core.time, Job_Title: string);
-      static createFrom(fields: {Index: number | bigint, "User id": string, "First Name": string, "Last Name": string, Sex: gc.project.Sex, Email: string, Phone: string, "Date of birth": gc.core.time, "Job Title": string}): People;
+      'Date of birth': gc.core.time;
+      'Job Title': string;
+      constructor(
+        Index: number | bigint,
+        User_id: string,
+        First_Name: string,
+        Last_Name: string,
+        Sex: gc.project.Sex,
+        Email: string,
+        Phone: string,
+        Date_of_birth: gc.core.time,
+        Job_Title: string,
+      );
+      static createFrom(fields: {
+        Index: number | bigint;
+        'User id': string;
+        'First Name': string;
+        'Last Name': string;
+        Sex: gc.project.Sex;
+        Email: string;
+        Phone: string;
+        'Date of birth': gc.core.time;
+        'Job Title': string;
+      }): People;
     }
     namespace People {
       interface $Fields {
         Index: 0;
-        "User id": 1;
-        "First Name": 2;
-        "Last Name": 3;
+        'User id': 1;
+        'First Name': 2;
+        'Last Name': 3;
         Sex: 4;
         Email: 5;
         Phone: 6;
-        "Date of birth": 7;
-        "Job Title": 8;
+        'Date of birth': 7;
+        'Job Title': 8;
       }
     }
 
@@ -558,7 +672,7 @@ declare namespace gc {
       static readonly $fields: chart$args.$Fields;
       nbRows: number | bigint;
       constructor(nbRows: number | bigint);
-      static createFrom(fields: {nbRows: number | bigint}): chart$args;
+      static createFrom(fields: { nbRows: number | bigint }): chart$args;
     }
     namespace chart$args {
       interface $Fields {
@@ -577,7 +691,7 @@ declare namespace gc {
       age: number | bigint;
       activated: boolean;
       constructor(name: string, age: number | bigint, activated: boolean);
-      static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
+      static createFrom(fields: { name: string; age: number | bigint; activated: boolean }): Person;
     }
     namespace Person {
       interface $Fields {
@@ -596,8 +710,8 @@ declare namespace gc {
       static Medium: Confidence;
       static Low: Confidence;
     }
-    namespace Confidence  {
-      type Field = "High"|"Medium"|"Low";
+    namespace Confidence {
+      type Field = 'High' | 'Medium' | 'Low';
     }
 
     class obj1$args extends gc.sdk.GCObject {
@@ -610,7 +724,7 @@ declare namespace gc {
       a: number | bigint;
       b: number | bigint;
       constructor(a: number | bigint, b: number | bigint);
-      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
+      static createFrom(fields: { a: number | bigint; b: number | bigint }): add$args;
     }
     namespace add$args {
       interface $Fields {
@@ -629,7 +743,7 @@ declare namespace gc {
       name: string;
       age: number | bigint;
       constructor(name: string, age: number | bigint);
-      static createFrom(fields: {name: string, age: number | bigint}): task_with_params$args;
+      static createFrom(fields: { name: string; age: number | bigint }): task_with_params$args;
     }
     namespace task_with_params$args {
       interface $Fields {
@@ -647,7 +761,7 @@ declare namespace gc {
       static readonly $fields: Circle.$Fields;
       radius: number;
       constructor(radius: number);
-      static createFrom(fields: {radius: number}): Circle;
+      static createFrom(fields: { radius: number }): Circle;
     }
     namespace Circle {
       interface $Fields {
@@ -665,7 +779,7 @@ declare namespace gc {
       field: any | null;
       tuple: gc.core.Tuple<any, any>;
       constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
-      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
+      static createFrom(fields: { field?: any | null; tuple: gc.core.Tuple<any, any> }): Obj;
     }
     namespace Obj {
       interface $Fields {
@@ -681,7 +795,7 @@ declare namespace gc {
       close: number;
       volume: number | bigint;
       constructor(open: number, close: number, volume: number | bigint);
-      static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
+      static createFrom(fields: { open: number; close: number; volume: number | bigint }): KLine;
     }
     namespace KLine {
       interface $Fields {
@@ -700,8 +814,8 @@ declare namespace gc {
       static Normal: Level;
       static Low: Level;
     }
-    namespace Level  {
-      type Field = "High"|"Normal"|"Low";
+    namespace Level {
+      type Field = 'High' | 'Normal' | 'Low';
     }
 
     class Triangle extends gc.sdk.GCObject {
@@ -710,7 +824,7 @@ declare namespace gc {
       base: number;
       height: number;
       constructor(base: number, height: number);
-      static createFrom(fields: {base: number, height: number}): Triangle;
+      static createFrom(fields: { base: number; height: number }): Triangle;
     }
     namespace Triangle {
       interface $Fields {
@@ -725,7 +839,7 @@ declare namespace gc {
       time: gc.core.time;
       value: T;
       constructor(time: gc.core.time, value?: T);
-      static createFrom<T>(fields: {time: gc.core.time, value?: T}): TimeRecord;
+      static createFrom<T>(fields: { time: gc.core.time; value?: T }): TimeRecord;
     }
     namespace TimeRecord {
       interface $Fields {
@@ -740,7 +854,7 @@ declare namespace gc {
       a: number | bigint;
       b: number;
       constructor(a: number | bigint, b: number);
-      static createFrom(fields: {a: number | bigint, b: number}): SeriesObject;
+      static createFrom(fields: { a: number | bigint; b: number }): SeriesObject;
     }
     namespace SeriesObject {
       interface $Fields {
@@ -754,7 +868,7 @@ declare namespace gc {
       static readonly $fields: display_fn_in_obj$args.$Fields;
       o: gc.project.ObjWithFn;
       constructor(o: gc.project.ObjWithFn);
-      static createFrom(fields: {o: gc.project.ObjWithFn}): display_fn_in_obj$args;
+      static createFrom(fields: { o: gc.project.ObjWithFn }): display_fn_in_obj$args;
     }
     namespace display_fn_in_obj$args {
       interface $Fields {
@@ -767,7 +881,7 @@ declare namespace gc {
       static readonly $fields: array_of_ints$args.$Fields;
       arr: globalThis.Array<number | bigint>;
       constructor(arr: globalThis.Array<number | bigint>);
-      static createFrom(fields: {arr: globalThis.Array<number | bigint>}): array_of_ints$args;
+      static createFrom(fields: { arr: globalThis.Array<number | bigint> }): array_of_ints$args;
     }
     namespace array_of_ints$args {
       interface $Fields {
@@ -794,8 +908,18 @@ declare namespace gc {
       prop2: globalThis.Array<gc.runtime.User | null>;
       prop3: globalThis.Map<string, gc.project.Person | null>;
       prop4: any | null;
-      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null);
-      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null}): Obj2;
+      constructor(
+        prop1: string,
+        prop2: globalThis.Array<gc.runtime.User | null>,
+        prop3: globalThis.Map<string, gc.project.Person | null>,
+        prop4?: any | null,
+      );
+      static createFrom(fields: {
+        prop1: string;
+        prop2: globalThis.Array<gc.runtime.User | null>;
+        prop3: globalThis.Map<string, gc.project.Person | null>;
+        prop4?: any | null;
+      }): Obj2;
     }
     namespace Obj2 {
       interface $Fields {
@@ -811,7 +935,7 @@ declare namespace gc {
       static readonly $fields: ObjWithFn.$Fields;
       fn: gc.core.function_;
       constructor(fn: gc.core.function_);
-      static createFrom(fields: {fn: gc.core.function_}): ObjWithFn;
+      static createFrom(fields: { fn: gc.core.function_ }): ObjWithFn;
     }
     namespace ObjWithFn {
       interface $Fields {
@@ -839,7 +963,12 @@ declare namespace gc {
       age: number | bigint;
       children: number | bigint;
       constructor(id: number | bigint, name: string, age: number | bigint, children: number | bigint);
-      static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
+      static createFrom(fields: {
+        id: number | bigint;
+        name: string;
+        age: number | bigint;
+        children: number | bigint;
+      }): Person2;
     }
     namespace Person2 {
       interface $Fields {
@@ -855,7 +984,7 @@ declare namespace gc {
       static readonly $fields: controlled_task$args.$Fields;
       duration: gc.core.duration;
       constructor(duration: gc.core.duration);
-      static createFrom(fields: {duration: gc.core.duration}): controlled_task$args;
+      static createFrom(fields: { duration: gc.core.duration }): controlled_task$args;
     }
     namespace controlled_task$args {
       interface $Fields {
@@ -870,7 +999,7 @@ declare namespace gc {
       prop2: gc.runtime.User;
       prop3: gc.runtime.RuntimeInfo;
       constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
-      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
+      static createFrom(fields: { prop1: string; prop2: gc.runtime.User; prop3: gc.runtime.RuntimeInfo }): Obj1;
     }
     namespace Obj1 {
       interface $Fields {
@@ -888,7 +1017,12 @@ declare namespace gc {
       paris: gc.core.Date;
       athens: gc.core.Date;
       constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
-      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
+      static createFrom(fields: {
+        azores: gc.core.Date;
+        utc: gc.core.Date;
+        paris: gc.core.Date;
+        athens: gc.core.Date;
+      }): TimeZones;
     }
     namespace TimeZones {
       interface $Fields {
@@ -907,8 +1041,8 @@ declare namespace gc {
       static Temp: SensorKind;
       static Pressure: SensorKind;
     }
-    namespace SensorKind  {
-      type Field = "Temp"|"Pressure";
+    namespace SensorKind {
+      type Field = 'Temp' | 'Pressure';
     }
 
     class array_of_nodes$args extends gc.sdk.GCObject {
@@ -936,7 +1070,7 @@ declare namespace gc {
       static readonly $fields: Box.$Fields;
       value: number | bigint;
       constructor(value: number | bigint);
-      static createFrom(fields: {value: number | bigint}): Box;
+      static createFrom(fields: { value: number | bigint }): Box;
     }
     namespace Box {
       interface $Fields {
@@ -957,7 +1091,7 @@ declare namespace gc {
       static readonly $fields: Link$whatever$args.$Fields;
       link: gc.core.node<gc.project.Link>;
       constructor(link: gc.core.node<gc.project.Link>);
-      static createFrom(fields: {link: gc.core.node<gc.project.Link>}): Link$whatever$args;
+      static createFrom(fields: { link: gc.core.node<gc.project.Link> }): Link$whatever$args;
     }
     namespace Link$whatever$args {
       interface $Fields {
@@ -971,7 +1105,7 @@ declare namespace gc {
       name: string;
       owner: gc.project.Person | null;
       constructor(name: string, owner?: gc.project.Person | null);
-      static createFrom(fields: {name: string, owner?: gc.project.Person | null}): Book;
+      static createFrom(fields: { name: string; owner?: gc.project.Person | null }): Book;
     }
     namespace Book {
       interface $Fields {
@@ -991,8 +1125,8 @@ declare namespace gc {
       static ev_shelly: RelayApp;
       static empty: RelayApp;
     }
-    namespace RelayApp  {
-      type Field = "pv"|"pv_shelly"|"ev"|"ev_shelly"|"empty";
+    namespace RelayApp {
+      type Field = 'pv' | 'pv_shelly' | 'ev' | 'ev_shelly' | 'empty';
     }
 
     class SensorData extends gc.sdk.GCObject {
@@ -1002,7 +1136,7 @@ declare namespace gc {
       pression: number;
       humidity: number;
       constructor(temperature: number, pression: number, humidity: number);
-      static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
+      static createFrom(fields: { temperature: number; pression: number; humidity: number }): SensorData;
     }
     namespace SensorData {
       interface $Fields {
@@ -1025,7 +1159,7 @@ declare namespace gc {
       static readonly $fields: link_whatever$args.$Fields;
       l: gc.core.node<gc.project.Link>;
       constructor(l: gc.core.node<gc.project.Link>);
-      static createFrom(fields: {l: gc.core.node<gc.project.Link>}): link_whatever$args;
+      static createFrom(fields: { l: gc.core.node<gc.project.Link> }): link_whatever$args;
     }
     namespace link_whatever$args {
       interface $Fields {
@@ -1060,7 +1194,10 @@ declare namespace gc {
     const add: gc.sdk.ExposedFn<[number | bigint, number | bigint], number | bigint>;
     const anything: gc.sdk.ExposedFn<[any | null | undefined], unknown>;
     const mapTest: gc.sdk.ExposedFn<[], globalThis.Map<gc.core.DurationUnit, gc.core.Tuple<string, number | bigint>>>;
-    const goodFnForTestingFnCallInput: gc.sdk.ExposedFn<[string, boolean, gc.core.DurationUnit, boolean | null | undefined], unknown>;
+    const goodFnForTestingFnCallInput: gc.sdk.ExposedFn<
+      [string, boolean, gc.core.DurationUnit, boolean | null | undefined],
+      unknown
+    >;
     const now: gc.sdk.ExposedFn<[], unknown>;
     const link_whatever: gc.sdk.ExposedFn<[gc.core.node<gc.project.Link>], unknown>;
     const big_map: gc.sdk.ExposedFn<[], globalThis.Map<any | null, any | null>>;
@@ -1098,7 +1235,7 @@ declare namespace gc {
       static readonly $fields: filter_something$args.$Fields;
       f: gc.any.Filters;
       constructor(f: gc.any.Filters);
-      static createFrom(fields: {f: gc.any.Filters}): filter_something$args;
+      static createFrom(fields: { f: gc.any.Filters }): filter_something$args;
     }
     namespace filter_something$args {
       interface $Fields {
@@ -1112,7 +1249,7 @@ declare namespace gc {
       a: number | bigint;
       b: string;
       constructor(a: number | bigint, b: string);
-      static createFrom(fields: {a: number | bigint, b: string}): Filters;
+      static createFrom(fields: { a: number | bigint; b: string }): Filters;
     }
     namespace Filters {
       interface $Fields {
@@ -1127,7 +1264,10 @@ declare namespace gc {
       arr: globalThis.Array<any | null>;
       map: globalThis.Map<any | null, any | null>;
       constructor(arr: globalThis.Array<any | null>, map: globalThis.Map<any | null, any | null>);
-      static createFrom(fields: {arr: globalThis.Array<any | null>, map: globalThis.Map<any | null, any | null>}): array_any_map_any$args;
+      static createFrom(fields: {
+        arr: globalThis.Array<any | null>;
+        map: globalThis.Map<any | null, any | null>;
+      }): array_any_map_any$args;
     }
     namespace array_any_map_any$args {
       interface $Fields {
@@ -1141,7 +1281,7 @@ declare namespace gc {
       static readonly $fields: AnyInput.$Fields;
       idk: any;
       constructor(idk: any);
-      static createFrom(fields: {idk: any}): AnyInput;
+      static createFrom(fields: { idk: any }): AnyInput;
     }
     namespace AnyInput {
       interface $Fields {
@@ -1150,7 +1290,10 @@ declare namespace gc {
     }
 
     const filter_something: gc.sdk.ExposedFn<[gc.any.Filters], unknown>;
-    const array_any_map_any: gc.sdk.ExposedFn<[globalThis.Array<any | null>, globalThis.Map<any | null, any | null>], unknown>;
+    const array_any_map_any: gc.sdk.ExposedFn<
+      [globalThis.Array<any | null>, globalThis.Map<any | null, any | null>],
+      unknown
+    >;
   }
 
   namespace object {
@@ -1160,7 +1303,7 @@ declare namespace gc {
       a: number | bigint;
       b: string | null;
       constructor(a: number | bigint, b?: string | null);
-      static createFrom(fields: {a: number | bigint, b?: string | null}): Filter;
+      static createFrom(fields: { a: number | bigint; b?: string | null }): Filter;
     }
     namespace Filter {
       interface $Fields {
@@ -1168,11 +1311,9 @@ declare namespace gc {
         b: 1;
       }
     }
-
   }
 
-  namespace tx {
-  }
+  namespace tx {}
 
   namespace heatmap {
     class major_earthquakes$args extends gc.sdk.GCObject {
@@ -1208,8 +1349,54 @@ declare namespace gc {
       status: gc.heatmap.Status;
       locationSource: string;
       magSource: string;
-      constructor(time: gc.core.time, latitude: number, longitude: number, depth: number, mag: number | null, magType: string | null, nst: number | bigint | null, gap: number | bigint | null, dmin: number | null, rms: number | null, net: string, id: string, updated: gc.core.time, place: string, type: string, horizontalError: number | null, depthError: number | null, magError: number | null, magNst: number | bigint | null, status: gc.heatmap.Status, locationSource: string, magSource: string);
-      static createFrom(fields: {time: gc.core.time, latitude: number, longitude: number, depth: number, mag?: number | null, magType?: string | null, nst?: number | bigint | null, gap?: number | bigint | null, dmin?: number | null, rms?: number | null, net: string, id: string, updated: gc.core.time, place: string, type: string, horizontalError?: number | null, depthError?: number | null, magError?: number | null, magNst?: number | bigint | null, status: gc.heatmap.Status, locationSource: string, magSource: string}): Record;
+      constructor(
+        time: gc.core.time,
+        latitude: number,
+        longitude: number,
+        depth: number,
+        mag: number | null,
+        magType: string | null,
+        nst: number | bigint | null,
+        gap: number | bigint | null,
+        dmin: number | null,
+        rms: number | null,
+        net: string,
+        id: string,
+        updated: gc.core.time,
+        place: string,
+        type: string,
+        horizontalError: number | null,
+        depthError: number | null,
+        magError: number | null,
+        magNst: number | bigint | null,
+        status: gc.heatmap.Status,
+        locationSource: string,
+        magSource: string,
+      );
+      static createFrom(fields: {
+        time: gc.core.time;
+        latitude: number;
+        longitude: number;
+        depth: number;
+        mag?: number | null;
+        magType?: string | null;
+        nst?: number | bigint | null;
+        gap?: number | bigint | null;
+        dmin?: number | null;
+        rms?: number | null;
+        net: string;
+        id: string;
+        updated: gc.core.time;
+        place: string;
+        type: string;
+        horizontalError?: number | null;
+        depthError?: number | null;
+        magError?: number | null;
+        magNst?: number | bigint | null;
+        status: gc.heatmap.Status;
+        locationSource: string;
+        magSource: string;
+      }): Record;
     }
     namespace Record {
       interface $Fields {
@@ -1246,8 +1433,8 @@ declare namespace gc {
       static automatic: Status;
       static reviewed: Status;
     }
-    namespace Status  {
-      type Field = "automatic"|"reviewed";
+    namespace Status {
+      type Field = 'automatic' | 'reviewed';
     }
 
     class Earthquake extends gc.sdk.GCObject {
@@ -1271,8 +1458,46 @@ declare namespace gc {
       magError: number | null;
       magNst: number | bigint | null;
       magSource: string;
-      constructor(time: gc.core.time, location: gc.core.geo, depth: number, mag: number | null, magType: string | null, nst: number | bigint | null, gap: number | bigint | null, dmin: number | null, rms: number | null, net: string, id: string, updated: gc.core.time, place: string, horizontalError: number | null, depthError: number | null, magError: number | null, magNst: number | bigint | null, magSource: string);
-      static createFrom(fields: {time: gc.core.time, location: gc.core.geo, depth: number, mag?: number | null, magType?: string | null, nst?: number | bigint | null, gap?: number | bigint | null, dmin?: number | null, rms?: number | null, net: string, id: string, updated: gc.core.time, place: string, horizontalError?: number | null, depthError?: number | null, magError?: number | null, magNst?: number | bigint | null, magSource: string}): Earthquake;
+      constructor(
+        time: gc.core.time,
+        location: gc.core.geo,
+        depth: number,
+        mag: number | null,
+        magType: string | null,
+        nst: number | bigint | null,
+        gap: number | bigint | null,
+        dmin: number | null,
+        rms: number | null,
+        net: string,
+        id: string,
+        updated: gc.core.time,
+        place: string,
+        horizontalError: number | null,
+        depthError: number | null,
+        magError: number | null,
+        magNst: number | bigint | null,
+        magSource: string,
+      );
+      static createFrom(fields: {
+        time: gc.core.time;
+        location: gc.core.geo;
+        depth: number;
+        mag?: number | null;
+        magType?: string | null;
+        nst?: number | bigint | null;
+        gap?: number | bigint | null;
+        dmin?: number | null;
+        rms?: number | null;
+        net: string;
+        id: string;
+        updated: gc.core.time;
+        place: string;
+        horizontalError?: number | null;
+        depthError?: number | null;
+        magError?: number | null;
+        magNst?: number | bigint | null;
+        magSource: string;
+      }): Earthquake;
     }
     namespace Earthquake {
       interface $Fields {
@@ -1310,8 +1535,20 @@ declare namespace gc {
       location: gc.core.geo;
       population: number | bigint;
       type: gc.cities.CapitalType;
-      constructor(country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType);
-      static createFrom(fields: {country: string, name: string, location: gc.core.geo, population: number | bigint, type: gc.cities.CapitalType}): City;
+      constructor(
+        country: string,
+        name: string,
+        location: gc.core.geo,
+        population: number | bigint,
+        type: gc.cities.CapitalType,
+      );
+      static createFrom(fields: {
+        country: string;
+        name: string;
+        location: gc.core.geo;
+        population: number | bigint;
+        type: gc.cities.CapitalType;
+      }): City;
     }
     namespace City {
       interface $Fields {
@@ -1329,16 +1566,21 @@ declare namespace gc {
       key: CapitalType.Field;
       constructor(type: gc.sdk.AbiType, offset: number, key: CapitalType.Field);
       static Others: CapitalType;
-      static "Administrative Capital": CapitalType;
-      static "Seat of Government": CapitalType;
+      static 'Administrative Capital': CapitalType;
+      static 'Seat of Government': CapitalType;
       static Capital: CapitalType;
-      static "Legislative Capital": CapitalType;
-      static "Economic Capital": CapitalType;
+      static 'Legislative Capital': CapitalType;
+      static 'Economic Capital': CapitalType;
     }
-    namespace CapitalType  {
-      type Field = "Others"|"Administrative Capital"|"Seat of Government"|"Capital"|"Legislative Capital"|"Economic Capital";
+    namespace CapitalType {
+      type Field =
+        | 'Others'
+        | 'Administrative Capital'
+        | 'Seat of Government'
+        | 'Capital'
+        | 'Legislative Capital'
+        | 'Economic Capital';
     }
-
   }
 
   namespace big {
@@ -1365,8 +1607,50 @@ declare namespace gc {
       cso1: number;
       y: number;
       category: string;
-      constructor(timestamp: gc.core.time, aimp: number | null, amud: number, arnd: number, asin1: number, asin2: number, adbr: any | null, adfl: number, bed1: number, bed2: number, bfo1: boolean | null, bfo2: number, bso1: number, bso2: number, bso3: number, ced1: number, cfo1: number, cso1: number, y: number, category: string);
-      static createFrom(fields: {timestamp: gc.core.time, aimp?: number | null, amud: number, arnd: number, asin1: number, asin2: number, adbr?: any | null, adfl: number, bed1: number, bed2: number, bfo1?: boolean | null, bfo2: number, bso1: number, bso2: number, bso3: number, ced1: number, cfo1: number, cso1: number, y: number, category: string}): BigRecord;
+      constructor(
+        timestamp: gc.core.time,
+        aimp: number | null,
+        amud: number,
+        arnd: number,
+        asin1: number,
+        asin2: number,
+        adbr: any | null,
+        adfl: number,
+        bed1: number,
+        bed2: number,
+        bfo1: boolean | null,
+        bfo2: number,
+        bso1: number,
+        bso2: number,
+        bso3: number,
+        ced1: number,
+        cfo1: number,
+        cso1: number,
+        y: number,
+        category: string,
+      );
+      static createFrom(fields: {
+        timestamp: gc.core.time;
+        aimp?: number | null;
+        amud: number;
+        arnd: number;
+        asin1: number;
+        asin2: number;
+        adbr?: any | null;
+        adfl: number;
+        bed1: number;
+        bed2: number;
+        bfo1?: boolean | null;
+        bfo2: number;
+        bso1: number;
+        bso2: number;
+        bso3: number;
+        ced1: number;
+        cfo1: number;
+        cso1: number;
+        y: number;
+        category: string;
+      }): BigRecord;
     }
     namespace BigRecord {
       interface $Fields {
@@ -1404,7 +1688,11 @@ declare namespace gc {
       records: globalThis.Array<gc.big.BigRecord>;
       end_time: gc.core.time;
       constructor(start_time: gc.core.time, records: globalThis.Array<gc.big.BigRecord>, end_time: gc.core.time);
-      static createFrom(fields: {start_time: gc.core.time, records: globalThis.Array<gc.big.BigRecord>, end_time: gc.core.time}): BigResult;
+      static createFrom(fields: {
+        start_time: gc.core.time;
+        records: globalThis.Array<gc.big.BigRecord>;
+        end_time: gc.core.time;
+      }): BigResult;
     }
     namespace BigResult {
       interface $Fields {
@@ -1423,7 +1711,7 @@ declare namespace gc {
       static readonly $fields: Cable.$Fields;
       voltageLevel: gc.complex_factory.VoltageLevel | null;
       constructor(voltageLevel?: gc.complex_factory.VoltageLevel | null);
-      static createFrom(fields: {voltageLevel?: gc.complex_factory.VoltageLevel | null}): Cable;
+      static createFrom(fields: { voltageLevel?: gc.complex_factory.VoltageLevel | null }): Cable;
     }
     namespace Cable {
       interface $Fields {
@@ -1449,8 +1737,32 @@ declare namespace gc {
       length_m: number;
       regionalCenter: string | null;
       isSimulated: boolean;
-      constructor(node: gc.core.node<T>, coordinates: gc.core.geo | null, shortDescr: string | null, deletionDate: gc.core.time | null, cableId: string | null, voltageLevel: gc.complex_factory.VoltageLevel | null, voltageValue_kV: number | null, meta: string, length_m: number, regionalCenter: string | null, isSimulated: boolean);
-      static createFrom(fields: {node: gc.core.node<T>, coordinates?: gc.core.geo | null, shortDescr?: string | null, deletionDate?: gc.core.time | null, cableId?: string | null, voltageLevel?: gc.complex_factory.VoltageLevel | null, voltageValue_kV?: number | null, meta: string, length_m: number, regionalCenter?: string | null, isSimulated: boolean}): CableView;
+      constructor(
+        node: gc.core.node<T>,
+        coordinates: gc.core.geo | null,
+        shortDescr: string | null,
+        deletionDate: gc.core.time | null,
+        cableId: string | null,
+        voltageLevel: gc.complex_factory.VoltageLevel | null,
+        voltageValue_kV: number | null,
+        meta: string,
+        length_m: number,
+        regionalCenter: string | null,
+        isSimulated: boolean,
+      );
+      static createFrom(fields: {
+        node: gc.core.node<T>;
+        coordinates?: gc.core.geo | null;
+        shortDescr?: string | null;
+        deletionDate?: gc.core.time | null;
+        cableId?: string | null;
+        voltageLevel?: gc.complex_factory.VoltageLevel | null;
+        voltageValue_kV?: number | null;
+        meta: string;
+        length_m: number;
+        regionalCenter?: string | null;
+        isSimulated: boolean;
+      }): CableView;
     }
     namespace CableView {
       interface $Fields {
@@ -1496,1356 +1808,1356 @@ declare namespace gc {
       static extra_high: VoltageLevel;
       static ultra_high: VoltageLevel;
     }
-    namespace VoltageLevel  {
-      type Field = "low"|"medium"|"high"|"extra_high"|"ultra_high";
+    namespace VoltageLevel {
+      type Field = 'low' | 'medium' | 'high' | 'extra_high' | 'ultra_high';
     }
 
     const cable_views: gc.sdk.ExposedFn<[], globalThis.Array<gc.complex_factory.CableView>>;
   }
 
   interface $TypesMap {
-    'core::node<project::Person2?>': 0,
-    'core::Array<core::Map<core::String,core::any>>': 0,
-    'core::NodeInfo<core::geo>': 0,
-    'core::Map<core::TimeZone,core::String>': 0,
-    'core::Array<project::People>': 0,
-    'core::Array<core::node<core::VectorVertex>?>': 0,
-    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0,
-    'core::Tuple<core::String,core::float>': 0,
-    'core::float': 0,
-    'core::Array<core::geo>': 0,
-    'core::Map<core::String,core::String?>': 0,
-    'core::Tuple<core::String,core::int>': 0,
-    'core::nodeGeo': 0,
-    'core::Tuple<core::time,core::any?>': 0,
-    'core::String': 0,
-    'core::node<project::Node>': 0,
-    'core::Array<io::CsvColumnStatistics>': 0,
-    'core::field': 0,
-    'core::nodeList': 0,
-    'core::Map<core::String,core::String>': 0,
-    'core::Tuple<core::any,core::any>': 0,
-    'core::time': 0,
-    'core::nodeIndexBucket<core::String,core::int>': 0,
-    'core::Table<project::TimeRecord<project::Composed>>': 0,
-    'core::Map<core::any,core::int>': 0,
-    'core::Array<project::KLine>': 0,
-    'core::node$resolve_all$args': 0,
-    'core::node<core::String>': 0,
-    'core::Array<project::MyData>': 0,
-    'core::VectorVertex': 0,
-    'core::MathConstants': 0,
-    'core::Array<core::nodeIndex>': 0,
-    'core::TimeZone': 0,
-    'core::Table<core::any>': 0,
-    'core::Map<core::String,runtime::PathItemObject>': 0,
-    'core::node<project::Meteo>': 0,
-    'core::Array<runtime::McpContentBlock>': 0,
-    'core::nodeTime<project::SensorData>': 0,
-    'core::Array<project::UrlEntry>': 0,
-    'core::Array<core::int?>': 0,
-    'core::null': 0,
-    'core::str': 0,
-    'core::node': 0,
-    'core::nodeTime$info$args': 0,
-    'core::Map<core::String,runtime::MediaTypeObject>': 0,
-    'core::Array<runtime::SecurityEntity>': 0,
-    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0,
-    'core::node<project::Link>': 0,
-    'core::nodeGeo<heatmap::Earthquake>': 0,
-    'core::TableColumnMapping': 0,
-    'core::nodeGeo<cities::City>': 0,
-    'core::Tuple<core::time,heatmap::Earthquake>': 0,
-    'core::Array<runtime::PeriodicTask>': 0,
-    'core::Map<core::int,core::String>': 0,
-    'core::node<core::Table?>': 0,
-    'core::Array<core::ErrorFrame>': 0,
-    'core::TensorDistance': 0,
-    'core::Array<big::BigRecord>': 0,
-    'core::nodeIndex$search_closest$args': 0,
-    'core::node<complex_factory::Cable>': 0,
-    'core::Table': 0,
-    'core::t2f': 0,
-    'core::Map<core::String,runtime::HeaderObject>': 0,
-    'core::Table<project::Person>': 0,
-    'core::bool': 0,
-    'core::Map<core::String,runtime::SchemaObject>': 0,
-    'core::Array<core::NodeInfo<core::geo>>': 0,
-    'core::Map<core::String,core::Map<core::String,core::any>>': 0,
-    'core::Array<core::NodeInfo<core::time>>': 0,
-    'core::Array<core::nodeTime>': 0,
-    'core::duration': 0,
-    'core::Table<project::TimedComposed>': 0,
-    'core::Array<runtime::Job>': 0,
-    'core::Array': 0,
-    'core::Array<util::Quantizer>': 0,
-    'core::any': 0,
-    'core::char': 0,
-    'core::Map<core::String,runtime::ResponseObject>': 0,
-    'core::Array<core::SearchResult<core::String,core::int>>': 0,
-    'core::Array<runtime::PathItemObject>': 0,
-    'core::Array<core::int>': 0,
-    'core::GeoCircle': 0,
-    'core::ErrorCode': 0,
-    'core::SearchResult<core::Tensor,core::any?>': 0,
-    'core::Table<core::Tuple<core::time,core::any?>>': 0,
-    'core::Array<core::field>': 0,
-    'core::Date': 0,
-    'core::SearchResult': 0,
-    'core::function': 0,
-    'core::Array<core::SearchResult>': 0,
-    'core::NodeInfo': 0,
-    'core::Array<util::HistogramBin>': 0,
-    'core::Array<runtime::SchemaObject>': 0,
-    'core::Map<core::DurationUnit,core::Tuple<core::String,core::int>>': 0,
-    'core::CalendarUnit': 0,
-    'core::Array<runtime::McpRole>': 0,
-    'core::Array<core::any>': 0,
-    'core::VectorIndex': 0,
-    'core::Array<complex_factory::CableView>': 0,
-    'core::Array<project::SensorData>': 0,
-    'core::Array<heatmap::Earthquake>': 0,
-    'core::nodeGeo$sample$args': 0,
-    'core::t3f': 0,
-    'core::SearchResult<core::String,core::int>': 0,
-    'core::Table<util::GaussianProfileSlot?>': 0,
-    'core::Array<project::Shape>': 0,
-    'core::Array<core::node<core::String>>': 0,
-    'core::nodeTime': 0,
-    'core::Tuple<core::String,core::String>': 0,
-    'core::Table$applyMappings$args': 0,
-    'core::nodeIndexBucket': 0,
-    'core::node<core::Tensor>': 0,
-    'core::nodeList$sample$args': 0,
-    'core::FloatPrecision': 0,
-    'core::nodeTime<project::KLine>': 0,
-    'core::Array<core::NodeInfo<core::int>>': 0,
-    'core::Tensor': 0,
-    'core::t2': 0,
-    'core::Array<util::HistogramBin<core::float>>': 0,
-    'core::Tuple<core::time,project::SensorData>': 0,
-    'core::Array<core::String?>': 0,
-    'core::Buffer': 0,
-    'core::Tuple<core::geo,core::any?>': 0,
-    'core::Array<runtime::HeaderObject>': 0,
-    'core::Map<core::String,project::Person?>': 0,
-    'core::TensorType': 0,
-    'core::Map': 0,
-    'core::DurationUnit': 0,
-    'core::Map<core::String,core::any>': 0,
-    'core::Tuple<core::time,project::KLine>': 0,
-    'core::Array<runtime::UserCredential>': 0,
-    'core::Array<core::node?>': 0,
-    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0,
-    'core::Tuple<core::int,core::any?>': 0,
-    'core::Map<core::String,core::int>': 0,
-    'core::SortOrder': 0,
-    'core::nodeIndex<core::String,core::int>': 0,
-    'core::Array<runtime::Permission>': 0,
-    'core::t3': 0,
-    'core::Array<project::Person2>': 0,
-    'core::type': 0,
-    'core::SamplingMode': 0,
-    'core::Array<runtime::ResponseObject>': 0,
-    'core::Array<core::nodeGeo>': 0,
-    'core::Array<runtime::Frame>': 0,
-    'core::Map<core::any,core::any?>': 0,
-    'core::Tuple<core::geo,heatmap::Earthquake>': 0,
-    'core::Array<runtime::DayOfWeek>': 0,
-    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0,
-    'core::nodeGeo$info$args': 0,
-    'core::Array<runtime::User?>': 0,
-    'core::node<project::VisualCrossingProvider>': 0,
-    'core::Array<runtime::UserGroupPolicy>': 0,
-    'core::NodeInfo<core::int>': 0,
-    'core::Map<core::String,runtime::UserCredential>': 0,
-    'core::nodeList$info$args': 0,
-    'core::Array<runtime::Variable>': 0,
-    'core::nodeIndex': 0,
-    'core::GeoBox': 0,
-    'core::Array<project::Person?>': 0,
-    'core::Array<core::Array<core::float>>': 0,
-    'core::Error': 0,
-    'core::NodeInfo<core::time>': 0,
-    'core::nodeIndex$sample$args': 0,
-    'core::Array<core::float>': 0,
-    'core::Array<core::NodeInfo>': 0,
-    'core::Map<core::SamplingMode,project::Person?>': 0,
-    'core::Array<core::String>': 0,
-    'core::Array<runtime::Task>': 0,
-    'core::Array<runtime::Role>': 0,
-    'core::Array<core::TableColumnMapping>': 0,
-    'core::Array<runtime::McpTool>': 0,
-    'core::geo': 0,
-    'core::Array<runtime::DateTuple>': 0,
-    'core::Array<project::Box?>': 0,
-    'core::Tuple': 0,
-    'core::Array<io::File>': 0,
-    'core::Tuple<core::int,core::int>': 0,
-    'core::nodeTime$sample$args': 0,
-    'core::GeoPoly': 0,
-    'core::nodeIndexBucket<core::node<core::Tensor>,core::any?>': 0,
-    'core::node<core::VectorVertex>': 0,
-    'core::nodeTime<core::float>': 0,
-    'core::nodeTimeCursor': 0,
-    'core::nodeIndex$info$args': 0,
-    'core::t4f': 0,
-    'core::node<project::SolarRadiation>': 0,
-    'core::int': 0,
-    'core::t4': 0,
-    'core::Array<core::Tuple<core::String,core::int>>': 0,
-    'core::ErrorFrame': 0,
-    'core::Tuple<core::time,core::float>': 0,
-    'core::node<project::Person2>': 0,
-    'core::nodeTime<heatmap::Earthquake>': 0,
-    'core::Array<core::nodeList>': 0,
-    'core::Array<core::any?>': 0,
-    'core::Tuple<core::geo,cities::City>': 0,
-    'core::Array<runtime::MediaTypeObject>': 0,
-    'runtime::Debug': 0,
-    'runtime::Debug$get$args': 0,
-    'runtime::Runtime$abi$args': 0,
-    'runtime::FixedPeriodicity': 0,
-    'runtime::McpServerToolsCapabilities': 0,
-    'runtime::McpTextContent': 0,
-    'runtime::YearlyPeriodicity': 0,
-    'runtime::Scheduler$list$args': 0,
-    'runtime::ResponseObject': 0,
-    'runtime::User$tokenLogin$args': 0,
-    'runtime::mcp_tools_list$args': 0,
-    'runtime::UserGroupPolicyType': 0,
-    'runtime::System': 0,
-    'runtime::McpBaseMetadata': 0,
-    'runtime::McpRole': 0,
-    'runtime::McpInitializeParams': 0,
-    'runtime::Role$all$args': 0,
-    'runtime::McpClientCapabilities': 0,
-    'runtime::McpServerCapabilities': 0,
-    'runtime::McpImplementation': 0,
-    'runtime::RequestBodyObject': 0,
-    'runtime::ComponentsObject': 0,
-    'runtime::Task$running$args': 0,
-    'runtime::Month': 0,
-    'runtime::Task$is_running$args': 0,
-    'runtime::McpContentBlock': 0,
-    'runtime::SecurityEntity$all$args': 0,
-    'runtime::SchemaType': 0,
-    'runtime::SecurityEntity$set$args': 0,
-    'runtime::License': 0,
-    'runtime::McpInitializeResult': 0,
-    'runtime::Scheduler$deactivate$args': 0,
-    'runtime::McpContentType': 0,
-    'runtime::Debug$all$args': 0,
-    'runtime::McpToolsCallParams': 0,
-    'runtime::Role': 0,
-    'runtime::Job': 0,
-    'runtime::McpResourceContent': 0,
-    'runtime::McpImageContent': 0,
-    'runtime::McpRequestParams': 0,
-    'runtime::Debug$resume$args': 0,
-    'runtime::PeriodicOptions': 0,
-    'runtime::PeriodicTask': 0,
-    'runtime::Log': 0,
-    'runtime::McpClientRoots': 0,
-    'runtime::ResponseCode': 0,
-    'runtime::Task$cancel$args': 0,
-    'runtime::SecurityFields$get$args': 0,
-    'runtime::OpenApi': 0,
-    'runtime::MergeStrategy': 0,
-    'runtime::MonthlyPeriodicity': 0,
-    'runtime::McpAnnotations': 0,
-    'runtime::RuntimeInfo': 0,
-    'runtime::mcp_tools_call$args': 0,
-    'runtime::McpAudioContent': 0,
-    'runtime::SchemaFormat': 0,
-    'runtime::McpServerPromptsCapabilities': 0,
-    'runtime::Runtime$root$args': 0,
-    'runtime::McpPriority': 0,
-    'runtime::HeaderObject': 0,
-    'runtime::DailyPeriodicity': 0,
-    'runtime::Periodicity': 0,
-    'runtime::User$setPassword$args': 0,
-    'runtime::OpenApi$v3$args': 0,
-    'runtime::DayOfWeek': 0,
-    'runtime::User$me$args': 0,
-    'runtime::WeeklyPeriodicity': 0,
-    'runtime::TaskStatus': 0,
-    'runtime::Runtime$info$args': 0,
-    'runtime::Permission': 0,
-    'runtime::User$login$args': 0,
-    'runtime::InfoObject': 0,
-    'runtime::SchemaObject': 0,
-    'runtime::ChildProcessResult': 0,
-    'runtime::McpResult': 0,
-    'runtime::LicenseType': 0,
-    'runtime::MediaTypeObject': 0,
-    'runtime::OpenIDConnect': 0,
-    'runtime::SecurityFields$set$args': 0,
-    'runtime::Runtime$backup_full$args': 0,
-    'runtime::OperationObject': 0,
-    'runtime::Variable': 0,
-    'runtime::User$permissions$args': 0,
-    'runtime::SecurityEntity': 0,
-    'runtime::OpenIDConnect$config$args': 0,
-    'runtime::Scheduler$find$args': 0,
-    'runtime::Permission$all$args': 0,
-    'runtime::UserCredential': 0,
-    'runtime::Runtime': 0,
-    'runtime::SecurityFields': 0,
-    'runtime::User$current$args': 0,
-    'runtime::OpenApiVersion': 0,
-    'runtime::UserGroup': 0,
-    'runtime::Scheduler': 0,
-    'runtime::SecurityPolicy': 0,
-    'runtime::ChildProcess': 0,
-    'runtime::DateTuple': 0,
-    'runtime::LogDataUsage': 0,
-    'runtime::UserGroupPolicy': 0,
-    'runtime::User$logout$args': 0,
-    'runtime::McpTool': 0,
-    'runtime::Scheduler$add$args': 0,
-    'runtime::PathItemObject': 0,
-    'runtime::mcp_initialize$args': 0,
-    'runtime::Scheduler$activate$args': 0,
-    'runtime::OpenApiV3': 0,
-    'runtime::User$renew$args': 0,
-    'runtime::Task': 0,
-    'runtime::McpToolsListResult': 0,
-    'runtime::McpServerResourcesCapabilities': 0,
-    'runtime::Task$history$args': 0,
-    'runtime::User': 0,
-    'runtime::McpToolsListParams': 0,
-    'runtime::LogLevel': 0,
-    'runtime::McpToolsCallResult': 0,
-    'runtime::Frame': 0,
-    'io::CsvReader': 0,
-    'io::CsvFormat': 0,
-    'io::CsvColumnStatistics': 0,
-    'io::Csv': 0,
-    'io::Email': 0,
-    'io::CsvWriter': 0,
-    'io::HttpRequest': 0,
-    'io::BinReader': 0,
-    'io::Reader': 0,
-    'io::CsvReader<big::BigRecord>': 0,
-    'io::Csv$generate$args': 0,
-    'io::HttpResponse': 0,
-    'io::Smtp': 0,
-    'io::Writer': 0,
-    'io::Reader<core::String>': 0,
-    'io::XmlReader': 0,
-    'io::SmtpAuth': 0,
-    'io::TextWriter': 0,
-    'io::SmtpMode': 0,
-    'io::CsvReader<core::Array<core::float>>': 0,
-    'io::Csv$sample$args': 0,
-    'io::Reader<heatmap::Record>': 0,
-    'io::CsvReader<project::People>': 0,
-    'io::CsvAnalysisConfig': 0,
-    'io::FileWalker': 0,
-    'io::HttpMethod': 0,
-    'io::Reader<core::Array<core::float>>': 0,
-    'io::Csv$analyze$args': 0,
-    'io::CsvSharding': 0,
-    'io::Reader<project::People>': 0,
-    'io::File': 0,
-    'io::CsvStatistics': 0,
-    'io::GcbReader': 0,
-    'io::Reader<cities::City>': 0,
-    'io::JsonWriter': 0,
-    'io::Json': 0,
-    'io::Url': 0,
-    'io::GcbWriter': 0,
-    'io::JsonReader': 0,
-    'io::CsvReader<cities::City>': 0,
-    'io::Http': 0,
-    'io::CsvReader<heatmap::Record>': 0,
-    'io::TextReader': 0,
-    'io::Reader<big::BigRecord>': 0,
-    'util::LogQuantizer': 0,
-    'util::Random': 0,
-    'util::Histogram<core::float>': 0,
-    'util::Gaussian': 0,
-    'util::HistogramStats': 0,
-    'util::Quantizer<core::Array>': 0,
-    'util::GaussianProfile': 0,
-    'util::Histogram': 0,
-    'util::GaussianProfileSlot': 0,
-    'util::QuantizerSlotBound<core::Array>': 0,
-    'util::MultiQuantizer': 0,
-    'util::Gaussian<core::float>': 0,
-    'util::ProgressTracker': 0,
-    'util::Plot': 0,
-    'util::QuantizerSlotBound<core::float>': 0,
-    'util::HistogramStats<core::float>': 0,
-    'util::Quantizer<core::float>': 0,
-    'util::Queue': 0,
-    'util::TimeWindow': 0,
-    'util::HistogramBin<core::float>': 0,
-    'util::Stack': 0,
-    'util::HistogramBin': 0,
-    'util::Quantizer': 0,
-    'util::SlidingWindow': 0,
-    'util::Crypto': 0,
-    'util::LinearQuantizer': 0,
-    'util::Assert': 0,
-    'util::LinearQuantizer<core::float>': 0,
-    'util::CustomQuantizer': 0,
-    'util::QuantizerSlotBound': 0,
-    'project::Country': 0,
-    'project::foo$args': 0,
-    'project::Rect': 0,
-    'project::ComplexForm': 0,
-    'project::Root': 0,
-    'project::complex_object$args': 0,
-    'project::destructuring_table$args': 0,
-    'project::UrlEntry': 0,
-    'project::TrafficLight': 0,
-    'project::TimedComposed': 0,
-    'project::init_foo$args': 0,
-    'project::chart_colored_area$args': 0,
-    'project::FooBar': 0,
-    'project::serie_of_obj$args': 0,
-    'project::anything$args': 0,
-    'project::table$args': 0,
-    'project::mainTask$args': 0,
-    'project::Sensor': 0,
-    'project::now$args': 0,
-    'project::Sex': 0,
-    'project::mapTest$args': 0,
-    'project::goodFnForTestingFnCallInput$args': 0,
-    'project::SemiRecursive': 0,
-    'project::ComplexObject': 0,
-    'project::task_long_running$args': 0,
-    'project::this_is_boom$args': 0,
-    'project::display_fn$args': 0,
-    'project::Link': 0,
-    'project::task_without_params$args': 0,
-    'project::VisualCrossingProvider': 0,
-    'project::Composed': 0,
-    'project::MyData': 0,
-    'project::sample_huge_csv$args': 0,
-    'project::table_of_objects$args': 0,
-    'project::obj$args': 0,
-    'project::tensor_2_3_5$args': 0,
-    'project::SolarRadiation': 0,
-    'project::MapContainer': 0,
-    'project::Node': 0,
-    'project::task_long_running2$args': 0,
-    'project::bar$args': 0,
-    'project::hello$args': 0,
-    'project::tree$args': 0,
-    'project::Meteo': 0,
-    'project::get_person$args': 0,
-    'project::table_with_urls$args': 0,
-    'project::People': 0,
-    'project::big_map$args': 0,
-    'project::resolve_person$args': 0,
-    'project::chart$args': 0,
-    'project::histogram_stats$args': 0,
-    'project::Person': 0,
-    'project::Confidence': 0,
-    'project::obj1$args': 0,
-    'project::add$args': 0,
-    'project::people$args': 0,
-    'project::task_with_params$args': 0,
-    'project::table_of_objects2$args': 0,
-    'project::Circle': 0,
-    'project::objects_table$args': 0,
-    'project::Obj': 0,
-    'project::KLine': 0,
-    'project::Level': 0,
-    'project::Triangle': 0,
-    'project::TimeRecord': 0,
-    'project::SeriesObject': 0,
-    'project::display_fn_in_obj$args': 0,
-    'project::array_of_ints$args': 0,
-    'project::heatmap$args': 0,
-    'project::tensor$args': 0,
-    'project::Shape': 0,
-    'project::Obj2': 0,
-    'project::ObjWithFn': 0,
-    'project::obj2$args': 0,
-    'project::boxes$args': 0,
-    'project::data_array$args': 0,
-    'project::Person2': 0,
-    'project::controlled_task$args': 0,
-    'project::Obj1': 0,
-    'project::TimeZones': 0,
-    'project::SensorKind': 0,
-    'project::array_of_nodes$args': 0,
-    'project::one_d_histogram_bins$args': 0,
-    'project::chart_time$args': 0,
-    'project::table_of_objects3$args': 0,
-    'project::getTensor$args': 0,
-    'project::Box': 0,
-    'project::real_example$args': 0,
-    'project::tensor_3_5$args': 0,
-    'project::Link$whatever$args': 0,
-    'project::Book': 0,
-    'project::RelayApp': 0,
-    'project::TimeRecord<project::Composed>': 0,
-    'project::SensorData': 0,
-    'project::persons$args': 0,
-    'project::donut$args': 0,
-    'project::link_whatever$args': 0,
-    'any::filter_something$args': 0,
-    'any::Filters': 0,
-    'any::array_any_map_any$args': 0,
-    'any::AnyInput': 0,
-    'object::Filter': 0,
-    'heatmap::major_earthquakes$args': 0,
-    'heatmap::all_earthquakes$args': 0,
-    'heatmap::Record': 0,
-    'heatmap::Status': 0,
-    'heatmap::Earthquake': 0,
-    'cities::City': 0,
-    'cities::CapitalType': 0,
-    'big::BigRecord': 0,
-    'big::get_huge_object$args': 0,
-    'big::BigResult': 0,
-    'complex_factory::GridElementView<complex_factory::Cable>': 0,
-    'complex_factory::Cable': 0,
-    'complex_factory::cable_views$args': 0,
-    'complex_factory::CableView': 0,
-    'complex_factory::GridElementView': 0,
-    'complex_factory::VoltageLevel': 0,
+    'core::node<project::Person2?>': 0;
+    'core::Array<core::Map<core::String,core::any>>': 0;
+    'core::NodeInfo<core::geo>': 0;
+    'core::Map<core::TimeZone,core::String>': 0;
+    'core::Array<project::People>': 0;
+    'core::Array<core::node<core::VectorVertex>?>': 0;
+    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0;
+    'core::Tuple<core::String,core::float>': 0;
+    'core::float': 0;
+    'core::Array<core::geo>': 0;
+    'core::Map<core::String,core::String?>': 0;
+    'core::Tuple<core::String,core::int>': 0;
+    'core::nodeGeo': 0;
+    'core::Tuple<core::time,core::any?>': 0;
+    'core::String': 0;
+    'core::node<project::Node>': 0;
+    'core::Array<io::CsvColumnStatistics>': 0;
+    'core::field': 0;
+    'core::nodeList': 0;
+    'core::Map<core::String,core::String>': 0;
+    'core::Tuple<core::any,core::any>': 0;
+    'core::time': 0;
+    'core::nodeIndexBucket<core::String,core::int>': 0;
+    'core::Table<project::TimeRecord<project::Composed>>': 0;
+    'core::Map<core::any,core::int>': 0;
+    'core::Array<project::KLine>': 0;
+    'core::node$resolve_all$args': 0;
+    'core::node<core::String>': 0;
+    'core::Array<project::MyData>': 0;
+    'core::VectorVertex': 0;
+    'core::MathConstants': 0;
+    'core::Array<core::nodeIndex>': 0;
+    'core::TimeZone': 0;
+    'core::Table<core::any>': 0;
+    'core::Map<core::String,runtime::PathItemObject>': 0;
+    'core::node<project::Meteo>': 0;
+    'core::Array<runtime::McpContentBlock>': 0;
+    'core::nodeTime<project::SensorData>': 0;
+    'core::Array<project::UrlEntry>': 0;
+    'core::Array<core::int?>': 0;
+    'core::null': 0;
+    'core::str': 0;
+    'core::node': 0;
+    'core::nodeTime$info$args': 0;
+    'core::Map<core::String,runtime::MediaTypeObject>': 0;
+    'core::Array<runtime::SecurityEntity>': 0;
+    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0;
+    'core::node<project::Link>': 0;
+    'core::nodeGeo<heatmap::Earthquake>': 0;
+    'core::TableColumnMapping': 0;
+    'core::nodeGeo<cities::City>': 0;
+    'core::Tuple<core::time,heatmap::Earthquake>': 0;
+    'core::Array<runtime::PeriodicTask>': 0;
+    'core::Map<core::int,core::String>': 0;
+    'core::node<core::Table?>': 0;
+    'core::Array<core::ErrorFrame>': 0;
+    'core::TensorDistance': 0;
+    'core::Array<big::BigRecord>': 0;
+    'core::nodeIndex$search_closest$args': 0;
+    'core::node<complex_factory::Cable>': 0;
+    'core::Table': 0;
+    'core::t2f': 0;
+    'core::Map<core::String,runtime::HeaderObject>': 0;
+    'core::Table<project::Person>': 0;
+    'core::bool': 0;
+    'core::Map<core::String,runtime::SchemaObject>': 0;
+    'core::Array<core::NodeInfo<core::geo>>': 0;
+    'core::Map<core::String,core::Map<core::String,core::any>>': 0;
+    'core::Array<core::NodeInfo<core::time>>': 0;
+    'core::Array<core::nodeTime>': 0;
+    'core::duration': 0;
+    'core::Table<project::TimedComposed>': 0;
+    'core::Array<runtime::Job>': 0;
+    'core::Array': 0;
+    'core::Array<util::Quantizer>': 0;
+    'core::any': 0;
+    'core::char': 0;
+    'core::Map<core::String,runtime::ResponseObject>': 0;
+    'core::Array<core::SearchResult<core::String,core::int>>': 0;
+    'core::Array<runtime::PathItemObject>': 0;
+    'core::Array<core::int>': 0;
+    'core::GeoCircle': 0;
+    'core::ErrorCode': 0;
+    'core::SearchResult<core::Tensor,core::any?>': 0;
+    'core::Table<core::Tuple<core::time,core::any?>>': 0;
+    'core::Array<core::field>': 0;
+    'core::Date': 0;
+    'core::SearchResult': 0;
+    'core::function': 0;
+    'core::Array<core::SearchResult>': 0;
+    'core::NodeInfo': 0;
+    'core::Array<util::HistogramBin>': 0;
+    'core::Array<runtime::SchemaObject>': 0;
+    'core::Map<core::DurationUnit,core::Tuple<core::String,core::int>>': 0;
+    'core::CalendarUnit': 0;
+    'core::Array<runtime::McpRole>': 0;
+    'core::Array<core::any>': 0;
+    'core::VectorIndex': 0;
+    'core::Array<complex_factory::CableView>': 0;
+    'core::Array<project::SensorData>': 0;
+    'core::Array<heatmap::Earthquake>': 0;
+    'core::nodeGeo$sample$args': 0;
+    'core::t3f': 0;
+    'core::SearchResult<core::String,core::int>': 0;
+    'core::Table<util::GaussianProfileSlot?>': 0;
+    'core::Array<project::Shape>': 0;
+    'core::Array<core::node<core::String>>': 0;
+    'core::nodeTime': 0;
+    'core::Tuple<core::String,core::String>': 0;
+    'core::Table$applyMappings$args': 0;
+    'core::nodeIndexBucket': 0;
+    'core::node<core::Tensor>': 0;
+    'core::nodeList$sample$args': 0;
+    'core::FloatPrecision': 0;
+    'core::nodeTime<project::KLine>': 0;
+    'core::Array<core::NodeInfo<core::int>>': 0;
+    'core::Tensor': 0;
+    'core::t2': 0;
+    'core::Array<util::HistogramBin<core::float>>': 0;
+    'core::Tuple<core::time,project::SensorData>': 0;
+    'core::Array<core::String?>': 0;
+    'core::Buffer': 0;
+    'core::Tuple<core::geo,core::any?>': 0;
+    'core::Array<runtime::HeaderObject>': 0;
+    'core::Map<core::String,project::Person?>': 0;
+    'core::TensorType': 0;
+    'core::Map': 0;
+    'core::DurationUnit': 0;
+    'core::Map<core::String,core::any>': 0;
+    'core::Tuple<core::time,project::KLine>': 0;
+    'core::Array<runtime::UserCredential>': 0;
+    'core::Array<core::node?>': 0;
+    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0;
+    'core::Tuple<core::int,core::any?>': 0;
+    'core::Map<core::String,core::int>': 0;
+    'core::SortOrder': 0;
+    'core::nodeIndex<core::String,core::int>': 0;
+    'core::Array<runtime::Permission>': 0;
+    'core::t3': 0;
+    'core::Array<project::Person2>': 0;
+    'core::type': 0;
+    'core::SamplingMode': 0;
+    'core::Array<runtime::ResponseObject>': 0;
+    'core::Array<core::nodeGeo>': 0;
+    'core::Array<runtime::Frame>': 0;
+    'core::Map<core::any,core::any?>': 0;
+    'core::Tuple<core::geo,heatmap::Earthquake>': 0;
+    'core::Array<runtime::DayOfWeek>': 0;
+    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0;
+    'core::nodeGeo$info$args': 0;
+    'core::Array<runtime::User?>': 0;
+    'core::node<project::VisualCrossingProvider>': 0;
+    'core::Array<runtime::UserGroupPolicy>': 0;
+    'core::NodeInfo<core::int>': 0;
+    'core::Map<core::String,runtime::UserCredential>': 0;
+    'core::nodeList$info$args': 0;
+    'core::Array<runtime::Variable>': 0;
+    'core::nodeIndex': 0;
+    'core::GeoBox': 0;
+    'core::Array<project::Person?>': 0;
+    'core::Array<core::Array<core::float>>': 0;
+    'core::Error': 0;
+    'core::NodeInfo<core::time>': 0;
+    'core::nodeIndex$sample$args': 0;
+    'core::Array<core::float>': 0;
+    'core::Array<core::NodeInfo>': 0;
+    'core::Map<core::SamplingMode,project::Person?>': 0;
+    'core::Array<core::String>': 0;
+    'core::Array<runtime::Task>': 0;
+    'core::Array<runtime::Role>': 0;
+    'core::Array<core::TableColumnMapping>': 0;
+    'core::Array<runtime::McpTool>': 0;
+    'core::geo': 0;
+    'core::Array<runtime::DateTuple>': 0;
+    'core::Array<project::Box?>': 0;
+    'core::Tuple': 0;
+    'core::Array<io::File>': 0;
+    'core::Tuple<core::int,core::int>': 0;
+    'core::nodeTime$sample$args': 0;
+    'core::GeoPoly': 0;
+    'core::nodeIndexBucket<core::node<core::Tensor>,core::any?>': 0;
+    'core::node<core::VectorVertex>': 0;
+    'core::nodeTime<core::float>': 0;
+    'core::nodeTimeCursor': 0;
+    'core::nodeIndex$info$args': 0;
+    'core::t4f': 0;
+    'core::node<project::SolarRadiation>': 0;
+    'core::int': 0;
+    'core::t4': 0;
+    'core::Array<core::Tuple<core::String,core::int>>': 0;
+    'core::ErrorFrame': 0;
+    'core::Tuple<core::time,core::float>': 0;
+    'core::node<project::Person2>': 0;
+    'core::nodeTime<heatmap::Earthquake>': 0;
+    'core::Array<core::nodeList>': 0;
+    'core::Array<core::any?>': 0;
+    'core::Tuple<core::geo,cities::City>': 0;
+    'core::Array<runtime::MediaTypeObject>': 0;
+    'runtime::Debug': 0;
+    'runtime::Debug$get$args': 0;
+    'runtime::Runtime$abi$args': 0;
+    'runtime::FixedPeriodicity': 0;
+    'runtime::McpServerToolsCapabilities': 0;
+    'runtime::McpTextContent': 0;
+    'runtime::YearlyPeriodicity': 0;
+    'runtime::Scheduler$list$args': 0;
+    'runtime::ResponseObject': 0;
+    'runtime::User$tokenLogin$args': 0;
+    'runtime::mcp_tools_list$args': 0;
+    'runtime::UserGroupPolicyType': 0;
+    'runtime::System': 0;
+    'runtime::McpBaseMetadata': 0;
+    'runtime::McpRole': 0;
+    'runtime::McpInitializeParams': 0;
+    'runtime::Role$all$args': 0;
+    'runtime::McpClientCapabilities': 0;
+    'runtime::McpServerCapabilities': 0;
+    'runtime::McpImplementation': 0;
+    'runtime::RequestBodyObject': 0;
+    'runtime::ComponentsObject': 0;
+    'runtime::Task$running$args': 0;
+    'runtime::Month': 0;
+    'runtime::Task$is_running$args': 0;
+    'runtime::McpContentBlock': 0;
+    'runtime::SecurityEntity$all$args': 0;
+    'runtime::SchemaType': 0;
+    'runtime::SecurityEntity$set$args': 0;
+    'runtime::License': 0;
+    'runtime::McpInitializeResult': 0;
+    'runtime::Scheduler$deactivate$args': 0;
+    'runtime::McpContentType': 0;
+    'runtime::Debug$all$args': 0;
+    'runtime::McpToolsCallParams': 0;
+    'runtime::Role': 0;
+    'runtime::Job': 0;
+    'runtime::McpResourceContent': 0;
+    'runtime::McpImageContent': 0;
+    'runtime::McpRequestParams': 0;
+    'runtime::Debug$resume$args': 0;
+    'runtime::PeriodicOptions': 0;
+    'runtime::PeriodicTask': 0;
+    'runtime::Log': 0;
+    'runtime::McpClientRoots': 0;
+    'runtime::ResponseCode': 0;
+    'runtime::Task$cancel$args': 0;
+    'runtime::SecurityFields$get$args': 0;
+    'runtime::OpenApi': 0;
+    'runtime::MergeStrategy': 0;
+    'runtime::MonthlyPeriodicity': 0;
+    'runtime::McpAnnotations': 0;
+    'runtime::RuntimeInfo': 0;
+    'runtime::mcp_tools_call$args': 0;
+    'runtime::McpAudioContent': 0;
+    'runtime::SchemaFormat': 0;
+    'runtime::McpServerPromptsCapabilities': 0;
+    'runtime::Runtime$root$args': 0;
+    'runtime::McpPriority': 0;
+    'runtime::HeaderObject': 0;
+    'runtime::DailyPeriodicity': 0;
+    'runtime::Periodicity': 0;
+    'runtime::User$setPassword$args': 0;
+    'runtime::OpenApi$v3$args': 0;
+    'runtime::DayOfWeek': 0;
+    'runtime::User$me$args': 0;
+    'runtime::WeeklyPeriodicity': 0;
+    'runtime::TaskStatus': 0;
+    'runtime::Runtime$info$args': 0;
+    'runtime::Permission': 0;
+    'runtime::User$login$args': 0;
+    'runtime::InfoObject': 0;
+    'runtime::SchemaObject': 0;
+    'runtime::ChildProcessResult': 0;
+    'runtime::McpResult': 0;
+    'runtime::LicenseType': 0;
+    'runtime::MediaTypeObject': 0;
+    'runtime::OpenIDConnect': 0;
+    'runtime::SecurityFields$set$args': 0;
+    'runtime::Runtime$backup_full$args': 0;
+    'runtime::OperationObject': 0;
+    'runtime::Variable': 0;
+    'runtime::User$permissions$args': 0;
+    'runtime::SecurityEntity': 0;
+    'runtime::OpenIDConnect$config$args': 0;
+    'runtime::Scheduler$find$args': 0;
+    'runtime::Permission$all$args': 0;
+    'runtime::UserCredential': 0;
+    'runtime::Runtime': 0;
+    'runtime::SecurityFields': 0;
+    'runtime::User$current$args': 0;
+    'runtime::OpenApiVersion': 0;
+    'runtime::UserGroup': 0;
+    'runtime::Scheduler': 0;
+    'runtime::SecurityPolicy': 0;
+    'runtime::ChildProcess': 0;
+    'runtime::DateTuple': 0;
+    'runtime::LogDataUsage': 0;
+    'runtime::UserGroupPolicy': 0;
+    'runtime::User$logout$args': 0;
+    'runtime::McpTool': 0;
+    'runtime::Scheduler$add$args': 0;
+    'runtime::PathItemObject': 0;
+    'runtime::mcp_initialize$args': 0;
+    'runtime::Scheduler$activate$args': 0;
+    'runtime::OpenApiV3': 0;
+    'runtime::User$renew$args': 0;
+    'runtime::Task': 0;
+    'runtime::McpToolsListResult': 0;
+    'runtime::McpServerResourcesCapabilities': 0;
+    'runtime::Task$history$args': 0;
+    'runtime::User': 0;
+    'runtime::McpToolsListParams': 0;
+    'runtime::LogLevel': 0;
+    'runtime::McpToolsCallResult': 0;
+    'runtime::Frame': 0;
+    'io::CsvReader': 0;
+    'io::CsvFormat': 0;
+    'io::CsvColumnStatistics': 0;
+    'io::Csv': 0;
+    'io::Email': 0;
+    'io::CsvWriter': 0;
+    'io::HttpRequest': 0;
+    'io::BinReader': 0;
+    'io::Reader': 0;
+    'io::CsvReader<big::BigRecord>': 0;
+    'io::Csv$generate$args': 0;
+    'io::HttpResponse': 0;
+    'io::Smtp': 0;
+    'io::Writer': 0;
+    'io::Reader<core::String>': 0;
+    'io::XmlReader': 0;
+    'io::SmtpAuth': 0;
+    'io::TextWriter': 0;
+    'io::SmtpMode': 0;
+    'io::CsvReader<core::Array<core::float>>': 0;
+    'io::Csv$sample$args': 0;
+    'io::Reader<heatmap::Record>': 0;
+    'io::CsvReader<project::People>': 0;
+    'io::CsvAnalysisConfig': 0;
+    'io::FileWalker': 0;
+    'io::HttpMethod': 0;
+    'io::Reader<core::Array<core::float>>': 0;
+    'io::Csv$analyze$args': 0;
+    'io::CsvSharding': 0;
+    'io::Reader<project::People>': 0;
+    'io::File': 0;
+    'io::CsvStatistics': 0;
+    'io::GcbReader': 0;
+    'io::Reader<cities::City>': 0;
+    'io::JsonWriter': 0;
+    'io::Json': 0;
+    'io::Url': 0;
+    'io::GcbWriter': 0;
+    'io::JsonReader': 0;
+    'io::CsvReader<cities::City>': 0;
+    'io::Http': 0;
+    'io::CsvReader<heatmap::Record>': 0;
+    'io::TextReader': 0;
+    'io::Reader<big::BigRecord>': 0;
+    'util::LogQuantizer': 0;
+    'util::Random': 0;
+    'util::Histogram<core::float>': 0;
+    'util::Gaussian': 0;
+    'util::HistogramStats': 0;
+    'util::Quantizer<core::Array>': 0;
+    'util::GaussianProfile': 0;
+    'util::Histogram': 0;
+    'util::GaussianProfileSlot': 0;
+    'util::QuantizerSlotBound<core::Array>': 0;
+    'util::MultiQuantizer': 0;
+    'util::Gaussian<core::float>': 0;
+    'util::ProgressTracker': 0;
+    'util::Plot': 0;
+    'util::QuantizerSlotBound<core::float>': 0;
+    'util::HistogramStats<core::float>': 0;
+    'util::Quantizer<core::float>': 0;
+    'util::Queue': 0;
+    'util::TimeWindow': 0;
+    'util::HistogramBin<core::float>': 0;
+    'util::Stack': 0;
+    'util::HistogramBin': 0;
+    'util::Quantizer': 0;
+    'util::SlidingWindow': 0;
+    'util::Crypto': 0;
+    'util::LinearQuantizer': 0;
+    'util::Assert': 0;
+    'util::LinearQuantizer<core::float>': 0;
+    'util::CustomQuantizer': 0;
+    'util::QuantizerSlotBound': 0;
+    'project::Country': 0;
+    'project::foo$args': 0;
+    'project::Rect': 0;
+    'project::ComplexForm': 0;
+    'project::Root': 0;
+    'project::complex_object$args': 0;
+    'project::destructuring_table$args': 0;
+    'project::UrlEntry': 0;
+    'project::TrafficLight': 0;
+    'project::TimedComposed': 0;
+    'project::init_foo$args': 0;
+    'project::chart_colored_area$args': 0;
+    'project::FooBar': 0;
+    'project::serie_of_obj$args': 0;
+    'project::anything$args': 0;
+    'project::table$args': 0;
+    'project::mainTask$args': 0;
+    'project::Sensor': 0;
+    'project::now$args': 0;
+    'project::Sex': 0;
+    'project::mapTest$args': 0;
+    'project::goodFnForTestingFnCallInput$args': 0;
+    'project::SemiRecursive': 0;
+    'project::ComplexObject': 0;
+    'project::task_long_running$args': 0;
+    'project::this_is_boom$args': 0;
+    'project::display_fn$args': 0;
+    'project::Link': 0;
+    'project::task_without_params$args': 0;
+    'project::VisualCrossingProvider': 0;
+    'project::Composed': 0;
+    'project::MyData': 0;
+    'project::sample_huge_csv$args': 0;
+    'project::table_of_objects$args': 0;
+    'project::obj$args': 0;
+    'project::tensor_2_3_5$args': 0;
+    'project::SolarRadiation': 0;
+    'project::MapContainer': 0;
+    'project::Node': 0;
+    'project::task_long_running2$args': 0;
+    'project::bar$args': 0;
+    'project::hello$args': 0;
+    'project::tree$args': 0;
+    'project::Meteo': 0;
+    'project::get_person$args': 0;
+    'project::table_with_urls$args': 0;
+    'project::People': 0;
+    'project::big_map$args': 0;
+    'project::resolve_person$args': 0;
+    'project::chart$args': 0;
+    'project::histogram_stats$args': 0;
+    'project::Person': 0;
+    'project::Confidence': 0;
+    'project::obj1$args': 0;
+    'project::add$args': 0;
+    'project::people$args': 0;
+    'project::task_with_params$args': 0;
+    'project::table_of_objects2$args': 0;
+    'project::Circle': 0;
+    'project::objects_table$args': 0;
+    'project::Obj': 0;
+    'project::KLine': 0;
+    'project::Level': 0;
+    'project::Triangle': 0;
+    'project::TimeRecord': 0;
+    'project::SeriesObject': 0;
+    'project::display_fn_in_obj$args': 0;
+    'project::array_of_ints$args': 0;
+    'project::heatmap$args': 0;
+    'project::tensor$args': 0;
+    'project::Shape': 0;
+    'project::Obj2': 0;
+    'project::ObjWithFn': 0;
+    'project::obj2$args': 0;
+    'project::boxes$args': 0;
+    'project::data_array$args': 0;
+    'project::Person2': 0;
+    'project::controlled_task$args': 0;
+    'project::Obj1': 0;
+    'project::TimeZones': 0;
+    'project::SensorKind': 0;
+    'project::array_of_nodes$args': 0;
+    'project::one_d_histogram_bins$args': 0;
+    'project::chart_time$args': 0;
+    'project::table_of_objects3$args': 0;
+    'project::getTensor$args': 0;
+    'project::Box': 0;
+    'project::real_example$args': 0;
+    'project::tensor_3_5$args': 0;
+    'project::Link$whatever$args': 0;
+    'project::Book': 0;
+    'project::RelayApp': 0;
+    'project::TimeRecord<project::Composed>': 0;
+    'project::SensorData': 0;
+    'project::persons$args': 0;
+    'project::donut$args': 0;
+    'project::link_whatever$args': 0;
+    'any::filter_something$args': 0;
+    'any::Filters': 0;
+    'any::array_any_map_any$args': 0;
+    'any::AnyInput': 0;
+    'object::Filter': 0;
+    'heatmap::major_earthquakes$args': 0;
+    'heatmap::all_earthquakes$args': 0;
+    'heatmap::Record': 0;
+    'heatmap::Status': 0;
+    'heatmap::Earthquake': 0;
+    'cities::City': 0;
+    'cities::CapitalType': 0;
+    'big::BigRecord': 0;
+    'big::get_huge_object$args': 0;
+    'big::BigResult': 0;
+    'complex_factory::GridElementView<complex_factory::Cable>': 0;
+    'complex_factory::Cable': 0;
+    'complex_factory::cable_views$args': 0;
+    'complex_factory::CableView': 0;
+    'complex_factory::GridElementView': 0;
+    'complex_factory::VoltageLevel': 0;
   }
 
   interface $FieldsMap {
-    'core::node$resolve_all$args::n': 0,
-    'core::VectorVertex::vector': 0,
-    'core::VectorVertex::level_sizes': 0,
-    'core::VectorVertex::neighbour_nodes': 0,
-    'core::nodeTime$info$args::nodes': 0,
-    'core::TableColumnMapping::column': 0,
-    'core::TableColumnMapping::extractors': 0,
-    'core::nodeIndex$search_closest$args::i': 0,
-    'core::nodeIndex$search_closest$args::key': 0,
-    'core::nodeIndex$search_closest$args::max': 0,
-    'core::GeoCircle::center': 0,
-    'core::GeoCircle::radius': 0,
-    'core::Date::year': 0,
-    'core::Date::month': 0,
-    'core::Date::day': 0,
-    'core::Date::hour': 0,
-    'core::Date::minute': 0,
-    'core::Date::second': 0,
-    'core::Date::microsecond': 0,
-    'core::SearchResult::key': 0,
-    'core::SearchResult::value': 0,
-    'core::SearchResult::distance': 0,
-    'core::NodeInfo::size': 0,
-    'core::NodeInfo::from': 0,
-    'core::NodeInfo::to': 0,
-    'core::VectorIndex::values': 0,
-    'core::VectorIndex::count': 0,
-    'core::VectorIndex::max_level': 0,
-    'core::VectorIndex::entry_node_ref': 0,
-    'core::VectorIndex::rng': 0,
-    'core::VectorIndex::distance': 0,
-    'core::nodeGeo$sample$args::refs': 0,
-    'core::nodeGeo$sample$args::from': 0,
-    'core::nodeGeo$sample$args::to': 0,
-    'core::nodeGeo$sample$args::maxRows': 0,
-    'core::nodeGeo$sample$args::mode': 0,
-    'core::Table$applyMappings$args::table': 0,
-    'core::Table$applyMappings$args::mappings': 0,
-    'core::nodeIndexBucket::key': 0,
-    'core::nodeIndexBucket::value': 0,
-    'core::nodeIndexBucket::next': 0,
-    'core::nodeList$sample$args::refs': 0,
-    'core::nodeList$sample$args::from': 0,
-    'core::nodeList$sample$args::to': 0,
-    'core::nodeList$sample$args::maxRows': 0,
-    'core::nodeList$sample$args::mode': 0,
-    'core::nodeList$sample$args::maxDephasing': 0,
-    'core::nodeGeo$info$args::nodes': 0,
-    'core::nodeList$info$args::nodes': 0,
-    'core::GeoBox::sw': 0,
-    'core::GeoBox::ne': 0,
-    'core::Error::message': 0,
-    'core::Error::stack': 0,
-    'core::nodeIndex$sample$args::refs': 0,
-    'core::nodeIndex$sample$args::from': 0,
-    'core::nodeIndex$sample$args::maxRows': 0,
-    'core::nodeIndex$sample$args::mode': 0,
-    'core::Tuple::x': 0,
-    'core::Tuple::y': 0,
-    'core::nodeTime$sample$args::refs': 0,
-    'core::nodeTime$sample$args::from': 0,
-    'core::nodeTime$sample$args::to': 0,
-    'core::nodeTime$sample$args::maxRows': 0,
-    'core::nodeTime$sample$args::mode': 0,
-    'core::nodeTime$sample$args::maxDephasing': 0,
-    'core::nodeTime$sample$args::tz': 0,
-    'core::GeoPoly::points': 0,
-    'core::nodeTimeCursor::n': 0,
-    'core::nodeTimeCursor::req_time': 0,
-    'core::nodeIndex$info$args::nodes': 0,
-    'core::ErrorFrame::module': 0,
-    'core::ErrorFrame::function': 0,
-    'core::ErrorFrame::line': 0,
-    'core::ErrorFrame::column': 0,
-    'runtime::Debug::id': 0,
-    'runtime::Debug::frames': 0,
-    'runtime::Debug::root': 0,
-    'runtime::Debug$get$args::id': 0,
-    'runtime::FixedPeriodicity::every': 0,
-    'runtime::McpServerToolsCapabilities::listChanged': 0,
-    'runtime::McpTextContent::type': 0,
-    'runtime::McpTextContent::_meta': 0,
-    'runtime::McpTextContent::annotations': 0,
-    'runtime::McpTextContent::text': 0,
-    'runtime::YearlyPeriodicity::dates': 0,
-    'runtime::YearlyPeriodicity::timezone': 0,
-    'runtime::ResponseObject::description': 0,
-    'runtime::ResponseObject::headers': 0,
-    'runtime::ResponseObject::content': 0,
-    'runtime::User$tokenLogin$args::token': 0,
-    'runtime::User$tokenLogin$args::use_cookie': 0,
-    'runtime::mcp_tools_list$args::params': 0,
-    'runtime::McpInitializeParams::_meta': 0,
-    'runtime::McpInitializeParams::protocolVersion': 0,
-    'runtime::McpInitializeParams::capabilities': 0,
-    'runtime::McpInitializeParams::clientInfo': 0,
-    'runtime::McpClientCapabilities::experimental': 0,
-    'runtime::McpClientCapabilities::roots': 0,
-    'runtime::McpClientCapabilities::sampling': 0,
-    'runtime::McpClientCapabilities::elicitation': 0,
-    'runtime::McpServerCapabilities::experimental': 0,
-    'runtime::McpServerCapabilities::logging': 0,
-    'runtime::McpServerCapabilities::completions': 0,
-    'runtime::McpServerCapabilities::prompts': 0,
-    'runtime::McpServerCapabilities::resources': 0,
-    'runtime::McpServerCapabilities::tools': 0,
-    'runtime::McpImplementation::name': 0,
-    'runtime::McpImplementation::title': 0,
-    'runtime::McpImplementation::version': 0,
-    'runtime::RequestBodyObject::content': 0,
-    'runtime::RequestBodyObject::required': 0,
-    'runtime::ComponentsObject::schemas': 0,
-    'runtime::Task$is_running$args::task_id': 0,
-    'runtime::SecurityEntity$set$args::entity': 0,
-    'runtime::License::name': 0,
-    'runtime::License::start': 0,
-    'runtime::License::end': 0,
-    'runtime::License::company': 0,
-    'runtime::License::max_memory': 0,
-    'runtime::License::extra_1': 0,
-    'runtime::License::extra_2': 0,
-    'runtime::License::type': 0,
-    'runtime::McpInitializeResult::_meta': 0,
-    'runtime::McpInitializeResult::protocolVersion': 0,
-    'runtime::McpInitializeResult::capabilities': 0,
-    'runtime::McpInitializeResult::serverInfo': 0,
-    'runtime::McpInitializeResult::instructions': 0,
-    'runtime::Scheduler$deactivate$args::function': 0,
-    'runtime::McpToolsCallParams::_meta': 0,
-    'runtime::McpToolsCallParams::name': 0,
-    'runtime::McpToolsCallParams::arguments': 0,
-    'runtime::Role::name': 0,
-    'runtime::Role::permissions': 0,
-    'runtime::Job::function': 0,
-    'runtime::Job::arguments': 0,
-    'runtime::McpResourceContent::type': 0,
-    'runtime::McpResourceContent::_meta': 0,
-    'runtime::McpResourceContent::annotations': 0,
-    'runtime::McpResourceContent::uri': 0,
-    'runtime::McpResourceContent::description': 0,
-    'runtime::McpResourceContent::mimeType': 0,
-    'runtime::McpResourceContent::size': 0,
-    'runtime::McpImageContent::type': 0,
-    'runtime::McpImageContent::_meta': 0,
-    'runtime::McpImageContent::annotations': 0,
-    'runtime::McpImageContent::data': 0,
-    'runtime::McpImageContent::mimeType': 0,
-    'runtime::Debug$resume$args::id': 0,
-    'runtime::PeriodicOptions::activated': 0,
-    'runtime::PeriodicOptions::start': 0,
-    'runtime::PeriodicOptions::max_duration': 0,
-    'runtime::PeriodicTask::function': 0,
-    'runtime::PeriodicTask::periodicity': 0,
-    'runtime::PeriodicTask::options': 0,
-    'runtime::PeriodicTask::is_active': 0,
-    'runtime::PeriodicTask::next_execution': 0,
-    'runtime::PeriodicTask::execution_count': 0,
-    'runtime::Log::level': 0,
-    'runtime::Log::time': 0,
-    'runtime::Log::user_id': 0,
-    'runtime::Log::id': 0,
-    'runtime::Log::id2': 0,
-    'runtime::Log::src': 0,
-    'runtime::Log::data': 0,
-    'runtime::McpClientRoots::listChanged': 0,
-    'runtime::Task$cancel$args::task_id': 0,
-    'runtime::MonthlyPeriodicity::days': 0,
-    'runtime::MonthlyPeriodicity::daily': 0,
-    'runtime::McpAnnotations::audience': 0,
-    'runtime::McpAnnotations::priority': 0,
-    'runtime::McpAnnotations::lastModified': 0,
-    'runtime::RuntimeInfo::version': 0,
-    'runtime::RuntimeInfo::program_version': 0,
-    'runtime::RuntimeInfo::arch': 0,
-    'runtime::RuntimeInfo::timezone': 0,
-    'runtime::RuntimeInfo::license': 0,
-    'runtime::RuntimeInfo::io_threads': 0,
-    'runtime::RuntimeInfo::bg_threads': 0,
-    'runtime::RuntimeInfo::fg_threads': 0,
-    'runtime::RuntimeInfo::mem_total': 0,
-    'runtime::RuntimeInfo::mem_worker': 0,
-    'runtime::RuntimeInfo::disk_data_bytes': 0,
-    'runtime::mcp_tools_call$args::params': 0,
-    'runtime::McpAudioContent::type': 0,
-    'runtime::McpAudioContent::_meta': 0,
-    'runtime::McpAudioContent::annotations': 0,
-    'runtime::McpAudioContent::data': 0,
-    'runtime::McpAudioContent::mimeType': 0,
-    'runtime::McpServerPromptsCapabilities::listChanged': 0,
-    'runtime::HeaderObject::description': 0,
-    'runtime::HeaderObject::required': 0,
-    'runtime::DailyPeriodicity::hour': 0,
-    'runtime::DailyPeriodicity::minute': 0,
-    'runtime::DailyPeriodicity::second': 0,
-    'runtime::DailyPeriodicity::timezone': 0,
-    'runtime::User$setPassword$args::name': 0,
-    'runtime::User$setPassword$args::pass': 0,
-    'runtime::WeeklyPeriodicity::days': 0,
-    'runtime::WeeklyPeriodicity::daily': 0,
-    'runtime::Permission::name': 0,
-    'runtime::Permission::description': 0,
-    'runtime::User$login$args::credentials': 0,
-    'runtime::User$login$args::use_cookie': 0,
-    'runtime::InfoObject::title': 0,
-    'runtime::InfoObject::version': 0,
-    'runtime::SchemaObject::$ref': 0,
-    'runtime::SchemaObject::$defs': 0,
-    'runtime::SchemaObject::type': 0,
-    'runtime::SchemaObject::format': 0,
-    'runtime::SchemaObject::nullable': 0,
-    'runtime::SchemaObject::properties': 0,
-    'runtime::SchemaObject::required': 0,
-    'runtime::SchemaObject::items': 0,
-    'runtime::SchemaObject::oneOf': 0,
-    'runtime::SchemaObject::allOf': 0,
-    'runtime::SchemaObject::anyOf': 0,
-    'runtime::SchemaObject::minItems': 0,
-    'runtime::SchemaObject::maxItems': 0,
-    'runtime::SchemaObject::enum': 0,
-    'runtime::SchemaObject::additionalProperties': 0,
-    'runtime::ChildProcessResult::code': 0,
-    'runtime::ChildProcessResult::stdout': 0,
-    'runtime::ChildProcessResult::stderr': 0,
-    'runtime::MediaTypeObject::schema': 0,
-    'runtime::OpenIDConnect::url': 0,
-    'runtime::OpenIDConnect::clientId': 0,
-    'runtime::SecurityFields$set$args::f': 0,
-    'runtime::OperationObject::tags': 0,
-    'runtime::OperationObject::description': 0,
-    'runtime::OperationObject::requestBody': 0,
-    'runtime::OperationObject::responses': 0,
-    'runtime::Variable::name': 0,
-    'runtime::Variable::value': 0,
-    'runtime::Scheduler$find$args::function': 0,
-    'runtime::UserCredential::offset': 0,
-    'runtime::UserCredential::pass': 0,
-    'runtime::SecurityFields::email': 0,
-    'runtime::SecurityFields::name': 0,
-    'runtime::SecurityFields::first_name': 0,
-    'runtime::SecurityFields::last_name': 0,
-    'runtime::SecurityFields::roles': 0,
-    'runtime::SecurityFields::groups': 0,
-    'runtime::UserGroup::id': 0,
-    'runtime::UserGroup::name': 0,
-    'runtime::UserGroup::activated': 0,
-    'runtime::SecurityPolicy::entities': 0,
-    'runtime::SecurityPolicy::credentials': 0,
-    'runtime::SecurityPolicy::fields': 0,
-    'runtime::SecurityPolicy::keys': 0,
-    'runtime::SecurityPolicy::keys_last_refresh': 0,
-    'runtime::ChildProcess::pid': 0,
-    'runtime::DateTuple::day': 0,
-    'runtime::DateTuple::month': 0,
-    'runtime::LogDataUsage::read_bytes': 0,
-    'runtime::LogDataUsage::read_hits': 0,
-    'runtime::LogDataUsage::read_wasted': 0,
-    'runtime::LogDataUsage::write_bytes': 0,
-    'runtime::LogDataUsage::write_hits': 0,
-    'runtime::LogDataUsage::cache_bytes': 0,
-    'runtime::LogDataUsage::cache_hits': 0,
-    'runtime::UserGroupPolicy::group_id': 0,
-    'runtime::UserGroupPolicy::type': 0,
-    'runtime::McpTool::name': 0,
-    'runtime::McpTool::title': 0,
-    'runtime::McpTool::description': 0,
-    'runtime::McpTool::inputSchema': 0,
-    'runtime::McpTool::outputSchema': 0,
-    'runtime::McpTool::annotations': 0,
-    'runtime::Scheduler$add$args::function': 0,
-    'runtime::Scheduler$add$args::periodicity': 0,
-    'runtime::Scheduler$add$args::options': 0,
-    'runtime::PathItemObject::description': 0,
-    'runtime::PathItemObject::post': 0,
-    'runtime::mcp_initialize$args::params': 0,
-    'runtime::Scheduler$activate$args::function': 0,
-    'runtime::OpenApiV3::openapi': 0,
-    'runtime::OpenApiV3::info': 0,
-    'runtime::OpenApiV3::paths': 0,
-    'runtime::OpenApiV3::components': 0,
-    'runtime::User$renew$args::use_cookie': 0,
-    'runtime::Task::user_id': 0,
-    'runtime::Task::task_id': 0,
-    'runtime::Task::mod': 0,
-    'runtime::Task::type': 0,
-    'runtime::Task::fun': 0,
-    'runtime::Task::creation': 0,
-    'runtime::Task::start': 0,
-    'runtime::Task::duration': 0,
-    'runtime::Task::status': 0,
-    'runtime::Task::progress': 0,
-    'runtime::McpToolsListResult::_meta': 0,
-    'runtime::McpToolsListResult::tools': 0,
-    'runtime::McpServerResourcesCapabilities::subscribe': 0,
-    'runtime::McpServerResourcesCapabilities::listChanged': 0,
-    'runtime::Task$history$args::offset': 0,
-    'runtime::Task$history$args::max': 0,
-    'runtime::User::id': 0,
-    'runtime::User::name': 0,
-    'runtime::User::activated': 0,
-    'runtime::User::full_name': 0,
-    'runtime::User::email': 0,
-    'runtime::User::role': 0,
-    'runtime::User::groups': 0,
-    'runtime::User::groups_flags': 0,
-    'runtime::User::external': 0,
-    'runtime::McpToolsListParams::_meta': 0,
-    'runtime::McpToolsListParams::cursor': 0,
-    'runtime::McpToolsCallResult::_meta': 0,
-    'runtime::McpToolsCallResult::content': 0,
-    'runtime::McpToolsCallResult::structuredContent': 0,
-    'runtime::McpToolsCallResult::isError': 0,
-    'runtime::Frame::module': 0,
-    'runtime::Frame::type': 0,
-    'runtime::Frame::function': 0,
-    'runtime::Frame::src': 0,
-    'runtime::Frame::line': 0,
-    'runtime::Frame::column': 0,
-    'runtime::Frame::scope': 0,
-    'io::CsvReader::path': 0,
-    'io::CsvReader::pos': 0,
-    'io::CsvReader::format': 0,
-    'io::CsvReader::sharding': 0,
-    'io::CsvFormat::header_lines': 0,
-    'io::CsvFormat::separator': 0,
-    'io::CsvFormat::string_delimiter': 0,
-    'io::CsvFormat::decimal_separator': 0,
-    'io::CsvFormat::thousands_separator': 0,
-    'io::CsvFormat::trim': 0,
-    'io::CsvFormat::format': 0,
-    'io::CsvFormat::tz': 0,
-    'io::CsvFormat::strict': 0,
-    'io::CsvFormat::nearest_time': 0,
-    'io::CsvColumnStatistics::name': 0,
-    'io::CsvColumnStatistics::example': 0,
-    'io::CsvColumnStatistics::null_count': 0,
-    'io::CsvColumnStatistics::bool_count': 0,
-    'io::CsvColumnStatistics::int_count': 0,
-    'io::CsvColumnStatistics::float_count': 0,
-    'io::CsvColumnStatistics::string_count': 0,
-    'io::CsvColumnStatistics::date_count': 0,
-    'io::CsvColumnStatistics::date_format_count': 0,
-    'io::CsvColumnStatistics::enumerable_count': 0,
-    'io::CsvColumnStatistics::profile': 0,
-    'io::Email::from': 0,
-    'io::Email::subject': 0,
-    'io::Email::body': 0,
-    'io::Email::body_is_html': 0,
-    'io::Email::to': 0,
-    'io::Email::cc': 0,
-    'io::Email::bcc': 0,
-    'io::CsvWriter::path': 0,
-    'io::CsvWriter::append': 0,
-    'io::CsvWriter::format': 0,
-    'io::HttpRequest::method': 0,
-    'io::HttpRequest::url': 0,
-    'io::HttpRequest::headers': 0,
-    'io::HttpRequest::body': 0,
-    'io::BinReader::path': 0,
-    'io::BinReader::pos': 0,
-    'io::Reader::path': 0,
-    'io::Reader::pos': 0,
-    'io::Csv$generate$args::stats': 0,
-    'io::HttpResponse::status_code': 0,
-    'io::HttpResponse::headers': 0,
-    'io::HttpResponse::content': 0,
-    'io::HttpResponse::error_msg': 0,
-    'io::Smtp::host': 0,
-    'io::Smtp::port': 0,
-    'io::Smtp::mode': 0,
-    'io::Smtp::authenticate': 0,
-    'io::Smtp::user': 0,
-    'io::Smtp::pass': 0,
-    'io::Writer::path': 0,
-    'io::Writer::append': 0,
-    'io::XmlReader::path': 0,
-    'io::XmlReader::pos': 0,
-    'io::TextWriter::path': 0,
-    'io::TextWriter::append': 0,
-    'io::Csv$sample$args::reader': 0,
-    'io::Csv$sample$args::max_lines': 0,
-    'io::CsvAnalysisConfig::header_lines': 0,
-    'io::CsvAnalysisConfig::separator': 0,
-    'io::CsvAnalysisConfig::string_delimiter': 0,
-    'io::CsvAnalysisConfig::decimal_separator': 0,
-    'io::CsvAnalysisConfig::thousands_separator': 0,
-    'io::CsvAnalysisConfig::row_limit': 0,
-    'io::CsvAnalysisConfig::enumerable_limit': 0,
-    'io::CsvAnalysisConfig::date_check_limit': 0,
-    'io::CsvAnalysisConfig::date_formats': 0,
-    'io::FileWalker::path': 0,
-    'io::Csv$analyze$args::files': 0,
-    'io::Csv$analyze$args::config': 0,
-    'io::CsvSharding::id': 0,
-    'io::CsvSharding::column': 0,
-    'io::CsvSharding::modulo': 0,
-    'io::File::path': 0,
-    'io::File::size': 0,
-    'io::File::last_modification': 0,
-    'io::CsvStatistics::header_lines': 0,
-    'io::CsvStatistics::separator': 0,
-    'io::CsvStatistics::string_delimiter': 0,
-    'io::CsvStatistics::decimal_separator': 0,
-    'io::CsvStatistics::thousands_separator': 0,
-    'io::CsvStatistics::columns': 0,
-    'io::CsvStatistics::line_count': 0,
-    'io::CsvStatistics::fail_count': 0,
-    'io::CsvStatistics::file_count': 0,
-    'io::GcbReader::path': 0,
-    'io::GcbReader::pos': 0,
-    'io::JsonWriter::path': 0,
-    'io::JsonWriter::append': 0,
-    'io::Url::protocol': 0,
-    'io::Url::host': 0,
-    'io::Url::port': 0,
-    'io::Url::path': 0,
-    'io::Url::params': 0,
-    'io::Url::hash': 0,
-    'io::GcbWriter::path': 0,
-    'io::GcbWriter::append': 0,
-    'io::JsonReader::path': 0,
-    'io::JsonReader::pos': 0,
-    'io::TextReader::path': 0,
-    'io::TextReader::pos': 0,
-    'util::LogQuantizer::min': 0,
-    'util::LogQuantizer::max': 0,
-    'util::LogQuantizer::bins': 0,
-    'util::LogQuantizer::open': 0,
-    'util::Random::seed': 0,
-    'util::Random::v': 0,
-    'util::Gaussian::sum': 0,
-    'util::Gaussian::sumsq': 0,
-    'util::Gaussian::count': 0,
-    'util::Gaussian::min': 0,
-    'util::Gaussian::max': 0,
-    'util::HistogramStats::min': 0,
-    'util::HistogramStats::max': 0,
-    'util::HistogramStats::whisker_low': 0,
-    'util::HistogramStats::whisker_high': 0,
-    'util::HistogramStats::percentile1': 0,
-    'util::HistogramStats::percentile5': 0,
-    'util::HistogramStats::percentile10': 0,
-    'util::HistogramStats::percentile20': 0,
-    'util::HistogramStats::percentile25': 0,
-    'util::HistogramStats::percentile50': 0,
-    'util::HistogramStats::percentile75': 0,
-    'util::HistogramStats::percentile80': 0,
-    'util::HistogramStats::percentile90': 0,
-    'util::HistogramStats::percentile95': 0,
-    'util::HistogramStats::percentile99': 0,
-    'util::HistogramStats::sum': 0,
-    'util::HistogramStats::avg': 0,
-    'util::HistogramStats::std': 0,
-    'util::HistogramStats::size': 0,
-    'util::GaussianProfile::quantizer': 0,
-    'util::GaussianProfile::precision': 0,
-    'util::GaussianProfile::bins': 0,
-    'util::GaussianProfile::value_min': 0,
-    'util::GaussianProfile::nb_rejected': 0,
-    'util::Histogram::quantizer': 0,
-    'util::Histogram::bins': 0,
-    'util::Histogram::nb_rejected': 0,
-    'util::Histogram::nb_accepted': 0,
-    'util::Histogram::min': 0,
-    'util::Histogram::max': 0,
-    'util::Histogram::sum': 0,
-    'util::Histogram::sumsq': 0,
-    'util::GaussianProfileSlot::sum': 0,
-    'util::GaussianProfileSlot::sumsq': 0,
-    'util::GaussianProfileSlot::count': 0,
-    'util::MultiQuantizer::quantizers': 0,
-    'util::ProgressTracker::start': 0,
-    'util::ProgressTracker::total': 0,
-    'util::ProgressTracker::counter': 0,
-    'util::ProgressTracker::duration': 0,
-    'util::ProgressTracker::progress': 0,
-    'util::ProgressTracker::speed': 0,
-    'util::ProgressTracker::remaining': 0,
-    'util::Queue::values': 0,
-    'util::Queue::capacity': 0,
-    'util::TimeWindow::values': 0,
-    'util::TimeWindow::span': 0,
-    'util::TimeWindow::sum': 0,
-    'util::TimeWindow::sumsq': 0,
-    'util::TimeWindow::field': 0,
-    'util::Stack::values': 0,
-    'util::HistogramBin::bin': 0,
-    'util::HistogramBin::count': 0,
-    'util::HistogramBin::ratio': 0,
-    'util::HistogramBin::cumulative_count': 0,
-    'util::HistogramBin::cumulative_ratio': 0,
-    'util::SlidingWindow::values': 0,
-    'util::SlidingWindow::span': 0,
-    'util::SlidingWindow::sum': 0,
-    'util::SlidingWindow::sumsq': 0,
-    'util::SlidingWindow::field': 0,
-    'util::LinearQuantizer::min': 0,
-    'util::LinearQuantizer::max': 0,
-    'util::LinearQuantizer::bins': 0,
-    'util::LinearQuantizer::open': 0,
-    'util::CustomQuantizer::min': 0,
-    'util::CustomQuantizer::max': 0,
-    'util::CustomQuantizer::step_starts': 0,
-    'util::CustomQuantizer::open': 0,
-    'util::QuantizerSlotBound::min': 0,
-    'util::QuantizerSlotBound::max': 0,
-    'util::QuantizerSlotBound::center': 0,
-    'project::Country::name': 0,
-    'project::Country::timezone': 0,
-    'project::Country::operating_stats': 0,
-    'project::Country::last_updated_stats': 0,
-    'project::Country::governorates': 0,
-    'project::Country::meteo': 0,
-    'project::Rect::width': 0,
-    'project::Rect::height': 0,
-    'project::ComplexForm::shapes': 0,
-    'project::ComplexForm::shape': 0,
-    'project::UrlEntry::name': 0,
-    'project::UrlEntry::value': 0,
-    'project::TimedComposed::time': 0,
-    'project::TimedComposed::a': 0,
-    'project::TimedComposed::b': 0,
-    'project::anything$args::v': 0,
-    'project::Sensor::id': 0,
-    'project::Sensor::kind': 0,
-    'project::goodFnForTestingFnCallInput$args::name': 0,
-    'project::goodFnForTestingFnCallInput$args::flag': 0,
-    'project::goodFnForTestingFnCallInput$args::item': 0,
-    'project::goodFnForTestingFnCallInput$args::optionalFlag': 0,
-    'project::SemiRecursive::sub': 0,
-    'project::ComplexObject::string': 0,
-    'project::ComplexObject::int': 0,
-    'project::ComplexObject::float': 0,
-    'project::ComplexObject::bool': 0,
-    'project::ComplexObject::char': 0,
-    'project::ComplexObject::geo': 0,
-    'project::ComplexObject::null': 0,
-    'project::ComplexObject::enum': 0,
-    'project::ComplexObject::array': 0,
-    'project::ComplexObject::nodeTime': 0,
-    'project::ComplexObject::nodeIndex': 0,
-    'project::ComplexObject::nodeList': 0,
-    'project::ComplexObject::nodeGeo': 0,
-    'project::ComplexObject::nested': 0,
-    'project::ComplexObject::map': 0,
-    'project::ComplexObject::tuple': 0,
-    'project::ComplexObject::t2': 0,
-    'project::ComplexObject::t2f': 0,
-    'project::ComplexObject::t3': 0,
-    'project::ComplexObject::t3f': 0,
-    'project::ComplexObject::t4': 0,
-    'project::ComplexObject::t4f': 0,
-    'project::ComplexObject::str': 0,
-    'project::ComplexObject::date': 0,
-    'project::display_fn$args::fn_': 0,
-    'project::Link::name': 0,
-    'project::Link::next': 0,
-    'project::VisualCrossingProvider::name': 0,
-    'project::VisualCrossingProvider::solar': 0,
-    'project::Composed::a': 0,
-    'project::Composed::b': 0,
-    'project::MyData::level': 0,
-    'project::MyData::value': 0,
-    'project::SolarRadiation::is_enabled': 0,
-    'project::SolarRadiation::radiance': 0,
-    'project::SolarRadiation::instant_power': 0,
-    'project::MapContainer::a': 0,
-    'project::MapContainer::b': 0,
-    'project::MapContainer::c': 0,
-    'project::MapContainer::d': 0,
-    'project::MapContainer::e': 0,
-    'project::Node::id': 0,
-    'project::Node::value': 0,
-    'project::Node::link': 0,
-    'project::hello$args::name': 0,
-    'project::Meteo::ideal_solar': 0,
-    'project::Meteo::visual_crossing': 0,
-    'project::People::Index': 0,
-    'project::People::User id': 0,
-    'project::People::First Name': 0,
-    'project::People::Last Name': 0,
-    'project::People::Sex': 0,
-    'project::People::Email': 0,
-    'project::People::Phone': 0,
-    'project::People::Date of birth': 0,
-    'project::People::Job Title': 0,
-    'project::chart$args::nbRows': 0,
-    'project::Person::name': 0,
-    'project::Person::age': 0,
-    'project::Person::activated': 0,
-    'project::add$args::a': 0,
-    'project::add$args::b': 0,
-    'project::task_with_params$args::name': 0,
-    'project::task_with_params$args::age': 0,
-    'project::Circle::radius': 0,
-    'project::Obj::field': 0,
-    'project::Obj::tuple': 0,
-    'project::KLine::open': 0,
-    'project::KLine::close': 0,
-    'project::KLine::volume': 0,
-    'project::Triangle::base': 0,
-    'project::Triangle::height': 0,
-    'project::TimeRecord::time': 0,
-    'project::TimeRecord::value': 0,
-    'project::SeriesObject::a': 0,
-    'project::SeriesObject::b': 0,
-    'project::display_fn_in_obj$args::o': 0,
-    'project::array_of_ints$args::arr': 0,
-    'project::Obj2::prop1': 0,
-    'project::Obj2::prop2': 0,
-    'project::Obj2::prop3': 0,
-    'project::Obj2::prop4': 0,
-    'project::ObjWithFn::fn': 0,
-    'project::Person2::id': 0,
-    'project::Person2::name': 0,
-    'project::Person2::age': 0,
-    'project::Person2::children': 0,
-    'project::controlled_task$args::duration': 0,
-    'project::Obj1::prop1': 0,
-    'project::Obj1::prop2': 0,
-    'project::Obj1::prop3': 0,
-    'project::TimeZones::azores': 0,
-    'project::TimeZones::utc': 0,
-    'project::TimeZones::paris': 0,
-    'project::TimeZones::athens': 0,
-    'project::Box::value': 0,
-    'project::Link$whatever$args::link': 0,
-    'project::Book::name': 0,
-    'project::Book::owner': 0,
-    'project::SensorData::temperature': 0,
-    'project::SensorData::pression': 0,
-    'project::SensorData::humidity': 0,
-    'project::link_whatever$args::l': 0,
-    'any::filter_something$args::f': 0,
-    'any::Filters::a': 0,
-    'any::Filters::b': 0,
-    'any::array_any_map_any$args::arr': 0,
-    'any::array_any_map_any$args::map': 0,
-    'any::AnyInput::idk': 0,
-    'object::Filter::a': 0,
-    'object::Filter::b': 0,
-    'heatmap::Record::time': 0,
-    'heatmap::Record::latitude': 0,
-    'heatmap::Record::longitude': 0,
-    'heatmap::Record::depth': 0,
-    'heatmap::Record::mag': 0,
-    'heatmap::Record::magType': 0,
-    'heatmap::Record::nst': 0,
-    'heatmap::Record::gap': 0,
-    'heatmap::Record::dmin': 0,
-    'heatmap::Record::rms': 0,
-    'heatmap::Record::net': 0,
-    'heatmap::Record::id': 0,
-    'heatmap::Record::updated': 0,
-    'heatmap::Record::place': 0,
-    'heatmap::Record::type': 0,
-    'heatmap::Record::horizontalError': 0,
-    'heatmap::Record::depthError': 0,
-    'heatmap::Record::magError': 0,
-    'heatmap::Record::magNst': 0,
-    'heatmap::Record::status': 0,
-    'heatmap::Record::locationSource': 0,
-    'heatmap::Record::magSource': 0,
-    'heatmap::Earthquake::time': 0,
-    'heatmap::Earthquake::location': 0,
-    'heatmap::Earthquake::depth': 0,
-    'heatmap::Earthquake::mag': 0,
-    'heatmap::Earthquake::magType': 0,
-    'heatmap::Earthquake::nst': 0,
-    'heatmap::Earthquake::gap': 0,
-    'heatmap::Earthquake::dmin': 0,
-    'heatmap::Earthquake::rms': 0,
-    'heatmap::Earthquake::net': 0,
-    'heatmap::Earthquake::id': 0,
-    'heatmap::Earthquake::updated': 0,
-    'heatmap::Earthquake::place': 0,
-    'heatmap::Earthquake::horizontalError': 0,
-    'heatmap::Earthquake::depthError': 0,
-    'heatmap::Earthquake::magError': 0,
-    'heatmap::Earthquake::magNst': 0,
-    'heatmap::Earthquake::magSource': 0,
-    'cities::City::country': 0,
-    'cities::City::name': 0,
-    'cities::City::location': 0,
-    'cities::City::population': 0,
-    'cities::City::type': 0,
-    'big::BigRecord::timestamp': 0,
-    'big::BigRecord::aimp': 0,
-    'big::BigRecord::amud': 0,
-    'big::BigRecord::arnd': 0,
-    'big::BigRecord::asin1': 0,
-    'big::BigRecord::asin2': 0,
-    'big::BigRecord::adbr': 0,
-    'big::BigRecord::adfl': 0,
-    'big::BigRecord::bed1': 0,
-    'big::BigRecord::bed2': 0,
-    'big::BigRecord::bfo1': 0,
-    'big::BigRecord::bfo2': 0,
-    'big::BigRecord::bso1': 0,
-    'big::BigRecord::bso2': 0,
-    'big::BigRecord::bso3': 0,
-    'big::BigRecord::ced1': 0,
-    'big::BigRecord::cfo1': 0,
-    'big::BigRecord::cso1': 0,
-    'big::BigRecord::y': 0,
-    'big::BigRecord::category': 0,
-    'big::BigResult::start_time': 0,
-    'big::BigResult::records': 0,
-    'big::BigResult::end_time': 0,
-    'complex_factory::Cable::voltageLevel': 0,
-    'complex_factory::CableView::node': 0,
-    'complex_factory::CableView::coordinates': 0,
-    'complex_factory::CableView::shortDescr': 0,
-    'complex_factory::CableView::deletionDate': 0,
-    'complex_factory::CableView::cableId': 0,
-    'complex_factory::CableView::voltageLevel': 0,
-    'complex_factory::CableView::voltageValue_kV': 0,
-    'complex_factory::CableView::meta': 0,
-    'complex_factory::CableView::length_m': 0,
-    'complex_factory::CableView::regionalCenter': 0,
-    'complex_factory::CableView::isSimulated': 0,
+    'core::node$resolve_all$args::n': 0;
+    'core::VectorVertex::vector': 0;
+    'core::VectorVertex::level_sizes': 0;
+    'core::VectorVertex::neighbour_nodes': 0;
+    'core::nodeTime$info$args::nodes': 0;
+    'core::TableColumnMapping::column': 0;
+    'core::TableColumnMapping::extractors': 0;
+    'core::nodeIndex$search_closest$args::i': 0;
+    'core::nodeIndex$search_closest$args::key': 0;
+    'core::nodeIndex$search_closest$args::max': 0;
+    'core::GeoCircle::center': 0;
+    'core::GeoCircle::radius': 0;
+    'core::Date::year': 0;
+    'core::Date::month': 0;
+    'core::Date::day': 0;
+    'core::Date::hour': 0;
+    'core::Date::minute': 0;
+    'core::Date::second': 0;
+    'core::Date::microsecond': 0;
+    'core::SearchResult::key': 0;
+    'core::SearchResult::value': 0;
+    'core::SearchResult::distance': 0;
+    'core::NodeInfo::size': 0;
+    'core::NodeInfo::from': 0;
+    'core::NodeInfo::to': 0;
+    'core::VectorIndex::values': 0;
+    'core::VectorIndex::count': 0;
+    'core::VectorIndex::max_level': 0;
+    'core::VectorIndex::entry_node_ref': 0;
+    'core::VectorIndex::rng': 0;
+    'core::VectorIndex::distance': 0;
+    'core::nodeGeo$sample$args::refs': 0;
+    'core::nodeGeo$sample$args::from': 0;
+    'core::nodeGeo$sample$args::to': 0;
+    'core::nodeGeo$sample$args::maxRows': 0;
+    'core::nodeGeo$sample$args::mode': 0;
+    'core::Table$applyMappings$args::table': 0;
+    'core::Table$applyMappings$args::mappings': 0;
+    'core::nodeIndexBucket::key': 0;
+    'core::nodeIndexBucket::value': 0;
+    'core::nodeIndexBucket::next': 0;
+    'core::nodeList$sample$args::refs': 0;
+    'core::nodeList$sample$args::from': 0;
+    'core::nodeList$sample$args::to': 0;
+    'core::nodeList$sample$args::maxRows': 0;
+    'core::nodeList$sample$args::mode': 0;
+    'core::nodeList$sample$args::maxDephasing': 0;
+    'core::nodeGeo$info$args::nodes': 0;
+    'core::nodeList$info$args::nodes': 0;
+    'core::GeoBox::sw': 0;
+    'core::GeoBox::ne': 0;
+    'core::Error::message': 0;
+    'core::Error::stack': 0;
+    'core::nodeIndex$sample$args::refs': 0;
+    'core::nodeIndex$sample$args::from': 0;
+    'core::nodeIndex$sample$args::maxRows': 0;
+    'core::nodeIndex$sample$args::mode': 0;
+    'core::Tuple::x': 0;
+    'core::Tuple::y': 0;
+    'core::nodeTime$sample$args::refs': 0;
+    'core::nodeTime$sample$args::from': 0;
+    'core::nodeTime$sample$args::to': 0;
+    'core::nodeTime$sample$args::maxRows': 0;
+    'core::nodeTime$sample$args::mode': 0;
+    'core::nodeTime$sample$args::maxDephasing': 0;
+    'core::nodeTime$sample$args::tz': 0;
+    'core::GeoPoly::points': 0;
+    'core::nodeTimeCursor::n': 0;
+    'core::nodeTimeCursor::req_time': 0;
+    'core::nodeIndex$info$args::nodes': 0;
+    'core::ErrorFrame::module': 0;
+    'core::ErrorFrame::function': 0;
+    'core::ErrorFrame::line': 0;
+    'core::ErrorFrame::column': 0;
+    'runtime::Debug::id': 0;
+    'runtime::Debug::frames': 0;
+    'runtime::Debug::root': 0;
+    'runtime::Debug$get$args::id': 0;
+    'runtime::FixedPeriodicity::every': 0;
+    'runtime::McpServerToolsCapabilities::listChanged': 0;
+    'runtime::McpTextContent::type': 0;
+    'runtime::McpTextContent::_meta': 0;
+    'runtime::McpTextContent::annotations': 0;
+    'runtime::McpTextContent::text': 0;
+    'runtime::YearlyPeriodicity::dates': 0;
+    'runtime::YearlyPeriodicity::timezone': 0;
+    'runtime::ResponseObject::description': 0;
+    'runtime::ResponseObject::headers': 0;
+    'runtime::ResponseObject::content': 0;
+    'runtime::User$tokenLogin$args::token': 0;
+    'runtime::User$tokenLogin$args::use_cookie': 0;
+    'runtime::mcp_tools_list$args::params': 0;
+    'runtime::McpInitializeParams::_meta': 0;
+    'runtime::McpInitializeParams::protocolVersion': 0;
+    'runtime::McpInitializeParams::capabilities': 0;
+    'runtime::McpInitializeParams::clientInfo': 0;
+    'runtime::McpClientCapabilities::experimental': 0;
+    'runtime::McpClientCapabilities::roots': 0;
+    'runtime::McpClientCapabilities::sampling': 0;
+    'runtime::McpClientCapabilities::elicitation': 0;
+    'runtime::McpServerCapabilities::experimental': 0;
+    'runtime::McpServerCapabilities::logging': 0;
+    'runtime::McpServerCapabilities::completions': 0;
+    'runtime::McpServerCapabilities::prompts': 0;
+    'runtime::McpServerCapabilities::resources': 0;
+    'runtime::McpServerCapabilities::tools': 0;
+    'runtime::McpImplementation::name': 0;
+    'runtime::McpImplementation::title': 0;
+    'runtime::McpImplementation::version': 0;
+    'runtime::RequestBodyObject::content': 0;
+    'runtime::RequestBodyObject::required': 0;
+    'runtime::ComponentsObject::schemas': 0;
+    'runtime::Task$is_running$args::task_id': 0;
+    'runtime::SecurityEntity$set$args::entity': 0;
+    'runtime::License::name': 0;
+    'runtime::License::start': 0;
+    'runtime::License::end': 0;
+    'runtime::License::company': 0;
+    'runtime::License::max_memory': 0;
+    'runtime::License::extra_1': 0;
+    'runtime::License::extra_2': 0;
+    'runtime::License::type': 0;
+    'runtime::McpInitializeResult::_meta': 0;
+    'runtime::McpInitializeResult::protocolVersion': 0;
+    'runtime::McpInitializeResult::capabilities': 0;
+    'runtime::McpInitializeResult::serverInfo': 0;
+    'runtime::McpInitializeResult::instructions': 0;
+    'runtime::Scheduler$deactivate$args::function': 0;
+    'runtime::McpToolsCallParams::_meta': 0;
+    'runtime::McpToolsCallParams::name': 0;
+    'runtime::McpToolsCallParams::arguments': 0;
+    'runtime::Role::name': 0;
+    'runtime::Role::permissions': 0;
+    'runtime::Job::function': 0;
+    'runtime::Job::arguments': 0;
+    'runtime::McpResourceContent::type': 0;
+    'runtime::McpResourceContent::_meta': 0;
+    'runtime::McpResourceContent::annotations': 0;
+    'runtime::McpResourceContent::uri': 0;
+    'runtime::McpResourceContent::description': 0;
+    'runtime::McpResourceContent::mimeType': 0;
+    'runtime::McpResourceContent::size': 0;
+    'runtime::McpImageContent::type': 0;
+    'runtime::McpImageContent::_meta': 0;
+    'runtime::McpImageContent::annotations': 0;
+    'runtime::McpImageContent::data': 0;
+    'runtime::McpImageContent::mimeType': 0;
+    'runtime::Debug$resume$args::id': 0;
+    'runtime::PeriodicOptions::activated': 0;
+    'runtime::PeriodicOptions::start': 0;
+    'runtime::PeriodicOptions::max_duration': 0;
+    'runtime::PeriodicTask::function': 0;
+    'runtime::PeriodicTask::periodicity': 0;
+    'runtime::PeriodicTask::options': 0;
+    'runtime::PeriodicTask::is_active': 0;
+    'runtime::PeriodicTask::next_execution': 0;
+    'runtime::PeriodicTask::execution_count': 0;
+    'runtime::Log::level': 0;
+    'runtime::Log::time': 0;
+    'runtime::Log::user_id': 0;
+    'runtime::Log::id': 0;
+    'runtime::Log::id2': 0;
+    'runtime::Log::src': 0;
+    'runtime::Log::data': 0;
+    'runtime::McpClientRoots::listChanged': 0;
+    'runtime::Task$cancel$args::task_id': 0;
+    'runtime::MonthlyPeriodicity::days': 0;
+    'runtime::MonthlyPeriodicity::daily': 0;
+    'runtime::McpAnnotations::audience': 0;
+    'runtime::McpAnnotations::priority': 0;
+    'runtime::McpAnnotations::lastModified': 0;
+    'runtime::RuntimeInfo::version': 0;
+    'runtime::RuntimeInfo::program_version': 0;
+    'runtime::RuntimeInfo::arch': 0;
+    'runtime::RuntimeInfo::timezone': 0;
+    'runtime::RuntimeInfo::license': 0;
+    'runtime::RuntimeInfo::io_threads': 0;
+    'runtime::RuntimeInfo::bg_threads': 0;
+    'runtime::RuntimeInfo::fg_threads': 0;
+    'runtime::RuntimeInfo::mem_total': 0;
+    'runtime::RuntimeInfo::mem_worker': 0;
+    'runtime::RuntimeInfo::disk_data_bytes': 0;
+    'runtime::mcp_tools_call$args::params': 0;
+    'runtime::McpAudioContent::type': 0;
+    'runtime::McpAudioContent::_meta': 0;
+    'runtime::McpAudioContent::annotations': 0;
+    'runtime::McpAudioContent::data': 0;
+    'runtime::McpAudioContent::mimeType': 0;
+    'runtime::McpServerPromptsCapabilities::listChanged': 0;
+    'runtime::HeaderObject::description': 0;
+    'runtime::HeaderObject::required': 0;
+    'runtime::DailyPeriodicity::hour': 0;
+    'runtime::DailyPeriodicity::minute': 0;
+    'runtime::DailyPeriodicity::second': 0;
+    'runtime::DailyPeriodicity::timezone': 0;
+    'runtime::User$setPassword$args::name': 0;
+    'runtime::User$setPassword$args::pass': 0;
+    'runtime::WeeklyPeriodicity::days': 0;
+    'runtime::WeeklyPeriodicity::daily': 0;
+    'runtime::Permission::name': 0;
+    'runtime::Permission::description': 0;
+    'runtime::User$login$args::credentials': 0;
+    'runtime::User$login$args::use_cookie': 0;
+    'runtime::InfoObject::title': 0;
+    'runtime::InfoObject::version': 0;
+    'runtime::SchemaObject::$ref': 0;
+    'runtime::SchemaObject::$defs': 0;
+    'runtime::SchemaObject::type': 0;
+    'runtime::SchemaObject::format': 0;
+    'runtime::SchemaObject::nullable': 0;
+    'runtime::SchemaObject::properties': 0;
+    'runtime::SchemaObject::required': 0;
+    'runtime::SchemaObject::items': 0;
+    'runtime::SchemaObject::oneOf': 0;
+    'runtime::SchemaObject::allOf': 0;
+    'runtime::SchemaObject::anyOf': 0;
+    'runtime::SchemaObject::minItems': 0;
+    'runtime::SchemaObject::maxItems': 0;
+    'runtime::SchemaObject::enum': 0;
+    'runtime::SchemaObject::additionalProperties': 0;
+    'runtime::ChildProcessResult::code': 0;
+    'runtime::ChildProcessResult::stdout': 0;
+    'runtime::ChildProcessResult::stderr': 0;
+    'runtime::MediaTypeObject::schema': 0;
+    'runtime::OpenIDConnect::url': 0;
+    'runtime::OpenIDConnect::clientId': 0;
+    'runtime::SecurityFields$set$args::f': 0;
+    'runtime::OperationObject::tags': 0;
+    'runtime::OperationObject::description': 0;
+    'runtime::OperationObject::requestBody': 0;
+    'runtime::OperationObject::responses': 0;
+    'runtime::Variable::name': 0;
+    'runtime::Variable::value': 0;
+    'runtime::Scheduler$find$args::function': 0;
+    'runtime::UserCredential::offset': 0;
+    'runtime::UserCredential::pass': 0;
+    'runtime::SecurityFields::email': 0;
+    'runtime::SecurityFields::name': 0;
+    'runtime::SecurityFields::first_name': 0;
+    'runtime::SecurityFields::last_name': 0;
+    'runtime::SecurityFields::roles': 0;
+    'runtime::SecurityFields::groups': 0;
+    'runtime::UserGroup::id': 0;
+    'runtime::UserGroup::name': 0;
+    'runtime::UserGroup::activated': 0;
+    'runtime::SecurityPolicy::entities': 0;
+    'runtime::SecurityPolicy::credentials': 0;
+    'runtime::SecurityPolicy::fields': 0;
+    'runtime::SecurityPolicy::keys': 0;
+    'runtime::SecurityPolicy::keys_last_refresh': 0;
+    'runtime::ChildProcess::pid': 0;
+    'runtime::DateTuple::day': 0;
+    'runtime::DateTuple::month': 0;
+    'runtime::LogDataUsage::read_bytes': 0;
+    'runtime::LogDataUsage::read_hits': 0;
+    'runtime::LogDataUsage::read_wasted': 0;
+    'runtime::LogDataUsage::write_bytes': 0;
+    'runtime::LogDataUsage::write_hits': 0;
+    'runtime::LogDataUsage::cache_bytes': 0;
+    'runtime::LogDataUsage::cache_hits': 0;
+    'runtime::UserGroupPolicy::group_id': 0;
+    'runtime::UserGroupPolicy::type': 0;
+    'runtime::McpTool::name': 0;
+    'runtime::McpTool::title': 0;
+    'runtime::McpTool::description': 0;
+    'runtime::McpTool::inputSchema': 0;
+    'runtime::McpTool::outputSchema': 0;
+    'runtime::McpTool::annotations': 0;
+    'runtime::Scheduler$add$args::function': 0;
+    'runtime::Scheduler$add$args::periodicity': 0;
+    'runtime::Scheduler$add$args::options': 0;
+    'runtime::PathItemObject::description': 0;
+    'runtime::PathItemObject::post': 0;
+    'runtime::mcp_initialize$args::params': 0;
+    'runtime::Scheduler$activate$args::function': 0;
+    'runtime::OpenApiV3::openapi': 0;
+    'runtime::OpenApiV3::info': 0;
+    'runtime::OpenApiV3::paths': 0;
+    'runtime::OpenApiV3::components': 0;
+    'runtime::User$renew$args::use_cookie': 0;
+    'runtime::Task::user_id': 0;
+    'runtime::Task::task_id': 0;
+    'runtime::Task::mod': 0;
+    'runtime::Task::type': 0;
+    'runtime::Task::fun': 0;
+    'runtime::Task::creation': 0;
+    'runtime::Task::start': 0;
+    'runtime::Task::duration': 0;
+    'runtime::Task::status': 0;
+    'runtime::Task::progress': 0;
+    'runtime::McpToolsListResult::_meta': 0;
+    'runtime::McpToolsListResult::tools': 0;
+    'runtime::McpServerResourcesCapabilities::subscribe': 0;
+    'runtime::McpServerResourcesCapabilities::listChanged': 0;
+    'runtime::Task$history$args::offset': 0;
+    'runtime::Task$history$args::max': 0;
+    'runtime::User::id': 0;
+    'runtime::User::name': 0;
+    'runtime::User::activated': 0;
+    'runtime::User::full_name': 0;
+    'runtime::User::email': 0;
+    'runtime::User::role': 0;
+    'runtime::User::groups': 0;
+    'runtime::User::groups_flags': 0;
+    'runtime::User::external': 0;
+    'runtime::McpToolsListParams::_meta': 0;
+    'runtime::McpToolsListParams::cursor': 0;
+    'runtime::McpToolsCallResult::_meta': 0;
+    'runtime::McpToolsCallResult::content': 0;
+    'runtime::McpToolsCallResult::structuredContent': 0;
+    'runtime::McpToolsCallResult::isError': 0;
+    'runtime::Frame::module': 0;
+    'runtime::Frame::type': 0;
+    'runtime::Frame::function': 0;
+    'runtime::Frame::src': 0;
+    'runtime::Frame::line': 0;
+    'runtime::Frame::column': 0;
+    'runtime::Frame::scope': 0;
+    'io::CsvReader::path': 0;
+    'io::CsvReader::pos': 0;
+    'io::CsvReader::format': 0;
+    'io::CsvReader::sharding': 0;
+    'io::CsvFormat::header_lines': 0;
+    'io::CsvFormat::separator': 0;
+    'io::CsvFormat::string_delimiter': 0;
+    'io::CsvFormat::decimal_separator': 0;
+    'io::CsvFormat::thousands_separator': 0;
+    'io::CsvFormat::trim': 0;
+    'io::CsvFormat::format': 0;
+    'io::CsvFormat::tz': 0;
+    'io::CsvFormat::strict': 0;
+    'io::CsvFormat::nearest_time': 0;
+    'io::CsvColumnStatistics::name': 0;
+    'io::CsvColumnStatistics::example': 0;
+    'io::CsvColumnStatistics::null_count': 0;
+    'io::CsvColumnStatistics::bool_count': 0;
+    'io::CsvColumnStatistics::int_count': 0;
+    'io::CsvColumnStatistics::float_count': 0;
+    'io::CsvColumnStatistics::string_count': 0;
+    'io::CsvColumnStatistics::date_count': 0;
+    'io::CsvColumnStatistics::date_format_count': 0;
+    'io::CsvColumnStatistics::enumerable_count': 0;
+    'io::CsvColumnStatistics::profile': 0;
+    'io::Email::from': 0;
+    'io::Email::subject': 0;
+    'io::Email::body': 0;
+    'io::Email::body_is_html': 0;
+    'io::Email::to': 0;
+    'io::Email::cc': 0;
+    'io::Email::bcc': 0;
+    'io::CsvWriter::path': 0;
+    'io::CsvWriter::append': 0;
+    'io::CsvWriter::format': 0;
+    'io::HttpRequest::method': 0;
+    'io::HttpRequest::url': 0;
+    'io::HttpRequest::headers': 0;
+    'io::HttpRequest::body': 0;
+    'io::BinReader::path': 0;
+    'io::BinReader::pos': 0;
+    'io::Reader::path': 0;
+    'io::Reader::pos': 0;
+    'io::Csv$generate$args::stats': 0;
+    'io::HttpResponse::status_code': 0;
+    'io::HttpResponse::headers': 0;
+    'io::HttpResponse::content': 0;
+    'io::HttpResponse::error_msg': 0;
+    'io::Smtp::host': 0;
+    'io::Smtp::port': 0;
+    'io::Smtp::mode': 0;
+    'io::Smtp::authenticate': 0;
+    'io::Smtp::user': 0;
+    'io::Smtp::pass': 0;
+    'io::Writer::path': 0;
+    'io::Writer::append': 0;
+    'io::XmlReader::path': 0;
+    'io::XmlReader::pos': 0;
+    'io::TextWriter::path': 0;
+    'io::TextWriter::append': 0;
+    'io::Csv$sample$args::reader': 0;
+    'io::Csv$sample$args::max_lines': 0;
+    'io::CsvAnalysisConfig::header_lines': 0;
+    'io::CsvAnalysisConfig::separator': 0;
+    'io::CsvAnalysisConfig::string_delimiter': 0;
+    'io::CsvAnalysisConfig::decimal_separator': 0;
+    'io::CsvAnalysisConfig::thousands_separator': 0;
+    'io::CsvAnalysisConfig::row_limit': 0;
+    'io::CsvAnalysisConfig::enumerable_limit': 0;
+    'io::CsvAnalysisConfig::date_check_limit': 0;
+    'io::CsvAnalysisConfig::date_formats': 0;
+    'io::FileWalker::path': 0;
+    'io::Csv$analyze$args::files': 0;
+    'io::Csv$analyze$args::config': 0;
+    'io::CsvSharding::id': 0;
+    'io::CsvSharding::column': 0;
+    'io::CsvSharding::modulo': 0;
+    'io::File::path': 0;
+    'io::File::size': 0;
+    'io::File::last_modification': 0;
+    'io::CsvStatistics::header_lines': 0;
+    'io::CsvStatistics::separator': 0;
+    'io::CsvStatistics::string_delimiter': 0;
+    'io::CsvStatistics::decimal_separator': 0;
+    'io::CsvStatistics::thousands_separator': 0;
+    'io::CsvStatistics::columns': 0;
+    'io::CsvStatistics::line_count': 0;
+    'io::CsvStatistics::fail_count': 0;
+    'io::CsvStatistics::file_count': 0;
+    'io::GcbReader::path': 0;
+    'io::GcbReader::pos': 0;
+    'io::JsonWriter::path': 0;
+    'io::JsonWriter::append': 0;
+    'io::Url::protocol': 0;
+    'io::Url::host': 0;
+    'io::Url::port': 0;
+    'io::Url::path': 0;
+    'io::Url::params': 0;
+    'io::Url::hash': 0;
+    'io::GcbWriter::path': 0;
+    'io::GcbWriter::append': 0;
+    'io::JsonReader::path': 0;
+    'io::JsonReader::pos': 0;
+    'io::TextReader::path': 0;
+    'io::TextReader::pos': 0;
+    'util::LogQuantizer::min': 0;
+    'util::LogQuantizer::max': 0;
+    'util::LogQuantizer::bins': 0;
+    'util::LogQuantizer::open': 0;
+    'util::Random::seed': 0;
+    'util::Random::v': 0;
+    'util::Gaussian::sum': 0;
+    'util::Gaussian::sumsq': 0;
+    'util::Gaussian::count': 0;
+    'util::Gaussian::min': 0;
+    'util::Gaussian::max': 0;
+    'util::HistogramStats::min': 0;
+    'util::HistogramStats::max': 0;
+    'util::HistogramStats::whisker_low': 0;
+    'util::HistogramStats::whisker_high': 0;
+    'util::HistogramStats::percentile1': 0;
+    'util::HistogramStats::percentile5': 0;
+    'util::HistogramStats::percentile10': 0;
+    'util::HistogramStats::percentile20': 0;
+    'util::HistogramStats::percentile25': 0;
+    'util::HistogramStats::percentile50': 0;
+    'util::HistogramStats::percentile75': 0;
+    'util::HistogramStats::percentile80': 0;
+    'util::HistogramStats::percentile90': 0;
+    'util::HistogramStats::percentile95': 0;
+    'util::HistogramStats::percentile99': 0;
+    'util::HistogramStats::sum': 0;
+    'util::HistogramStats::avg': 0;
+    'util::HistogramStats::std': 0;
+    'util::HistogramStats::size': 0;
+    'util::GaussianProfile::quantizer': 0;
+    'util::GaussianProfile::precision': 0;
+    'util::GaussianProfile::bins': 0;
+    'util::GaussianProfile::value_min': 0;
+    'util::GaussianProfile::nb_rejected': 0;
+    'util::Histogram::quantizer': 0;
+    'util::Histogram::bins': 0;
+    'util::Histogram::nb_rejected': 0;
+    'util::Histogram::nb_accepted': 0;
+    'util::Histogram::min': 0;
+    'util::Histogram::max': 0;
+    'util::Histogram::sum': 0;
+    'util::Histogram::sumsq': 0;
+    'util::GaussianProfileSlot::sum': 0;
+    'util::GaussianProfileSlot::sumsq': 0;
+    'util::GaussianProfileSlot::count': 0;
+    'util::MultiQuantizer::quantizers': 0;
+    'util::ProgressTracker::start': 0;
+    'util::ProgressTracker::total': 0;
+    'util::ProgressTracker::counter': 0;
+    'util::ProgressTracker::duration': 0;
+    'util::ProgressTracker::progress': 0;
+    'util::ProgressTracker::speed': 0;
+    'util::ProgressTracker::remaining': 0;
+    'util::Queue::values': 0;
+    'util::Queue::capacity': 0;
+    'util::TimeWindow::values': 0;
+    'util::TimeWindow::span': 0;
+    'util::TimeWindow::sum': 0;
+    'util::TimeWindow::sumsq': 0;
+    'util::TimeWindow::field': 0;
+    'util::Stack::values': 0;
+    'util::HistogramBin::bin': 0;
+    'util::HistogramBin::count': 0;
+    'util::HistogramBin::ratio': 0;
+    'util::HistogramBin::cumulative_count': 0;
+    'util::HistogramBin::cumulative_ratio': 0;
+    'util::SlidingWindow::values': 0;
+    'util::SlidingWindow::span': 0;
+    'util::SlidingWindow::sum': 0;
+    'util::SlidingWindow::sumsq': 0;
+    'util::SlidingWindow::field': 0;
+    'util::LinearQuantizer::min': 0;
+    'util::LinearQuantizer::max': 0;
+    'util::LinearQuantizer::bins': 0;
+    'util::LinearQuantizer::open': 0;
+    'util::CustomQuantizer::min': 0;
+    'util::CustomQuantizer::max': 0;
+    'util::CustomQuantizer::step_starts': 0;
+    'util::CustomQuantizer::open': 0;
+    'util::QuantizerSlotBound::min': 0;
+    'util::QuantizerSlotBound::max': 0;
+    'util::QuantizerSlotBound::center': 0;
+    'project::Country::name': 0;
+    'project::Country::timezone': 0;
+    'project::Country::operating_stats': 0;
+    'project::Country::last_updated_stats': 0;
+    'project::Country::governorates': 0;
+    'project::Country::meteo': 0;
+    'project::Rect::width': 0;
+    'project::Rect::height': 0;
+    'project::ComplexForm::shapes': 0;
+    'project::ComplexForm::shape': 0;
+    'project::UrlEntry::name': 0;
+    'project::UrlEntry::value': 0;
+    'project::TimedComposed::time': 0;
+    'project::TimedComposed::a': 0;
+    'project::TimedComposed::b': 0;
+    'project::anything$args::v': 0;
+    'project::Sensor::id': 0;
+    'project::Sensor::kind': 0;
+    'project::goodFnForTestingFnCallInput$args::name': 0;
+    'project::goodFnForTestingFnCallInput$args::flag': 0;
+    'project::goodFnForTestingFnCallInput$args::item': 0;
+    'project::goodFnForTestingFnCallInput$args::optionalFlag': 0;
+    'project::SemiRecursive::sub': 0;
+    'project::ComplexObject::string': 0;
+    'project::ComplexObject::int': 0;
+    'project::ComplexObject::float': 0;
+    'project::ComplexObject::bool': 0;
+    'project::ComplexObject::char': 0;
+    'project::ComplexObject::geo': 0;
+    'project::ComplexObject::null': 0;
+    'project::ComplexObject::enum': 0;
+    'project::ComplexObject::array': 0;
+    'project::ComplexObject::nodeTime': 0;
+    'project::ComplexObject::nodeIndex': 0;
+    'project::ComplexObject::nodeList': 0;
+    'project::ComplexObject::nodeGeo': 0;
+    'project::ComplexObject::nested': 0;
+    'project::ComplexObject::map': 0;
+    'project::ComplexObject::tuple': 0;
+    'project::ComplexObject::t2': 0;
+    'project::ComplexObject::t2f': 0;
+    'project::ComplexObject::t3': 0;
+    'project::ComplexObject::t3f': 0;
+    'project::ComplexObject::t4': 0;
+    'project::ComplexObject::t4f': 0;
+    'project::ComplexObject::str': 0;
+    'project::ComplexObject::date': 0;
+    'project::display_fn$args::fn_': 0;
+    'project::Link::name': 0;
+    'project::Link::next': 0;
+    'project::VisualCrossingProvider::name': 0;
+    'project::VisualCrossingProvider::solar': 0;
+    'project::Composed::a': 0;
+    'project::Composed::b': 0;
+    'project::MyData::level': 0;
+    'project::MyData::value': 0;
+    'project::SolarRadiation::is_enabled': 0;
+    'project::SolarRadiation::radiance': 0;
+    'project::SolarRadiation::instant_power': 0;
+    'project::MapContainer::a': 0;
+    'project::MapContainer::b': 0;
+    'project::MapContainer::c': 0;
+    'project::MapContainer::d': 0;
+    'project::MapContainer::e': 0;
+    'project::Node::id': 0;
+    'project::Node::value': 0;
+    'project::Node::link': 0;
+    'project::hello$args::name': 0;
+    'project::Meteo::ideal_solar': 0;
+    'project::Meteo::visual_crossing': 0;
+    'project::People::Index': 0;
+    'project::People::User id': 0;
+    'project::People::First Name': 0;
+    'project::People::Last Name': 0;
+    'project::People::Sex': 0;
+    'project::People::Email': 0;
+    'project::People::Phone': 0;
+    'project::People::Date of birth': 0;
+    'project::People::Job Title': 0;
+    'project::chart$args::nbRows': 0;
+    'project::Person::name': 0;
+    'project::Person::age': 0;
+    'project::Person::activated': 0;
+    'project::add$args::a': 0;
+    'project::add$args::b': 0;
+    'project::task_with_params$args::name': 0;
+    'project::task_with_params$args::age': 0;
+    'project::Circle::radius': 0;
+    'project::Obj::field': 0;
+    'project::Obj::tuple': 0;
+    'project::KLine::open': 0;
+    'project::KLine::close': 0;
+    'project::KLine::volume': 0;
+    'project::Triangle::base': 0;
+    'project::Triangle::height': 0;
+    'project::TimeRecord::time': 0;
+    'project::TimeRecord::value': 0;
+    'project::SeriesObject::a': 0;
+    'project::SeriesObject::b': 0;
+    'project::display_fn_in_obj$args::o': 0;
+    'project::array_of_ints$args::arr': 0;
+    'project::Obj2::prop1': 0;
+    'project::Obj2::prop2': 0;
+    'project::Obj2::prop3': 0;
+    'project::Obj2::prop4': 0;
+    'project::ObjWithFn::fn': 0;
+    'project::Person2::id': 0;
+    'project::Person2::name': 0;
+    'project::Person2::age': 0;
+    'project::Person2::children': 0;
+    'project::controlled_task$args::duration': 0;
+    'project::Obj1::prop1': 0;
+    'project::Obj1::prop2': 0;
+    'project::Obj1::prop3': 0;
+    'project::TimeZones::azores': 0;
+    'project::TimeZones::utc': 0;
+    'project::TimeZones::paris': 0;
+    'project::TimeZones::athens': 0;
+    'project::Box::value': 0;
+    'project::Link$whatever$args::link': 0;
+    'project::Book::name': 0;
+    'project::Book::owner': 0;
+    'project::SensorData::temperature': 0;
+    'project::SensorData::pression': 0;
+    'project::SensorData::humidity': 0;
+    'project::link_whatever$args::l': 0;
+    'any::filter_something$args::f': 0;
+    'any::Filters::a': 0;
+    'any::Filters::b': 0;
+    'any::array_any_map_any$args::arr': 0;
+    'any::array_any_map_any$args::map': 0;
+    'any::AnyInput::idk': 0;
+    'object::Filter::a': 0;
+    'object::Filter::b': 0;
+    'heatmap::Record::time': 0;
+    'heatmap::Record::latitude': 0;
+    'heatmap::Record::longitude': 0;
+    'heatmap::Record::depth': 0;
+    'heatmap::Record::mag': 0;
+    'heatmap::Record::magType': 0;
+    'heatmap::Record::nst': 0;
+    'heatmap::Record::gap': 0;
+    'heatmap::Record::dmin': 0;
+    'heatmap::Record::rms': 0;
+    'heatmap::Record::net': 0;
+    'heatmap::Record::id': 0;
+    'heatmap::Record::updated': 0;
+    'heatmap::Record::place': 0;
+    'heatmap::Record::type': 0;
+    'heatmap::Record::horizontalError': 0;
+    'heatmap::Record::depthError': 0;
+    'heatmap::Record::magError': 0;
+    'heatmap::Record::magNst': 0;
+    'heatmap::Record::status': 0;
+    'heatmap::Record::locationSource': 0;
+    'heatmap::Record::magSource': 0;
+    'heatmap::Earthquake::time': 0;
+    'heatmap::Earthquake::location': 0;
+    'heatmap::Earthquake::depth': 0;
+    'heatmap::Earthquake::mag': 0;
+    'heatmap::Earthquake::magType': 0;
+    'heatmap::Earthquake::nst': 0;
+    'heatmap::Earthquake::gap': 0;
+    'heatmap::Earthquake::dmin': 0;
+    'heatmap::Earthquake::rms': 0;
+    'heatmap::Earthquake::net': 0;
+    'heatmap::Earthquake::id': 0;
+    'heatmap::Earthquake::updated': 0;
+    'heatmap::Earthquake::place': 0;
+    'heatmap::Earthquake::horizontalError': 0;
+    'heatmap::Earthquake::depthError': 0;
+    'heatmap::Earthquake::magError': 0;
+    'heatmap::Earthquake::magNst': 0;
+    'heatmap::Earthquake::magSource': 0;
+    'cities::City::country': 0;
+    'cities::City::name': 0;
+    'cities::City::location': 0;
+    'cities::City::population': 0;
+    'cities::City::type': 0;
+    'big::BigRecord::timestamp': 0;
+    'big::BigRecord::aimp': 0;
+    'big::BigRecord::amud': 0;
+    'big::BigRecord::arnd': 0;
+    'big::BigRecord::asin1': 0;
+    'big::BigRecord::asin2': 0;
+    'big::BigRecord::adbr': 0;
+    'big::BigRecord::adfl': 0;
+    'big::BigRecord::bed1': 0;
+    'big::BigRecord::bed2': 0;
+    'big::BigRecord::bfo1': 0;
+    'big::BigRecord::bfo2': 0;
+    'big::BigRecord::bso1': 0;
+    'big::BigRecord::bso2': 0;
+    'big::BigRecord::bso3': 0;
+    'big::BigRecord::ced1': 0;
+    'big::BigRecord::cfo1': 0;
+    'big::BigRecord::cso1': 0;
+    'big::BigRecord::y': 0;
+    'big::BigRecord::category': 0;
+    'big::BigResult::start_time': 0;
+    'big::BigResult::records': 0;
+    'big::BigResult::end_time': 0;
+    'complex_factory::Cable::voltageLevel': 0;
+    'complex_factory::CableView::node': 0;
+    'complex_factory::CableView::coordinates': 0;
+    'complex_factory::CableView::shortDescr': 0;
+    'complex_factory::CableView::deletionDate': 0;
+    'complex_factory::CableView::cableId': 0;
+    'complex_factory::CableView::voltageLevel': 0;
+    'complex_factory::CableView::voltageValue_kV': 0;
+    'complex_factory::CableView::meta': 0;
+    'complex_factory::CableView::length_m': 0;
+    'complex_factory::CableView::regionalCenter': 0;
+    'complex_factory::CableView::isSimulated': 0;
   }
 
   interface $FunctionsMap {
-    'core::nodeGeo::info': 0,
-    'core::nodeGeo::sample': 0,
-    'core::nodeList::info': 0,
-    'core::nodeList::sample': 0,
-    'core::node::resolve_all': 0,
-    'core::Table::applyMappings': 0,
-    'core::nodeTime::info': 0,
-    'core::nodeTime::sample': 0,
-    'core::nodeIndex::search_closest': 0,
-    'core::nodeIndex::info': 0,
-    'core::nodeIndex::sample': 0,
-    'runtime::mcp_initialize': 0,
-    'runtime::mcp_tools_list': 0,
-    'runtime::mcp_tools_call': 0,
-    'runtime::Debug::resume': 0,
-    'runtime::Debug::get': 0,
-    'runtime::Debug::all': 0,
-    'runtime::Role::all': 0,
-    'runtime::OpenApi::v3': 0,
-    'runtime::Permission::all': 0,
-    'runtime::OpenIDConnect::config': 0,
-    'runtime::SecurityEntity::set': 0,
-    'runtime::SecurityEntity::all': 0,
-    'runtime::Runtime::backup_full': 0,
-    'runtime::Runtime::root': 0,
-    'runtime::Runtime::abi': 0,
-    'runtime::Runtime::info': 0,
-    'runtime::SecurityFields::get': 0,
-    'runtime::SecurityFields::set': 0,
-    'runtime::Scheduler::deactivate': 0,
-    'runtime::Scheduler::activate': 0,
-    'runtime::Scheduler::find': 0,
-    'runtime::Scheduler::list': 0,
-    'runtime::Scheduler::add': 0,
-    'runtime::Task::is_running': 0,
-    'runtime::Task::cancel': 0,
-    'runtime::Task::history': 0,
-    'runtime::Task::running': 0,
-    'runtime::User::setPassword': 0,
-    'runtime::User::permissions': 0,
-    'runtime::User::me': 0,
-    'runtime::User::current': 0,
-    'runtime::User::renew': 0,
-    'runtime::User::logout': 0,
-    'runtime::User::tokenLogin': 0,
-    'runtime::User::login': 0,
-    'io::Csv::sample': 0,
-    'io::Csv::analyze': 0,
-    'io::Csv::generate': 0,
-    'project::init_foo': 0,
-    'project::persons': 0,
-    'project::chart': 0,
-    'project::chart_time': 0,
-    'project::chart_colored_area': 0,
-    'project::donut': 0,
-    'project::heatmap': 0,
-    'project::hello': 0,
-    'project::table': 0,
-    'project::objects_table': 0,
-    'project::task_without_params': 0,
-    'project::task_with_params': 0,
-    'project::task_long_running': 0,
-    'project::task_long_running2': 0,
-    'project::controlled_task': 0,
-    'project::mainTask': 0,
-    'project::foo': 0,
-    'project::bar': 0,
-    'project::obj': 0,
-    'project::complex_object': 0,
-    'project::obj1': 0,
-    'project::obj2': 0,
-    'project::get_person': 0,
-    'project::tree': 0,
-    'project::add': 0,
-    'project::anything': 0,
-    'project::mapTest': 0,
-    'project::goodFnForTestingFnCallInput': 0,
-    'project::now': 0,
-    'project::link_whatever': 0,
-    'project::big_map': 0,
-    'project::real_example': 0,
-    'project::array_of_ints': 0,
-    'project::resolve_person': 0,
-    'project::serie_of_obj': 0,
-    'project::sample_huge_csv': 0,
-    'project::destructuring_table': 0,
-    'project::this_is_boom': 0,
-    'project::table_of_objects': 0,
-    'project::table_of_objects2': 0,
-    'project::table_of_objects3': 0,
-    'project::one_d_histogram_bins': 0,
-    'project::histogram_stats': 0,
-    'project::array_of_nodes': 0,
-    'project::display_fn': 0,
-    'project::display_fn_in_obj': 0,
-    'project::people': 0,
-    'project::boxes': 0,
-    'project::data_array': 0,
-    'project::table_with_urls': 0,
-    'project::tensor': 0,
-    'project::tensor_2_3_5': 0,
-    'project::tensor_3_5': 0,
-    'project::getTensor': 0,
-    'project::Link::whatever': 0,
-    'any::filter_something': 0,
-    'any::array_any_map_any': 0,
-    'heatmap::major_earthquakes': 0,
-    'heatmap::all_earthquakes': 0,
-    'big::get_huge_object': 0,
-    'complex_factory::cable_views': 0,
+    'core::nodeGeo::info': 0;
+    'core::nodeGeo::sample': 0;
+    'core::nodeList::info': 0;
+    'core::nodeList::sample': 0;
+    'core::node::resolve_all': 0;
+    'core::Table::applyMappings': 0;
+    'core::nodeTime::info': 0;
+    'core::nodeTime::sample': 0;
+    'core::nodeIndex::search_closest': 0;
+    'core::nodeIndex::info': 0;
+    'core::nodeIndex::sample': 0;
+    'runtime::mcp_initialize': 0;
+    'runtime::mcp_tools_list': 0;
+    'runtime::mcp_tools_call': 0;
+    'runtime::Debug::resume': 0;
+    'runtime::Debug::get': 0;
+    'runtime::Debug::all': 0;
+    'runtime::Role::all': 0;
+    'runtime::OpenApi::v3': 0;
+    'runtime::Permission::all': 0;
+    'runtime::OpenIDConnect::config': 0;
+    'runtime::SecurityEntity::set': 0;
+    'runtime::SecurityEntity::all': 0;
+    'runtime::Runtime::backup_full': 0;
+    'runtime::Runtime::root': 0;
+    'runtime::Runtime::abi': 0;
+    'runtime::Runtime::info': 0;
+    'runtime::SecurityFields::get': 0;
+    'runtime::SecurityFields::set': 0;
+    'runtime::Scheduler::deactivate': 0;
+    'runtime::Scheduler::activate': 0;
+    'runtime::Scheduler::find': 0;
+    'runtime::Scheduler::list': 0;
+    'runtime::Scheduler::add': 0;
+    'runtime::Task::is_running': 0;
+    'runtime::Task::cancel': 0;
+    'runtime::Task::history': 0;
+    'runtime::Task::running': 0;
+    'runtime::User::setPassword': 0;
+    'runtime::User::permissions': 0;
+    'runtime::User::me': 0;
+    'runtime::User::current': 0;
+    'runtime::User::renew': 0;
+    'runtime::User::logout': 0;
+    'runtime::User::tokenLogin': 0;
+    'runtime::User::login': 0;
+    'io::Csv::sample': 0;
+    'io::Csv::analyze': 0;
+    'io::Csv::generate': 0;
+    'project::init_foo': 0;
+    'project::persons': 0;
+    'project::chart': 0;
+    'project::chart_time': 0;
+    'project::chart_colored_area': 0;
+    'project::donut': 0;
+    'project::heatmap': 0;
+    'project::hello': 0;
+    'project::table': 0;
+    'project::objects_table': 0;
+    'project::task_without_params': 0;
+    'project::task_with_params': 0;
+    'project::task_long_running': 0;
+    'project::task_long_running2': 0;
+    'project::controlled_task': 0;
+    'project::mainTask': 0;
+    'project::foo': 0;
+    'project::bar': 0;
+    'project::obj': 0;
+    'project::complex_object': 0;
+    'project::obj1': 0;
+    'project::obj2': 0;
+    'project::get_person': 0;
+    'project::tree': 0;
+    'project::add': 0;
+    'project::anything': 0;
+    'project::mapTest': 0;
+    'project::goodFnForTestingFnCallInput': 0;
+    'project::now': 0;
+    'project::link_whatever': 0;
+    'project::big_map': 0;
+    'project::real_example': 0;
+    'project::array_of_ints': 0;
+    'project::resolve_person': 0;
+    'project::serie_of_obj': 0;
+    'project::sample_huge_csv': 0;
+    'project::destructuring_table': 0;
+    'project::this_is_boom': 0;
+    'project::table_of_objects': 0;
+    'project::table_of_objects2': 0;
+    'project::table_of_objects3': 0;
+    'project::one_d_histogram_bins': 0;
+    'project::histogram_stats': 0;
+    'project::array_of_nodes': 0;
+    'project::display_fn': 0;
+    'project::display_fn_in_obj': 0;
+    'project::people': 0;
+    'project::boxes': 0;
+    'project::data_array': 0;
+    'project::table_with_urls': 0;
+    'project::tensor': 0;
+    'project::tensor_2_3_5': 0;
+    'project::tensor_3_5': 0;
+    'project::getTensor': 0;
+    'project::Link::whatever': 0;
+    'any::filter_something': 0;
+    'any::array_any_map_any': 0;
+    'heatmap::major_earthquakes': 0;
+    'heatmap::all_earthquakes': 0;
+    'big::get_huge_object': 0;
+    'complex_factory::cable_views': 0;
   }
 
   export import float = gc.core.float;

@@ -1,8 +1,11 @@
 # `<gui-chart />`
+
 ![Chart](assets/core_chart.png)
 
 ## Usage
+
 ::: code-group
+
 ```ts [JS/TS]
 import config from ./config.js;
 
@@ -39,9 +42,11 @@ parent.appendChild(<gui-chart config={config} />);
 ```tsx [React]
 <WCWrapper tag="gui-chart" config={config} />
 ```
+
 :::
 
 ## Config
+
 ```ts
 export interface ChartConfig<K = { [keys: string]: never }> {
   table: TableLike;
@@ -78,15 +83,11 @@ export interface ChartConfig<K = { [keys: string]: never }> {
 ```
 
 ### Serie
+
 ```ts
 export interface CustomSerie<K> extends CommonSerie<K> {
   type: 'custom';
-  draw: (
-    ctx: CanvasContext,
-    serie: SerieWithOptions,
-    xScale: Scale,
-    yScale: Scale
-  ) => void;
+  draw: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 
 export interface LineSerie<K> extends CommonSerie<K> {
@@ -129,6 +130,7 @@ export type Serie<K extends string = string> =
 ```
 
 ### Common Serie
+
 ```ts
 export interface CommonSerie<K> extends Partial<SerieOptions> {
   /**
@@ -164,26 +166,17 @@ export interface CommonSerie<K> extends Partial<SerieOptions> {
    * A hook to customize canvas drawing.
    * This is called before the serie has been drawn.
    */
-  drawBefore?: (
-    ctx: CanvasContext,
-    serie: SerieWithOptions,
-    xScale: Scale,
-    yScale: Scale,
-  ) => void;
+  drawBefore?: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
   /**
    * A hook to customize canvas drawing.
    * This is called after the serie has been drawn.
    */
-  drawAfter?: (
-    ctx: CanvasContext,
-    serie: SerieWithOptions,
-    xScale: Scale,
-    yScale: Scale,
-  ) => void;
+  drawAfter?: (ctx: CanvasContext, serie: SerieWithOptions, xScale: Scale, yScale: Scale) => void;
 }
 ```
 
 ## Misc
+
 ```ts
 export type Scale =
   | d3.ScaleLinear<number, number, never>
@@ -213,7 +206,7 @@ export type SelectionOptions = {
    * - `'vertical'` means only selectable according to y axes
    * - `'horizontal'` means only selectable according to x axis
    * - `'both'` means selectable on y & x axes
-   * 
+   *
    * Defaults to 'horizontal'
    */
   orientation: 'vertical' | 'horizontal' | 'both';

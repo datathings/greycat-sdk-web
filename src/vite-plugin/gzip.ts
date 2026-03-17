@@ -44,9 +44,7 @@ export async function gzipWriteBundle(
   output_options: NormalizedOutputOptions,
   bundle: OutputBundle,
 ): Promise<void> {
-  const output_dir = output_options.file
-    ? path.dirname(output_options.file)
-    : output_options.dir || '';
+  const output_dir = output_options.file ? path.dirname(output_options.file) : output_options.dir || '';
   const compress_file = async (bundle_entry: string) => {
     const dirname = path.dirname(bundle_entry);
     const filename = path.basename(bundle_entry);

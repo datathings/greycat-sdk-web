@@ -1,15 +1,18 @@
 # `<gui-value />`
+
 Displays any value using `@greycat/sdk`'s `utils.stringify()` function.
 
 > This is essentially a way to have a one-liner string for any kind of value.
 
 ## Usage
+
 ```ts
 const value = document.createElement('gui-value');
-value.value = "Hello, GreyCat!";
+value.value = 'Hello, GreyCat!';
 ```
 
 ## ValueProps
+
 ```ts
 export interface GuiValueProps {
   value: unknown;

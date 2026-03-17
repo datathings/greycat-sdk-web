@@ -10,7 +10,7 @@
       "name": "Debug test/playground",
       "skipFiles": ["<node_internals>/**"],
       "program": "${workspaceFolder}/test/playground/call.js",
-      "args": ["project::try_this"],
+      "args": ["project::try_this"]
     }
   ]
 }

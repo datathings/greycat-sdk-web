@@ -46,17 +46,17 @@ class AppValue extends GuiValue {
 }
 
 declare global {
-    interface HTMLElementTagNameMap {
-      'app-value': AppValue;
-    }
-  
-    namespace GreyCat {
-      namespace JSX {
-        interface IntrinsicElements {
-          'app-value': GreyCat.Element<AppValue>;
-        }
+  interface HTMLElementTagNameMap {
+    'app-value': AppValue;
+  }
+
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'app-value': GreyCat.Element<AppValue>;
       }
     }
+  }
 }
 
 customElements.define('app-value', AppValue);

@@ -329,3 +329,143 @@ export function debounce<T extends (...args: any[]) => void>(
     }
   };
 }
+
+function span(cls: string, text: string): HTMLSpanElement {
+  const el = document.createElement('span');
+  el.className = cls;
+  el.textContent = text;
+  return el;
+}
+
+export function highlightJSON(obj: unknown, depth: number, el: Node): void {
+  const indent = '  '.repeat(depth);
+  const indent1 = '  '.repeat(depth + 1);
+  if (obj === null) {
+    el.appendChild(span('tok-null', 'null'));
+  } else if (typeof obj === 'boolean') {
+    el.appendChild(span('tok-bool', String(obj)));
+  } else if (typeof obj === 'number') {
+    el.appendChild(span('tok-num', String(obj)));
+  } else if (typeof obj === 'string') {
+    el.appendChild(span('tok-str', `"${obj}"`));
+  } else if (Array.isArray(obj)) {
+    el.appendChild(span('tok-brace', '['));
+    if (obj.length > 0) {
+      el.appendChild(document.createTextNode('\n'));
+      for (let i = 0; i < obj.length; i++) {
+        el.appendChild(document.createTextNode(indent1));
+        highlightJSON(obj[i], depth + 1, el);
+        if (i < obj.length - 1) el.appendChild(span('tok-brace', ','));
+        el.appendChild(document.createTextNode('\n'));
+      }
+      el.appendChild(document.createTextNode(indent));
+    }
+    el.appendChild(span('tok-brace', ']'));
+  } else if (typeof obj === 'object') {
+    const keys = Object.keys(obj as Record<string, unknown>);
+    el.appendChild(span('tok-brace', '{'));
+    if (keys.length > 0) {
+      el.appendChild(document.createTextNode('\n'));
+      for (let i = 0; i < keys.length; i++) {
+        el.appendChild(document.createTextNode(indent1));
+        el.appendChild(span('tok-key', `"${keys[i]}"`));
+        el.appendChild(span('tok-brace', ': '));
+        highlightJSON((obj as Record<string, unknown>)[keys[i]], depth + 1, el);
+        if (i < keys.length - 1) el.appendChild(span('tok-brace', ','));
+        el.appendChild(document.createTextNode('\n'));
+      }
+      el.appendChild(document.createTextNode(indent));
+    }
+    el.appendChild(span('tok-brace', '}'));
+  }
+}
+
+export function highlightGCL(raw: string): Node {
+  const frag = document.createDocumentFragment();
+  let depth = 0;
+  let i = 0;
+  const len = raw.length;
+  while (i < len) {
+    const ch = raw[i];
+    if (ch === '{' || ch === '[') {
+      frag.appendChild(span('tok-brace', ch));
+      depth++;
+      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
+      i++;
+    } else if (ch === '}' || ch === ']') {
+      depth = Math.max(0, depth - 1);
+      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
+      frag.appendChild(span('tok-brace', ch));
+      i++;
+    } else if (ch === ',') {
+      frag.appendChild(span('tok-brace', ','));
+      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
+      i++;
+    } else if (ch === '"') {
+      let end = i + 1;
+      while (end < len && raw[end] !== '"') {
+        if (raw[end] === '\\') end++;
+        end++;
+      }
+      end++;
+      frag.appendChild(span('tok-str', raw.substring(i, end)));
+      i = end;
+    } else if (ch === ':') {
+      frag.appendChild(span('tok-brace', ':'));
+      i++;
+    } else if (ch === '-' || (ch >= '0' && ch <= '9')) {
+      let end = i + 1;
+      while (end < len && /[\d.eE+-]/.test(raw[end])) end++;
+      frag.appendChild(span('tok-num', raw.substring(i, end)));
+      i = end;
+    } else if (raw.substring(i, i + 4) === 'null') {
+      frag.appendChild(span('tok-null', 'null'));
+      i += 4;
+    } else if (raw.substring(i, i + 4) === 'true') {
+      frag.appendChild(span('tok-bool', 'true'));
+      i += 4;
+    } else if (raw.substring(i, i + 5) === 'false') {
+      frag.appendChild(span('tok-bool', 'false'));
+      i += 5;
+    } else if (/[A-Z]/.test(ch)) {
+      let end = i + 1;
+      while (
+        end < len &&
+        raw[end] !== '{' &&
+        raw[end] !== ',' &&
+        raw[end] !== '}' &&
+        raw[end] !== ']'
+      )
+        end++;
+      frag.appendChild(span('tok-type', raw.substring(i, end)));
+      i = end;
+    } else if (/[a-z_]/.test(ch)) {
+      let end = i + 1;
+      while (end < len && /[a-zA-Z0-9_]/.test(raw[end])) end++;
+      frag.appendChild(span('tok-key', raw.substring(i, end)));
+      i = end;
+    } else {
+      frag.appendChild(document.createTextNode(ch));
+      i++;
+    }
+  }
+  return frag;
+}
+
+export function highlight(raw: string): Node {
+  const frag = document.createDocumentFragment();
+  if (!raw) {
+    return frag;
+  }
+  try {
+    const parsed = JSON.parse(raw);
+    highlightJSON(parsed, 0, frag);
+    return frag;
+  } catch {
+    if (raw.includes('{') || raw.includes('[')) {
+      return highlightGCL(raw);
+    }
+    frag.appendChild(document.createTextNode(raw));
+    return frag;
+  }
+}

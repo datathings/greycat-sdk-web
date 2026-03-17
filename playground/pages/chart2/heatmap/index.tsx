@@ -52,16 +52,7 @@ document.body.appendChild(
             left: 'center',
             bottom: 0,
             inRange: {
-              color: [
-                '#313695',
-                '#4575b4',
-                '#74add1',
-                '#abd9e9',
-                '#fee090',
-                '#fdae61',
-                '#f46d43',
-                '#d73027',
-              ],
+              color: ['#313695', '#4575b4', '#74add1', '#abd9e9', '#fee090', '#fdae61', '#f46d43', '#d73027'],
             },
             textStyle: { color: '#ccc' },
           },

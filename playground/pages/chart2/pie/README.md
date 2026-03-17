@@ -28,10 +28,10 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `xCol` | Column used for slice labels |
-| `series[].yCol` | Column used for slice values |
+| Option            | Description                                 |
+| ----------------- | ------------------------------------------- |
+| `xCol`            | Column used for slice labels                |
+| `series[].yCol`   | Column used for slice values                |
 | `legend.position` | `'top'`, `'bottom'`, `'left'`, or `'right'` |
 
 Pie charts ignore `xAxis` and `yAxis` configuration.

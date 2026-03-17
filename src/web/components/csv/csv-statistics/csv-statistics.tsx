@@ -40,13 +40,7 @@ export class GuiCsvStatistics extends HTMLElement {
               <th></th>
               {this._stats.columns.map((c) => (
                 <th>
-                  <b
-                    title={
-                      c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH
-                        ? c.name
-                        : ''
-                    }
-                  >
+                  <b title={c.name !== null && c.name.length > GuiCsvStatistics.MAX_CONTENT_LENGTH ? c.name : ''}>
                     {c.name}
                   </b>
                 </th>
@@ -197,8 +191,7 @@ export class GuiCsvStatistics extends HTMLElement {
               {this._stats.columns.map((c) => (
                 <td
                   title={
-                    typeof c.example === 'string' &&
-                    c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH
+                    typeof c.example === 'string' && c.example.length > GuiCsvStatistics.MAX_CONTENT_LENGTH
                       ? c.example
                       : ''
                   }

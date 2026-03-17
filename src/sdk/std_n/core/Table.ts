@@ -56,10 +56,7 @@ namespace gc {
           /**
            * Creates a table using an array of columns.
            */
-          static create(
-            cols: unknown[][] = [],
-            g: GreyCat = gc.$.default,
-          ): gc.core.Table<unknown[]> {
+          static create(cols: unknown[][] = [], g: GreyCat = gc.$.default): gc.core.Table<unknown[]> {
             const ty = g.abi.types[g.abi.core.table];
             const table = new ty.ctor(cols) as gc.core.Table;
             return table;
@@ -68,18 +65,12 @@ namespace gc {
           /**
            * Proxies to `Table.create(...)`
            */
-          static fromCols(
-            cols: unknown[][] = [],
-            g: GreyCat = gc.$.default,
-          ): gc.core.Table<unknown[]> {
+          static fromCols(cols: unknown[][] = [], g: GreyCat = gc.$.default): gc.core.Table<unknown[]> {
             return Table.create(cols, g);
           }
 
           static fromRows<C0, C1>(rows: globalThis.Array<[C0, C1]>, g?: GreyCat): Table<[C0, C1]>;
-          static fromRows<C0, C1, C3>(
-            rows: globalThis.Array<[C0, C1, C3]>,
-            g?: GreyCat,
-          ): Table<[C0, C1, C3]>;
+          static fromRows<C0, C1, C3>(rows: globalThis.Array<[C0, C1, C3]>, g?: GreyCat): Table<[C0, C1, C3]>;
           static fromRows<C0, C1, C3, C4>(
             rows: globalThis.Array<[C0, C1, C3, C4]>,
             g?: GreyCat,
@@ -109,10 +100,7 @@ namespace gc {
             g?: GreyCat,
           ): Table<[C0, C1, C3, C4, C5, C6, C7, C8, C9, C10]>;
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          static fromRows<T extends any[]>(
-            rows: globalThis.Array<[...T]>,
-            g?: GreyCat,
-          ): Table<[...T]>;
+          static fromRows<T extends any[]>(rows: globalThis.Array<[...T]>, g?: GreyCat): Table<[...T]>;
 
           /**
            * Creates a table using an array of rows.
@@ -244,10 +232,7 @@ namespace gc {
             return table;
           }
 
-          static fromMap<K, V>(
-            map: globalThis.Map<K, V>,
-            g: GreyCat = gc.$.default,
-          ): gc.core.Table<[K, V]> {
+          static fromMap<K, V>(map: globalThis.Map<K, V>, g: GreyCat = gc.$.default): gc.core.Table<[K, V]> {
             const keys = globalThis.Array.from(map.keys());
             const values = globalThis.Array.from(map.values());
             const ty = g.abi.types[g.abi.core.table];
@@ -256,10 +241,7 @@ namespace gc {
             return table;
           }
 
-          static override load<T extends Value = unknown>(
-            r: AbiReader,
-            ty: AbiType,
-          ): gc.core.Table<T> {
+          static override load<T extends Value = unknown>(r: AbiReader, ty: AbiType): gc.core.Table<T> {
             const nb_rows = r.read_vu32();
             const nb_cols = r.read_vu32();
             const cols = new globalThis.Array(nb_cols);

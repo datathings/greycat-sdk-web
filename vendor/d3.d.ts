@@ -67,10 +67,7 @@ declare module 'd3-array' {
    * The second generic "TReduce" refers to the type of the data available at the deepest level (the result data).
    * The third generic "TKeys" refers to the type of the keys at each level of the nestes InternMap.
    */
-  export type NestedInternMap<TObject, TReduce, TKeys extends unknown[]> = TKeys extends [
-    infer TFirst,
-    ...infer TRest,
-  ]
+  export type NestedInternMap<TObject, TReduce, TKeys extends unknown[]> = TKeys extends [infer TFirst, ...infer TRest]
     ? InternMap<TFirst, NestedInternMap<TObject, TReduce, TRest>>
     : TReduce;
 
@@ -81,10 +78,7 @@ declare module 'd3-array' {
    * The second generic "TReduce" refers to the type of the data available at the deepest level (the result data).
    * The third generic "TKeys" refers to the type of the keys at each level of the nestes Array.
    */
-  export type NestedArray<TObject, TReduce, TKeys extends unknown[]> = TKeys extends [
-    infer TFirst,
-    ...infer TRest,
-  ]
+  export type NestedArray<TObject, TReduce, TKeys extends unknown[]> = TKeys extends [infer TFirst, ...infer TRest]
     ? Array<[TFirst, NestedArray<TObject, TReduce, TRest>]>
     : TReduce;
 
@@ -281,10 +275,7 @@ declare module 'd3-array' {
    *
    * An optional accessor function may be specified, which is equivalent to calling array.map(accessor) before computing the quantile.
    */
-  export function quantile(
-    iterable: Iterable<Numeric | undefined | null>,
-    p: number,
-  ): number | undefined;
+  export function quantile(iterable: Iterable<Numeric | undefined | null>, p: number): number | undefined;
   /**
    * Returns the p-quantile of the given iterable of numbers, where p is a number in the range [0, 1].
    *
@@ -313,10 +304,7 @@ declare module 'd3-array' {
    * Similar to quantile, but expects the input to be a sorted array of values.
    * In contrast with quantile, the accessor is only called on the elements needed to compute the quantile.
    */
-  export function quantileSorted(
-    array: Array<Numeric | undefined | null>,
-    p: number,
-  ): number | undefined;
+  export function quantileSorted(array: Array<Numeric | undefined | null>, p: number): number | undefined;
   /**
    * Similar to quantile, but expects the input to be a sorted array of values.
    * In contrast with quantile, the accessor is only called on the elements needed to compute the quantile.
@@ -434,10 +422,7 @@ declare module 'd3-array' {
    * Returns the least element of the specified iterable according to the specified comparator.
    * If comparator is not specified, it defaults to ascending.
    */
-  export function least<T>(
-    iterable: Iterable<T>,
-    comparator?: (a: T, b: T) => number,
-  ): T | undefined;
+  export function least<T>(iterable: Iterable<T>, comparator?: (a: T, b: T) => number): T | undefined;
   /**
    * Returns the least element of the specified iterable according to the specified accessor.
    */
@@ -450,28 +435,19 @@ declare module 'd3-array' {
   /**
    * Returns the index of the least element of the specified iterable according to the specified comparator.
    */
-  export function leastIndex<T>(
-    iterable: Iterable<T>,
-    comparator: (a: T, b: T) => number,
-  ): number | undefined;
+  export function leastIndex<T>(iterable: Iterable<T>, comparator: (a: T, b: T) => number): number | undefined;
   /**
    * Returns the index of the least element of the specified iterable according to the specified accessor.
    */
   // tslint:disable-next-line:unified-signatures
-  export function leastIndex<T>(
-    iterable: Iterable<T>,
-    accessor: (a: T) => unknown,
-  ): number | undefined;
+  export function leastIndex<T>(iterable: Iterable<T>, accessor: (a: T) => unknown): number | undefined;
 
   /**
    * Returns the greatest element of the specified iterable according to the specified comparator or accessor.
    * If the given iterable contains no comparable elements (i.e., the comparator returns NaN when comparing each element to itself), returns undefined.
    * If comparator is not specified, it defaults to ascending.
    */
-  export function greatest<T>(
-    iterable: Iterable<T>,
-    comparator?: (a: T, b: T) => number,
-  ): T | undefined;
+  export function greatest<T>(iterable: Iterable<T>, comparator?: (a: T, b: T) => number): T | undefined;
   /**
    * Returns the greatest element of the specified iterable according to the specified comparator or accessor.
    * If the given iterable contains no comparable elements (i.e., the comparator returns NaN when comparing each element to itself), returns undefined.
@@ -490,51 +466,25 @@ declare module 'd3-array' {
    * If the given iterable contains no comparable elements (i.e., the comparator returns NaN when comparing each element to itself), returns -1.
    * If comparator is not specified, it defaults to ascending.
    */
-  export function greatestIndex<T>(
-    iterable: Iterable<T>,
-    comparator: (a: T, b: T) => number,
-  ): number | undefined;
+  export function greatestIndex<T>(iterable: Iterable<T>, comparator: (a: T, b: T) => number): number | undefined;
   /**
    * Returns the index of the greatest element of the specified iterable according to the specified comparator or accessor.
    * If the given iterable contains no comparable elements (i.e., the comparator returns NaN when comparing each element to itself), returns -1.
    * If comparator is not specified, it defaults to ascending.
    */
   // tslint:disable-next-line:unified-signatures
-  export function greatestIndex<T>(
-    iterable: Iterable<T>,
-    accessor: (a: T) => unknown,
-  ): number | undefined;
+  export function greatestIndex<T>(iterable: Iterable<T>, accessor: (a: T) => unknown): number | undefined;
 
   export function bisectLeft(array: ArrayLike<number>, x: number, lo?: number, hi?: number): number;
   export function bisectLeft(array: ArrayLike<string>, x: string, lo?: number, hi?: number): number;
   export function bisectLeft(array: ArrayLike<Date>, x: Date, lo?: number, hi?: number): number;
 
-  export function bisectRight(
-    array: ArrayLike<number>,
-    x: number,
-    lo?: number,
-    hi?: number,
-  ): number;
-  export function bisectRight(
-    array: ArrayLike<string>,
-    x: string,
-    lo?: number,
-    hi?: number,
-  ): number;
+  export function bisectRight(array: ArrayLike<number>, x: number, lo?: number, hi?: number): number;
+  export function bisectRight(array: ArrayLike<string>, x: string, lo?: number, hi?: number): number;
   export function bisectRight(array: ArrayLike<Date>, x: Date, lo?: number, hi?: number): number;
 
-  export function bisectCenter(
-    array: ArrayLike<number>,
-    x: number,
-    lo?: number,
-    hi?: number,
-  ): number;
-  export function bisectCenter(
-    array: ArrayLike<string>,
-    x: string,
-    lo?: number,
-    hi?: number,
-  ): number;
+  export function bisectCenter(array: ArrayLike<number>, x: number, lo?: number, hi?: number): number;
+  export function bisectCenter(array: ArrayLike<string>, x: string, lo?: number, hi?: number): number;
   export function bisectCenter(array: ArrayLike<Date>, x: Date, lo?: number, hi?: number): number;
 
   export const bisect: typeof bisectRight;
@@ -943,10 +893,7 @@ declare module 'd3-array' {
    * Returns a new array containing the mapped values from iterable, in order, as defined by given mapper function.
    * Equivalent to array.map and Array.from.
    */
-  export function map<T, U>(
-    iterable: Iterable<T>,
-    mapper: (value: T, index: number, iterable: Iterable<T>) => U,
-  ): U[];
+  export function map<T, U>(iterable: Iterable<T>, mapper: (value: T, index: number, iterable: Iterable<T>) => U): U[];
 
   /**
    * Returns the reduced value defined by given reducer function, which is repeatedly invoked for each value in iterable, being passed the current reduced value and the next value.
@@ -1066,8 +1013,7 @@ declare module 'd3-array' {
     value(valueAccessor: (d: Datum, i: number, data: ArrayLike<Datum>) => Value): this;
   }
 
-  export interface HistogramGeneratorDate<Datum, Value extends Date | undefined>
-    extends HistogramCommon<Datum, Date> {
+  export interface HistogramGeneratorDate<Datum, Value extends Date | undefined> extends HistogramCommon<Datum, Date> {
     domain(): (values: ArrayLike<Value>) => [Date, Date];
     domain(domain: [Date, Date] | ((values: ArrayLike<Value>) => [Date, Date])): this;
 
@@ -1087,14 +1033,12 @@ declare module 'd3-array' {
     thresholds(thresholds: ArrayLike<Value> | ThresholdDateArrayGenerator<Value>): this;
   }
 
-  export interface HistogramGeneratorNumber<Datum, Value extends number | undefined>
-    extends HistogramCommon<Datum, Value> {
+  export interface HistogramGeneratorNumber<Datum, Value extends number | undefined> extends HistogramCommon<
+    Datum,
+    Value
+  > {
     domain(): (values: Iterable<Value>) => [number, number] | [undefined, undefined];
-    domain(
-      domain:
-        | [number, number]
-        | ((values: Iterable<Value>) => [number, number] | [undefined, undefined]),
-    ): this;
+    domain(domain: [number, number] | ((values: Iterable<Value>) => [number, number] | [undefined, undefined])): this;
 
     thresholds(): ThresholdCountGenerator<Value> | ThresholdNumberArrayGenerator<Value>;
     /**
@@ -1134,47 +1078,27 @@ declare module 'd3-array' {
    * @deprecated Use bin instead.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function histogram<Datum, Value extends number | undefined>(): HistogramGeneratorNumber<
-    Datum,
-    Value
-  >;
+  export function histogram<Datum, Value extends number | undefined>(): HistogramGeneratorNumber<Datum, Value>;
 
   /**
    * @deprecated Use bin instead.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function histogram<Datum, Value extends Date | undefined>(): HistogramGeneratorDate<
-    Datum,
-    Value
-  >;
+  export function histogram<Datum, Value extends Date | undefined>(): HistogramGeneratorDate<Datum, Value>;
 
   export function bin(): HistogramGeneratorNumber<number, number>;
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function bin<Datum, Value extends number | undefined>(): HistogramGeneratorNumber<
-    Datum,
-    Value
-  >;
+  export function bin<Datum, Value extends number | undefined>(): HistogramGeneratorNumber<Datum, Value>;
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function bin<Datum, Value extends Date | undefined>(): HistogramGeneratorDate<
-    Datum,
-    Value
-  >;
+  export function bin<Datum, Value extends Date | undefined>(): HistogramGeneratorDate<Datum, Value>;
 
   // --------------------------------------------------------------------------------------
   // Histogram Thresholds
   // --------------------------------------------------------------------------------------
 
-  export function thresholdFreedmanDiaconis(
-    values: ArrayLike<number | undefined>,
-    min: number,
-    max: number,
-  ): number; // of type ThresholdCountGenerator
+  export function thresholdFreedmanDiaconis(values: ArrayLike<number | undefined>, min: number, max: number): number; // of type ThresholdCountGenerator
 
-  export function thresholdScott(
-    values: ArrayLike<number | undefined>,
-    min: number,
-    max: number,
-  ): number; // of type ThresholdCountGenerator
+  export function thresholdScott(values: ArrayLike<number | undefined>, min: number, max: number): number; // of type ThresholdCountGenerator
 
   export function thresholdSturges(values: ArrayLike<number | undefined>): number; // of type ThresholdCountGenerator
 
@@ -2152,8 +2076,11 @@ declare module 'd3-chord' {
     context(context: CanvasRenderingContext2D | null): this;
   }
 
-  export interface RibbonArrowGenerator<This, RibbonDatum, RibbonSubgroupDatum>
-    extends RibbonGenerator<This, RibbonDatum, RibbonSubgroupDatum> {
+  export interface RibbonArrowGenerator<This, RibbonDatum, RibbonSubgroupDatum> extends RibbonGenerator<
+    This,
+    RibbonDatum,
+    RibbonSubgroupDatum
+  > {
     headRadius(): (this: This, d: RibbonSubgroupDatum, ...args: any[]) => number;
 
     headRadius(radius: number): this;
@@ -2204,11 +2131,7 @@ declare module 'd3-chord' {
    * The second generic corresponds to the datum type of the chord subgroup, i.e. source or target of the cord. The default type is ChordSubgroup.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function ribbonArrow<Datum, SubgroupDatum>(): RibbonArrowGenerator<
-    any,
-    Datum,
-    SubgroupDatum
-  >;
+  export function ribbonArrow<Datum, SubgroupDatum>(): RibbonArrowGenerator<any, Datum, SubgroupDatum>;
   /**
    * Creates a new arrow ribbon generator with the default settings.
    *
@@ -2221,11 +2144,7 @@ declare module 'd3-chord' {
    * The third generic corresponds to the datum type of the chord subgroup, i.e. source or target of the cord. The default type is ChordSubgroup.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function ribbonArrow<This, Datum, SubgroupDatum>(): RibbonArrowGenerator<
-    This,
-    Datum,
-    SubgroupDatum
-  >;
+  export function ribbonArrow<This, Datum, SubgroupDatum>(): RibbonArrowGenerator<This, Datum, SubgroupDatum>;
 }
 
 declare module 'd3-color' {
@@ -2974,11 +2893,7 @@ declare module 'd3-contour' {
      * If a count is specified instead of an array of thresholds, then the input values’ extent will be uniformly divided into approximately count bins; see d3.ticks.
      */
     thresholds(
-      thresholds:
-        | number
-        | number[]
-        | ThresholdCountGenerator<number>
-        | ThresholdNumberArrayGenerator<number>,
+      thresholds: number | number[] | ThresholdCountGenerator<number> | ThresholdNumberArrayGenerator<number>,
     ): this;
   }
 
@@ -3088,11 +3003,7 @@ declare module 'd3-contour' {
      * If a count is specified instead of an array of thresholds, then approximately count uniformly-spaced nicely-rounded thresholds will be generated; see d3.ticks.
      */
     thresholds(
-      thresholds:
-        | number
-        | number[]
-        | ThresholdCountGenerator<number>
-        | ThresholdNumberArrayGenerator<number>,
+      thresholds: number | number[] | ThresholdCountGenerator<number> | ThresholdNumberArrayGenerator<number>,
     ): this;
 
     /**
@@ -3136,9 +3047,7 @@ declare module 'd3-delaunay' {
     /**
      * Returns the Delaunay triangulation for the given array or iterable of points where each point is an array in the form: [x, y].
      */
-    static from(
-      points: ArrayLike<Delaunay.Point> | Iterable<Delaunay.Point>,
-    ): Delaunay<Delaunay.Point>;
+    static from(points: ArrayLike<Delaunay.Point> | Iterable<Delaunay.Point>): Delaunay<Delaunay.Point>;
     /**
      * Returns the Delaunay triangulation for the given array or iterable of points.
      * Otherwise, the getX and getY functions are invoked for each point in order, and must return the respective x- and y-coordinate for each point.
@@ -3224,10 +3133,7 @@ declare module 'd3-delaunay' {
      * Renders triangle i of the Delaunay triangulation to the specified context.
      * The specified context must implement the context.moveTo, context.lineTo and context.closePath methods from the CanvasPathMethods API.
      */
-    renderTriangle(
-      i: number,
-      context: Delaunay.MoveContext & Delaunay.LineContext & Delaunay.ClosableContext,
-    ): void;
+    renderTriangle(i: number, context: Delaunay.MoveContext & Delaunay.LineContext & Delaunay.ClosableContext): void;
 
     /**
      * Renders the input points of the Delaunay triangulation to an SVG path string as circles with radius 2.
@@ -3335,14 +3241,7 @@ declare module 'd3-delaunay' {
       /**
        * arc() method of the CanvasPathMethods API.
        */
-      arc(
-        x: number,
-        y: number,
-        radius: number,
-        startAngle: number,
-        endAngle: number,
-        counterclockwise?: boolean,
-      ): void;
+      arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, counterclockwise?: boolean): void;
     }
 
     /**
@@ -3428,10 +3327,7 @@ declare module 'd3-delaunay' {
      * Renders the cell with the specified index i to the specified context.
      * The specified context must implement the context.moveTo, context.lineTo, and context.closePath methods from the CanvasPathMethods API.
      */
-    renderCell(
-      i: number,
-      context: Delaunay.MoveContext & Delaunay.LineContext & Delaunay.ClosableContext,
-    ): void;
+    renderCell(i: number, context: Delaunay.MoveContext & Delaunay.LineContext & Delaunay.ClosableContext): void;
 
     /**
      * Returns an iterable over the non-empty polygons for each cell, with the cell index as property.
@@ -3566,8 +3462,7 @@ declare module 'd3-drag' {
    * In this case, a custom subject accessor would be more appropriate,
    * such as one that picks the closest circle to the mouse within a given search radius.
    */
-  export interface DragBehavior<GElement extends DraggedElementBaseType, Datum, Subject>
-    extends Function {
+  export interface DragBehavior<GElement extends DraggedElementBaseType, Datum, Subject> extends Function {
     /**
      * Applies the drag behavior to the selected elements.
      * This function is typically not invoked directly, and is instead invoked via selection.call.
@@ -3948,8 +3843,7 @@ declare module 'd3-dsv' {
    * An array object representing all deserialized rows. The array is enhanced with a property listing
    * the names of the parsed columns.
    */
-  export interface DSVRowArray<Columns extends string = string>
-    extends Array<DSVRowString<Columns>> {
+  export interface DSVRowArray<Columns extends string = string> extends Array<DSVRowString<Columns>> {
     /**
      * List of column names.
      */
@@ -4007,11 +3901,7 @@ declare module 'd3-dsv' {
    */
   export function csvParse<ParsedRow extends object, Columns extends string>(
     csvString: string,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): DSVParsedArray<ParsedRow>;
 
   // csvParseRows(...) ========================================================================
@@ -4065,10 +3955,7 @@ declare module 'd3-dsv' {
    * @param rows Array of object rows.
    * @param columns An array of strings representing the column names.
    */
-  export function csvFormat<T extends object>(
-    rows: readonly T[],
-    columns?: ReadonlyArray<keyof T>,
-  ): string;
+  export function csvFormat<T extends object>(rows: readonly T[], columns?: ReadonlyArray<keyof T>): string;
 
   // csvFormatBody(...) ============================================================================
 
@@ -4078,10 +3965,7 @@ declare module 'd3-dsv' {
    * @param rows Array of object rows.
    * @param columns An array of strings representing the column names.
    */
-  export function csvFormatBody<T extends object>(
-    rows: readonly T[],
-    columns?: ReadonlyArray<keyof T>,
-  ): string;
+  export function csvFormatBody<T extends object>(rows: readonly T[], columns?: ReadonlyArray<keyof T>): string;
 
   // csvFormatRows(...) ========================================================================
 
@@ -4158,11 +4042,7 @@ declare module 'd3-dsv' {
    */
   export function tsvParse<ParsedRow extends object, Columns extends string>(
     tsvString: string,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): DSVParsedArray<ParsedRow>;
 
   // tsvParseRows(...) ========================================================================
@@ -4216,10 +4096,7 @@ declare module 'd3-dsv' {
    * @param rows Array of object rows.
    * @param columns An array of strings representing the column names.
    */
-  export function tsvFormat<T extends object>(
-    rows: readonly T[],
-    columns?: ReadonlyArray<keyof T>,
-  ): string;
+  export function tsvFormat<T extends object>(rows: readonly T[], columns?: ReadonlyArray<keyof T>): string;
 
   // tsvFormatBody(...) ============================================================================
 
@@ -4229,10 +4106,7 @@ declare module 'd3-dsv' {
    * @param rows Array of object rows.
    * @param columns An array of strings representing the column names.
    */
-  export function tsvFormatBody<T extends object>(
-    rows: readonly T[],
-    columns?: ReadonlyArray<keyof T>,
-  ): string;
+  export function tsvFormatBody<T extends object>(rows: readonly T[], columns?: ReadonlyArray<keyof T>): string;
 
   // tsvFormatRows(...) ========================================================================
 
@@ -4313,11 +4187,7 @@ declare module 'd3-dsv' {
      */
     parse<ParsedRow extends object, Columns extends string>(
       dsvString: string,
-      row: (
-        rawRow: DSVRowString<Columns>,
-        index: number,
-        columns: Columns[],
-      ) => ParsedRow | undefined | null,
+      row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
     ): DSVParsedArray<ParsedRow>;
 
     /**
@@ -4778,10 +4648,7 @@ declare module 'd3-fetch' {
    * @param init An optional request initialization object.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function csv<Columns extends string>(
-    url: string,
-    init?: RequestInit,
-  ): Promise<DSVRowArray<Columns>>;
+  export function csv<Columns extends string>(url: string, init?: RequestInit): Promise<DSVRowArray<Columns>>;
   /**
    * Fetches the CSV file at the specified input URL and returns
    * a promise of an array of objects representing the parsed rows.
@@ -4800,11 +4667,7 @@ declare module 'd3-fetch' {
    */
   export function csv<ParsedRow extends object, Columns extends string = string>(
     url: string,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
   /**
    * Fetches the CSV file at the specified input URL and returns
@@ -4828,11 +4691,7 @@ declare module 'd3-fetch' {
   export function csv<ParsedRow extends object, Columns extends string = string>(
     url: string,
     init: RequestInit,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
 
   /**
@@ -4874,11 +4733,7 @@ declare module 'd3-fetch' {
   export function dsv<ParsedRow extends object, Columns extends string = string>(
     delimiter: string,
     url: string,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
   /**
    * Fetches the DSV file with the specified delimiter character at the specified input URL and returns
@@ -4904,11 +4759,7 @@ declare module 'd3-fetch' {
     delimiter: string,
     url: string,
     init: RequestInit,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
 
   /**
@@ -4982,10 +4833,7 @@ declare module 'd3-fetch' {
    * @param init An optional request initialization object.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function tsv<Columns extends string>(
-    url: string,
-    init?: RequestInit,
-  ): Promise<DSVRowArray<Columns>>;
+  export function tsv<Columns extends string>(url: string, init?: RequestInit): Promise<DSVRowArray<Columns>>;
   /**
    * Fetches the TSV file at the specified input URL and returns
    * a promise of an array of objects representing the parsed rows. The values of the properties of the parsed row
@@ -5005,11 +4853,7 @@ declare module 'd3-fetch' {
    */
   export function tsv<ParsedRow extends object, Columns extends string = string>(
     url: string,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
   /**
    * Fetches the TSV file at the specified input URL and returns
@@ -5033,11 +4877,7 @@ declare module 'd3-fetch' {
   export function tsv<ParsedRow extends object, Columns extends string = string>(
     url: string,
     init: RequestInit,
-    row: (
-      rawRow: DSVRowString<Columns>,
-      index: number,
-      columns: Columns[],
-    ) => ParsedRow | undefined | null,
+    row: (rawRow: DSVRowString<Columns>, index: number, columns: Columns[]) => ParsedRow | undefined | null,
   ): Promise<DSVParsedArray<ParsedRow>>;
 
   /**
@@ -5330,9 +5170,7 @@ declare module 'd3-force' {
      * The type must be one of the following: "tick" (after each tick of the simulation’s internal timer) or
      * "end" (after the simulation’s timer stops when alpha < alphaMin).
      */
-    on(
-      typenames: 'tick' | 'end' | string,
-    ): ((this: Simulation<NodeDatum, LinkDatum>) => void) | undefined;
+    on(typenames: 'tick' | 'end' | string): ((this: Simulation<NodeDatum, LinkDatum>) => void) | undefined;
     /**
      * Sets the event listener for the specified typenames and returns this simulation.
      * If an event listener was already registered for the same type and name, the existing listener is removed before the new listener is added.
@@ -5422,8 +5260,7 @@ declare module 'd3-force' {
    *
    * The generic refers to the type of data for a node.
    */
-  export interface ForceCenter<NodeDatum extends SimulationNodeDatum>
-    extends Force<NodeDatum, any> {
+  export interface ForceCenter<NodeDatum extends SimulationNodeDatum> extends Force<NodeDatum, any> {
     /**
      * Supplies the array of nodes and random source to this force. This method is called when a force is bound to a simulation via simulation.force
      * and when the simulation’s nodes change via simulation.nodes.
@@ -5484,10 +5321,7 @@ declare module 'd3-force' {
    * @param y An optional y-coordinate for the centering position, defaults to 0.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function forceCenter<NodeDatum extends SimulationNodeDatum>(
-    x?: number,
-    y?: number,
-  ): ForceCenter<NodeDatum>;
+  export function forceCenter<NodeDatum extends SimulationNodeDatum>(x?: number, y?: number): ForceCenter<NodeDatum>;
 
   // Collision ------------------------------------------------------------
 
@@ -5498,8 +5332,7 @@ declare module 'd3-force' {
    *
    * The generic refers to the type of data for a node.
    */
-  export interface ForceCollide<NodeDatum extends SimulationNodeDatum>
-    extends Force<NodeDatum, any> {
+  export interface ForceCollide<NodeDatum extends SimulationNodeDatum> extends Force<NodeDatum, any> {
     /**
      * Supplies the array of nodes and random source to this force. This method is called when a force is bound to a simulation via simulation.force
      * and when the simulation’s nodes change via simulation.nodes.
@@ -5667,10 +5500,9 @@ declare module 'd3-force' {
    * Creates a new link force with the specified links and default parameters.
    * If links is not specified, it defaults to the empty array.
    */
-  export function forceLink<
-    NodeDatum extends SimulationNodeDatum,
-    LinksDatum extends SimulationLinkDatum<NodeDatum>,
-  >(links?: LinksDatum[]): ForceLink<NodeDatum, LinksDatum>;
+  export function forceLink<NodeDatum extends SimulationNodeDatum, LinksDatum extends SimulationLinkDatum<NodeDatum>>(
+    links?: LinksDatum[],
+  ): ForceLink<NodeDatum, LinksDatum>;
 
   // Many Body ----------------------------------------------------------------
 
@@ -5683,8 +5515,7 @@ declare module 'd3-force' {
    *
    * The generic refers to the type of data for a node.
    */
-  export interface ForceManyBody<NodeDatum extends SimulationNodeDatum>
-    extends Force<NodeDatum, any> {
+  export interface ForceManyBody<NodeDatum extends SimulationNodeDatum> extends Force<NodeDatum, any> {
     /**
      * Supplies the array of nodes and random source to this force. This method is called when a force is bound to a simulation via simulation.force
      * and when the simulation’s nodes change via simulation.nodes.
@@ -5891,8 +5722,7 @@ declare module 'd3-force' {
    *
    * The generic refers to the type of data for a node.
    */
-  export interface ForceRadial<NodeDatum extends SimulationNodeDatum>
-    extends Force<NodeDatum, any> {
+  export interface ForceRadial<NodeDatum extends SimulationNodeDatum> extends Force<NodeDatum, any> {
     /**
      * Assigns the array of nodes and random source to this force. This method is called when a force is bound to a simulation via simulation.force
      * and when the simulation’s nodes change via simulation.nodes.
@@ -6165,10 +5995,7 @@ declare module 'd3-format' {
    * @param value The reference value to determine the appropriate SI prefix.
    * @throws Error on invalid format specifier.
    */
-  export function formatPrefix(
-    specifier: string,
-    value: number,
-  ): (n: number | { valueOf(): number }) => string;
+  export function formatPrefix(specifier: string, value: number): (n: number | { valueOf(): number }) => string;
 
   /**
    * A Format Specifier
@@ -6339,9 +6166,7 @@ declare module 'd3-geo' {
    *
    * The generic refers to the type(s) of d3-geo geometry objects contained in the collection.
    */
-  export interface ExtendedGeometryCollection<
-    GeometryType extends GeoGeometryObjects = GeoGeometryObjects,
-  > {
+  export interface ExtendedGeometryCollection<GeometryType extends GeoGeometryObjects = GeoGeometryObjects> {
     type: string;
     bbox?: number[] | undefined;
     crs?:
@@ -6366,7 +6191,8 @@ declare module 'd3-geo' {
   export interface ExtendedFeature<
     GeometryType extends GeoGeometryObjects | null = GeoGeometryObjects | null,
     Properties extends GeoJSON.GeoJsonProperties = GeoJSON.GeoJsonProperties,
-  > extends GeoJSON.GeoJsonObject {
+  >
+    extends GeoJSON.GeoJsonObject {
     geometry: GeometryType;
     properties: Properties;
     id?: string | number | undefined;
@@ -6402,11 +6228,7 @@ declare module 'd3-geo' {
    * This is the spherical equivalent of path.area.
    */
   export function geoArea(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
   ): number;
 
   /**
@@ -6418,11 +6240,7 @@ declare module 'd3-geo' {
    * This is the spherical equivalent of path.bounds.
    */
   export function geoBounds(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
   ): [[number, number], [number, number]];
 
   /**
@@ -6430,11 +6248,7 @@ declare module 'd3-geo' {
    * This is the spherical equivalent of path.centroid.
    */
   export function geoCentroid(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
   ): [number, number];
 
   /**
@@ -6443,11 +6257,7 @@ declare module 'd3-geo' {
    * For Point and MultiPoint geometries, an exact test is used; for a Sphere, true is always returned; for other geometries, an epsilon threshold is applied.
    */
   export function geoContains(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     point: [number, number],
   ): boolean;
 
@@ -6466,11 +6276,7 @@ declare module 'd3-geo' {
    * This is the spherical equivalent of path.measure.
    */
   export function geoLength(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
   ): number;
 
   /**
@@ -6480,10 +6286,7 @@ declare module 'd3-geo' {
    * @param a Point specified as a two-element array [longitude, latitude] in degrees.
    * @param b Point specified as a two-element array [longitude, latitude] in degrees.
    */
-  export function geoInterpolate(
-    a: [number, number],
-    b: [number, number],
-  ): (t: number) => [number, number];
+  export function geoInterpolate(a: [number, number], b: [number, number]): (t: number) => [number, number];
 
   /**
    * A Geo Rotation
@@ -6540,9 +6343,7 @@ declare module 'd3-geo' {
      * Sets the circle center to the specified point [longitude, latitude] in degrees, and returns this circle generator.
      * The center may also be specified as a function; this function will be invoked whenever a circle is generated, being passed any arguments passed to the circle generator.
      */
-    center(
-      center: [number, number] | ((this: This, d: Datum, ...args: any[]) => [number, number]),
-    ): this;
+    center(center: [number, number] | ((this: This, d: Datum, ...args: any[]) => [number, number])): this;
 
     /**
      * Returns the current radius accessor, which defaults to a function returning 90.
@@ -6753,11 +6554,7 @@ declare module 'd3-geo' {
    * While both features and geometry objects are supported as input, the stream interface only describes the geometry, and thus additional feature properties are not visible to streams.
    */
   export function geoStream(
-    object:
-      | ExtendedFeature
-      | ExtendedFeatureCollection
-      | GeoGeometryObjects
-      | ExtendedGeometryCollection,
+    object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     stream: GeoStream,
   ): void;
 
@@ -6984,11 +6781,7 @@ declare module 'd3-geo' {
      */
     fitExtent(
       extent: [[number, number], [number, number]],
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
 
     /**
@@ -6996,11 +6789,7 @@ declare module 'd3-geo' {
      */
     fitSize(
       size: [number, number],
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
 
     /**
@@ -7008,11 +6797,7 @@ declare module 'd3-geo' {
      */
     fitWidth(
       width: number,
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
 
     /**
@@ -7020,11 +6805,7 @@ declare module 'd3-geo' {
      */
     fitHeight(
       height: number,
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
   }
 
@@ -7064,14 +6845,7 @@ declare module 'd3-geo' {
      * @param endAngle The end angle of the arc, measured clockwise from the positive x axis and expressed in radians.
      * @param anticlockwise Optional boolean flag, if true the arc is drawn counter-clockwise between the two angles.
      */
-    arc(
-      x: number,
-      y: number,
-      radius: number,
-      startAngle: number,
-      endAngle: number,
-      anticlockwise?: boolean,
-    ): void;
+    arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void;
 
     /**
      * Start a new path by emptying the list of sub-paths.
@@ -7110,10 +6884,7 @@ declare module 'd3-geo' {
    *
    * The second generic corresponds to the type of the DatumObject which will be passed into the geo path generator for rendering.
    */
-  export interface GeoPath<
-    This = any,
-    DatumObject extends GeoPermissibleObjects = GeoPermissibleObjects,
-  > {
+  export interface GeoPath<This = any, DatumObject extends GeoPermissibleObjects = GeoPermissibleObjects> {
     /**
      * Renders the given object, which may be any GeoJSON feature or geometry object:
      *
@@ -7259,9 +7030,7 @@ declare module 'd3-geo' {
      * For example, if your GeoJSON data has additional properties, you might access those properties inside the radius function to vary the point size;
      * alternatively, you could d3.symbol and a projection for greater flexibility.
      */
-    pointRadius(
-      value: number | ((this: This, object: DatumObject, ...args: any[]) => number),
-    ): this;
+    pointRadius(value: number | ((this: This, object: DatumObject, ...args: any[]) => number)): this;
 
     /**
      * Returns the current number of digits, which defaults to 3.
@@ -7289,10 +7058,7 @@ declare module 'd3-geo' {
    * @param context An (optional) rendering context to be used. If a context is provided, it must at least implement the interface described by GeoContext, a subset of the CanvasRenderingContext2D API.
    * Setting the context to "null" means that the path generator will return an SVG path string representing the to be rendered object. The default is "null".
    */
-  export function geoPath(
-    projection?: GeoProjection | GeoStreamWrapper | null,
-    context?: GeoContext | null,
-  ): GeoPath;
+  export function geoPath(projection?: GeoProjection | GeoStreamWrapper | null, context?: GeoContext | null): GeoPath;
   /**
    * Creates a new geographic path generator with the default settings.
    *
@@ -7362,9 +7128,7 @@ declare module 'd3-geo' {
    *
    * When creating a mutable projection, the mutate function is typically not exposed.
    */
-  export function geoProjectionMutator(
-    factory: (...args: any[]) => GeoRawProjection,
-  ): () => GeoProjection;
+  export function geoProjectionMutator(factory: (...args: any[]) => GeoRawProjection): () => GeoProjection;
 
   // Pre-Defined Projections and Raw Projections =============================
 
@@ -7576,9 +7340,7 @@ declare module 'd3-geo' {
    *
    * @param methods An object with custom method implementations, which are used to create a transform projection.
    */
-  export function geoTransform<T extends GeoTransformPrototype>(
-    methods: T,
-  ): { stream(s: GeoStream): T & GeoStream };
+  export function geoTransform<T extends GeoTransformPrototype>(methods: T): { stream(s: GeoStream): T & GeoStream };
 
   // geoIdentity() =================================================================
 
@@ -7664,11 +7426,7 @@ declare module 'd3-geo' {
      */
     fitExtent(
       extent: [[number, number], [number, number]],
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
 
     /**
@@ -7676,11 +7434,7 @@ declare module 'd3-geo' {
      */
     fitSize(
       size: [number, number],
-      object:
-        | ExtendedFeature
-        | ExtendedFeatureCollection
-        | GeoGeometryObjects
-        | ExtendedGeometryCollection,
+      object: ExtendedFeature | ExtendedFeatureCollection | GeoGeometryObjects | ExtendedGeometryCollection,
     ): this;
 
     /**
@@ -7753,12 +7507,7 @@ declare module 'd3-geo' {
    * @param x1 x1 coordinate.
    * @param y1 y1 coordinate.
    */
-  export function geoClipRectangle(
-    x0: number,
-    y0: number,
-    x1: number,
-    y1: number,
-  ): (stream: GeoStream) => GeoStream;
+  export function geoClipRectangle(x0: number, y0: number, x1: number, y1: number): (stream: GeoStream) => GeoStream;
 }
 
 declare module 'd3-hierarchy' {
@@ -7915,10 +7664,7 @@ declare module 'd3-hierarchy' {
      * @param func The specified function is passed the current descendant, the zero-based traversal index, and this node.
      * @param that If that is specified, it is the this context of the callback.
      */
-    each<T = undefined>(
-      func: (this: T, node: this, index: number, thisNode: this) => void,
-      that?: T,
-    ): this;
+    each<T = undefined>(func: (this: T, node: this, index: number, thisNode: this) => void, that?: T): this;
 
     /**
      * Invokes the specified function for node and each descendant in post-order traversal,
@@ -7927,10 +7673,7 @@ declare module 'd3-hierarchy' {
      * @param func The specified function is passed the current descendant, the zero-based traversal index, and this node.
      * @param that If that is specified, it is the this context of the callback.
      */
-    eachAfter<T = undefined>(
-      func: (this: T, node: this, index: number, thisNode: this) => void,
-      that?: T,
-    ): this;
+    eachAfter<T = undefined>(func: (this: T, node: this, index: number, thisNode: this) => void, that?: T): this;
 
     /**
      * Invokes the specified function for node and each descendant in pre-order traversal,
@@ -7939,10 +7682,7 @@ declare module 'd3-hierarchy' {
      * @param func The specified function is passed the current descendant, the zero-based traversal index, and this node.
      * @param that If that is specified, it is the this context of the callback.
      */
-    eachBefore<T = undefined>(
-      func: (this: T, node: this, index: number, thisNode: this) => void,
-      that?: T,
-    ): this;
+    eachBefore<T = undefined>(func: (this: T, node: this, index: number, thisNode: this) => void, that?: T): this;
 
     /**
      * Return a deep copy of the subtree starting at this node. The returned deep copy shares the same data, however.
@@ -8007,9 +7747,7 @@ declare module 'd3-hierarchy' {
      *
      * @param parentId The parent id accessor.
      */
-    parentId(
-      parentId: (d: Datum, i: number, data: Datum[]) => string | null | '' | undefined,
-    ): this;
+    parentId(parentId: (d: Datum, i: number, data: Datum[]) => string | null | '' | undefined): this;
 
     /**
      * Returns the current path accessor, which defaults to undefined.
@@ -8112,9 +7850,7 @@ declare module 'd3-hierarchy' {
      * @param separation The separation function is passed two leaves a and b, and must return the desired separation.
      * The nodes are typically siblings, though the nodes may be more distantly related if the layout decides to place such nodes adjacent.
      */
-    separation(
-      separation: (a: HierarchyPointNode<Datum>, b: HierarchyPointNode<Datum>) => number,
-    ): this;
+    separation(separation: (a: HierarchyPointNode<Datum>, b: HierarchyPointNode<Datum>) => number): this;
   }
 
   /**
@@ -8172,9 +7908,7 @@ declare module 'd3-hierarchy' {
      * @param separation The separation function is passed two nodes a and b, and must return the desired separation.
      * The nodes are typically siblings, though the nodes may be more distantly related if the layout decides to place such nodes adjacent.
      */
-    separation(
-      separation: (a: HierarchyPointNode<Datum>, b: HierarchyPointNode<Datum>) => number,
-    ): this;
+    separation(separation: (a: HierarchyPointNode<Datum>, b: HierarchyPointNode<Datum>) => number): this;
   }
 
   /**
@@ -8240,27 +7974,13 @@ declare module 'd3-hierarchy' {
     /**
      * Returns the current tiling method, which defaults to `d3.treemapSquarify` with the golden ratio.
      */
-    tile(): (
-      node: HierarchyRectangularNode<Datum>,
-      x0: number,
-      y0: number,
-      x1: number,
-      y1: number,
-    ) => void;
+    tile(): (node: HierarchyRectangularNode<Datum>, x0: number, y0: number, x1: number, y1: number) => void;
     /**
      * Sets the tiling method to the specified function and returns this treemap layout.
      *
      * @param tile The specified tiling function.
      */
-    tile(
-      tile: (
-        node: HierarchyRectangularNode<Datum>,
-        x0: number,
-        y0: number,
-        x1: number,
-        y1: number,
-      ) => void,
-    ): this;
+    tile(tile: (node: HierarchyRectangularNode<Datum>, x0: number, y0: number, x1: number, y1: number) => void): this;
 
     /**
      * Returns the current size, which defaults to [1, 1].
@@ -8720,9 +8440,7 @@ declare module 'd3-hierarchy' {
    *
    * @param circles The specified array of circles to pack.
    */
-  export function packSiblings<Datum extends PackRadius>(
-    circles: Datum[],
-  ): Array<Datum & PackCircle>;
+  export function packSiblings<Datum extends PackRadius>(circles: Datum[]): Array<Datum & PackCircle>;
 
   /**
    * Computes the smallest circle that encloses the specified array of circles, each of which must have
@@ -8807,10 +8525,7 @@ declare module 'd3-interpolate' {
   /**
    * Returns a `interpolateRgb` interpolator.
    */
-  export function interpolate(
-    a: string | ColorCommonInstance,
-    b: ColorCommonInstance,
-  ): (t: number) => string;
+  export function interpolate(a: string | ColorCommonInstance, b: ColorCommonInstance): (t: number) => string;
   /**
    * Returns a `interpolateDate` interpolator.
    */
@@ -8825,10 +8540,7 @@ declare module 'd3-interpolate' {
   /**
    * Returns a `interpolateNumberArray` interpolator.
    */
-  export function interpolate<T extends NumberArray>(
-    a: NumberArray | number[],
-    b: T,
-  ): (t: number) => T;
+  export function interpolate<T extends NumberArray>(a: NumberArray | number[], b: T): (t: number) => T;
   /**
    * Returns a `interpolateString` interpolator. If `b` is a string coercible to a color use use `interpolateRgb`.
    */
@@ -8903,10 +8615,7 @@ declare module 'd3-interpolate' {
   /**
    * interpolateNumberArray is called
    */
-  export function interpolateArray<T extends NumberArray>(
-    a: NumberArray | number[],
-    b: T,
-  ): (t: number) => T;
+  export function interpolateArray<T extends NumberArray>(a: NumberArray | number[], b: T): (t: number) => T;
 
   /**
    * Returns an interpolator between the two arrays of numbers a and b.
@@ -8993,9 +8702,7 @@ declare module 'd3-interpolate' {
    * Implicit control points are generated such that the interpolator returns `colors[0]` at `t = 0` and `colors[colors.length - 1]` at `t = 1`.
    * Opacity interpolation is not currently supported. See also `d3.interpolateBasis`, and see [d3-scale-chromatic](https://github.com/d3/d3-scale-chromatic) for examples.
    */
-  export function interpolateRgbBasis(
-    colors: Array<string | ColorCommonInstance>,
-  ): (t: number) => string;
+  export function interpolateRgbBasis(colors: Array<string | ColorCommonInstance>): (t: number) => string;
 
   /**
    * Returns a uniform nonrational B-spline interpolator through the specified array of colors, which are converted to RGB color space.
@@ -9003,9 +8710,7 @@ declare module 'd3-interpolate' {
    * this is useful, for example, to create cyclical color scales. Opacity interpolation is not currently supported.
    * See also `d3.interpolateBasisClosed, and see [d3-scale-chromatic](https://github.com/d3/d3-scale-chromatic) for examples.
    */
-  export function interpolateRgbBasisClosed(
-    colors: Array<string | ColorCommonInstance>,
-  ): (t: number) => string;
+  export function interpolateRgbBasisClosed(colors: Array<string | ColorCommonInstance>): (t: number) => string;
 
   /**
    * Returns an HSL color space interpolator between the two colors *a* and *b*. The colors *a* and *b* need not be in HSL;
@@ -9144,10 +8849,7 @@ declare module 'd3-interpolate' {
    * and so on, where `n = values.length`. In effect, this is a lightweight linear scale.
    * For example, to blend through red, green and blue: `d3.piecewise(d3.interpolateRgb.gamma(2.2), ["red", "green", "blue"])`.
    */
-  export function piecewise<TData>(
-    interpolate: (a: TData, b: TData) => unknown,
-    values: TData[],
-  ): (t: number) => any;
+  export function piecewise<TData>(interpolate: (a: TData, b: TData) => unknown, values: TData[]): (t: number) => any;
 }
 
 declare module 'd3-path' {
@@ -9202,14 +8904,7 @@ declare module 'd3-path' {
      * @param x x-Coordinate of point to draw the curve to
      * @param y y-Coordinate of point to draw the curve to
      */
-    bezierCurveTo(
-      cpx1: number,
-      cpy1: number,
-      cpx2: number,
-      cpy2: number,
-      x: number,
-      y: number,
-    ): void;
+    bezierCurveTo(cpx1: number, cpy1: number, cpx2: number, cpy2: number, x: number, y: number): void;
 
     /**
      * Draws a circular arc segment with the specified radius that starts tangent to the line between the current point and the specified point ⟨x1, y1⟩
@@ -9237,14 +8932,7 @@ declare module 'd3-path' {
      * @param endAngle End angle of arc segment
      * @param anticlockwise Flag indicating directionality (true = anti-clockwise, false = clockwise)
      */
-    arc(
-      x: number,
-      y: number,
-      radius: number,
-      startAngle: number,
-      endAngle: number,
-      anticlockwise?: boolean,
-    ): void;
+    arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void;
 
     /**
      * Creates a new subpath containing just the four points ⟨x, y⟩, ⟨x + w, y⟩, ⟨x + w, y + h⟩, ⟨x, y + h⟩,
@@ -9309,10 +8997,7 @@ declare module 'd3-polygon' {
    * @param polygon Array of coordinates <x0, y0>, <x1, y1> and so on.
    * @param point Coordinates of point <x, y>.
    */
-  export function polygonContains(
-    polygon: Array<[number, number]>,
-    point: [number, number],
-  ): boolean;
+  export function polygonContains(polygon: Array<[number, number]>, point: [number, number]): boolean;
 
   /**
    * Returns the length of the perimeter of the specified polygon.
@@ -9355,8 +9040,7 @@ declare module 'd3-quadtree' {
    *
    * A child quadrant may be undefined if it is empty.
    */
-  export interface QuadtreeInternalNode<T>
-    extends Array<QuadtreeInternalNode<T> | QuadtreeLeaf<T> | undefined> {
+  export interface QuadtreeInternalNode<T> extends Array<QuadtreeInternalNode<T> | QuadtreeLeaf<T> | undefined> {
     /**
      * The length property may be used to distinguish leaf nodes from internal nodes: it is undefined for leaf nodes, and 4 for internal nodes.
      */
@@ -9527,11 +9211,7 @@ declare module 'd3-quadtree' {
    * Adds the specified array of data to the quadtree.
    * Sets the x- and y- accessors to the specified functions before adding the specified array of data to the quadtree.
    */
-  export function quadtree<T = [number, number]>(
-    data: T[],
-    x: (d: T) => number,
-    y: (d: T) => number,
-  ): Quadtree<T>;
+  export function quadtree<T = [number, number]>(data: T[], x: (d: T) => number, y: (d: T) => number): Quadtree<T>;
 }
 
 declare module 'd3-random' {
@@ -9876,9 +9556,7 @@ declare module 'd3-scale' {
 
   export type NumberValue = number | { valueOf(): number };
 
-  export type UnknownReturnType<Unknown, DefaultUnknown> = [Unknown] extends [never]
-    ? DefaultUnknown
-    : Unknown;
+  export type UnknownReturnType<Unknown, DefaultUnknown> = [Unknown] extends [never] ? DefaultUnknown : Unknown;
 
   /**
    * A helper interface for a continuous scale defined over a numeric domain.
@@ -10056,8 +9734,7 @@ declare module 'd3-scale' {
    * If range element and output element type differ, the interpolator factory used with the scale must match this behavior and
    * convert the interpolated range element to a corresponding output element.
    */
-  export interface ScaleLinear<Range, Output, Unknown = never>
-    extends ScaleContinuousNumeric<Range, Output, Unknown> {
+  export interface ScaleLinear<Range, Output, Unknown = never> extends ScaleContinuousNumeric<Range, Output, Unknown> {
     /**
      * Returns the scale’s current interpolator factory, which defaults to interpolate.
      */
@@ -10090,9 +9767,7 @@ declare module 'd3-scale' {
      *
      * @param interpolate An interpolation factory. The generics for Range and Output of the scale must correspond to the interpolation factory applied to the scale.
      */
-    interpolate<NewOutput>(
-      interpolate: InterpolatorFactory<Range, NewOutput>,
-    ): ScaleLinear<Range, NewOutput, Unknown>;
+    interpolate<NewOutput>(interpolate: InterpolatorFactory<Range, NewOutput>): ScaleLinear<Range, NewOutput, Unknown>;
 
     /**
      * Returns the current unknown value, which defaults to undefined.
@@ -10176,8 +9851,7 @@ declare module 'd3-scale' {
    * If range element and output element type differ, the interpolator factory used with the scale must match this behavior and
    * convert the interpolated range element to a corresponding output element.
    */
-  export interface ScalePower<Range, Output, Unknown = never>
-    extends ScaleContinuousNumeric<Range, Output, Unknown> {
+  export interface ScalePower<Range, Output, Unknown = never> extends ScaleContinuousNumeric<Range, Output, Unknown> {
     /**
      * Returns the scale’s current interpolator factory, which defaults to interpolate.
      */
@@ -10210,9 +9884,7 @@ declare module 'd3-scale' {
      *
      * @param interpolate An interpolation factory. The generics for Range and Output of the scale must correspond to the interpolation factory applied to the scale.
      */
-    interpolate<NewOutput>(
-      interpolate: InterpolatorFactory<Range, NewOutput>,
-    ): ScalePower<Range, NewOutput, Unknown>;
+    interpolate<NewOutput>(interpolate: InterpolatorFactory<Range, NewOutput>): ScalePower<Range, NewOutput, Unknown>;
 
     /**
      * If exponent is not specified, returns the current exponent, which defaults to 1.
@@ -10360,8 +10032,11 @@ declare module 'd3-scale' {
    * If range element and output element type differ, the interpolator factory used with the scale must match this behavior and
    * convert the interpolated range element to a corresponding output element.
    */
-  export interface ScaleLogarithmic<Range, Output, Unknown = never>
-    extends ScaleContinuousNumeric<Range, Output, Unknown> {
+  export interface ScaleLogarithmic<Range, Output, Unknown = never> extends ScaleContinuousNumeric<
+    Range,
+    Output,
+    Unknown
+  > {
     /**
      * Returns a copy of the scale’s current domain.
      */
@@ -10551,8 +10226,7 @@ declare module 'd3-scale' {
    * If range element and output element type differ, the interpolator factory used with the scale must match this behavior and
    * convert the interpolated range element to a corresponding output element.
    */
-  export interface ScaleSymLog<Range, Output, Unknown = never>
-    extends ScaleContinuousNumeric<Range, Output, Unknown> {
+  export interface ScaleSymLog<Range, Output, Unknown = never> extends ScaleContinuousNumeric<Range, Output, Unknown> {
     /**
      * Returns a number format function suitable for displaying a tick value, automatically computing the appropriate precision based on the fixed interval between tick values.
      *
@@ -10773,16 +10447,13 @@ declare module 'd3-scale' {
    * @param range Array of range values.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function scaleIdentity<Unknown = never>(
-    range?: Iterable<NumberValue>,
-  ): ScaleIdentity<Unknown>;
+  export function scaleIdentity<Unknown = never>(range?: Iterable<NumberValue>): ScaleIdentity<Unknown>;
 
   // -------------------------------------------------------------------------------
   // Radial Scale Factory
   // -------------------------------------------------------------------------------
 
-  export interface ScaleRadial<Range, Output, Unknown = never>
-    extends ScaleContinuousNumeric<Range, Output, Unknown> {
+  export interface ScaleRadial<Range, Output, Unknown = never> extends ScaleContinuousNumeric<Range, Output, Unknown> {
     /**
      * Returns the current unknown value, which defaults to undefined.
      */
@@ -10967,9 +10638,7 @@ declare module 'd3-scale' {
      *
      * @param interpolate An interpolation factory. The generics for Range and Output of the scale must correspond to the interpolation factory applied to the scale.
      */
-    interpolate<NewOutput>(
-      interpolate: InterpolatorFactory<Range, NewOutput>,
-    ): ScaleTime<Range, NewOutput, Unknown>;
+    interpolate<NewOutput>(interpolate: InterpolatorFactory<Range, NewOutput>): ScaleTime<Range, NewOutput, Unknown>;
 
     /**
      * Returns representative dates from the scale’s domain. The returned tick values are uniformly-spaced (mostly),
@@ -11241,8 +10910,7 @@ declare module 'd3-scale' {
     copy(): this;
   }
 
-  export interface ScaleSequential<Output, Unknown = never>
-    extends ScaleSequentialBase<Output, Unknown> {
+  export interface ScaleSequential<Output, Unknown = never> extends ScaleSequentialBase<Output, Unknown> {
     /**
      * Returns the current interpolator underlying the scale.
      */
@@ -11260,9 +10928,7 @@ declare module 'd3-scale' {
      *
      * @param interpolator An interpolator function mapping a value from the [0, 1] interval to an output value.
      */
-    interpolator<NewOutput>(
-      interpolator: (t: number) => NewOutput,
-    ): ScaleSequential<NewOutput, Unknown>;
+    interpolator<NewOutput>(interpolator: (t: number) => NewOutput): ScaleSequential<NewOutput, Unknown>;
 
     /**
      * Returns the current unknown value, which defaults to undefined.
@@ -11419,8 +11085,7 @@ declare module 'd3-scale' {
     interpolator: (t: number) => Output,
   ): ScaleSequential<Output, Unknown>;
 
-  export interface ScaleSequentialQuantile<Output, Unknown = never>
-    extends ScaleSequentialBase<Output, Unknown> {
+  export interface ScaleSequentialQuantile<Output, Unknown = never> extends ScaleSequentialBase<Output, Unknown> {
     /**
      * Returns an array of n + 1 quantiles.
      * For example, if n = 4, returns an array of five numbers: the minimum value, the first quartile, the median, the third quartile, and the maximum.
@@ -11444,9 +11109,7 @@ declare module 'd3-scale' {
      *
      * @param interpolator An interpolator function mapping a value from the [0, 1] interval to an output value.
      */
-    interpolator<NewOutput>(
-      interpolator: (t: number) => NewOutput,
-    ): ScaleSequentialQuantile<NewOutput, Unknown>;
+    interpolator<NewOutput>(interpolator: (t: number) => NewOutput): ScaleSequentialQuantile<NewOutput, Unknown>;
 
     /**
      * Returns the current unknown value, which defaults to undefined.
@@ -12084,11 +11747,9 @@ declare module 'd3-scale' {
    * @param range Array of range values.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function scaleThreshold<
-    Domain extends number | string | Date = number,
-    Range = number,
-    Unknown = never,
-  >(range?: Iterable<Range>): ScaleThreshold<Domain, Range, Unknown>;
+  export function scaleThreshold<Domain extends number | string | Date = number, Range = number, Unknown = never>(
+    range?: Iterable<Range>,
+  ): ScaleThreshold<Domain, Range, Unknown>;
   /**
    * Constructs a new threshold scale with the specified domain and range.
    * Thus, the default threshold scale is equivalent to the Math.round function for numbers; for example threshold(0.49) returns 0, and threshold(0.51) returns 1.
@@ -12180,9 +11841,7 @@ declare module 'd3-scale' {
      */
     unknown<NewUnknown>(
       value: NewUnknown,
-    ): NewUnknown extends { name: 'implicit' }
-      ? ScaleOrdinal<Domain, Range>
-      : ScaleOrdinal<Domain, Range, NewUnknown>;
+    ): NewUnknown extends { name: 'implicit' } ? ScaleOrdinal<Domain, Range> : ScaleOrdinal<Domain, Range, NewUnknown>;
 
     /**
      * Returns an exact copy of this ordinal scale. Changes to this scale will not affect the returned scale, and vice versa.
@@ -13174,10 +12833,7 @@ declare module 'd3-selection' {
     on(type: string, listener: null): TransitionLike<GElement, Datum>;
     on(type: string, listener: ValueFn<GElement, Datum, void>): TransitionLike<GElement, Datum>;
     tween(name: string, tweenFn: null): TransitionLike<GElement, Datum>;
-    tween(
-      name: string,
-      tweenFn: ValueFn<GElement, Datum, (t: number) => void>,
-    ): TransitionLike<GElement, Datum>;
+    tween(name: string, tweenFn: ValueFn<GElement, Datum, (t: number) => void>): TransitionLike<GElement, Datum>;
   }
 
   // --------------------------------------------------------------------------
@@ -13268,17 +12924,13 @@ declare module 'd3-selection' {
      * @param selector CSS selector string
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    select<DescElement extends BaseType>(
-      selector: string,
-    ): Selection<DescElement, Datum, PElement, PDatum>;
+    select<DescElement extends BaseType>(selector: string): Selection<DescElement, Datum, PElement, PDatum>;
     /**
      * Create an empty sub-selection. Selection.select does not affect grouping: it preserves the existing group
      * structure and indexes.
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    select<DescElement extends BaseType>(
-      selector: null,
-    ): Selection<null, undefined, PElement, PDatum>;
+    select<DescElement extends BaseType>(selector: null): Selection<null, undefined, PElement, PDatum>;
     /**
      * For each selected element, select the descendant element returned by the selector function.
      * If no element is returned by the selector function for the current element, the element at the
@@ -13337,11 +12989,7 @@ declare module 'd3-selection' {
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
     selectAll<DescElement extends BaseType, OldDatum>(
-      selector: ValueFn<
-        GElement,
-        Datum,
-        DescElement[] | ArrayLike<DescElement> | Iterable<DescElement>
-      >,
+      selector: ValueFn<GElement, Datum, DescElement[] | ArrayLike<DescElement> | Iterable<DescElement>>,
     ): Selection<DescElement, OldDatum, GElement, Datum>;
 
     /**
@@ -13367,9 +13015,7 @@ declare module 'd3-selection' {
      * @param selector A CSS selector string to match when filtering.
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    filter<FilteredElement extends BaseType>(
-      selector: string,
-    ): Selection<FilteredElement, Datum, PElement, PDatum>;
+    filter<FilteredElement extends BaseType>(selector: string): Selection<FilteredElement, Datum, PElement, PDatum>;
     /**
      * Filter the selection, returning a new selection that contains only the elements for
      * which the specified filter is true.
@@ -13381,9 +13027,7 @@ declare module 'd3-selection' {
      * the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). This function should return true
      * for an element to be included, and false otherwise.
      */
-    filter(
-      selector: ValueFn<GElement, Datum, boolean>,
-    ): Selection<GElement, Datum, PElement, PDatum>;
+    filter(selector: ValueFn<GElement, Datum, boolean>): Selection<GElement, Datum, PElement, PDatum>;
     /**
      * Filter the selection, returning a new selection that contains only the elements for
      * which the specified filter is true.
@@ -13430,9 +13074,7 @@ declare module 'd3-selection' {
      * @param selector CSS selector string
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    selectChild<DescElement extends BaseType>(
-      selector?: string,
-    ): Selection<DescElement, Datum, PElement, PDatum>;
+    selectChild<DescElement extends BaseType>(selector?: string): Selection<DescElement, Datum, PElement, PDatum>;
     /**
      * Returns a new selection with the (first) child of each element of the current selection matching the selector.
      *
@@ -13505,11 +13147,7 @@ declare module 'd3-selection' {
         | number
         | boolean
         | ReadonlyArray<string | number>
-        | ValueFn<
-            GElement,
-            Datum,
-            null | string | number | boolean | ReadonlyArray<string | number>
-          >,
+        | ValueFn<GElement, Datum, null | string | number | boolean | ReadonlyArray<string | number>>,
     ): this;
 
     /**
@@ -13639,14 +13277,7 @@ declare module 'd3-selection' {
      * The function’s return value is then used to set each element’s text content.
      * A null value will clear the content.
      */
-    text(
-      value:
-        | null
-        | string
-        | number
-        | boolean
-        | ValueFn<GElement, Datum, string | number | boolean | null>,
-    ): this;
+    text(value: null | string | number | boolean | ValueFn<GElement, Datum, string | number | boolean | null>): this;
 
     /**
      * Returns a string representation of the inner HTML for the first (non-null) element in the selection.
@@ -13675,9 +13306,7 @@ declare module 'd3-selection' {
      *
      * @param type A string representing the tag name.
      */
-    append<K extends keyof ElementTagNameMap>(
-      type: K,
-    ): Selection<ElementTagNameMap[K], Datum, PElement, PDatum>;
+    append<K extends keyof ElementTagNameMap>(type: K): Selection<ElementTagNameMap[K], Datum, PElement, PDatum>;
     /**
      * Appends a new element of this type (tag name) as the last child of each selected element,
      * or before the next following sibling in the update selection if this is an enter selection.
@@ -13696,9 +13325,7 @@ declare module 'd3-selection' {
      * (for example, svg implies svg:svg)
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    append<ChildElement extends BaseType>(
-      type: string,
-    ): Selection<ChildElement, Datum, PElement, PDatum>;
+    append<ChildElement extends BaseType>(type: string): Selection<ChildElement, Datum, PElement, PDatum>;
     /**
      * Appends a new element of the type provided by the element creator function as the last child of each selected element,
      * or before the next following sibling in the update selection if this is an enter selection.
@@ -13855,10 +13482,7 @@ declare module 'd3-selection' {
      * the duplicate elements are put into the exit selection; if multiple data have the same key, the duplicate data are put into the enter selection.
      */
     data<NewDatum>(
-      data:
-        | NewDatum[]
-        | Iterable<NewDatum>
-        | ValueFn<PElement, PDatum, NewDatum[] | Iterable<NewDatum>>,
+      data: NewDatum[] | Iterable<NewDatum> | ValueFn<PElement, PDatum, NewDatum[] | Iterable<NewDatum>>,
       key?: ValueFn<GElement | PElement, Datum | NewDatum, KeyType>,
     ): Selection<GElement, NewDatum, PElement, PDatum>;
 
@@ -13873,10 +13497,7 @@ declare module 'd3-selection' {
       enter: K,
       update?: (
         elem: Selection<GElement, Datum, PElement, PDatum>,
-      ) =>
-        | Selection<GElement, Datum, PElement, PDatum>
-        | TransitionLike<GElement, Datum>
-        | undefined,
+      ) => Selection<GElement, Datum, PElement, PDatum> | TransitionLike<GElement, Datum> | undefined,
       exit?: (elem: Selection<GElement, OldDatum, PElement, PDatum>) => void,
     ): Selection<GElement | ElementTagNameMap[K], Datum, PElement, PDatum>;
     /**
@@ -13894,10 +13515,7 @@ declare module 'd3-selection' {
           ) => Selection<ChildElement, Datum, PElement, PDatum> | TransitionLike<GElement, Datum>),
       update?: (
         elem: Selection<GElement, Datum, PElement, PDatum>,
-      ) =>
-        | Selection<GElement, Datum, PElement, PDatum>
-        | TransitionLike<GElement, Datum>
-        | undefined,
+      ) => Selection<GElement, Datum, PElement, PDatum> | TransitionLike<GElement, Datum> | undefined,
       exit?: (elem: Selection<GElement, OldDatum, PElement, PDatum>) => void,
     ): Selection<ChildElement | GElement, Datum, PElement, PDatum>;
 
@@ -13939,9 +13557,7 @@ declare module 'd3-selection' {
      * with this as the current DOM element (nodes[i]). The function is then used to set each element’s new data.
      * A null value will delete the bound data.
      */
-    datum<NewDatum>(
-      value: ValueFn<GElement, Datum, NewDatum>,
-    ): Selection<GElement, NewDatum, PElement, PDatum>;
+    datum<NewDatum>(value: ValueFn<GElement, Datum, NewDatum>): Selection<GElement, NewDatum, PElement, PDatum>;
     /**
      * Sets the element’s bound data to the specified value on all selected elements.
      * Unlike selection.data, this method does not compute a join and does not affect
@@ -13993,11 +13609,7 @@ declare module 'd3-selection' {
      * it is often convenient to transform the event position to the local coordinate system of that element that received the event using d3.pointer.
      * @param options An optional options object may specify characteristics about the event listener, such as wehether it is captures or passive; see element.addEventListener.
      */
-    on(
-      typenames: string,
-      listener: (this: GElement, event: any, d: Datum) => void,
-      options?: any,
-    ): this;
+    on(typenames: string, listener: (this: GElement, event: any, d: Datum) => void, options?: any): this;
 
     /**
      * Dispatches a custom event of the specified type to each selected element, in order.
@@ -14244,9 +13856,7 @@ declare module 'd3-selection' {
    * such as for SVG elements.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function create<NewGElement extends Element>(
-    name: string,
-  ): Selection<NewGElement, undefined, null, undefined>;
+  export function create<NewGElement extends Element>(name: string): Selection<NewGElement, undefined, null, undefined>;
 
   /**
    * Given the specified element name, returns a function which creates an element of the given name,
@@ -14254,9 +13864,7 @@ declare module 'd3-selection' {
    *
    * @param name Tag name of the element to be added.
    */
-  export function creator<K extends keyof ElementTagNameMap>(
-    name: K,
-  ): (this: BaseType) => ElementTagNameMap[K];
+  export function creator<K extends keyof ElementTagNameMap>(name: K): (this: BaseType) => ElementTagNameMap[K];
   /**
    * Given the specified element name, returns a function which creates an element of the given name,
    * assuming that "this" is the parent element.
@@ -14267,9 +13875,7 @@ declare module 'd3-selection' {
    * such as for SVG elements.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function creator<NewGElement extends Element>(
-    name: string,
-  ): (this: BaseType) => NewGElement;
+  export function creator<NewGElement extends Element>(name: string): (this: BaseType) => NewGElement;
 
   /**
    * Given the specified selector, returns a function which returns true if "this" element matches the specified selector.
@@ -14291,9 +13897,7 @@ declare module 'd3-selection' {
    * @param selector A CSS selector string.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function selector<DescElement extends Element>(
-    selector: string,
-  ): (this: BaseType) => DescElement;
+  export function selector<DescElement extends Element>(selector: string): (this: BaseType) => DescElement;
 
   /**
    * Given the specified selector, returns a function which returns all descendants of "this" element that match the specified selector.
@@ -14323,23 +13927,9 @@ declare module 'd3-shape' {
    * Use `CanvasPathMethods` instead with TS <= 3.0 and `CanvasPath` with TS >= 3.1.
    */
   export interface CanvasPath_D3Shape {
-    arc(
-      x: number,
-      y: number,
-      radius: number,
-      startAngle: number,
-      endAngle: number,
-      anticlockwise?: boolean,
-    ): void;
+    arc(x: number, y: number, radius: number, startAngle: number, endAngle: number, anticlockwise?: boolean): void;
     arcTo(x1: number, y1: number, x2: number, y2: number, radius: number): void;
-    bezierCurveTo(
-      cp1x: number,
-      cp1y: number,
-      cp2x: number,
-      cp2y: number,
-      x: number,
-      y: number,
-    ): void;
+    bezierCurveTo(cp1x: number, cp1y: number, cp2x: number, cp2y: number, x: number, y: number): void;
     closePath(): void;
     ellipse(
       x: number,
@@ -16285,9 +15875,7 @@ declare module 'd3-shape' {
    * The third generic corresponds to the datum type of the source/target node contained in the link object.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function link<This, LinkDatum, NodeDatum>(
-    curve: CurveFactory,
-  ): Link<This, LinkDatum, NodeDatum>;
+  export function link<This, LinkDatum, NodeDatum>(curve: CurveFactory): Link<This, LinkDatum, NodeDatum>;
 
   /**
    * Shorthand for d3.link with d3.curveBumpX; suitable for visualizing links in a tree diagram rooted on the left edge of the display.
@@ -17173,10 +16761,7 @@ declare module 'd3-time' {
    * @param offset An offset function which takes a date and an integer step as arguments and advances
    * the specified date by the specified number of boundaries; the step may be positive, negative or zero.
    */
-  export function timeInterval(
-    floor: (date: Date) => void,
-    offset: (date: Date, step: number) => void,
-  ): TimeInterval;
+  export function timeInterval(floor: (date: Date) => void, offset: (date: Date, step: number) => void): TimeInterval;
   /**
    * Constructs a new custom interval given the specified floor, offset and count functions.
    *
@@ -17737,37 +17322,11 @@ declare module 'd3-time-format' {
     /**
      * The full names of the months (starting with January).
      */
-    months: [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-    ];
+    months: [string, string, string, string, string, string, string, string, string, string, string, string];
     /**
      * the abbreviated names of the months (starting with January).
      */
-    shortMonths: [
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-      string,
-    ];
+    shortMonths: [string, string, string, string, string, string, string, string, string, string, string, string];
   }
 
   /**
@@ -17989,11 +17548,7 @@ declare module 'd3-timer' {
    * @param delay An optional numeric delay in milliseconds (default = 0) relative to time.
    * @param time An optional time in milliseconds relative to which the delay is calculated (default = now).
    */
-  export function timeout(
-    callback: (elapsed: number) => void,
-    delay?: number,
-    time?: number,
-  ): Timer;
+  export function timeout(callback: (elapsed: number) => void, delay?: number, time?: number): Timer;
 
   /**
    * Schedules and returns a new timer, invoking the specified callback repeatedly every 'delay' milliseconds
@@ -18006,11 +17561,7 @@ declare module 'd3-timer' {
    * If not specified, the interval timer behaves like the regular timer.
    * @param time An optional time in milliseconds relative to which the initial delay is calculated (default = now).
    */
-  export function interval(
-    callback: (elapsed: number) => void,
-    delay?: number,
-    time?: number,
-  ): Timer;
+  export function interval(callback: (elapsed: number) => void, delay?: number, time?: number): Timer;
 }
 
 declare module 'd3-transition' {
@@ -18063,9 +17614,7 @@ declare module 'd3-transition' {
        *
        * @param transition A transition instance.
        */
-      transition(
-        transition: Transition<BaseType, any, any, any>,
-      ): Transition<GElement, Datum, PElement, PDatum>;
+      transition(transition: Transition<BaseType, any, any, any>): Transition<GElement, Datum, PElement, PDatum>;
     }
   }
 
@@ -18118,9 +17667,7 @@ declare module 'd3-transition' {
      * @param selector CSS selector string
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    select<DescElement extends BaseType>(
-      selector: string,
-    ): Transition<DescElement, Datum, PElement, PDatum>;
+    select<DescElement extends BaseType>(selector: string): Transition<DescElement, Datum, PElement, PDatum>;
     /**
      * For each selected element, select the descendant element returned by the selector function, if any,
      * and returns a transition on the resulting selection. The new transition has the same id, name and timing as this transition;
@@ -18245,9 +17792,7 @@ declare module 'd3-transition' {
      *
      * @param name Name of attribute.
      */
-    attrTween(
-      name: string,
-    ): ValueFn<GElement, Datum, (this: GElement, t: number) => string> | undefined;
+    attrTween(name: string): ValueFn<GElement, Datum, (this: GElement, t: number) => string> | undefined;
     /**
      * Remove the previously-assigned attribute tween of the specified name, if any.
      *
@@ -18267,10 +17812,7 @@ declare module 'd3-transition' {
      * the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The interpolator factory returns a string interpolator,
      * which takes as its argument eased time t, typically in the range [0, 1] and returns the interpolated string.
      */
-    attrTween(
-      name: string,
-      factory: ValueFn<GElement, Datum, (this: GElement, t: number) => string>,
-    ): this;
+    attrTween(name: string, factory: ValueFn<GElement, Datum, (this: GElement, t: number) => string>): this;
 
     /**
      * For each selected element, the style with the specified name will be cleared at the start of the transition.
@@ -18327,9 +17869,7 @@ declare module 'd3-transition' {
      *
      * @param name Name of style.
      */
-    styleTween(
-      name: string,
-    ): ValueFn<GElement, Datum, (this: GElement, t: number) => string> | undefined;
+    styleTween(name: string): ValueFn<GElement, Datum, (this: GElement, t: number) => string> | undefined;
     /**
      * Remove the previously-assigned style tween of the specified name, if any.
      *
@@ -18432,10 +17972,7 @@ declare module 'd3-transition' {
      * the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The tween function returns a function
      * which takes as its argument eased time t, typically in the range [0, 1] and performs the tweening activities for each transition frame.
      */
-    tween(
-      name: string,
-      tweenFn: ValueFn<GElement, Datum, (this: GElement, t: number) => void>,
-    ): this;
+    tween(name: string, tweenFn: ValueFn<GElement, Datum, (this: GElement, t: number) => void>): this;
 
     /**
      * Returns a new transition merging this transition with the specified other transition,
@@ -18445,9 +17982,7 @@ declare module 'd3-transition' {
      *
      * @param other The transition to be merged.
      */
-    merge(
-      other: Transition<GElement, Datum, PElement, PDatum>,
-    ): Transition<GElement, Datum, PElement, PDatum>;
+    merge(other: Transition<GElement, Datum, PElement, PDatum>): Transition<GElement, Datum, PElement, PDatum>;
 
     /**
      * For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
@@ -18470,9 +18005,7 @@ declare module 'd3-transition' {
      * @param filter A CSS selector string.
      */
     // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-    filter<FilteredElement extends BaseType>(
-      filter: string,
-    ): Transition<FilteredElement, Datum, PElement, PDatum>;
+    filter<FilteredElement extends BaseType>(filter: string): Transition<FilteredElement, Datum, PElement, PDatum>;
     /**
      * For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
      *
@@ -18483,9 +18016,7 @@ declare module 'd3-transition' {
      * the current index (i), and the current group (nodes), with this as the current DOM element (nodes[i]). The filter function returns a boolean indicating,
      * whether the selected element matches.
      */
-    filter(
-      filter: ValueFn<GElement, Datum, boolean>,
-    ): Transition<GElement, Datum, PElement, PDatum>;
+    filter(filter: ValueFn<GElement, Datum, boolean>): Transition<GElement, Datum, PElement, PDatum>;
     /**
      * For each selected element, selects only the elements that match the specified filter, and returns a transition on the resulting selection.
      *
@@ -18670,12 +18201,9 @@ declare module 'd3-transition' {
    * Represents the union of the Selection and Transition types for any usages that operate on both.
    * Typically used for functions which take in either a selection or transition and set or update attributes.
    */
-  export type SelectionOrTransition<
-    GElement extends BaseType,
-    Datum,
-    PElement extends BaseType,
-    PDatum,
-  > = Selection<GElement, Datum, PElement, PDatum> | Transition<GElement, Datum, PElement, PDatum>;
+  export type SelectionOrTransition<GElement extends BaseType, Datum, PElement extends BaseType, PDatum> =
+    | Selection<GElement, Datum, PElement, PDatum>
+    | Transition<GElement, Datum, PElement, PDatum>;
 
   /**
    * Returns a new transition with the specified name. If a name is not specified, null is used.
@@ -18686,9 +18214,7 @@ declare module 'd3-transition' {
    * @param name Name of the transition.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function transition<OldDatum>(
-    name?: string,
-  ): Transition<BaseType, OldDatum, null, undefined>;
+  export function transition<OldDatum>(name?: string): Transition<BaseType, OldDatum, null, undefined>;
 
   /**
    * Returns a new transition from an existing transition.
@@ -18746,8 +18272,7 @@ declare module 'd3-zoom' {
    * The first generic refers to the type of reference element to which the zoom behavior is attached.
    * The second generic refers to the type of the datum of the reference element.
    */
-  export interface ZoomBehavior<ZoomRefElement extends ZoomedElementBaseType, Datum>
-    extends Function {
+  export interface ZoomBehavior<ZoomRefElement extends ZoomedElementBaseType, Datum> extends Function {
     /**
      * Applies this zoom behavior to the specified selection, binding the necessary event listeners to
      * allow panning and zooming, and initializing the zoom transform on each selected element to the identity transform if not already defined. This function is typically not invoked directly,
@@ -18983,9 +18508,7 @@ declare module 'd3-zoom' {
      * @param extent An extent accessor function which is evaluated for each selected element, being passed the current datum d, with the this context as the current DOM element.
      * The function returns the extent array.
      */
-    extent(
-      extent: (this: ZoomRefElement, datum: Datum) => [[number, number], [number, number]],
-    ): this;
+    extent(extent: (this: ZoomRefElement, datum: Datum) => [[number, number], [number, number]]): this;
 
     /**
      * Return the current scale extent.
@@ -19130,10 +18653,7 @@ declare module 'd3-zoom' {
    * The second generic refers to the type of the datum of the reference element.
    */
   // eslint-disable-next-line @definitelytyped/no-unnecessary-generics
-  export function zoom<ZoomRefElement extends ZoomedElementBaseType, Datum>(): ZoomBehavior<
-    ZoomRefElement,
-    Datum
-  >;
+  export function zoom<ZoomRefElement extends ZoomedElementBaseType, Datum>(): ZoomBehavior<ZoomRefElement, Datum>;
 
   // --------------------------------------------------------------------------
   // Zoom Event

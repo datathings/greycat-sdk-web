@@ -52,9 +52,9 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `series[].type` | Mix different types (`'line'`, `'bar'`, `'scatter'`) in the same chart |
-| `series[].yAxisIndex` | Assign series to different y-axes |
-| `series[].areaStyle: { opacity: 0.3 }` | Area fill with custom opacity |
-| `series[].color` | Supports `rgba()` for semi-transparent colors |
+| Option                                 | Description                                                            |
+| -------------------------------------- | ---------------------------------------------------------------------- |
+| `series[].type`                        | Mix different types (`'line'`, `'bar'`, `'scatter'`) in the same chart |
+| `series[].yAxisIndex`                  | Assign series to different y-axes                                      |
+| `series[].areaStyle: { opacity: 0.3 }` | Area fill with custom opacity                                          |
+| `series[].color`                       | Supports `rgba()` for semi-transparent colors                          |

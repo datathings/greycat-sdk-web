@@ -164,12 +164,7 @@ export class GuiFactory extends GuiElement {
     return createElement(this.objectTag, props) as Node;
   }
 
-  createAttrObject(
-    type: gc.sdk.AbiType,
-    attrName: string,
-    attrType: gc.sdk.AbiType,
-    props: Props = {},
-  ): Node {
+  createAttrObject(type: gc.sdk.AbiType, attrName: string, attrType: gc.sdk.AbiType, props: Props = {}): Node {
     let tagName = this.get(`${type.name}::${attrName}`);
     if (tagName === undefined) {
       tagName = this.get(attrType.name);
@@ -306,15 +301,10 @@ export class GuiFactory extends GuiElement {
    *
    * Returns the auto-generated tag name.
    */
-  static defineFromClass(
-    klass: CustomElementConstructor,
-    prefix = 'gui-custom',
-  ): keyof HTMLElementTagNameMap {
+  static defineFromClass(klass: CustomElementConstructor, prefix = 'gui-custom'): keyof HTMLElementTagNameMap {
     prefix = prefix
       .toLowerCase()
-      .replace(TAG_NAME_REGEX, (_, offset) =>
-        offset === 0 || offset == prefix.length - 1 ? '' : '-',
-      );
+      .replace(TAG_NAME_REGEX, (_, offset) => (offset === 0 || offset == prefix.length - 1 ? '' : '-'));
     const tagName = `${prefix}-${Date.now()}`;
     if (!customElements.get(tagName)) {
       customElements.define(tagName, klass);
@@ -371,9 +361,7 @@ export class GuiInputFactory extends GuiElement {
   setClass(name: string, klass: GuiInputElementElementConstructor): void {
     const tagName = name
       .toLowerCase()
-      .replace(TAG_NAME_REGEX, (_, offset) =>
-        offset === 0 || offset == name.length - 1 ? '' : '-',
-      );
+      .replace(TAG_NAME_REGEX, (_, offset) => (offset === 0 || offset == name.length - 1 ? '' : '-'));
     customElements.define(tagName, klass);
     this.mappings[name] = tagName as keyof InputElementTagNameMap;
   }

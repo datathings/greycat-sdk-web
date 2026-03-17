@@ -11,9 +11,7 @@ if (!periodicTaskType) {
 let pTask: gc.runtime.PeriodicTask | null = null;
 const periodicTaskInput = (
   <gui-input-object
-    value={
-      new gc.runtime.PeriodicTask(null, 0, null, gc.core.time.now(), gc.core.duration.from_mins(1))
-    }
+    value={new gc.runtime.PeriodicTask(null, 0, null, gc.core.time.now(), gc.core.duration.from_mins(1))}
     ongui-change={(ev) => {
       pTask = ev.detail;
       console.log('onchange', ev.detail);
@@ -50,11 +48,7 @@ document.body.appendChild(
       <article>
         <header style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
           Periodic Task List
-          <a
-            href="#"
-            onclick={() => periodicTaskList.reloadTasks()}
-            style={{ fontWeight: 'normal' }}
-          >
+          <a href="#" onclick={() => periodicTaskList.reloadTasks()} style={{ fontWeight: 'normal' }}>
             Reload
           </a>
         </header>

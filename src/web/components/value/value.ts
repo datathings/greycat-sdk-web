@@ -2,12 +2,7 @@ import { GuiElement, css } from '../../exports.js';
 import { stringify } from './utils.js';
 import style from './value.css?inline';
 
-export type ClickHandler<T = unknown> = (
-  e: MouseEvent,
-  value: T,
-  text: string,
-  data?: unknown,
-) => void;
+export type ClickHandler<T = unknown> = (e: MouseEvent, value: T, text: string, data?: unknown) => void;
 
 const NOOP = () => void 0;
 export interface GuiValueProps {

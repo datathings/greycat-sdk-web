@@ -1,6 +1,7 @@
 # `<gui-object />`
 
 ## Usage
+
 This component can display any complex object instance using a "key-value" representation.
 
 It will, by default, collapse any nested properties (eg. arrays, objects) in a collapsible `<details />`
@@ -11,22 +12,29 @@ and only load the nested content when requested.
 > If the given `value` is a `core::Table`, this component will actually use `<gui-table />` for the display.
 
 ## Simple example
+
 ::: code-group
+
 ```tsx [TSX]
 <gui-object value="Hello world!" />
 ```
+
 ```ts [Vanilla]
 const object = document.createElement('gui-object');
 object.value = 'Hello world!';
 ```
+
 :::
 
 ## Complex example
+
 ::: code-group
+
 ```tsx [view.tsx]
 const result = await gc.call('project::complex_object');
-<gui-object value={result} />
+<gui-object value={result} />;
 ```
+
 ```gcl [project.gcl]
 type ComplexObject {
   string: String;
@@ -97,6 +105,7 @@ fn complex_object() {
   };
 }
 ```
+
 :::
 
 The resulting view will look like:

@@ -129,8 +129,8 @@ export class GuiUserForm extends GuiElement {
 
   get user_groups() {
     if (Array.isArray(this._groups.value)) {
-      return this._groups.value.map((id) =>
-        new gc.runtime.UserGroupPolicy(+id, gc.runtime.UserGroupPolicyType.execute),
+      return this._groups.value.map(
+        (id) => new gc.runtime.UserGroupPolicy(+id, gc.runtime.UserGroupPolicyType.execute),
       );
     }
     return null;

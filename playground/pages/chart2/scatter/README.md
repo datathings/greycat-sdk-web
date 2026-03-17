@@ -25,9 +25,7 @@ document.body.appendChild(
       xCol: 0,
       xAxis: { type: 'value', name: 'X' },
       yAxis: [{ name: 'Y' }],
-      series: [
-        { type: 'scatter', yCol: 1, title: 'Points', symbolSize: 6 },
-      ],
+      series: [{ type: 'scatter', yCol: 1, title: 'Points', symbolSize: 6 }],
       tooltip: { enabled: true, trigger: 'item' },
       legend: { enabled: true },
       dataZoom: { enabled: true, type: 'inside' },
@@ -38,8 +36,8 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `series[].symbolSize` | Size of each scatter point in pixels |
-| `tooltip.trigger: 'item'` | Show tooltip on individual point hover (instead of axis-wide) |
-| `xAxis.name` / `yAxis[].name` | Axis title labels |
+| Option                        | Description                                                   |
+| ----------------------------- | ------------------------------------------------------------- |
+| `series[].symbolSize`         | Size of each scatter point in pixels                          |
+| `tooltip.trigger: 'item'`     | Show tooltip on individual point hover (instead of axis-wide) |
+| `xAxis.name` / `yAxis[].name` | Axis title labels                                             |

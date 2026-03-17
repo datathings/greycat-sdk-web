@@ -81,9 +81,7 @@ export function createFormatter(
       } else if (format === undefined) {
         const [from, to] = scale.range();
         const span = Math.abs(+scale.invert(to) - +scale.invert(from));
-        const smartFormat = isCursor
-          ? smartTimeCursorFormatSpecifier(span)
-          : smartTimeFormatSpecifier(span);
+        const smartFormat = isCursor ? smartTimeCursorFormatSpecifier(span) : smartTimeFormatSpecifier(span);
         return (d: number) => gc.$.default.printTime(gc.core.time.fromMs(d), timezone, smartFormat);
       }
       const [from, to] = scale.range();
@@ -230,9 +228,7 @@ function isPotentiallyChartable(value: unknown): boolean {
   );
 }
 
-export function tableGetColumnIndex(
-  col: number | gc.$Fields | (number | gc.$Fields)[],
-): number | undefined {
+export function tableGetColumnIndex(col: number | gc.$Fields | (number | gc.$Fields)[]): number | undefined {
   if (typeof col === 'number') {
     return col;
   }

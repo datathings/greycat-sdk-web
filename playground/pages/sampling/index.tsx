@@ -7,12 +7,7 @@ const simple_index = (await greycat.root())['project::simple_index'] as gc.core.
 
 const sampling_form = document.createElement('gui-input-fn');
 sampling_form.inline = true;
-sampling_form.value = new gc.core.nodeIndex$sample$args(
-  [simple_index],
-  null,
-  2000,
-  gc.core.SamplingMode.dense,
-);
+sampling_form.value = new gc.core.nodeIndex$sample$args([simple_index], null, 2000, gc.core.SamplingMode.dense);
 sampling_form.addEventListener('gui-change', fetch_and_update_table);
 
 const table = document.createElement('gui-table');

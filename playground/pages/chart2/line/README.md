@@ -56,13 +56,13 @@ chart.addEventListener('gui-chart2-click', (e) => {
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `xAxis.type: 'time'` | Time-based x-axis with smart label formatting |
-| `series[].smooth: true` | Enable smooth curve interpolation |
-| `series[].areaStyle: { opacity }` | Fill area below the line with custom opacity |
-| `series[].lineWidth` | Line thickness in pixels |
-| `dataZoom.type: 'inside'` | Mouse wheel zoom (no visible slider) |
+| Option                            | Description                                   |
+| --------------------------------- | --------------------------------------------- |
+| `xAxis.type: 'time'`              | Time-based x-axis with smart label formatting |
+| `series[].smooth: true`           | Enable smooth curve interpolation             |
+| `series[].areaStyle: { opacity }` | Fill area below the line with custom opacity  |
+| `series[].lineWidth`              | Line thickness in pixels                      |
+| `dataZoom.type: 'inside'`         | Mouse wheel zoom (no visible slider)          |
 
 ## Events
 
@@ -70,37 +70,37 @@ chart.addEventListener('gui-chart2-click', (e) => {
 
 Fired when a data point is clicked.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `componentType` | `string` | Typically `'series'` |
-| `seriesType` | `string?` | `'line'`, `'bar'`, `'scatter'`, `'pie'`, etc. |
-| `seriesIndex` | `number?` | 0-based series index |
-| `seriesName` | `string?` | Series name (from `serie.title`) |
-| `name` | `string` | Category name or x-axis label |
-| `dataIndex` | `number` | 0-based row index |
-| `value` | `unknown` | Data value (shape depends on series type, see below) |
-| `color` | `string?` | Series color |
-| `percent` | `number?` | Pie chart only: percentage of total |
+| Field           | Type      | Description                                          |
+| --------------- | --------- | ---------------------------------------------------- |
+| `componentType` | `string`  | Typically `'series'`                                 |
+| `seriesType`    | `string?` | `'line'`, `'bar'`, `'scatter'`, `'pie'`, etc.        |
+| `seriesIndex`   | `number?` | 0-based series index                                 |
+| `seriesName`    | `string?` | Series name (from `serie.title`)                     |
+| `name`          | `string`  | Category name or x-axis label                        |
+| `dataIndex`     | `number`  | 0-based row index                                    |
+| `value`         | `unknown` | Data value (shape depends on series type, see below) |
+| `color`         | `string?` | Series color                                         |
+| `percent`       | `number?` | Pie chart only: percentage of total                  |
 
 **`value` shape by series type:**
 
-| Series type | `value` shape |
-|-------------|---------------|
-| line / bar / scatter | `[x, y]` |
-| pie | `number` (slice value) |
-| candlestick | `[timestamp, open, close, low, high]` |
-| heatmap | `[x, y, value]` |
-| boxplot | `[min, Q1, median, Q3, max]` |
+| Series type          | `value` shape                         |
+| -------------------- | ------------------------------------- |
+| line / bar / scatter | `[x, y]`                              |
+| pie                  | `number` (slice value)                |
+| candlestick          | `[timestamp, open, close, low, high]` |
+| heatmap              | `[x, y, value]`                       |
+| boxplot              | `[min, Q1, median, Q3, max]`          |
 
 ### `gui-chart2-selection` — `Chart2SelectionDetail`
 
 Fired on data zoom changes.
 
-| Field | Type | Description |
-|-------|------|-------------|
-| `type` | `string` | `'datazoom'` |
-| `start` | `number?` | Zoom range start (0–100%) |
-| `end` | `number?` | Zoom range end (0–100%) |
-| `startValue` | `number?` | Zoom range start as data value |
-| `endValue` | `number?` | Zoom range end as data value |
-| `batch` | `array?` | Batch items when multiple dataZooms are linked |
+| Field        | Type      | Description                                    |
+| ------------ | --------- | ---------------------------------------------- |
+| `type`       | `string`  | `'datazoom'`                                   |
+| `start`      | `number?` | Zoom range start (0–100%)                      |
+| `end`        | `number?` | Zoom range end (0–100%)                        |
+| `startValue` | `number?` | Zoom range start as data value                 |
+| `endValue`   | `number?` | Zoom range end as data value                   |
+| `batch`      | `array?`  | Batch items when multiple dataZooms are linked |

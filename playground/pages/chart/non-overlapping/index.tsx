@@ -22,42 +22,22 @@ const config = inferConfig(table);
 
 console.log({ table, config });
 
-console.log('adaptative', await gc.core.nodeTime.sample(
-  [n1, n2, n3],
-  null,
-  null,
-  1000,
-  gc.core.SamplingMode.adaptative,
-  null,
-  null,
-));
-console.log('dense', await gc.core.nodeTime.sample(
-  [n1, n2, n3],
-  null,
-  null,
-  1000,
-  gc.core.SamplingMode.dense,
-  null,
-  null,
-));
-console.log('fixed', await gc.core.nodeTime.sample(
-  [n1, n2, n3],
-  null,
-  null,
-  1000,
-  gc.core.SamplingMode.fixed,
-  null,
-  null,
-));
-console.log('fixed_reg', await gc.core.nodeTime.sample(
-  [n1, n2, n3],
-  null,
-  null,
-  1000,
-  gc.core.SamplingMode.fixed_reg,
-  null,
-  null,
-));
+console.log(
+  'adaptative',
+  await gc.core.nodeTime.sample([n1, n2, n3], null, null, 1000, gc.core.SamplingMode.adaptative, null, null),
+);
+console.log(
+  'dense',
+  await gc.core.nodeTime.sample([n1, n2, n3], null, null, 1000, gc.core.SamplingMode.dense, null, null),
+);
+console.log(
+  'fixed',
+  await gc.core.nodeTime.sample([n1, n2, n3], null, null, 1000, gc.core.SamplingMode.fixed, null, null),
+);
+console.log(
+  'fixed_reg',
+  await gc.core.nodeTime.sample([n1, n2, n3], null, null, 1000, gc.core.SamplingMode.fixed_reg, null, null),
+);
 
 document.body.appendChild(
   <app-layout title="Chart (non overlapping)" mainStyle={{ display: 'grid' }}>

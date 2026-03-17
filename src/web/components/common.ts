@@ -21,10 +21,7 @@ export function css(text: string): CSSStyleSheet {
 }
 
 export function attr() {
-  return function attrDecorator<T, E extends GuiValueElement<T>, K extends keyof E>(
-    target: E,
-    propertyKey: K,
-  ): void {
+  return function attrDecorator<T, E extends GuiValueElement<T>, K extends keyof E>(target: E, propertyKey: K): void {
     // create a unique property for each instance to store the value
     const privateKey = `__${String(propertyKey)}`;
 
@@ -151,14 +148,14 @@ export type HTMLElementConstructor<K extends keyof HTMLElementTagNameMap> = new 
  *
  * *This method strictly types the `constructor` relative to the `tagName` to prevent
  * developper from forgetting to declare there element in `HTMLElementTagNameMap`.*
- * 
+ *
  * Make sure to define your web component when using TypeScript with something like:
  * ```ts
  * declare global {
  *   interface HTMLElementTagNameMap {
  *     'my-comp': MyComp;
  *   }
- * 
+ *
  *   namespace GreyCat {
  *     namespace JSX {
  *       interface IntrinsicElements {

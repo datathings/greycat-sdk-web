@@ -1,13 +1,4 @@
-import {
-  toast,
-  type GuiTable,
-  GuiClickEvent,
-  sl,
-  modal,
-  css,
-  GuiElement,
-  CellValueData,
-} from '../../../exports.js';
+import { toast, type GuiTable, GuiClickEvent, sl, modal, css, GuiElement, CellValueData } from '../../../exports.js';
 import style from './tasks.css?inline';
 
 export class GuiTasks extends GuiElement {
@@ -82,8 +73,7 @@ export class GuiTasks extends GuiElement {
         {
           index: gc.runtime.Task.$fields.progress,
           header: 'Progress',
-          value: ({ row }) =>
-            this._tasks[row].progress ? `${(this._tasks[row].progress * 100).toFixed(1)}%` : '',
+          value: ({ row }) => (this._tasks[row].progress ? `${(this._tasks[row].progress * 100).toFixed(1)}%` : ''),
         },
         {
           index: gc.runtime.Task.$fields.task_id,
@@ -215,9 +205,7 @@ export class GuiTasks extends GuiElement {
       if (this._showDefrags) {
         this._tasks = Array.from(gc.$.default.tasks);
       } else {
-        this._tasks = gc.$.default.tasks.filter(
-          (t) => `${t.mod}::${t.type}::${t.fun}` !== 'runtime::Runtime::defrag',
-        );
+        this._tasks = gc.$.default.tasks.filter((t) => `${t.mod}::${t.type}::${t.fun}` !== 'runtime::Runtime::defrag');
       }
 
       // update table data

@@ -3,11 +3,7 @@ import '~/common';
 
 await gc.sdk.init({ debug: true });
 const r = gc.Table.fromCols([
-  [
-    new Date('2020-01-01T00:00:00'),
-    new Date('2020-01-02T00:00:00'),
-    new Date('2020-01-03T00:00:00'),
-  ],
+  [new Date('2020-01-01T00:00:00'), new Date('2020-01-02T00:00:00'), new Date('2020-01-03T00:00:00')],
   [1, 3, 5],
   [3, 6, 4],
 ]);

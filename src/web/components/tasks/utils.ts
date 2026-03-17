@@ -7,10 +7,7 @@ export enum TaskStatusEnum {
   ended,
 }
 
-export async function parseTaskArgs(
-  g: gc.sdk.GreyCat,
-  t: gc.runtime.Task,
-): Promise<gc.sdk.Value[]> {
+export async function parseTaskArgs(g: gc.sdk.GreyCat, t: gc.runtime.Task): Promise<gc.sdk.Value[]> {
   const params: gc.sdk.Value[] = [];
 
   const filepath = `files/${t.user_id}/tasks/${t.task_id}/arguments.gcb`;

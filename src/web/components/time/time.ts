@@ -99,11 +99,7 @@ export class GuiTime extends GuiElement {
       return;
     }
 
-    this._datetime_display.textContent = gc.$.default.printTime(
-      this._value,
-      this._timezone,
-      this._format,
-    );
+    this._datetime_display.textContent = gc.$.default.printTime(this._value, this._timezone, this._format);
     if (this._textual_tz) {
       this._timezone_display.textContent = this._timezone?.key ?? '';
       if (!this._timezone_display.isConnected) {

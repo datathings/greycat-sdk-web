@@ -44,12 +44,12 @@ Without the helper, you can still pass FQN strings directly in a plain `Chart2Co
 
 ## Column reference formats
 
-| Format | Example | Description |
-|--------|---------|-------------|
-| `number` | `0` | Direct column index |
-| `string` (FQN) | `'project::TimeRecord::time'` | Field fully-qualified name |
-| `(number \| string)[]` | `['project::TimeRecord::value', 'project::Composed::b']` | Path into nested objects |
-| Mixed path | `[1, 'project::SeriesObject::a']` | Column index + nested FQN |
+| Format                 | Example                                                  | Description                |
+| ---------------------- | -------------------------------------------------------- | -------------------------- |
+| `number`               | `0`                                                      | Direct column index        |
+| `string` (FQN)         | `'project::TimeRecord::time'`                            | Field fully-qualified name |
+| `(number \| string)[]` | `['project::TimeRecord::value', 'project::Composed::b']` | Path into nested objects   |
+| Mixed path             | `[1, 'project::SeriesObject::a']`                        | Column index + nested FQN  |
 
 ## Nested object access
 
@@ -57,7 +57,7 @@ When table columns contain GreyCat objects, you can drill into nested fields usi
 
 ```tsx
 // Access field 'b' of a Composed object stored in the 'value' field of TimeRecord
-yCol: ['project::TimeRecord::value', 'project::Composed::b']
+yCol: ['project::TimeRecord::value', 'project::Composed::b'];
 ```
 
 The path is resolved left-to-right: first element selects the table column, subsequent elements navigate into nested `GCObject` fields.

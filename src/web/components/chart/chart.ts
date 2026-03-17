@@ -131,10 +131,12 @@ export class GuiChart extends GuiElement {
     this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
     // svg
-    this._svg = d3
-      .create('svg')
-      .style('background', 'transparent')
-      .style('position', 'absolute') as d3.Selection<SVGSVGElement, unknown, null, undefined>;
+    this._svg = d3.create('svg').style('background', 'transparent').style('position', 'absolute') as d3.Selection<
+      SVGSVGElement,
+      unknown,
+      null,
+      undefined
+    >;
 
     this._xAxisGroup = this._svg.append('g');
 
@@ -346,29 +348,20 @@ export class GuiChart extends GuiElement {
             }
             this.compute();
             this.update();
-          } else if (
-            this._cursor.x < xRange[0] &&
-            this._cursor.y <= yRange[0] &&
-            this._cursor.y >= yRange[1]
-          ) {
+          } else if (this._cursor.x < xRange[0] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
             // left y axes zoom
             for (const [name, scale] of Object.entries(yScales)) {
               const axis = this._config.yAxes[name];
               if ((axis.position === undefined || axis.position === 'left') && axis.ratio !== 0) {
                 const [min, max] = scale.range();
-                const dx =
-                  (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
+                const dx = (Math.abs(max - min) / (axis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
                 axis.min = scale.invert(min + dx);
                 axis.max = scale.invert(max - dx);
               }
             }
             this.compute();
             this.update();
-          } else if (
-            this._cursor.x > xRange[1] &&
-            this._cursor.y <= yRange[0] &&
-            this._cursor.y >= yRange[1]
-          ) {
+          } else if (this._cursor.x > xRange[1] && this._cursor.y <= yRange[0] && this._cursor.y >= yRange[1]) {
             // right y axes zoom
             for (const [name, scale] of Object.entries(yScales)) {
               const axis = this._config.yAxes[name];
@@ -381,17 +374,11 @@ export class GuiChart extends GuiElement {
             }
             this.compute();
             this.update();
-          } else if (
-            this._cursor.y > yRange[0] &&
-            this._cursor.x >= xRange[0] &&
-            this._cursor.x <= xRange[1]
-          ) {
+          } else if (this._cursor.y > yRange[0] && this._cursor.x >= xRange[0] && this._cursor.x <= xRange[1]) {
             if (this._config.xAxis.ratio !== 0) {
               // x axis zoom
               const [min, max] = scale.range();
-              const d =
-                (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) *
-                (event.deltaY > 0 ? 1 : -1);
+              const d = (Math.abs(max - min) / (this._config.xAxis.ratio ?? 100)) * (event.deltaY > 0 ? 1 : -1);
               const from = (this._config.xAxis.min = scale.invert(min - d));
               const to = (this._config.xAxis.max = scale.invert(max + d));
               this.dispatchEvent(new GuiChartSelectionEvent({ from, to }));
@@ -437,7 +424,7 @@ export class GuiChart extends GuiElement {
       animRef.id = requestAnimationFrame(animationCallback);
     };
     animRef.id = requestAnimationFrame(animationCallback);
-    this.addDisposable(() => cancelAnimationFrame(animRef.id))
+    this.addDisposable(() => cancelAnimationFrame(animRef.id));
   }
 
   private _onmouseup = (ev: MouseEvent) => {
@@ -493,12 +480,8 @@ export class GuiChart extends GuiElement {
     }
 
     const container = this._canvas.getBoundingClientRect();
-    this._cursor.x = Math.round(
-      Math.min(container.width, Math.max(0, ev.clientX - container.left)),
-    );
-    this._cursor.y = Math.round(
-      Math.min(container.height, Math.max(0, ev.clientY - container.top)),
-    );
+    this._cursor.x = Math.round(Math.min(container.width, Math.max(0, ev.clientX - container.left)));
+    this._cursor.y = Math.round(Math.min(container.height, Math.max(0, ev.clientY - container.top)));
   };
 
   toggleConfig(): void {
@@ -701,10 +684,7 @@ export class GuiChart extends GuiElement {
       this._cursor.y <= yRange[0];
 
     const updateSelection =
-      this._cursor.x !== -1 &&
-      this._cursor.startX !== -1 &&
-      this._cursor.y !== -1 &&
-      this._cursor.startY !== -1;
+      this._cursor.x !== -1 && this._cursor.startX !== -1 && this._cursor.y !== -1 && this._cursor.startY !== -1;
 
     if (updateUX) {
       if (!this._canvasEntered) {
@@ -842,9 +822,7 @@ export class GuiChart extends GuiElement {
                 break;
             }
             this._uxCtx.text(
-              this._canvas.width -
-                (style.margin.right + rightAxesIdx * style.margin.right) +
-                padding,
+              this._canvas.width - (style.margin.right + rightAxesIdx * style.margin.right) + padding,
               this._cursor.y,
               formatter(+vMap(yScales[yAxisName].invert(this._cursor.y))),
               {
@@ -1037,9 +1015,7 @@ export class GuiChart extends GuiElement {
         let color: string = serie.color;
         if (serie.styleMapping) {
           if (serie.styleMapping.mapping) {
-            const style = serie.styleMapping.mapping(
-              tableGetCell(this._table, serie.styleMapping.col, rowIdx),
-            );
+            const style = serie.styleMapping.mapping(tableGetCell(this._table, serie.styleMapping.col, rowIdx));
             color = style?.color?.toString() ?? color;
           } else {
             const value = tableGetCell(this._table, serie.styleMapping.col, rowIdx);
@@ -1095,15 +1071,11 @@ export class GuiChart extends GuiElement {
           const valueEl = document.createElement('div');
           valueEl.classList.add('tooltip-value');
           valueEl.part.add('tooltip-value', `tooltip-value-${yColIdx}`);
-          if (
-            this._config.tooltip?.position === 'bottom-right' ||
-            this._config.tooltip?.position === 'top-right'
-          ) {
+          if (this._config.tooltip?.position === 'bottom-right' || this._config.tooltip?.position === 'top-right') {
             valueEl.classList.add('right');
           }
           valueEl.style.color = color;
-          valueEl.textContent =
-            serie.value !== undefined ? serie.value.toString() : formatter(yValue);
+          valueEl.textContent = serie.value !== undefined ? serie.value.toString() : formatter(yValue);
           this._tooltip.append(nameEl, valueEl);
 
           if (yValue2 !== undefined && isOrdSerieTableColumn(serie.yCol2)) {
@@ -1136,10 +1108,7 @@ export class GuiChart extends GuiElement {
             const valueEl = document.createElement('div');
             valueEl.classList.add('tooltip-value');
             valueEl.part.add('tooltip-value', `tooltip-value-${y2ColIdx}`);
-            if (
-              this._config.tooltip?.position === 'bottom-right' ||
-              this._config.tooltip?.position === 'top-right'
-            ) {
+            if (this._config.tooltip?.position === 'bottom-right' || this._config.tooltip?.position === 'top-right') {
               valueEl.classList.add('right');
             }
             valueEl.style.color = color;
@@ -1232,10 +1201,7 @@ export class GuiChart extends GuiElement {
         const valueEl = document.createElement('div');
         valueEl.style.color = style['text-0'];
         valueEl.classList.add('tooltip-value');
-        if (
-          this._config.tooltip?.position === 'bottom-right' ||
-          this._config.tooltip?.position === 'top-right'
-        ) {
+        if (this._config.tooltip?.position === 'bottom-right' || this._config.tooltip?.position === 'top-right') {
           valueEl.classList.add('right');
         }
         let fromStr: string;
@@ -1282,9 +1248,7 @@ export class GuiChart extends GuiElement {
     }
   }
 
-  private _selection(
-    orientation: SelectionOptions['orientation'] | undefined = 'horizontal',
-  ): void {
+  private _selection(orientation: SelectionOptions['orientation'] | undefined = 'horizontal'): void {
     if (!this._computed) {
       return;
     }
@@ -1510,21 +1474,11 @@ export class GuiChart extends GuiElement {
     // Top
     this._ctx.ctx.clearRect(0, 0, this._canvas.width, style.margin.top - 1);
     // Bottom
-    this._ctx.ctx.clearRect(
-      0,
-      this._canvas.height - style.margin.bottom + 1,
-      this._canvas.width,
-      style.margin.bottom,
-    );
+    this._ctx.ctx.clearRect(0, this._canvas.height - style.margin.bottom + 1, this._canvas.width, style.margin.bottom);
     // Left
     this._ctx.ctx.clearRect(0, 0, style.margin.left, this._canvas.height);
     // Right
-    this._ctx.ctx.clearRect(
-      this._canvas.width - style.margin.right,
-      0,
-      style.margin.right,
-      this._canvas.height,
-    );
+    this._ctx.ctx.clearRect(this._canvas.width - style.margin.right, 0, style.margin.right, this._canvas.height);
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
@@ -1551,9 +1505,7 @@ export class GuiChart extends GuiElement {
       }
     }
 
-    this._xAxisGroup
-      .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
-      .call(this._xAxis);
+    this._xAxisGroup.attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`).call(this._xAxis);
 
     if (this._config.xAxis.autoTicks) {
       // d3 internal ticks returns approximately count + 1 so overlaps can still happen
@@ -1958,11 +1910,7 @@ export class GuiChart extends GuiElement {
     }
 
     const xAxis = this._config.xAxis;
-    if (
-      xAxis.padding !== undefined &&
-      this._config.xAxis.min === undefined &&
-      this._config.xAxis.max === undefined
-    ) {
+    if (xAxis.padding !== undefined && this._config.xAxis.min === undefined && this._config.xAxis.max === undefined) {
       if (xAxis.scale === 'log') {
         [xMin, xMax] = padLog([xMin, xMax], xAxis.padding);
       } else {

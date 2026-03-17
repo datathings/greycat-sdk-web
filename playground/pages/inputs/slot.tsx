@@ -12,10 +12,7 @@ document.body.appendChild(
         console.log(this.validate(), this.value?.toJSON());
       }}
     >
-      <gui-select
-        slot="b"
-        options={[{ value: 'John', selected: true }, { value: 'Paul' }, { value: 'Maria' }]}
-      />
+      <gui-select slot="b" options={[{ value: 'John', selected: true }, { value: 'Paul' }, { value: 'Maria' }]} />
     </gui-input-object>
   </app-layout>,
 );

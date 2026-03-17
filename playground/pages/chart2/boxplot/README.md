@@ -44,10 +44,10 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
+| Option                  | Description                                                                 |
+| ----------------------- | --------------------------------------------------------------------------- |
 | `series[].echarts.data` | Boxplot data as `[min, Q1, median, Q3, max][]` via the ECharts escape hatch |
-| `xAxis.echarts.data` | Category labels for each box |
+| `xAxis.echarts.data`    | Category labels for each box                                                |
 
 Boxplot uses a semi-transparent fill with solid borders for readability.
 The specific data format `[min, Q1, median, Q3, max]` is ECharts-native and

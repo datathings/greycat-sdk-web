@@ -57,10 +57,10 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `series[].candleCols` | Tuple of 4 column indices: `[open, close, low, high]` |
-| `series[].type: 'candlestick'` | Enables OHLC candlestick rendering |
-| `xAxis.type: 'time'` | Timestamps are prepended automatically to each data point |
+| Option                         | Description                                               |
+| ------------------------------ | --------------------------------------------------------- |
+| `series[].candleCols`          | Tuple of 4 column indices: `[open, close, low, high]`     |
+| `series[].type: 'candlestick'` | Enables OHLC candlestick rendering                        |
+| `xAxis.type: 'time'`           | Timestamps are prepended automatically to each data point |
 
 The `yCol` field is required by the type but is not used for data when `candleCols` is provided.

@@ -23,10 +23,7 @@ export abstract class GuiElement extends HTMLElement {
     super();
 
     this.attachShadow({ mode: 'open' });
-    this.shadowRoot.adoptedStyleSheets = [
-      GuiElement.BASE_STYLE,
-      ...(this.constructor as typeof GuiElement).styles,
-    ];
+    this.shadowRoot.adoptedStyleSheets = [GuiElement.BASE_STYLE, ...(this.constructor as typeof GuiElement).styles];
   }
 
   disconnectedCallback(): void {

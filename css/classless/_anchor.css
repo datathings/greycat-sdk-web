@@ -1,8 +1,10 @@
-a:hover, a:focus {
+a:hover,
+a:focus {
   color: var(--primary-hover);
 }
 
-a, a:visited {
+a,
+a:visited {
   color: var(--primary);
   text-decoration: none;
 }

@@ -28,9 +28,7 @@ export function defineComp<K extends keyof HTMLElementTagNameMap>(
 export type GuiDashboardComponent<K extends keyof HTMLElementTagNameMap> = {
   component: K;
   title?: string;
-  attrs?: Partial<
-    Omit<{ [P in keyof HTMLElementTagNameMap[K]]: HTMLElementTagNameMap[K][P] }, 'children'>
-  >;
+  attrs?: Partial<Omit<{ [P in keyof HTMLElementTagNameMap[K]]: HTMLElementTagNameMap[K][P] }, 'children'>>;
   fetch?: (elem: HTMLElementTagNameMap[K]) => Promise<void>;
 } & Omit<AddPanelOptions, 'id' | 'params'>;
 
