@@ -116,7 +116,7 @@ describe('project', () => {
       dim: 2,
       shape: [2],
       type: 'f64',
-      data: [3.14,0],
+      data: [3.14, 0],
     },
     {
       _type: 'core::GeoCircle',

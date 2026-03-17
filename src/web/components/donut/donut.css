@@ -17,7 +17,7 @@
   border-radius: 50%;
 }
 .pie-info.no-data {
-  color: var(--gui-color-9, "inherit");
+  color: var(--gui-color-9, 'inherit');
 }
 .pie-info .pie-info-percent {
   color: rgba(var(--text-0), 0.3);

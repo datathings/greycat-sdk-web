@@ -1,4 +1,4 @@
-@library("explorer", "7.3.0-dev");
+@library("explorer", "7.7.9-stable");
 
 @include("pages");
 
@@ -1271,6 +1271,70 @@ fn tensor_3_5(): Tensor {
     tensor.add(Array<int> { 1, 4 }, 50.0);
     return tensor;
 }
+
+// pages/logs start
+
+@expose
+fn generate_logs() {
+    var rand = Random {};
+    var modules = ["project::main", "cities::import", "heatmap::init", "system", "auth::validate", "data::sync"];
+    var users = ["admin", "alice", "bob", "charlie", "eve"];
+    var endpoints = ["/api/users", "/api/data", "/api/chart", "/api/export", "/files/upload"];
+    var db_tables = ["sensors", "cities", "klines", "users", "permissions"];
+
+    for (var i = 0; i < 3000; i++) {
+        var kind = rand.uniform(0, 100);
+
+        if (kind < 40) {
+            // info: various operational messages
+            var sub = rand.uniform(0, 6);
+            if (sub == 0) {
+                info("Compiled in ${rand.uniform(5, 200)}ms${rand.uniform(0, 999)}us");
+            } else if (sub == 1) {
+                info("Request ${endpoints[rand.uniform(0, endpoints.size())]} completed in ${rand.uniform(1, 500)}ms (${rand.uniform(100, 50000)} bytes)");
+            } else if (sub == 2) {
+                info("Cache hit ratio: ${rand.uniformf(0.5, 0.99)} for table ${db_tables[rand.uniform(0, db_tables.size())]}");
+            } else if (sub == 3) {
+                info("User ${users[rand.uniform(0, users.size())]} authenticated from 192.168.${rand.uniform(0, 255)}.${rand.uniform(1, 254)}");
+            } else if (sub == 4) {
+                info("Upgraded to version ${rand.uniform(1, 50)} in ${rand.uniform(10, 500)}ms${rand.uniform(0, 999)}us");
+            } else {
+                info("Processed ${rand.uniform(100, 100000)} rows from ${db_tables[rand.uniform(0, db_tables.size())]} in ${rand.uniform(5, 2000)}ms");
+            }
+        } else if (kind < 60) {
+            // warn: performance and threshold warnings
+            var sub = rand.uniform(0, 4);
+            if (sub == 0) {
+                warn("Slow query on ${db_tables[rand.uniform(0, db_tables.size())]}: ${rand.uniform(500, 5000)}ms (threshold: 500ms)");
+            } else if (sub == 1) {
+                warn("Memory usage at ${rand.uniform(75, 95)}% (${rand.uniform(1, 16)}GB / ${rand.uniform(16, 64)}GB)");
+            } else if (sub == 2) {
+                warn("Rate limit approaching for user ${users[rand.uniform(0, users.size())]}: ${rand.uniform(80, 99)}/100 requests");
+            } else {
+                warn("Connection pool exhaustion: ${rand.uniform(90, 100)}% used (${rand.uniform(45, 50)}/50 connections)");
+            }
+        } else if (kind < 80) {
+            // error: failures with structured data
+            var sub = rand.uniform(0, 4);
+            if (sub == 0) {
+                error("Failed to process request ${endpoints[rand.uniform(0, endpoints.size())]}: timeout after ${rand.uniform(5000, 30000)}ms");
+            } else if (sub == 1) {
+                error("Database connection lost to ${db_tables[rand.uniform(0, db_tables.size())]}: retry ${rand.uniform(1, 5)}/5");
+            } else if (sub == 2) {
+                error("Authentication failed for user ${users[rand.uniform(0, users.size())]}: invalid token (expired ${rand.uniform(1, 72)}h ago)");
+            } else {
+                error("Data validation error: expected float, got null in column ${rand.uniform(0, 10)} row ${rand.uniform(0, 10000)}");
+            }
+        } else if (kind < 90) {
+            // perf: performance metrics
+            info("GC pause: ${rand.uniform(1, 50)}ms, heap: ${rand.uniform(100, 2000)}MB, allocated: ${rand.uniform(50, 500)}MB");
+        } else {
+            // trace: detailed debugging
+            info("${modules[rand.uniform(0, modules.size())]} -> step ${rand.uniform(1, 20)}: processing batch ${rand.uniform(0, 1000)} (${rand.uniform(1, 5000)} items)");
+        }
+    }
+}
+// pages/logs end
 
 @expose
 fn getTensor(): Tensor {

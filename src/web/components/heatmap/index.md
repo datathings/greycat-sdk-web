@@ -34,7 +34,7 @@ fn heatmapTable() {
 ```ts
 const heatmap = document.createElement('gui-heatmap');
 
-heatmap.setConfig({ 
+heatmap.setConfig({
   table: heatmapTable(),
   displayValue: true,
   markerColor: 'white',
@@ -44,20 +44,7 @@ heatmap.setConfig({
   },
   xAxis: {
     title: 'Month',
-    labels: [
-      'Jan',
-      'Feb',
-      'Mar',
-      'Apr',
-      'May',
-      'Jun',
-      'Jul',
-      'Aug',
-      'Sep',
-      'Oct',
-      'Nov',
-      'Dec',
-    ],
+    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
     innerPadding: 0.05,
   },
   yAxis: {
@@ -69,12 +56,12 @@ heatmap.setConfig({
     position: 'in-place',
   },
 });
-
 ```
 
 ## Properties for the heatmap
 
 ###Config
+
 ```ts
 export type HeatmapConfig = {
   table: TableLike;
@@ -113,7 +100,7 @@ export type HeatmapAxis = {
    */
   outerPadding?: number;
   hook?: (axis: d3.Axis<string>) => void;
-}
+};
 ```
 
 ### Heatmap color scale

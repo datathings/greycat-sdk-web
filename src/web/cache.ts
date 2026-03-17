@@ -34,9 +34,7 @@ export class IndexedDbCache implements gc.sdk.Cache {
     const req = store.put(data, key);
     req.onsuccess = () => resolve();
     req.onerror = () =>
-      reject(
-        `Failed to write ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`,
-      );
+      reject(`Failed to write ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
     return promise;
   }
 
@@ -48,9 +46,7 @@ export class IndexedDbCache implements gc.sdk.Cache {
     const req = store.get(key);
     req.onsuccess = () => resolve(req.result);
     req.onerror = () =>
-      reject(
-        `Failed to read ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`,
-      );
+      reject(`Failed to read ${this.dbName}:${this.version} at '${IndexedDbCache._STORE_NAME}.${key[0]}'`);
     return promise;
   }
 }

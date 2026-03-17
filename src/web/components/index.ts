@@ -33,3 +33,4 @@ export * from './map/index.js';
 export * from './nav/index.js';
 export * from './time/index.js';
 export * from './tensor/index.js';
+export * from './logs/index.js';

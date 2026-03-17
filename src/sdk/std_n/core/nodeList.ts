@@ -28,11 +28,7 @@ namespace gc {
             g: GreyCat = gc.$.default,
             signal?: AbortSignal,
           ): Promise<core.Table<[number | bigint, T]>> {
-            return g.call(
-              'core::nodeList::sample',
-              [[this], from, to, maxRows, mode, maxDephasing],
-              signal,
-            );
+            return g.call('core::nodeList::sample', [[this], from, to, maxRows, mode, maxDephasing], signal);
           }
 
           override saveHeader(w: AbiWriter): void {

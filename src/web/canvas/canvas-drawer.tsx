@@ -27,12 +27,8 @@ export abstract class CanvasDrawer extends HTMLElement {
 
     this.root = this.attachShadow({ mode: 'open' });
     // "display: none" by default to prevent default style drawing
-    const mainCanvas = (
-      <canvas style={{ display: 'none', position: 'absolute' }} />
-    ) as HTMLCanvasElement;
-    const animCanvas = (
-      <canvas style={{ display: 'none', position: 'absolute' }} />
-    ) as HTMLCanvasElement;
+    const mainCanvas = (<canvas style={{ display: 'none', position: 'absolute' }} />) as HTMLCanvasElement;
+    const animCanvas = (<canvas style={{ display: 'none', position: 'absolute' }} />) as HTMLCanvasElement;
     this.main = new CanvasContext(mainCanvas.getContext('2d')!);
     this.anim = new CanvasContext(animCanvas.getContext('2d')!);
     this.root.appendChild(mainCanvas);

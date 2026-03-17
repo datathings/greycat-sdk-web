@@ -9,12 +9,7 @@ declare namespace gc {
        * @param {number} out_epoch_us_ptr address of the result epoch `i64_t *out_epoch_us`
        * @result `1`=success, `0`=error
        */
-      gc_dtz_time__parse(
-        str_ptr: number,
-        len: number,
-        tz: number,
-        out_epoch_us_ptr: number,
-      ): number;
+      gc_dtz_time__parse(str_ptr: number, len: number, tz: number, out_epoch_us_ptr: number): number;
 
       /**
        * i64_t epoch_us, u32_t tz, const char *format_c_str, char *out, u32_t out_cap
@@ -25,13 +20,7 @@ declare namespace gc {
        * @param {number} out_cap maximum capacity of the print buffer
        * @return {number} the number of bytes written to print buffer
        */
-      gc_dtz_time__print(
-        epoch_us: bigint,
-        tz: number,
-        format_ptr: number,
-        out_ptr: number,
-        out_cap: number,
-      ): number;
+      gc_dtz_time__print(epoch_us: bigint, tz: number, format_ptr: number, out_ptr: number, out_cap: number): number;
     }
   }
 
@@ -62,11 +51,7 @@ declare namespace gc {
        * Note that, by default, the `T` is always unknown. It is just given for convenience if you know for sure
        * what is inside the requested file. But it gives no verifications on the content of the data.
        */
-      getFile<T = unknown>(
-        filepath: `${string}.gcb`,
-        g?: gc.sdk.GreyCat,
-        signal?: AbortSignal,
-      ): Promise<T[]>;
+      getFile<T = unknown>(filepath: `${string}.gcb`, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T[]>;
       /**
        * Downloads a task file.
        *
@@ -78,11 +63,7 @@ declare namespace gc {
        * Note that, by default, the `T` is always unknown. It is just given for convenience if you know for sure
        * what is inside the requested file. But it gives no verifications on the content of the data.
        */
-      getFile<T = unknown>(
-        filepath: string,
-        g?: gc.sdk.GreyCat,
-        signal?: AbortSignal,
-      ): Promise<T | T[]>;
+      getFile<T = unknown>(filepath: string, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T | T[]>;
 
       /**
        * Awaits for the completion of the task and returns the deserialized content of its `result.gcb`.
@@ -101,11 +82,7 @@ declare namespace gc {
        * @param signal
        */
       isRunning(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
-      on(
-        type: 'progress',
-        callback: (p: number | null | undefined) => void,
-        pollEvery?: number,
-      ): void;
+      on(type: 'progress', callback: (p: number | null | undefined) => void, pollEvery?: number): void;
       /**
        * Returns the current progress of the task.
        * @param g
@@ -128,11 +105,7 @@ declare namespace gc {
       /**
        * Resolves this file's children recursively to a maximum depth of `maxDepth` (defaults to `5`)
        */
-      resolve(
-        maxDepth?: number,
-        g?: gc.sdk.GreyCat,
-        signal?: globalThis.AbortSignal,
-      ): Promise<void>;
+      resolve(maxDepth?: number, g?: gc.sdk.GreyCat, signal?: globalThis.AbortSignal): Promise<void>;
 
       /**
        * Downloads the content of this file. This method interprets the extension in order to

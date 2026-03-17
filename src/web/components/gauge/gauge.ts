@@ -23,10 +23,7 @@ export class GuiGauge extends GuiElement {
     this._svg = d3.create('svg');
     this._g = this._svg.append('g');
     this._path = this._g.append('path').attr('stroke-width', 1);
-    this._text = this._g
-      .append('text')
-      .attr('transform', 'translate(0, 5)')
-      .attr('text-anchor', 'middle');
+    this._text = this._g.append('text').attr('transform', 'translate(0, 5)').attr('text-anchor', 'middle');
     this.shadowRoot.replaceChildren(this._svg.node() as SVGSVGElement);
 
     this._resizeObs = new ResizeObserver(() => this.update());
@@ -55,13 +52,7 @@ export class GuiGauge extends GuiElement {
     this.update();
   }
 
-  setAttrs({
-    value = this._value,
-    thickness = this._thickness,
-  }: {
-    value?: number;
-    thickness?: number;
-  }) {
+  setAttrs({ value = this._value, thickness = this._thickness }: { value?: number; thickness?: number }) {
     this._setValue(value);
     this._setThickness(thickness);
     this.update();

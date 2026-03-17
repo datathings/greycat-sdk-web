@@ -81,6 +81,7 @@ import {
   GuiMapMarkers,
   GuiNav,
   GuiTensor,
+  GuiLogs,
 } from './exports.js';
 
 export interface WebOptions {
@@ -242,6 +243,7 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-select', GuiSelect);
   registerCustomElement('gui-nav', GuiNav);
   registerCustomElement('gui-tensor', GuiTensor);
+  registerCustomElement('gui-logs', GuiLogs);
 
   if (options.maplibregl || 'maplibregl' in globalThis) {
     globalThis['maplibregl'] = options.maplibregl ?? globalThis['maplibregl'];
@@ -337,6 +339,7 @@ declare global {
       GuiMapMarkers,
       GuiNav,
       GuiTensor,
+      GuiLogs,
     };
   }
 }

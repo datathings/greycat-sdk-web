@@ -34,8 +34,8 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `xAxis.type: 'category'` | Category labels on x-axis (strings from the table column) |
-| `series[].color` | Override the default palette color for a series |
-| `series[].stack: 'group'` | Stack bars with the same group name |
+| Option                    | Description                                               |
+| ------------------------- | --------------------------------------------------------- |
+| `xAxis.type: 'category'`  | Category labels on x-axis (strings from the table column) |
+| `series[].color`          | Override the default palette color for a series           |
+| `series[].stack: 'group'` | Stack bars with the same group name                       |

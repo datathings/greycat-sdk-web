@@ -130,19 +130,14 @@ namespace gc {
 
           add(duration: gc.core.duration, g: GreyCat = gc.$.default): gc.core.time {
             const sum = BigInt(this.value) + BigInt(duration.value);
-            const boxedSum =
-              sum >= Number.MIN_SAFE_INTEGER && sum <= Number.MAX_SAFE_INTEGER ? Number(sum) : sum;
+            const boxedSum = sum >= Number.MIN_SAFE_INTEGER && sum <= Number.MAX_SAFE_INTEGER ? Number(sum) : sum;
             const ty = g.abi.types[g.abi.core.time];
             return new ty.ctor(boxedSum) as gc.core.time;
           }
 
-          sub(
-            duration: gc.core.duration | gc.core.time,
-            g: GreyCat = gc.$.default,
-          ): gc.core.time | gc.core.duration {
+          sub(duration: gc.core.duration | gc.core.time, g: GreyCat = gc.$.default): gc.core.time | gc.core.duration {
             const sub = BigInt(this.value) - BigInt(duration.value);
-            const boxedSub =
-              sub >= Number.MIN_SAFE_INTEGER && sub <= Number.MAX_SAFE_INTEGER ? Number(sub) : sub;
+            const boxedSub = sub >= Number.MIN_SAFE_INTEGER && sub <= Number.MAX_SAFE_INTEGER ? Number(sub) : sub;
             if (duration.$type.offset === g.abi.core.duration) {
               const ty = g.abi.types[g.abi.core.time];
               return new ty.ctor(boxedSub) as gc.core.time;

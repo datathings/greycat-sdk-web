@@ -88,16 +88,7 @@ const chart = (
 ) as GuiChart;
 
 const nbRows = (
-  <input
-    slot="action"
-    name="nb-rows"
-    id="nb-rows"
-    type="number"
-    min="1"
-    max="10000"
-    value="150"
-    oninput={randomize}
-  />
+  <input slot="action" name="nb-rows" id="nb-rows" type="number" min="1" max="10000" value="150" oninput={randomize} />
 ) as HTMLInputElement;
 
 document.body.appendChild(

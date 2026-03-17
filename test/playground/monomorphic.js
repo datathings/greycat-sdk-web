@@ -25,8 +25,6 @@ const greycat = await gc.sdk.init();
 }
 
 {
-  const res = await greycat.call('project::arr_any', [
-    [42, true, 'hello', gc.core.CalendarUnit.month],
-  ]);
+  const res = await greycat.call('project::arr_any', [[42, true, 'hello', gc.core.CalendarUnit.month]]);
   displayValue(res);
 }

@@ -1,34 +1,34 @@
 declare module 'lit' {
-/**
- * @license
- * Copyright 2019 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * Whether the current browser supports `adoptedStyleSheets`.
- */
-declare const supportsAdoptingStyleSheets: boolean;
-/**
- * A CSSResult or native CSSStyleSheet.
- *
- * In browsers that support constructible CSS style sheets, CSSStyleSheet
- * object can be used for styling along side CSSResult from the `css`
- * template tag.
- */
-type CSSResultOrNative = CSSResult | CSSStyleSheet;
-type CSSResultArray = Array<CSSResultOrNative | CSSResultArray>;
-/**
- * A single CSSResult, CSSStyleSheet, or an array or nested arrays of those.
- */
-type CSSResultGroup = CSSResultOrNative | CSSResultArray;
-/**
- * A container for a string of CSS text, that may be used to create a CSSStyleSheet.
- *
- * CSSResult is the return value of `css`-tagged template literals and
- * `unsafeCSS()`. In order to ensure that CSSResults are only created via the
- * `css` tag and `unsafeCSS()`, CSSResult cannot be constructed directly.
- */
-declare class CSSResult {
+  /**
+   * @license
+   * Copyright 2019 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  /**
+   * Whether the current browser supports `adoptedStyleSheets`.
+   */
+  declare const supportsAdoptingStyleSheets: boolean;
+  /**
+   * A CSSResult or native CSSStyleSheet.
+   *
+   * In browsers that support constructible CSS style sheets, CSSStyleSheet
+   * object can be used for styling along side CSSResult from the `css`
+   * template tag.
+   */
+  type CSSResultOrNative = CSSResult | CSSStyleSheet;
+  type CSSResultArray = Array<CSSResultOrNative | CSSResultArray>;
+  /**
+   * A single CSSResult, CSSStyleSheet, or an array or nested arrays of those.
+   */
+  type CSSResultGroup = CSSResultOrNative | CSSResultArray;
+  /**
+   * A container for a string of CSS text, that may be used to create a CSSStyleSheet.
+   *
+   * CSSResult is the return value of `css`-tagged template literals and
+   * `unsafeCSS()`. In order to ensure that CSSResults are only created via the
+   * `css` tag and `unsafeCSS()`, CSSResult cannot be constructed directly.
+   */
+  declare class CSSResult {
     ['_$cssResult$']: boolean;
     readonly cssText: string;
     private _styleSheet?;
@@ -36,46 +36,46 @@ declare class CSSResult {
     private constructor();
     get styleSheet(): CSSStyleSheet | undefined;
     toString(): string;
-}
-/**
- * Wrap a value for interpolation in a {@linkcode css} tagged template literal.
- *
- * This is unsafe because untrusted CSS text can be used to phone home
- * or exfiltrate data to an attacker controlled site. Take care to only use
- * this with trusted input.
- */
-declare const unsafeCSS: (value: unknown) => CSSResult;
-/**
- * A template literal tag which can be used with LitElement's
- * {@linkcode LitElement.styles} property to set element styles.
- *
- * For security reasons, only literal string values and number may be used in
- * embedded expressions. To incorporate non-literal values {@linkcode unsafeCSS}
- * may be used inside an expression.
- */
-declare const css: (strings: TemplateStringsArray, ...values: (CSSResultGroup | number)[]) => CSSResult;
-/**
- * Applies the given styles to a `shadowRoot`. When Shadow DOM is
- * available but `adoptedStyleSheets` is not, styles are appended to the
- * `shadowRoot` to [mimic the native feature](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/adoptedStyleSheets).
- * Note, when shimming is used, any styles that are subsequently placed into
- * the shadowRoot should be placed *before* any shimmed adopted styles. This
- * will match spec behavior that gives adopted sheets precedence over styles in
- * shadowRoot.
- */
-declare const adoptStyles: (renderRoot: ShadowRoot, styles: Array<CSSResultOrNative>) => void;
-declare const getCompatibleStyle: (s: CSSResultOrNative) => CSSResultOrNative;
+  }
+  /**
+   * Wrap a value for interpolation in a {@linkcode css} tagged template literal.
+   *
+   * This is unsafe because untrusted CSS text can be used to phone home
+   * or exfiltrate data to an attacker controlled site. Take care to only use
+   * this with trusted input.
+   */
+  declare const unsafeCSS: (value: unknown) => CSSResult;
+  /**
+   * A template literal tag which can be used with LitElement's
+   * {@linkcode LitElement.styles} property to set element styles.
+   *
+   * For security reasons, only literal string values and number may be used in
+   * embedded expressions. To incorporate non-literal values {@linkcode unsafeCSS}
+   * may be used inside an expression.
+   */
+  declare const css: (strings: TemplateStringsArray, ...values: (CSSResultGroup | number)[]) => CSSResult;
+  /**
+   * Applies the given styles to a `shadowRoot`. When Shadow DOM is
+   * available but `adoptedStyleSheets` is not, styles are appended to the
+   * `shadowRoot` to [mimic the native feature](https://developer.mozilla.org/en-US/docs/Web/API/ShadowRoot/adoptedStyleSheets).
+   * Note, when shimming is used, any styles that are subsequently placed into
+   * the shadowRoot should be placed *before* any shimmed adopted styles. This
+   * will match spec behavior that gives adopted sheets precedence over styles in
+   * shadowRoot.
+   */
+  declare const adoptStyles: (renderRoot: ShadowRoot, styles: Array<CSSResultOrNative>) => void;
+  declare const getCompatibleStyle: (s: CSSResultOrNative) => CSSResultOrNative;
 
-/**
- * @license
- * Copyright 2021 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * An object that can host Reactive Controllers and call their lifecycle
- * callbacks.
- */
-interface ReactiveControllerHost {
+  /**
+   * @license
+   * Copyright 2021 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  /**
+   * An object that can host Reactive Controllers and call their lifecycle
+   * callbacks.
+   */
+  interface ReactiveControllerHost {
     /**
      * Adds a controller to the host, which sets up the controller's lifecycle
      * methods to be called with the host's lifecycle.
@@ -101,19 +101,19 @@ interface ReactiveControllerHost {
      *     without triggering another update.
      */
     readonly updateComplete: Promise<boolean>;
-}
-/**
- * A Reactive Controller is an object that enables sub-component code
- * organization and reuse by aggregating the state, behavior, and lifecycle
- * hooks related to a single feature.
- *
- * Controllers are added to a host component, or other object that implements
- * the `ReactiveControllerHost` interface, via the `addController()` method.
- * They can hook their host components's lifecycle by implementing one or more
- * of the lifecycle callbacks, or initiate an update of the host component by
- * calling `requestUpdate()` on the host.
- */
-interface ReactiveController {
+  }
+  /**
+   * A Reactive Controller is an object that enables sub-component code
+   * organization and reuse by aggregating the state, behavior, and lifecycle
+   * hooks related to a single feature.
+   *
+   * Controllers are added to a host component, or other object that implements
+   * the `ReactiveControllerHost` interface, via the `addController()` method.
+   * They can hook their host components's lifecycle by implementing one or more
+   * of the lifecycle callbacks, or initiate an update of the host component by
+   * calling `requestUpdate()` on the host.
+   */
+  interface ReactiveController {
     /**
      * Called when the host is connected to the component tree. For custom
      * element hosts, this corresponds to the `connectedCallback()` lifecycle,
@@ -141,26 +141,26 @@ interface ReactiveController {
      *
      */
     hostUpdated?(): void;
-}
+  }
 
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * Use this module if you want to create your own base class extending
- * {@link ReactiveElement}.
- * @packageDocumentation
- */
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  /**
+   * Use this module if you want to create your own base class extending
+   * {@link ReactiveElement}.
+   * @packageDocumentation
+   */
 
-/**
- * Contains types that are part of the unstable debug API.
- *
- * Everything in this API is not stable and may change or be removed in the future,
- * even on patch releases.
- */
-declare namespace ReactiveUnstable {
+  /**
+   * Contains types that are part of the unstable debug API.
+   *
+   * Everything in this API is not stable and may change or be removed in the future,
+   * even on patch releases.
+   */
+  declare namespace ReactiveUnstable {
     /**
      * When Lit is running in dev mode and `window.emitLitDebugLogEvents` is true,
      * we will emit 'lit-debug' events to window, with live details about the update and render
@@ -171,16 +171,16 @@ declare namespace ReactiveUnstable {
      * because we must copy data and dispatch events.
      */
     namespace DebugLog {
-        type Entry = Update;
-        interface Update {
-            kind: 'update';
-        }
+      type Entry = Update;
+      interface Update {
+        kind: 'update';
+      }
     }
-}
-/**
- * Converts property values to and from attribute values.
- */
-interface ComplexAttributeConverter<Type = unknown, TypeHint = unknown> {
+  }
+  /**
+   * Converts property values to and from attribute values.
+   */
+  interface ComplexAttributeConverter<Type = unknown, TypeHint = unknown> {
     /**
      * Called to convert an attribute value to a property
      * value.
@@ -194,12 +194,14 @@ interface ComplexAttributeConverter<Type = unknown, TypeHint = unknown> {
      * https://github.com/WICG/trusted-types (and similar efforts).
      */
     toAttribute?(value: Type, type?: TypeHint): unknown;
-}
-type AttributeConverter<Type = unknown, TypeHint = unknown> = ComplexAttributeConverter<Type> | ((value: string | null, type?: TypeHint) => Type);
-/**
- * Defines options for a property accessor.
- */
-interface PropertyDeclaration<Type = unknown, TypeHint = unknown> {
+  }
+  type AttributeConverter<Type = unknown, TypeHint = unknown> =
+    | ComplexAttributeConverter<Type>
+    | ((value: string | null, type?: TypeHint) => Type);
+  /**
+   * Defines options for a property accessor.
+   */
+  interface PropertyDeclaration<Type = unknown, TypeHint = unknown> {
     /**
      * When set to `true`, indicates the property is internal private state. The
      * property should not be set by users. When using TypeScript, this property
@@ -276,66 +278,66 @@ interface PropertyDeclaration<Type = unknown, TypeHint = unknown> {
      * use `useDefault: true` so that their initial values do not reflect.
      */
     useDefault?: boolean;
-}
-/**
- * Map of properties to PropertyDeclaration options. For each property an
- * accessor is made, and the property is processed according to the
- * PropertyDeclaration options.
- */
-interface PropertyDeclarations {
+  }
+  /**
+   * Map of properties to PropertyDeclaration options. For each property an
+   * accessor is made, and the property is processed according to the
+   * PropertyDeclaration options.
+   */
+  interface PropertyDeclarations {
     readonly [key: string]: PropertyDeclaration;
-}
-type PropertyDeclarationMap = Map<PropertyKey, PropertyDeclaration>;
-/**
- * A Map of property keys to values.
- *
- * Takes an optional type parameter T, which when specified as a non-any,
- * non-unknown type, will make the Map more strongly-typed, associating the map
- * keys with their corresponding value type on T.
- *
- * Use `PropertyValues<this>` when overriding ReactiveElement.update() and
- * other lifecycle methods in order to get stronger type-checking on keys
- * and values.
- */
-type PropertyValues<T = any> = T extends object ? PropertyValueMap<T> : Map<PropertyKey, unknown>;
-/**
- * Do not use, instead prefer {@linkcode PropertyValues}.
- */
-interface PropertyValueMap<T> extends Map<PropertyKey, unknown> {
+  }
+  type PropertyDeclarationMap = Map<PropertyKey, PropertyDeclaration>;
+  /**
+   * A Map of property keys to values.
+   *
+   * Takes an optional type parameter T, which when specified as a non-any,
+   * non-unknown type, will make the Map more strongly-typed, associating the map
+   * keys with their corresponding value type on T.
+   *
+   * Use `PropertyValues<this>` when overriding ReactiveElement.update() and
+   * other lifecycle methods in order to get stronger type-checking on keys
+   * and values.
+   */
+  type PropertyValues<T = any> = T extends object ? PropertyValueMap<T> : Map<PropertyKey, unknown>;
+  /**
+   * Do not use, instead prefer {@linkcode PropertyValues}.
+   */
+  interface PropertyValueMap<T> extends Map<PropertyKey, unknown> {
     get<K extends keyof T>(k: K): T[K] | undefined;
     set<K extends keyof T>(key: K, value: T[K]): this;
     has<K extends keyof T>(k: K): boolean;
     delete<K extends keyof T>(k: K): boolean;
-}
-declare const defaultConverter: ComplexAttributeConverter;
-interface HasChanged {
+  }
+  declare const defaultConverter: ComplexAttributeConverter;
+  interface HasChanged {
     (value: unknown, old: unknown): boolean;
-}
-/**
- * Change function that returns true if `value` is different from `oldValue`.
- * This method is used as the default for a property's `hasChanged` function.
- */
-declare const notEqual: HasChanged;
-/**
- * A string representing one of the supported dev mode warning categories.
- */
-type WarningKind = 'change-in-update' | 'migration' | 'async-perform-update';
-type Initializer = (element: ReactiveElement) => void;
-declare global {
+  }
+  /**
+   * Change function that returns true if `value` is different from `oldValue`.
+   * This method is used as the default for a property's `hasChanged` function.
+   */
+  declare const notEqual: HasChanged;
+  /**
+   * A string representing one of the supported dev mode warning categories.
+   */
+  type WarningKind = 'change-in-update' | 'migration' | 'async-perform-update';
+  type Initializer = (element: ReactiveElement) => void;
+  declare global {
     interface SymbolConstructor {
-        readonly metadata: unique symbol;
+      readonly metadata: unique symbol;
     }
-};
-declare global {
+  }
+  declare global {
     var litPropertyMetadata: WeakMap<object, Map<PropertyKey, PropertyDeclaration>>;
-};
-/**
- * Base element class which manages element properties and attributes. When
- * properties change, the `update` method is asynchronously called. This method
- * should be supplied by subclasses to render updates as desired.
- * @noInheritDoc
- */
-declare abstract class ReactiveElement extends HTMLElement implements ReactiveControllerHost {
+  }
+  /**
+   * Base element class which manages element properties and attributes. When
+   * properties change, the `update` method is asynchronously called. This method
+   * should be supplied by subclasses to render updates as desired.
+   * @noInheritDoc
+   */
+  declare abstract class ReactiveElement extends HTMLElement implements ReactiveControllerHost {
     /**
      * Read or set all the enabled warning categories for this class.
      *
@@ -558,7 +560,11 @@ declare abstract class ReactiveElement extends HTMLElement implements ReactiveCo
      * @nocollapse
      * @category properties
      */
-    protected static getPropertyDescriptor(name: PropertyKey, key: string | symbol, options: PropertyDeclaration): PropertyDescriptor | undefined;
+    protected static getPropertyDescriptor(
+      name: PropertyKey,
+      key: string | symbol,
+      options: PropertyDeclaration,
+    ): PropertyDescriptor | undefined;
     /**
      * Returns the property options associated with the given property.
      * These options are defined with a `PropertyDeclaration` via the `properties`
@@ -897,72 +903,76 @@ declare abstract class ReactiveElement extends HTMLElement implements ReactiveCo
      * @category updates
      */
     protected firstUpdated(_changedProperties: PropertyValues): void;
-}
+  }
 
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
 
-declare const PartType: {
+  declare const PartType: {
     readonly ATTRIBUTE: 1;
     readonly CHILD: 2;
     readonly PROPERTY: 3;
     readonly BOOLEAN_ATTRIBUTE: 4;
     readonly EVENT: 5;
     readonly ELEMENT: 6;
-};
-type PartType = (typeof PartType)[keyof typeof PartType];
-interface ChildPartInfo {
+  };
+  type PartType = (typeof PartType)[keyof typeof PartType];
+  interface ChildPartInfo {
     readonly type: typeof PartType.CHILD;
-}
-interface AttributePartInfo {
-    readonly type: typeof PartType.ATTRIBUTE | typeof PartType.PROPERTY | typeof PartType.BOOLEAN_ATTRIBUTE | typeof PartType.EVENT;
+  }
+  interface AttributePartInfo {
+    readonly type:
+      | typeof PartType.ATTRIBUTE
+      | typeof PartType.PROPERTY
+      | typeof PartType.BOOLEAN_ATTRIBUTE
+      | typeof PartType.EVENT;
     readonly strings?: ReadonlyArray<string>;
     readonly name: string;
     readonly tagName: string;
-}
-interface ElementPartInfo {
+  }
+  interface ElementPartInfo {
     readonly type: typeof PartType.ELEMENT;
-}
-/**
- * Information about the part a directive is bound to.
- *
- * This is useful for checking that a directive is attached to a valid part,
- * such as with directive that can only be used on attribute bindings.
- */
-type PartInfo = ChildPartInfo | AttributePartInfo | ElementPartInfo;
-/**
- * Base class for creating custom directives. Users should extend this class,
- * implement `render` and/or `update`, and then pass their subclass to
- * `directive`.
- */
-declare abstract class Directive implements Disconnectable {
+  }
+  /**
+   * Information about the part a directive is bound to.
+   *
+   * This is useful for checking that a directive is attached to a valid part,
+   * such as with directive that can only be used on attribute bindings.
+   */
+  type PartInfo = ChildPartInfo | AttributePartInfo | ElementPartInfo;
+  /**
+   * Base class for creating custom directives. Users should extend this class,
+   * implement `render` and/or `update`, and then pass their subclass to
+   * `directive`.
+   */
+  declare abstract class Directive implements Disconnectable {
     constructor(_partInfo: PartInfo);
     get _$isConnected(): boolean;
     abstract render(...props: Array<unknown>): unknown;
     update(_part: Part, props: Array<unknown>): unknown;
-}
+  }
 
-declare class TrustedHTML {
+  declare class TrustedHTML {
     private constructor(); // To prevent instantiting with 'new'.
     private brand: true; // To prevent structural typing.
-}
+  }
 
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
 
-/**
- * Contains types that are part of the unstable debug API.
- *
- * Everything in this API is not stable and may change or be removed in the future,
- * even on patch releases.
- */
-declare namespace LitUnstable {
+  /**
+   * Contains types that are part of the unstable debug API.
+   *
+   * Everything in this API is not stable and may change or be removed in the future,
+   * even on patch releases.
+   */
+  declare namespace LitUnstable {
     /**
      * When Lit is running in dev mode and `window.emitLitDebugLogEvents` is true,
      * we will emit 'lit-debug' events to window, with live details about the update and render
@@ -973,330 +983,348 @@ declare namespace LitUnstable {
      * because we must copy data and dispatch events.
      */
     namespace DebugLog {
-        type Entry = TemplatePrep | TemplateInstantiated | TemplateInstantiatedAndUpdated | TemplateUpdating | BeginRender | EndRender | CommitPartEntry | SetPartValue;
-        interface TemplatePrep {
-            kind: 'template prep';
-            template: Template;
-            strings: TemplateStringsArray;
-            clonableTemplate: HTMLTemplateElement;
-            parts: TemplatePart[];
-        }
-        interface BeginRender {
-            kind: 'begin render';
-            id: number;
-            value: unknown;
-            container: RenderRootNode;
-            options: RenderOptions | undefined;
-            part: ChildPart | undefined;
-        }
-        interface EndRender {
-            kind: 'end render';
-            id: number;
-            value: unknown;
-            container: RenderRootNode;
-            options: RenderOptions | undefined;
-            part: ChildPart;
-        }
-        interface TemplateInstantiated {
-            kind: 'template instantiated';
-            template: Template | CompiledTemplate;
-            instance: TemplateInstance;
-            options: RenderOptions | undefined;
-            fragment: Node;
-            parts: Array<Part | undefined>;
-            values: unknown[];
-        }
-        interface TemplateInstantiatedAndUpdated {
-            kind: 'template instantiated and updated';
-            template: Template | CompiledTemplate;
-            instance: TemplateInstance;
-            options: RenderOptions | undefined;
-            fragment: Node;
-            parts: Array<Part | undefined>;
-            values: unknown[];
-        }
-        interface TemplateUpdating {
-            kind: 'template updating';
-            template: Template | CompiledTemplate;
-            instance: TemplateInstance;
-            options: RenderOptions | undefined;
-            parts: Array<Part | undefined>;
-            values: unknown[];
-        }
-        interface SetPartValue {
-            kind: 'set part';
-            part: Part;
-            value: unknown;
-            valueIndex: number;
-            values: unknown[];
-            templateInstance: TemplateInstance;
-        }
-        type CommitPartEntry = CommitNothingToChildEntry | CommitText | CommitNode | CommitAttribute | CommitProperty | CommitBooleanAttribute | CommitEventListener | CommitToElementBinding;
-        interface CommitNothingToChildEntry {
-            kind: 'commit nothing to child';
-            start: ChildNode;
-            end: ChildNode | null;
-            parent: Disconnectable | undefined;
-            options: RenderOptions | undefined;
-        }
-        interface CommitText {
-            kind: 'commit text';
-            node: Text;
-            value: unknown;
-            options: RenderOptions | undefined;
-        }
-        interface CommitNode {
-            kind: 'commit node';
-            start: Node;
-            parent: Disconnectable | undefined;
-            value: Node;
-            options: RenderOptions | undefined;
-        }
-        interface CommitAttribute {
-            kind: 'commit attribute';
-            element: Element;
-            name: string;
-            value: unknown;
-            options: RenderOptions | undefined;
-        }
-        interface CommitProperty {
-            kind: 'commit property';
-            element: Element;
-            name: string;
-            value: unknown;
-            options: RenderOptions | undefined;
-        }
-        interface CommitBooleanAttribute {
-            kind: 'commit boolean attribute';
-            element: Element;
-            name: string;
-            value: boolean;
-            options: RenderOptions | undefined;
-        }
-        interface CommitEventListener {
-            kind: 'commit event listener';
-            element: Element;
-            name: string;
-            value: unknown;
-            oldListener: unknown;
-            options: RenderOptions | undefined;
-            removeListener: boolean;
-            addListener: boolean;
-        }
-        interface CommitToElementBinding {
-            kind: 'commit to element binding';
-            element: Element;
-            value: unknown;
-            options: RenderOptions | undefined;
-        }
+      type Entry =
+        | TemplatePrep
+        | TemplateInstantiated
+        | TemplateInstantiatedAndUpdated
+        | TemplateUpdating
+        | BeginRender
+        | EndRender
+        | CommitPartEntry
+        | SetPartValue;
+      interface TemplatePrep {
+        kind: 'template prep';
+        template: Template;
+        strings: TemplateStringsArray;
+        clonableTemplate: HTMLTemplateElement;
+        parts: TemplatePart[];
+      }
+      interface BeginRender {
+        kind: 'begin render';
+        id: number;
+        value: unknown;
+        container: RenderRootNode;
+        options: RenderOptions | undefined;
+        part: ChildPart | undefined;
+      }
+      interface EndRender {
+        kind: 'end render';
+        id: number;
+        value: unknown;
+        container: RenderRootNode;
+        options: RenderOptions | undefined;
+        part: ChildPart;
+      }
+      interface TemplateInstantiated {
+        kind: 'template instantiated';
+        template: Template | CompiledTemplate;
+        instance: TemplateInstance;
+        options: RenderOptions | undefined;
+        fragment: Node;
+        parts: Array<Part | undefined>;
+        values: unknown[];
+      }
+      interface TemplateInstantiatedAndUpdated {
+        kind: 'template instantiated and updated';
+        template: Template | CompiledTemplate;
+        instance: TemplateInstance;
+        options: RenderOptions | undefined;
+        fragment: Node;
+        parts: Array<Part | undefined>;
+        values: unknown[];
+      }
+      interface TemplateUpdating {
+        kind: 'template updating';
+        template: Template | CompiledTemplate;
+        instance: TemplateInstance;
+        options: RenderOptions | undefined;
+        parts: Array<Part | undefined>;
+        values: unknown[];
+      }
+      interface SetPartValue {
+        kind: 'set part';
+        part: Part;
+        value: unknown;
+        valueIndex: number;
+        values: unknown[];
+        templateInstance: TemplateInstance;
+      }
+      type CommitPartEntry =
+        | CommitNothingToChildEntry
+        | CommitText
+        | CommitNode
+        | CommitAttribute
+        | CommitProperty
+        | CommitBooleanAttribute
+        | CommitEventListener
+        | CommitToElementBinding;
+      interface CommitNothingToChildEntry {
+        kind: 'commit nothing to child';
+        start: ChildNode;
+        end: ChildNode | null;
+        parent: Disconnectable | undefined;
+        options: RenderOptions | undefined;
+      }
+      interface CommitText {
+        kind: 'commit text';
+        node: Text;
+        value: unknown;
+        options: RenderOptions | undefined;
+      }
+      interface CommitNode {
+        kind: 'commit node';
+        start: Node;
+        parent: Disconnectable | undefined;
+        value: Node;
+        options: RenderOptions | undefined;
+      }
+      interface CommitAttribute {
+        kind: 'commit attribute';
+        element: Element;
+        name: string;
+        value: unknown;
+        options: RenderOptions | undefined;
+      }
+      interface CommitProperty {
+        kind: 'commit property';
+        element: Element;
+        name: string;
+        value: unknown;
+        options: RenderOptions | undefined;
+      }
+      interface CommitBooleanAttribute {
+        kind: 'commit boolean attribute';
+        element: Element;
+        name: string;
+        value: boolean;
+        options: RenderOptions | undefined;
+      }
+      interface CommitEventListener {
+        kind: 'commit event listener';
+        element: Element;
+        name: string;
+        value: unknown;
+        oldListener: unknown;
+        options: RenderOptions | undefined;
+        removeListener: boolean;
+        addListener: boolean;
+      }
+      interface CommitToElementBinding {
+        kind: 'commit to element binding';
+        element: Element;
+        value: unknown;
+        options: RenderOptions | undefined;
+      }
     }
-}
-/**
- * Used to sanitize any value before it is written into the DOM. This can be
- * used to implement a security policy of allowed and disallowed values in
- * order to prevent XSS attacks.
- *
- * One way of using this callback would be to check attributes and properties
- * against a list of high risk fields, and require that values written to such
- * fields be instances of a class which is safe by construction. Closure's Safe
- * HTML Types is one implementation of this technique (
- * https://github.com/google/safe-html-types/blob/master/doc/safehtml-types.md).
- * The TrustedTypes polyfill in API-only mode could also be used as a basis
- * for this technique (https://github.com/WICG/trusted-types).
- *
- * @param node The HTML node (usually either a #text node or an Element) that
- *     is being written to. Note that this is just an exemplar node, the write
- *     may take place against another instance of the same class of node.
- * @param name The name of an attribute or property (for example, 'href').
- * @param type Indicates whether the write that's about to be performed will
- *     be to a property or a node.
- * @return A function that will sanitize this class of writes.
- */
-type SanitizerFactory = (node: Node, name: string, type: 'property' | 'attribute') => ValueSanitizer;
-/**
- * A function which can sanitize values that will be written to a specific kind
- * of DOM sink.
- *
- * See SanitizerFactory.
- *
- * @param value The value to sanitize. Will be the actual value passed into
- *     the lit-html template literal, so this could be of any type.
- * @return The value to write to the DOM. Usually the same as the input value,
- *     unless sanitization is needed.
- */
-type ValueSanitizer = (value: unknown) => unknown;
-/** TemplateResult types */
-declare const HTML_RESULT = 1;
-declare const SVG_RESULT = 2;
-declare const MATHML_RESULT = 3;
-type ResultType = typeof HTML_RESULT | typeof SVG_RESULT | typeof MATHML_RESULT;
-declare const ATTRIBUTE_PART = 1;
-declare const CHILD_PART = 2;
-declare const PROPERTY_PART = 3;
-declare const BOOLEAN_ATTRIBUTE_PART = 4;
-declare const EVENT_PART = 5;
-declare const ELEMENT_PART = 6;
-declare const COMMENT_PART = 7;
-/**
- * The return type of the template tag functions, {@linkcode html} and
- * {@linkcode svg} when it hasn't been compiled by @lit-labs/compiler.
- *
- * A `TemplateResult` object holds all the information about a template
- * expression required to render it: the template strings, expression values,
- * and type of template (html or svg).
- *
- * `TemplateResult` objects do not create any DOM on their own. To create or
- * update DOM you need to render the `TemplateResult`. See
- * [Rendering](https://lit.dev/docs/components/rendering) for more information.
- *
- */
-type UncompiledTemplateResult<T extends ResultType = ResultType> = {
+  }
+  /**
+   * Used to sanitize any value before it is written into the DOM. This can be
+   * used to implement a security policy of allowed and disallowed values in
+   * order to prevent XSS attacks.
+   *
+   * One way of using this callback would be to check attributes and properties
+   * against a list of high risk fields, and require that values written to such
+   * fields be instances of a class which is safe by construction. Closure's Safe
+   * HTML Types is one implementation of this technique (
+   * https://github.com/google/safe-html-types/blob/master/doc/safehtml-types.md).
+   * The TrustedTypes polyfill in API-only mode could also be used as a basis
+   * for this technique (https://github.com/WICG/trusted-types).
+   *
+   * @param node The HTML node (usually either a #text node or an Element) that
+   *     is being written to. Note that this is just an exemplar node, the write
+   *     may take place against another instance of the same class of node.
+   * @param name The name of an attribute or property (for example, 'href').
+   * @param type Indicates whether the write that's about to be performed will
+   *     be to a property or a node.
+   * @return A function that will sanitize this class of writes.
+   */
+  type SanitizerFactory = (node: Node, name: string, type: 'property' | 'attribute') => ValueSanitizer;
+  /**
+   * A function which can sanitize values that will be written to a specific kind
+   * of DOM sink.
+   *
+   * See SanitizerFactory.
+   *
+   * @param value The value to sanitize. Will be the actual value passed into
+   *     the lit-html template literal, so this could be of any type.
+   * @return The value to write to the DOM. Usually the same as the input value,
+   *     unless sanitization is needed.
+   */
+  type ValueSanitizer = (value: unknown) => unknown;
+  /** TemplateResult types */
+  declare const HTML_RESULT = 1;
+  declare const SVG_RESULT = 2;
+  declare const MATHML_RESULT = 3;
+  type ResultType = typeof HTML_RESULT | typeof SVG_RESULT | typeof MATHML_RESULT;
+  declare const ATTRIBUTE_PART = 1;
+  declare const CHILD_PART = 2;
+  declare const PROPERTY_PART = 3;
+  declare const BOOLEAN_ATTRIBUTE_PART = 4;
+  declare const EVENT_PART = 5;
+  declare const ELEMENT_PART = 6;
+  declare const COMMENT_PART = 7;
+  /**
+   * The return type of the template tag functions, {@linkcode html} and
+   * {@linkcode svg} when it hasn't been compiled by @lit-labs/compiler.
+   *
+   * A `TemplateResult` object holds all the information about a template
+   * expression required to render it: the template strings, expression values,
+   * and type of template (html or svg).
+   *
+   * `TemplateResult` objects do not create any DOM on their own. To create or
+   * update DOM you need to render the `TemplateResult`. See
+   * [Rendering](https://lit.dev/docs/components/rendering) for more information.
+   *
+   */
+  type UncompiledTemplateResult<T extends ResultType = ResultType> = {
     ['_$litType$']: T;
     strings: TemplateStringsArray;
     values: unknown[];
-};
-/**
- * This is a template result that may be either uncompiled or compiled.
- *
- * In the future, TemplateResult will be this type. If you want to explicitly
- * note that a template result is potentially compiled, you can reference this
- * type and it will continue to behave the same through the next major version
- * of Lit. This can be useful for code that wants to prepare for the next
- * major version of Lit.
- */
-type MaybeCompiledTemplateResult<T extends ResultType = ResultType> = UncompiledTemplateResult<T> | CompiledTemplateResult;
-/**
- * The return type of the template tag functions, {@linkcode html} and
- * {@linkcode svg}.
- *
- * A `TemplateResult` object holds all the information about a template
- * expression required to render it: the template strings, expression values,
- * and type of template (html or svg).
- *
- * `TemplateResult` objects do not create any DOM on their own. To create or
- * update DOM you need to render the `TemplateResult`. See
- * [Rendering](https://lit.dev/docs/components/rendering) for more information.
- *
- * In Lit 4, this type will be an alias of
- * MaybeCompiledTemplateResult, so that code will get type errors if it assumes
- * that Lit templates are not compiled. When deliberately working with only
- * one, use either {@linkcode CompiledTemplateResult} or
- * {@linkcode UncompiledTemplateResult} explicitly.
- */
-type TemplateResult<T extends ResultType = ResultType> = UncompiledTemplateResult<T>;
-type HTMLTemplateResult = TemplateResult<typeof HTML_RESULT>;
-type SVGTemplateResult = TemplateResult<typeof SVG_RESULT>;
-type MathMLTemplateResult = TemplateResult<typeof MATHML_RESULT>;
-/**
- * A TemplateResult that has been compiled by @lit-labs/compiler, skipping the
- * prepare step.
- */
-interface CompiledTemplateResult {
+  };
+  /**
+   * This is a template result that may be either uncompiled or compiled.
+   *
+   * In the future, TemplateResult will be this type. If you want to explicitly
+   * note that a template result is potentially compiled, you can reference this
+   * type and it will continue to behave the same through the next major version
+   * of Lit. This can be useful for code that wants to prepare for the next
+   * major version of Lit.
+   */
+  type MaybeCompiledTemplateResult<T extends ResultType = ResultType> =
+    | UncompiledTemplateResult<T>
+    | CompiledTemplateResult;
+  /**
+   * The return type of the template tag functions, {@linkcode html} and
+   * {@linkcode svg}.
+   *
+   * A `TemplateResult` object holds all the information about a template
+   * expression required to render it: the template strings, expression values,
+   * and type of template (html or svg).
+   *
+   * `TemplateResult` objects do not create any DOM on their own. To create or
+   * update DOM you need to render the `TemplateResult`. See
+   * [Rendering](https://lit.dev/docs/components/rendering) for more information.
+   *
+   * In Lit 4, this type will be an alias of
+   * MaybeCompiledTemplateResult, so that code will get type errors if it assumes
+   * that Lit templates are not compiled. When deliberately working with only
+   * one, use either {@linkcode CompiledTemplateResult} or
+   * {@linkcode UncompiledTemplateResult} explicitly.
+   */
+  type TemplateResult<T extends ResultType = ResultType> = UncompiledTemplateResult<T>;
+  type HTMLTemplateResult = TemplateResult<typeof HTML_RESULT>;
+  type SVGTemplateResult = TemplateResult<typeof SVG_RESULT>;
+  type MathMLTemplateResult = TemplateResult<typeof MATHML_RESULT>;
+  /**
+   * A TemplateResult that has been compiled by @lit-labs/compiler, skipping the
+   * prepare step.
+   */
+  interface CompiledTemplateResult {
     ['_$litType$']: CompiledTemplate;
     values: unknown[];
-}
-interface CompiledTemplate extends Omit<Template, 'el'> {
+  }
+  interface CompiledTemplate extends Omit<Template, 'el'> {
     el?: HTMLTemplateElement;
     h: TemplateStringsArray;
-}
-/**
- * Interprets a template literal as an HTML template that can efficiently
- * render to and update a container.
- *
- * ```ts
- * const header = (title: string) => html`<h1>${title}</h1>`;
- * ```
- *
- * The `html` tag returns a description of the DOM to render as a value. It is
- * lazy, meaning no work is done until the template is rendered. When rendering,
- * if a template comes from the same expression as a previously rendered result,
- * it's efficiently updated instead of replaced.
- */
-declare const html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
-/**
- * Interprets a template literal as an SVG fragment that can efficiently render
- * to and update a container.
- *
- * ```ts
- * const rect = svg`<rect width="10" height="10"></rect>`;
- *
- * const myImage = html`
- *   <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
- *     ${rect}
- *   </svg>`;
- * ```
- *
- * The `svg` *tag function* should only be used for SVG fragments, or elements
- * that would be contained **inside** an `<svg>` HTML element. A common error is
- * placing an `<svg>` *element* in a template tagged with the `svg` tag
- * function. The `<svg>` element is an HTML element and should be used within a
- * template tagged with the {@linkcode html} tag function.
- *
- * In LitElement usage, it's invalid to return an SVG fragment from the
- * `render()` method, as the SVG fragment will be contained within the element's
- * shadow root and thus not be properly contained within an `<svg>` HTML
- * element.
- */
-declare const svg: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<2>;
-/**
- * Interprets a template literal as MathML fragment that can efficiently render
- * to and update a container.
- *
- * ```ts
- * const num = mathml`<mn>1</mn>`;
- *
- * const eq = html`
- *   <math>
- *     ${num}
- *   </math>`;
- * ```
- *
- * The `mathml` *tag function* should only be used for MathML fragments, or
- * elements that would be contained **inside** a `<math>` HTML element. A common
- * error is placing a `<math>` *element* in a template tagged with the `mathml`
- * tag function. The `<math>` element is an HTML element and should be used
- * within a template tagged with the {@linkcode html} tag function.
- *
- * In LitElement usage, it's invalid to return an MathML fragment from the
- * `render()` method, as the MathML fragment will be contained within the
- * element's shadow root and thus not be properly contained within a `<math>`
- * HTML element.
- */
-declare const mathml: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<3>;
-/**
- * A sentinel value that signals that a value was handled by a directive and
- * should not be written to the DOM.
- */
-declare const noChange: unique symbol;
-/**
- * A sentinel value that signals a ChildPart to fully clear its content.
- *
- * ```ts
- * const button = html`${
- *  user.isAdmin
- *    ? html`<button>DELETE</button>`
- *    : nothing
- * }`;
- * ```
- *
- * Prefer using `nothing` over other falsy values as it provides a consistent
- * behavior between various expression binding contexts.
- *
- * In child expressions, `undefined`, `null`, `''`, and `nothing` all behave the
- * same and render no nodes. In attribute expressions, `nothing` _removes_ the
- * attribute, while `undefined` and `null` will render an empty string. In
- * property expressions `nothing` becomes `undefined`.
- */
-declare const nothing: unique symbol;
-/**
- * Object specifying options for controlling lit-html rendering. Note that
- * while `render` may be called multiple times on the same `container` (and
- * `renderBefore` reference node) to efficiently update the rendered content,
- * only the options passed in during the first render are respected during
- * the lifetime of renders to that unique `container` + `renderBefore`
- * combination.
- */
-interface RenderOptions {
+  }
+  /**
+   * Interprets a template literal as an HTML template that can efficiently
+   * render to and update a container.
+   *
+   * ```ts
+   * const header = (title: string) => html`<h1>${title}</h1>`;
+   * ```
+   *
+   * The `html` tag returns a description of the DOM to render as a value. It is
+   * lazy, meaning no work is done until the template is rendered. When rendering,
+   * if a template comes from the same expression as a previously rendered result,
+   * it's efficiently updated instead of replaced.
+   */
+  declare const html: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<1>;
+  /**
+   * Interprets a template literal as an SVG fragment that can efficiently render
+   * to and update a container.
+   *
+   * ```ts
+   * const rect = svg`<rect width="10" height="10"></rect>`;
+   *
+   * const myImage = html`
+   *   <svg viewBox="0 0 10 10" xmlns="http://www.w3.org/2000/svg">
+   *     ${rect}
+   *   </svg>`;
+   * ```
+   *
+   * The `svg` *tag function* should only be used for SVG fragments, or elements
+   * that would be contained **inside** an `<svg>` HTML element. A common error is
+   * placing an `<svg>` *element* in a template tagged with the `svg` tag
+   * function. The `<svg>` element is an HTML element and should be used within a
+   * template tagged with the {@linkcode html} tag function.
+   *
+   * In LitElement usage, it's invalid to return an SVG fragment from the
+   * `render()` method, as the SVG fragment will be contained within the element's
+   * shadow root and thus not be properly contained within an `<svg>` HTML
+   * element.
+   */
+  declare const svg: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<2>;
+  /**
+   * Interprets a template literal as MathML fragment that can efficiently render
+   * to and update a container.
+   *
+   * ```ts
+   * const num = mathml`<mn>1</mn>`;
+   *
+   * const eq = html`
+   *   <math>
+   *     ${num}
+   *   </math>`;
+   * ```
+   *
+   * The `mathml` *tag function* should only be used for MathML fragments, or
+   * elements that would be contained **inside** a `<math>` HTML element. A common
+   * error is placing a `<math>` *element* in a template tagged with the `mathml`
+   * tag function. The `<math>` element is an HTML element and should be used
+   * within a template tagged with the {@linkcode html} tag function.
+   *
+   * In LitElement usage, it's invalid to return an MathML fragment from the
+   * `render()` method, as the MathML fragment will be contained within the
+   * element's shadow root and thus not be properly contained within a `<math>`
+   * HTML element.
+   */
+  declare const mathml: (strings: TemplateStringsArray, ...values: unknown[]) => TemplateResult<3>;
+  /**
+   * A sentinel value that signals that a value was handled by a directive and
+   * should not be written to the DOM.
+   */
+  declare const noChange: unique symbol;
+  /**
+   * A sentinel value that signals a ChildPart to fully clear its content.
+   *
+   * ```ts
+   * const button = html`${
+   *  user.isAdmin
+   *    ? html`<button>DELETE</button>`
+   *    : nothing
+   * }`;
+   * ```
+   *
+   * Prefer using `nothing` over other falsy values as it provides a consistent
+   * behavior between various expression binding contexts.
+   *
+   * In child expressions, `undefined`, `null`, `''`, and `nothing` all behave the
+   * same and render no nodes. In attribute expressions, `nothing` _removes_ the
+   * attribute, while `undefined` and `null` will render an empty string. In
+   * property expressions `nothing` becomes `undefined`.
+   */
+  declare const nothing: unique symbol;
+  /**
+   * Object specifying options for controlling lit-html rendering. Note that
+   * while `render` may be called multiple times on the same `container` (and
+   * `renderBefore` reference node) to efficiently update the rendered content,
+   * only the options passed in during the first render are respected during
+   * the lifetime of renders to that unique `container` + `renderBefore`
+   * combination.
+   */
+  interface RenderOptions {
     /**
      * An object to use as the `this` value for event listeners. It's often
      * useful to set this to the host component rendering a template.
@@ -1312,7 +1340,7 @@ interface RenderOptions {
      * any inherited context. Defaults to the global `document`.
      */
     creationScope?: {
-        importNode(node: Node, deep?: boolean): Node;
+      importNode(node: Node, deep?: boolean): Node;
     };
     /**
      * The initial connected state for the top-level part being rendered. If no
@@ -1323,35 +1351,40 @@ interface RenderOptions {
      * render to change the connected state of the part.
      */
     isConnected?: boolean;
-}
-/**
- * The root DOM node for rendering.
- */
-type RenderRootNode = HTMLElement | SVGElement | DocumentFragment;
-interface DirectiveParent {
+  }
+  /**
+   * The root DOM node for rendering.
+   */
+  type RenderRootNode = HTMLElement | SVGElement | DocumentFragment;
+  interface DirectiveParent {
     _$parent?: DirectiveParent;
     _$isConnected: boolean;
     __directive?: Directive;
     __directives?: Array<Directive | undefined>;
-}
-declare class Template {
+  }
+  declare class Template {
     parts: Array<TemplatePart>;
     constructor({ strings, ['_$litType$']: type }: UncompiledTemplateResult, options?: RenderOptions);
     /** @nocollapse */
     static createElement(html: TrustedHTML, _options?: RenderOptions): HTMLTemplateElement;
-}
-interface Disconnectable {
+  }
+  interface Disconnectable {
     _$parent?: Disconnectable;
     _$disconnectableChildren?: Set<Disconnectable>;
     _$isConnected: boolean;
-}
-declare function resolveDirective(part: ChildPart | AttributePart | ElementPart, value: unknown, parent?: DirectiveParent, attributeIndex?: number): unknown;
+  }
+  declare function resolveDirective(
+    part: ChildPart | AttributePart | ElementPart,
+    value: unknown,
+    parent?: DirectiveParent,
+    attributeIndex?: number,
+  ): unknown;
 
-/**
- * An updateable instance of a Template. Holds references to the Parts used to
- * update the template instance.
- */
-declare class TemplateInstance implements Disconnectable {
+  /**
+   * An updateable instance of a Template. Holds references to the Parts used to
+   * update the template instance.
+   */
+  declare class TemplateInstance implements Disconnectable {
     _$template: Template;
     _$parts: Array<Part | undefined>;
     constructor(template: Template, parent: ChildPart);
@@ -1359,41 +1392,46 @@ declare class TemplateInstance implements Disconnectable {
     get _$isConnected(): boolean;
     _clone(options: RenderOptions | undefined): Node;
     _update(values: Array<unknown>): void;
-}
-type AttributeTemplatePart = {
+  }
+  type AttributeTemplatePart = {
     readonly type: typeof ATTRIBUTE_PART;
     readonly index: number;
     readonly name: string;
     readonly ctor: typeof AttributePart;
     readonly strings: ReadonlyArray<string>;
-};
-type ChildTemplatePart = {
+  };
+  type ChildTemplatePart = {
     readonly type: typeof CHILD_PART;
     readonly index: number;
-};
-type ElementTemplatePart = {
+  };
+  type ElementTemplatePart = {
     readonly type: typeof ELEMENT_PART;
     readonly index: number;
-};
-type CommentTemplatePart = {
+  };
+  type CommentTemplatePart = {
     readonly type: typeof COMMENT_PART;
     readonly index: number;
-};
-/**
- * A TemplatePart represents a dynamic part in a template, before the template
- * is instantiated. When a template is instantiated Parts are created from
- * TemplateParts.
- */
-type TemplatePart = ChildTemplatePart | AttributeTemplatePart | ElementTemplatePart | CommentTemplatePart;
-type Part = ChildPart | AttributePart | PropertyPart | BooleanAttributePart | ElementPart | EventPart;
+  };
+  /**
+   * A TemplatePart represents a dynamic part in a template, before the template
+   * is instantiated. When a template is instantiated Parts are created from
+   * TemplateParts.
+   */
+  type TemplatePart = ChildTemplatePart | AttributeTemplatePart | ElementTemplatePart | CommentTemplatePart;
+  type Part = ChildPart | AttributePart | PropertyPart | BooleanAttributePart | ElementPart | EventPart;
 
-declare class ChildPart implements Disconnectable {
+  declare class ChildPart implements Disconnectable {
     readonly type = 2;
     readonly options: RenderOptions | undefined;
     _$committedValue: unknown;
     private _textSanitizer;
     get _$isConnected(): boolean;
-    constructor(startNode: ChildNode, endNode: ChildNode | null, parent: TemplateInstance | ChildPart | undefined, options: RenderOptions | undefined);
+    constructor(
+      startNode: ChildNode,
+      endNode: ChildNode | null,
+      parent: TemplateInstance | ChildPart | undefined,
+      options: RenderOptions | undefined,
+    );
     /**
      * The parent node into which the part renders its content.
      *
@@ -1429,12 +1467,12 @@ declare class ChildPart implements Disconnectable {
     private _commitText;
     private _commitTemplateResult;
     private _commitIterable;
-}
-/**
- * A top-level `ChildPart` returned from `render` that manages the connected
- * state of `AsyncDirective`s created throughout the tree below it.
- */
-interface RootPart extends ChildPart {
+  }
+  /**
+   * A top-level `ChildPart` returned from `render` that manages the connected
+   * state of `AsyncDirective`s created throughout the tree below it.
+   */
+  interface RootPart extends ChildPart {
     /**
      * Sets the connection state for `AsyncDirective`s contained within this root
      * ChildPart.
@@ -1451,9 +1489,9 @@ interface RootPart extends ChildPart {
      * or not
      */
     setConnected(isConnected: boolean): void;
-}
+  }
 
-declare class AttributePart implements Disconnectable {
+  declare class AttributePart implements Disconnectable {
     readonly type: typeof ATTRIBUTE_PART | typeof PROPERTY_PART | typeof BOOLEAN_ATTRIBUTE_PART | typeof EVENT_PART;
     readonly element: HTMLElement;
     readonly name: string;
@@ -1467,24 +1505,36 @@ declare class AttributePart implements Disconnectable {
     protected _sanitizer: ValueSanitizer | undefined;
     get tagName(): string;
     get _$isConnected(): boolean;
-    constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
-}
+    constructor(
+      element: HTMLElement,
+      name: string,
+      strings: ReadonlyArray<string>,
+      parent: Disconnectable,
+      options: RenderOptions | undefined,
+    );
+  }
 
-declare class PropertyPart extends AttributePart {
+  declare class PropertyPart extends AttributePart {
     readonly type = 3;
-}
+  }
 
-declare class BooleanAttributePart extends AttributePart {
+  declare class BooleanAttributePart extends AttributePart {
     readonly type = 4;
-}
+  }
 
-declare class EventPart extends AttributePart {
+  declare class EventPart extends AttributePart {
     readonly type = 5;
-    constructor(element: HTMLElement, name: string, strings: ReadonlyArray<string>, parent: Disconnectable, options: RenderOptions | undefined);
+    constructor(
+      element: HTMLElement,
+      name: string,
+      strings: ReadonlyArray<string>,
+      parent: Disconnectable,
+      options: RenderOptions | undefined,
+    );
     handleEvent(event: Event): void;
-}
+  }
 
-declare class ElementPart implements Disconnectable {
+  declare class ElementPart implements Disconnectable {
     element: Element;
     readonly type = 6;
     _$committedValue: undefined;
@@ -1492,26 +1542,26 @@ declare class ElementPart implements Disconnectable {
     constructor(element: Element, parent: Disconnectable, options: RenderOptions | undefined);
     get _$isConnected(): boolean;
     _$setValue(value: unknown): void;
-}
-/**
- * END USERS SHOULD NOT RELY ON THIS OBJECT.
- *
- * Private exports for use by other Lit packages, not intended for use by
- * external users.
- *
- * We currently do not make a mangled rollup build of the lit-ssr code. In order
- * to keep a number of (otherwise private) top-level exports mangled in the
- * client side code, we export a _$LH object containing those members (or
- * helper methods for accessing private fields of those members), and then
- * re-export them for use in lit-ssr. This keeps lit-ssr agnostic to whether the
- * client-side code is being used in `dev` mode or `prod` mode.
- *
- * This has a unique name, to disambiguate it from private exports in
- * lit-element, which re-exports all of lit-html.
- *
- * @private
- */
-declare const _$LH: {
+  }
+  /**
+   * END USERS SHOULD NOT RELY ON THIS OBJECT.
+   *
+   * Private exports for use by other Lit packages, not intended for use by
+   * external users.
+   *
+   * We currently do not make a mangled rollup build of the lit-ssr code. In order
+   * to keep a number of (otherwise private) top-level exports mangled in the
+   * client side code, we export a _$LH object containing those members (or
+   * helper methods for accessing private fields of those members), and then
+   * re-export them for use in lit-ssr. This keeps lit-ssr agnostic to whether the
+   * client-side code is being used in `dev` mode or `prod` mode.
+   *
+   * This has a unique name, to disambiguate it from private exports in
+   * lit-element, which re-exports all of lit-html.
+   *
+   * @private
+   */
+  declare const _$LH: {
     _boundAttributeSuffix: string;
     _marker: string;
     _markerMatch: string;
@@ -1526,94 +1576,94 @@ declare const _$LH: {
     _EventPart: typeof EventPart;
     _PropertyPart: typeof PropertyPart;
     _ElementPart: typeof ElementPart;
-};
-/**
- * Renders a value, usually a lit-html TemplateResult, to the container.
- *
- * This example renders the text "Hello, Zoe!" inside a paragraph tag, appending
- * it to the container `document.body`.
- *
- * ```js
- * import {html, render} from 'lit';
- *
- * const name = "Zoe";
- * render(html`<p>Hello, ${name}!</p>`, document.body);
- * ```
- *
- * @param value Any [renderable
- *   value](https://lit.dev/docs/templates/expressions/#child-expressions),
- *   typically a {@linkcode TemplateResult} created by evaluating a template tag
- *   like {@linkcode html} or {@linkcode svg}.
- * @param container A DOM container to render to. The first render will append
- *   the rendered value to the container, and subsequent renders will
- *   efficiently update the rendered value if the same result type was
- *   previously rendered there.
- * @param options See {@linkcode RenderOptions} for options documentation.
- * @see
- * {@link https://lit.dev/docs/libraries/standalone-templates/#rendering-lit-html-templates| Rendering Lit HTML Templates}
- */
-declare const render: {
+  };
+  /**
+   * Renders a value, usually a lit-html TemplateResult, to the container.
+   *
+   * This example renders the text "Hello, Zoe!" inside a paragraph tag, appending
+   * it to the container `document.body`.
+   *
+   * ```js
+   * import {html, render} from 'lit';
+   *
+   * const name = "Zoe";
+   * render(html`<p>Hello, ${name}!</p>`, document.body);
+   * ```
+   *
+   * @param value Any [renderable
+   *   value](https://lit.dev/docs/templates/expressions/#child-expressions),
+   *   typically a {@linkcode TemplateResult} created by evaluating a template tag
+   *   like {@linkcode html} or {@linkcode svg}.
+   * @param container A DOM container to render to. The first render will append
+   *   the rendered value to the container, and subsequent renders will
+   *   efficiently update the rendered value if the same result type was
+   *   previously rendered there.
+   * @param options See {@linkcode RenderOptions} for options documentation.
+   * @see
+   * {@link https://lit.dev/docs/libraries/standalone-templates/#rendering-lit-html-templates| Rendering Lit HTML Templates}
+   */
+  declare const render: {
     (value: unknown, container: RenderRootNode, options?: RenderOptions): RootPart;
     setSanitizer: (newSanitizer: SanitizerFactory) => void;
     createSanitizer: SanitizerFactory;
     _testOnlyClearSanitizerFactoryDoNotCallOrElse: () => void;
-};
+  };
 
-/**
- * @license
- * Copyright 2017 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * The main LitElement module, which defines the {@linkcode LitElement} base
- * class and related APIs.
- *
- * LitElement components can define a template and a set of observed
- * properties. Changing an observed property triggers a re-render of the
- * element.
- *
- * Import {@linkcode LitElement} and {@linkcode html} from this module to
- * create a component:
- *
- *  ```js
- * import {LitElement, html} from 'lit-element';
- *
- * class MyElement extends LitElement {
- *
- *   // Declare observed properties
- *   static get properties() {
- *     return {
- *       adjective: {}
- *     }
- *   }
- *
- *   constructor() {
- *     this.adjective = 'awesome';
- *   }
- *
- *   // Define the element's template
- *   render() {
- *     return html`<p>your ${adjective} template here</p>`;
- *   }
- * }
- *
- * customElements.define('my-element', MyElement);
- * ```
- *
- * `LitElement` extends {@linkcode ReactiveElement} and adds lit-html
- * templating. The `ReactiveElement` class is provided for users that want to
- * build their own custom element base classes that don't use lit-html.
- *
- * @packageDocumentation
- */
+  /**
+   * @license
+   * Copyright 2017 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  /**
+   * The main LitElement module, which defines the {@linkcode LitElement} base
+   * class and related APIs.
+   *
+   * LitElement components can define a template and a set of observed
+   * properties. Changing an observed property triggers a re-render of the
+   * element.
+   *
+   * Import {@linkcode LitElement} and {@linkcode html} from this module to
+   * create a component:
+   *
+   *  ```js
+   * import {LitElement, html} from 'lit-element';
+   *
+   * class MyElement extends LitElement {
+   *
+   *   // Declare observed properties
+   *   static get properties() {
+   *     return {
+   *       adjective: {}
+   *     }
+   *   }
+   *
+   *   constructor() {
+   *     this.adjective = 'awesome';
+   *   }
+   *
+   *   // Define the element's template
+   *   render() {
+   *     return html`<p>your ${adjective} template here</p>`;
+   *   }
+   * }
+   *
+   * customElements.define('my-element', MyElement);
+   * ```
+   *
+   * `LitElement` extends {@linkcode ReactiveElement} and adds lit-html
+   * templating. The `ReactiveElement` class is provided for users that want to
+   * build their own custom element base classes that don't use lit-html.
+   *
+   * @packageDocumentation
+   */
 
-/**
- * Contains types that are part of the unstable debug API.
- *
- * Everything in this API is not stable and may change or be removed in the future,
- * even on patch releases.
- */
-declare namespace Unstable {
+  /**
+   * Contains types that are part of the unstable debug API.
+   *
+   * Everything in this API is not stable and may change or be removed in the future,
+   * even on patch releases.
+   */
+  declare namespace Unstable {
     /**
      * When Lit is running in dev mode and `window.emitLitDebugLogEvents` is true,
      * we will emit 'lit-debug' events to window, with live details about the update and render
@@ -1624,19 +1674,19 @@ declare namespace Unstable {
      * because we must copy data and dispatch events.
      */
     namespace DebugLog {
-        type Entry = LitUnstable.DebugLog.Entry | ReactiveUnstable.DebugLog.Entry;
+      type Entry = LitUnstable.DebugLog.Entry | ReactiveUnstable.DebugLog.Entry;
     }
-}
-/**
- * Base element class that manages element properties and attributes, and
- * renders a lit-html template.
- *
- * To define a component, subclass `LitElement` and implement a
- * `render` method to provide the component's template. Define properties
- * using the {@linkcode LitElement.properties properties} property or the
- * {@linkcode property} decorator.
- */
-declare class LitElement extends ReactiveElement {
+  }
+  /**
+   * Base element class that manages element properties and attributes, and
+   * renders a lit-html template.
+   *
+   * To define a component, subclass `LitElement` and implement a
+   * `render` method to provide the component's template. Define properties
+   * using the {@linkcode LitElement.properties properties} property or the
+   * {@linkcode property} decorator.
+   */
+  declare class LitElement extends ReactiveElement {
     static ['_$litElement$']: boolean;
     /**
      * @category rendering
@@ -1704,45 +1754,105 @@ declare class LitElement extends ReactiveElement {
      * @category rendering
      */
     protected render(): unknown;
-}
-/**
- * END USERS SHOULD NOT RELY ON THIS OBJECT.
- *
- * Private exports for use by other Lit packages, not intended for use by
- * external users.
- *
- * We currently do not make a mangled rollup build of the lit-ssr code. In order
- * to keep a number of (otherwise private) top-level exports  mangled in the
- * client side code, we export a _$LE object containing those members (or
- * helper methods for accessing private fields of those members), and then
- * re-export them for use in lit-ssr. This keeps lit-ssr agnostic to whether the
- * client-side code is being used in `dev` mode or `prod` mode.
- *
- * This has a unique name, to disambiguate it from private exports in
- * lit-html, since this module re-exports all of lit-html.
- *
- * @private
- */
-declare const _$LE: {
+  }
+  /**
+   * END USERS SHOULD NOT RELY ON THIS OBJECT.
+   *
+   * Private exports for use by other Lit packages, not intended for use by
+   * external users.
+   *
+   * We currently do not make a mangled rollup build of the lit-ssr code. In order
+   * to keep a number of (otherwise private) top-level exports  mangled in the
+   * client side code, we export a _$LE object containing those members (or
+   * helper methods for accessing private fields of those members), and then
+   * re-export them for use in lit-ssr. This keeps lit-ssr agnostic to whether the
+   * client-side code is being used in `dev` mode or `prod` mode.
+   *
+   * This has a unique name, to disambiguate it from private exports in
+   * lit-html, since this module re-exports all of lit-html.
+   *
+   * @private
+   */
+  declare const _$LE: {
     _$attributeToProperty: (el: LitElement, name: string, value: string | null) => void;
     _$changedProperties: (el: LitElement) => any;
-};
+  };
 
-/**
- * @license
- * Copyright 2022 Google LLC
- * SPDX-License-Identifier: BSD-3-Clause
- */
-/**
- * A boolean that will be `true` in server environments like Node, and `false`
- * in browser environments. Note that your server environment or toolchain must
- * support the `"node"` export condition for this to be `true`.
- *
- * This can be used when authoring components to change behavior based on
- * whether or not the component is executing in an SSR context.
- */
-declare const isServer = false;
+  /**
+   * @license
+   * Copyright 2022 Google LLC
+   * SPDX-License-Identifier: BSD-3-Clause
+   */
+  /**
+   * A boolean that will be `true` in server environments like Node, and `false`
+   * in browser environments. Note that your server environment or toolchain must
+   * support the `"node"` export condition for this to be `true`.
+   *
+   * This can be used when authoring components to change behavior based on
+   * whether or not the component is executing in an SSR context.
+   */
+  declare const isServer = false;
 
-export { AttributePart, BooleanAttributePart, CSSResult, ChildPart, ElementPart, EventPart, LitElement, LitUnstable, PropertyPart, ReactiveElement, ReactiveUnstable, TemplateInstance, Unstable, _$LE, _$LH, adoptStyles, css, defaultConverter, getCompatibleStyle, html, isServer, mathml, noChange, notEqual, nothing, render, supportsAdoptingStyleSheets, svg, unsafeCSS };
-export type { CSSResultArray, CSSResultGroup, CSSResultOrNative, CompiledTemplate, CompiledTemplateResult, ComplexAttributeConverter, DirectiveParent, Disconnectable, HTMLTemplateResult, HasChanged, Initializer, MathMLTemplateResult, MaybeCompiledTemplateResult, Part, PropertyDeclaration, PropertyDeclarations, PropertyValueMap, PropertyValues, ReactiveController, ReactiveControllerHost, RenderOptions, RenderRootNode, RootPart, SVGTemplateResult, SanitizerFactory, TemplateResult, UncompiledTemplateResult, ValueSanitizer, WarningKind };
+  export {
+    AttributePart,
+    BooleanAttributePart,
+    CSSResult,
+    ChildPart,
+    ElementPart,
+    EventPart,
+    LitElement,
+    LitUnstable,
+    PropertyPart,
+    ReactiveElement,
+    ReactiveUnstable,
+    TemplateInstance,
+    Unstable,
+    _$LE,
+    _$LH,
+    adoptStyles,
+    css,
+    defaultConverter,
+    getCompatibleStyle,
+    html,
+    isServer,
+    mathml,
+    noChange,
+    notEqual,
+    nothing,
+    render,
+    supportsAdoptingStyleSheets,
+    svg,
+    unsafeCSS,
+  };
+  export type {
+    CSSResultArray,
+    CSSResultGroup,
+    CSSResultOrNative,
+    CompiledTemplate,
+    CompiledTemplateResult,
+    ComplexAttributeConverter,
+    DirectiveParent,
+    Disconnectable,
+    HTMLTemplateResult,
+    HasChanged,
+    Initializer,
+    MathMLTemplateResult,
+    MaybeCompiledTemplateResult,
+    Part,
+    PropertyDeclaration,
+    PropertyDeclarations,
+    PropertyValueMap,
+    PropertyValues,
+    ReactiveController,
+    ReactiveControllerHost,
+    RenderOptions,
+    RenderRootNode,
+    RootPart,
+    SVGTemplateResult,
+    SanitizerFactory,
+    TemplateResult,
+    UncompiledTemplateResult,
+    ValueSanitizer,
+    WarningKind,
+  };
 }

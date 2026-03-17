@@ -28,7 +28,12 @@ h6 {
   --typography-spacing-vertical: 6px;
 }
 
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-size: var(--font-size);
   margin: var(--typography-spacing-vertical) 0;
 }

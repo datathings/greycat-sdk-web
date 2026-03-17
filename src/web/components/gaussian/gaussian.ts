@@ -111,8 +111,7 @@ export class GuiGaussian extends GuiElement {
 
     for (let x = 0; x < w; x++) {
       const xValue = xMin + (x / w) * (xMax - xMin);
-      const yValue =
-        (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-((xValue - mu) ** 2) / (2 * sigma ** 2));
+      const yValue = (1 / (sigma * Math.sqrt(2 * Math.PI))) * Math.exp(-((xValue - mu) ** 2) / (2 * sigma ** 2));
 
       col_0.push(xValue);
       col_1.push(yValue);

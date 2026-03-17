@@ -14,13 +14,7 @@ namespace gc {
             super();
           }
 
-          static create(
-            x0: number,
-            x1: number,
-            x2: number,
-            x3: number,
-            g: GreyCat = gc.$.default,
-          ): t4 {
+          static create(x0: number, x1: number, x2: number, x3: number, g: GreyCat = gc.$.default): t4 {
             const ty = g.abi.types[g.abi.core.t4];
             return new ty.ctor(x0, x1, x2, x3) as t4;
           }
@@ -42,9 +36,7 @@ namespace gc {
             return [this.x0, this.x1, this.x2, this.x3];
           }
 
-          override toString(
-            opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS,
-          ): string {
+          override toString(opts: gc.sdk.ToStringOptions = gc.sdk.DEFAULT_TO_STRING_OPTIONS): string {
             if (opts.numFmt) {
               const x0 = opts.numFmt.format(this.x0);
               const x1 = opts.numFmt.format(this.x1);

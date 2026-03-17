@@ -61,9 +61,7 @@ export class GuiTableMappings extends GuiElement {
               onclick={async () => {
                 try {
                   await this.automaticDestructuring();
-                  this.dispatchEvent(
-                    new CustomEvent('sl-change', { bubbles: true, composed: true }),
-                  );
+                  this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
                 } catch {
                   // TODO: report error
                 }
@@ -174,9 +172,7 @@ export class GuiTableMappings extends GuiElement {
         mapping.table = this._table;
       }
       for (i; i < this._value.length; i++) {
-        this._mappings.appendChild(
-          <gui-table-mapping value={this._value[i]} table={this._table} />,
-        );
+        this._mappings.appendChild(<gui-table-mapping value={this._value[i]} table={this._table} />);
       }
     }
   }

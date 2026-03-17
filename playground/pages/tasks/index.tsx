@@ -24,10 +24,7 @@ const spawnBtn = Object.assign(createElement('sl-button'), {
 });
 
 document.body.appendChild(
-  <app-layout
-    title="Tasks"
-    mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}
-  >
+  <app-layout title="Tasks" mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}>
     {actions}
     <gui-card>
       <header slot="header">

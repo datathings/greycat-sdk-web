@@ -1,4 +1,5 @@
 # `<gui-table />`
+
 > Virtualized table component for [`core::Table`](/libs/std/core/type.Table.html)
 
 ![Table](assets/core_table.png)
@@ -13,12 +14,14 @@ table.table = await fetchTable();
 Under-the-hood, `<gui-table />` uses `<gui-value />` to render cells. You can change the properties passed to `<gui-value />` by setting [cellProps](#override-cell-properties).
 
 ## Events
+
 | Name               | Detail                  | Description                            |
 | ------------------ | ----------------------- | -------------------------------------- |
 | `'table-click'`    | `TableClickEventDetail` | Triggered when a row is clicked        |
 | `'table-dblclick'` | `TableClickEventDetail` | Triggered when a row is double-clicked |
 
 ### TableClickEventDetail
+
 ```ts
 export type TableClickEventDetail = {
   /**
@@ -40,13 +43,14 @@ export type TableClickEventDetail = {
 ```
 
 ### Value
+
 ```ts
 type Value = {
   /** The actual value for the cell */
   value: unknown;
   /**
    * The original index of the row in the column.
-   * 
+   *
    * This is required because sorting/filtering changes indexing.
    */
   originalIndex: number;
@@ -54,6 +58,7 @@ type Value = {
 ```
 
 ## Override cell properties
+
 ```ts
 /**
  * A function called to compute the cell properties
@@ -66,8 +71,8 @@ export type CellProps = (
   colIdx: number,
 ) => ValueProps & { value: unknown };
 
-type ValueProps =
-  Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'>
-  & Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
+type ValueProps = Omit<utils.StringifyProps, 'value' | 'dateFmt' | 'numFmt'> &
+  Partial<Pick<GuiValueProps, 'linkify' | 'onClick'>>;
 ```
+
 > See [GuiValueProps](../value/index.md#valueprops) for more information.

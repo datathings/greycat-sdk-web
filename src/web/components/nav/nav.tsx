@@ -161,10 +161,7 @@ export class GuiNav extends GuiElement {
     return (
       <sl-tree-item className={{ section: hasChildren }} expanded={expanded}>
         {this._createNavItemLabel(item, parentRoute)}
-        {this._createNavChildren(
-          item.children,
-          item.route ? join(parentRoute, item.route) : undefined,
-        )}
+        {this._createNavChildren(item.children, item.route ? join(parentRoute, item.route) : undefined)}
       </sl-tree-item>
     );
   }
@@ -200,10 +197,7 @@ export class GuiNav extends GuiElement {
     return <a>{item.label}</a>;
   }
 
-  private async _loadConfig(
-    root = location.pathname,
-    filename = 'nav.json',
-  ): Promise<[string, NavTree]> {
+  private async _loadConfig(root = location.pathname, filename = 'nav.json'): Promise<[string, NavTree]> {
     let path = join(root, filename);
 
     for (let i = 0; i < 15; i++) {

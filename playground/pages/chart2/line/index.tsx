@@ -48,7 +48,9 @@ chart.addEventListener('gui-chart2-click', (e) => {
   output.textContent = `Clicked: ${e.detail.seriesName} [${e.detail.dataIndex}] = ${JSON.stringify(e.detail.value)}`;
 });
 
-const output = (<pre style="padding: 8px; margin: 0; font-size: 12px; color: var(--color);">Click on a data point...</pre>) as HTMLPreElement;
+const output = (
+  <pre style="padding: 8px; margin: 0; font-size: 12px; color: var(--color);">Click on a data point...</pre>
+) as HTMLPreElement;
 
 document.body.appendChild(
   <app-layout title="Chart2 — Line">

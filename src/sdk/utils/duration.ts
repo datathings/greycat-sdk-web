@@ -6,9 +6,7 @@ namespace gc {
      * @param duration
      * @returns
      */
-    export function decomposeDuration(
-      duration: core.duration,
-    ): [number | bigint, core.DurationUnit] {
+    export function decomposeDuration(duration: core.duration): [number | bigint, core.DurationUnit] {
       if (duration.s === 0) {
         if (duration.us >= 10e5) {
           return [duration.s, core.DurationUnit.seconds];

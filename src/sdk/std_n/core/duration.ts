@@ -67,11 +67,7 @@ namespace gc {
            *
            * eg. `core.duration.from_unit(42, core.DurationUnit.seconds())` => `42s`
            */
-          static from_unit(
-            value: number,
-            unit: gc.core.DurationUnit,
-            g: GreyCat = gc.$.default,
-          ): gc.core.duration {
+          static from_unit(value: number, unit: gc.core.DurationUnit, g: GreyCat = gc.$.default): gc.core.duration {
             switch (unit.key) {
               case 'microseconds':
                 return duration.create(value, g);

@@ -17,9 +17,7 @@ import './tooltip.js';
 import { GuiHeatmapTooltip } from './tooltip.js';
 import style from './heatmap.css?inline';
 
-type ColorYScale =
-  | d3.ScaleLinear<number, number, never>
-  | d3.ScaleLogarithmic<number, number, never>;
+type ColorYScale = d3.ScaleLinear<number, number, never> | d3.ScaleLogarithmic<number, number, never>;
 
 type ComputedState = {
   xRange: number[];
@@ -103,10 +101,12 @@ export class GuiHeatmap extends GuiElement {
     this._uxCtx = new CanvasContext(this._uxCanvas.getContext('2d') as CanvasRenderingContext2D);
 
     // svg
-    this._svg = d3
-      .create('svg')
-      .style('background', 'transparent')
-      .style('position', 'absolute') as d3.Selection<SVGSVGElement, unknown, null, undefined>;
+    this._svg = d3.create('svg').style('background', 'transparent').style('position', 'absolute') as d3.Selection<
+      SVGSVGElement,
+      unknown,
+      null,
+      undefined
+    >;
 
     this._xAxisGroup = this._svg.append('g');
     this._yAxisGroup = this._svg.append('g');
@@ -130,12 +130,7 @@ export class GuiHeatmap extends GuiElement {
       this._resetCursor();
     });
 
-    this.shadowRoot.append(
-      this._svg.node() as SVGSVGElement,
-      this._canvas,
-      this._uxCanvas,
-      this._tooltip,
-    );
+    this.shadowRoot.append(this._svg.node() as SVGSVGElement, this._canvas, this._uxCanvas, this._tooltip);
   }
 
   connectedCallback() {
@@ -275,8 +270,7 @@ export class GuiHeatmap extends GuiElement {
 
     this._clearUX();
 
-    const { xRange, yRange, xPadding, yPadding, style, xScale, yScale, xLabels, yLabels } =
-      this._computed;
+    const { xRange, yRange, xPadding, yPadding, style, xScale, yScale, xLabels, yLabels } = this._computed;
 
     const updateUX =
       this._cursor.x !== -1 &&
@@ -381,8 +375,7 @@ export class GuiHeatmap extends GuiElement {
     // clear the ux canvas too (to prevent phantom markers)
     this._clearUX();
 
-    const { xScale, yScale, style, colorScale, colorXScale, colorYScale, xLabels, yLabels } =
-      this._computed;
+    const { xScale, yScale, style, colorScale, colorXScale, colorYScale, xLabels, yLabels } = this._computed;
 
     // Draw the heatmap
     for (let col = 0; col < this._table.cols.length; col++) {
@@ -434,12 +427,7 @@ export class GuiHeatmap extends GuiElement {
       gradient.addColorStop(index / (this._colors.length - 1), this._colors[index]);
     }
     this._ctx.ctx.fillStyle = gradient;
-    this._ctx.ctx.fillRect(
-      colorXScale('0') ?? 0,
-      colorScaleBottom,
-      Math.round(colorXScale.bandwidth()),
-      colorScapeTop,
-    );
+    this._ctx.ctx.fillRect(colorXScale('0') ?? 0, colorScaleBottom, Math.round(colorXScale.bandwidth()), colorScapeTop);
 
     // Add the x-axis.
     this._xAxis = d3.axisBottom(xScale);
@@ -447,9 +435,7 @@ export class GuiHeatmap extends GuiElement {
     if (this._config.xAxis.hook) {
       this._config.xAxis.hook(this._xAxis);
     }
-    this._xAxisGroup
-      .attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`)
-      .call(this._xAxis);
+    this._xAxisGroup.attr('transform', `translate(0,${this._canvas.height - style.margin.bottom})`).call(this._xAxis);
 
     // Add the y-axis
     this._yAxis = d3.axisLeft(yScale);
@@ -515,16 +501,10 @@ export class GuiHeatmap extends GuiElement {
     }
 
     // compute ranges based on available width, height and margins
-    const xRange = [
-      props.margin.left,
-      this._canvas.width - props.margin.right - props.colorScaleMargin.right,
-    ];
+    const xRange = [props.margin.left, this._canvas.width - props.margin.right - props.colorScaleMargin.right];
     const yRange = [this._canvas.height - props.margin.bottom, props.margin.top];
 
-    const colorScaleXRange = [
-      this._canvas.width - props.colorScaleMargin.right,
-      this._canvas.width,
-    ];
+    const colorScaleXRange = [this._canvas.width - props.colorScaleMargin.right, this._canvas.width];
 
     if (colorScaleMin === null || colorScaleMax === null) {
       for (let col = 0; col < this._table.cols.length; col++) {

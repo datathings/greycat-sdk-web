@@ -45,9 +45,8 @@ document.body.appendChild(
           </div>
         </header>
         <p>
-          This is a paragraph, that contains a <span>span</span>, an <em>emphasized</em> word. But
-          also a <b>bold</b> one, and a <s>strikethrough</s>. All this <small>small</small> things
-          just to:
+          This is a paragraph, that contains a <span>span</span>, an <em>emphasized</em> word. But also a <b>bold</b>{' '}
+          one, and a <s>strikethrough</s>. All this <small>small</small> things just to:
           <blockquote>Validate each stylings.</blockquote>
         </p>
       </gui-card>
@@ -61,11 +60,10 @@ document.body.appendChild(
             </sl-button>
           </summary>
           <p>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae
-            vestibulum vestibulum. Cras venenatis euismod malesuada. Nullam ac erat ante. Proin
-            euismod, nulla vel dictum volutpat, nisi lorem egestas odio, vitae scelerisque enim
-            ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget, auctor vitae massa.
-            Morbi non urna ut odio efficitur hendrerit. Quisque egestas ipsum vitae lacus lacinia,
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus lacinia odio vitae vestibulum vestibulum.
+            Cras venenatis euismod malesuada. Nullam ac erat ante. Proin euismod, nulla vel dictum volutpat, nisi lorem
+            egestas odio, vitae scelerisque enim ligula venenatis dolor. Maecenas nisl est, ultrices nec congue eget,
+            auctor vitae massa. Morbi non urna ut odio efficitur hendrerit. Quisque egestas ipsum vitae lacus lacinia,
             at consectetur enim vehicula.
           </p>
         </gui-details>
@@ -163,10 +161,7 @@ function colorPalette(name: string) {
           <div className={s.colorName}>
             --sl-color-{name}-{value}
           </div>
-          <div
-            className={s.colorSquare}
-            style={{ backgroundColor: `var(--sl-color-${name}-${value})` }}
-          ></div>
+          <div className={s.colorSquare} style={{ backgroundColor: `var(--sl-color-${name}-${value})` }}></div>
         </div>
       ))}
     </div>

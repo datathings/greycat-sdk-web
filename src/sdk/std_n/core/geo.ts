@@ -24,9 +24,7 @@ namespace gc {
             if (lng === undefined && typeof lat === 'object') {
               return geo.create(geoEncode(lat.lat, lat.lng));
             }
-            throw new Error(
-              'core.geo.fromLatLng(...) expects either 2 numbers arguments, or 1 latlng object',
-            );
+            throw new Error('core.geo.fromLatLng(...) expects either 2 numbers arguments, or 1 latlng object');
           }
 
           /**

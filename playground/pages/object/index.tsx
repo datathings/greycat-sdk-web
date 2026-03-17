@@ -49,10 +49,7 @@ function toggleObjectResolve() {
 }
 
 document.body.appendChild(
-  <app-layout
-    title="Object"
-    mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}
-  >
+  <app-layout title="Object" mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}>
     <sl-select label="Select an object" placeholder="Select an object" onsl-change={changeObject}>
       <sl-option value="project::chart_time">project::chart_time</sl-option>
       <sl-option value="project::get_person">project::get_person</sl-option>

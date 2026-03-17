@@ -7,4 +7,3 @@ await gc.sdk.init();
 const task = await gc.project.sum.spawn(30, 12);
 const result = await task.result();
 console.log('Result:', result);
-

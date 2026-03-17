@@ -47,9 +47,7 @@ namespace gc {
           if (abi_type) {
             if (abi_type.is_enum) {
               if (!('field' in value && typeof value.field === 'string')) {
-                throw new Error(
-                  `unable to find 'field' property on instance of enum '${abi_type.name}'`,
-                );
+                throw new Error(`unable to find 'field' property on instance of enum '${abi_type.name}'`);
               }
               return abi_type.static_values![value.field];
             }

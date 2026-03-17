@@ -1,21 +1,19 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@greycat/web (vanilla)</title>
+  </head>
 
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>@greycat/web (vanilla)</title>
-</head>
-
-<body class="gui-theme-light">
-  <gui-layout full>
-    <div slot="header">Vanilla @greycat/web example</div>
-    <gui-table id="table" slot="main"></gui-table>
-  </gui-layout>
-  <sl-drawer id="drawer" label="Details">
-    <gui-object id="details"></gui-object>
-  </sl-drawer>
-  <script type="module" src="./vanilla.ts"></script>
-</body>
-
+  <body class="gui-theme-light">
+    <gui-layout full>
+      <div slot="header">Vanilla @greycat/web example</div>
+      <gui-table id="table" slot="main"></gui-table>
+    </gui-layout>
+    <sl-drawer id="drawer" label="Details">
+      <gui-object id="details"></gui-object>
+    </sl-drawer>
+    <script type="module" src="./vanilla.ts"></script>
+  </body>
 </html>

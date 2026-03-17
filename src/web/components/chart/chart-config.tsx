@@ -38,9 +38,7 @@ export class GuiChartConfig extends GuiElement {
 
     this._xAxis = (<gui-chart-axis-input header="xAxis" />) as GuiChartAxisInput;
     this._yAxes = (<gui-chart-yaxes-input />) as GuiChartYAxesInput;
-    this._series = (
-      <gui-chart-series-input yAxes={Object.keys(this._yAxes.value)} />
-    ) as GuiChartSeriesInput;
+    this._series = (<gui-chart-series-input yAxes={Object.keys(this._yAxes.value)} />) as GuiChartSeriesInput;
     this._cursor = (<sl-checkbox size="small">Cursor?</sl-checkbox>) as sl.SlCheckbox;
     this._tooltip = (
       <sl-select size="small" hoist label="Tooltip position" defaultValue="">
@@ -251,9 +249,7 @@ export class GuiChartYAxesInput extends HTMLElement {
                   this._axes.appendChild(ord);
                   // update the local state
                   this._value = this.value;
-                  this.dispatchEvent(
-                    new CustomEvent('sl-change', { bubbles: true, composed: true }),
-                  );
+                  this.dispatchEvent(new CustomEvent('sl-change', { bubbles: true, composed: true }));
                 }
               }}
             >
@@ -359,13 +355,7 @@ export class GuiChartSelectionInput extends HTMLElement {
       />
     ) as sl.SlInput;
     this._orientation = (
-      <sl-select
-        size="small"
-        hoist
-        label="Orientation"
-        helpText="Allows selection on specific axes, or both"
-        disabled
-      >
+      <sl-select size="small" hoist label="Orientation" helpText="Allows selection on specific axes, or both" disabled>
         <sl-option value="horizontal">horizontal</sl-option>
         <sl-option value="vertical">vertical</sl-option>
         <sl-option value="both">both</sl-option>
@@ -446,12 +436,8 @@ export class GuiChartAxisInput extends HTMLElement {
         <sl-option value="time">time</sl-option>
       </sl-select>
     ) as sl.SlSelect;
-    this._min = (
-      <sl-input size="small" label="Min" step="any" helpText="The axis minimum bound" />
-    ) as sl.SlInput;
-    this._max = (
-      <sl-input size="small" label="Max" step="any" helpText="The axis maximum bound" />
-    ) as sl.SlInput;
+    this._min = (<sl-input size="small" label="Min" step="any" helpText="The axis minimum bound" />) as sl.SlInput;
+    this._max = (<sl-input size="small" label="Max" step="any" helpText="The axis maximum bound" />) as sl.SlInput;
     this._format = (
       <sl-input size="small" label="Ticks">
         <span slot="help-text">
@@ -460,33 +446,21 @@ export class GuiChartAxisInput extends HTMLElement {
             d3-format
           </a>{' '}
           or{' '}
-          <a
-            href="https://d3js.org/d3-time-format#locale_utcFormat"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
             d3-time-format
           </a>
         </span>
       </sl-input>
     ) as sl.SlInput;
     this._cursorFormat = (
-      <sl-input
-        size="small"
-        label="Cursor"
-        helpText="Cursor format (see https://d3js.org/d3-format#format)"
-      >
+      <sl-input size="small" label="Cursor" helpText="Cursor format (see https://d3js.org/d3-format#format)">
         <span slot="help-text">
           See{' '}
           <a href="https://d3js.org/d3-format#format" target="_blank" rel="noreferrer">
             d3-format
           </a>{' '}
           or{' '}
-          <a
-            href="https://d3js.org/d3-time-format#locale_utcFormat"
-            target="_blank"
-            rel="noreferrer"
-          >
+          <a href="https://d3js.org/d3-time-format#locale_utcFormat" target="_blank" rel="noreferrer">
             d3-time-format
           </a>
         </span>
@@ -694,9 +668,7 @@ export class GuiChartOrdinateInput extends GuiChartAxisInput {
               ev.preventDefault();
               ev.stopPropagation();
               this.checked = !this.checked;
-              this.dispatchEvent(
-                new CustomEvent('gui-config-selected', { bubbles: true, composed: true }),
-              );
+              this.dispatchEvent(new CustomEvent('gui-config-selected', { bubbles: true, composed: true }));
             }}
           />
           {this._summary}
@@ -830,9 +802,7 @@ export class GuiChartSeriesInput extends HTMLElement {
               if (yes) {
                 querySelectorAllWithShadow('.selection-checkbox', this._series).forEach((el) => {
                   if ((el as sl.SlCheckbox).checked) {
-                    const serieIndex = getIndexInParent(
-                      el.parentElement!.parentElement!.parentElement!,
-                    );
+                    const serieIndex = getIndexInParent(el.parentElement!.parentElement!.parentElement!);
                     this._value.splice(serieIndex, 1);
                     this._series.childNodes.item(serieIndex).remove();
                   }
@@ -1063,13 +1033,7 @@ export class GuiChartSerieInput extends HTMLElement {
       />
     ) as sl.SlInput;
     this._yAxis = (
-      <sl-select
-        size="small"
-        label="yAxis"
-        helpText="The 'y' axis name to draw against"
-        hoist
-        required
-      />
+      <sl-select size="small" label="yAxis" helpText="The 'y' axis name to draw against" hoist required />
     ) as sl.SlSelect;
     this._spanCol0 = (
       <sl-input size="small" label="Span col 0" type="number" style={{ display: 'none' }} />
@@ -1088,9 +1052,7 @@ export class GuiChartSerieInput extends HTMLElement {
       <sl-checkbox helpText="Will hide this serie in the tooltip">Hide in tooltip</sl-checkbox>
     ) as sl.SlCheckbox;
     this._width = (<sl-input size="small" label="Width" type="number" />) as sl.SlInput;
-    this._markerWidth = (
-      <sl-input size="small" label="Marker width" type="number" />
-    ) as sl.SlInput;
+    this._markerWidth = (<sl-input size="small" label="Marker width" type="number" />) as sl.SlInput;
     this._markerShape = (
       <sl-select size="small" label="Marker shape">
         <sl-option value="circle">circle</sl-option>
@@ -1112,9 +1074,7 @@ export class GuiChartSerieInput extends HTMLElement {
               ev.preventDefault();
               ev.stopPropagation();
               this.checked = !this.checked;
-              this.dispatchEvent(
-                new CustomEvent('gui-config-selected', { bubbles: true, composed: true }),
-              );
+              this.dispatchEvent(new CustomEvent('gui-config-selected', { bubbles: true, composed: true }));
             }}
           />
           {this._summary}

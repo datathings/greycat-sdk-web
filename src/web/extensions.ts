@@ -24,9 +24,7 @@ declare global {
      * }));
      * // Result will be a GeoJSON FeatureCollection of points
      */
-    toFeatureCollection<G extends GeoJSON.Geometry>(
-      geometryMapper: (item: T) => G,
-    ): GeoJSON.FeatureCollection<G, T>;
+    toFeatureCollection<G extends GeoJSON.Geometry>(geometryMapper: (item: T) => G): GeoJSON.FeatureCollection<G, T>;
   }
 }
 
@@ -55,4 +53,3 @@ export function toFeatureCollection<T, G extends GeoJSON.Geometry>(
 ): GeoJSON.FeatureCollection<G, T> {
   return array.toFeatureCollection(geometryMapper);
 }
-

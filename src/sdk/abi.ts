@@ -140,9 +140,7 @@ namespace gc {
         const major = cursor.read_u16();
 
         if (major !== Abi.protocol_version) {
-          throw new Error(
-            `ABI protocol version mismatch (expected=${Abi.protocol_version}, actual=${major})`,
-          );
+          throw new Error(`ABI protocol version mismatch (expected=${Abi.protocol_version}, actual=${major})`);
         }
 
         this.magic = cursor.read_u16();
@@ -399,8 +397,7 @@ namespace gc {
           const type_name = this.symbols[type];
           const fn_name = this.symbols[name];
 
-          const fqn =
-            type === 0 ? `${module_name}::${fn_name}` : `${module_name}::${type_name}::${fn_name}`;
+          const fqn = type === 0 ? `${module_name}::${fn_name}` : `${module_name}::${type_name}::${fn_name}`;
 
           let args_type_name: string;
           if (type === 0) {
@@ -428,10 +425,7 @@ namespace gc {
           this.fn_by_fqn.set(fqn, this.functions[i]);
         }
 
-        const create_monomorphic_class = (
-          type: AbiType,
-          supertype: IGCObjectClass,
-        ): IGCObjectClass => {
+        const create_monomorphic_class = (type: AbiType, supertype: IGCObjectClass): IGCObjectClass => {
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
           const GCObject = class extends (supertype as any) {
             static _type = type.name;
@@ -544,9 +538,7 @@ namespace gc {
         } else if (split.length === 3) {
           return this.createFunction(split[0], split[1], split[2]);
         }
-        throw new Error(
-          `invalid function fqn '${fqn}' (expecting '<module>::<name>' or '<module>::<type>::<name>')`,
-        );
+        throw new Error(`invalid function fqn '${fqn}' (expecting '<module>::<name>' or '<module>::<type>::<name>')`);
       }
 
       createFunction(mod: string, type: string | undefined, name: string) {
@@ -790,15 +782,11 @@ namespace gc {
                     static readonly _type = type.name;
                     constructor() {
                       super();
-                      throw new Error(
-                        `native type '${module_name}::${type_name}' has no implementation`,
-                      );
+                      throw new Error(`native type '${module_name}::${type_name}' has no implementation`);
                     }
 
                     static override load(_: AbiReader, type: AbiType) {
-                      throw new Error(
-                        `unable to load native type '${type.name}', no native class defined`,
-                      );
+                      throw new Error(`unable to load native type '${type.name}', no native class defined`);
                     }
                   };
                   this.ctor = GCObject;
@@ -973,8 +961,7 @@ namespace gc {
     }
 
     export const F64_DIVIDERS = [
-      1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0,
-      10000000000.0,
+      1.0, 10.0, 100.0, 1000.0, 10000.0, 100000.0, 1000000.0, 10000000.0, 100000000.0, 1000000000.0, 10000000000.0,
     ] as const;
 
     export class AbiFunction {

@@ -1,6 +1,12 @@
 {
   "name": "@greycat/web",
   "version": "0.0.0",
+  "license": "Apache-2.0",
+  "files": [
+    "assets",
+    "dist",
+    "src"
+  ],
   "type": "module",
   "exports": {
     ".": {
@@ -26,12 +32,6 @@
     "./*.css": "./dist/*.css",
     "./assets/*.svg": "./assets/*.svg"
   },
-  "license": "Apache-2.0",
-  "files": [
-    "dist",
-    "assets",
-    "src"
-  ],
   "scripts": {
     "clean": "rm -rf dist",
     "gen": "greycat install && rm lib/installed && GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",

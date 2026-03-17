@@ -55,13 +55,7 @@ export const modal = {
     });
   },
 
-  confirm({
-    message,
-    title = 'Confirm',
-    confirm = 'Yes',
-    cancel = 'No',
-    width,
-  }: ModalConfirmProps): Promise<boolean> {
+  confirm({ message, title = 'Confirm', confirm = 'Yes', cancel = 'No', width }: ModalConfirmProps): Promise<boolean> {
     let resolved = false;
     const promise = new Promise<boolean>((resolve) => {
       const dialog = (
@@ -115,12 +109,7 @@ export const modal = {
    * Shows a simple modal with an input field. Returns the content on succes or `undefined` if empty or closed.
    * @returns if `undefined` the input has not been given or is empty
    */
-  input({
-    title = 'Input',
-    confirm = 'Ok',
-    inputProps,
-    width,
-  }: ModalInputProps): Promise<string | undefined> {
+  input({ title = 'Input', confirm = 'Ok', inputProps, width }: ModalInputProps): Promise<string | undefined> {
     let resolved = false;
 
     const promise = new Promise<string | undefined>((resolve) => {
@@ -250,17 +239,7 @@ export const modal = {
 
 export type SlInputProps = {
   value?: string;
-  type?:
-    | 'date'
-    | 'datetime-local'
-    | 'email'
-    | 'number'
-    | 'password'
-    | 'search'
-    | 'tel'
-    | 'text'
-    | 'time'
-    | 'url';
+  type?: 'date' | 'datetime-local' | 'email' | 'number' | 'password' | 'search' | 'tel' | 'text' | 'time' | 'url';
   label?: string;
   size?: 'small' | 'medium' | 'large';
   filled?: boolean;

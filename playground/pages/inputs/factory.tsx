@@ -16,9 +16,7 @@ class TxIdSelect extends GuiSelect {
         this.value = undefined;
         this.dispatchEvent(new GuiChangeEvent(this.value));
       }
-      this.options = values
-        .map((value) => ({ value }))
-        .sort((a, b) => a.value.localeCompare(b.value));
+      this.options = values.map((value) => ({ value })).sort((a, b) => a.value.localeCompare(b.value));
     } catch {
       this.value = undefined;
       this.options = [];

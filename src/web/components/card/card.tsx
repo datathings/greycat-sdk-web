@@ -3,11 +3,7 @@ import styles from './card.css?inline';
 import componentStyles from '../component.styles.css?inline';
 
 export class GuiCard extends sl.SlCard {
-  static override styles = [
-    sl.SlCard.styles as CSSStyleSheet,
-    css(componentStyles),
-    css(styles),
-  ];
+  static override styles = [sl.SlCard.styles as CSSStyleSheet, css(componentStyles), css(styles)];
 }
 
 declare global {

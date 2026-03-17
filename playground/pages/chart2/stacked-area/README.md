@@ -43,8 +43,8 @@ document.body.appendChild(
 
 ## Config highlights
 
-| Option | Description |
-|--------|-------------|
-| `series[].stack: 'total'` | Stack series with the same group name |
+| Option                     | Description                                              |
+| -------------------------- | -------------------------------------------------------- |
+| `series[].stack: 'total'`  | Stack series with the same group name                    |
 | `series[].areaStyle: true` | Fill the area below the line (or between stacked series) |
-| `dataZoom.type: 'both'` | Mouse wheel zoom + visible slider at the bottom |
+| `dataZoom.type: 'both'`    | Mouse wheel zoom + visible slider at the bottom          |

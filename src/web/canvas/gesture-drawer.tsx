@@ -319,12 +319,8 @@ export class GestureDrawer extends CanvasDrawer {
     const xMax = this.anim.ctx.canvas.width - this.selectionOpts.right;
     const yMax = this.anim.ctx.canvas.height - this.selectionOpts.bottom;
 
-    const xRel = Math.max(this.selectionOpts.left, Math.min(xMax, this._cursor.x))
-      .toString()
-      .padStart(4, ' ');
-    const yRel = Math.max(this.selectionOpts.top, Math.min(yMax, this._cursor.y))
-      .toString()
-      .padStart(4, ' ');
+    const xRel = Math.max(this.selectionOpts.left, Math.min(xMax, this._cursor.x)).toString().padStart(4, ' ');
+    const yRel = Math.max(this.selectionOpts.top, Math.min(yMax, this._cursor.y)).toString().padStart(4, ' ');
 
     const rel_coords = `rel(${xRel}, ${yRel})`;
     this.anim.text(x, y, `FPS: ${fps}`, opts);

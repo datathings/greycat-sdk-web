@@ -97,9 +97,7 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
         if (selectedIndex !== -1) {
           ev.preventDefault();
           const item = items[selectedIndex];
-          this._list
-            .querySelectorAll(`div.selected`)
-            .forEach((e) => e.classList.remove('selected'));
+          this._list.querySelectorAll(`div.selected`).forEach((e) => e.classList.remove('selected'));
           item.classList.add('selected');
           this.hideDropdown();
           this.input.value = item.textContent!;

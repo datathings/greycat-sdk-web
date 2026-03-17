@@ -100,9 +100,7 @@ export function stringify(props: StringifyProps): string {
   } else if (value instanceof Map) {
     return `Map { size: ${value.size} }`;
   } else if (value instanceof gc.runtime.Task) {
-    const fn = value.type
-      ? `${value.mod}::${value.type}::${value.fun}`
-      : `${value.mod}::${value.fun}`;
+    const fn = value.type ? `${value.mod}::${value.type}::${value.fun}` : `${value.mod}::${value.fun}`;
     switch (value.status.key) {
       case 'ended':
       case 'ended_with_errors':

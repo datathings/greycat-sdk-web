@@ -19,7 +19,6 @@
     }
   }
 
-
   sl-popup::part(popup) {
     z-index: var(--gui-select-list-z-index);
   }

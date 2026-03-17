@@ -202,14 +202,12 @@ function listHtmlFiles(dir: string): string[] {
       return [];
     });
   } catch {
-    console.warn(
-      `[greycat] Looks like ${dir} is empty. Did you provide the right 'root' property?`,
-    );
+    console.warn(`[greycat] Looks like ${dir} is empty. Did you provide the right 'root' property?`);
     return [];
   }
 }
 
-/* 
+/*
   // Try to intercept GET 404 to proxy them to GreyCat
   let vite404MiddlewareIndex = -1;
   let viteErrorMiddlewareIndex = -1;
