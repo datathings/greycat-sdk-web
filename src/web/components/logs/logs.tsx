@@ -6,6 +6,7 @@ const HEADERS = ['Level', 'Time', 'Type', 'User', 'Task/Req', 'Tag', 'Data'] as 
 const COL_COUNT = HEADERS.length;
 const SIMPLE_COLS = COL_COUNT - 1;
 const BUFFER_ROWS = 5;
+const MIN_COL_WIDTH = 24;
 
 /**
  * Custom CSV parser for GreyCat Logs
@@ -83,6 +84,16 @@ export class GuiLogs extends GuiElement {
   private _scrubberDownY = 0;
   private _resizeObserver: ResizeObserver | undefined;
 
+  // Column resize state
+  private _colWidths: number[] = [];
+  private _resizeColIdx = -1;
+  private _resizeStartX = 0;
+  private _resizeStartWidth = 0;
+  private _resizeRaf = 0;
+  private _resizeCx = 0;
+  private _resizers: HTMLDivElement[] = [];
+  private _didResize = false;
+
   constructor() {
     super();
     this._buildDOM();
@@ -108,6 +119,7 @@ export class GuiLogs extends GuiElement {
   }
 
   connectedCallback(): void {
+    this._readColWidths();
     this._computeRowHeight();
     this._resizeObserver = new ResizeObserver(() => {
       this._prevFromRowIdx = -1;
@@ -587,6 +599,55 @@ export class GuiLogs extends GuiElement {
     tmp.style.display = 'none';
   }
 
+  // --- Column resize ---
+  private _readColWidths(): void {
+    const styles = getComputedStyle(this);
+    this._colWidths = [];
+    for (let i = 0; i < COL_COUNT - 1; i++) {
+      this._colWidths.push(parseInt(styles.getPropertyValue(`--col-${i}-width`)) || MIN_COL_WIDTH);
+    }
+  }
+
+  private _startColResize(colIdx: number, startX: number): void {
+    this._resizeColIdx = colIdx;
+    this._resizeStartX = startX;
+    this._resizeCx = startX;
+    this._resizeStartWidth = this._colWidths[colIdx];
+    this._didResize = true;
+    this.classList.add('log-resizing');
+    this._resizers[colIdx].classList.add('active');
+    const headerCell = this._resizers[colIdx].parentElement!;
+    headerCell.classList.add('resizing');
+
+    const onMove = (e: MouseEvent) => {
+      this._resizeCx = e.clientX;
+    };
+    const tick = () => {
+      if (this._resizeColIdx < 0) return;
+      const dx = this._resizeCx - this._resizeStartX;
+      const newWidth = Math.max(MIN_COL_WIDTH, this._resizeStartWidth + dx);
+      if (newWidth !== this._colWidths[this._resizeColIdx]) {
+        this._colWidths[this._resizeColIdx] = newWidth;
+        this.style.setProperty(`--col-${this._resizeColIdx}-width`, `${newWidth}px`);
+      }
+      this._resizeRaf = requestAnimationFrame(tick);
+    };
+    this._resizeRaf = requestAnimationFrame(tick);
+
+    const stop = () => {
+      cancelAnimationFrame(this._resizeRaf);
+      this._resizers[this._resizeColIdx]?.classList.remove('active');
+      headerCell.classList.remove('resizing');
+      this._resizeColIdx = -1;
+      this.classList.remove('log-resizing');
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', stop);
+    };
+
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', stop);
+  }
+
   // --- DOM construction ---
   private _buildDOM(): void {
     this._statusEl = (<span className="log-status">Loading...</span>) as HTMLSpanElement;
@@ -656,6 +717,10 @@ export class GuiLogs extends GuiElement {
         <div
           className="log-header-cell"
           onclick={() => {
+            if (this._didResize) {
+              this._didResize = false;
+              return;
+            }
             if (this._sortColumn === colIdx) {
               this._sortAsc = !this._sortAsc;
             } else {
@@ -675,6 +740,18 @@ export class GuiLogs extends GuiElement {
           {indicator}
         </div>
       ) as HTMLDivElement;
+
+      // Add resizer handle to all columns except the last (1fr)
+      if (i < HEADERS.length - 1) {
+        const resizer = (<div className="log-header-resizer" />) as HTMLDivElement;
+        resizer.addEventListener('mousedown', (e) => {
+          e.stopPropagation();
+          this._startColResize(colIdx, e.clientX);
+        });
+        this._resizers[i] = resizer;
+        cell.appendChild(resizer);
+      }
+
       this._headerRow.appendChild(cell);
     }
 
