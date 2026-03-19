@@ -6,9 +6,11 @@ declare global {
       [key: `attr:${string}`]: { toString(): string } | null | undefined;
     };
 
+    type ElementStyle = Partial<CSSStyleDeclaration & { [key: `--${string}`]: string }> | string;
+
     type ExtendedHTMLProperties = {
       className?: string | string[] | { [className: string]: boolean };
-      style?: Partial<CSSStyleDeclaration & { [key: `--${string}`]: string }> | string;
+      style?: GreyCat.ElementStyle;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       children?: any;
     };
@@ -29,7 +31,8 @@ declare global {
       // eslint-disable-next-line @typescript-eslint/ban-types
       [K in keyof T as T[K] extends Function ? K : never]: T[K];
     };
-    type IfEquals<X, Y, A = X, B = never> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
+    type IfEquals<X, Y, A = X, B = never> =
+      (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? A : B;
     type OmitFunctions<T> = Omit<T, FunctionKeys<T>>;
     type HTMLElementFunctionsKeys = Pick<HTMLElement, FunctionKeys<HTMLElement>>;
     type UnwantedKeys =

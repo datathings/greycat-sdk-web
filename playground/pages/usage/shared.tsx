@@ -1,188 +1,170 @@
-import type { GuiChart2, Chart2Config } from '@greycat/web';
+import type { GuiChart2 } from '@greycat/web';
 
 // --- Types ---
 
-export type N = number | null;
+// export interface FlatUsageData {
+//   times: unknown[];
+//   osAvailMemory: number[];
+//   osUsedMemory: number[];
+//   processMemory: number[];
+//   globalMemory: number[];
+//   memoryDrift: number[];
+//   workerCount: number;
+//   workerMemoryTotal: number[];
+//   workerCacheTotal: number[];
+//   workerWritesTotal: number[];
+//   workerReadsTotal: number[];
+//   workerMemory: number[][];
+//   workerCache: number[][];
+//   workerWrites: number[][];
+//   workerReads: number[][];
+//   zoneCount: number;
+//   zoneSizeTotal: number[];
+//   zoneCommittedTotal: number[];
+//   zoneReservedTotal: number[];
+//   zoneBlocksTotal: number[];
+//   zoneCacheTotal: number[];
+//   rawZones: (gc.runtime.ZoneUsage[] | null)[];
+// }
 
-export interface FlatUsageData {
-  times: unknown[];
-  processMemory: N[];
-  globalMemory: N[];
-  memoryDrift: N[];
-  workerCount: number;
-  workerMemoryTotal: N[];
-  workerCacheTotal: N[];
-  workerWritesTotal: N[];
-  workerReadsTotal: N[];
-  workerMemory: N[][];
-  workerCache: N[][];
-  workerWrites: N[][];
-  workerReads: N[][];
-  zoneCount: number;
-  zoneSizeTotal: N[];
-  zoneCommittedTotal: N[];
-  zoneReservedTotal: N[];
-  zoneBlocksTotal: N[];
-  zoneCacheTotal: N[];
-  rawZones: (gc.runtime.ZoneUsage[] | null)[];
-}
+// // --- Gap detection ---
 
-// --- Gap detection ---
+// const osAvailMemory: number[] = [];
+// const osUsedMemory: number[] = [];
+// const processMemory: number[] = [];
+// const globalMemory: number[] = [];
+// const memoryDrift: number[] = [];
+// const workerMemory: number[][] = [];
+// const workerCache: number[][] = [];
+// const workerWrites: number[][] = [];
+// const workerReads: number[][] = [];
+// const workerMemoryTotal: number[] = [];
+// const workerCacheTotal: number[] = [];
+// const workerWritesTotal: number[] = [];
+// const workerReadsTotal: number[] = [];
+// const zoneSizeTotal: number[] = [];
+// const zoneCommittedTotal: number[] = [];
+// const zoneReservedTotal: number[] = [];
+// const zoneBlocksTotal: number[] = [];
+// const zoneCacheTotal: number[] = [];
+// const rawZones: gc.runtime.ZoneUsage[][] = [];
 
-const GAP_THRESHOLD_MS = 15_000;
+// export function flattenUsageData(
+//   table: gc.core.Table<[gc.core.time, gc.runtime.RuntimeUsage]>,
+// ): FlatUsageData {
+//   const nbRows = table.nbRows();
+//   const times = table.cols[0] as gc.core.time[];
+//   const usages = table.cols[1] as gc.runtime.RuntimeUsage[];
 
-export function flattenUsageData(table: gc.core.Table): FlatUsageData {
-  const nbRows = table.nbRows();
-  const srcTimes = table.cols[0];
-  const srcUsages = table.cols[1];
+//   let workerCount = 0;
+//   let zoneCount = 0;
+//   if (nbRows > 0) {
+//     workerCount = usages[0].workers.length;
+//     zoneCount = usages[0].zones.length;
+//   }
 
-  let workerCount = 0;
-  let zoneCount = 0;
-  for (let i = 0; i < nbRows; i++) {
-    const ru = srcUsages[i] as gc.runtime.RuntimeUsage | null;
-    if (ru == null) continue;
-    if (ru.workers && ru.workers.length > workerCount) workerCount = ru.workers.length;
-    if (ru.zones && ru.zones.length > zoneCount) zoneCount = ru.zones.length;
-  }
+//   osAvailMemory.length = nbRows;
+//   osUsedMemory.length = nbRows;
+//   processMemory.length = nbRows;
+//   globalMemory.length = nbRows;
+//   memoryDrift.length = nbRows;
+//   workerMemory.length = nbRows;
+//   workerCache.length = nbRows;
+//   workerWrites.length = nbRows;
+//   workerReads.length = nbRows;
+//   workerMemoryTotal.length = nbRows;
+//   workerCacheTotal.length = nbRows;
+//   workerWritesTotal.length = nbRows;
+//   workerReadsTotal.length = nbRows;
+//   zoneSizeTotal.length = nbRows;
+//   zoneCommittedTotal.length = nbRows;
+//   zoneReservedTotal.length = nbRows;
+//   zoneBlocksTotal.length = nbRows;
+//   zoneCacheTotal.length = nbRows;
+//   rawZones.length = nbRows;
 
-  const times: unknown[] = [];
-  const processMemory: N[] = [];
-  const globalMemory: N[] = [];
-  const memoryDrift: N[] = [];
-  const workerMemory: N[][] = Array.from({ length: workerCount }, () => []);
-  const workerCache: N[][] = Array.from({ length: workerCount }, () => []);
-  const workerWrites: N[][] = Array.from({ length: workerCount }, () => []);
-  const workerReads: N[][] = Array.from({ length: workerCount }, () => []);
-  const workerMemoryTotal: N[] = [];
-  const workerCacheTotal: N[] = [];
-  const workerWritesTotal: N[] = [];
-  const workerReadsTotal: N[] = [];
-  const zoneSizeTotal: N[] = [];
-  const zoneCommittedTotal: N[] = [];
-  const zoneReservedTotal: N[] = [];
-  const zoneBlocksTotal: N[] = [];
-  const zoneCacheTotal: N[] = [];
-  const rawZones: (gc.runtime.ZoneUsage[] | null)[] = [];
+//   for (let i = 0; i < nbRows; i++) {
+//     const ru = usages[i];
 
-  let prevEpochMs = -1;
+//     processMemory[i] = Number(ru.process_rss_memory);
+//     globalMemory[i] = Number(ru.global_memory);
+//     memoryDrift[i] = Number(ru.memory_drift);
 
-  function pushNull(gapTime: unknown) {
-    times.push(gapTime);
-    processMemory.push(null);
-    globalMemory.push(null);
-    memoryDrift.push(null);
-    for (let w = 0; w < workerCount; w++) {
-      workerMemory[w].push(null);
-      workerCache[w].push(null);
-      workerWrites[w].push(null);
-      workerReads[w].push(null);
-    }
-    workerMemoryTotal.push(null);
-    workerCacheTotal.push(null);
-    workerWritesTotal.push(null);
-    workerReadsTotal.push(null);
-    zoneSizeTotal.push(null);
-    zoneCommittedTotal.push(null);
-    zoneReservedTotal.push(null);
-    zoneBlocksTotal.push(null);
-    zoneCacheTotal.push(null);
-    rawZones.push(null);
-  }
+//     let wmTotal = 0;
+//     let wcTotal = 0;
+//     let wwTotal = 0;
+//     let wrTotal = 0;
+//     const workers = ru.workers;
+//     for (let w = 0; w < workerCount; w++) {
+//       const wu = workers[w];
+//       const mem = Number(wu.memory ?? 0);
+//       const cache = Number(wu.cache ?? 0);
+//       const writes = Number(wu.writes ?? 0);
+//       const reads = Number(wu.reads ?? 0);
+//       workerMemory[w].push(mem);
+//       workerCache[w].push(cache);
+//       workerWrites[w].push(writes);
+//       workerReads[w].push(reads);
+//       wmTotal += mem;
+//       wcTotal += cache;
+//       wwTotal += writes;
+//       wrTotal += reads;
+//     }
+//     workerMemoryTotal.push(wmTotal);
+//     workerCacheTotal.push(wcTotal);
+//     workerWritesTotal.push(wwTotal);
+//     workerReadsTotal.push(wrTotal);
 
-  for (let i = 0; i < nbRows; i++) {
-    const t = srcTimes[i];
-    const epochMs = t instanceof gc.core.time ? Math.round(t.epochMs) : Number(t);
-    if (prevEpochMs >= 0 && epochMs - prevEpochMs > GAP_THRESHOLD_MS) {
-      pushNull(gc.core.time.fromMs(Math.round((prevEpochMs + epochMs) / 2)));
-    }
-    prevEpochMs = epochMs;
+//     let zsTotal = 0,
+//       zcmTotal = 0,
+//       zrTotal = 0,
+//       zbTotal = 0,
+//       zccTotal = 0;
+//     const zones = ru.zones;
+//     rawZones.push(zones ?? []);
+//     if (zones) {
+//       for (let z = 0; z < zones.length; z++) {
+//         const zu = zones[z];
+//         if (!zu) continue;
+//         zsTotal += Number(zu.size ?? 0);
+//         zcmTotal += Number(zu.committed_blocks ?? 0);
+//         zrTotal += Number(zu.reserved_blocks ?? 0);
+//         zbTotal += Number(zu.blocks ?? 0);
+//         zccTotal += Number(zu.cache ?? 0);
+//       }
+//     }
+//     zoneSizeTotal.push(zsTotal);
+//     zoneCommittedTotal.push(zcmTotal);
+//     zoneReservedTotal.push(zrTotal);
+//     zoneBlocksTotal.push(zbTotal);
+//     zoneCacheTotal.push(zccTotal);
+//   }
 
-    const ru = srcUsages[i] as gc.runtime.RuntimeUsage | null;
-    times.push(t);
-
-    if (ru == null) {
-      pushNull(t);
-      times.pop();
-      continue;
-    }
-
-    processMemory.push(Number(ru.process_memory ?? 0));
-    globalMemory.push(Number(ru.global_memory ?? 0));
-    memoryDrift.push(Number(ru.memory_drift ?? 0));
-
-    let wmTotal = 0,
-      wcTotal = 0,
-      wwTotal = 0,
-      wrTotal = 0;
-    const workers = ru.workers;
-    for (let w = 0; w < workerCount; w++) {
-      const wu = workers?.[w];
-      const mem = wu ? Number(wu.memory ?? 0) : 0;
-      const cache = wu ? Number(wu.cache ?? 0) : 0;
-      const writes = wu ? Number(wu.writes ?? 0) : 0;
-      const reads = wu ? Number(wu.reads ?? 0) : 0;
-      workerMemory[w].push(mem);
-      workerCache[w].push(cache);
-      workerWrites[w].push(writes);
-      workerReads[w].push(reads);
-      wmTotal += mem;
-      wcTotal += cache;
-      wwTotal += writes;
-      wrTotal += reads;
-    }
-    workerMemoryTotal.push(wmTotal);
-    workerCacheTotal.push(wcTotal);
-    workerWritesTotal.push(wwTotal);
-    workerReadsTotal.push(wrTotal);
-
-    let zsTotal = 0,
-      zcmTotal = 0,
-      zrTotal = 0,
-      zbTotal = 0,
-      zccTotal = 0;
-    const zones = ru.zones;
-    rawZones.push(zones ?? []);
-    if (zones) {
-      for (let z = 0; z < zones.length; z++) {
-        const zu = zones[z];
-        if (!zu) continue;
-        zsTotal += Number(zu.size ?? 0);
-        zcmTotal += Number(zu.committed_blocks ?? 0);
-        zrTotal += Number(zu.reserved_blocks ?? 0);
-        zbTotal += Number(zu.blocks ?? 0);
-        zccTotal += Number(zu.cache ?? 0);
-      }
-    }
-    zoneSizeTotal.push(zsTotal);
-    zoneCommittedTotal.push(zcmTotal);
-    zoneReservedTotal.push(zrTotal);
-    zoneBlocksTotal.push(zbTotal);
-    zoneCacheTotal.push(zccTotal);
-  }
-
-  return {
-    times,
-    processMemory,
-    globalMemory,
-    memoryDrift,
-    workerCount,
-    workerMemoryTotal,
-    workerCacheTotal,
-    workerWritesTotal,
-    workerReadsTotal,
-    workerMemory,
-    workerCache,
-    workerWrites,
-    workerReads,
-    zoneCount,
-    zoneSizeTotal,
-    zoneCommittedTotal,
-    zoneReservedTotal,
-    zoneBlocksTotal,
-    zoneCacheTotal,
-    rawZones,
-  };
-}
+//   return {
+//     times,
+//     osAvailMemory,
+//     osUsedMemory,
+//     processMemory,
+//     globalMemory,
+//     memoryDrift,
+//     workerCount,
+//     workerMemoryTotal,
+//     workerCacheTotal,
+//     workerWritesTotal,
+//     workerReadsTotal,
+//     workerMemory,
+//     workerCache,
+//     workerWrites,
+//     workerReads,
+//     zoneCount,
+//     zoneSizeTotal,
+//     zoneCommittedTotal,
+//     zoneReservedTotal,
+//     zoneBlocksTotal,
+//     zoneCacheTotal,
+//     rawZones,
+//   };
+// }
 
 // --- Chart config helpers ---
 
@@ -227,15 +209,16 @@ export const TIME_WINDOWS: TimeWindow[] = [
 
 // --- Shared polling state ---
 
+export type UsageTable = gc.core.Table<[gc.core.time, gc.runtime.RuntimeUsage]>;
 let greycat: gc.sdk.GreyCat;
 let activeWindow: TimeWindow = TIME_WINDOWS[0];
-let lastData: FlatUsageData | null = null;
+let lastData: UsageTable | null = null;
 let polling = true;
 let interval: ReturnType<typeof setInterval> | null = null;
-const listeners: Array<(data: FlatUsageData) => void> = [];
+const listeners: Array<(data: UsageTable) => void> = [];
 const allCharts: GuiChart2[] = [];
 
-export function getLastData(): FlatUsageData | null {
+export function getLastData(): UsageTable | null {
   return lastData;
 }
 
@@ -247,7 +230,7 @@ export function registerChart(chart: GuiChart2): void {
   allCharts.push(chart);
 }
 
-export function onData(fn: (data: FlatUsageData) => void): void {
+export function onData(fn: (data: UsageTable) => void): void {
   listeners.push(fn);
 }
 
@@ -266,11 +249,17 @@ function applyAxisFormat(fmt: string) {
   }
 }
 
+let usages: gc.core.nodeTime<gc.runtime.RuntimeUsage> | undefined;
+
 async function fetchAndUpdate() {
   try {
-    const root = await greycat.root();
-    const usages = root['runtime::usages'] as gc.core.nodeTime;
-    if (!usages) return;
+    if (!usages) {
+      const root = await greycat.root();
+      usages = root['runtime::usages'] as gc.core.nodeTime<gc.runtime.RuntimeUsage>;
+      if (!usages) {
+        return;
+      }
+    }
 
     const from = gc.core.time.fromMs(Date.now() - activeWindow.durationMs);
     const table = await usages.sample(
@@ -281,7 +270,6 @@ async function fetchAndUpdate() {
       null,
       null,
     );
-    if (table.nbRows() === 0) return;
 
     const data = flattenUsageData(table);
     lastData = data;

@@ -216,7 +216,7 @@ function buildSerie(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const serie: Record<string, any> = {
     type,
-    name: s.title ?? `Serie ${idx}`,
+    name: s.name ?? `Serie ${idx}`,
     yAxisIndex: s.yAxisIndex ?? 0,
   };
 
@@ -429,7 +429,7 @@ export function inferConfig2(table: gc.core.Table): Chart2Config {
             case gc.sdk.PrimitiveType.float:
               config.series.push({
                 type: 'line',
-                title: attr.name,
+                name: attr.name,
                 xCol: `${elemTy.name}::${timeCol.name}`,
                 yCol: `${elemTy.name}::${attr.name}`,
               });
@@ -460,11 +460,11 @@ export function inferConfig2(table: gc.core.Table): Chart2Config {
     if (!isChartable(val)) {
       continue;
     }
-    const title = table.headers?.[c] ?? `Col ${c}`;
+    const name = table.headers?.[c] ?? `Col ${c}`;
     config.series.push({
       type: 'line',
       yCol: c,
-      title,
+      name,
     });
   }
 

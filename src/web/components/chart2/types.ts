@@ -1,5 +1,8 @@
 import type { SerieTableColumn, TypedSerieTableColumn } from '../chart/types.js';
 
+// oxlint-disable-next-line typescript/no-explicit-any
+export type EchartsExt = Record<string, any>;
+
 export type Chart2SerieType = 'line' | 'bar' | 'scatter' | 'pie' | 'candlestick' | 'heatmap' | 'boxplot';
 export type Chart2AxisType = 'value' | 'time' | 'category' | 'log';
 
@@ -12,13 +15,12 @@ export interface Chart2Axis {
   axisLabel?: { formatter?: string | ((value: unknown) => string); rotate?: number };
   timezone?: gc.core.TimeZone;
   /** Raw ECharts axis options passthrough */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  echarts?: Record<string, any>;
+  echarts?: EchartsExt;
 }
 
 export interface Chart2Serie {
   type?: Chart2SerieType;
-  title?: string;
+  name?: string;
   xCol?: SerieTableColumn;
   yCol: SerieTableColumn;
   /** Which y-axis (0-based), defaults to 0 */
@@ -41,8 +43,7 @@ export interface Chart2Serie {
   /** For candlestick: [open, close, low, high] columns */
   candleCols?: [SerieTableColumn, SerieTableColumn, SerieTableColumn, SerieTableColumn];
   /** Raw ECharts series options passthrough */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  echarts?: Record<string, any>;
+  echarts?: EchartsExt;
 }
 
 export interface Chart2Config {
@@ -72,8 +73,7 @@ export interface Chart2Config {
     containLabel?: boolean;
   };
   /** Raw ECharts option override (deep-merged last) */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  echarts?: Record<string, any>;
+  echarts?: EchartsExt;
 }
 
 // --- Event detail types ---

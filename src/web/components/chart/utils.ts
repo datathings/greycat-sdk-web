@@ -290,6 +290,8 @@ export function tableGetCell(table: gc.core.Table, col: SerieTableColumn, row: n
           return undefined;
         }
         value = value.$fields[p];
+      } else if (Array.isArray(value)) {
+        value = value[p];
       } else {
         return undefined;
       }

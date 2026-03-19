@@ -174,7 +174,14 @@ export class GuiChart2 extends GuiElement {
     this._notMerge = v;
   }
 
-  setAttrs(attrs: Partial<{ value: TableLike; config: Chart2Config; drawerEnabled: boolean; notMerge: boolean }>): void {
+  setAttrs(
+    attrs: Partial<{
+      value: TableLike;
+      config: Chart2Config;
+      drawerEnabled: boolean;
+      notMerge: boolean;
+    }>,
+  ): void {
     if (attrs.drawerEnabled !== undefined) {
       this._drawerEnabled = attrs.drawerEnabled;
     }
@@ -190,7 +197,12 @@ export class GuiChart2 extends GuiElement {
     this._render();
   }
 
-  getAttrs(): { value: gc.core.Table; config: Chart2Config | undefined; drawerEnabled: boolean; notMerge: boolean } {
+  getAttrs(): {
+    value: gc.core.Table;
+    config: Chart2Config | undefined;
+    drawerEnabled: boolean;
+    notMerge: boolean;
+  } {
     return {
       value: this._table,
       config: this._config,
@@ -222,7 +234,9 @@ export class GuiChart2 extends GuiElement {
     this._configEl = document.createElement('gui-chart2-config') as GuiChart2Config;
     this._configEl.value = this._config ?? inferConfig2(this._table);
     this._configEl.echartsInstance = this._chart;
-    this._configEl.addEventListener('gui-chart2-config-update', ((e: GuiChart2ConfigUpdateEvent) => {
+    this._configEl.addEventListener('gui-chart2-config-update', ((
+      e: GuiChart2ConfigUpdateEvent,
+    ) => {
       this._config = e.detail;
       this._render();
     }) as EventListener);
@@ -255,6 +269,8 @@ export class GuiChart2 extends GuiElement {
     if (tooltip && typeof tooltip === 'object') {
       tooltip.appendTo = () => this._container;
     }
+
+    // console.log('OPTIONS', option);
 
     this._chart.setOption(option, { notMerge: this._notMerge });
   }
