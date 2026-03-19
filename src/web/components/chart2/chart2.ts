@@ -54,6 +54,7 @@ export class GuiChart2 extends GuiElement {
   private _configEl: GuiChart2Config | null = null;
   private _resizeObs: ResizeObserver;
   private _drawerEnabled = false;
+  private _notMerge = false;
   private _mutationObs: MutationObserver;
 
   constructor() {
@@ -158,9 +159,27 @@ export class GuiChart2 extends GuiElement {
     this._drawerEnabled = enabled;
   }
 
-  setAttrs(attrs: Partial<{ value: TableLike; config: Chart2Config; drawerEnabled: boolean }>): void {
+  /**
+   * When `true`, each render fully replaces the ECharts option, resetting interactive
+   * state such as dataZoom (pan/zoom) and legend selection.
+   *
+   * When `false` (default), options are merged, preserving user interactions across
+   * data or config updates. Mirrors ECharts' `setOption` `notMerge` parameter.
+   */
+  get notMerge(): boolean {
+    return this._notMerge;
+  }
+
+  set notMerge(v: boolean) {
+    this._notMerge = v;
+  }
+
+  setAttrs(attrs: Partial<{ value: TableLike; config: Chart2Config; drawerEnabled: boolean; notMerge: boolean }>): void {
     if (attrs.drawerEnabled !== undefined) {
       this._drawerEnabled = attrs.drawerEnabled;
+    }
+    if (attrs.notMerge !== undefined) {
+      this._notMerge = attrs.notMerge;
     }
     if (attrs.config !== undefined) {
       this._config = attrs.config;
@@ -171,11 +190,12 @@ export class GuiChart2 extends GuiElement {
     this._render();
   }
 
-  getAttrs(): { value: gc.core.Table; config: Chart2Config | undefined; drawerEnabled: boolean } {
+  getAttrs(): { value: gc.core.Table; config: Chart2Config | undefined; drawerEnabled: boolean; notMerge: boolean } {
     return {
       value: this._table,
       config: this._config,
       drawerEnabled: this._drawerEnabled,
+      notMerge: this._notMerge,
     };
   }
 
@@ -236,7 +256,7 @@ export class GuiChart2 extends GuiElement {
       tooltip.appendTo = () => this._container;
     }
 
-    this._chart.setOption(option, { notMerge: true });
+    this._chart.setOption(option, { notMerge: this._notMerge });
   }
 }
 

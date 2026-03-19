@@ -1,0 +1,52 @@
+fn seed_usages() {
+  var nb_workers = 8;
+  var nb_zones = 64;
+  var points = 2000;
+  var now = time::now();
+  var step = 5_s;
+  var rng = Random {};
+
+  // base values
+  var base_process_mem = 512 * 1024 * 1024; // 512 MB
+  var base_global_mem = 256 * 1024 * 1024;  // 256 MB
+
+  for (var i = 0; i < points; i++) {
+    var t = now - ((points - i) * step);
+
+    // simulate slow memory growth + noise
+    var drift_val = (i * 1024) + (rng.uniform(0, 200_000)) - 100_000;
+    var process_mem = base_process_mem + (i * 2048) + (rng.uniform(0, 10_000_000));
+    var global_mem = base_global_mem + (i * 1024) + (rng.uniform(0, 5_000_000));
+
+    var w = Array<runtime::WorkerUsage> {};
+    for (var wi = 0; wi < nb_workers; wi++) {
+      var base_worker_mem = (64 + (wi * 16)) * 1024 * 1024;
+      w.add(runtime::WorkerUsage {
+        memory: base_worker_mem + (rng.uniform(0, 8_000_000)),
+        cache: ((16 + (wi * 4)) * 1024 * 1024) + (rng.uniform(0, 2_000_000)),
+        writes: (i * (512 + wi * 128)) + (rng.uniform(0, 50_000)),
+        reads: (i * (1024 + wi * 256)) + (rng.uniform(0, 100_000)),
+      });
+    }
+
+    var z = Array<runtime::ZoneUsage> {};
+    for (var zi = 0; zi < nb_zones; zi++) {
+      var base_size = (128 + (zi * 64)) * 1024 * 1024;
+      z.add(runtime::ZoneUsage {
+        size: base_size + (i * 4096) + (rng.uniform(0, 1_000_000)),
+        committed_blocks: 1000 + (i * 2) + (rng.uniform(0, 100)),
+        reserved_blocks: 200 + (i / 2) + (rng.uniform(0, 50)),
+        blocks: 1200 + (i * 3) + (rng.uniform(0, 150)),
+        cache: ((32 + (zi * 8)) * 1024 * 1024) + (rng.uniform(0, 4_000_000)),
+      });
+    }
+
+    runtime::usages.setAt(t, runtime::RuntimeUsage {
+      process_memory: process_mem,
+      global_memory: global_mem,
+      memory_drift: drift_val,
+      workers: w,
+      zones: z,
+    });
+  }
+}

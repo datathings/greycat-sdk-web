@@ -133,6 +133,8 @@ export function buildEChartsOption(
       }
     }
     option.tooltip = tooltip;
+  } else {
+    option.tooltip = { show: false };
   }
 
   // legend
@@ -159,6 +161,8 @@ export function buildEChartsOption(
         break;
     }
     option.legend = legend;
+  } else {
+    option.legend = { show: false };
   }
 
   // dataZoom
@@ -181,6 +185,8 @@ export function buildEChartsOption(
       });
     }
     option.dataZoom = zooms;
+  } else {
+    option.dataZoom = [];
   }
 
   // grid

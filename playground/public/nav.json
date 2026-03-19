@@ -358,5 +358,28 @@
   {
     "label": "List",
     "route": "pages/list/"
+  },
+  {
+    "label": "Usage",
+    "route": "pages/usage/",
+    "link": true,
+    "children": [
+      {
+        "label": "Memory",
+        "route": "memory/"
+      },
+      {
+        "label": "Workers",
+        "route": "workers/"
+      },
+      {
+        "label": "Zones",
+        "route": "zones/"
+      },
+      {
+        "label": "Workers by Field",
+        "route": "workers-by-field/"
+      }
+    ]
   }
 ]
