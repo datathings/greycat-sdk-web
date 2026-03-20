@@ -1,5 +1,5 @@
 import { modal, type GuiCsvStatistics2, type GuiTable } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -70,10 +70,7 @@ async function generateCode() {
 }
 
 document.body.appendChild(
-  <app-layout
-    title="Csv Analysis"
-    mainStyle={{ display: 'grid', gridTemplateRows: 'auto 1fr', rowGap: 'var(--spacing)' }}
-  >
+  appLayout({ title: 'Csv Analysis', mainStyle: { display: 'grid', gridTemplateRows: 'auto 1fr', rowGap: 'var(--spacing)' } },
     <div
       style={{
         display: 'grid',
@@ -114,7 +111,7 @@ document.body.appendChild(
       <sl-button variant="primary" onclick={() => hiddenInput.click()} style={{ alignSelf: 'end' }}>
         Upload
       </sl-button>
-    </div>
+    </div>,
     <gui-tabs>
       <gui-tab slot="tab" active>
         CSV
@@ -130,7 +127,7 @@ document.body.appendChild(
           {csvStatistics}
         </div>
       </gui-panel>
-    </gui-tabs>
-    {hiddenInput}
-  </app-layout>,
+    </gui-tabs>,
+    hiddenInput,
+  ),
 );

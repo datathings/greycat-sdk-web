@@ -1,12 +1,12 @@
 import '@greycat/web';
 import '@greycat/web/greycat.css';
-import '~/common';
+import { appLayout } from '~/common';
 import s from './index.module.css';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Index">
+  appLayout('Index',
     <div className={s.body}>
       <gui-card>
         <div slot="header">Colors</div>
@@ -149,8 +149,8 @@ document.body.appendChild(
           </fieldset>
         </div>
       </gui-card>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );
 
 function colorPalette(name: string) {

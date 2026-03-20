@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -83,7 +83,8 @@ chart.setConfig({
 });
 
 document.body.appendChild(
-  <app-layout title="Chart (colored area)">
+  appLayout(
+    'Chart (colored area)',
     <>
       {currentValue}
       <a
@@ -95,7 +96,7 @@ document.body.appendChild(
       >
         Toggle cursor
       </a>
-    </>
-    {chart}
-  </app-layout>,
+    </>,
+    chart,
+  ),
 );

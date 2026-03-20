@@ -1,10 +1,10 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="FnPtr">
+  appLayout('FnPtr',
     <gui-input-fnptr
       ongui-input={function () {
         const fn = this.value;
@@ -12,8 +12,8 @@ document.body.appendChild(
           gc.project.display_fn(fn);
         }
       }}
-    />
-    <sl-divider />
+    />,
+    <sl-divider />,
     <gui-input-object
       value={new gc.project.ObjWithFn(gc.core.function_.fromFqn('project::add'))}
       ongui-change={function () {
@@ -23,6 +23,6 @@ document.body.appendChild(
           gc.project.display_fn_in_obj(o);
         }
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

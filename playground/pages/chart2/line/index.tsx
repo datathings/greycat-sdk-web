@@ -1,5 +1,5 @@
 import type { GuiChart2 } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -53,8 +53,5 @@ const output = (
 ) as HTMLPreElement;
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Line">
-    {output}
-    {chart}
-  </app-layout>,
+  appLayout('Chart2 — Line', output, chart),
 );

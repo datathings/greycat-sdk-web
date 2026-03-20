@@ -1,5 +1,5 @@
 import { GuiElement, GuiInputElement, GuiInputFactory, GuiObject, css, registerCustomElement, sl } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './project-sensor-form';
 import IndexStyle from './index.css?inline';
 
@@ -73,7 +73,7 @@ declare global {
 registerCustomElement('input-viewer', InputViewer);
 
 document.body.appendChild(
-  <app-layout title="Inputs">
+  appLayout('Inputs',
     <div
       style={{
         display: 'flex',
@@ -135,6 +135,6 @@ document.body.appendChild(
       <input-viewer header="Recursive type">
         <gui-input-object value={new gc.project.Link('', null)} />
       </input-viewer>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

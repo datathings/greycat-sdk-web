@@ -3,7 +3,7 @@ import MediumIcon from '@tabler/icons/temperature.svg?raw';
 import LowIcon from '@tabler/icons/temperature-snow.svg?raw';
 
 import { GuiValueElement } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -89,8 +89,8 @@ if (!customElements.get('app-confidence')) {
 }
 
 document.body.appendChild(
-  <app-layout title="Table (ignore columns)">
-    {actions}
+  appLayout('Table (ignore columns)',
+    actions,
     <gui-table
       value={await gc.project.chart(100)}
       useDefaultColumns
@@ -100,6 +100,6 @@ document.body.appendChild(
       ongui-table-click={(ev) => {
         console.log(ev.detail);
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

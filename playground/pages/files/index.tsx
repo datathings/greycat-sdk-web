@@ -1,10 +1,10 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Files">
+  appLayout('Files',
     <gui-files
       ongui-click={async (e) => {
         if (e.detail.path === '..' || e.detail.path.endsWith('/')) {
@@ -17,6 +17,6 @@ document.body.appendChild(
         // const content = await greycat.getFile(e.detail.path);
         // ... do something with the content ...
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -21,7 +21,8 @@ const table = gc.core.Table.fromCols([xA.concat(xB), yA.concat(yB)]);
 table.headers = ['x', 'y'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Scatter">
+  appLayout(
+    'Chart2 — Scatter',
     <gui-chart2
       value={table}
       config={{
@@ -33,6 +34,6 @@ document.body.appendChild(
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'inside' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

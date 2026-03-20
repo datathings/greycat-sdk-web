@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true /* timezone: 'Australia/Adelaide' */ });
 
@@ -70,14 +70,15 @@ const to = document.createElement('gui-time');
 to.timezone = gc.core.TimeZone['Europe/Paris'];
 
 document.body.appendChild(
-  <app-layout title="Chart (time)">
+  appLayout(
+    'Chart (time)',
     <div slot="action-left">
       <span>from={from}</span>,&nbsp;<span>to={to}</span>
-    </div>
-    {currentValue}
+    </div>,
+    currentValue,
     <a slot="action" href="#" onclick={randomize}>
       Randomize
-    </a>
+    </a>,
     <a
       slot="action"
       href="#"
@@ -86,9 +87,9 @@ document.body.appendChild(
       }}
     >
       Toggle cursor
-    </a>
-    {chart}
-  </app-layout>,
+    </a>,
+    chart,
+  ),
 );
 
 randomize();

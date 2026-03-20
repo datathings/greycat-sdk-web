@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { css, GuiElement } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -161,7 +161,7 @@ declare global {
 customElements.define('gui-list', GuiList);
 
 document.body.appendChild(
-  <app-layout title="List">
+  appLayout('List',
     <gui-list
       collapsible
       value={items}
@@ -184,6 +184,6 @@ document.body.appendChild(
       <sl-button variant="text" size="small" slot="delete-selected">
         Del selection
       </sl-button>
-    </gui-list>
-  </app-layout>,
+    </gui-list>,
+  ),
 );

@@ -1,5 +1,5 @@
 import { createElement } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import actions from './actions';
 
 await gc.sdk.init({ debug: true });
@@ -24,8 +24,9 @@ const spawnBtn = Object.assign(createElement('sl-button'), {
 });
 
 document.body.appendChild(
-  <app-layout title="Tasks" mainStyle={{ display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' }}>
-    {actions}
+  appLayout(
+    { title: 'Tasks', mainStyle: { display: 'grid', rowGap: 'var(--spacing)', gridTemplateRows: 'auto 1fr' } },
+    actions,
     <gui-card>
       <header slot="header">
         Create a task
@@ -38,7 +39,7 @@ document.body.appendChild(
           {input}
         </fieldset>
       </div>
-    </gui-card>
-    {tasks}
-  </app-layout>,
+    </gui-card>,
+    tasks,
+  ),
 );

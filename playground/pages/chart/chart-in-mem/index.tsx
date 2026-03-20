@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 const r = gc.Table.fromCols([
@@ -18,7 +18,8 @@ const r = gc.Table.fromCols([
 //   [6, 11, 6, 3],
 // ]);
 document.body.appendChild(
-  <app-layout title="Chart (in-mem)">
+  appLayout(
+    'Chart (in-mem)',
     <gui-chart
       value={r}
       config={{
@@ -57,6 +58,6 @@ document.body.appendChild(
           },
         ],
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

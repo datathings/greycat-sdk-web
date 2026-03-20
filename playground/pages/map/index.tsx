@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import maplibregl from 'maplibre-gl';
 import { GeoData, GuiMap } from '@greycat/web';
 
@@ -8,7 +8,7 @@ const greycat = await gc.sdk.init({ debug: true, maplibregl });
 const markers = document.createElement('gui-map-markers');
 
 document.body.appendChild(
-  <app-layout title="Map" mainStyle={{ display: 'grid' }}>
+  appLayout({ title: 'Map', mainStyle: { display: 'grid' } },
     <gui-map
       $ref={init}
       options={{
@@ -18,8 +18,8 @@ document.body.appendChild(
       }}
     >
       {markers}
-    </gui-map>
-  </app-layout>,
+    </gui-map>,
+  ),
 );
 
 async function updateCities(m: maplibregl.Map, nCities: gc.core.nodeGeo) {

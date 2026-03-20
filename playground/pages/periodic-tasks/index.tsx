@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -34,7 +34,7 @@ const createTask = async () => {
 };
 
 document.body.appendChild(
-  <app-layout title="Periodic Tasks">
+  appLayout('Periodic Tasks',
     <div role="list">
       <sl-card>
         <header slot="header">
@@ -54,6 +54,6 @@ document.body.appendChild(
         </header>
         {periodicTaskList}
       </article>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

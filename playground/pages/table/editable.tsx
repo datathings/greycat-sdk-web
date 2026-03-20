@@ -1,5 +1,5 @@
 import { createElement, GuiChangeEvent, sl } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -204,8 +204,5 @@ const tableEl = createElement('gui-table', {
 });
 
 document.body.appendChild(
-  <app-layout title="Table (editable)">
-    {actions}
-    {tableEl}
-  </app-layout>,
+  appLayout('Table (editable)', actions, tableEl),
 );

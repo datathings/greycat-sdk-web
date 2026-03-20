@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -47,7 +47,8 @@ chart.setConfig({
 });
 
 document.body.appendChild(
-  <app-layout title="Chart (scatter)">
+  appLayout(
+    'Chart (scatter)',
     <>
       <a
         slot="action"
@@ -81,9 +82,9 @@ document.body.appendChild(
       >
         Toggle cursor
       </a>
-    </>
-    {chart}
-  </app-layout>,
+    </>,
+    chart,
+  ),
 );
 
 // const huge_table: TableLike = {

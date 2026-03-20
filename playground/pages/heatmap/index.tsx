@@ -1,5 +1,5 @@
 import { type GuiHeatmap, sl } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 await gc.sdk.init({ debug: true });
@@ -36,7 +36,8 @@ const heatmap = (
 ) as GuiHeatmap;
 
 document.body.appendChild(
-  <app-layout title="Heatmap">
+  appLayout(
+    'Heatmap',
     <sl-select
       slot="action"
       className="label-on-left"
@@ -50,7 +51,7 @@ document.body.appendChild(
     >
       <sl-option value="follow">follow</sl-option>
       <sl-option value="in-place">in-place</sl-option>
-    </sl-select>
-    {heatmap}
-  </app-layout>,
+    </sl-select>,
+    heatmap,
+  ),
 );

@@ -1,12 +1,12 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 const table = await gc.project.donut();
 
 document.body.appendChild(
-  <app-layout title="Donut">
+  appLayout('Donut',
     <gui-donut
       value={table}
       dataColumn={1}
@@ -19,6 +19,6 @@ document.body.appendChild(
         maxHeight: '768px',
         margin: 'auto',
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

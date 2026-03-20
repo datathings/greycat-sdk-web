@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -12,7 +12,8 @@ const timepoints = [
 ];
 
 document.body.appendChild(
-  <app-layout title="Chart (step)">
+  appLayout(
+    'Chart (step)',
     <gui-chart
       value={{
         cols: [timepoints, [2000, 25000, 100000, 170, 3200]],
@@ -37,6 +38,6 @@ document.body.appendChild(
           },
         ],
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

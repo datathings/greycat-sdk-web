@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import actions from './actions';
 
 await gc.sdk.init({ debug: true });
@@ -14,9 +14,5 @@ async function update_res_when_done() {
 update_res_when_done();
 
 document.body.appendChild(
-  <app-layout title="Tasks - Info">
-    {actions}
-    <gui-object value={task} />
-    {res_el}
-  </app-layout>,
+  appLayout('Tasks - Info', actions, <gui-object value={task} />, res_el),
 );

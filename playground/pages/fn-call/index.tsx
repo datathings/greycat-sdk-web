@@ -1,5 +1,5 @@
 import { GuiFnSelect, GuiInputFn } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 const g = await gc.sdk.init({ debug: true });
@@ -28,7 +28,7 @@ const handleFnCall = async () => {
 };
 
 document.body.appendChild(
-  <app-layout title="Fn Call">
+  appLayout('Fn Call',
     <div className="list">
       <div className="row">
         <fieldset>
@@ -59,6 +59,6 @@ document.body.appendChild(
         </legend>
         <div className="p-1">{resultEl}</div>
       </fieldset>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

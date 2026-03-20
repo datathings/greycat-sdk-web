@@ -1,5 +1,5 @@
 import { defineComp, greycatFetcher } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './custom-comp';
 
 await gc.sdk.init({ debug: true });
@@ -49,7 +49,7 @@ const table = defineComp({
 });
 
 document.body.appendChild(
-  <app-layout title="Dashboard">
+  appLayout('Dashboard',
     <gui-dashboard
       components={{ chart, custom1, table }}
       associations={{
@@ -62,6 +62,6 @@ document.body.appendChild(
         console.log('layout updated', ev.detail);
         // => localStorage.setItem('save', JSON.stringify(dashboard.getAttrs()));
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

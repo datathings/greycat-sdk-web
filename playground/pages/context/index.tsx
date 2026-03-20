@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { GuiFactory } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -12,12 +12,12 @@ const customValueTag = GuiFactory.defineFromFn((v) => (
 ));
 
 document.body.appendChild(
-  <app-layout title="Context">
+  appLayout('Context',
     <div className="gui-list">
       <gui-value value="Should use the default global factory" />
       <gui-factory valueTag={customValueTag}>
         <gui-object value={{ hello: 'Should be using the custom factory' }} />
       </gui-factory>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

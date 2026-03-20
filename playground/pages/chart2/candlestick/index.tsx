@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -29,7 +29,8 @@ const table = gc.core.Table.fromCols([dates, open, close, low, high]);
 table.headers = ['date', 'open', 'close', 'low', 'high'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Candlestick">
+  appLayout(
+    'Chart2 — Candlestick',
     <gui-chart2
       value={table}
       config={{
@@ -48,6 +49,6 @@ document.body.appendChild(
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'both' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

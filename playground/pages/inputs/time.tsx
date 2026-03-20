@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true, timezone: 'Europe/Paris' });
 
@@ -82,7 +82,7 @@ function Section2() {
 }
 
 document.body.appendChild(
-  <app-layout title="Time • Inputs">
+  appLayout('Time \u2022 Inputs',
     <div
       style={{
         display: 'grid',
@@ -101,6 +101,6 @@ document.body.appendChild(
       <sl-divider />
       <sl-divider />
       {Section2()}
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

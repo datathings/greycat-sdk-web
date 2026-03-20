@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -8,7 +8,7 @@ const data = await gc.project.table_with_urls();
 const URL_REGEX = /^(https?:\/\/)?([\w.-]+)\.([a-z]{2,})(:[0-9]{1,5})?(\/[^\s]*)?$/i;
 
 document.body.appendChild(
-  <app-layout title="Table (url)">
+  appLayout('Table (url)',
     <gui-table
       value={data}
       useDefaultColumns
@@ -23,6 +23,6 @@ document.body.appendChild(
           },
         },
       ]}
-    />
-  </app-layout>,
+    />,
+  ),
 );

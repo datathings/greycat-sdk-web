@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './custom-style.css';
 
 await gc.sdk.init({ debug: true });
@@ -41,8 +41,5 @@ tableEl.setAttrs({
 });
 
 document.body.appendChild(
-  <app-layout title="Table (custom-style)">
-    {actions}
-    {tableEl}
-  </app-layout>,
+  appLayout('Table (custom-style)', actions, tableEl),
 );

@@ -1,5 +1,5 @@
 import { type GuiInputObject } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -9,4 +9,4 @@ const object = (
   </gui-input-object>
 ) as GuiInputObject<gc.Person>;
 
-document.body.appendChild(<app-layout title="Object (typed)">{object}</app-layout>);
+document.body.appendChild(appLayout('Object (typed)', object));

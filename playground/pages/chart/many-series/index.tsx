@@ -1,6 +1,6 @@
 import '@greycat/web';
 import type { Serie } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -10,7 +10,8 @@ const series = Array.from({ length: 1000 }, (_, i): Serie => ({ type: 'line', yC
 const t = gc.Table.fromCols(data);
 
 document.body.appendChild(
-  <app-layout title="Chart (in-mem)">
+  appLayout(
+    'Chart (in-mem)',
     <gui-chart
       value={t}
       config={{
@@ -26,6 +27,6 @@ document.body.appendChild(
           render: () => {},
         },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

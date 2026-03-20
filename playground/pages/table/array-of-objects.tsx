@@ -1,4 +1,4 @@
-import '~/common';
+import { appLayout } from '~/common';
 import { GuiTable, TableLike } from '@greycat/web';
 
 await gc.sdk.init({ debug: true });
@@ -27,12 +27,9 @@ table.addEventListener('gui-table-debug', (ev) => {
 });
 
 document.body.appendChild(
-  <app-layout
-    title="Table (array of objects)"
-    mainStyle={{ display: 'flex', gap: 'var(--spacing)', flexDirection: 'column' }}
-  >
-    {actions}
-    {table}
-    {debug}
-  </app-layout>,
+  appLayout({ title: 'Table (array of objects)', mainStyle: { display: 'flex', gap: 'var(--spacing)', flexDirection: 'column' } },
+    actions,
+    table,
+    debug,
+  ),
 );

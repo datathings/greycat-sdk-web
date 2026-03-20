@@ -1,5 +1,5 @@
 import { type GuiGauge } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -13,4 +13,4 @@ setInterval(() => {
   }
 }, 100);
 
-document.body.appendChild(<app-layout title="Gauge">{gauge}</app-layout>);
+document.body.appendChild(appLayout('Gauge', gauge));

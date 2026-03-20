@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -11,7 +11,7 @@ const grid: Partial<CSSStyleDeclaration> = {
 };
 
 document.body.appendChild(
-  <app-layout title="Hello">
+  appLayout('Hello',
     <div style={grid}>
       <span>ISO8601</span>
       <gui-value value={t} />
@@ -21,8 +21,8 @@ document.body.appendChild(
       <gui-value value={t.epochMs} />
       <span>input</span>
       <gui-input-time value={t} />
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );
 
 (async function main() {

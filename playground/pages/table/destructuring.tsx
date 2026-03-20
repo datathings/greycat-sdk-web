@@ -1,12 +1,10 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 const table = await gc.project.destructuring_table();
 
 document.body.appendChild(
-  <app-layout title="Table (destructuring)">
-    <gui-table value={table} drawerEnabled />
-  </app-layout>,
+  appLayout('Table (destructuring)', <gui-table value={table} drawerEnabled />),
 );

@@ -1,10 +1,10 @@
 import { modal } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Modal">
+  appLayout('Modal',
     <div className="row">
       <sl-button
         onclick={() => {
@@ -53,6 +53,6 @@ document.body.appendChild(
       >
         Open select modal
       </sl-button>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

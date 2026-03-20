@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import { toast } from '@greycat/web';
 
 const greycat = await gc.sdk.init({ debug: true });
@@ -30,7 +30,7 @@ async function sample() {
 sample();
 
 document.body.appendChild(
-  <app-layout title="nodeTime">
+  appLayout('nodeTime',
     <div className="list">
       <gui-card>
         <header slot="header">
@@ -45,6 +45,6 @@ document.body.appendChild(
         <header slot="header">Result:</header>
         {table}
       </gui-card>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

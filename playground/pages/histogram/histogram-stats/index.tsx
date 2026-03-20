@@ -1,13 +1,14 @@
 import '@greycat/web';
 import { GuiHistogram } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 const stats = await gc.project.histogram_stats();
 const histo = (<gui-histogram value={stats ?? undefined}></gui-histogram>) as GuiHistogram;
 document.body.appendChild(
-  <app-layout title="Histogram Stats">
+  appLayout(
+    'Histogram Stats',
     <>
       <fieldset slot="action" role="group">
         <label htmlFor="">Percentiles</label>
@@ -19,7 +20,7 @@ document.body.appendChild(
           }}
         />
       </fieldset>
-    </>
-    {histo}
-  </app-layout>,
+    </>,
+    histo,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -19,7 +19,8 @@ const table = gc.core.Table.fromCols([times, temp, humidity]);
 table.headers = ['time', 'temperature', 'humidity'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Multi-Axis">
+  appLayout(
+    'Chart2 — Multi-Axis',
     <gui-chart2
       value={table}
       config={{
@@ -37,6 +38,6 @@ document.body.appendChild(
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'inside' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

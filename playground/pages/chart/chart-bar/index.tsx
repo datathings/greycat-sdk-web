@@ -1,5 +1,5 @@
 import { BarSerie } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const baseLine = 10;
 const currentValue = (<span slot="action" />) as HTMLElement;
@@ -47,7 +47,8 @@ chart.setConfig({
 });
 
 document.body.appendChild(
-  <app-layout title="Chart (bar)">
+  appLayout(
+    'Chart (bar)',
     <>
       {currentValue}
       <a slot="action" href="#" onclick={randomize}>
@@ -66,9 +67,9 @@ document.body.appendChild(
       >
         Toggle cursor
       </a>
-    </>
-    {chart}
-  </app-layout>,
+    </>,
+    chart,
+  ),
 );
 
 // eslint-disable-next-line no-inner-declarations

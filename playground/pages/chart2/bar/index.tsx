@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -11,7 +11,8 @@ const table = gc.core.Table.fromCols([categories, sales, returns]);
 table.headers = ['day', 'sales', 'returns'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Bar">
+  appLayout(
+    'Chart2 — Bar',
     <gui-chart2
       value={table}
       config={{
@@ -25,6 +26,6 @@ document.body.appendChild(
         tooltip: { enabled: true, trigger: 'axis' },
         legend: { enabled: true },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

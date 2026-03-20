@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -19,7 +19,8 @@ const table = gc.core.Table.fromCols([categories, email, social, video]);
 table.headers = ['week', 'email', 'social', 'video'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Stacked Area">
+  appLayout(
+    'Chart2 — Stacked Area',
     <gui-chart2
       value={table}
       config={{
@@ -35,6 +36,6 @@ document.body.appendChild(
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'both' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

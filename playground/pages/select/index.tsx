@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 await gc.sdk.init({ debug: true });
@@ -28,7 +28,7 @@ function toggleNullable() {
 }
 
 document.body.appendChild(
-  <app-layout title="Select">
+  appLayout('Select',
     <div className="list">
       <gui-card>
         <header slot="header">
@@ -57,6 +57,6 @@ document.body.appendChild(
       </gui-card>
 
       <gui-select className="inline" label="Example label" options={['Foo', 'Bar', 'Baz']} />
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

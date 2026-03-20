@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { chartConfig, inferConfig } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -42,12 +42,13 @@ function infer() {
 }
 
 document.body.appendChild(
-  <app-layout title="Chart (config)" mainClassName="gui-list">
-    <sl-button onclick={infer}>Infer</sl-button>
+  appLayout(
+    { title: 'Chart (config)', mainClassName: 'gui-list' },
+    <sl-button onclick={infer}>Infer</sl-button>,
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'var(--spacing)' }}>
       {config}
       {object}
-    </div>
-    <gui-chart value={earthquakes} drawerEnabled style={{ minHeight: '600px' }} />
-  </app-layout>,
+    </div>,
+    <gui-chart value={earthquakes} drawerEnabled style={{ minHeight: '600px' }} />,
+  ),
 );

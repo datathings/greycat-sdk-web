@@ -1,5 +1,5 @@
 import { type GuiChart2 } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 const greycat = await gc.sdk.init({ debug: true });
@@ -25,10 +25,11 @@ const chart = (
 ) as GuiChart2;
 
 document.body.appendChild(
-  <app-layout title="Chart 2">
+  appLayout(
+    'Chart 2',
     <a slot="action" href="#" onclick={() => chart.toggleConfig()}>
       Config
-    </a>
-    {chart}
-  </app-layout>,
+    </a>,
+    chart,
+  ),
 );

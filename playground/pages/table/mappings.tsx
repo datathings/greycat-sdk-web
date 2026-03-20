@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 const { actions } = await import('./actions');
@@ -20,8 +20,8 @@ function resetMappings() {
 fetchTable();
 
 document.body.appendChild(
-  <app-layout title="Table (mappings)">
-    {actions}
+  appLayout('Table (mappings)',
+    actions,
     <div
       style={{
         display: 'grid',
@@ -35,6 +35,6 @@ document.body.appendChild(
         <sl-button onclick={resetMappings}>Reset mappings</sl-button>
       </div>
       {tableEl}
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

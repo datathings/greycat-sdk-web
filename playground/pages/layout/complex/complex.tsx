@@ -1,12 +1,12 @@
 import { svg, toggleTheme } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './styles.css';
 import LogoIcon from './logo.svg?raw';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Layout • Complex">
+  appLayout('Layout \u2022 Complex',
     <gui-layout breakpoint={920}>
       <a slot="header" className="logo" href="/pages/layout/complex.html">
         {svg(LogoIcon)}
@@ -207,6 +207,6 @@ document.body.appendChild(
           </p>
         </div>
       </div>
-    </gui-layout>
-  </app-layout>,
+    </gui-layout>,
+  ),
 );

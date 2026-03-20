@@ -1,4 +1,5 @@
 import { chart2Config, type Chart2Grid, getThemeColors, type GuiChart2 } from '../../exports.js';
+import { css } from '../common.js';
 import { GuiElement } from '../element.js';
 
 const POLL_INTERVAL_MS = 5_000;
@@ -45,11 +46,14 @@ export interface GuiRuntimeUsageAttrs {
 }
 
 export class GuiRuntimeUsage extends GuiElement {
+  static override readonly styles = [css(':host { display: flex; flex-direction: column; min-height: 500px; }')];
+
   private _maxRows = 1000;
   private _timeMs = Date.now();
   private _windowMs = TIME_WINDOWS[0].ms;
   private _greycat: gc.sdk.GreyCat = gc.$.default;
   private _pollTimer: ReturnType<typeof setInterval> | undefined;
+  private _mutationObs: MutationObserver | undefined;
   private _ntUsages: gc.core.nodeTime | undefined;
 
   // Reusable arrays (reset & reused each tick to ease GC)
@@ -128,6 +132,15 @@ export class GuiRuntimeUsage extends GuiElement {
         this._tick();
       }
     }, POLL_INTERVAL_MS);
+
+    this._mutationObs = new MutationObserver((mutations) => {
+      for (const mutation of mutations) {
+        if (mutation.attributeName === 'data-theme' || mutation.attributeName === 'class') {
+          this._chart.config = this._chartConfig();
+        }
+      }
+    });
+    this._mutationObs.observe(document.documentElement, { attributes: true });
   }
 
   override disconnectedCallback(): void {
@@ -136,6 +149,8 @@ export class GuiRuntimeUsage extends GuiElement {
       clearInterval(this._pollTimer);
       this._pollTimer = undefined;
     }
+    this._mutationObs?.disconnect();
+    this._mutationObs = undefined;
   }
 
   private async _fetchUsageTable(): Promise<gc.core.Table> {
@@ -271,14 +286,7 @@ export class GuiRuntimeUsage extends GuiElement {
           `Time (${gc.$.default.printTime(nodeInfo.from, undefined, fromFmt)} — ${gc.$.default.printTime(nodeInfo.to, undefined, toFmt)})`,
         );
 
-        // Disable time window buttons that exceed the actual data timespan
-        for (let i = 0; i < TIME_WINDOWS.length; i++) {
-          if (TIME_WINDOWS[i].ms > spanMs) {
-            this._windowBtns[i].setAttribute('disabled', '');
-          } else {
-            this._windowBtns[i].removeAttribute('disabled');
-          }
-        }
+
       }
     } catch (err) {
       console.error('Usage fetch error:', err);
@@ -292,6 +300,197 @@ export class GuiRuntimeUsage extends GuiElement {
         TIME_WINDOWS[j].ms === this._windowMs ? 'primary' : 'default',
       );
     }
+  }
+
+  private _chartConfig() {
+    const { textColor, borderColor, bgColor } = getThemeColors();
+    return chart2Config({
+      xCol: 0,
+      xAxis: [
+        { type: 'time' },
+        { type: 'time', echarts: { splitNumber: 3 } },
+        { type: 'time', echarts: { splitNumber: 3 } },
+        { type: 'time', echarts: { splitNumber: 3 } },
+        { type: 'time', echarts: { splitNumber: 3 } },
+        { type: 'time', echarts: { splitNumber: 3 } },
+        { type: 'time', echarts: { splitNumber: 3 } },
+      ],
+      yAxis: [
+        { name: 'Memory', ...BYTE_AXIS },
+        { name: 'Memory', ...BYTE_AXIS },
+        { name: 'Cache' },
+        { name: 'I/O', ...BYTE_AXIS },
+        { name: 'Size', ...BYTE_AXIS },
+        { name: 'Cache', ...BYTE_AXIS },
+        { name: 'Blocks' },
+        {
+          position: 'right',
+          min: 0,
+          max: 100,
+          echarts: {
+            gridIndex: 6,
+            scale: true,
+            splitNumber: 2,
+            splitLine: { show: false },
+            axisLabel: { formatter: (v: number) => `${v}%` },
+          },
+        },
+      ],
+      grid: [
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Memory'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Workers'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Workers'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Workers'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Zones'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Zones'], backgroundColor: bgColor, show: true } },
+        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Zones'], backgroundColor: bgColor, show: true } },
+      ],
+      series: [
+        {
+          name: 'Process (res)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::proc_res_bytes'],
+        },
+        {
+          name: 'Process (shr)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::proc_shr_bytes'],
+        },
+        {
+          name: 'GreyCat (global)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::global_memory'],
+        },
+        {
+          name: 'OS (total)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::os_total_bytes'],
+        },
+        {
+          name: 'OS (used)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::os_used_bytes'],
+        },
+        {
+          name: 'Process (virt)',
+          type: 'line',
+          gridIndex: 0,
+          yCol: [1, 'runtime::RuntimeUsage::proc_virt_bytes'],
+        },
+        { name: 'Memory', type: 'line', gridIndex: 1, yCol: 2 },
+        { name: 'Cache', type: 'line', gridIndex: 2, yCol: 3 },
+        { name: 'Reads', type: 'line', gridIndex: 3, yCol: 4 },
+        { name: 'Writes', type: 'line', gridIndex: 3, yCol: 5 },
+        { name: 'Size', type: 'line', gridIndex: 4, yCol: 6 },
+        { name: 'Cache (z)', type: 'line', gridIndex: 5, yCol: 7 },
+        { name: 'Reserved', type: 'line', gridIndex: 6, yCol: 8 },
+        { name: 'Committed', type: 'line', gridIndex: 6, yCol: 9 },
+        {
+          name: 'Fragmentation',
+          type: 'line',
+          gridIndex: 6,
+          yCol: 10,
+          yAxisIndex: 7,
+          echarts: { lineStyle: { type: 'dashed' } },
+        },
+      ],
+      tooltip: {
+        enabled: true,
+        trigger: 'axis',
+        formatter: (params: unknown) => {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const all = Array.isArray(params) ? params : [params as any];
+          if (all.length === 0) return '';
+          const hoveredAxis = all[0].axisIndex;
+          const arr =
+            // oxlint-disable-next-line typescript/no-explicit-any
+            hoveredAxis != null ? all.filter((p: any) => p.axisIndex === hoveredAxis) : all;
+          if (arr.length === 0) return '';
+          const axisVal =
+            arr[0].axisValue ?? (Array.isArray(arr[0].value) ? arr[0].value[0] : undefined);
+          const header =
+            typeof axisVal === 'number'
+              ? gc.$.default.printTime(gc.core.time.fromMs(Math.round(axisVal)))
+              : String(axisVal ?? '');
+          let html = header;
+          for (const p of arr) {
+            const y = Array.isArray(p.value) ? p.value[1] : p.value;
+            const formatted =
+              p.seriesName === 'Fragmentation'
+                ? `${Number(y).toFixed(1)}%`
+                : byteSeriesNames.has(p.seriesName)
+                  ? gc.sdk.humanSize(Number(y))
+                  : String(y);
+            html += `<br/>${p.marker} ${p.seriesName}: <strong>${formatted}</strong>`;
+          }
+          return html;
+        },
+      },
+      legend: { enabled: true },
+      dataZoom: { enabled: true, type: 'both' },
+      echarts: {
+        matrix: {
+          x: { show: false, data: ['col0', 'col1', 'col2'], levelSize: 0 },
+          y: {
+            data: [
+              { value: 'Memory', size: '39%' },
+              { value: 'Workers', size: '30.5%' },
+              { value: 'Zones', size: '30.5%' },
+            ],
+            levelSize: '9%',
+            label: { color: textColor },
+          },
+          dividerLineStyle: { color: borderColor },
+          body: {
+            data: [{ coord: [[0, 2], 0], mergeCells: true }],
+          },
+          top: 50,
+          bottom: 60,
+          width: '90%',
+          left: 'center',
+        },
+        axisPointer: {
+          link: [{ xAxisIndex: allGridIndices }],
+        },
+        dataZoom: [
+          {
+            type: 'slider',
+            xAxisIndex: allGridIndices,
+            bottom: 20,
+            height: 25,
+            left: '10%',
+            right: '10%',
+            textStyle: { color: textColor },
+            borderColor,
+            dataBackground: {
+              lineStyle: { color: borderColor },
+              areaStyle: { color: borderColor },
+            },
+          },
+          { type: 'inside', xAxisIndex: allGridIndices },
+        ],
+        legend: {
+          data: [
+            'Process (res)',
+            'Process (shr)',
+            'GreyCat (global)',
+            'OS (total)',
+            'OS (used)',
+            'Process (virt)',
+          ],
+          selected: {
+            'OS (total)': false,
+            'OS (used)': false,
+            'Process (virt)': false,
+          },
+        },
+      },
+    });
   }
 
   private _buildDOM(): void {
@@ -347,198 +546,10 @@ export class GuiRuntimeUsage extends GuiElement {
       ) as HTMLElement;
     });
 
-    const { textColor, borderColor } = getThemeColors();
-
     this._chart = (
       <gui-chart2
-        style={{ width: '100%', height: '800px' }}
-        config={chart2Config({
-          xCol: 0,
-          xAxis: [
-            { type: 'time' },
-            { type: 'time', echarts: { splitNumber: 3 } },
-            { type: 'time', echarts: { splitNumber: 3 } },
-            { type: 'time', echarts: { splitNumber: 3 } },
-            { type: 'time', echarts: { splitNumber: 3 } },
-            { type: 'time', echarts: { splitNumber: 3 } },
-            { type: 'time', echarts: { splitNumber: 3 } },
-          ],
-          yAxis: [
-            { name: 'Memory', ...BYTE_AXIS },
-            { name: 'Memory', ...BYTE_AXIS },
-            { name: 'Cache' },
-            { name: 'I/O', ...BYTE_AXIS },
-            { name: 'Size', ...BYTE_AXIS },
-            { name: 'Cache', ...BYTE_AXIS },
-            { name: 'Blocks' },
-            {
-              position: 'right',
-              min: 0,
-              max: 100,
-              echarts: {
-                gridIndex: 6,
-                scale: true,
-                splitNumber: 2,
-                splitLine: { show: false },
-                axisLabel: { formatter: (v: number) => `${v}%` },
-              },
-            },
-          ],
-          grid: [
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Memory'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Workers'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Workers'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Workers'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Zones'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Zones'] } },
-            { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Zones'] } },
-          ],
-          series: [
-            {
-              name: 'Process (res)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::proc_res_bytes'],
-            },
-            {
-              name: 'Process (shr)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::proc_shr_bytes'],
-            },
-            {
-              name: 'GreyCat (global)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::global_memory'],
-            },
-            {
-              name: 'OS (total)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::os_total_bytes'],
-            },
-            {
-              name: 'OS (used)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::os_used_bytes'],
-            },
-            {
-              name: 'Process (virt)',
-              type: 'line',
-              gridIndex: 0,
-              yCol: [1, 'runtime::RuntimeUsage::proc_virt_bytes'],
-            },
-            { name: 'Memory', type: 'line', gridIndex: 1, yCol: 2 },
-            { name: 'Cache', type: 'line', gridIndex: 2, yCol: 3 },
-            { name: 'Reads', type: 'line', gridIndex: 3, yCol: 4 },
-            { name: 'Writes', type: 'line', gridIndex: 3, yCol: 5 },
-            { name: 'Size', type: 'line', gridIndex: 4, yCol: 6 },
-            { name: 'Cache (z)', type: 'line', gridIndex: 5, yCol: 7 },
-            { name: 'Reserved', type: 'line', gridIndex: 6, yCol: 8 },
-            { name: 'Committed', type: 'line', gridIndex: 6, yCol: 9 },
-            {
-              name: 'Fragmentation',
-              type: 'line',
-              gridIndex: 6,
-              yCol: 10,
-              yAxisIndex: 7,
-              echarts: { lineStyle: { type: 'dashed' } },
-            },
-          ],
-          tooltip: {
-            enabled: true,
-            trigger: 'axis',
-            formatter: (params: unknown) => {
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              const all = Array.isArray(params) ? params : [params as any];
-              if (all.length === 0) return '';
-              const hoveredAxis = all[0].axisIndex;
-              const arr =
-                // oxlint-disable-next-line typescript/no-explicit-any
-                hoveredAxis != null ? all.filter((p: any) => p.axisIndex === hoveredAxis) : all;
-              if (arr.length === 0) return '';
-              const axisVal =
-                arr[0].axisValue ?? (Array.isArray(arr[0].value) ? arr[0].value[0] : undefined);
-              const header =
-                typeof axisVal === 'number'
-                  ? gc.$.default.printTime(gc.core.time.fromMs(Math.round(axisVal)))
-                  : String(axisVal ?? '');
-              let html = header;
-              for (const p of arr) {
-                const y = Array.isArray(p.value) ? p.value[1] : p.value;
-                const formatted =
-                  p.seriesName === 'Fragmentation'
-                    ? `${Number(y).toFixed(1)}%`
-                    : byteSeriesNames.has(p.seriesName)
-                      ? gc.sdk.humanSize(Number(y))
-                      : String(y);
-                html += `<br/>${p.marker} ${p.seriesName}: <strong>${formatted}</strong>`;
-              }
-              return html;
-            },
-          },
-          legend: { enabled: true },
-          dataZoom: { enabled: true, type: 'both' },
-          echarts: {
-            matrix: {
-              x: { show: false, data: ['col0', 'col1', 'col2'], levelSize: 0 },
-              y: {
-                data: [
-                  { value: 'Memory', size: 280 },
-                  { value: 'Workers', size: 220 },
-                  { value: 'Zones', size: 220 },
-                ],
-                levelSize: 70,
-                label: { color: textColor },
-              },
-              dividerLineStyle: { color: borderColor },
-              body: {
-                data: [{ coord: [[0, 2], 0], mergeCells: true }],
-              },
-              top: 50,
-              bottom: 60,
-              width: '90%',
-              left: 'center',
-            },
-            axisPointer: {
-              link: [{ xAxisIndex: allGridIndices }],
-            },
-            dataZoom: [
-              {
-                type: 'slider',
-                xAxisIndex: allGridIndices,
-                bottom: 20,
-                height: 25,
-                left: '10%',
-                right: '10%',
-                textStyle: { color: textColor },
-                borderColor,
-                dataBackground: {
-                  lineStyle: { color: borderColor },
-                  areaStyle: { color: borderColor },
-                },
-              },
-              { type: 'inside', xAxisIndex: allGridIndices },
-            ],
-            legend: {
-              data: [
-                'Process (res)',
-                'Process (shr)',
-                'GreyCat (global)',
-                'OS (total)',
-                'OS (used)',
-                'Process (virt)',
-              ],
-              selected: {
-                'OS (total)': false,
-                'OS (used)': false,
-                'Process (virt)': false,
-              },
-            },
-          },
-        })}
+        style={{ width: '100%', flex: '1', minHeight: '0', maxHeight: '800px' }}
+        config={this._chartConfig()}
       />
     ) as GuiChart2;
 

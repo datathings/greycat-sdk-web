@@ -1,5 +1,5 @@
 import { GuiFactory, GuiObject, GuiObjectFieldValue, type sl } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 const greycat = await gc.sdk.init({ debug: true });
@@ -49,7 +49,7 @@ function toggleObjectResolve() {
 }
 
 document.body.appendChild(
-  <app-layout title="Object" mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}>
+  appLayout({ title: 'Object', mainStyle: { display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' } },
     <sl-select label="Select an object" placeholder="Select an object" onsl-change={changeObject}>
       <sl-option value="project::chart_time">project::chart_time</sl-option>
       <sl-option value="project::get_person">project::get_person</sl-option>
@@ -61,9 +61,9 @@ document.body.appendChild(
       <sl-option value="project::persons">project::persons</sl-option>
       <sl-option value="project::tree">project::tree</sl-option>
       <sl-option value="project::real_example">project::real_example</sl-option>
-    </sl-select>
-    <sl-checkbox onsl-change={toggleObjectHeader}>Object with header</sl-checkbox>
-    <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>
-    {objectEl}
-  </app-layout>,
+    </sl-select>,
+    <sl-checkbox onsl-change={toggleObjectHeader}>Object with header</sl-checkbox>,
+    <sl-checkbox onsl-change={toggleObjectResolve}>Auto-resolve nodes</sl-checkbox>,
+    objectEl,
+  ),
 );

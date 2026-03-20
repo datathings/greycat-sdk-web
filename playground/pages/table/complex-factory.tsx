@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -8,8 +8,8 @@ const { actions } = await import('./actions');
 const data = await gc.complex_factory.cable_views();
 
 document.body.appendChild(
-  <app-layout title="Table (complex-factory)">
-    {actions}
+  appLayout('Table (complex-factory)',
+    actions,
     <gui-table
       globalFilter
       drawerEnabled
@@ -37,6 +37,6 @@ document.body.appendChild(
           value: ({ value }) => `${value} kV`,
         },
       ]}
-    />
-  </app-layout>,
+    />,
+  ),
 );

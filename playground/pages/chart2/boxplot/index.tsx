@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -25,7 +25,8 @@ const table = gc.core.Table.fromCols([categories, categories.map((_, i) => i)]);
 table.headers = ['category', 'index'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Boxplot">
+  appLayout(
+    'Chart2 — Boxplot',
     <gui-chart2
       value={table}
       config={{
@@ -43,6 +44,6 @@ document.body.appendChild(
         tooltip: { enabled: true, trigger: 'item' },
         legend: { enabled: true },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

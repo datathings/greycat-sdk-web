@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './app-value';
 import { GuiFactory } from '@greycat/web';
 
@@ -10,7 +10,7 @@ GuiFactory.global.valueTag = 'app-value';
 const value = await gc.project.array_of_nodes();
 
 document.body.appendChild(
-  <app-layout title="Array">
-    <gui-object value={value} />
-  </app-layout>,
+  appLayout('Array',
+    <gui-object value={value} />,
+  ),
 );

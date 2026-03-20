@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -24,7 +24,8 @@ const table = gc.core.Table.fromCols([times, lineVals, barVals, scatterVals, are
 table.headers = ['time', 'Trend', 'Volume', 'Events', 'Baseline'];
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Mixed Series">
+  appLayout(
+    'Chart2 — Mixed Series',
     <gui-chart2
       value={table}
       config={{
@@ -67,6 +68,6 @@ document.body.appendChild(
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'both' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

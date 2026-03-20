@@ -1,10 +1,10 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Inputs (slot)">
+  appLayout('Inputs (slot)',
     <gui-input-object
       value={new gc.Filters(42, 'John')}
       inline
@@ -13,6 +13,6 @@ document.body.appendChild(
       }}
     >
       <gui-select slot="b" options={[{ value: 'John', selected: true }, { value: 'Paul' }, { value: 'Maria' }]} />
-    </gui-input-object>
-  </app-layout>,
+    </gui-input-object>,
+  ),
 );

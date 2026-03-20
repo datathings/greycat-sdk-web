@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { ChartConfig } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import data from './data.json';
 
 await gc.sdk.init({ debug: true });
@@ -122,4 +122,4 @@ chart.config = {
   cursor: false,
 } satisfies ChartConfig;
 
-document.body.appendChild(<app-layout title="Chart (custom)">{chart}</app-layout>);
+document.body.appendChild(appLayout('Chart (custom)', chart));

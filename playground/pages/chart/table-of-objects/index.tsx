@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { chartConfig } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -8,7 +8,8 @@ const table = await gc.project.table_of_objects();
 const table2 = await gc.project.table_of_objects3();
 
 document.body.appendChild(
-  <app-layout title="Chart • Table of objects">
+  appLayout(
+    'Chart \u2022 Table of objects',
     <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr' }}>
       <gui-chart
         value={table}
@@ -54,6 +55,6 @@ document.body.appendChild(
           ],
         }}
       />
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

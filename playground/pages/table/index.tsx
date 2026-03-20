@@ -1,5 +1,5 @@
 import type { CellValueData } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({
   debug: true,
@@ -12,8 +12,8 @@ const table = await gc.project.table();
 console.log(table);
 
 document.body.appendChild(
-  <app-layout title="Table">
-    {actions}
+  appLayout('Table',
+    actions,
     <gui-table
       value={table}
       globalFilter
@@ -52,6 +52,6 @@ document.body.appendChild(
         const { rowIdx, colIdx } = ev.detail;
         window.alert(`Col ${colIdx}, Row ${rowIdx}, Value "${table.cols[colIdx][rowIdx]}"`);
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 const { actions } = await import('./actions');
@@ -37,12 +37,12 @@ mappings.addEventListener('gui-table-mappings-apply', (ev) => {
 });
 
 document.body.appendChild(
-  <app-layout title="Table (config)" mainStyle={{ display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' }}>
-    {actions}
+  appLayout({ title: 'Table (config)', mainStyle: { display: 'flex', flexDirection: 'column', gap: 'var(--spacing)' } },
+    actions,
     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', columnGap: 'var(--spacing)' }}>
       {mappings}
       {object}
-    </div>
-    {tableEl}
-  </app-layout>,
+    </div>,
+    tableEl,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -22,7 +22,8 @@ for (let d = 0; d < 7; d++) {
 const table = gc.core.Table.fromCols([xCol, yCol, valCol]);
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Heatmap">
+  appLayout(
+    'Chart2 — Heatmap',
     <gui-chart2
       value={table}
       config={{
@@ -59,6 +60,6 @@ document.body.appendChild(
         },
         grid: { top: 10, bottom: 60, outerBoundsMode: 'same' },
       }}
-    />
-  </app-layout>,
+    />,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import maplibregl from 'maplibre-gl';
 import { GuiObject, sl } from '@greycat/web';
 
@@ -21,7 +21,7 @@ let hoveredDisplay: GuiObject | undefined;
 let drawer: sl.SlDrawer | undefined;
 
 document.body.appendChild(
-  <app-layout title="Map" mainStyle={{ display: 'grid', position: 'relative' }}>
+  appLayout({ title: 'Map', mainStyle: { display: 'grid', position: 'relative' } },
     <gui-map
       options={{
         style: {
@@ -152,7 +152,7 @@ document.body.appendChild(
           },
         }}
       />
-    </gui-map>
+    </gui-map>,
     <sl-drawer
       $ref={(el) => (drawer = el)}
       label="Eartquake"
@@ -164,6 +164,6 @@ document.body.appendChild(
       <sl-button slot="footer" variant="primary" onclick={() => drawer?.hide()}>
         Close
       </sl-button>
-    </sl-drawer>
-  </app-layout>,
+    </sl-drawer>,
+  ),
 );

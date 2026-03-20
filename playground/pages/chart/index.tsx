@@ -1,5 +1,5 @@
 import { type GuiChart, type SerieStyle } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const LINE_COL = 0;
 const SCATTER_COL = 1;
@@ -92,7 +92,8 @@ const nbRows = (
 ) as HTMLInputElement;
 
 document.body.appendChild(
-  <app-layout title="Chart">
+  appLayout(
+    'Chart',
     <>
       {nbRows}
       <a slot="action" href="#" onclick={randomize}>
@@ -155,9 +156,9 @@ document.body.appendChild(
       >
         Toggle cursor
       </a>
-    </>
-    {chart}
-  </app-layout>,
+    </>,
+    chart,
+  ),
 );
 
 // eslint-disable-next-line no-inner-declarations

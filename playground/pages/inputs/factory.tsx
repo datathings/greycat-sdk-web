@@ -1,5 +1,5 @@
 import { findParentInputElement, GuiChangeEvent, GuiInputObject, GuiSelect } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -44,15 +44,15 @@ loadValue.value = '';
 loadValue.header = true;
 
 document.body.appendChild(
-  <app-layout title="Input (factory)">
+  appLayout('Input (factory)',
     <div className="row">
       <div className="list">
         {input}
         <sl-button onclick={loadTx}>Load</sl-button>
         {loadValue}
       </div>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );
 
 declare global {

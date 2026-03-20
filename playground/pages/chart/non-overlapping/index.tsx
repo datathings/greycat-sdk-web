@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { inferConfig } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -40,7 +40,8 @@ console.log(
 );
 
 document.body.appendChild(
-  <app-layout title="Chart (non overlapping)" mainStyle={{ display: 'grid' }}>
+  appLayout(
+    { title: 'Chart (non overlapping)', mainStyle: { display: 'grid' } },
     <gui-tabs>
       <gui-tab slot="tab">Table</gui-tab>
       <gui-tab slot="tab" active>
@@ -53,6 +54,6 @@ document.body.appendChild(
       <gui-panel slot="panel" tab="Chart">
         <gui-chart value={table} config={config} />
       </gui-panel>
-    </gui-tabs>
-  </app-layout>,
+    </gui-tabs>,
+  ),
 );

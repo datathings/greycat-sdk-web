@@ -1,5 +1,5 @@
 import { sl } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 await gc.sdk.init({ debug: true });
@@ -82,7 +82,7 @@ customElements.define('app-selects', AppSelects);
 customElements.define('app-inputs', AppInputs);
 
 document.body.appendChild(
-  <app-layout title="Tabs" mainStyle={{ display: 'grid' }}>
+  appLayout({ title: 'Tabs', mainStyle: { display: 'grid' } },
     <gui-tabs>
       <gui-tab slot="tab" active>
         simple
@@ -99,6 +99,6 @@ document.body.appendChild(
       <gui-panel slot="panel" tab="selects">
         <app-selects />
       </gui-panel>
-    </gui-tabs>
-  </app-layout>,
+    </gui-tabs>,
+  ),
 );

@@ -1,4 +1,4 @@
-import '~/common';
+import { appLayout } from '~/common';
 import '@greycat/web';
 
 await gc.sdk.init({ debug: true });
@@ -12,8 +12,8 @@ const table = gc.core.Table.fromRows([
 ]);
 table.headers = ['Name', 'Age', 'Children'];
 document.body.appendChild(
-  <app-layout title="Table (row-based)" mainStyle={{ display: 'flex', gap: 'var(--spacing)' }}>
-    {actions}
-    <gui-table value={table} globalFilter={true} filterColumns={['john']} />
-  </app-layout>,
+  appLayout({ title: 'Table (row-based)', mainStyle: { display: 'flex', gap: 'var(--spacing)' } },
+    actions,
+    <gui-table value={table} globalFilter={true} filterColumns={['john']} />,
+  ),
 );

@@ -1,5 +1,5 @@
 import { chart2Config } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -7,7 +7,8 @@ const table = await gc.project.table_of_objects();
 const table2 = await gc.project.table_of_objects3();
 
 document.body.appendChild(
-  <app-layout title="Chart2 — Table of Objects">
+  appLayout(
+    'Chart2 — Table of Objects',
     <div style={{ height: '100%', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
       {/* Typed table with FQN column mapping via chart2Config() */}
       <gui-chart2
@@ -51,6 +52,6 @@ document.body.appendChild(
           legend: { enabled: true },
         }}
       />
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

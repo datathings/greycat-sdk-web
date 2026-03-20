@@ -1,10 +1,10 @@
 import { toast } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Toast">
+  appLayout('Toast',
     <div className="row">
       <sl-button onclick={() => toast.notify({ message: 'Hello, from toast!' })}>Default</sl-button>
       <sl-button onclick={() => toast.warning({ message: 'This is a warning' })}>Warning</sl-button>
@@ -34,6 +34,6 @@ document.body.appendChild(
       >
         Error GreyCat
       </sl-button>
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );

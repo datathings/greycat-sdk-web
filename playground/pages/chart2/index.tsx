@@ -1,5 +1,5 @@
 import type { GuiChart2 } from '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -27,10 +27,11 @@ const chart = (
 ) as GuiChart2;
 
 document.body.appendChild(
-  <app-layout title="Chart2 (ECharts)">
+  appLayout(
+    'Chart2 (ECharts)',
     <a slot="action" href="#" onclick={() => chart.toggleConfig()}>
       Config
-    </a>
+    </a>,
     <a
       slot="action"
       href="#"
@@ -39,7 +40,7 @@ document.body.appendChild(
       }}
     >
       Randomize
-    </a>
-    {chart}
-  </app-layout>,
+    </a>,
+    chart,
+  ),
 );

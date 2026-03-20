@@ -1,10 +1,14 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
+import './index.css';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Usage">
-    <gui-runtime-usage />
-  </app-layout>,
+  appLayout({ title: 'Usage' },
+    <gui-card>
+      <header slot="header">Monitor</header>
+      <gui-runtime-usage />
+    </gui-card>,
+  ),
 );

@@ -1,11 +1,11 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './index.css';
 
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  <app-layout title="Layout">
+  appLayout('Layout',
     <gui-layout>
       <div slot="header">header</div>
 
@@ -20,6 +20,6 @@ document.body.appendChild(
       <div slot="aside">aside</div>
 
       <div slot="footer">footer</div>
-    </gui-layout>
-  </app-layout>,
+    </gui-layout>,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 import './style.css';
 
 await gc.sdk.init({ debug: true });
@@ -7,7 +7,7 @@ await gc.sdk.init({ debug: true });
 const value = new gc.util.Gaussian(4400000, 10080000000000, 4, 200000, 3000000);
 
 document.body.appendChild(
-  <app-layout title="Gaussian">
-    <gui-gaussian value={value} />
-  </app-layout>,
+  appLayout('Gaussian',
+    <gui-gaussian value={value} />,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
@@ -8,8 +8,8 @@ const { actions } = await import('./actions');
 const data = await gc.project.data_array();
 
 document.body.appendChild(
-  <app-layout title="Table (columnFactories)">
-    {actions}
+  appLayout('Table (columnFactories)',
+    actions,
     <gui-table
       value={data}
       columns={[
@@ -22,6 +22,6 @@ document.body.appendChild(
           },
         },
       ]}
-    />
-  </app-layout>,
+    />,
+  ),
 );

@@ -1,5 +1,5 @@
 import '@greycat/web';
-import '~/common';
+import { appLayout } from '~/common';
 
 const greycat = await gc.sdk.init({ debug: true });
 
@@ -18,12 +18,12 @@ async function fetch_and_update_table(): Promise<void> {
 }
 
 document.body.appendChild(
-  <app-layout title="Sampling">
+  appLayout('Sampling',
     <div className="list">
       {sampling_form}
       {table}
-    </div>
-  </app-layout>,
+    </div>,
+  ),
 );
 
 fetch_and_update_table();
