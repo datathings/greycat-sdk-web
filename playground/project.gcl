@@ -13,6 +13,7 @@ var non_overlapping_1: nodeTime<float>;
 var non_overlapping_2: nodeTime<float>;
 var non_overlapping_3: nodeTime<float>;
 var simple_index: nodeIndex<String, int>;
+var random_data: nodeList<float>;
 
 type KLine {
     open: float;
@@ -73,6 +74,15 @@ fn main() {
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "users" });
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "moderators" });
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "reviewers" });
+
+    Scheduler::add(insert_random_data, FixedPeriodicity { every: 5s }, null);
+}
+
+fn insert_random_data() {
+    var rng = Random {};
+    for (var i = 0; i < 10_000; i++) {
+        random_data.add(rng.uniformf(0.0, 1.0));
+    }
 }
 
 fn nothing() {}
@@ -186,7 +196,6 @@ fn chart(nbRows: int): Table<any> {
     return table;
 }
 // pages/chart end
-
 // pages/chart-time start
 
 @expose
@@ -256,7 +265,6 @@ fn chart_time(): Table {
     return table;
 }
 // pages/chart-time end
-
 // pages/chart-colored-area start
 
 @expose
@@ -297,7 +305,6 @@ fn chart_colored_area(): Table {
     return table;
 }
 // pages/chart-colored-area end
-
 // pages/donut start
 
 @expose
@@ -316,7 +323,6 @@ fn donut(): Table {
     return table;
 }
 // pages/donut end
-
 // pages/enum-select start
 
 enum TrafficLight {
@@ -325,7 +331,6 @@ enum TrafficLight {
     Red;
 }
 // pages/enum-select end
-
 // pages/heatmap start
 
 @expose
@@ -351,7 +356,6 @@ fn heatmap(): Table<any?> {
     return table;
 }
 // pages/heatmap end
-
 // pages/hello start
 
 @expose
@@ -429,7 +433,6 @@ fn objects_table(): Table<Person> {
     return table;
 }
 // pages/table end
-
 // pages/tasks start
 
 @expose
@@ -486,7 +489,6 @@ fn subTask(id: int) {
     return id;
 }
 // pages/tasks end
-
 // pages/users start
 
 @expose
@@ -497,7 +499,6 @@ fn foo() {}
 @permission("bar")
 fn bar() {}
 // pages/users end
-
 // pages/object start
 
 type ComplexObject {
@@ -553,7 +554,7 @@ fn obj() {
 @expose
 fn complex_object() {
     var map = Map<String, any> {};
-    map.set("first", ("BAR",42));
+    map.set("first", ("BAR", 42));
     map.set("second", TimeZone::"Africa/Abidjan");
 
     var array = [42, 3.14, "hello world"];
@@ -1018,7 +1019,6 @@ fn table_of_objects2(): Table<TimedComposed> {
     table.set_row(2, TimedComposed { time: start + 2hour, a: 3, b: 0.3 });
     table.set_row(3, TimedComposed { time: start + 3hour, a: 4, b: 0.4 });
     // pprint(table);
-
     return table;
 }
 
@@ -1218,9 +1218,7 @@ fn table_with_urls(): Array<UrlEntry> {
 fn tensor(): Tensor {
     var tensor = Tensor {};
     // [5]                   => 1 row x 5 col
-    // [3, 5]                => 3 house * (1 row x 5 col)
-    // [10, 24, 800, 600, 3] => 10 videos * 24fps * 800 * 600 * 3rgb
-    // [10, 24, 3, 800, 600] => 10 videos * 24fps * 800 * 600 * 3rgb
+    // [3, 5]                => 3 house * (1 row x 5 col)// [10, 24, 800, 600, 3] => 10 videos * 24fps * 800 * 600 * 3rgb// [10, 24, 3, 800, 600] => 10 videos * 24fps * 800 * 600 * 3rgb
     tensor.init(TensorType::f32, Array<int> { 5 });
     tensor.add(Array<int> { 0 }, 1.0);
     tensor.add(Array<int> { 1 }, 2.0);
