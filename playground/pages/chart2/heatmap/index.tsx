@@ -34,7 +34,7 @@ document.body.appendChild(
             type: 'heatmap',
             yCol: 1,
             valueCol: 2,
-            title: 'Activity',
+            name: 'Activity',
             echarts: {
               label: { show: false },
               emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.5)' } },
@@ -57,7 +57,7 @@ document.body.appendChild(
             textStyle: { color: '#ccc' },
           },
         },
-        grid: { top: 10, bottom: 60, containLabel: true },
+        grid: { top: 10, bottom: 60, outerBoundsMode: 'same' },
       }}
     />
   </app-layout>,

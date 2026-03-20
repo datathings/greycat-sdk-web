@@ -28,7 +28,7 @@ document.body.appendChild(
         xCol: 0,
         xAxis: { type: 'value', name: 'X' },
         yAxis: [{ name: 'Y' }],
-        series: [{ type: 'scatter', yCol: 1, title: 'Clusters', symbolSize: 6 }],
+        series: [{ type: 'scatter', yCol: 1, name: 'Clusters', symbolSize: 6 }],
         tooltip: { enabled: true, trigger: 'item' },
         legend: { enabled: true },
         dataZoom: { enabled: true, type: 'inside' },

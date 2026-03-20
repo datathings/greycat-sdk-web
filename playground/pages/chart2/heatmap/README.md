@@ -50,7 +50,7 @@ document.body.appendChild(
           bottom: 0,
         },
       },
-      grid: { top: 10, bottom: 60, containLabel: true },
+      grid: { top: 10, bottom: 60, outerBoundsMode: 'same' },
     }}
   />,
 );

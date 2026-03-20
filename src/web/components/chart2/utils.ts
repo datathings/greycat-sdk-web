@@ -1,17 +1,28 @@
 import type { SerieTableColumn } from '../chart/types.js';
 import { smartTimeFormatSpecifier, tableGetCell } from '../chart/utils.js';
 import { vMap } from '../chart/internals.js';
-import type { Chart2Axis, Chart2Config, Chart2Serie } from './types.js';
+import type { Chart2Axis, Chart2Config, Chart2Grid, Chart2Serie } from './types.js';
 
-export const DEFAULT_GRID = { top: 30, right: 15, bottom: 0, left: 15, containLabel: true };
+export const DEFAULT_GRID: Chart2Grid = { top: 30, right: 15, bottom: 0, left: 15, outerBoundsMode: 'same' };
 
 /**
- * Computes the effective grid, accounting for slider dataZoom needing extra bottom space.
+ * Normalizes the grid config into an array, applying defaults and slider-bottom adjustment.
+ */
+export function normalizeGrids(config: Chart2Config): Chart2Grid[] {
+  const hasSlider = config.dataZoom?.enabled && (config.dataZoom.type === 'slider' || config.dataZoom.type === 'both');
+  const defaults = hasSlider ? { ...DEFAULT_GRID, bottom: 50 } : DEFAULT_GRID;
+  if (!config.grid) {
+    return [defaults];
+  }
+  const grids = Array.isArray(config.grid) ? config.grid : [config.grid];
+  return grids.map((g) => ({ ...defaults, ...g }));
+}
+
+/**
+ * @deprecated Use `normalizeGrids` instead.
  */
 export function getEffectiveGrid(config: Chart2Config): Record<string, number | string | boolean> {
-  const hasSlider = config.dataZoom?.enabled && (config.dataZoom.type === 'slider' || config.dataZoom.type === 'both');
-  const defaults = hasSlider && config.grid?.bottom === undefined ? { ...DEFAULT_GRID, bottom: 50 } : DEFAULT_GRID;
-  return { ...defaults, ...config.grid };
+  return normalizeGrids(config)[0] as Record<string, number | string | boolean>;
 }
 
 export interface Chart2ThemeColors {
@@ -71,8 +82,33 @@ export function buildEChartsOption(
 
   const { textColor, bgColor, borderColor } = theme;
 
+  // --- Multi-grid support ---
+  const grids = normalizeGrids(config);
+  const numGrids = Math.max(xAxes.length, grids.length);
+
+  // Build themed axes for each grid, broadcasting the last config if fewer than numGrids
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const builtXAxes = xAxes.map((a) => buildAxis(a, textColor, borderColor, xTimeSpan));
+  const builtXAxes: Record<string, any>[] = [];
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const builtYAxes: Record<string, any>[] = [];
+
+  for (let i = 0; i < numGrids; i++) {
+    const xCfg = xAxes[Math.min(i, xAxes.length - 1)];
+    const yCfg = yAxes[Math.min(i, yAxes.length - 1)];
+    const builtX = buildAxis(xCfg, textColor, borderColor, xTimeSpan);
+    const builtY = buildAxis(yCfg, textColor, borderColor, 0);
+    builtX.gridIndex = i;
+    builtY.gridIndex = i;
+    builtXAxes.push(builtX);
+    builtYAxes.push(builtY);
+  }
+
+  // Extra y-axes beyond numGrids (e.g. secondary axes on existing grids)
+  for (let i = numGrids; i < yAxes.length; i++) {
+    const builtY = buildAxis(yAxes[i], textColor, borderColor, 0);
+    // No default gridIndex — must be set via axis.echarts.gridIndex
+    builtYAxes.push(builtY);
+  }
 
   // for category axes, populate xAxis.data from the table column
   if (xAxisIsCategory && builtXAxes.length > 0) {
@@ -90,7 +126,7 @@ export function buildEChartsOption(
     backgroundColor: 'transparent',
     textStyle: { color: textColor },
     xAxis: builtXAxes,
-    yAxis: yAxes.map((a) => buildAxis(a, textColor, borderColor, 0)),
+    yAxis: builtYAxes,
     series,
   };
 
@@ -114,7 +150,14 @@ export function buildEChartsOption(
         const tz = xAxes[0].timezone;
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tooltip.formatter = (params: any) => {
-          const arr = Array.isArray(params) ? params : [params];
+          const all = Array.isArray(params) ? params : [params];
+          if (all.length === 0) {
+            return '';
+          }
+          // Scope to hovered grid only (no-op for single-grid)
+          const hoveredAxis = all[0].axisIndex;
+          // oxlint-disable-next-line typescript/no-explicit-any
+          const arr = hoveredAxis != null ? all.filter((p: any) => p.axisIndex === hoveredAxis) : all;
           if (arr.length === 0) {
             return '';
           }
@@ -189,8 +232,17 @@ export function buildEChartsOption(
     option.dataZoom = [];
   }
 
-  // grid
-  option.grid = getEffectiveGrid(config);
+  // grid — build echarts grid objects, merging per-grid echarts overrides
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  option.grid = grids.map((g) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const built: Record<string, any> = { ...g };
+    delete built.echarts;
+    if (g.echarts) {
+      deepMerge(built, g.echarts);
+    }
+    return built;
+  });
 
   // deep merge echarts overrides
   if (config.echarts) {
@@ -217,8 +269,14 @@ function buildSerie(
   const serie: Record<string, any> = {
     type,
     name: s.name ?? `Serie ${idx}`,
-    yAxisIndex: s.yAxisIndex ?? 0,
   };
+
+  if (s.gridIndex != null) {
+    serie.xAxisIndex = s.gridIndex;
+    serie.yAxisIndex = s.yAxisIndex ?? s.gridIndex;
+  } else {
+    serie.yAxisIndex = s.yAxisIndex ?? 0;
+  }
 
   const serieColor = s.color ?? colors[idx % colors.length];
   if (type === 'boxplot') {

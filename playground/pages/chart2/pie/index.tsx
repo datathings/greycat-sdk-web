@@ -15,7 +15,7 @@ document.body.appendChild(
       value={table}
       config={{
         xCol: 0,
-        series: [{ type: 'pie', yCol: 1, title: 'Traffic Sources' }],
+        series: [{ type: 'pie', yCol: 1, name: 'Traffic Sources' }],
         tooltip: { enabled: true, trigger: 'item' },
         legend: { enabled: true, position: 'right' },
       }}

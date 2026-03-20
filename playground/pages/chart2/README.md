@@ -64,7 +64,7 @@ Or with JSX:
 | `tooltip`  | `object`                     | `{ enabled?, trigger?: 'item' \| 'axis' \| 'none', formatter? }`    |
 | `legend`   | `object`                     | `{ enabled?, position?: 'top' \| 'bottom' \| 'left' \| 'right' }`   |
 | `dataZoom` | `object`                     | `{ enabled?, type?: 'inside' \| 'slider' \| 'both' }`               |
-| `grid`     | `object`                     | `{ top?, right?, bottom?, left?, containLabel? }`                   |
+| `grid`     | `Chart2Grid \| Chart2Grid[]`  | `{ top?, right?, bottom?, left?, outerBoundsMode? }` — array for multi-grid |
 | `echarts`  | `object`                     | Raw ECharts option override (deep-merged last)                      |
 
 ### `Chart2Serie`
@@ -75,7 +75,8 @@ Or with JSX:
 | `yCol`       | `SerieTableColumn`             | **Required.** Column for y-values (index, FQN, or path)                            |
 | `title`      | `string`                       | Series name shown in legend and tooltip                                            |
 | `xCol`       | `SerieTableColumn`             | Override the global `xCol` for this series                                         |
-| `yAxisIndex` | `number`                       | Which y-axis to use (0-based)                                                      |
+| `gridIndex`  | `number`                       | Which grid to use (0-based), sets xAxisIndex and yAxisIndex                        |
+| `yAxisIndex` | `number`                       | Which y-axis to use (0-based), defaults to `gridIndex`                             |
 | `hide`       | `boolean`                      | Hide this series                                                                   |
 | `color`      | `string`                       | Override color (hex, rgb, rgba)                                                    |
 | `lineWidth`  | `number`                       | Line thickness                                                                     |

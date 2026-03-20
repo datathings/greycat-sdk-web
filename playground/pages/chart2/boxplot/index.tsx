@@ -36,7 +36,7 @@ document.body.appendChild(
           {
             type: 'boxplot',
             yCol: 1,
-            title: 'Distribution',
+            name: 'Distribution',
             echarts: { data: boxData },
           },
         ],

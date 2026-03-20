@@ -40,7 +40,7 @@ document.body.appendChild(
           {
             type: 'candlestick',
             yCol: 1,
-            title: 'OHLC',
+            name: 'OHLC',
             candleCols: [1, 2, 3, 4],
           },
         ],

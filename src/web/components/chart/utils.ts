@@ -15,9 +15,9 @@ const DAYS_IN_MS = HOURS_IN_MS * 24;
  */
 export function smartTimeFormatSpecifier(span: number): string {
   if (span < MINUTES_IN_MS) {
-    return '%S%.3f';
+    return '%H:%M:%S';
   } else if (span < HOURS_IN_MS) {
-    return '%M:%S';
+    return '%H:%M';
   } else if (span < DAYS_IN_MS) {
     return '%H:%M';
   } else if (span < DAYS_IN_MS * 7) {

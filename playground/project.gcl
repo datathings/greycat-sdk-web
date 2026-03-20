@@ -13,7 +13,7 @@ var non_overlapping_1: nodeTime<float>;
 var non_overlapping_2: nodeTime<float>;
 var non_overlapping_3: nodeTime<float>;
 var simple_index: nodeIndex<String, int>;
-var random_data: nodeList<float>;
+var random_data: nodeList<nodeList<float>>;
 
 type KLine {
     open: float;
@@ -75,13 +75,24 @@ fn main() {
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "moderators" });
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "reviewers" });
 
-    Scheduler::add(insert_random_data, FixedPeriodicity { every: 5s }, null);
+    random_data.set(0, nodeList<float> {});
+    random_data.set(1, nodeList<float> {});
+    random_data.set(2, nodeList<float> {});
+
+    Scheduler::add(fn () { insert_random_data(0, 10_000); }, FixedPeriodicity { every: 5s }, null);
+    Scheduler::add(fn () { insert_random_data(1, 1000); }, FixedPeriodicity { every: 2s }, null);
+    Scheduler::add(fn () { insert_random_data(2, 40_000); }, FixedPeriodicity { every: 5s }, null);
 }
 
-fn insert_random_data() {
+fn insert_random_data(id: int, nb: int) {
     var rng = Random {};
-    for (var i = 0; i < 10_000; i++) {
-        random_data.add(rng.uniformf(0.0, 1.0));
+    var list = random_data.get(id);
+    if (list == null) {
+        return;
+    }
+
+    for (var i = 0; i < nb; i++) {
+        list.add(rng.uniformf(0.0, 1.0));
     }
 }
 

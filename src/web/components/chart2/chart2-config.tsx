@@ -136,9 +136,9 @@ export class GuiChart2Config extends GuiElement {
       <sl-input
         size="small"
         label="Title"
-        value={serie.title ?? ''}
+        value={serie.name ?? ''}
         onsl-change={(e: Event) => {
-          serie.title = (e.target as sl.SlInput).value || undefined;
+          serie.name = (e.target as sl.SlInput).value || undefined;
           this._emit();
         }}
       />
@@ -564,23 +564,23 @@ export class GuiChart2Config extends GuiElement {
       />
     ) as HTMLElement;
 
-    const containLabelCheckbox = (
+    const outerBoundsCheckbox = (
       <sl-checkbox
         size="small"
-        checked={Boolean(grid.containLabel ?? true)}
+        checked={(grid.outerBoundsMode ?? 'same') === 'same'}
         onsl-change={(e: Event) => {
           this._value.grid = {
             ...this._value.grid,
-            containLabel: (e.target as sl.SlCheckbox).checked,
+            outerBoundsMode: (e.target as sl.SlCheckbox).checked ? 'same' : 'auto',
           };
           this._emit();
         }}
       >
-        Contain Label
+        Outer Bounds
       </sl-checkbox>
     ) as HTMLElement;
 
-    return this._details('Grid', [topInput, rightInput, bottomInput, leftInput, containLabelCheckbox]);
+    return this._details('Grid', [topInput, rightInput, bottomInput, leftInput, outerBoundsCheckbox]);
   }
 }
 

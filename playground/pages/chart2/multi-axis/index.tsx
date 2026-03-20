@@ -30,8 +30,8 @@ document.body.appendChild(
           { name: 'Humidity (%)', position: 'right' },
         ],
         series: [
-          { type: 'line', yCol: 1, yAxisIndex: 0, title: 'Temperature' },
-          { type: 'line', yCol: 2, yAxisIndex: 1, title: 'Humidity', color: '#ff9f43' },
+          { type: 'line', yCol: 1, yAxisIndex: 0, name: 'Temperature' },
+          { type: 'line', yCol: 2, yAxisIndex: 1, name: 'Humidity', color: '#ff9f43' },
         ],
         tooltip: { enabled: true, trigger: 'axis' },
         legend: { enabled: true },

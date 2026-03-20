@@ -23,7 +23,9 @@ export interface Chart2Serie {
   name?: string;
   xCol?: SerieTableColumn;
   yCol: SerieTableColumn;
-  /** Which y-axis (0-based), defaults to 0 */
+  /** Which grid (0-based). Sets xAxisIndex and yAxisIndex. */
+  gridIndex?: number;
+  /** Which y-axis (0-based), defaults to `gridIndex ?? 0` */
   yAxisIndex?: number;
   hide?: boolean;
   color?: string;
@@ -46,6 +48,16 @@ export interface Chart2Serie {
   echarts?: EchartsExt;
 }
 
+export interface Chart2Grid {
+  top?: number | string;
+  right?: number | string;
+  bottom?: number | string;
+  left?: number | string;
+  outerBoundsMode?: 'auto' | 'same' | 'none';
+  /** Raw ECharts grid options passthrough */
+  echarts?: EchartsExt;
+}
+
 export interface Chart2Config {
   series: Chart2Serie[];
   /** Default x column for all series */
@@ -65,13 +77,7 @@ export interface Chart2Config {
     enabled?: boolean;
     type?: 'inside' | 'slider' | 'both';
   };
-  grid?: {
-    top?: number | string;
-    right?: number | string;
-    bottom?: number | string;
-    left?: number | string;
-    containLabel?: boolean;
-  };
+  grid?: Chart2Grid | Chart2Grid[];
   /** Raw ECharts option override (deep-merged last) */
   echarts?: EchartsExt;
 }

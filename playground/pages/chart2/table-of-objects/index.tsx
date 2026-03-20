@@ -20,12 +20,12 @@ document.body.appendChild(
             {
               type: 'line',
               yCol: ['project::TimeRecord::value', 'project::Composed::b'],
-              title: 'Composed.b',
+              name: 'Composed.b',
             },
             {
               type: 'scatter',
               yCol: ['project::TimeRecord::value', 'project::Composed::a'],
-              title: 'Composed.a',
+              name: 'Composed.a',
               symbolSize: 6,
             },
           ],
@@ -44,7 +44,7 @@ document.body.appendChild(
             {
               type: 'line',
               yCol: [1, 'project::SeriesObject::a'],
-              title: 'SeriesObject.a',
+              name: 'SeriesObject.a',
             },
           ],
           tooltip: { enabled: true, trigger: 'axis' },

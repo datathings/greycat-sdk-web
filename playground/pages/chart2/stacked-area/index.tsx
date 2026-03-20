@@ -27,9 +27,9 @@ document.body.appendChild(
         xAxis: { type: 'category' },
         yAxis: [{}],
         series: [
-          { type: 'line', yCol: 1, title: 'Email', stack: 'total', areaStyle: true },
-          { type: 'line', yCol: 2, title: 'Social', stack: 'total', areaStyle: true },
-          { type: 'line', yCol: 3, title: 'Video', stack: 'total', areaStyle: true },
+          { type: 'line', yCol: 1, name: 'Email', stack: 'total', areaStyle: true },
+          { type: 'line', yCol: 2, name: 'Social', stack: 'total', areaStyle: true },
+          { type: 'line', yCol: 3, name: 'Video', stack: 'total', areaStyle: true },
         ],
         tooltip: { enabled: true, trigger: 'axis' },
         legend: { enabled: true },

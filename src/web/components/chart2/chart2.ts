@@ -16,6 +16,8 @@ import {
   VisualMapComponent,
   AxisPointerComponent,
 } from 'echarts/components';
+// @ts-ignore — MatrixComponent types not yet re-exported from echarts/components
+import { install as MatrixComponent } from 'echarts/lib/component/matrix/install.js';
 import { CanvasRenderer } from 'echarts/renderers';
 import type { sl } from '../../exports.js';
 
@@ -33,6 +35,7 @@ echarts.use([
   DataZoomComponent,
   VisualMapComponent,
   AxisPointerComponent,
+  MatrixComponent,
   CanvasRenderer,
 ]);
 import { GuiElement } from '../element.js';
@@ -120,6 +123,10 @@ export class GuiChart2 extends GuiElement {
 
     this._chart.on('datazoom', (params) => {
       this.dispatchEvent(new GuiChart2SelectionEvent(params as unknown as Chart2SelectionDetail));
+    });
+
+    this._container.addEventListener('dblclick', () => {
+      this._chart?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
     });
 
     this._render();

@@ -19,8 +19,8 @@ document.body.appendChild(
         xAxis: { type: 'category' },
         yAxis: [{}],
         series: [
-          { type: 'bar', yCol: 1, title: 'Sales' },
-          { type: 'bar', yCol: 2, title: 'Returns', color: '#ff6b6b' },
+          { type: 'bar', yCol: 1, name: 'Sales' },
+          { type: 'bar', yCol: 2, name: 'Returns', color: '#ff6b6b' },
         ],
         tooltip: { enabled: true, trigger: 'axis' },
         legend: { enabled: true },

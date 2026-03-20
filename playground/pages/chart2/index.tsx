@@ -11,7 +11,7 @@ const chart = (
       series: [
         {
           type: 'line',
-          title: 'Value',
+          name: 'Value',
           yCol: 1,
         },
       ],
