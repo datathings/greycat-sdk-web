@@ -4,15 +4,12 @@ import type { GuiChart2, Chart2Config } from '@greycat/web';
 import {
   BYTE_AXIS,
   BYTE_TOOLTIP,
-  DEFAULT_TOOLTIP,
   CHART_H,
   actionBar,
   init,
   onData,
   registerChart,
   getLastData,
-  type N,
-  type FlatUsageData,
 } from '../shared.js';
 
 const greycat = await gc.sdk.init({ debug: true });
@@ -33,7 +30,7 @@ registerChart(chart);
 function buildConfig(field: WorkerField, count: number): Chart2Config {
   const series: Chart2Config['series'] = [];
   for (let w = 0; w < count; w++) {
-    series.push({ type: 'line', yCol: w + 1, title: `Worker ${w}` });
+    series.push({ type: 'line', yCol: w + 1, name: `Worker ${w}` });
   }
   return {
     xCol: 0,
