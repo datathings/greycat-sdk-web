@@ -50,7 +50,7 @@ export class GuiRuntimeUsage extends GuiElement {
   private _windowMs = TIME_WINDOWS[0].ms;
   private _greycat: gc.sdk.GreyCat = gc.$.default;
   private _pollTimer: ReturnType<typeof setInterval> | undefined;
-  private _ntUsages!: gc.core.nodeTime;
+  private _ntUsages: gc.core.nodeTime | undefined;
 
   // Reusable arrays (reset & reused each tick to ease GC)
   private _w_mem: number[] = [];
@@ -117,7 +117,9 @@ export class GuiRuntimeUsage extends GuiElement {
 
   async connectedCallback(): Promise<void> {
     const root = await this._greycat.root();
-    this._ntUsages = root['runtime::usages'];
+    if ('runtime::usages' in root) {
+      this._ntUsages = root['runtime::usages'] as gc.core.nodeTime<gc.runtime.RuntimeUsage>;
+    }
     await this._tick();
     this._pollTimer = setInterval(() => {
       const isLive = Math.abs(this._timeMs - Date.now()) < POLL_INTERVAL_MS * 2;
@@ -140,23 +142,45 @@ export class GuiRuntimeUsage extends GuiElement {
     const to = gc.core.time.fromMs(Math.round(this._timeMs));
     const from = gc.core.time.fromMs(Math.round(this._timeMs - this._windowMs));
 
-    const usage_table = await this._ntUsages.sample(
-      from,
-      to,
-      this._maxRows,
-      gc.core.SamplingMode.adaptative,
-      null,
-      null,
-    );
+    let usage_table: gc.core.Table<[gc.core.time, gc.runtime.RuntimeUsage]>;
+    if (this._ntUsages) {
+      usage_table = await this._ntUsages.sample(
+        from,
+        to,
+        this._maxRows,
+        gc.core.SamplingMode.adaptative,
+        null,
+        null,
+      );
+    } else {
+      usage_table = new gc.core.Table();
+    }
 
     const nb_rows = usage_table.nbRows();
     const usages = usage_table.cols[1] as gc.runtime.RuntimeUsage[];
 
-    const { _w_mem, _w_cache, _w_reads, _w_writes, _z_size, _z_cache, _z_refs, _z_comm, _z_blocks, _z_frag } = this;
+    const {
+      _w_mem,
+      _w_cache,
+      _w_reads,
+      _w_writes,
+      _z_size,
+      _z_cache,
+      _z_refs,
+      _z_comm,
+      _z_blocks,
+      _z_frag,
+    } = this;
 
     // Reset arrays
     _w_mem.length = _w_cache.length = _w_reads.length = _w_writes.length = nb_rows;
-    _z_size.length = _z_cache.length = _z_refs.length = _z_comm.length = _z_blocks.length = _z_frag.length = nb_rows;
+    _z_size.length =
+      _z_cache.length =
+      _z_refs.length =
+      _z_comm.length =
+      _z_blocks.length =
+      _z_frag.length =
+        nb_rows;
     _w_mem.fill(0);
     _w_cache.fill(0);
     _w_reads.fill(0);
@@ -216,7 +240,10 @@ export class GuiRuntimeUsage extends GuiElement {
       const dtFmt = '%Y-%m-%dT%H:%M';
       const nodeInfo = info[0] as gc.core.NodeInfo<gc.core.time>;
       if (nodeInfo.from) {
-        this._dateInput.setAttribute('min', gc.$.default.printTime(nodeInfo.from, undefined, dtFmt));
+        this._dateInput.setAttribute(
+          'min',
+          gc.$.default.printTime(nodeInfo.from, undefined, dtFmt),
+        );
       }
       if (nodeInfo.to) {
         this._dateInput.setAttribute('max', gc.$.default.printTime(nodeInfo.to, undefined, dtFmt));
@@ -367,12 +394,42 @@ export class GuiRuntimeUsage extends GuiElement {
             { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Zones'] } },
           ],
           series: [
-            { name: 'Process (res)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::proc_res_bytes'] },
-            { name: 'Process (shr)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::proc_shr_bytes'] },
-            { name: 'GreyCat (global)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::global_memory'] },
-            { name: 'OS (total)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::os_total_bytes'] },
-            { name: 'OS (used)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::os_used_bytes'] },
-            { name: 'Process (virt)', type: 'line', gridIndex: 0, yCol: [1, 'runtime::RuntimeUsage::proc_virt_bytes'] },
+            {
+              name: 'Process (res)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::proc_res_bytes'],
+            },
+            {
+              name: 'Process (shr)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::proc_shr_bytes'],
+            },
+            {
+              name: 'GreyCat (global)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::global_memory'],
+            },
+            {
+              name: 'OS (total)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::os_total_bytes'],
+            },
+            {
+              name: 'OS (used)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::os_used_bytes'],
+            },
+            {
+              name: 'Process (virt)',
+              type: 'line',
+              gridIndex: 0,
+              yCol: [1, 'runtime::RuntimeUsage::proc_virt_bytes'],
+            },
             { name: 'Memory', type: 'line', gridIndex: 1, yCol: 2 },
             { name: 'Cache', type: 'line', gridIndex: 2, yCol: 3 },
             { name: 'Reads', type: 'line', gridIndex: 3, yCol: 4 },
