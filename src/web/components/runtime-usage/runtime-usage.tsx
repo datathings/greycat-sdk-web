@@ -33,7 +33,7 @@ const allGridIndices = [0, 1, 2, 3, 4, 5, 6];
 const GRID_CELL: Chart2Grid = {
   top: 40,
   bottom: 30,
-  left: 85,
+  left: 95,
   right: 45,
   outerBoundsMode: 'none',
 };
@@ -535,13 +535,13 @@ export class GuiRuntimeUsage extends GuiElement {
         { type: 'time', echarts: { splitNumber: 3 } },
       ],
       yAxis: [
-        { name: 'Memory', ...BYTE_AXIS },
-        { name: 'Memory', ...BYTE_AXIS },
-        { name: 'Cache' },
-        { name: 'I/O', ...BYTE_AXIS },
-        { name: 'Size', ...BYTE_AXIS },
-        { name: 'Cache', ...BYTE_AXIS },
-        { name: 'Blocks' },
+        { name: 'Host Memory', ...BYTE_AXIS },
+        { name: 'Workers Memory', ...BYTE_AXIS },
+        { name: 'Workers Cache' },
+        { name: 'Workers I/O', ...BYTE_AXIS },
+        { name: 'Zones Size', ...BYTE_AXIS },
+        { name: 'Zones Cache', ...BYTE_AXIS },
+        { name: 'Zones Blocks' },
         {
           position: 'right',
           min: 0,
@@ -712,17 +712,19 @@ export class GuiRuntimeUsage extends GuiElement {
         matrix: {
           x: { show: false, data: ['col0', 'col1', 'col2'], levelSize: 0 },
           y: {
+            show: false,
             data: [
               { value: 'Memory', size: '39%' },
               { value: 'Workers', size: '30.5%' },
               { value: 'Zones', size: '30.5%' },
             ],
-            levelSize: '9%',
-            label: { color: textColor },
+            levelSize: 0,
           },
-          dividerLineStyle: { color: borderColor },
+          dividerLineStyle: { width: 0 },
+          backgroundStyle: { borderWidth: 0 },
           body: {
             data: [{ coord: [[0, 2], 0], mergeCells: true }],
+            itemStyle: { borderWidth: 0 },
           },
           top: 50,
           bottom: 60,
