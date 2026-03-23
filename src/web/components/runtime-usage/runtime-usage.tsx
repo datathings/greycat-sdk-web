@@ -46,7 +46,9 @@ export interface GuiRuntimeUsageAttrs {
 }
 
 export class GuiRuntimeUsage extends GuiElement {
-  static override readonly styles = [css(':host { display: flex; flex-direction: column; min-height: 500px; }')];
+  static override readonly styles = [
+    css(':host { display: flex; flex-direction: column; min-height: 500px; }'),
+  ];
 
   private _maxRows = 1000;
   private _timeMs = Date.now();
@@ -55,6 +57,7 @@ export class GuiRuntimeUsage extends GuiElement {
   private _pollTimer: ReturnType<typeof setInterval> | undefined;
   private _mutationObs: MutationObserver | undefined;
   private _ntUsages: gc.core.nodeTime | undefined;
+  private _lastMousePos: { x: number; y: number } | null = null;
 
   // Reusable arrays (reset & reused each tick to ease GC)
   private _w_mem: number[] = [];
@@ -132,6 +135,8 @@ export class GuiRuntimeUsage extends GuiElement {
         this._tick();
       }
     }, POLL_INTERVAL_MS);
+
+    this._setupAxisPointerLabels();
 
     this._mutationObs = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -252,6 +257,18 @@ export class GuiRuntimeUsage extends GuiElement {
         gc.core.nodeTime.info([this._ntUsages]),
       ]);
       this._chart.value = table;
+
+      // Re-dispatch axis pointer at last known mouse position so tooltip updates
+      if (this._lastMousePos) {
+        const ec = this._chart.getEChartsInstance();
+        if (ec) {
+          ec.dispatchAction({
+            type: 'updateAxisPointer',
+            x: this._lastMousePos.x,
+            y: this._lastMousePos.y,
+          });
+        }
+      }
       const dtFmt = '%Y-%m-%dT%H:%M';
       const nodeInfo = info[0] as gc.core.NodeInfo<gc.core.time>;
       if (nodeInfo.from) {
@@ -281,12 +298,25 @@ export class GuiRuntimeUsage extends GuiElement {
           fromFmt = '%d/%m/%Y';
           toFmt = '%d/%m/%Y';
         }
+        let spanLabel: string;
+        const HOUR = 3_600_000;
+        const MIN = 60_000;
+        if (spanMs < HOUR) {
+          spanLabel = `~${Math.round(spanMs / MIN)}min`;
+        } else if (spanMs < DAY) {
+          spanLabel = `~${Math.round(spanMs / HOUR)}h`;
+        } else if (spanMs < 30 * DAY) {
+          spanLabel = `~${Math.round(spanMs / DAY)}days`;
+        } else if (spanMs < YEAR) {
+          spanLabel = `~${Math.round(spanMs / (30 * DAY))}months`;
+        } else {
+          spanLabel = `~${(spanMs / YEAR).toFixed(1)}years`;
+        }
+
         this._dateInput.setAttribute(
           'label',
-          `Time (${gc.$.default.printTime(nodeInfo.from, undefined, fromFmt)} — ${gc.$.default.printTime(nodeInfo.to, undefined, toFmt)})`,
+          `Time (${gc.$.default.printTime(nodeInfo.from, undefined, fromFmt)} — ${gc.$.default.printTime(nodeInfo.to, undefined, toFmt)}, ${spanLabel})`,
         );
-
-
       }
     } catch (err) {
       console.error('Usage fetch error:', err);
@@ -300,6 +330,195 @@ export class GuiRuntimeUsage extends GuiElement {
         TIME_WINDOWS[j].ms === this._windowMs ? 'primary' : 'default',
       );
     }
+  }
+
+  /**
+   * Listens to ECharts axis pointer events and renders y-axis value labels
+   * on non-hovered grids as positioned DOM elements (one per series).
+   */
+  private _setupAxisPointerLabels(): void {
+    requestAnimationFrame(() => {
+      const ec = this._chart.getEChartsInstance();
+      if (!ec) {
+        return;
+      }
+
+      const FMT_BYTES = (v: number) => gc.sdk.humanSize(v);
+      const FMT_PCT = (v: number) => `${v.toFixed(1)}%`;
+      const FMT_NUM = (v: number) => String(Math.round(v));
+
+      // Per-series: { gridIndex, formatter }
+      const SERIES_INFO: { grid: number; fmt: (v: number) => string }[] = [
+        { grid: 0, fmt: FMT_BYTES }, // 0:  Process (res)
+        { grid: 0, fmt: FMT_BYTES }, // 1:  Process (shr)
+        { grid: 0, fmt: FMT_BYTES }, // 2:  GreyCat (global)
+        { grid: 0, fmt: FMT_BYTES }, // 3:  OS (total)
+        { grid: 0, fmt: FMT_BYTES }, // 4:  OS (used)
+        { grid: 0, fmt: FMT_BYTES }, // 5:  Process (virt)
+        { grid: 1, fmt: FMT_BYTES }, // 6:  Workers Memory
+        { grid: 2, fmt: FMT_NUM }, // 7:  Workers Cache
+        { grid: 3, fmt: FMT_BYTES }, // 8:  Workers Reads
+        { grid: 3, fmt: FMT_BYTES }, // 9:  Workers Writes
+        { grid: 4, fmt: FMT_BYTES }, // 10: Zones Size
+        { grid: 5, fmt: FMT_BYTES }, // 11: Zones Cache
+        { grid: 6, fmt: FMT_NUM }, // 12: Zones Reserved
+        { grid: 6, fmt: FMT_NUM }, // 13: Zones Committed
+        { grid: 6, fmt: FMT_PCT }, // 14: Zones Fragmentation
+      ];
+
+      const chartContainer = this._chart.shadowRoot.querySelector(
+        '.gui-chart2-container',
+      ) as HTMLElement;
+      if (!chartContainer) {
+        return;
+      }
+
+      // Create one label element per series, using the series color for the border
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const palette = (ec.getOption() as any).color as string[];
+      const labels: HTMLDivElement[] = SERIES_INFO.map((_info, si) => {
+        const el = document.createElement('div');
+        el.style.position = 'absolute';
+        el.style.zIndex = '100';
+        el.style.pointerEvents = 'none';
+        el.style.padding = '1px 4px';
+        el.style.borderRadius = '2px';
+        el.style.border = `1px solid ${palette[si % palette.length]}`;
+        el.style.fontSize = '11px';
+        el.style.whiteSpace = 'nowrap';
+        el.style.display = 'none';
+        el.style.background = 'var(--bg-1)';
+        el.style.color = 'var(--text-color)';
+        el.style.transform = 'translateX(-100%)';
+        chartContainer.appendChild(el);
+        return el;
+      });
+
+      const hideAll = () => {
+        for (const el of labels) {
+          el.style.display = 'none';
+        }
+      };
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ec.on('updateAxisPointer', (event: any) => {
+        const axesInfo = event.axesInfo;
+        if (!axesInfo || axesInfo.length === 0) {
+          hideAll();
+          return;
+        }
+
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const hoveredXAxis = axesInfo.find((a: any) => a.axisDim === 'x');
+        const xVal = hoveredXAxis?.value;
+
+        // Determine hovered grid by checking which grid contains the mouse
+        let hoveredGrid = -1;
+        if (this._lastMousePos) {
+          for (let gi = 0; gi < 7; gi++) {
+            if (ec.containPixel({ gridIndex: gi }, [this._lastMousePos.x, this._lastMousePos.y])) {
+              hoveredGrid = gi;
+              break;
+            }
+          }
+        }
+        if (xVal == null) {
+          hideAll();
+          return;
+        }
+
+        const option = ec.getOption();
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const seriesOpts = option.series as any[];
+
+        for (let si = 0; si < SERIES_INFO.length; si++) {
+          const info = SERIES_INFO[si];
+
+          // Hide labels for the hovered grid
+          if (info.grid === hoveredGrid) {
+            labels[si].style.display = 'none';
+            continue;
+          }
+
+          const seriesData = seriesOpts[si]?.data as [number, number][] | undefined;
+          if (!seriesData || seriesData.length === 0) {
+            labels[si].style.display = 'none';
+            continue;
+          }
+
+          // Find closest dataIndex by x-value
+          let closestIdx = 0;
+          let closestDist = Math.abs(seriesData[0][0] - xVal);
+          for (let d = 1; d < seriesData.length; d++) {
+            const dist = Math.abs(seriesData[d][0] - xVal);
+            if (dist < closestDist) {
+              closestDist = dist;
+              closestIdx = d;
+            }
+          }
+
+          const yVal = seriesData[closestIdx][1];
+
+          try {
+            // Get the y pixel position at the data point
+            const pixel = ec.convertToPixel({ gridIndex: info.grid }, [
+              seriesData[closestIdx][0],
+              yVal,
+            ]) as number[];
+            // Get the left edge of the grid (x pixel at the first data point)
+            const leftPixel = ec.convertToPixel({ gridIndex: info.grid }, [
+              seriesData[0][0],
+              yVal,
+            ]) as number[];
+
+            labels[si].textContent = info.fmt(yVal);
+            labels[si].style.display = 'block';
+            // Position at the y-axis (left edge of grid), at the correct y height
+            labels[si].style.left = `${leftPixel[0]}px`;
+            labels[si].style.top = `${pixel[1] - 8}px`;
+          } catch {
+            labels[si].style.display = 'none';
+          }
+        }
+
+        // Resolve overlapping labels within the same grid
+        const LABEL_H = 18; // 11px font + padding + border
+        const byGrid = new Map<number, { el: HTMLDivElement; top: number }[]>();
+        for (let si = 0; si < SERIES_INFO.length; si++) {
+          if (labels[si].style.display === 'none') {
+            continue;
+          }
+          const gi = SERIES_INFO[si].grid;
+          let arr = byGrid.get(gi);
+          if (!arr) {
+            arr = [];
+            byGrid.set(gi, arr);
+          }
+          arr.push({ el: labels[si], top: parseFloat(labels[si].style.top) });
+        }
+        for (const group of byGrid.values()) {
+          group.sort((a, b) => a.top - b.top);
+          for (let i = 1; i < group.length; i++) {
+            const minTop = group[i - 1].top + LABEL_H;
+            if (group[i].top < minTop) {
+              group[i].top = minTop;
+              group[i].el.style.top = `${minTop}px`;
+            }
+          }
+        }
+      });
+
+      ec.on('globalout', hideAll);
+
+      // Track mouse position for re-dispatching after data refresh
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ec.getZr().on('mousemove', (e: any) => {
+        this._lastMousePos = { x: e.offsetX, y: e.offsetY };
+      });
+      ec.getZr().on('globalout', () => {
+        this._lastMousePos = null;
+      });
+    });
   }
 
   private _chartConfig() {
@@ -337,13 +556,69 @@ export class GuiRuntimeUsage extends GuiElement {
         },
       ],
       grid: [
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Memory'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Workers'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Workers'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Workers'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col0', 'Zones'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col1', 'Zones'], backgroundColor: bgColor, show: true } },
-        { ...GRID_CELL, echarts: { coordinateSystem: 'matrix', coord: ['col2', 'Zones'], backgroundColor: bgColor, show: true } },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col0', 'Memory'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col0', 'Workers'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col1', 'Workers'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col2', 'Workers'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col0', 'Zones'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col1', 'Zones'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
+        {
+          ...GRID_CELL,
+          echarts: {
+            coordinateSystem: 'matrix',
+            coord: ['col2', 'Zones'],
+            backgroundColor: bgColor,
+            show: true,
+          },
+        },
       ],
       series: [
         {
