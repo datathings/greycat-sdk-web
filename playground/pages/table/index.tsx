@@ -1,3 +1,4 @@
+import '@greycat/web';
 import type { CellValueData } from '@greycat/web';
 import { appLayout } from '~/common';
 

@@ -1,5 +1,6 @@
+import '@greycat/web';
+import type { GuiTable, TableLike } from '@greycat/web';
 import { appLayout } from '~/common';
-import { GuiTable, TableLike } from '@greycat/web';
 
 await gc.sdk.init({ debug: true });
 

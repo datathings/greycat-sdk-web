@@ -139,6 +139,11 @@ export class GuiChart2 extends GuiElement {
       this.dispatchEvent(new GuiChart2SelectionEvent(params as unknown as Chart2SelectionDetail));
     });
 
+    // sync legend toggle → config.series[].hide
+    this._chart.on('legendselectchanged', (params) => {
+      this._syncLegendToConfig((params as { selected: Record<string, boolean> }).selected);
+    });
+
     this._container.addEventListener('dblclick', () => {
       this._chart?.dispatchAction({ type: 'dataZoom', start: 0, end: 100 });
     });
@@ -268,6 +273,19 @@ export class GuiChart2 extends GuiElement {
     if (this._configEl) {
       this._configEl.value = this._config ?? inferConfig2(this._table);
     }
+  }
+
+  /** Sync ECharts legend selection state back to config.series[].hide. */
+  private _syncLegendToConfig(selected: Record<string, boolean>): void {
+    if (!this._config) {
+      return;
+    }
+    for (const s of this._config.series) {
+      if (s.name && s.name in selected) {
+        s.hide = !selected[s.name];
+      }
+    }
+    this._updateConfigEl();
   }
 
   getEChartsInstance(): echarts.ECharts | null {

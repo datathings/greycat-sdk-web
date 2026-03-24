@@ -48,6 +48,7 @@ sl-details {
   border: 1px solid var(--sl-color-neutral-200);
   border-radius: var(--sl-border-radius-medium);
   padding: var(--sl-spacing-x-small);
+  background-color: var(--bg-2);
   margin-bottom: var(--sl-spacing-x-small);
 }
 

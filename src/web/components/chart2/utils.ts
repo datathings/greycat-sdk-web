@@ -64,12 +64,14 @@ export function buildEChartsOption(
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const series: Record<string, any>[] = [];
+  // track hidden series for legend.selected (kept in legend but grayed out)
+  const legendSelected: Record<string, boolean> = {};
   for (let i = 0; i < config.series.length; i++) {
     const s = config.series[i];
-    if (s.hide) {
-      continue;
-    }
     series.push(buildSerie(table, config, s, i, rows, colors, xAxisIsCategory));
+    if (s.hide && s.name) {
+      legendSelected[s.name] = false;
+    }
   }
 
   // compute x-axis time span for smart formatting
@@ -206,6 +208,9 @@ export function buildEChartsOption(
       default:
         legend.top = 0;
         break;
+    }
+    if (Object.keys(legendSelected).length > 0) {
+      legend.selected = legendSelected;
     }
     option.legend = legend;
   } else {
@@ -383,7 +388,7 @@ function buildSerie(
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function buildAxis(axis: Chart2Axis, textColor: string, borderColor: string, timeSpan: number): Record<string, any> {
+export function buildAxis(axis: Chart2Axis, textColor: string, borderColor: string, timeSpan: number): Record<string, any> {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const result: Record<string, any> = {
     type: axis.type ?? 'value',
