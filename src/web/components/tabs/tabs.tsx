@@ -16,6 +16,7 @@ export class GuiTabs extends GuiElement {
   private _panelsSlot: HTMLSlotElement;
   private _tabs: GuiTab[] = [];
   private _initialized = false;
+  private _preservePanel = false;
   readonly panels: Map<string, GuiPanel> = new Map();
 
   constructor() {
@@ -35,9 +36,25 @@ export class GuiTabs extends GuiElement {
     );
   }
 
+  /**
+   * When `true`, panels stay in the DOM and are toggled via `display:none`
+   * instead of being removed/re-appended. This preserves child component
+   * state (e.g. ECharts instances, scroll positions) across tab switches.
+   */
+  get preservePanel(): boolean {
+    return this._preservePanel;
+  }
+
+  set preservePanel(v: boolean) {
+    this._preservePanel = v;
+  }
+
   connectedCallback() {
     if (this._initialized) {
       return;
+    }
+    if (this.hasAttribute('preservePanel')) {
+      this._preservePanel = getBooleanAttribute(this, 'preservePanel');
     }
     this._initialize();
     this._initialized = true;
@@ -83,26 +100,39 @@ export class GuiTabs extends GuiElement {
           const tabName = panel.tab;
           this.panels.set(tabName, panel);
           panel.setAttribute('data-tab', tabName);
-          panel.remove();
+          if (this._preservePanel) {
+            panel.style.display = 'none';
+          } else {
+            panel.remove();
+          }
         } else {
           console.warn(`Only 'gui-panel' elements can be used as panels with 'gui-tabs'`);
         }
       }
     }
-    if (activeTab && activeTab.textContent) {
-      const activePanel = this.panels.get(activeTab.textContent);
+
+    const activeTabName = activeTab?.textContent;
+    if (activeTabName) {
+      const activePanel = this.panels.get(activeTabName);
       if (activePanel) {
-        this.appendChild(activePanel);
+        if (this._preservePanel) {
+          activePanel.style.display = '';
+        } else {
+          this.appendChild(activePanel);
+        }
       }
     } else if (this._tabs.length > 0) {
       const firstTab = this._tabs[0];
       if (firstTab.textContent) {
         const tabName = firstTab.textContent;
         for (const panel of this.panels.values()) {
-          const tab = panel.tab;
-          if (tab === tabName) {
+          if (panel.tab === tabName) {
             firstTab.active = true;
-            this.appendChild(panel);
+            if (this._preservePanel) {
+              panel.style.display = '';
+            } else {
+              this.appendChild(panel);
+            }
             break;
           }
         }
@@ -114,17 +144,27 @@ export class GuiTabs extends GuiElement {
     this._tabs.forEach((el) => {
       el.active = false;
     });
-    this.panels.forEach((panel) => panel.remove());
-
     tab.active = true;
+
     const tabName = tab.textContent;
     if (!tabName) {
       return;
     }
-    const panel = this.panels.get(tabName);
-    if (panel) {
-      this.appendChild(panel);
-      this.dispatchEvent(new GuiTabChangeEvent(tab));
+
+    if (this._preservePanel) {
+      this.panels.forEach((panel) => (panel.style.display = 'none'));
+      const panel = this.panels.get(tabName);
+      if (panel) {
+        panel.style.display = '';
+        this.dispatchEvent(new GuiTabChangeEvent(tab));
+      }
+    } else {
+      this.panels.forEach((panel) => panel.remove());
+      const panel = this.panels.get(tabName);
+      if (panel) {
+        this.appendChild(panel);
+        this.dispatchEvent(new GuiTabChangeEvent(tab));
+      }
     }
   }
 

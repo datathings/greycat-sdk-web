@@ -90,11 +90,25 @@ export class GuiChart2 extends GuiElement {
     resetTooltip.appendChild(resetBtn);
     this._drawer.appendChild(resetTooltip);
 
-    this._resizeObs = new ResizeObserver(
-      debounce(() => {
+    const debouncedResize = debounce(() => this._chart?.resize(), 100);
+    let lastWidth = 0;
+    let lastHeight = 0;
+    this._resizeObs = new ResizeObserver((entries) => {
+      const rect = entries[0]?.contentRect;
+      if (!rect || (rect.width === 0 && rect.height === 0)) {
+        lastWidth = 0;
+        lastHeight = 0;
+        return;
+      }
+      if (lastWidth === 0 && lastHeight === 0) {
+        // hidden → visible: resize immediately, no flash
         this._chart?.resize();
-      }, 100),
-    );
+      } else {
+        debouncedResize();
+      }
+      lastWidth = rect.width;
+      lastHeight = rect.height;
+    });
 
     this._mutationObs = new MutationObserver((mutations) => {
       for (const mutation of mutations) {
@@ -264,7 +278,6 @@ export class GuiChart2 extends GuiElement {
     if (!this._chart || !this.isConnected) {
       return;
     }
-
     const config = this._config ?? inferConfig2(this._table);
     const colors = getColors(this);
     const theme = getThemeColors(this);

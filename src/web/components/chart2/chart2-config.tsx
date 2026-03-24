@@ -135,7 +135,7 @@ export class GuiChart2Config extends GuiElement {
     const titleInput = (
       <sl-input
         size="small"
-        label="Title"
+        label="Name"
         value={serie.name ?? ''}
         onsl-change={(e: Event) => {
           serie.name = (e.target as sl.SlInput).value || undefined;
@@ -223,15 +223,33 @@ export class GuiChart2Config extends GuiElement {
       />
     );
 
+    const precisionInput = (
+      <sl-input
+        size="small"
+        label="Precision"
+        type="number"
+        value={serie.precision != null ? String(serie.precision) : ''}
+        onsl-change={(e: Event) => {
+          const v = (e.target as sl.SlInput).value;
+          const n = Number(v);
+          serie.precision = v === '' || isNaN(n) ? undefined : n;
+          this._emit();
+        }}
+      />
+    );
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const chartColors = (this._chart?.getOption() as any)?.color as string[] | undefined;
+    const dotColor = serie.color || chartColors?.[idx] || 'var(--sl-color-neutral-400)';
     const colorDot = document.createElement('span');
     colorDot.classList.add('color-dot');
-    colorDot.style.backgroundColor = color || 'var(--sl-color-neutral-400)';
+    colorDot.style.backgroundColor = dotColor;
 
     return (
       <div className="serie-item">
         <div className="serie-header">
           {colorDot}
-          <strong>Serie {idx}</strong>
+          <strong>{serie.name ?? `Serie ${idx}`}</strong>
           {hideCheckbox}
         </div>
         {typeSelect}
@@ -242,6 +260,7 @@ export class GuiChart2Config extends GuiElement {
         {stackInput}
         {lineWidthInput}
         {symbolSizeInput}
+        {precisionInput}
       </div>
     ) as HTMLElement;
   }
@@ -387,6 +406,24 @@ export class GuiChart2Config extends GuiElement {
       </sl-select>
     );
 
+    const tooltipPrecision = (
+      <sl-input
+        size="small"
+        label="Precision"
+        type="number"
+        value={this._value.tooltip?.precision != null ? String(this._value.tooltip.precision) : ''}
+        onsl-change={(e: Event) => {
+          const v = (e.target as sl.SlInput).value;
+          const n = Number(v);
+          this._value.tooltip = {
+            ...this._value.tooltip,
+            precision: v === '' || isNaN(n) ? undefined : n,
+          };
+          this._emit();
+        }}
+      />
+    );
+
     const legendEnabled = (
       <sl-checkbox
         size="small"
@@ -464,6 +501,7 @@ export class GuiChart2Config extends GuiElement {
       <div className="features-section">
         {tooltipEnabled}
         {tooltipTrigger}
+        {tooltipPrecision}
         {legendEnabled}
         {legendPosition}
         {dataZoomEnabled}

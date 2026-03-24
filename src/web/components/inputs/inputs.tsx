@@ -357,7 +357,9 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     return this.input.valueAsNumber;
   }
 
-  set value(value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined) {
+  set value(
+    value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined,
+  ) {
     if (value === null || value === undefined) {
       this.input.value = '';
     } else {
@@ -611,7 +613,8 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
     if (this._value) {
       let tz: gc.core.TimeZone;
       if (this._timezone === undefined) {
-        const local_tz = new Intl.DateTimeFormat().resolvedOptions().timeZone as gc.core.TimeZone.Field;
+        const local_tz = new Intl.DateTimeFormat().resolvedOptions()
+          .timeZone as gc.core.TimeZone.Field;
         tz = gc.core.TimeZone[local_tz];
       } else {
         tz = this._timezone;
@@ -1064,7 +1067,9 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
       type = ty;
     }
     if (!type.is_abstract) {
-      console.warn(`GuiInputAbstract 'type' field must be set with an abstract type ('${type.name}' is not abstract)`);
+      console.warn(
+        `GuiInputAbstract 'type' field must be set with an abstract type ('${type.name}' is not abstract)`,
+      );
       return;
     }
     const options: sl.SlOption[] = [];
@@ -1115,7 +1120,9 @@ export type FieldElements<T extends object> = Partial<{
 export type TypedHtmlElement<T> = Node & { value: T };
 
 // eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
-export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<T | undefined> {
+export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<
+  T | undefined
+> {
   static override styles = [...GuiInputElement.styles, css(ObjectStyle)];
 
   protected _value: T | undefined;
@@ -1399,6 +1406,7 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
     this.select = document.createElement('sl-select');
     this.select.placeholder = 'Unit';
     this.select.required = true;
+    this.select.label = 'Unit';
     this.select.part.add('unit');
     this.select.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
@@ -1475,6 +1483,11 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   }
   override set placeholder(value: string) {
     this.input.placeholder = value;
+  }
+  get selectPlaceholder() {
+    return this.select.placeholder;
+  }
+  set selectPlaceholder(value: string) {
     this.select.placeholder = value;
   }
   override get label() {
@@ -1482,6 +1495,11 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   }
   override set label(label: string) {
     this.input.label = label;
+  }
+  get selectLabel() {
+    return this.select.label;
+  }
+  set selectLabel(label: string) {
     this.select.label = label;
   }
   override get helpText() {
@@ -1489,6 +1507,11 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   }
   override set helpText(helpText: string) {
     this.input.helpText = helpText;
+  }
+  get selectHelpText() {
+    return this.select.helpText;
+  }
+  set selectHelpText(helpText: string) {
     this.select.helpText = helpText;
   }
   override get required() {
@@ -1496,6 +1519,11 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   }
   override set required(required: boolean) {
     this.input.required = required;
+  }
+  get selectRequired() {
+    return this.select.required;
+  }
+  set selectRequired(required: boolean) {
     this.select.required = required;
   }
   override get disabled() {
@@ -1503,7 +1531,19 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
   }
   override set disabled(disabled: boolean) {
     this.input.disabled = disabled;
+  }
+  get selectDisabled() {
+    return this.select.disabled;
+  }
+  set selectDisabled(disabled: boolean) {
     this.select.disabled = disabled;
+  }
+  override get size() {
+    return this.input.size;
+  }
+  override set size(size: sl.SlInput['size']) {
+    this.input.size = size;
+    this.select.size = size;
   }
 }
 
@@ -1764,7 +1804,11 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
       value = '';
     }
 
-    if (this._generic_param && this._generic_param_nullable && (value === null || value === undefined)) {
+    if (
+      this._generic_param &&
+      this._generic_param_nullable &&
+      (value === null || value === undefined)
+    ) {
       const generic_param = this._generic_param;
       const item = (
         <div className="item" part="item">
@@ -2054,7 +2098,11 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
             size="small"
             onclick={() => {
               const value = new value_type.ctor();
-              const [node, keyInputEl, valInput] = this._createEntry(factory, keyInput.value, value);
+              const [node, keyInputEl, valInput] = this._createEntry(
+                factory,
+                keyInput.value,
+                value,
+              );
               if (keyInputEl && valInput) {
                 this._value.set(keyInputEl.value, valInput.value);
               }

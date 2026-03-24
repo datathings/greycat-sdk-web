@@ -83,6 +83,7 @@ import {
   GuiTensor,
   GuiLogs,
   GuiRuntimeUsage,
+  GuiNodeTime,
 } from './exports.js';
 
 export interface WebOptions {
@@ -246,6 +247,7 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-tensor', GuiTensor);
   registerCustomElement('gui-logs', GuiLogs);
   registerCustomElement('gui-runtime-usage', GuiRuntimeUsage);
+  registerCustomElement('gui-node-time', GuiNodeTime);
 
   if (options.maplibregl || 'maplibregl' in globalThis) {
     globalThis['maplibregl'] = options.maplibregl ?? globalThis['maplibregl'];
@@ -342,6 +344,7 @@ declare global {
       GuiUserGroupPolicy,
       GuiUsers,
       GuiValue,
+      GuiNodeTime,
       registerCustomElement,
     };
   }

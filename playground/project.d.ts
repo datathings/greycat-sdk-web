@@ -3,73 +3,44 @@
 /* oxlint-disable */
 declare namespace gc {
   namespace project {
-    class init_foo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::init_foo$args';
+    class getTensor$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::getTensor$args';
     }
 
-    class VisualCrossingProvider extends gc.sdk.GCObject {
-      static readonly _type = 'project::VisualCrossingProvider';
-      static readonly $fields: VisualCrossingProvider.$Fields;
-      name: string;
-      solar: gc.core.node<gc.project.SolarRadiation>;
-      constructor(name: string, solar: gc.core.node<gc.project.SolarRadiation>);
-      static createFrom(fields: {name: string, solar: gc.core.node<gc.project.SolarRadiation>}): VisualCrossingProvider;
+    class SolarRadiation extends gc.sdk.GCObject {
+      static readonly _type = 'project::SolarRadiation';
+      static readonly $fields: SolarRadiation.$Fields;
+      is_enabled: boolean;
+      radiance: gc.core.nodeTime;
+      instant_power: gc.core.nodeTime;
+      constructor(is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime);
+      static createFrom(fields: {is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime}): SolarRadiation;
     }
-    namespace VisualCrossingProvider {
+    namespace SolarRadiation {
       interface $Fields {
-        name: 0;
-        solar: 1;
+        is_enabled: 0;
+        radiance: 1;
+        instant_power: 2;
       }
     }
 
-    class tensor_2_3_5$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor_2_3_5$args';
+    class TimeRecord<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'project::TimeRecord';
+      static readonly $fields: TimeRecord.$Fields;
+      time: gc.core.time;
+      value: T;
+      constructor(time: gc.core.time, value?: T);
+      static createFrom<T>(fields: {time: gc.core.time, value?: T}): TimeRecord;
     }
-
-    class objects_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::objects_table$args';
-    }
-
-    class Person2 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Person2';
-      static readonly $fields: Person2.$Fields;
-      id: number | bigint;
-      name: string;
-      age: number | bigint;
-      children: number | bigint;
-      constructor(id: number | bigint, name: string, age: number | bigint, children: number | bigint);
-      static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
-    }
-    namespace Person2 {
+    namespace TimeRecord {
       interface $Fields {
-        id: 0;
-        name: 1;
-        age: 2;
-        children: 3;
+        time: 0;
+        value: 1;
       }
     }
 
-    class Country extends gc.sdk.GCObject {
-      static readonly _type = 'project::Country';
-      static readonly $fields: Country.$Fields;
-      name: string;
-      timezone: gc.core.TimeZone;
-      operating_stats: gc.core.node;
-      last_updated_stats: gc.core.time | null;
-      governorates: gc.core.nodeIndex;
-      meteo: gc.core.node<gc.project.Meteo>;
-      constructor(name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>);
-      static createFrom(fields: {name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats?: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>}): Country;
-    }
-    namespace Country {
-      interface $Fields {
-        name: 0;
-        timezone: 1;
-        operating_stats: 2;
-        last_updated_stats: 3;
-        governorates: 4;
-        meteo: 5;
-      }
+    class now$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::now$args';
     }
 
     class ComplexObject extends gc.sdk.GCObject {
@@ -131,63 +102,56 @@ declare namespace gc {
       }
     }
 
-    class RelayApp extends gc.sdk.GCEnum {
-      static readonly _type = 'project::RelayApp';
-      static readonly $fields: RelayApp[];
-      key: RelayApp.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: RelayApp.Field);
-      static pv: RelayApp;
-      static pv_shelly: RelayApp;
-      static ev: RelayApp;
-      static ev_shelly: RelayApp;
-      static empty: RelayApp;
+    class Obj2 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj2';
+      static readonly $fields: Obj2.$Fields;
+      prop1: string;
+      prop2: globalThis.Array<gc.runtime.User | null>;
+      prop3: globalThis.Map<string, gc.project.Person | null>;
+      prop4: any | null;
+      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null);
+      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null}): Obj2;
     }
-    namespace RelayApp  {
-      type Field = "pv"|"pv_shelly"|"ev"|"ev_shelly"|"empty";
-    }
-
-    class obj1$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj1$args';
-    }
-
-    class chart$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::chart$args';
-      static readonly $fields: chart$args.$Fields;
-      nbRows: number | bigint;
-      constructor(nbRows: number | bigint);
-      static createFrom(fields: {nbRows: number | bigint}): chart$args;
-    }
-    namespace chart$args {
+    namespace Obj2 {
       interface $Fields {
-        nbRows: 0;
+        prop1: 0;
+        prop2: 1;
+        prop3: 2;
+        prop4: 3;
       }
     }
 
-    class Sensor extends gc.sdk.GCObject {
-      static readonly _type = 'project::Sensor';
-      static readonly $fields: Sensor.$Fields;
-      id: number | bigint;
-      kind: gc.project.SensorKind;
-      constructor(id: number | bigint, kind: gc.project.SensorKind);
-      static createFrom(fields: {id: number | bigint, kind: gc.project.SensorKind}): Sensor;
+    class histogram_stats$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::histogram_stats$args';
     }
-    namespace Sensor {
+
+    class tensor_3_5$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor_3_5$args';
+    }
+
+    class table_of_objects$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table_of_objects$args';
+    }
+
+    class people$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::people$args';
+    }
+
+    class Obj1 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj1';
+      static readonly $fields: Obj1.$Fields;
+      prop1: string;
+      prop2: gc.runtime.User;
+      prop3: gc.runtime.RuntimeInfo;
+      constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
+      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
+    }
+    namespace Obj1 {
       interface $Fields {
-        id: 0;
-        kind: 1;
+        prop1: 0;
+        prop2: 1;
+        prop3: 2;
       }
-    }
-
-    class heatmap$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::heatmap$args';
-    }
-
-    class bar$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::bar$args';
-    }
-
-    class big_map$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::big_map$args';
     }
 
     class array_of_ints$args extends gc.sdk.GCObject {
@@ -203,6 +167,118 @@ declare namespace gc {
       }
     }
 
+    class Obj extends gc.sdk.GCObject {
+      static readonly _type = 'project::Obj';
+      static readonly $fields: Obj.$Fields;
+      field: any | null;
+      tuple: gc.core.Tuple<any, any>;
+      constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
+      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
+    }
+    namespace Obj {
+      interface $Fields {
+        field: 0;
+        tuple: 1;
+      }
+    }
+
+    class hello$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::hello$args';
+      static readonly $fields: hello$args.$Fields;
+      name: string;
+      constructor(name: string);
+      static createFrom(fields: {name: string}): hello$args;
+    }
+    namespace hello$args {
+      interface $Fields {
+        name: 0;
+      }
+    }
+
+    class objects_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::objects_table$args';
+    }
+
+    class init_foo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::init_foo$args';
+    }
+
+    class Triangle extends gc.sdk.GCObject {
+      static readonly _type = 'project::Triangle';
+      static readonly $fields: Triangle.$Fields;
+      base: number;
+      height: number;
+      constructor(base: number, height: number);
+      static createFrom(fields: {base: number, height: number}): Triangle;
+    }
+    namespace Triangle {
+      interface $Fields {
+        base: 0;
+        height: 1;
+      }
+    }
+
+    class sample_huge_csv$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::sample_huge_csv$args';
+    }
+
+    class SeriesObject extends gc.sdk.GCObject {
+      static readonly _type = 'project::SeriesObject';
+      static readonly $fields: SeriesObject.$Fields;
+      a: number | bigint;
+      b: number;
+      constructor(a: number | bigint, b: number);
+      static createFrom(fields: {a: number | bigint, b: number}): SeriesObject;
+    }
+    namespace SeriesObject {
+      interface $Fields {
+        a: 0;
+        b: 1;
+      }
+    }
+
+    class display_fn$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::display_fn$args';
+      static readonly $fields: display_fn$args.$Fields;
+      fn_: gc.core.function_;
+      constructor(fn_: gc.core.function_);
+      static createFrom(fields: {fn_: gc.core.function_}): display_fn$args;
+    }
+    namespace display_fn$args {
+      interface $Fields {
+        fn_: 0;
+      }
+    }
+
+    class Box extends gc.sdk.GCObject {
+      static readonly _type = 'project::Box';
+      static readonly $fields: Box.$Fields;
+      value: number | bigint;
+      constructor(value: number | bigint);
+      static createFrom(fields: {value: number | bigint}): Box;
+    }
+    namespace Box {
+      interface $Fields {
+        value: 0;
+      }
+    }
+
+    class heatmap$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::heatmap$args';
+    }
+
+    class resolve_person$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::resolve_person$args';
+    }
+
+    class table_of_objects2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table_of_objects2$args';
+    }
+
+    class foo$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::foo$args';
+    }
+
     class Level extends gc.sdk.GCEnum {
       static readonly _type = 'project::Level';
       static readonly $fields: Level[];
@@ -216,50 +292,94 @@ declare namespace gc {
       type Field = "High"|"Normal"|"Low";
     }
 
-    class add$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::add$args';
-      static readonly $fields: add$args.$Fields;
-      a: number | bigint;
-      b: number | bigint;
-      constructor(a: number | bigint, b: number | bigint);
-      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
+    class complex_object$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::complex_object$args';
     }
-    namespace add$args {
+
+    class SensorData extends gc.sdk.GCObject {
+      static readonly _type = 'project::SensorData';
+      static readonly $fields: SensorData.$Fields;
+      temperature: number;
+      pression: number;
+      humidity: number;
+      constructor(temperature: number, pression: number, humidity: number);
+      static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
+    }
+    namespace SensorData {
+      interface $Fields {
+        temperature: 0;
+        pression: 1;
+        humidity: 2;
+      }
+    }
+
+    class donut$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::donut$args';
+    }
+
+    class Composed extends gc.sdk.GCObject {
+      static readonly _type = 'project::Composed';
+      static readonly $fields: Composed.$Fields;
+      a: number | bigint;
+      b: number;
+      constructor(a: number | bigint, b: number);
+      static createFrom(fields: {a: number | bigint, b: number}): Composed;
+    }
+    namespace Composed {
       interface $Fields {
         a: 0;
         b: 1;
       }
     }
 
-    class task_long_running$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_long_running$args';
+    class Node extends gc.sdk.GCObject {
+      static readonly _type = 'project::Node';
+      static readonly $fields: Node.$Fields;
+      id: string;
+      value: any;
+      link: gc.core.node<gc.project.Node> | null;
+      constructor(id: string, value: any, link?: gc.core.node<gc.project.Node> | null);
+      static createFrom(fields: {id: string, value: any, link?: gc.core.node<gc.project.Node> | null}): Node;
     }
-
-    class MyData extends gc.sdk.GCObject {
-      static readonly _type = 'project::MyData';
-      static readonly $fields: MyData.$Fields;
-      level: gc.project.Level;
-      value: number;
-      constructor(level: gc.project.Level, value: number);
-      static createFrom(fields: {level: gc.project.Level, value: number}): MyData;
-    }
-    namespace MyData {
+    namespace Node {
       interface $Fields {
-        level: 0;
+        id: 0;
         value: 1;
+        link: 2;
       }
     }
 
-    class link_whatever$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::link_whatever$args';
-      static readonly $fields: link_whatever$args.$Fields;
-      l: gc.core.node<gc.project.Link>;
-      constructor(l: gc.core.node<gc.project.Link>);
-      static createFrom(fields: {l: gc.core.node<gc.project.Link>}): link_whatever$args;
+    class task_long_running2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_long_running2$args';
     }
-    namespace link_whatever$args {
+
+    class TrafficLight extends gc.sdk.GCEnum {
+      static readonly _type = 'project::TrafficLight';
+      static readonly $fields: TrafficLight[];
+      key: TrafficLight.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: TrafficLight.Field);
+      static Green: TrafficLight;
+      static Yellow: TrafficLight;
+      static Red: TrafficLight;
+    }
+    namespace TrafficLight  {
+      type Field = "Green"|"Yellow"|"Red";
+    }
+
+    class KLine extends gc.sdk.GCObject {
+      static readonly _type = 'project::KLine';
+      static readonly $fields: KLine.$Fields;
+      open: number;
+      close: number;
+      volume: number | bigint;
+      constructor(open: number, close: number, volume: number | bigint);
+      static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
+    }
+    namespace KLine {
       interface $Fields {
-        l: 0;
+        open: 0;
+        close: 1;
+        volume: 2;
       }
     }
 
@@ -278,51 +398,150 @@ declare namespace gc {
       }
     }
 
-    class table_of_objects2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table_of_objects2$args';
+    class task_without_params$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_without_params$args';
     }
 
-    class task_long_running2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_long_running2$args';
+    class RelayApp extends gc.sdk.GCEnum {
+      static readonly _type = 'project::RelayApp';
+      static readonly $fields: RelayApp[];
+      key: RelayApp.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: RelayApp.Field);
+      static pv: RelayApp;
+      static pv_shelly: RelayApp;
+      static ev: RelayApp;
+      static ev_shelly: RelayApp;
+      static empty: RelayApp;
+    }
+    namespace RelayApp  {
+      type Field = "pv"|"pv_shelly"|"ev"|"ev_shelly"|"empty";
     }
 
-    class hello$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::hello$args';
-      static readonly $fields: hello$args.$Fields;
+    class table_of_objects3$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table_of_objects3$args';
+    }
+
+    class data_array$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::data_array$args';
+    }
+
+    class tensor_2_3_5$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor_2_3_5$args';
+    }
+
+    class VisualCrossingProvider extends gc.sdk.GCObject {
+      static readonly _type = 'project::VisualCrossingProvider';
+      static readonly $fields: VisualCrossingProvider.$Fields;
       name: string;
-      constructor(name: string);
-      static createFrom(fields: {name: string}): hello$args;
+      solar: gc.core.node<gc.project.SolarRadiation>;
+      constructor(name: string, solar: gc.core.node<gc.project.SolarRadiation>);
+      static createFrom(fields: {name: string, solar: gc.core.node<gc.project.SolarRadiation>}): VisualCrossingProvider;
     }
-    namespace hello$args {
+    namespace VisualCrossingProvider {
       interface $Fields {
         name: 0;
+        solar: 1;
       }
     }
 
-    class Circle extends gc.sdk.GCObject {
-      static readonly _type = 'project::Circle';
-      static readonly $fields: Circle.$Fields;
-      radius: number;
-      constructor(radius: number);
-      static createFrom(fields: {radius: number}): Circle;
+    class controlled_task$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::controlled_task$args';
+      static readonly $fields: controlled_task$args.$Fields;
+      duration: gc.core.duration;
+      constructor(duration: gc.core.duration);
+      static createFrom(fields: {duration: gc.core.duration}): controlled_task$args;
     }
-    namespace Circle {
+    namespace controlled_task$args {
       interface $Fields {
-        radius: 0;
+        duration: 0;
       }
     }
 
-    class TrafficLight extends gc.sdk.GCEnum {
-      static readonly _type = 'project::TrafficLight';
-      static readonly $fields: TrafficLight[];
-      key: TrafficLight.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: TrafficLight.Field);
-      static Green: TrafficLight;
-      static Yellow: TrafficLight;
-      static Red: TrafficLight;
+    class generate_logs$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::generate_logs$args';
     }
-    namespace TrafficLight  {
-      type Field = "Green"|"Yellow"|"Red";
+
+    class Sex extends gc.sdk.GCEnum {
+      static readonly _type = 'project::Sex';
+      static readonly $fields: Sex[];
+      key: Sex.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: Sex.Field);
+      static Male: Sex;
+      static Female: Sex;
+    }
+    namespace Sex  {
+      type Field = "Male"|"Female";
+    }
+
+    class bar$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::bar$args';
+    }
+
+    class TimedComposed extends gc.sdk.GCObject {
+      static readonly _type = 'project::TimedComposed';
+      static readonly $fields: TimedComposed.$Fields;
+      time: gc.core.time;
+      a: number | bigint;
+      b: number;
+      constructor(time: gc.core.time, a: number | bigint, b: number);
+      static createFrom(fields: {time: gc.core.time, a: number | bigint, b: number}): TimedComposed;
+    }
+    namespace TimedComposed {
+      interface $Fields {
+        time: 0;
+        a: 1;
+        b: 2;
+      }
+    }
+
+    class table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table$args';
+    }
+
+    class mapTest$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::mapTest$args';
+    }
+
+    class table_with_urls$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::table_with_urls$args';
+    }
+
+    class task_long_running$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::task_long_running$args';
+    }
+
+    class SemiRecursive extends gc.sdk.GCObject {
+      static readonly _type = 'project::SemiRecursive';
+      static readonly $fields: SemiRecursive.$Fields;
+      sub: gc.project.SemiRecursive | null;
+      constructor(sub?: gc.project.SemiRecursive | null);
+      static createFrom(fields: {sub?: gc.project.SemiRecursive | null}): SemiRecursive;
+    }
+    namespace SemiRecursive {
+      interface $Fields {
+        sub: 0;
+      }
+    }
+
+    class Person extends gc.sdk.GCObject {
+      static readonly _type = 'project::Person';
+      static readonly $fields: Person.$Fields;
+      name: string;
+      age: number | bigint;
+      activated: boolean;
+      constructor(name: string, age: number | bigint, activated: boolean);
+      static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
+    }
+    namespace Person {
+      interface $Fields {
+        name: 0;
+        age: 1;
+        activated: 2;
+      }
+    }
+
+    class serie_of_obj$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::serie_of_obj$args';
     }
 
     class People extends gc.sdk.GCObject {
@@ -354,65 +573,6 @@ declare namespace gc {
       }
     }
 
-    class histogram_stats$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::histogram_stats$args';
-    }
-
-    class persons$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::persons$args';
-    }
-
-    class SensorData extends gc.sdk.GCObject {
-      static readonly _type = 'project::SensorData';
-      static readonly $fields: SensorData.$Fields;
-      temperature: number;
-      pression: number;
-      humidity: number;
-      constructor(temperature: number, pression: number, humidity: number);
-      static createFrom(fields: {temperature: number, pression: number, humidity: number}): SensorData;
-    }
-    namespace SensorData {
-      interface $Fields {
-        temperature: 0;
-        pression: 1;
-        humidity: 2;
-      }
-    }
-
-    class Node extends gc.sdk.GCObject {
-      static readonly _type = 'project::Node';
-      static readonly $fields: Node.$Fields;
-      id: string;
-      value: any;
-      link: gc.core.node<gc.project.Node> | null;
-      constructor(id: string, value: any, link?: gc.core.node<gc.project.Node> | null);
-      static createFrom(fields: {id: string, value: any, link?: gc.core.node<gc.project.Node> | null}): Node;
-    }
-    namespace Node {
-      interface $Fields {
-        id: 0;
-        value: 1;
-        link: 2;
-      }
-    }
-
-    class Box extends gc.sdk.GCObject {
-      static readonly _type = 'project::Box';
-      static readonly $fields: Box.$Fields;
-      value: number | bigint;
-      constructor(value: number | bigint);
-      static createFrom(fields: {value: number | bigint}): Box;
-    }
-    namespace Box {
-      interface $Fields {
-        value: 0;
-      }
-    }
-
-    class obj2$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj2$args';
-    }
-
     class Link$whatever$args extends gc.sdk.GCObject {
       static readonly _type = 'project::Link$whatever$args';
       static readonly $fields: Link$whatever$args.$Fields;
@@ -426,369 +586,33 @@ declare namespace gc {
       }
     }
 
-    class TimedComposed extends gc.sdk.GCObject {
-      static readonly _type = 'project::TimedComposed';
-      static readonly $fields: TimedComposed.$Fields;
-      time: gc.core.time;
-      a: number | bigint;
-      b: number;
-      constructor(time: gc.core.time, a: number | bigint, b: number);
-      static createFrom(fields: {time: gc.core.time, a: number | bigint, b: number}): TimedComposed;
+    class Confidence extends gc.sdk.GCEnum {
+      static readonly _type = 'project::Confidence';
+      static readonly $fields: Confidence[];
+      key: Confidence.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field);
+      static High: Confidence;
+      static Medium: Confidence;
+      static Low: Confidence;
     }
-    namespace TimedComposed {
+    namespace Confidence  {
+      type Field = "High"|"Medium"|"Low";
+    }
+
+    class array_of_nodes$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::array_of_nodes$args';
+    }
+
+    class link_whatever$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::link_whatever$args';
+      static readonly $fields: link_whatever$args.$Fields;
+      l: gc.core.node<gc.project.Link>;
+      constructor(l: gc.core.node<gc.project.Link>);
+      static createFrom(fields: {l: gc.core.node<gc.project.Link>}): link_whatever$args;
+    }
+    namespace link_whatever$args {
       interface $Fields {
-        time: 0;
-        a: 1;
-        b: 2;
-      }
-    }
-
-    class controlled_task$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::controlled_task$args';
-      static readonly $fields: controlled_task$args.$Fields;
-      duration: gc.core.duration;
-      constructor(duration: gc.core.duration);
-      static createFrom(fields: {duration: gc.core.duration}): controlled_task$args;
-    }
-    namespace controlled_task$args {
-      interface $Fields {
-        duration: 0;
-      }
-    }
-
-    class chart_colored_area$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::chart_colored_area$args';
-    }
-
-    class destructuring_table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::destructuring_table$args';
-    }
-
-    class KLine extends gc.sdk.GCObject {
-      static readonly _type = 'project::KLine';
-      static readonly $fields: KLine.$Fields;
-      open: number;
-      close: number;
-      volume: number | bigint;
-      constructor(open: number, close: number, volume: number | bigint);
-      static createFrom(fields: {open: number, close: number, volume: number | bigint}): KLine;
-    }
-    namespace KLine {
-      interface $Fields {
-        open: 0;
-        close: 1;
-        volume: 2;
-      }
-    }
-
-    class table$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table$args';
-    }
-
-    class resolve_person$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::resolve_person$args';
-    }
-
-    class Obj extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj';
-      static readonly $fields: Obj.$Fields;
-      field: any | null;
-      tuple: gc.core.Tuple<any, any>;
-      constructor(field: any | null, tuple: gc.core.Tuple<any, any>);
-      static createFrom(fields: {field?: any | null, tuple: gc.core.Tuple<any, any>}): Obj;
-    }
-    namespace Obj {
-      interface $Fields {
-        field: 0;
-        tuple: 1;
-      }
-    }
-
-    class MapContainer extends gc.sdk.GCObject {
-      static readonly _type = 'project::MapContainer';
-      static readonly $fields: MapContainer.$Fields;
-      a: globalThis.Map<number | bigint, string>;
-      b: globalThis.Map<gc.core.TimeZone, string>;
-      c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>;
-      d: globalThis.Array<gc.project.Person | null>;
-      e: globalThis.Map<string, string | null>;
-      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>);
-      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
-    }
-    namespace MapContainer {
-      interface $Fields {
-        a: 0;
-        b: 1;
-        c: 2;
-        d: 3;
-        e: 4;
-      }
-    }
-
-    class this_is_boom$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::this_is_boom$args';
-    }
-
-    class donut$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::donut$args';
-    }
-
-    class table_of_objects3$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table_of_objects3$args';
-    }
-
-    class SeriesObject extends gc.sdk.GCObject {
-      static readonly _type = 'project::SeriesObject';
-      static readonly $fields: SeriesObject.$Fields;
-      a: number | bigint;
-      b: number;
-      constructor(a: number | bigint, b: number);
-      static createFrom(fields: {a: number | bigint, b: number}): SeriesObject;
-    }
-    namespace SeriesObject {
-      interface $Fields {
-        a: 0;
-        b: 1;
-      }
-    }
-
-    class real_example$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::real_example$args';
-    }
-
-    class table_with_urls$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table_with_urls$args';
-    }
-
-    class sample_huge_csv$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::sample_huge_csv$args';
-    }
-
-    class FooBar extends gc.sdk.GCObject {
-      static readonly _type = 'project::FooBar';
-    }
-
-    class Shape extends gc.sdk.GCObject {
-      static readonly _type = 'project::Shape';
-    }
-
-    class ObjWithFn extends gc.sdk.GCObject {
-      static readonly _type = 'project::ObjWithFn';
-      static readonly $fields: ObjWithFn.$Fields;
-      fn: gc.core.function_;
-      constructor(fn: gc.core.function_);
-      static createFrom(fields: {fn: gc.core.function_}): ObjWithFn;
-    }
-    namespace ObjWithFn {
-      interface $Fields {
-        fn: 0;
-      }
-    }
-
-    class Sex extends gc.sdk.GCEnum {
-      static readonly _type = 'project::Sex';
-      static readonly $fields: Sex[];
-      key: Sex.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: Sex.Field);
-      static Male: Sex;
-      static Female: Sex;
-    }
-    namespace Sex  {
-      type Field = "Male"|"Female";
-    }
-
-    class tensor_3_5$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor_3_5$args';
-    }
-
-    class generate_logs$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::generate_logs$args';
-    }
-
-    class chart_time$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::chart_time$args';
-    }
-
-    class complex_object$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::complex_object$args';
-    }
-
-    class UrlEntry extends gc.sdk.GCObject {
-      static readonly _type = 'project::UrlEntry';
-      static readonly $fields: UrlEntry.$Fields;
-      name: string;
-      value: string;
-      constructor(name: string, value: string);
-      static createFrom(fields: {name: string, value: string}): UrlEntry;
-    }
-    namespace UrlEntry {
-      interface $Fields {
-        name: 0;
-        value: 1;
-      }
-    }
-
-    class Obj1 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj1';
-      static readonly $fields: Obj1.$Fields;
-      prop1: string;
-      prop2: gc.runtime.User;
-      prop3: gc.runtime.RuntimeInfo;
-      constructor(prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo);
-      static createFrom(fields: {prop1: string, prop2: gc.runtime.User, prop3: gc.runtime.RuntimeInfo}): Obj1;
-    }
-    namespace Obj1 {
-      interface $Fields {
-        prop1: 0;
-        prop2: 1;
-        prop3: 2;
-      }
-    }
-
-    class SensorKind extends gc.sdk.GCEnum {
-      static readonly _type = 'project::SensorKind';
-      static readonly $fields: SensorKind[];
-      key: SensorKind.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: SensorKind.Field);
-      static Temp: SensorKind;
-      static Pressure: SensorKind;
-    }
-    namespace SensorKind  {
-      type Field = "Temp"|"Pressure";
-    }
-
-    class SemiRecursive extends gc.sdk.GCObject {
-      static readonly _type = 'project::SemiRecursive';
-      static readonly $fields: SemiRecursive.$Fields;
-      sub: gc.project.SemiRecursive | null;
-      constructor(sub?: gc.project.SemiRecursive | null);
-      static createFrom(fields: {sub?: gc.project.SemiRecursive | null}): SemiRecursive;
-    }
-    namespace SemiRecursive {
-      interface $Fields {
-        sub: 0;
-      }
-    }
-
-    class Root extends gc.sdk.GCObject {
-      static readonly _type = 'project::Root';
-      static readonly $fields: Root.$Fields;
-      "runtime::usages": gc.core.nodeTime<gc.runtime.RuntimeUsage>;
-      "project::sensor": gc.core.nodeTime<gc.project.SensorData>;
-      "project::serie_float": gc.core.nodeTime<number>;
-      "project::kline": gc.core.nodeTime<gc.project.KLine>;
-      "project::nt": gc.core.nodeTime;
-      "project::non_overlapping_1": gc.core.nodeTime<number>;
-      "project::non_overlapping_2": gc.core.nodeTime<number>;
-      "project::non_overlapping_3": gc.core.nodeTime<number>;
-      "project::simple_index": gc.core.nodeIndex<string, number | bigint>;
-      "project::person": gc.core.node<gc.project.Person2 | null>;
-      "project::huge_table": gc.core.node<gc.core.Table | null>;
-      "heatmap::earthquakes_by_geo": gc.core.nodeGeo<gc.heatmap.Earthquake>;
-      "heatmap::earthquakes_by_time": gc.core.nodeTime<gc.heatmap.Earthquake>;
-      "cities::cities": gc.core.nodeGeo<gc.cities.City>;
-    }
-    namespace Root {
-      interface $Fields {
-        "runtime::usages": 0;
-        "project::sensor": 1;
-        "project::serie_float": 2;
-        "project::kline": 3;
-        "project::nt": 4;
-        "project::non_overlapping_1": 5;
-        "project::non_overlapping_2": 6;
-        "project::non_overlapping_3": 7;
-        "project::simple_index": 8;
-        "project::person": 9;
-        "project::huge_table": 10;
-        "heatmap::earthquakes_by_geo": 11;
-        "heatmap::earthquakes_by_time": 12;
-        "cities::cities": 13;
-      }
-    }
-
-    class people$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::people$args';
-    }
-
-    class anything$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::anything$args';
-      static readonly $fields: anything$args.$Fields;
-      v: any | null;
-      constructor(v?: any | null);
-      static createFrom(fields: {v?: any | null}): anything$args;
-    }
-    namespace anything$args {
-      interface $Fields {
-        v: 0;
-      }
-    }
-
-    class Person extends gc.sdk.GCObject {
-      static readonly _type = 'project::Person';
-      static readonly $fields: Person.$Fields;
-      name: string;
-      age: number | bigint;
-      activated: boolean;
-      constructor(name: string, age: number | bigint, activated: boolean);
-      static createFrom(fields: {name: string, age: number | bigint, activated: boolean}): Person;
-    }
-    namespace Person {
-      interface $Fields {
-        name: 0;
-        age: 1;
-        activated: 2;
-      }
-    }
-
-    class now$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::now$args';
-    }
-
-    class display_fn$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::display_fn$args';
-      static readonly $fields: display_fn$args.$Fields;
-      fn_: gc.core.function_;
-      constructor(fn_: gc.core.function_);
-      static createFrom(fields: {fn_: gc.core.function_}): display_fn$args;
-    }
-    namespace display_fn$args {
-      interface $Fields {
-        fn_: 0;
-      }
-    }
-
-    class Obj2 extends gc.sdk.GCObject {
-      static readonly _type = 'project::Obj2';
-      static readonly $fields: Obj2.$Fields;
-      prop1: string;
-      prop2: globalThis.Array<gc.runtime.User | null>;
-      prop3: globalThis.Map<string, gc.project.Person | null>;
-      prop4: any | null;
-      constructor(prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null);
-      static createFrom(fields: {prop1: string, prop2: globalThis.Array<gc.runtime.User | null>, prop3: globalThis.Map<string, gc.project.Person | null>, prop4?: any | null}): Obj2;
-    }
-    namespace Obj2 {
-      interface $Fields {
-        prop1: 0;
-        prop2: 1;
-        prop3: 2;
-        prop4: 3;
-      }
-    }
-
-    class TimeRecord<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'project::TimeRecord';
-      static readonly $fields: TimeRecord.$Fields;
-      time: gc.core.time;
-      value: T;
-      constructor(time: gc.core.time, value?: T);
-      static createFrom<T>(fields: {time: gc.core.time, value?: T}): TimeRecord;
-    }
-    namespace TimeRecord {
-      interface $Fields {
-        time: 0;
-        value: 1;
+        l: 0;
       }
     }
 
@@ -808,48 +632,184 @@ declare namespace gc {
       }
     }
 
-    class mapTest$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::mapTest$args';
+    class destructuring_table$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::destructuring_table$args';
     }
 
-    class getTensor$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::getTensor$args';
+    class FooBar extends gc.sdk.GCObject {
+      static readonly _type = 'project::FooBar';
     }
 
-    class foo$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::foo$args';
+    class tree$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tree$args';
     }
 
-    class table_of_objects$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::table_of_objects$args';
+    class persons$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::persons$args';
     }
 
-    class display_fn_in_obj$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::display_fn_in_obj$args';
-      static readonly $fields: display_fn_in_obj$args.$Fields;
-      o: gc.project.ObjWithFn;
-      constructor(o: gc.project.ObjWithFn);
-      static createFrom(fields: {o: gc.project.ObjWithFn}): display_fn_in_obj$args;
+    class chart_colored_area$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::chart_colored_area$args';
     }
-    namespace display_fn_in_obj$args {
+
+    class obj2$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj2$args';
+    }
+
+    class chart$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::chart$args';
+      static readonly $fields: chart$args.$Fields;
+      nbRows: number | bigint;
+      constructor(nbRows: number | bigint);
+      static createFrom(fields: {nbRows: number | bigint}): chart$args;
+    }
+    namespace chart$args {
       interface $Fields {
-        o: 0;
+        nbRows: 0;
       }
     }
 
-    class Composed extends gc.sdk.GCObject {
-      static readonly _type = 'project::Composed';
-      static readonly $fields: Composed.$Fields;
-      a: number | bigint;
-      b: number;
-      constructor(a: number | bigint, b: number);
-      static createFrom(fields: {a: number | bigint, b: number}): Composed;
+    class big_map$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::big_map$args';
     }
-    namespace Composed {
+
+    class one_d_histogram_bins$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::one_d_histogram_bins$args';
+    }
+
+    class Person2 extends gc.sdk.GCObject {
+      static readonly _type = 'project::Person2';
+      static readonly $fields: Person2.$Fields;
+      id: number | bigint;
+      name: string;
+      age: number | bigint;
+      children: number | bigint;
+      constructor(id: number | bigint, name: string, age: number | bigint, children: number | bigint);
+      static createFrom(fields: {id: number | bigint, name: string, age: number | bigint, children: number | bigint}): Person2;
+    }
+    namespace Person2 {
+      interface $Fields {
+        id: 0;
+        name: 1;
+        age: 2;
+        children: 3;
+      }
+    }
+
+    class Root extends gc.sdk.GCObject {
+      static readonly _type = 'project::Root';
+      static readonly $fields: Root.$Fields;
+      "runtime::usages": gc.core.nodeTime<gc.runtime.RuntimeUsage>;
+      "project::sensor": gc.core.nodeTime<gc.project.SensorData>;
+      "project::serie_float": gc.core.nodeTime<number>;
+      "project::kline": gc.core.nodeTime<gc.project.KLine>;
+      "project::nt": gc.core.nodeTime;
+      "project::non_overlapping_1": gc.core.nodeTime<number>;
+      "project::non_overlapping_2": gc.core.nodeTime<number>;
+      "project::non_overlapping_3": gc.core.nodeTime<number>;
+      "project::simple_index": gc.core.nodeIndex<string, number | bigint>;
+      "project::random_data": gc.core.nodeList<gc.core.nodeList<number>>;
+      "project::person": gc.core.node<gc.project.Person2 | null>;
+      "project::huge_table": gc.core.node<gc.core.Table | null>;
+      "heatmap::earthquakes_by_geo": gc.core.nodeGeo<gc.heatmap.Earthquake>;
+      "heatmap::earthquakes_by_time": gc.core.nodeTime<gc.heatmap.Earthquake>;
+      "cities::cities": gc.core.nodeGeo<gc.cities.City>;
+      "node_time::nt_temperature": gc.core.nodeTime<number>;
+      "node_time::nt_multi": gc.core.nodeTime<gc.node_time.SensorReading>;
+    }
+    namespace Root {
+      interface $Fields {
+        "runtime::usages": 0;
+        "project::sensor": 1;
+        "project::serie_float": 2;
+        "project::kline": 3;
+        "project::nt": 4;
+        "project::non_overlapping_1": 5;
+        "project::non_overlapping_2": 6;
+        "project::non_overlapping_3": 7;
+        "project::simple_index": 8;
+        "project::random_data": 9;
+        "project::person": 10;
+        "project::huge_table": 11;
+        "heatmap::earthquakes_by_geo": 12;
+        "heatmap::earthquakes_by_time": 13;
+        "cities::cities": 14;
+        "node_time::nt_temperature": 15;
+        "node_time::nt_multi": 16;
+      }
+    }
+
+    class UrlEntry extends gc.sdk.GCObject {
+      static readonly _type = 'project::UrlEntry';
+      static readonly $fields: UrlEntry.$Fields;
+      name: string;
+      value: string;
+      constructor(name: string, value: string);
+      static createFrom(fields: {name: string, value: string}): UrlEntry;
+    }
+    namespace UrlEntry {
+      interface $Fields {
+        name: 0;
+        value: 1;
+      }
+    }
+
+    class mainTask$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::mainTask$args';
+    }
+
+    class get_person$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::get_person$args';
+    }
+
+    class add$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::add$args';
+      static readonly $fields: add$args.$Fields;
+      a: number | bigint;
+      b: number | bigint;
+      constructor(a: number | bigint, b: number | bigint);
+      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
+    }
+    namespace add$args {
       interface $Fields {
         a: 0;
         b: 1;
       }
+    }
+
+    class this_is_boom$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::this_is_boom$args';
+    }
+
+    class Shape extends gc.sdk.GCObject {
+      static readonly _type = 'project::Shape';
+    }
+
+    class Country extends gc.sdk.GCObject {
+      static readonly _type = 'project::Country';
+      static readonly $fields: Country.$Fields;
+      name: string;
+      timezone: gc.core.TimeZone;
+      operating_stats: gc.core.node;
+      last_updated_stats: gc.core.time | null;
+      governorates: gc.core.nodeIndex;
+      meteo: gc.core.node<gc.project.Meteo>;
+      constructor(name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>);
+      static createFrom(fields: {name: string, timezone: gc.core.TimeZone, operating_stats: gc.core.node, last_updated_stats?: gc.core.time | null, governorates: gc.core.nodeIndex, meteo: gc.core.node<gc.project.Meteo>}): Country;
+    }
+    namespace Country {
+      interface $Fields {
+        name: 0;
+        timezone: 1;
+        operating_stats: 2;
+        last_updated_stats: 3;
+        governorates: 4;
+        meteo: 5;
+      }
+    }
+
+    class real_example$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::real_example$args';
     }
 
     class task_with_params$args extends gc.sdk.GCObject {
@@ -867,8 +827,36 @@ declare namespace gc {
       }
     }
 
-    class boxes$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::boxes$args';
+    class Circle extends gc.sdk.GCObject {
+      static readonly _type = 'project::Circle';
+      static readonly $fields: Circle.$Fields;
+      radius: number;
+      constructor(radius: number);
+      static createFrom(fields: {radius: number}): Circle;
+    }
+    namespace Circle {
+      interface $Fields {
+        radius: 0;
+      }
+    }
+
+    class TimeZones extends gc.sdk.GCObject {
+      static readonly _type = 'project::TimeZones';
+      static readonly $fields: TimeZones.$Fields;
+      azores: gc.core.Date;
+      utc: gc.core.Date;
+      paris: gc.core.Date;
+      athens: gc.core.Date;
+      constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
+      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
+    }
+    namespace TimeZones {
+      interface $Fields {
+        azores: 0;
+        utc: 1;
+        paris: 2;
+        athens: 3;
+      }
     }
 
     class Meteo extends gc.sdk.GCObject {
@@ -901,82 +889,111 @@ declare namespace gc {
       }
     }
 
-    class TimeZones extends gc.sdk.GCObject {
-      static readonly _type = 'project::TimeZones';
-      static readonly $fields: TimeZones.$Fields;
-      azores: gc.core.Date;
-      utc: gc.core.Date;
-      paris: gc.core.Date;
-      athens: gc.core.Date;
-      constructor(azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date);
-      static createFrom(fields: {azores: gc.core.Date, utc: gc.core.Date, paris: gc.core.Date, athens: gc.core.Date}): TimeZones;
+    class SensorKind extends gc.sdk.GCEnum {
+      static readonly _type = 'project::SensorKind';
+      static readonly $fields: SensorKind[];
+      key: SensorKind.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: SensorKind.Field);
+      static Temp: SensorKind;
+      static Pressure: SensorKind;
     }
-    namespace TimeZones {
+    namespace SensorKind  {
+      type Field = "Temp"|"Pressure";
+    }
+
+    class obj1$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj1$args';
+    }
+
+    class chart_time$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::chart_time$args';
+    }
+
+    class MapContainer extends gc.sdk.GCObject {
+      static readonly _type = 'project::MapContainer';
+      static readonly $fields: MapContainer.$Fields;
+      a: globalThis.Map<number | bigint, string>;
+      b: globalThis.Map<gc.core.TimeZone, string>;
+      c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>;
+      d: globalThis.Array<gc.project.Person | null>;
+      e: globalThis.Map<string, string | null>;
+      constructor(a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>);
+      static createFrom(fields: {a: globalThis.Map<number | bigint, string>, b: globalThis.Map<gc.core.TimeZone, string>, c: globalThis.Map<gc.core.SamplingMode, gc.project.Person | null>, d: globalThis.Array<gc.project.Person | null>, e: globalThis.Map<string, string | null>}): MapContainer;
+    }
+    namespace MapContainer {
       interface $Fields {
-        azores: 0;
-        utc: 1;
-        paris: 2;
-        athens: 3;
+        a: 0;
+        b: 1;
+        c: 2;
+        d: 3;
+        e: 4;
       }
     }
 
-    class serie_of_obj$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::serie_of_obj$args';
+    class Sensor extends gc.sdk.GCObject {
+      static readonly _type = 'project::Sensor';
+      static readonly $fields: Sensor.$Fields;
+      id: number | bigint;
+      kind: gc.project.SensorKind;
+      constructor(id: number | bigint, kind: gc.project.SensorKind);
+      static createFrom(fields: {id: number | bigint, kind: gc.project.SensorKind}): Sensor;
     }
-
-    class tree$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tree$args';
-    }
-
-    class Triangle extends gc.sdk.GCObject {
-      static readonly _type = 'project::Triangle';
-      static readonly $fields: Triangle.$Fields;
-      base: number;
-      height: number;
-      constructor(base: number, height: number);
-      static createFrom(fields: {base: number, height: number}): Triangle;
-    }
-    namespace Triangle {
+    namespace Sensor {
       interface $Fields {
-        base: 0;
-        height: 1;
+        id: 0;
+        kind: 1;
       }
     }
 
-    class SolarRadiation extends gc.sdk.GCObject {
-      static readonly _type = 'project::SolarRadiation';
-      static readonly $fields: SolarRadiation.$Fields;
-      is_enabled: boolean;
-      radiance: gc.core.nodeTime;
-      instant_power: gc.core.nodeTime;
-      constructor(is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime);
-      static createFrom(fields: {is_enabled: boolean, radiance: gc.core.nodeTime, instant_power: gc.core.nodeTime}): SolarRadiation;
+    class obj$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::obj$args';
     }
-    namespace SolarRadiation {
+
+    class boxes$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::boxes$args';
+    }
+
+    class ObjWithFn extends gc.sdk.GCObject {
+      static readonly _type = 'project::ObjWithFn';
+      static readonly $fields: ObjWithFn.$Fields;
+      fn: gc.core.function_;
+      constructor(fn: gc.core.function_);
+      static createFrom(fields: {fn: gc.core.function_}): ObjWithFn;
+    }
+    namespace ObjWithFn {
       interface $Fields {
-        is_enabled: 0;
-        radiance: 1;
-        instant_power: 2;
+        fn: 0;
       }
     }
 
-    class Book extends gc.sdk.GCObject {
-      static readonly _type = 'project::Book';
-      static readonly $fields: Book.$Fields;
-      name: string;
-      owner: gc.project.Person | null;
-      constructor(name: string, owner?: gc.project.Person | null);
-      static createFrom(fields: {name: string, owner?: gc.project.Person | null}): Book;
+    class display_fn_in_obj$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::display_fn_in_obj$args';
+      static readonly $fields: display_fn_in_obj$args.$Fields;
+      o: gc.project.ObjWithFn;
+      constructor(o: gc.project.ObjWithFn);
+      static createFrom(fields: {o: gc.project.ObjWithFn}): display_fn_in_obj$args;
     }
-    namespace Book {
+    namespace display_fn_in_obj$args {
       interface $Fields {
-        name: 0;
-        owner: 1;
+        o: 0;
       }
     }
 
-    class array_of_nodes$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::array_of_nodes$args';
+    class anything$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::anything$args';
+      static readonly $fields: anything$args.$Fields;
+      v: any | null;
+      constructor(v?: any | null);
+      static createFrom(fields: {v?: any | null}): anything$args;
+    }
+    namespace anything$args {
+      interface $Fields {
+        v: 0;
+      }
+    }
+
+    class tensor$args extends gc.sdk.GCObject {
+      static readonly _type = 'project::tensor$args';
     }
 
     class goodFnForTestingFnCallInput$args extends gc.sdk.GCObject {
@@ -998,45 +1015,34 @@ declare namespace gc {
       }
     }
 
-    class one_d_histogram_bins$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::one_d_histogram_bins$args';
+    class MyData extends gc.sdk.GCObject {
+      static readonly _type = 'project::MyData';
+      static readonly $fields: MyData.$Fields;
+      level: gc.project.Level;
+      value: number;
+      constructor(level: gc.project.Level, value: number);
+      static createFrom(fields: {level: gc.project.Level, value: number}): MyData;
+    }
+    namespace MyData {
+      interface $Fields {
+        level: 0;
+        value: 1;
+      }
     }
 
-    class data_array$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::data_array$args';
+    class Book extends gc.sdk.GCObject {
+      static readonly _type = 'project::Book';
+      static readonly $fields: Book.$Fields;
+      name: string;
+      owner: gc.project.Person | null;
+      constructor(name: string, owner?: gc.project.Person | null);
+      static createFrom(fields: {name: string, owner?: gc.project.Person | null}): Book;
     }
-
-    class obj$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::obj$args';
-    }
-
-    class get_person$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::get_person$args';
-    }
-
-    class tensor$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::tensor$args';
-    }
-
-    class task_without_params$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::task_without_params$args';
-    }
-
-    class mainTask$args extends gc.sdk.GCObject {
-      static readonly _type = 'project::mainTask$args';
-    }
-
-    class Confidence extends gc.sdk.GCEnum {
-      static readonly _type = 'project::Confidence';
-      static readonly $fields: Confidence[];
-      key: Confidence.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: Confidence.Field);
-      static High: Confidence;
-      static Medium: Confidence;
-      static Low: Confidence;
-    }
-    namespace Confidence  {
-      type Field = "High"|"Medium"|"Low";
+    namespace Book {
+      interface $Fields {
+        name: 0;
+        owner: 1;
+      }
     }
 
     const init_foo: gc.sdk.ExposedFn<[], unknown>;
@@ -1113,19 +1119,6 @@ declare namespace gc {
       }
     }
 
-    class AnyInput extends gc.sdk.GCObject {
-      static readonly _type = 'any::AnyInput';
-      static readonly $fields: AnyInput.$Fields;
-      idk: any;
-      constructor(idk: any);
-      static createFrom(fields: {idk: any}): AnyInput;
-    }
-    namespace AnyInput {
-      interface $Fields {
-        idk: 0;
-      }
-    }
-
     class array_any_map_any$args extends gc.sdk.GCObject {
       static readonly _type = 'any::array_any_map_any$args';
       static readonly $fields: array_any_map_any$args.$Fields;
@@ -1138,6 +1131,19 @@ declare namespace gc {
       interface $Fields {
         arr: 0;
         map: 1;
+      }
+    }
+
+    class AnyInput extends gc.sdk.GCObject {
+      static readonly _type = 'any::AnyInput';
+      static readonly $fields: AnyInput.$Fields;
+      idk: any;
+      constructor(idk: any);
+      static createFrom(fields: {idk: any}): AnyInput;
+    }
+    namespace AnyInput {
+      interface $Fields {
+        idk: 0;
       }
     }
 
@@ -1182,6 +1188,18 @@ declare namespace gc {
   }
 
   namespace heatmap {
+    class Status extends gc.sdk.GCEnum {
+      static readonly _type = 'heatmap::Status';
+      static readonly $fields: Status[];
+      key: Status.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: Status.Field);
+      static automatic: Status;
+      static reviewed: Status;
+    }
+    namespace Status  {
+      type Field = "automatic"|"reviewed";
+    }
+
     class major_earthquakes$args extends gc.sdk.GCObject {
       static readonly _type = 'heatmap::major_earthquakes$args';
     }
@@ -1245,18 +1263,6 @@ declare namespace gc {
       }
     }
 
-    class Status extends gc.sdk.GCEnum {
-      static readonly _type = 'heatmap::Status';
-      static readonly $fields: Status[];
-      key: Status.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: Status.Field);
-      static automatic: Status;
-      static reviewed: Status;
-    }
-    namespace Status  {
-      type Field = "automatic"|"reviewed";
-    }
-
     class Earthquake extends gc.sdk.GCObject {
       static readonly _type = 'heatmap::Earthquake';
       static readonly $fields: Earthquake.$Fields;
@@ -1309,22 +1315,6 @@ declare namespace gc {
   }
 
   namespace cities {
-    class CapitalType extends gc.sdk.GCEnum {
-      static readonly _type = 'cities::CapitalType';
-      static readonly $fields: CapitalType[];
-      key: CapitalType.Field;
-      constructor(type: gc.sdk.AbiType, offset: number, key: CapitalType.Field);
-      static Others: CapitalType;
-      static "Administrative Capital": CapitalType;
-      static "Seat of Government": CapitalType;
-      static Capital: CapitalType;
-      static "Legislative Capital": CapitalType;
-      static "Economic Capital": CapitalType;
-    }
-    namespace CapitalType  {
-      type Field = "Others"|"Administrative Capital"|"Seat of Government"|"Capital"|"Legislative Capital"|"Economic Capital";
-    }
-
     class City extends gc.sdk.GCObject {
       static readonly _type = 'cities::City';
       static readonly $fields: City.$Fields;
@@ -1344,6 +1334,22 @@ declare namespace gc {
         population: 3;
         type: 4;
       }
+    }
+
+    class CapitalType extends gc.sdk.GCEnum {
+      static readonly _type = 'cities::CapitalType';
+      static readonly $fields: CapitalType[];
+      key: CapitalType.Field;
+      constructor(type: gc.sdk.AbiType, offset: number, key: CapitalType.Field);
+      static Others: CapitalType;
+      static "Administrative Capital": CapitalType;
+      static "Seat of Government": CapitalType;
+      static Capital: CapitalType;
+      static "Legislative Capital": CapitalType;
+      static "Economic Capital": CapitalType;
+    }
+    namespace CapitalType  {
+      type Field = "Others"|"Administrative Capital"|"Seat of Government"|"Capital"|"Legislative Capital"|"Economic Capital";
     }
 
   }
@@ -1400,10 +1406,6 @@ declare namespace gc {
       }
     }
 
-    class get_huge_object$args extends gc.sdk.GCObject {
-      static readonly _type = 'big::get_huge_object$args';
-    }
-
     class BigResult extends gc.sdk.GCObject {
       static readonly _type = 'big::BigResult';
       static readonly $fields: BigResult.$Fields;
@@ -1419,6 +1421,10 @@ declare namespace gc {
         records: 1;
         end_time: 2;
       }
+    }
+
+    class get_huge_object$args extends gc.sdk.GCObject {
+      static readonly _type = 'big::get_huge_object$args';
     }
 
     const get_huge_object: gc.sdk.ExposedFn<[], gc.big.BigResult>;
@@ -1442,6 +1448,23 @@ declare namespace gc {
       }
     }
 
+    class Cable extends gc.sdk.GCObject {
+      static readonly _type = 'complex_factory::Cable';
+      static readonly $fields: Cable.$Fields;
+      voltageLevel: gc.complex_factory.VoltageLevel | null;
+      constructor(voltageLevel?: gc.complex_factory.VoltageLevel | null);
+      static createFrom(fields: {voltageLevel?: gc.complex_factory.VoltageLevel | null}): Cable;
+    }
+    namespace Cable {
+      interface $Fields {
+        voltageLevel: 0;
+      }
+    }
+
+    class cable_views$args extends gc.sdk.GCObject {
+      static readonly _type = 'complex_factory::cable_views$args';
+    }
+
     class VoltageLevel extends gc.sdk.GCEnum {
       static readonly _type = 'complex_factory::VoltageLevel';
       static readonly $fields: VoltageLevel[];
@@ -1455,23 +1478,6 @@ declare namespace gc {
     }
     namespace VoltageLevel  {
       type Field = "low"|"medium"|"high"|"extra_high"|"ultra_high";
-    }
-
-    class cable_views$args extends gc.sdk.GCObject {
-      static readonly _type = 'complex_factory::cable_views$args';
-    }
-
-    class Cable extends gc.sdk.GCObject {
-      static readonly _type = 'complex_factory::Cable';
-      static readonly $fields: Cable.$Fields;
-      voltageLevel: gc.complex_factory.VoltageLevel | null;
-      constructor(voltageLevel?: gc.complex_factory.VoltageLevel | null);
-      static createFrom(fields: {voltageLevel?: gc.complex_factory.VoltageLevel | null}): Cable;
-    }
-    namespace Cable {
-      interface $Fields {
-        voltageLevel: 0;
-      }
     }
 
     class CableView extends gc.sdk.GCObject {
@@ -1510,233 +1516,256 @@ declare namespace gc {
     const cable_views: gc.sdk.ExposedFn<[], globalThis.Array<gc.complex_factory.CableView>>;
   }
 
+  namespace node_time {
+    class SensorReading extends gc.sdk.GCObject {
+      static readonly _type = 'node_time::SensorReading';
+      static readonly $fields: SensorReading.$Fields;
+      temperature: number;
+      humidity: number;
+      pressure: number;
+      constructor(temperature: number, humidity: number, pressure: number);
+      static createFrom(fields: {temperature: number, humidity: number, pressure: number}): SensorReading;
+    }
+    namespace SensorReading {
+      interface $Fields {
+        temperature: 0;
+        humidity: 1;
+        pressure: 2;
+      }
+    }
+
+  }
+
   interface $TypesMap {
-    'core::nodeIndexBucket<core::String,core::int>': 0,
-    'core::Map<core::String,runtime::UserCredential>': 0,
-    'core::Tuple<core::int,core::int>': 0,
-    'core::NodeInfo<core::int>': 0,
-    'core::Array<util::Quantizer>': 0,
-    'core::Tuple<core::any,core::any>': 0,
-    'core::Array<core::int>': 0,
-    'core::Tuple<core::String,core::String?>': 0,
-    'core::Array<core::int?>': 0,
-    'core::Array<runtime::McpRole>': 0,
-    'core::Tuple<core::String,core::float>': 0,
-    'core::Array<core::NodeInfo<core::int>>': 0,
-    'core::MathConstants': 0,
-    'core::Date': 0,
-    'core::Map<core::DurationUnit,core::Tuple<core::String,core::int>>': 0,
-    'core::Array<runtime::UserGroupPolicy>': 0,
-    'core::Array<core::TableColumnMapping>': 0,
-    'core::str': 0,
-    'core::Array<runtime::SchemaObject>': 0,
-    'core::Table<core::Tuple<core::time,core::any?>>': 0,
-    'core::Array<core::node<core::String>>': 0,
-    'core::Map<core::int,core::String>': 0,
-    'core::Array<core::Tuple<core::int,core::int>>': 0,
-    'core::t3f': 0,
-    'core::Tuple<core::time,project::KLine>': 0,
-    'core::Array<project::Box?>': 0,
-    'core::NodeInfo<core::geo>': 0,
-    'core::Array<core::NodeInfo<core::time>>': 0,
-    'core::Map<core::String,core::any>': 0,
-    'core::Array<project::Person?>': 0,
-    'core::Tensor': 0,
-    'core::Array<core::geo>': 0,
-    'core::ErrorCode': 0,
-    'core::t3': 0,
-    'core::Table$applyMappings$args': 0,
+    'core::nodeTime<core::float>': 0,
     'core::nodeTime<runtime::RuntimeUsage>': 0,
-    'core::Array<runtime::WorkerUsage>': 0,
-    'core::Array<runtime::SecurityEntity>': 0,
-    'core::Array<runtime::HeaderObject>': 0,
-    'core::Array<core::node?>': 0,
-    'core::Map': 0,
-    'core::Map<core::String,core::String?>': 0,
-    'core::Map<core::String,runtime::HeaderObject>': 0,
+    'core::node<core::Table?>': 0,
+    'core::node<project::Meteo>': 0,
+    'core::Tuple<core::geo,core::any?>': 0,
+    'core::Array<core::Tuple<core::String,core::int>>': 0,
+    'core::Tuple<core::time,core::any?>': 0,
+    'core::Array<runtime::McpRole>': 0,
+    'core::node<project::VisualCrossingProvider>': 0,
+    'core::Tuple<core::int,core::any?>': 0,
+    'core::Map<core::String,runtime::ResponseObject>': 0,
+    'core::NodeInfo<core::geo>': 0,
+    'core::Map<core::any,core::int>': 0,
+    'core::nodeTime<project::SensorData>': 0,
+    'core::Array<big::BigRecord>': 0,
+    'core::Map<core::String,runtime::PathItemObject>': 0,
     'core::Array<core::nodeTime>': 0,
+    'core::MathConstants': 0,
+    'core::Tuple<core::int,core::nodeList<core::float>>': 0,
+    'core::Date': 0,
+    'core::Table<core::any>': 0,
+    'core::nodeIndex<core::String,core::int>': 0,
+    'core::Array<runtime::WorkerUsage>': 0,
+    'core::Array<core::NodeInfo<core::int>>': 0,
+    'core::str': 0,
+    'core::Array<runtime::UserGroupPolicy>': 0,
+    'core::Array<runtime::McpTool>': 0,
+    'core::Array<core::nodeGeo>': 0,
+    'core::Array<io::File>': 0,
+    'core::t3f': 0,
+    'core::Array<core::any?>': 0,
+    'core::nodeList<core::float>': 0,
+    'core::Table<project::TimeRecord<project::Composed>>': 0,
+    'core::Array<project::UrlEntry>': 0,
+    'core::Array<core::int>': 0,
+    'core::Array<runtime::Frame>': 0,
+    'core::nodeList<core::nodeList<core::float>>': 0,
+    'core::Tensor': 0,
+    'core::SearchResult<core::Tensor,core::any?>': 0,
+    'core::t3': 0,
+    'core::ErrorCode': 0,
+    'core::Array<core::String>': 0,
+    'core::Array<core::char>': 0,
+    'core::Array<runtime::Job>': 0,
+    'core::Array<runtime::MediaTypeObject>': 0,
+    'core::Map': 0,
+    'core::Tuple<core::any,core::any>': 0,
+    'core::Table<project::Person>': 0,
+    'core::Array<runtime::Variable>': 0,
     'core::null': 0,
     'core::node': 0,
-    'core::node<core::Table?>': 0,
-    'core::Map<core::String,project::Person?>': 0,
-    'core::Tuple<core::String,core::int>': 0,
-    'core::Array<runtime::RuntimeUsage>': 0,
-    'core::Map<core::String,runtime::SchemaObject>': 0,
+    'core::Array<project::MyData>': 0,
+    'core::node<project::Link>': 0,
+    'core::SearchResult<core::String,core::int>': 0,
     'core::node<project::SolarRadiation>': 0,
-    'core::Array<runtime::Job>': 0,
-    'core::Array<runtime::Role>': 0,
-    'core::Array<core::node<core::VectorVertex>?>': 0,
+    'core::Array<project::Person2>': 0,
+    'core::Map<core::SamplingMode,project::Person?>': 0,
+    'core::Array<runtime::McpContentBlock>': 0,
+    'core::Map<core::String,runtime::UserCredential>': 0,
+    'core::node<project::Person2>': 0,
+    'core::Array<core::any>': 0,
+    'core::Array<core::TableColumnMapping>': 0,
     'core::Tuple<core::geo,heatmap::Earthquake>': 0,
-    'core::Array<core::NodeInfo<core::geo>>': 0,
-    'core::nodeIndex$sample$args': 0,
-    'core::Array<io::S3Object>': 0,
-    'core::Tuple<core::time,core::float>': 0,
-    'core::Map<core::any,core::any?>': 0,
-    'core::Array<core::ErrorFrame>': 0,
+    'core::Array<runtime::UserCredential>': 0,
+    'core::Array<core::nodeList>': 0,
+    'core::Array<runtime::HeaderObject>': 0,
+    'core::Array<core::node<core::VectorVertex>?>': 0,
+    'core::Map<core::String,core::any>': 0,
+    'core::Array<runtime::User?>': 0,
+    'core::NodeInfo<core::int>': 0,
     'core::GeoBox': 0,
     'core::nodeTime': 0,
-    'core::node<core::String>': 0,
     'core::SamplingMode': 0,
     'core::t2': 0,
-    'core::Array<io::File>': 0,
-    'core::Array<big::BigRecord>': 0,
+    'core::Map<core::String,runtime::HeaderObject>': 0,
+    'core::nodeIndexBucket<core::String,core::int>': 0,
+    'core::nodeGeo<heatmap::Earthquake>': 0,
     'core::SortOrder': 0,
-    'core::nodeIndex$info$args': 0,
-    'core::nodeIndex$search_closest$args': 0,
+    'core::nodeList$sample$args': 0,
+    'core::Array<runtime::PathItemObject>': 0,
+    'core::Tuple<core::time,node_time::SensorReading>': 0,
     'core::Chars': 0,
-    'core::SearchResult<core::Tensor,core::any?>': 0,
-    'core::node<project::Person2?>': 0,
-    'core::Array<core::char>': 0,
+    'core::Array<core::nodeIndex>': 0,
+    'core::Tuple<core::String,core::String>': 0,
+    'core::node<core::VectorVertex>': 0,
     'core::TensorDistance': 0,
+    'core::nodeTime$info$args': 0,
     'core::CalendarUnit': 0,
-    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0,
-    'core::SearchResult<core::String,core::int>': 0,
+    'core::Array<core::NodeInfo<core::time>>': 0,
     'core::int': 0,
     'core::VectorIndex': 0,
-    'core::Array<core::type>': 0,
-    'core::nodeTime$sample$args': 0,
-    'core::Tuple<core::String,core::String>': 0,
-    'core::Array<runtime::ZoneUsage>': 0,
+    'core::nodeIndex$search_closest$args': 0,
+    'core::Tuple<core::String,core::int>': 0,
+    'core::Tuple<core::time,heatmap::Earthquake>': 0,
+    'core::Array<core::int?>': 0,
+    'core::Array<core::Array<core::float>>': 0,
+    'core::Array<core::geo>': 0,
     'core::geo': 0,
-    'core::Table<core::any>': 0,
+    'core::Array<project::People>': 0,
     'core::FloatPrecision': 0,
     'core::any': 0,
-    'core::Array<core::field>': 0,
+    'core::node$resolve_all$args': 0,
     'core::function': 0,
-    'core::Array<heatmap::Earthquake>': 0,
     'core::duration': 0,
-    'core::Table<project::Person>': 0,
-    'core::Map<core::String,core::String>': 0,
-    'core::Array<core::Array<core::float>>': 0,
+    'core::Array<runtime::Role>': 0,
+    'core::Map<core::String,core::String?>': 0,
     'core::nodeIndex': 0,
-    'core::nodeGeo<cities::City>': 0,
-    'core::Array<core::nodeList>': 0,
+    'core::Array<core::field>': 0,
     'core::SearchResult': 0,
     'core::GeoPoly': 0,
-    'core::Array<core::Tuple<core::String,core::String?>>': 0,
+    'core::Array<core::NodeInfo<core::geo>>': 0,
+    'core::Array<core::SearchResult<core::String,core::int>>': 0,
     'core::NodeInfo': 0,
     'core::TimeZone': 0,
-    'core::NodeInfo<core::time>': 0,
     'core::TableColumnMapping': 0,
     'core::Buffer': 0,
+    'core::Map<core::any,core::any?>': 0,
     'core::DurationUnit': 0,
-    'core::Tuple<core::time,runtime::RuntimeUsage>': 0,
-    'core::node<project::Node>': 0,
-    'core::t2f': 0,
-    'core::node<project::VisualCrossingProvider>': 0,
-    'core::Table<project::TimedComposed>': 0,
-    'core::Array<core::any?>': 0,
-    'core::VectorVertex': 0,
     'core::node<complex_factory::Cable>': 0,
-    'core::Tuple<core::time,core::any?>': 0,
-    'core::nodeIndexBucket<core::node<core::Tensor>,core::any?>': 0,
-    'core::Tuple<core::int,core::any?>': 0,
+    'core::Array<project::KLine>': 0,
+    'core::nodeGeo$info$args': 0,
+    'core::Map<core::int,core::String>': 0,
+    'core::t2f': 0,
+    'core::node<project::Node>': 0,
+    'core::Array<runtime::RuntimeUsage>': 0,
+    'core::Tuple<core::String,core::float>': 0,
+    'core::Map<core::TimeZone,core::String>': 0,
+    'core::nodeIndex$sample$args': 0,
+    'core::VectorVertex': 0,
+    'core::nodeTime$sample$args': 0,
+    'core::Array<core::type>': 0,
     'core::t4': 0,
-    'core::Array<runtime::PathItemObject>': 0,
-    'core::Array<util::HistogramBin>': 0,
+    'core::Array<io::CsvColumnStatistics>': 0,
     'core::nodeList': 0,
+    'core::Array<core::node<core::String>>': 0,
     'core::float': 0,
-    'core::Tuple<core::time,heatmap::Earthquake>': 0,
-    'core::Array<core::NodeInfo>': 0,
     'core::Array<core::Map<core::String,core::any>>': 0,
-    'core::Array<io::S3Bucket>': 0,
-    'core::Array<core::SearchResult<core::String,core::int>>': 0,
+    'core::Map<core::String,core::Map<core::String,core::any>>': 0,
+    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0,
     'core::bool': 0,
+    'core::Tuple<core::time,core::float>': 0,
     'core::nodeGeo': 0,
-    'core::Table<project::TimeRecord<project::Composed>>': 0,
-    'core::nodeTime<project::SensorData>': 0,
-    'core::Tuple<core::geo,cities::City>': 0,
-    'core::Array<runtime::McpTool>': 0,
-    'core::Array<project::Person2>': 0,
+    'core::Tuple<core::time,project::SensorData>': 0,
+    'core::Array<io::S3Object>': 0,
+    'core::Array<project::SensorData>': 0,
+    'core::Array<runtime::DayOfWeek>': 0,
+    'core::Array<util::HistogramBin>': 0,
     'core::String': 0,
     'core::field': 0,
-    'core::Array<runtime::Permission>': 0,
-    'core::nodeGeo<heatmap::Earthquake>': 0,
-    'core::nodeTime$info$args': 0,
-    'core::Array<project::SensorData>': 0,
-    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0,
-    'core::Array<runtime::Variable>': 0,
-    'core::Tuple<core::geo,core::any?>': 0,
-    'core::Array<runtime::DateTuple>': 0,
-    'core::Array<util::HistogramBin<core::float>>': 0,
+    'core::Array<core::ErrorFrame>': 0,
+    'core::Array<runtime::ZoneUsage>': 0,
+    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0,
+    'core::Array<core::Tuple<core::String,core::String?>>': 0,
     'core::TensorType': 0,
-    'core::Array<project::People>': 0,
-    'core::Array<core::float>': 0,
-    'core::node<project::Meteo>': 0,
-    'core::Array<core::Tuple<core::String,core::int>>': 0,
+    'core::node<core::String>': 0,
+    'core::nodeGeo<cities::City>': 0,
     'core::Array<core::SearchResult>': 0,
-    'core::Array<complex_factory::CableView>': 0,
-    'core::nodeIndex<core::String,core::int>': 0,
-    'core::node<core::VectorVertex>': 0,
-    'core::Array<project::KLine>': 0,
-    'core::Array<core::any>': 0,
+    'core::node<project::Person2?>': 0,
     'core::Array<core::String?>': 0,
-    'core::Array<project::Shape>': 0,
+    'core::Tuple<core::time,runtime::RuntimeUsage>': 0,
+    'core::Array<core::node?>': 0,
     'core::node<core::Tensor>': 0,
-    'core::Map<core::any,core::int>': 0,
-    'core::nodeList$sample$args': 0,
+    'core::nodeIndexBucket<core::node<core::Tensor>,core::any?>': 0,
+    'core::Array<util::Quantizer>': 0,
+    'core::Array<runtime::ResponseObject>': 0,
+    'core::NodeInfo<core::time>': 0,
+    'core::Map<core::String,runtime::SchemaObject>': 0,
+    'core::Array<node_time::SensorReading>': 0,
     'core::type': 0,
-    'core::Map<core::String,runtime::ResponseObject>': 0,
-    'core::Map<core::String,runtime::PathItemObject>': 0,
-    'core::Array<project::MyData>': 0,
+    'core::Map<core::String,core::String>': 0,
+    'core::Map<core::DurationUnit,core::Tuple<core::String,core::int>>': 0,
+    'core::nodeGeo$sample$args': 0,
+    'core::Array<util::HistogramBin<core::float>>': 0,
+    'core::Tuple<core::int,core::float>': 0,
+    'core::nodeIndex$info$args': 0,
+    'core::Table$applyMappings$args': 0,
+    'core::Array<runtime::Task>': 0,
     'core::Tuple': 0,
-    'core::Map<core::String,runtime::MediaTypeObject>': 0,
+    'core::Array<runtime::SecurityEntity>': 0,
+    'core::nodeTime<heatmap::Earthquake>': 0,
     'core::nodeIndexBucket': 0,
     'core::GeoCircle': 0,
-    'core::Tuple<core::time,project::SensorData>': 0,
-    'core::Table<util::GaussianProfileSlot?>': 0,
+    'core::Table<project::TimedComposed>': 0,
+    'core::nodeTime<node_time::SensorReading>': 0,
     'core::Map<core::String,core::int>': 0,
-    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0,
+    'core::Map<core::String,runtime::MediaTypeObject>': 0,
+    'core::Array<core::NodeInfo>': 0,
     'core::ErrorFrame': 0,
-    'core::node$resolve_all$args': 0,
-    'core::nodeTime<heatmap::Earthquake>': 0,
-    'core::Array<runtime::MediaTypeObject>': 0,
-    'core::nodeList$info$args': 0,
-    'core::Array<runtime::McpContentBlock>': 0,
-    'core::Array<runtime::Frame>': 0,
-    'core::Array<runtime::PeriodicTask>': 0,
-    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0,
-    'core::Array<runtime::DayOfWeek>': 0,
+    'core::Tuple<core::geo,cities::City>': 0,
+    'core::Tuple<core::int,core::int>': 0,
+    'core::Array<runtime::DateTuple>': 0,
+    'core::Array<core::Tuple<core::int,core::int>>': 0,
+    'core::Array<complex_factory::CableView>': 0,
+    'core::Tuple<core::String,core::String?>': 0,
     'core::t4f': 0,
-    'core::Map<core::SamplingMode,project::Person?>': 0,
     'core::Error': 0,
-    'core::nodeTime<core::float>': 0,
-    'core::Array<core::String>': 0,
-    'core::Array<io::CsvColumnStatistics>': 0,
+    'core::Array<io::S3Bucket>': 0,
+    'core::Array<project::Box?>': 0,
+    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0,
+    'core::Array<runtime::SchemaObject>': 0,
     'core::char': 0,
-    'core::Array<core::nodeIndex>': 0,
     'core::Table': 0,
-    'core::nodeTime<project::KLine>': 0,
-    'core::Array<runtime::UserCredential>': 0,
-    'core::Map<core::TimeZone,core::String>': 0,
-    'core::Array<project::UrlEntry>': 0,
+    'core::Table<core::Tuple<core::time,core::any?>>': 0,
     'core::Array': 0,
     'core::nodeTimeCursor': 0,
-    'core::Array<runtime::User?>': 0,
-    'core::node<project::Link>': 0,
-    'core::nodeGeo$info$args': 0,
+    'core::Array<project::Shape>': 0,
+    'core::Array<heatmap::Earthquake>': 0,
+    'core::nodeTime<project::KLine>': 0,
+    'core::Array<project::Person?>': 0,
+    'core::Table<util::GaussianProfileSlot?>': 0,
+    'core::Map<core::String,project::Person?>': 0,
     'core::time': 0,
-    'core::nodeGeo$sample$args': 0,
-    'core::node<project::Person2>': 0,
-    'core::Array<core::nodeGeo>': 0,
-    'core::Array<runtime::Task>': 0,
-    'core::Map<core::String,core::Map<core::String,core::any>>': 0,
-    'core::Array<runtime::ResponseObject>': 0,
-    'runtime::User$permissions$args': 0,
+    'core::Tuple<core::time,project::KLine>': 0,
+    'core::nodeList$info$args': 0,
+    'core::Array<core::float>': 0,
+    'core::Array<runtime::Permission>': 0,
+    'core::Array<runtime::PeriodicTask>': 0,
+    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0,
+    'runtime::OpenIDConnect$config$args': 0,
     'runtime::McpPriority': 0,
     'runtime::SecurityFields': 0,
     'runtime::Debug': 0,
-    'runtime::Runtime$info$args': 0,
-    'runtime::Scheduler$activate$args': 0,
-    'runtime::Task$running$args': 0,
-    'runtime::OpenIDConnect$config$args': 0,
+    'runtime::Debug$all$args': 0,
+    'runtime::System$get_all_envs$args': 0,
     'runtime::LicenseType': 0,
     'runtime::McpClientRoots': 0,
     'runtime::McpToolsCallResult': 0,
-    'runtime::SecurityFields$get$args': 0,
-    'runtime::Runtime$usage$args': 0,
-    'runtime::Runtime$root$args': 0,
-    'runtime::Task$history$args': 0,
+    'runtime::mcp_tools_call$args': 0,
+    'runtime::User$tokenLogin$args': 0,
     'runtime::ChildProcess': 0,
     'runtime::SchemaFormat': 0,
     'runtime::McpServerCapabilities': 0,
@@ -1745,29 +1774,38 @@ declare namespace gc {
     'runtime::PeriodicTask': 0,
     'runtime::SchemaObject': 0,
     'runtime::ResponseObject': 0,
+    'runtime::SecurityEntity$all$args': 0,
     'runtime::McpResourceContent': 0,
-    'runtime::mcp_tools_list$args': 0,
+    'runtime::User$me$args': 0,
+    'runtime::Task$is_running$args': 0,
     'runtime::PathItemObject': 0,
+    'runtime::OpenApi$v3$args': 0,
     'runtime::ZoneUsage': 0,
     'runtime::McpContentType': 0,
-    'runtime::mcp_initialize$args': 0,
+    'runtime::Task$cancel$args': 0,
     'runtime::Scheduler': 0,
     'runtime::McpClientCapabilities': 0,
     'runtime::McpToolsCallParams': 0,
-    'runtime::System$get_all_envs$args': 0,
+    'runtime::Scheduler$add$args': 0,
     'runtime::WeeklyPeriodicity': 0,
     'runtime::Variable': 0,
     'runtime::McpTextContent': 0,
     'runtime::DailyPeriodicity': 0,
     'runtime::HeaderObject': 0,
+    'runtime::Scheduler$list$args': 0,
+    'runtime::User$permissions$args': 0,
     'runtime::McpRequestParams': 0,
     'runtime::McpServerResourcesCapabilities': 0,
+    'runtime::User$login$args': 0,
     'runtime::LogDataUsage': 0,
+    'runtime::Scheduler$find$args': 0,
+    'runtime::User$renew$args': 0,
     'runtime::MediaTypeObject': 0,
     'runtime::McpBaseMetadata': 0,
+    'runtime::User$setPassword$args': 0,
     'runtime::McpContentBlock': 0,
     'runtime::RuntimeInfo': 0,
-    'runtime::Scheduler$deactivate$args': 0,
+    'runtime::Task$running$args': 0,
     'runtime::OpenApiVersion': 0,
     'runtime::ComponentsObject': 0,
     'runtime::MergeStrategy': 0,
@@ -1776,13 +1814,9 @@ declare namespace gc {
     'runtime::InfoObject': 0,
     'runtime::RequestBodyObject': 0,
     'runtime::Permission': 0,
-    'runtime::Scheduler$find$args': 0,
-    'runtime::Task$is_running$args': 0,
+    'runtime::Runtime$backup_full$args': 0,
     'runtime::McpToolsListResult': 0,
-    'runtime::User$me$args': 0,
     'runtime::OpenApiV3': 0,
-    'runtime::Permission$all$args': 0,
-    'runtime::User$login$args': 0,
     'runtime::User$current$args': 0,
     'runtime::TaskStatus': 0,
     'runtime::OpenApi': 0,
@@ -1792,254 +1826,254 @@ declare namespace gc {
     'runtime::DateTuple': 0,
     'runtime::McpTool': 0,
     'runtime::Role': 0,
-    'runtime::SecurityFields$set$args': 0,
+    'runtime::User$logout$args': 0,
+    'runtime::mcp_tools_list$args': 0,
     'runtime::MonthlyPeriodicity': 0,
     'runtime::ResponseCode': 0,
+    'runtime::SecurityFields$get$args': 0,
     'runtime::Month': 0,
     'runtime::McpToolsListParams': 0,
     'runtime::UserGroup': 0,
-    'runtime::User$logout$args': 0,
     'runtime::License': 0,
-    'runtime::Debug$get$args': 0,
-    'runtime::SecurityEntity$all$args': 0,
+    'runtime::Runtime$info$args': 0,
+    'runtime::Scheduler$deactivate$args': 0,
     'runtime::SecurityEntity': 0,
     'runtime::McpImageContent': 0,
-    'runtime::User$tokenLogin$args': 0,
     'runtime::ChildProcessResult': 0,
     'runtime::OpenIDConnect': 0,
-    'runtime::Task$cancel$args': 0,
+    'runtime::Debug$resume$args': 0,
     'runtime::RuntimeUsage': 0,
     'runtime::LogLevel': 0,
     'runtime::McpAnnotations': 0,
-    'runtime::mcp_tools_call$args': 0,
-    'runtime::Role$all$args': 0,
-    'runtime::SecurityEntity$set$args': 0,
+    'runtime::SecurityFields$set$args': 0,
     'runtime::Frame': 0,
-    'runtime::Scheduler$add$args': 0,
+    'runtime::Runtime$abi$args': 0,
     'runtime::DayOfWeek': 0,
     'runtime::Log': 0,
     'runtime::McpAudioContent': 0,
-    'runtime::User$setPassword$args': 0,
+    'runtime::Permission$all$args': 0,
     'runtime::OperationObject': 0,
-    'runtime::Runtime$abi$args': 0,
     'runtime::YearlyPeriodicity': 0,
     'runtime::McpServerToolsCapabilities': 0,
-    'runtime::Debug$all$args': 0,
+    'runtime::Role$all$args': 0,
     'runtime::PeriodicOptions': 0,
     'runtime::Task': 0,
-    'runtime::OpenApi$v3$args': 0,
+    'runtime::Task$history$args': 0,
+    'runtime::SecurityEntity$set$args': 0,
     'runtime::SecurityPolicy': 0,
     'runtime::Periodicity': 0,
     'runtime::SchemaType': 0,
-    'runtime::Runtime$backup_full$args': 0,
-    'runtime::Scheduler$list$args': 0,
+    'runtime::mcp_initialize$args': 0,
+    'runtime::Runtime$root$args': 0,
+    'runtime::Debug$get$args': 0,
     'runtime::McpInitializeResult': 0,
-    'runtime::User$renew$args': 0,
-    'runtime::Debug$resume$args': 0,
-    'runtime::McpServerPromptsCapabilities': 0,
+    'runtime::Runtime$usage$args': 0,
     'runtime::UserCredential': 0,
+    'runtime::McpServerPromptsCapabilities': 0,
+    'runtime::Scheduler$activate$args': 0,
     'runtime::Runtime': 0,
     'runtime::UserGroupPolicy': 0,
     'runtime::WorkerUsage': 0,
     'runtime::System': 0,
     'runtime::UserGroupPolicyType': 0,
     'io::FileWalker': 0,
+    'io::CsvReader<big::BigRecord>': 0,
     'io::CsvColumnStatistics': 0,
     'io::File': 0,
     'io::HttpMethod': 0,
     'io::CsvWriter': 0,
     'io::Http': 0,
     'io::BinReader': 0,
-    'io::CsvReader<big::BigRecord>': 0,
-    'io::Reader<core::String>': 0,
+    'io::Reader<cities::City>': 0,
     'io::Csv': 0,
-    'io::CsvReader<cities::City>': 0,
+    'io::Reader<core::Array<core::float>>': 0,
     'io::TextReader': 0,
-    'io::Csv$generate$args': 0,
     'io::Url': 0,
     'io::HttpResponse': 0,
     'io::S3Object': 0,
-    'io::Csv$analyze$args': 0,
     'io::Reader': 0,
-    'io::CsvReader<heatmap::Record>': 0,
+    'io::Reader<core::String>': 0,
     'io::Json': 0,
     'io::SmtpMode': 0,
-    'io::Reader<core::Array<core::float>>': 0,
-    'io::Reader<cities::City>': 0,
-    'io::Reader<heatmap::Record>': 0,
+    'io::Reader<big::BigRecord>': 0,
     'io::JsonWriter': 0,
     'io::SmtpAuth': 0,
     'io::TextWriter': 0,
     'io::Smtp': 0,
     'io::Writer': 0,
     'io::GcbReader': 0,
+    'io::Reader<heatmap::Record>': 0,
     'io::GcbWriter': 0,
     'io::S3BasicCredentials': 0,
+    'io::Reader<project::People>': 0,
     'io::S3Bucket': 0,
     'io::HttpRequest': 0,
     'io::S3': 0,
-    'io::CsvReader<core::Array<core::float>>': 0,
     'io::JsonReader': 0,
     'io::XmlReader': 0,
+    'io::CsvReader<project::People>': 0,
+    'io::CsvReader<heatmap::Record>': 0,
+    'io::Csv$sample$args': 0,
+    'io::Csv$generate$args': 0,
+    'io::CsvReader<cities::City>': 0,
     'io::CsvReader': 0,
     'io::CsvFormat': 0,
     'io::CsvStatistics': 0,
-    'io::Csv$sample$args': 0,
+    'io::CsvReader<core::Array<core::float>>': 0,
     'io::CsvSharding': 0,
     'io::Email': 0,
-    'io::Reader<project::People>': 0,
-    'io::Reader<big::BigRecord>': 0,
+    'io::Csv$analyze$args': 0,
     'io::CsvAnalysisConfig': 0,
-    'io::CsvReader<project::People>': 0,
     'util::Quantizer': 0,
-    'util::LinearQuantizer<core::float>': 0,
-    'util::HistogramStats<core::float>': 0,
+    'util::QuantizerSlotBound<core::Array>': 0,
     'util::GaussianProfile': 0,
-    'util::Quantizer<core::Array>': 0,
+    'util::HistogramStats<core::float>': 0,
     'util::TimeWindow': 0,
-    'util::QuantizerSlotBound<core::float>': 0,
     'util::Histogram': 0,
     'util::LogQuantizer': 0,
-    'util::Histogram<core::float>': 0,
+    'util::HistogramBin<core::float>': 0,
     'util::SlidingWindow': 0,
     'util::LinearQuantizer': 0,
     'util::Random': 0,
     'util::QuantizerSlotBound': 0,
     'util::HistogramBin': 0,
+    'util::QuantizerSlotBound<core::float>': 0,
     'util::GaussianProfileSlot': 0,
-    'util::Gaussian<core::float>': 0,
-    'util::HistogramBin<core::float>': 0,
     'util::Gaussian': 0,
+    'util::Quantizer<core::float>': 0,
+    'util::Quantizer<core::Array>': 0,
     'util::Queue': 0,
     'util::ProgressTracker': 0,
-    'util::Quantizer<core::float>': 0,
     'util::Assert': 0,
-    'util::QuantizerSlotBound<core::Array>': 0,
+    'util::Gaussian<core::float>': 0,
+    'util::LinearQuantizer<core::float>': 0,
     'util::Stack': 0,
     'util::Crypto': 0,
     'util::HistogramStats': 0,
-    'util::CustomQuantizer': 0,
+    'util::Histogram<core::float>': 0,
     'util::Plot': 0,
+    'util::CustomQuantizer': 0,
     'util::MultiQuantizer': 0,
-    'project::init_foo$args': 0,
-    'project::VisualCrossingProvider': 0,
-    'project::tensor_2_3_5$args': 0,
-    'project::TimeRecord<project::Composed>': 0,
-    'project::objects_table$args': 0,
-    'project::Person2': 0,
-    'project::Country': 0,
-    'project::ComplexObject': 0,
-    'project::RelayApp': 0,
-    'project::obj1$args': 0,
-    'project::chart$args': 0,
-    'project::Sensor': 0,
-    'project::heatmap$args': 0,
-    'project::bar$args': 0,
-    'project::big_map$args': 0,
-    'project::array_of_ints$args': 0,
-    'project::Level': 0,
-    'project::add$args': 0,
-    'project::task_long_running$args': 0,
-    'project::MyData': 0,
-    'project::link_whatever$args': 0,
-    'project::ComplexForm': 0,
-    'project::table_of_objects2$args': 0,
-    'project::task_long_running2$args': 0,
-    'project::hello$args': 0,
-    'project::Circle': 0,
-    'project::TrafficLight': 0,
-    'project::People': 0,
-    'project::histogram_stats$args': 0,
-    'project::persons$args': 0,
-    'project::SensorData': 0,
-    'project::Node': 0,
-    'project::Box': 0,
-    'project::obj2$args': 0,
-    'project::Link$whatever$args': 0,
-    'project::TimedComposed': 0,
-    'project::controlled_task$args': 0,
-    'project::chart_colored_area$args': 0,
-    'project::destructuring_table$args': 0,
-    'project::KLine': 0,
-    'project::table$args': 0,
-    'project::resolve_person$args': 0,
-    'project::Obj': 0,
-    'project::MapContainer': 0,
-    'project::this_is_boom$args': 0,
-    'project::donut$args': 0,
-    'project::table_of_objects3$args': 0,
-    'project::SeriesObject': 0,
-    'project::real_example$args': 0,
-    'project::table_with_urls$args': 0,
-    'project::sample_huge_csv$args': 0,
-    'project::FooBar': 0,
-    'project::Shape': 0,
-    'project::ObjWithFn': 0,
-    'project::Sex': 0,
-    'project::tensor_3_5$args': 0,
-    'project::generate_logs$args': 0,
-    'project::chart_time$args': 0,
-    'project::complex_object$args': 0,
-    'project::UrlEntry': 0,
-    'project::Obj1': 0,
-    'project::SensorKind': 0,
-    'project::SemiRecursive': 0,
-    'project::Root': 0,
-    'project::people$args': 0,
-    'project::anything$args': 0,
-    'project::Person': 0,
-    'project::now$args': 0,
-    'project::display_fn$args': 0,
-    'project::Obj2': 0,
-    'project::TimeRecord': 0,
-    'project::Link': 0,
-    'project::mapTest$args': 0,
     'project::getTensor$args': 0,
-    'project::foo$args': 0,
+    'project::SolarRadiation': 0,
+    'project::TimeRecord': 0,
+    'project::now$args': 0,
+    'project::ComplexObject': 0,
+    'project::Obj2': 0,
+    'project::histogram_stats$args': 0,
+    'project::tensor_3_5$args': 0,
     'project::table_of_objects$args': 0,
-    'project::display_fn_in_obj$args': 0,
+    'project::people$args': 0,
+    'project::Obj1': 0,
+    'project::array_of_ints$args': 0,
+    'project::Obj': 0,
+    'project::hello$args': 0,
+    'project::objects_table$args': 0,
+    'project::init_foo$args': 0,
+    'project::Triangle': 0,
+    'project::sample_huge_csv$args': 0,
+    'project::SeriesObject': 0,
+    'project::display_fn$args': 0,
+    'project::Box': 0,
+    'project::heatmap$args': 0,
+    'project::resolve_person$args': 0,
+    'project::table_of_objects2$args': 0,
+    'project::foo$args': 0,
+    'project::Level': 0,
+    'project::complex_object$args': 0,
+    'project::SensorData': 0,
+    'project::donut$args': 0,
     'project::Composed': 0,
+    'project::Node': 0,
+    'project::task_long_running2$args': 0,
+    'project::TrafficLight': 0,
+    'project::KLine': 0,
+    'project::ComplexForm': 0,
+    'project::task_without_params$args': 0,
+    'project::RelayApp': 0,
+    'project::table_of_objects3$args': 0,
+    'project::data_array$args': 0,
+    'project::tensor_2_3_5$args': 0,
+    'project::VisualCrossingProvider': 0,
+    'project::controlled_task$args': 0,
+    'project::generate_logs$args': 0,
+    'project::Sex': 0,
+    'project::bar$args': 0,
+    'project::TimedComposed': 0,
+    'project::table$args': 0,
+    'project::mapTest$args': 0,
+    'project::table_with_urls$args': 0,
+    'project::task_long_running$args': 0,
+    'project::SemiRecursive': 0,
+    'project::Person': 0,
+    'project::serie_of_obj$args': 0,
+    'project::People': 0,
+    'project::Link$whatever$args': 0,
+    'project::TimeRecord<project::Composed>': 0,
+    'project::Confidence': 0,
+    'project::array_of_nodes$args': 0,
+    'project::link_whatever$args': 0,
+    'project::Link': 0,
+    'project::destructuring_table$args': 0,
+    'project::FooBar': 0,
+    'project::tree$args': 0,
+    'project::persons$args': 0,
+    'project::chart_colored_area$args': 0,
+    'project::obj2$args': 0,
+    'project::chart$args': 0,
+    'project::big_map$args': 0,
+    'project::one_d_histogram_bins$args': 0,
+    'project::Person2': 0,
+    'project::Root': 0,
+    'project::UrlEntry': 0,
+    'project::mainTask$args': 0,
+    'project::get_person$args': 0,
+    'project::add$args': 0,
+    'project::this_is_boom$args': 0,
+    'project::Shape': 0,
+    'project::Country': 0,
+    'project::real_example$args': 0,
     'project::task_with_params$args': 0,
-    'project::boxes$args': 0,
+    'project::Circle': 0,
+    'project::TimeZones': 0,
     'project::Meteo': 0,
     'project::Rect': 0,
-    'project::TimeZones': 0,
-    'project::serie_of_obj$args': 0,
-    'project::tree$args': 0,
-    'project::Triangle': 0,
-    'project::SolarRadiation': 0,
-    'project::Book': 0,
-    'project::array_of_nodes$args': 0,
-    'project::goodFnForTestingFnCallInput$args': 0,
-    'project::one_d_histogram_bins$args': 0,
-    'project::data_array$args': 0,
+    'project::SensorKind': 0,
+    'project::obj1$args': 0,
+    'project::chart_time$args': 0,
+    'project::MapContainer': 0,
+    'project::Sensor': 0,
     'project::obj$args': 0,
-    'project::get_person$args': 0,
+    'project::boxes$args': 0,
+    'project::ObjWithFn': 0,
+    'project::display_fn_in_obj$args': 0,
+    'project::anything$args': 0,
     'project::tensor$args': 0,
-    'project::task_without_params$args': 0,
-    'project::mainTask$args': 0,
-    'project::Confidence': 0,
+    'project::goodFnForTestingFnCallInput$args': 0,
+    'project::MyData': 0,
+    'project::Book': 0,
     'any::filter_something$args': 0,
-    'any::AnyInput': 0,
     'any::array_any_map_any$args': 0,
+    'any::AnyInput': 0,
     'any::Filters': 0,
     'object::Filter': 0,
+    'heatmap::Status': 0,
     'heatmap::major_earthquakes$args': 0,
     'heatmap::all_earthquakes$args': 0,
     'heatmap::Record': 0,
-    'heatmap::Status': 0,
     'heatmap::Earthquake': 0,
-    'cities::CapitalType': 0,
     'cities::City': 0,
+    'cities::CapitalType': 0,
     'big::BigRecord': 0,
-    'big::get_huge_object$args': 0,
     'big::BigResult': 0,
+    'big::get_huge_object$args': 0,
     'complex_factory::GridElementView<complex_factory::Cable>': 0,
     'complex_factory::GridElementView': 0,
-    'complex_factory::VoltageLevel': 0,
-    'complex_factory::cable_views$args': 0,
     'complex_factory::Cable': 0,
+    'complex_factory::cable_views$args': 0,
+    'complex_factory::VoltageLevel': 0,
     'complex_factory::CableView': 0,
+    'node_time::SensorReading': 0,
   }
 
   interface $FieldsMap {
@@ -2050,32 +2084,26 @@ declare namespace gc {
     'core::Date::minute': 0,
     'core::Date::second': 0,
     'core::Date::microsecond': 0,
-    'core::Table$applyMappings$args::table': 0,
-    'core::Table$applyMappings$args::mappings': 0,
-    'core::nodeIndex$sample$args::refs': 0,
-    'core::nodeIndex$sample$args::from': 0,
-    'core::nodeIndex$sample$args::maxRows': 0,
-    'core::nodeIndex$sample$args::mode': 0,
     'core::GeoBox::sw': 0,
     'core::GeoBox::ne': 0,
-    'core::nodeIndex$info$args::nodes': 0,
-    'core::nodeIndex$search_closest$args::i': 0,
-    'core::nodeIndex$search_closest$args::key': 0,
-    'core::nodeIndex$search_closest$args::max': 0,
+    'core::nodeList$sample$args::refs': 0,
+    'core::nodeList$sample$args::from': 0,
+    'core::nodeList$sample$args::to': 0,
+    'core::nodeList$sample$args::maxRows': 0,
+    'core::nodeList$sample$args::mode': 0,
+    'core::nodeList$sample$args::maxDephasing': 0,
     'core::Chars::codepoints': 0,
+    'core::nodeTime$info$args::nodes': 0,
     'core::VectorIndex::values': 0,
     'core::VectorIndex::count': 0,
     'core::VectorIndex::max_level': 0,
     'core::VectorIndex::entry_node_ref': 0,
     'core::VectorIndex::rng': 0,
     'core::VectorIndex::distance': 0,
-    'core::nodeTime$sample$args::refs': 0,
-    'core::nodeTime$sample$args::from': 0,
-    'core::nodeTime$sample$args::to': 0,
-    'core::nodeTime$sample$args::maxRows': 0,
-    'core::nodeTime$sample$args::mode': 0,
-    'core::nodeTime$sample$args::maxDephasing': 0,
-    'core::nodeTime$sample$args::tz': 0,
+    'core::nodeIndex$search_closest$args::i': 0,
+    'core::nodeIndex$search_closest$args::key': 0,
+    'core::nodeIndex$search_closest$args::max': 0,
+    'core::node$resolve_all$args::n': 0,
     'core::SearchResult::key': 0,
     'core::SearchResult::value': 0,
     'core::SearchResult::distance': 0,
@@ -2085,16 +2113,29 @@ declare namespace gc {
     'core::NodeInfo::to': 0,
     'core::TableColumnMapping::column': 0,
     'core::TableColumnMapping::extractors': 0,
+    'core::nodeGeo$info$args::nodes': 0,
+    'core::nodeIndex$sample$args::refs': 0,
+    'core::nodeIndex$sample$args::from': 0,
+    'core::nodeIndex$sample$args::maxRows': 0,
+    'core::nodeIndex$sample$args::mode': 0,
     'core::VectorVertex::vector': 0,
     'core::VectorVertex::level_sizes': 0,
     'core::VectorVertex::neighbour_nodes': 0,
-    'core::nodeTime$info$args::nodes': 0,
-    'core::nodeList$sample$args::refs': 0,
-    'core::nodeList$sample$args::from': 0,
-    'core::nodeList$sample$args::to': 0,
-    'core::nodeList$sample$args::maxRows': 0,
-    'core::nodeList$sample$args::mode': 0,
-    'core::nodeList$sample$args::maxDephasing': 0,
+    'core::nodeTime$sample$args::refs': 0,
+    'core::nodeTime$sample$args::from': 0,
+    'core::nodeTime$sample$args::to': 0,
+    'core::nodeTime$sample$args::maxRows': 0,
+    'core::nodeTime$sample$args::mode': 0,
+    'core::nodeTime$sample$args::maxDephasing': 0,
+    'core::nodeTime$sample$args::tz': 0,
+    'core::nodeGeo$sample$args::refs': 0,
+    'core::nodeGeo$sample$args::from': 0,
+    'core::nodeGeo$sample$args::to': 0,
+    'core::nodeGeo$sample$args::maxRows': 0,
+    'core::nodeGeo$sample$args::mode': 0,
+    'core::nodeIndex$info$args::nodes': 0,
+    'core::Table$applyMappings$args::table': 0,
+    'core::Table$applyMappings$args::mappings': 0,
     'core::Tuple::x': 0,
     'core::Tuple::y': 0,
     'core::nodeIndexBucket::key': 0,
@@ -2106,18 +2147,11 @@ declare namespace gc {
     'core::ErrorFrame::function': 0,
     'core::ErrorFrame::line': 0,
     'core::ErrorFrame::column': 0,
-    'core::node$resolve_all$args::n': 0,
-    'core::nodeList$info$args::nodes': 0,
     'core::Error::message': 0,
     'core::Error::stack': 0,
     'core::nodeTimeCursor::n': 0,
     'core::nodeTimeCursor::req_time': 0,
-    'core::nodeGeo$info$args::nodes': 0,
-    'core::nodeGeo$sample$args::refs': 0,
-    'core::nodeGeo$sample$args::from': 0,
-    'core::nodeGeo$sample$args::to': 0,
-    'core::nodeGeo$sample$args::maxRows': 0,
-    'core::nodeGeo$sample$args::mode': 0,
+    'core::nodeList$info$args::nodes': 0,
     'runtime::SecurityFields::email': 0,
     'runtime::SecurityFields::name': 0,
     'runtime::SecurityFields::first_name': 0,
@@ -2128,14 +2162,14 @@ declare namespace gc {
     'runtime::Debug::id': 0,
     'runtime::Debug::frames': 0,
     'runtime::Debug::root': 0,
-    'runtime::Scheduler$activate$args::function': 0,
     'runtime::McpClientRoots::listChanged': 0,
     'runtime::McpToolsCallResult::_meta': 0,
     'runtime::McpToolsCallResult::content': 0,
     'runtime::McpToolsCallResult::structuredContent': 0,
     'runtime::McpToolsCallResult::isError': 0,
-    'runtime::Task$history$args::offset': 0,
-    'runtime::Task$history$args::max': 0,
+    'runtime::mcp_tools_call$args::params': 0,
+    'runtime::User$tokenLogin$args::token': 0,
+    'runtime::User$tokenLogin$args::use_cookie': 0,
     'runtime::ChildProcess::pid': 0,
     'runtime::McpServerCapabilities::experimental': 0,
     'runtime::McpServerCapabilities::logging': 0,
@@ -2178,7 +2212,7 @@ declare namespace gc {
     'runtime::McpResourceContent::description': 0,
     'runtime::McpResourceContent::mimeType': 0,
     'runtime::McpResourceContent::size': 0,
-    'runtime::mcp_tools_list$args::params': 0,
+    'runtime::Task$is_running$args::task_id': 0,
     'runtime::PathItemObject::description': 0,
     'runtime::PathItemObject::post': 0,
     'runtime::ZoneUsage::size': 0,
@@ -2186,7 +2220,7 @@ declare namespace gc {
     'runtime::ZoneUsage::reserved_blocks': 0,
     'runtime::ZoneUsage::blocks': 0,
     'runtime::ZoneUsage::cache': 0,
-    'runtime::mcp_initialize$args::params': 0,
+    'runtime::Task$cancel$args::task_id': 0,
     'runtime::McpClientCapabilities::experimental': 0,
     'runtime::McpClientCapabilities::roots': 0,
     'runtime::McpClientCapabilities::sampling': 0,
@@ -2194,6 +2228,9 @@ declare namespace gc {
     'runtime::McpToolsCallParams::_meta': 0,
     'runtime::McpToolsCallParams::name': 0,
     'runtime::McpToolsCallParams::arguments': 0,
+    'runtime::Scheduler$add$args::function': 0,
+    'runtime::Scheduler$add$args::periodicity': 0,
+    'runtime::Scheduler$add$args::options': 0,
     'runtime::WeeklyPeriodicity::days': 0,
     'runtime::WeeklyPeriodicity::daily': 0,
     'runtime::Variable::name': 0,
@@ -2210,6 +2247,8 @@ declare namespace gc {
     'runtime::HeaderObject::required': 0,
     'runtime::McpServerResourcesCapabilities::subscribe': 0,
     'runtime::McpServerResourcesCapabilities::listChanged': 0,
+    'runtime::User$login$args::credentials': 0,
+    'runtime::User$login$args::use_cookie': 0,
     'runtime::LogDataUsage::read_bytes': 0,
     'runtime::LogDataUsage::read_hits': 0,
     'runtime::LogDataUsage::read_wasted': 0,
@@ -2217,7 +2256,11 @@ declare namespace gc {
     'runtime::LogDataUsage::write_hits': 0,
     'runtime::LogDataUsage::cache_bytes': 0,
     'runtime::LogDataUsage::cache_hits': 0,
+    'runtime::Scheduler$find$args::function': 0,
+    'runtime::User$renew$args::use_cookie': 0,
     'runtime::MediaTypeObject::schema': 0,
+    'runtime::User$setPassword$args::name': 0,
+    'runtime::User$setPassword$args::pass': 0,
     'runtime::RuntimeInfo::version': 0,
     'runtime::RuntimeInfo::program_version': 0,
     'runtime::RuntimeInfo::arch': 0,
@@ -2229,7 +2272,6 @@ declare namespace gc {
     'runtime::RuntimeInfo::mem_total': 0,
     'runtime::RuntimeInfo::mem_worker': 0,
     'runtime::RuntimeInfo::disk_data_bytes': 0,
-    'runtime::Scheduler$deactivate$args::function': 0,
     'runtime::ComponentsObject::schemas': 0,
     'runtime::Job::function': 0,
     'runtime::Job::arguments': 0,
@@ -2243,16 +2285,12 @@ declare namespace gc {
     'runtime::RequestBodyObject::required': 0,
     'runtime::Permission::name': 0,
     'runtime::Permission::description': 0,
-    'runtime::Scheduler$find$args::function': 0,
-    'runtime::Task$is_running$args::task_id': 0,
     'runtime::McpToolsListResult::_meta': 0,
     'runtime::McpToolsListResult::tools': 0,
     'runtime::OpenApiV3::openapi': 0,
     'runtime::OpenApiV3::info': 0,
     'runtime::OpenApiV3::paths': 0,
     'runtime::OpenApiV3::components': 0,
-    'runtime::User$login$args::credentials': 0,
-    'runtime::User$login$args::use_cookie': 0,
     'runtime::FixedPeriodicity::every': 0,
     'runtime::User::id': 0,
     'runtime::User::name': 0,
@@ -2273,7 +2311,7 @@ declare namespace gc {
     'runtime::McpTool::annotations': 0,
     'runtime::Role::name': 0,
     'runtime::Role::permissions': 0,
-    'runtime::SecurityFields$set$args::f': 0,
+    'runtime::mcp_tools_list$args::params': 0,
     'runtime::MonthlyPeriodicity::days': 0,
     'runtime::MonthlyPeriodicity::daily': 0,
     'runtime::McpToolsListParams::_meta': 0,
@@ -2289,20 +2327,18 @@ declare namespace gc {
     'runtime::License::extra_1': 0,
     'runtime::License::extra_2': 0,
     'runtime::License::type': 0,
-    'runtime::Debug$get$args::id': 0,
+    'runtime::Scheduler$deactivate$args::function': 0,
     'runtime::McpImageContent::type': 0,
     'runtime::McpImageContent::_meta': 0,
     'runtime::McpImageContent::annotations': 0,
     'runtime::McpImageContent::data': 0,
     'runtime::McpImageContent::mimeType': 0,
-    'runtime::User$tokenLogin$args::token': 0,
-    'runtime::User$tokenLogin$args::use_cookie': 0,
     'runtime::ChildProcessResult::code': 0,
     'runtime::ChildProcessResult::stdout': 0,
     'runtime::ChildProcessResult::stderr': 0,
     'runtime::OpenIDConnect::url': 0,
     'runtime::OpenIDConnect::clientId': 0,
-    'runtime::Task$cancel$args::task_id': 0,
+    'runtime::Debug$resume$args::id': 0,
     'runtime::RuntimeUsage::os_total_bytes': 0,
     'runtime::RuntimeUsage::os_used_bytes': 0,
     'runtime::RuntimeUsage::proc_virt_bytes': 0,
@@ -2315,8 +2351,7 @@ declare namespace gc {
     'runtime::McpAnnotations::audience': 0,
     'runtime::McpAnnotations::priority': 0,
     'runtime::McpAnnotations::lastModified': 0,
-    'runtime::mcp_tools_call$args::params': 0,
-    'runtime::SecurityEntity$set$args::entity': 0,
+    'runtime::SecurityFields$set$args::f': 0,
     'runtime::Frame::module': 0,
     'runtime::Frame::type': 0,
     'runtime::Frame::function': 0,
@@ -2324,9 +2359,6 @@ declare namespace gc {
     'runtime::Frame::line': 0,
     'runtime::Frame::column': 0,
     'runtime::Frame::scope': 0,
-    'runtime::Scheduler$add$args::function': 0,
-    'runtime::Scheduler$add$args::periodicity': 0,
-    'runtime::Scheduler$add$args::options': 0,
     'runtime::Log::level': 0,
     'runtime::Log::time': 0,
     'runtime::Log::user_id': 0,
@@ -2339,8 +2371,6 @@ declare namespace gc {
     'runtime::McpAudioContent::annotations': 0,
     'runtime::McpAudioContent::data': 0,
     'runtime::McpAudioContent::mimeType': 0,
-    'runtime::User$setPassword$args::name': 0,
-    'runtime::User$setPassword$args::pass': 0,
     'runtime::OperationObject::tags': 0,
     'runtime::OperationObject::description': 0,
     'runtime::OperationObject::requestBody': 0,
@@ -2362,21 +2392,25 @@ declare namespace gc {
     'runtime::Task::duration': 0,
     'runtime::Task::status': 0,
     'runtime::Task::progress': 0,
+    'runtime::Task$history$args::offset': 0,
+    'runtime::Task$history$args::max': 0,
+    'runtime::SecurityEntity$set$args::entity': 0,
     'runtime::SecurityPolicy::entities': 0,
     'runtime::SecurityPolicy::credentials': 0,
     'runtime::SecurityPolicy::fields': 0,
     'runtime::SecurityPolicy::keys': 0,
     'runtime::SecurityPolicy::keys_last_refresh': 0,
+    'runtime::mcp_initialize$args::params': 0,
+    'runtime::Debug$get$args::id': 0,
     'runtime::McpInitializeResult::_meta': 0,
     'runtime::McpInitializeResult::protocolVersion': 0,
     'runtime::McpInitializeResult::capabilities': 0,
     'runtime::McpInitializeResult::serverInfo': 0,
     'runtime::McpInitializeResult::instructions': 0,
-    'runtime::User$renew$args::use_cookie': 0,
-    'runtime::Debug$resume$args::id': 0,
-    'runtime::McpServerPromptsCapabilities::listChanged': 0,
     'runtime::UserCredential::offset': 0,
     'runtime::UserCredential::pass': 0,
+    'runtime::McpServerPromptsCapabilities::listChanged': 0,
+    'runtime::Scheduler$activate$args::function': 0,
     'runtime::UserGroupPolicy::group_id': 0,
     'runtime::UserGroupPolicy::type': 0,
     'runtime::WorkerUsage::memory': 0,
@@ -2405,7 +2439,6 @@ declare namespace gc {
     'io::BinReader::pos': 0,
     'io::TextReader::path': 0,
     'io::TextReader::pos': 0,
-    'io::Csv$generate$args::stats': 0,
     'io::Url::protocol': 0,
     'io::Url::host': 0,
     'io::Url::port': 0,
@@ -2422,8 +2455,6 @@ declare namespace gc {
     'io::S3Object::last_modified': 0,
     'io::S3Object::size': 0,
     'io::S3Object::etag': 0,
-    'io::Csv$analyze$args::files': 0,
-    'io::Csv$analyze$args::config': 0,
     'io::Reader::path': 0,
     'io::Reader::pos': 0,
     'io::JsonWriter::path': 0,
@@ -2459,6 +2490,9 @@ declare namespace gc {
     'io::JsonReader::pos': 0,
     'io::XmlReader::path': 0,
     'io::XmlReader::pos': 0,
+    'io::Csv$sample$args::reader': 0,
+    'io::Csv$sample$args::max_lines': 0,
+    'io::Csv$generate$args::stats': 0,
     'io::CsvReader::path': 0,
     'io::CsvReader::pos': 0,
     'io::CsvReader::format': 0,
@@ -2482,8 +2516,6 @@ declare namespace gc {
     'io::CsvStatistics::line_count': 0,
     'io::CsvStatistics::fail_count': 0,
     'io::CsvStatistics::file_count': 0,
-    'io::Csv$sample$args::reader': 0,
-    'io::Csv$sample$args::max_lines': 0,
     'io::CsvSharding::id': 0,
     'io::CsvSharding::column': 0,
     'io::CsvSharding::modulo': 0,
@@ -2494,6 +2526,8 @@ declare namespace gc {
     'io::Email::to': 0,
     'io::Email::cc': 0,
     'io::Email::bcc': 0,
+    'io::Csv$analyze$args::files': 0,
+    'io::Csv$analyze$args::config': 0,
     'io::CsvAnalysisConfig::header_lines': 0,
     'io::CsvAnalysisConfig::separator': 0,
     'io::CsvAnalysisConfig::string_delimiter': 0,
@@ -2586,18 +2620,11 @@ declare namespace gc {
     'util::CustomQuantizer::step_starts': 0,
     'util::CustomQuantizer::open': 0,
     'util::MultiQuantizer::quantizers': 0,
-    'project::VisualCrossingProvider::name': 0,
-    'project::VisualCrossingProvider::solar': 0,
-    'project::Person2::id': 0,
-    'project::Person2::name': 0,
-    'project::Person2::age': 0,
-    'project::Person2::children': 0,
-    'project::Country::name': 0,
-    'project::Country::timezone': 0,
-    'project::Country::operating_stats': 0,
-    'project::Country::last_updated_stats': 0,
-    'project::Country::governorates': 0,
-    'project::Country::meteo': 0,
+    'project::SolarRadiation::is_enabled': 0,
+    'project::SolarRadiation::radiance': 0,
+    'project::SolarRadiation::instant_power': 0,
+    'project::TimeRecord::time': 0,
+    'project::TimeRecord::value': 0,
     'project::ComplexObject::string': 0,
     'project::ComplexObject::int': 0,
     'project::ComplexObject::float': 0,
@@ -2622,19 +2649,46 @@ declare namespace gc {
     'project::ComplexObject::t4f': 0,
     'project::ComplexObject::str': 0,
     'project::ComplexObject::date': 0,
-    'project::chart$args::nbRows': 0,
-    'project::Sensor::id': 0,
-    'project::Sensor::kind': 0,
+    'project::Obj2::prop1': 0,
+    'project::Obj2::prop2': 0,
+    'project::Obj2::prop3': 0,
+    'project::Obj2::prop4': 0,
+    'project::Obj1::prop1': 0,
+    'project::Obj1::prop2': 0,
+    'project::Obj1::prop3': 0,
     'project::array_of_ints$args::arr': 0,
-    'project::add$args::a': 0,
-    'project::add$args::b': 0,
-    'project::MyData::level': 0,
-    'project::MyData::value': 0,
-    'project::link_whatever$args::l': 0,
+    'project::Obj::field': 0,
+    'project::Obj::tuple': 0,
+    'project::hello$args::name': 0,
+    'project::Triangle::base': 0,
+    'project::Triangle::height': 0,
+    'project::SeriesObject::a': 0,
+    'project::SeriesObject::b': 0,
+    'project::display_fn$args::fn_': 0,
+    'project::Box::value': 0,
+    'project::SensorData::temperature': 0,
+    'project::SensorData::pression': 0,
+    'project::SensorData::humidity': 0,
+    'project::Composed::a': 0,
+    'project::Composed::b': 0,
+    'project::Node::id': 0,
+    'project::Node::value': 0,
+    'project::Node::link': 0,
+    'project::KLine::open': 0,
+    'project::KLine::close': 0,
+    'project::KLine::volume': 0,
     'project::ComplexForm::shapes': 0,
     'project::ComplexForm::shape': 0,
-    'project::hello$args::name': 0,
-    'project::Circle::radius': 0,
+    'project::VisualCrossingProvider::name': 0,
+    'project::VisualCrossingProvider::solar': 0,
+    'project::controlled_task$args::duration': 0,
+    'project::TimedComposed::time': 0,
+    'project::TimedComposed::a': 0,
+    'project::TimedComposed::b': 0,
+    'project::SemiRecursive::sub': 0,
+    'project::Person::name': 0,
+    'project::Person::age': 0,
+    'project::Person::activated': 0,
     'project::People::Index': 0,
     'project::People::User id': 0,
     'project::People::First Name': 0,
@@ -2644,78 +2698,58 @@ declare namespace gc {
     'project::People::Phone': 0,
     'project::People::Date of birth': 0,
     'project::People::Job Title': 0,
-    'project::SensorData::temperature': 0,
-    'project::SensorData::pression': 0,
-    'project::SensorData::humidity': 0,
-    'project::Node::id': 0,
-    'project::Node::value': 0,
-    'project::Node::link': 0,
-    'project::Box::value': 0,
     'project::Link$whatever$args::link': 0,
-    'project::TimedComposed::time': 0,
-    'project::TimedComposed::a': 0,
-    'project::TimedComposed::b': 0,
-    'project::controlled_task$args::duration': 0,
-    'project::KLine::open': 0,
-    'project::KLine::close': 0,
-    'project::KLine::volume': 0,
-    'project::Obj::field': 0,
-    'project::Obj::tuple': 0,
+    'project::link_whatever$args::l': 0,
+    'project::Link::name': 0,
+    'project::Link::next': 0,
+    'project::chart$args::nbRows': 0,
+    'project::Person2::id': 0,
+    'project::Person2::name': 0,
+    'project::Person2::age': 0,
+    'project::Person2::children': 0,
+    'project::UrlEntry::name': 0,
+    'project::UrlEntry::value': 0,
+    'project::add$args::a': 0,
+    'project::add$args::b': 0,
+    'project::Country::name': 0,
+    'project::Country::timezone': 0,
+    'project::Country::operating_stats': 0,
+    'project::Country::last_updated_stats': 0,
+    'project::Country::governorates': 0,
+    'project::Country::meteo': 0,
+    'project::task_with_params$args::name': 0,
+    'project::task_with_params$args::age': 0,
+    'project::Circle::radius': 0,
+    'project::TimeZones::azores': 0,
+    'project::TimeZones::utc': 0,
+    'project::TimeZones::paris': 0,
+    'project::TimeZones::athens': 0,
+    'project::Meteo::ideal_solar': 0,
+    'project::Meteo::visual_crossing': 0,
+    'project::Rect::width': 0,
+    'project::Rect::height': 0,
     'project::MapContainer::a': 0,
     'project::MapContainer::b': 0,
     'project::MapContainer::c': 0,
     'project::MapContainer::d': 0,
     'project::MapContainer::e': 0,
-    'project::SeriesObject::a': 0,
-    'project::SeriesObject::b': 0,
+    'project::Sensor::id': 0,
+    'project::Sensor::kind': 0,
     'project::ObjWithFn::fn': 0,
-    'project::UrlEntry::name': 0,
-    'project::UrlEntry::value': 0,
-    'project::Obj1::prop1': 0,
-    'project::Obj1::prop2': 0,
-    'project::Obj1::prop3': 0,
-    'project::SemiRecursive::sub': 0,
-    'project::anything$args::v': 0,
-    'project::Person::name': 0,
-    'project::Person::age': 0,
-    'project::Person::activated': 0,
-    'project::display_fn$args::fn_': 0,
-    'project::Obj2::prop1': 0,
-    'project::Obj2::prop2': 0,
-    'project::Obj2::prop3': 0,
-    'project::Obj2::prop4': 0,
-    'project::TimeRecord::time': 0,
-    'project::TimeRecord::value': 0,
-    'project::Link::name': 0,
-    'project::Link::next': 0,
     'project::display_fn_in_obj$args::o': 0,
-    'project::Composed::a': 0,
-    'project::Composed::b': 0,
-    'project::task_with_params$args::name': 0,
-    'project::task_with_params$args::age': 0,
-    'project::Meteo::ideal_solar': 0,
-    'project::Meteo::visual_crossing': 0,
-    'project::Rect::width': 0,
-    'project::Rect::height': 0,
-    'project::TimeZones::azores': 0,
-    'project::TimeZones::utc': 0,
-    'project::TimeZones::paris': 0,
-    'project::TimeZones::athens': 0,
-    'project::Triangle::base': 0,
-    'project::Triangle::height': 0,
-    'project::SolarRadiation::is_enabled': 0,
-    'project::SolarRadiation::radiance': 0,
-    'project::SolarRadiation::instant_power': 0,
-    'project::Book::name': 0,
-    'project::Book::owner': 0,
+    'project::anything$args::v': 0,
     'project::goodFnForTestingFnCallInput$args::name': 0,
     'project::goodFnForTestingFnCallInput$args::flag': 0,
     'project::goodFnForTestingFnCallInput$args::item': 0,
     'project::goodFnForTestingFnCallInput$args::optionalFlag': 0,
+    'project::MyData::level': 0,
+    'project::MyData::value': 0,
+    'project::Book::name': 0,
+    'project::Book::owner': 0,
     'any::filter_something$args::f': 0,
-    'any::AnyInput::idk': 0,
     'any::array_any_map_any$args::arr': 0,
     'any::array_any_map_any$args::map': 0,
+    'any::AnyInput::idk': 0,
     'any::Filters::a': 0,
     'any::Filters::b': 0,
     'object::Filter::a': 0,
@@ -2800,6 +2834,9 @@ declare namespace gc {
     'complex_factory::CableView::length_m': 0,
     'complex_factory::CableView::regionalCenter': 0,
     'complex_factory::CableView::isSimulated': 0,
+    'node_time::SensorReading::temperature': 0,
+    'node_time::SensorReading::humidity': 0,
+    'node_time::SensorReading::pressure': 0,
   }
 
   interface $FunctionsMap {
@@ -2923,8 +2960,8 @@ declare namespace gc {
   export import str = gc.core.str;
   export import t3f = gc.core.t3f;
   export import Tensor = gc.core.Tensor;
-  export import ErrorCode = gc.core.ErrorCode;
   export import t3 = gc.core.t3;
+  export import ErrorCode = gc.core.ErrorCode;
   export import Map = gc.core.Map;
   export import null_ = gc.core.null_;
   export import node = gc.core.node;
@@ -3081,52 +3118,53 @@ declare namespace gc {
   export import Stack = gc.util.Stack;
   export import Crypto = gc.util.Crypto;
   export import HistogramStats = gc.util.HistogramStats;
-  export import CustomQuantizer = gc.util.CustomQuantizer;
   export import Plot = gc.util.Plot;
+  export import CustomQuantizer = gc.util.CustomQuantizer;
   export import MultiQuantizer = gc.util.MultiQuantizer;
-  export import VisualCrossingProvider = gc.project.VisualCrossingProvider;
-  export import Person2 = gc.project.Person2;
-  export import Country = gc.project.Country;
+  export import SolarRadiation = gc.project.SolarRadiation;
   export import ComplexObject = gc.project.ComplexObject;
-  export import RelayApp = gc.project.RelayApp;
-  export import Sensor = gc.project.Sensor;
-  export import ComplexForm = gc.project.ComplexForm;
-  export import Circle = gc.project.Circle;
-  export import TrafficLight = gc.project.TrafficLight;
-  export import SensorData = gc.project.SensorData;
-  export import Node = gc.project.Node;
-  export import Box = gc.project.Box;
-  export import KLine = gc.project.KLine;
-  export import Obj = gc.project.Obj;
-  export import MapContainer = gc.project.MapContainer;
-  export import FooBar = gc.project.FooBar;
-  export import Shape = gc.project.Shape;
-  export import UrlEntry = gc.project.UrlEntry;
+  export import Obj2 = gc.project.Obj2;
   export import Obj1 = gc.project.Obj1;
-  export import SensorKind = gc.project.SensorKind;
+  export import Obj = gc.project.Obj;
+  export import Triangle = gc.project.Triangle;
+  export import Box = gc.project.Box;
+  export import SensorData = gc.project.SensorData;
+  export import Composed = gc.project.Composed;
+  export import Node = gc.project.Node;
+  export import TrafficLight = gc.project.TrafficLight;
+  export import KLine = gc.project.KLine;
+  export import ComplexForm = gc.project.ComplexForm;
+  export import RelayApp = gc.project.RelayApp;
+  export import VisualCrossingProvider = gc.project.VisualCrossingProvider;
   export import SemiRecursive = gc.project.SemiRecursive;
   export import Person = gc.project.Person;
-  export import Obj2 = gc.project.Obj2;
+  export import Confidence = gc.project.Confidence;
   export import Link = gc.project.Link;
-  export import Composed = gc.project.Composed;
+  export import FooBar = gc.project.FooBar;
+  export import Person2 = gc.project.Person2;
+  export import UrlEntry = gc.project.UrlEntry;
+  export import Shape = gc.project.Shape;
+  export import Country = gc.project.Country;
+  export import Circle = gc.project.Circle;
+  export import TimeZones = gc.project.TimeZones;
   export import Meteo = gc.project.Meteo;
   export import Rect = gc.project.Rect;
-  export import TimeZones = gc.project.TimeZones;
-  export import Triangle = gc.project.Triangle;
-  export import SolarRadiation = gc.project.SolarRadiation;
+  export import SensorKind = gc.project.SensorKind;
+  export import MapContainer = gc.project.MapContainer;
+  export import Sensor = gc.project.Sensor;
   export import Book = gc.project.Book;
-  export import Confidence = gc.project.Confidence;
   export import AnyInput = gc.any.AnyInput;
   export import Filters = gc.any.Filters;
   export import Earthquake = gc.heatmap.Earthquake;
-  export import CapitalType = gc.cities.CapitalType;
   export import City = gc.cities.City;
+  export import CapitalType = gc.cities.CapitalType;
   export import BigRecord = gc.big.BigRecord;
   export import BigResult = gc.big.BigResult;
   export import GridElementView = gc.complex_factory.GridElementView;
-  export import VoltageLevel = gc.complex_factory.VoltageLevel;
   export import Cable = gc.complex_factory.Cable;
+  export import VoltageLevel = gc.complex_factory.VoltageLevel;
   export import CableView = gc.complex_factory.CableView;
+  export import SensorReading = gc.node_time.SensorReading;
   export import mcp_initialize = gc.runtime.mcp_initialize;
   export import mcp_tools_list = gc.runtime.mcp_tools_list;
   export import mcp_tools_call = gc.runtime.mcp_tools_call;

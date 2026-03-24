@@ -1,0 +1,74 @@
+var nt_temperature: nodeTime<float>;
+var nt_multi: nodeTime<SensorReading>;
+
+type SensorReading {
+    temperature: float;
+    humidity: float;
+    pressure: float;
+}
+
+fn init_node_time() {
+    init_nt_temperature();
+    init_nt_multi();
+}
+
+private fn init_nt_temperature() {
+    if (nt_temperature.size() > 0) {
+        return;
+    }
+
+    var random = Random {};
+    var now = time::now();
+    var curr = now.calendar_add(-3, CalendarUnit::month, TimeZone::UTC);
+
+    // ~3 months of data every 15 minutes => ~8640 points
+    var base = 15.0;
+    while (curr < now) {
+        // simulate daily cycle: warmer during the day, cooler at night
+        var hour = curr.toDate(TimeZone::UTC).hour;
+        var daily_offset = 8.0 * sin((hour as float - 6.0) * 3.14159 / 12.0);
+        var noise = random.uniformf(-1.5, 1.5);
+        var value = base + daily_offset + noise;
+        nt_temperature.setAt(curr, value);
+        curr = curr.calendar_add(15, CalendarUnit::minute, TimeZone::UTC);
+    }
+
+    println("init_nt_temperature: ${nt_temperature.size()} points");
+}
+
+private fn init_nt_multi() {
+    if (nt_multi.size() > 0) {
+        return;
+    }
+
+    var random = Random {};
+    var now = time::now();
+    var curr = now.calendar_add(-2, CalendarUnit::month, TimeZone::UTC);
+
+    // ~2 months every 10 minutes => ~8640 points
+    var temp = 20.0;
+    var hum = 55.0;
+    var pres = 1013.0;
+    while (curr < now) {
+        temp = temp + random.uniformf(-0.3, 0.3);
+        hum = hum + random.uniformf(-0.5, 0.5);
+        pres = pres + random.uniformf(-0.2, 0.2);
+
+        // clamp values to realistic ranges
+        if (temp < -10.0) { temp = -10.0; }
+        if (temp > 45.0) { temp = 45.0; }
+        if (hum < 10.0) { hum = 10.0; }
+        if (hum > 100.0) { hum = 100.0; }
+        if (pres < 960.0) { pres = 960.0; }
+        if (pres > 1060.0) { pres = 1060.0; }
+
+        nt_multi.setAt(curr, SensorReading {
+            temperature: temp,
+            humidity: hum,
+            pressure: pres,
+        });
+        curr = curr.calendar_add(10, CalendarUnit::minute, TimeZone::UTC);
+    }
+
+    println("init_nt_multi: ${nt_multi.size()} points");
+}

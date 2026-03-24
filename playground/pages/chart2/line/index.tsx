@@ -1,3 +1,4 @@
+import '@greycat/web';
 import type { GuiChart2 } from '@greycat/web';
 import { appLayout } from '~/common';
 

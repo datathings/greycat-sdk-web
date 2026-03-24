@@ -429,6 +429,32 @@ namespace gc {
             return mappings;
           }
 
+          /**
+           * Applies the given mappings to the table and assigns headers to the resulting columns
+           * using the original table's headers for preserved columns and the mapping extractors for new columns.
+           */
+          static async applyMappingsWithHeaders(
+            table: gc.core.Table,
+            mappings: gc.core.TableColumnMapping[],
+            g?: GreyCat,
+          ): Promise<gc.core.Table> {
+            if (mappings.length === 0) {
+              return table;
+            }
+            const offset = table.cols.length;
+            const newTable = await gc.core.Table.applyMappings(table, mappings, g);
+            // oxlint-disable-next-line no-new-array
+            const headers: string[] = new globalThis.Array(newTable.cols.length);
+            for (let i = 0; i < offset; i++) {
+              headers[i] = table.headers?.[i] ?? `Column ${i}`;
+            }
+            for (let i = offset; i < newTable.cols.length; i++) {
+              headers[i] = mappings[i - offset].extractors.join('.');
+            }
+            newTable.headers = headers;
+            return newTable;
+          }
+
           override toJSON() {
             return this._initial_value ? this._initial_value : globalThis.Array.from(this);
           }

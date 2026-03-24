@@ -148,6 +148,8 @@ export function buildEChartsOption(
       const xAxisIsTime = xAxes.length > 0 && xAxes[0].type === 'time';
       if (xAxisIsTime) {
         const tz = xAxes[0].timezone;
+        const globalPrecision = config.tooltip?.precision;
+        const seriePrecisions = config.series.map((s) => s.precision);
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         tooltip.formatter = (params: any) => {
           const all = Array.isArray(params) ? params : [params];
@@ -169,7 +171,9 @@ export function buildEChartsOption(
           let html = header;
           for (const p of arr) {
             const y = Array.isArray(p.value) ? p.value[1] : p.value;
-            html += `<br/>${p.marker} ${p.seriesName}: <strong>${y}</strong>`;
+            const prec = seriePrecisions[p.seriesIndex] ?? globalPrecision;
+            const display = prec != null && typeof y === 'number' ? y.toFixed(prec) : y;
+            html += `<br/>${p.marker} ${p.seriesName}: <strong>${display}</strong>`;
           }
           return html;
         };
@@ -579,7 +583,7 @@ function withAlpha(color: string, alpha: number): string {
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-function deepMerge(target: Record<string, any>, source: Record<string, any>): void {
+export function deepMerge(target: Record<string, any>, source: Record<string, any>): void {
   for (const key of Object.keys(source)) {
     const sv = source[key];
     const tv = target[key];
@@ -589,4 +593,16 @@ function deepMerge(target: Record<string, any>, source: Record<string, any>): vo
       target[key] = sv;
     }
   }
+}
+
+/**
+ * Creates a new `Chart2Config` by shallow-cloning `base` and deep-merging `overlay` on top.
+ *
+ * Plain sub-objects (`tooltip`, `legend`, `dataZoom`, …) are merged field-by-field.
+ * Arrays (`series`, `grid` as array, …) are replaced entirely.
+ */
+export function mergeChartConfig(base: Chart2Config, overlay: Partial<Chart2Config>): Chart2Config {
+  const result = { ...base };
+  deepMerge(result, overlay);
+  return result;
 }

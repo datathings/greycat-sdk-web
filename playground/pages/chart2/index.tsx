@@ -1,3 +1,4 @@
+import '@greycat/web';
 import type { GuiChart2 } from '@greycat/web';
 import { appLayout } from '~/common';
 
@@ -7,6 +8,7 @@ const table = await greycat.call<gc.core.Table>('project::chart_time');
 
 const chart = (
   <gui-chart2
+    value={table}
     config={{
       series: [
         {
@@ -20,9 +22,8 @@ const chart = (
       yAxis: [{}],
       tooltip: { enabled: true, trigger: 'axis' },
       legend: { enabled: true },
-      dataZoom: { enabled: true, type: 'both' },
+      dataZoom: { enabled: true, type: 'slider' },
     }}
-    value={table}
   />
 ) as GuiChart2;
 

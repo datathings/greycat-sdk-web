@@ -69,6 +69,7 @@ fn main() {
     }
 
     init_simple_index();
+    node_time::init_node_time();
     heatmap::init();
 
     SecurityEntity::set(UserGroup { id: -1, activated: true, name: "users" });

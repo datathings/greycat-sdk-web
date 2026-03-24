@@ -516,18 +516,7 @@ export class GuiTable extends GuiElement implements GuiTableProps {
     try {
       const mappings = this.mappings;
       if (mappings.length > 0) {
-        const offset = this._table.cols.length;
-        const new_table = await gc.core.Table.applyMappings(table, mappings, gc.$[this._factory.greycatName]);
-        // oxlint-disable-next-line no-new-array
-        const headers: string[] = new Array(new_table.cols.length);
-        for (let i = 0; i < offset; i++) {
-          headers[i] = this._table.headers?.[i] ?? `Column ${i}`;
-        }
-        for (let i = offset; i < new_table.cols.length; i++) {
-          headers[i] = mappings[i - offset].extractors.join('.');
-        }
-        new_table.headers = headers;
-        table = new_table;
+        table = await gc.core.Table.applyMappingsWithHeaders(table, mappings, gc.$[this._factory.greycatName]);
       }
       this._setValue(table);
       await this.update();

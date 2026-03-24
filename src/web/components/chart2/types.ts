@@ -44,6 +44,8 @@ export interface Chart2Serie {
   valueCol?: SerieTableColumn;
   /** For candlestick: [open, close, low, high] columns */
   candleCols?: [SerieTableColumn, SerieTableColumn, SerieTableColumn, SerieTableColumn];
+  /** Number of decimal places for float values in tooltips (overrides global tooltip.precision) */
+  precision?: number;
   /** Raw ECharts series options passthrough */
   echarts?: EchartsExt;
 }
@@ -68,6 +70,8 @@ export interface Chart2Config {
     enabled?: boolean;
     trigger?: 'item' | 'axis' | 'none';
     formatter?: string | ((params: unknown) => string);
+    /** Default number of decimal places for float values (can be overridden per serie) */
+    precision?: number;
   };
   legend?: {
     enabled?: boolean;
