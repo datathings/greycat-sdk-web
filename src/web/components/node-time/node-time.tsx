@@ -142,10 +142,13 @@ export class GuiNodeTime extends GuiElement {
   private _currentStart = 0;
   private _currentEnd = 100;
   private _debounceTimer: ReturnType<typeof setTimeout> | undefined;
+  private _fetchGeneration = 0;
   /** Column names detected from the first flattened table. */
   private _seriesNames: string[] = [];
   /** Column indices of numeric series in the flattened table. */
   private _numericCols: number[] = [];
+  /** For each entry in _numericCols, the index of its corresponding time column. */
+  private _timeColForSeries: number[] = [];
 
   constructor() {
     super();
@@ -589,8 +592,13 @@ export class GuiNodeTime extends GuiElement {
       return;
     }
 
+    // generation counter — bail after any await if a newer fetch was started
+    const gen = ++this._fetchGeneration;
+
     // always check bounds (may have changed due to ingestion)
     const infos = await gc.core.nodeTime.info(this._nodeTimes);
+    if (gen !== this._fetchGeneration) return;
+
     // compute aggregate bounds across all nodeTimes
     let aggFrom: gc.core.time | undefined;
     let aggTo: gc.core.time | undefined;
@@ -633,21 +641,17 @@ export class GuiNodeTime extends GuiElement {
     const sampleFrom = from ?? this._fullFrom;
     const sampleTo = to ?? this._fullTo;
 
-    // compute dataZoom percentages if detail window differs from full range
-    if (sampleFrom && sampleTo && this._fullFrom && this._fullTo) {
-      const fullFromMs = this._fullFrom.epochMs;
-      const rangeMs = this._fullTo.epochMs - fullFromMs;
-      if (rangeMs > 0) {
-        this._currentStart = ((sampleFrom.epochMs - fullFromMs) / rangeMs) * 100;
-        this._currentEnd = ((sampleTo.epochMs - fullFromMs) / rangeMs) * 100;
-      }
-    }
+    // snapshot the slider position at fetch time (for drift detection)
+    const fetchStart = this._currentStart;
+    const fetchEnd = this._currentEnd;
 
     // fetch overview if not cached
     const needsOverview = !this._overviewTable;
     if (needsOverview) {
       const overviewRaw = await this._sampleNodeTime(this._fullFrom, this._fullTo);
+      if (gen !== this._fetchGeneration) return;
       this._overviewTable = await this._flattenTable(overviewRaw);
+      if (gen !== this._fetchGeneration) return;
       this._applyNamePrefixes(this._overviewTable, this._inferredMappings);
       this._populateSubheaders(this._overviewTable, overviewRaw, this._inferredMappings);
       this._detectSeries(this._overviewTable);
@@ -655,15 +659,33 @@ export class GuiNodeTime extends GuiElement {
 
     // fetch detail (always)
     const detailRaw = await this._sampleNodeTime(sampleFrom, sampleTo);
+    if (gen !== this._fetchGeneration) return;
     this._rawTable = detailRaw;
     this._detailTable = await this._flattenTable(detailRaw);
+    if (gen !== this._fetchGeneration) return;
     this._applyNamePrefixes(this._detailTable, this._inferredMappings);
     this._populateSubheaders(this._detailTable, detailRaw, this._inferredMappings);
-    this._detailRows = this._detailTable.cols.length > 0 ? this._detailTable.cols[0].length : 0;
-    // track detail time range for overlap-based label estimation
+    this._detailRows = 0;
+    for (const col of this._detailTable.cols) {
+      this._detailRows += col.length;
+    }
+    // this._detailRows = this._detailTable.cols.length > 0 ? this._detailTable.cols[0].length : 0;
+    // track detail time range for overlap-based label estimation (across all time columns)
     if (this._detailRows > 0) {
-      this._detailFromMs = vMap(this._detailTable.cols[0][0]);
-      this._detailToMs = vMap(this._detailTable.cols[0][this._detailRows - 1]);
+      const timeCols = new Set(this._timeColForSeries);
+      let minMs = Infinity;
+      let maxMs = -Infinity;
+      for (const tc of timeCols) {
+        const col = this._detailTable.cols[tc];
+        if (col && col.length > 0) {
+          const first = vMap(col[0]);
+          const last = vMap(col[col.length - 1]);
+          if (first < minMs) minMs = first;
+          if (last > maxMs) maxMs = last;
+        }
+      }
+      this._detailFromMs = minMs;
+      this._detailToMs = maxMs;
     }
 
     // update table view
@@ -674,11 +696,24 @@ export class GuiNodeTime extends GuiElement {
     // update label
     this._pointsLabel.textContent = `${this._detailRows} / ${this._totalSize}`;
 
-    // render or update chart
-    if (needsOverview || boundsChanged) {
-      this._renderChart();
-    } else {
-      this._updateDetailSeries();
+    // render chart
+    // set dataZoom percentages so _renderChart positions the slider correctly
+    if (sampleFrom && sampleTo && this._fullFrom && this._fullTo) {
+      const fullFromMs = this._fullFrom.epochMs;
+      const rangeMs = this._fullTo.epochMs - fullFromMs;
+      if (rangeMs > 0) {
+        this._currentStart = ((sampleFrom.epochMs - fullFromMs) / rangeMs) * 100;
+        this._currentEnd = ((sampleTo.epochMs - fullFromMs) / rangeMs) * 100;
+      }
+    }
+    this._renderChart();
+
+    // if the slider moved during the fetch, re-fetch for the current position
+    if (this._currentStart !== fetchStart || this._currentEnd !== fetchEnd) {
+      const zoom = this._currentZoomRange();
+      if (zoom) {
+        this._fetchAndRender(zoom.from, zoom.to);
+      }
     }
   }
 
@@ -834,11 +869,35 @@ export class GuiNodeTime extends GuiElement {
   private _detectSeries(table: gc.core.Table): void {
     this._numericCols = [];
     this._seriesNames = [];
+    this._timeColForSeries = [];
+
+    // Raw table layout for N nodeTimes: [time₀, value₀, time₁, value₁, ...] (2N original columns).
+    // After flattening, expanded columns are appended starting at index 2N.
+    const N = this._nodeTimes.length;
+    const originalCols = 2 * N;
+
     for (let i = 1; i < table.cols.length; i++) {
       const sample = table.cols[i]?.[0];
       if (typeof sample === 'number' || typeof sample === 'bigint') {
         this._numericCols.push(i);
         this._seriesNames.push(table.headers?.[i] ?? table.subheaders?.[i] ?? `Col ${i}`);
+
+        // Determine which time column this series belongs to
+        let timeCol = 0;
+        if (i < originalCols) {
+          // Original column: value at odd index 2k+1 → time at 2k
+          timeCol = i - 1;
+        } else {
+          // Expanded column: each mapping produces one column, in order
+          const mappings = this._inferredMappings ?? this._mappings;
+          const expandedIdx = i - originalCols;
+          if (mappings && expandedIdx < mappings.length) {
+            const m = mappings[expandedIdx] as { column: number };
+            // m.column is an odd index (value column), time column is m.column - 1
+            timeCol = m.column - 1;
+          }
+        }
+        this._timeColForSeries.push(timeCol);
       }
     }
   }
@@ -893,6 +952,10 @@ export class GuiNodeTime extends GuiElement {
     const xTimeSpan = this._fullTo!.epochMs - this._fullFrom!.epochMs;
     const xAxis = buildAxis({ type: 'time' }, textColor, borderColor, xTimeSpan);
     xAxis.gridIndex = 0;
+    // Anchor xAxis to the full aggregate range so dataZoom percentages align correctly
+    // (individual nodeTimes may have different time ranges)
+    xAxis.min = this._fullFrom!.epochMs;
+    xAxis.max = this._fullTo!.epochMs;
 
     const yAxisDetail = buildAxis({}, textColor, borderColor, 0);
     yAxisDetail.gridIndex = 0;
@@ -953,10 +1016,11 @@ export class GuiNodeTime extends GuiElement {
         appendTo: () => this._chartContainer,
       },
       dataZoom: [
-        { type: 'inside', xAxisIndex: [0], start: this._currentStart, end: this._currentEnd },
+        { type: 'inside', xAxisIndex: [0], filterMode: 'none', start: this._currentStart, end: this._currentEnd },
         {
           type: 'slider',
           xAxisIndex: [0],
+          filterMode: 'none',
           start: this._currentStart,
           end: this._currentEnd,
           bottom: 10,
@@ -982,34 +1046,16 @@ export class GuiNodeTime extends GuiElement {
     this._echart.setOption(option, { notMerge: true });
   }
 
-  /** Update only the detail series data (after a zoom re-fetch). */
-  private _updateDetailSeries(): void {
-    if (!this._echart || !this._detailTable) {
-      return;
-    }
-
-    const detailSeriesData = this._buildSeriesData(this._detailTable);
-
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const series: Record<string, any>[] = [];
-    for (let i = 0; i < this._numericCols.length; i++) {
-      series.push({
-        id: `detail-${i}`,
-        data: detailSeriesData[i],
-      });
-    }
-
-    this._echart.setOption({ series }, { notMerge: false });
-  }
-
   /** Extract [timestamp, value][] arrays from a flattened table for each numeric column. */
   private _buildSeriesData(table: gc.core.Table): [number, number][][] {
     const rows = table.cols.length > 0 ? table.cols[0].length : 0;
     const result: [number, number][][] = [];
-    for (const colIdx of this._numericCols) {
+    for (let s = 0; s < this._numericCols.length; s++) {
+      const colIdx = this._numericCols[s];
+      const timeCol = this._timeColForSeries[s] ?? 0;
       const data: [number, number][] = [];
       for (let r = 0; r < rows; r++) {
-        data.push([vMap(table.cols[0][r]), vMap(table.cols[colIdx][r])]);
+        data.push([vMap(table.cols[timeCol][r]), vMap(table.cols[colIdx][r])]);
       }
       result.push(data);
     }

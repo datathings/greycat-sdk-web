@@ -1,5 +1,7 @@
 var nt_temperature: nodeTime<float>;
 var nt_multi: nodeTime<SensorReading>;
+var nt_small_a: nodeTime<float>;
+var nt_small_b: nodeTime<float>;
 
 type SensorReading {
     temperature: float;
@@ -10,6 +12,37 @@ type SensorReading {
 fn init_node_time() {
     init_nt_temperature();
     init_nt_multi();
+    init_nt_small_a();
+    init_nt_small_b();
+}
+
+// Small controlled nodeTimes for debugging:
+// nt_small_a: 20 points, Jan 1 - Jan 20, 2026 (one per day), values = day index (1..20)
+// nt_small_b: 20 points, Jan 10 - Jan 30, 2026 (one per day), values = day index * 10 (10..200)
+// Overlap: Jan 10-20. nt_small_a starts 9 days earlier, nt_small_b ends 10 days later.
+
+private fn init_nt_small_a() {
+    if (nt_small_a.size() > 0) {
+        return;
+    }
+    var curr: time = Date { year: 2026, month: 1, day: 1, hour: 0, minute: 0, second: 0, microsecond: 0 }.to_time(TimeZone::UTC);
+    for (var i = 1; i <= 20; i++) {
+        nt_small_a.setAt(curr, i as float);
+        curr = curr.calendar_add(1, CalendarUnit::day, TimeZone::UTC);
+    }
+    println("init_nt_small_a: ${nt_small_a.size()} points");
+}
+
+private fn init_nt_small_b() {
+    if (nt_small_b.size() > 0) {
+        return;
+    }
+    var curr: time = Date { year: 2026, month: 1, day: 10, hour: 0, minute: 0, second: 0, microsecond: 0 }.to_time(TimeZone::UTC);
+    for (var i = 1; i <= 20; i++) {
+        nt_small_b.setAt(curr, (i * 10) as float);
+        curr = curr.calendar_add(1, CalendarUnit::day, TimeZone::UTC);
+    }
+    println("init_nt_small_b: ${nt_small_b.size()} points");
 }
 
 private fn init_nt_temperature() {
