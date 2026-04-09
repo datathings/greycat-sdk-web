@@ -103,7 +103,7 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
         resolve: {
           alias: {
             // matches the `paths` definitions in `tsconfig.json`
-            '~': app_root,
+            '~': resolve(project_dir, app_root),
           },
         },
         publicDir: config.root === undefined ? relative(app_root_absolute, 'public') : 'public',
