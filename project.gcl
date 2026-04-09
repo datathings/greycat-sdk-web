@@ -1,1 +1,1 @@
-@library("std", "7.8.162-stable");
+@library("std", "8.0.0-dev");
