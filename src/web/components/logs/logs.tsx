@@ -2,7 +2,7 @@ import { css, GuiElement, highlight } from '../../exports.js';
 import style from './logs.css?inline';
 
 const LOG_LEVELS = ['error', 'warn', 'info', 'perf', 'trace'] as const;
-const HEADERS = ['Level', 'Time', 'Type', 'User', 'Task/Req', 'Tag', 'Data'] as const;
+const HEADERS = ['Level', 'Time', 'User', 'Task', 'Job', 'Tag', 'Data'] as const;
 const COL_COUNT = HEADERS.length;
 const SIMPLE_COLS = COL_COUNT - 1;
 const BUFFER_ROWS = 5;

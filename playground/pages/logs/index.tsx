@@ -1,3 +1,4 @@
+import '@greycat/web';
 import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
