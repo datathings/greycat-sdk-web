@@ -1,4 +1,5 @@
 import { buildSync } from 'esbuild';
+import { writeFileSync } from 'node:fs';
 
 const minify = true;
 const loaders = {
@@ -22,8 +23,10 @@ buildSync({
   logLevel: 'info',
 });
 
+const withMeta = Boolean(process.env.META);
+
 // esm bundle
-buildSync({
+const out = buildSync({
   entryPoints: ['src/web/index.ts'],
   outfile: './dist/greycat.web.esm.js',
   bundle: true,
@@ -34,5 +37,10 @@ buildSync({
   minifySyntax: minify,
   minifyWhitespace: minify,
   loader: loaders,
+  metafile: withMeta,
   logLevel: 'info',
 });
+
+if (withMeta) {
+  writeFileSync('meta.json', JSON.stringify(out.metafile));
+}
