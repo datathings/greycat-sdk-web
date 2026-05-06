@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert';
 import { describe, before, it } from 'node:test';
 
@@ -10,7 +9,7 @@ describe('call (GCB)', () => {
   let g;
 
   before(async () => {
-    g = await gc.sdk.init({ url: SERVER_URL });
+    g = await gc.sdk.init({ url: new URL(SERVER_URL) });
   });
 
   // Each it() is fully independent: it issues one HTTP call with a fresh
@@ -53,18 +52,14 @@ describe('call (GCB)', () => {
   });
 
   it('make_person("X", 5, null) -> Person', async () => {
-    const result = /** @type {any} */ (
-      await g.call('project::make_person', ['X', 5, null])
-    );
+    const result = /** @type {any} */ (await g.call('project::make_person', ['X', 5, null]));
     assert.strictEqual(result.name, 'X');
     assert.strictEqual(result.age, 5);
     assert.strictEqual(result.nickname, null);
   });
 
   it('make_person("Y", 1, "nick") -> Person', async () => {
-    const result = /** @type {any} */ (
-      await g.call('project::make_person', ['Y', 1, 'nick'])
-    );
+    const result = /** @type {any} */ (await g.call('project::make_person', ['Y', 1, 'nick']));
     assert.strictEqual(result.name, 'Y');
     assert.strictEqual(result.age, 1);
     assert.strictEqual(result.nickname, 'nick');

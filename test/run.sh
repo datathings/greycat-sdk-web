@@ -6,6 +6,9 @@ cd "$(dirname "$0")"
 PORT="${GREYCAT_PORT:-8181}"
 URL="http://127.0.0.1:${PORT}"
 
+# ensure greycat is installed
+greycat install
+
 # start server in background
 greycat serve --user=1 --port="$PORT" > greycat.log 2>&1 &
 SERVER_PID=$!

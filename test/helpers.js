@@ -1,4 +1,3 @@
-// @ts-check
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
@@ -16,9 +15,15 @@ export async function initLocal() {
   return abi;
 }
 
-/** Read a fixture .gcb and deserialize the single value it contains. */
+/**
+ * Read a fixture .gcb and deserialize the single value it contains.
+ * @param {gc.sdk.Abi} abi
+ * @param {number} idx
+ */
 export async function readFixture(abi, idx) {
-  const buf = /** @type {ArrayBuffer} */ ((await readFile(join(here, 'fixtures', `${idx}.gcb`))).buffer);
+  const buf = /** @type {ArrayBuffer} */ (
+    (await readFile(join(here, 'fixtures', `${idx}.gcb`))).buffer
+  );
   const reader = new gc.sdk.AbiReader(abi, buf);
   reader.headers();
   return reader.deserialize();
@@ -26,6 +31,8 @@ export async function readFixture(abi, idx) {
 
 /**
  * Round-trip a value: serialize it, then deserialize it, with no shared state.
+ * @param {gc.sdk.Abi} abi
+ * @param {unknown} value
  */
 export function roundtrip(abi, value) {
   const writer = new gc.sdk.AbiWriter(abi);
@@ -39,11 +46,16 @@ export function roundtrip(abi, value) {
  * via toJSON; GCEnums become their key string; Maps become plain objects;
  * bigints are preserved (encoded through `$bigint:` markers when out of safe
  * range so they survive JSON.stringify).
+ * @param {unknown} value
  */
 export function toPlain(value) {
   return JSON.parse(JSON.stringify(value, replacer), reviver);
 }
 
+/**
+ * @param {string} _key
+ * @param {unknown} value
+ */
 function replacer(_key, value) {
   if (typeof value === 'bigint') {
     if (value >= Number.MIN_SAFE_INTEGER && value <= Number.MAX_SAFE_INTEGER) {
@@ -64,6 +76,10 @@ function replacer(_key, value) {
   return value;
 }
 
+/**
+ * @param {string} _key
+ * @param {unknown} value
+ */
 function reviver(_key, value) {
   if (typeof value === 'string' && value.startsWith('$bigint:')) {
     return BigInt(value.slice(8));
@@ -125,7 +141,12 @@ export function nearlyEqual(actual, expected, opts = {}) {
   return walk(actual, expected, '');
 }
 
-/** Throw an AssertionError-like error with a clear path and actual/expected. */
+/**
+ * Throw an AssertionError-like error with a clear path and actual/expected.
+ * @param {unknown} actual
+ * @param {unknown} expected
+ * @param {{ epsilon?: number, partial?: string[] }} [opts]
+ */
 export function assertNearlyEqual(actual, expected, opts) {
   const r = nearlyEqual(actual, expected, opts);
   if (!r.ok) {
@@ -139,6 +160,7 @@ export function assertNearlyEqual(actual, expected, opts) {
   }
 }
 
+/** @param {unknown} v */
 function stringify(v) {
   return JSON.stringify(v, (_, x) => (typeof x === 'bigint' ? `${x}n` : x));
 }

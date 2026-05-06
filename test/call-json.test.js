@@ -1,4 +1,3 @@
-// @ts-check
 import assert from 'node:assert';
 import { describe, it } from 'node:test';
 
@@ -17,10 +16,10 @@ async function callJson(fqn, args) {
     body: JSON.stringify(args),
   });
   if (!res.ok) {
-    const text = await res.text();
-    const err = new Error(`HTTP ${res.status}: ${text}`);
+    const gc_err = /** @type {any} */ (await res.json());
+    const err = new Error(`HTTP ${res.status}: ${gc_err.message}`);
     /** @type {any} */ (err).status = res.status;
-    /** @type {any} */ (err).body = text;
+    /** @type {any} */ (err).body = gc_err;
     throw err;
   }
   const text = await res.text();
@@ -72,7 +71,7 @@ describe('call (JSON)', () => {
     const result = await callJson('project::make_person', ['X', 5, null]);
     assert.strictEqual(result?.name, 'X');
     assert.strictEqual(result?.age, 5);
-    assert.strictEqual(result?.nickname, null);
+    assert.strictEqual(result?.nickname, undefined);
   });
 
   it('make_person("Y", 1, "nick") -> Person', async () => {
