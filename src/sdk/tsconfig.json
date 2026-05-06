@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
+    "ignoreDeprecations": "6.0",
+
     "rootDir": ".",
     "outFile": "../../dist/greycat.js",
     "declaration": true,
 
     "target": "ES2024",
-    "module": "None",
+    "module": "none",
 
     "sourceMap": true,
     "strict": true,
@@ -58,13 +60,6 @@
     "std_n/core/node.ts",
     "std_n/core/null.ts",
     "std_n/core/String.ts",
-    "std_n/core/str.ts",
-    "std_n/core/t2f.ts",
-    "std_n/core/t2.ts",
-    "std_n/core/t3f.ts",
-    "std_n/core/t3.ts",
-    "std_n/core/t4f.ts",
-    "std_n/core/t4.ts",
     "std_n/core/Table.ts",
     "std_n/core/Tensor.ts",
     "std_n/core/time.ts",

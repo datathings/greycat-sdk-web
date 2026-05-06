@@ -1,2 +1,8 @@
 /files
 /gcdata
+/bin
+/lib
+/fixtures
+/abi.bin
+/greycat.log
+/greycat.pid

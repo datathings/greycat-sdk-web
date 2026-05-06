@@ -67,7 +67,9 @@ namespace gc {
      * @param val
      * @returns
      */
-    export function isScalar(val: unknown): val is string | number | boolean | bigint | null | undefined {
+    export function isScalar(
+      val: unknown,
+    ): val is string | number | boolean | bigint | null | undefined {
       const type = typeof val;
       if (type === 'function') {
         return val === null;
@@ -81,13 +83,6 @@ namespace gc {
           val instanceof gc.core.bool ||
           val instanceof gc.core.duration ||
           val instanceof gc.core.Date ||
-          val instanceof gc.core.str ||
-          val instanceof gc.core.t2 ||
-          val instanceof gc.core.t2f ||
-          val instanceof gc.core.t3 ||
-          val instanceof gc.core.t3f ||
-          val instanceof gc.core.t4 ||
-          val instanceof gc.core.t4f ||
           val instanceof gc.core.geo
         ) {
           return true;

@@ -246,11 +246,6 @@ export class GuiObject<T = unknown> extends GuiElement {
       return;
     }
 
-    if (value instanceof gc.core.str) {
-      this.shadowRoot.replaceChildren(this._factory.createValue({ ...this._props, value }));
-      return;
-    }
-
     if (Array.isArray(value)) {
       const table = this._factory.create(gc.core.Table._type, {
         ...this._props,

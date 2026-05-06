@@ -232,98 +232,6 @@ export class GuiInputString extends GuiInputElement<string | gc.core.String | nu
   }
 }
 
-export class GuiInputStr extends GuiInputElement<string | gc.core.str | null> {
-  readonly input: sl.SlInput;
-
-  constructor() {
-    super();
-
-    this.input = document.createElement('sl-input');
-    this.input.setAttribute(
-      'exportparts',
-      'form-control,form-control-label,form-control-input,form-control-help-text,base,input,prefix,clear-button,suffix',
-    );
-    this.input.addEventListener('sl-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-    this.input.addEventListener('sl-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-
-    this.shadowRoot.replaceChildren(this.input);
-  }
-
-  override get name() {
-    return this.input.name;
-  }
-  override set name(name: string) {
-    this.input.name = name;
-  }
-  override get autocomplete() {
-    return this.input.autocomplete;
-  }
-  override set autocomplete(value: string) {
-    this.input.autocomplete = value;
-  }
-  override get placeholder(): string {
-    return this.input.placeholder;
-  }
-  override set placeholder(value: string) {
-    this.input.placeholder = value;
-  }
-  override get label() {
-    return this.input.label;
-  }
-  override set label(label: string) {
-    this.input.label = label;
-  }
-  override get helpText() {
-    return this.input.helpText;
-  }
-  override set helpText(helpText: string) {
-    this.input.helpText = helpText;
-  }
-  override get required() {
-    return this.input.required;
-  }
-  override set required(required: boolean) {
-    this.input.required = required;
-  }
-  override get disabled() {
-    return this.input.disabled;
-  }
-  override set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
-  }
-  override get size() {
-    return this.input.size;
-  }
-  override set size(size: sl.SlInput['size']) {
-    this.input.size = size;
-  }
-
-  get value(): gc.core.str {
-    return gc.core.str.fromString(this.input.value);
-  }
-  set value(value: string | gc.core.str | null | undefined) {
-    if (value instanceof gc.core.str) {
-      value = value.toString();
-    }
-    if (value === null || value === undefined) {
-      this.input.value = '';
-    } else {
-      this.input.value = value;
-    }
-  }
-
-  override connectedCallback(): void {
-    super.connectedCallback();
-    this.setAttribute('exportparts', 'base');
-  }
-}
-
 export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
   readonly input: sl.SlInput;
 
@@ -2852,7 +2760,6 @@ declare global {
   interface HTMLElementTagNameMap {
     'gui-input': GuiInput;
     'gui-input-string': GuiInputString;
-    'gui-input-str': GuiInputStr;
     'gui-input-number': GuiInputNumber;
     'gui-input-bool': GuiInputBool;
     'gui-input-time': GuiInputTime;
@@ -2889,7 +2796,6 @@ declare global {
       interface IntrinsicElements {
         'gui-input': GreyCat.Element<GuiInput, GuiInputEventMap>;
         'gui-input-string': GreyCat.Element<GuiInputString, GuiInputEventMap>;
-        'gui-input-str': GreyCat.Element<GuiInputStr, GuiInputEventMap>;
         'gui-input-number': GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
         'gui-input-bool': GreyCat.Element<GuiInputBool, GuiInputEventMap>;
         'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;

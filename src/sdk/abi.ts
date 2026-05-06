@@ -17,13 +17,6 @@ namespace gc {
       public array = 0;
       public map = 0;
       public cubic = 0;
-      public t2 = 0;
-      public t3 = 0;
-      public t4 = 0;
-      public str = 0;
-      public t2f = 0;
-      public t3f = 0;
-      public t4f = 0;
       public fn = 0;
       public type = 0;
       public timezone = 0;
@@ -52,13 +45,6 @@ namespace gc {
           this.array,
           this.map,
           this.cubic,
-          this.t2,
-          this.t3,
-          this.t4,
-          this.str,
-          this.t2f,
-          this.t3f,
-          this.t4f,
           this.fn,
           this.type,
           this.timezone,
@@ -90,13 +76,6 @@ namespace gc {
         readonly array: number,
         readonly map: number,
         readonly cubic: number,
-        readonly t2: number,
-        readonly t3: number,
-        readonly t4: number,
-        readonly str: number,
-        readonly t2f: number,
-        readonly t3f: number,
-        readonly t4f: number,
         readonly fn: number,
         readonly type: number,
         readonly timezone: number,
@@ -295,27 +274,6 @@ namespace gc {
                 break;
               case 'cubic':
                 core.cubic = i;
-                break;
-              case 't2':
-                core.t2 = i;
-                break;
-              case 't3':
-                core.t3 = i;
-                break;
-              case 't4':
-                core.t4 = i;
-                break;
-              case 'str':
-                core.str = i;
-                break;
-              case 't2f':
-                core.t2f = i;
-                break;
-              case 't3f':
-                core.t3f = i;
-                break;
-              case 't4f':
-                core.t4f = i;
                 break;
               case 'function':
                 core.fn = i;
@@ -588,41 +546,6 @@ namespace gc {
       createDuration(value: bigint) {
         const t = this.types[this.core.duration];
         return new t.ctor(value) as core.duration;
-      }
-
-      createT2(x0: bigint | number, x1: bigint | number) {
-        const t = this.types[this.core.t2];
-        return new t.ctor(x0, x1) as core.t2;
-      }
-
-      createT3(x0: bigint | number, x1: bigint | number, x2: bigint | number) {
-        const t = this.types[this.core.t3];
-        return new t.ctor(x0, x1, x2) as core.t3;
-      }
-
-      createT4(x0: bigint | number, x1: bigint | number, x2: bigint | number, x3: bigint | number) {
-        const t = this.types[this.core.t4];
-        return new t.ctor(x0, x1, x2, x3) as core.t4;
-      }
-
-      createStr(value: bigint) {
-        const t = this.types[this.core.str];
-        return new t.ctor(value) as core.str;
-      }
-
-      createT2f(x0: number, x1: number) {
-        const t = this.types[this.core.t2f];
-        return new t.ctor(x0, x1) as core.t2f;
-      }
-
-      createT3f(x0: number, x1: number, x2: number) {
-        const t = this.types[this.core.t3f];
-        return new t.ctor(x0, x1, x2) as core.t3f;
-      }
-
-      createT4f(x0: number, x1: number, x2: number, x3: number) {
-        const t = this.types[this.core.t4f];
-        return new t.ctor(x0, x1, x2, x3) as core.t4f;
       }
 
       root(): AbiType {

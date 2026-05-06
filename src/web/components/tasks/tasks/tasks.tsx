@@ -190,10 +190,10 @@ export class GuiTasks extends GuiElement {
 
     // try to retrieve user names
     try {
-      const entities = await gc.runtime.SecurityEntity.all();
-      for (let i = 0; i < entities.length; i++) {
-        const entity = entities[i];
-        this._users[Number(entity.id)] = entity.name;
+      const identities = await gc.runtime.Identity.all();
+      for (let i = 0; i < identities.length; i++) {
+        const identity = identities[i];
+        this._users[Number(identity.id)] = identity.name;
       }
     } catch {
       // failing to access `SecurityEntity.all()` is not fatal

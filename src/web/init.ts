@@ -38,7 +38,6 @@ import {
   GuiHistogram,
   GuiInput,
   GuiInputString,
-  GuiInputStr,
   GuiInputNumber,
   GuiInputBool,
   GuiInputTime,
@@ -66,9 +65,6 @@ import {
   GuiRoles,
   GuiRolePermissions,
   GuiSearchInput,
-  GuiUsers,
-  GuiUserGroupPolicy,
-  GuiUserForm,
   GuiTasks,
   GuiTabs,
   GuiTab,
@@ -131,7 +127,6 @@ function registerWebComponents(options: WebOptions) {
       [gc.core.bool._type]: 'gui-value',
       [gc.core.geo._type]: 'gui-value',
       [gc.core.time._type]: 'gui-value',
-      [gc.core.str._type]: 'gui-value',
       [gc.core.Date._type]: 'gui-value',
       [gc.core.node._type]: 'gui-value',
       [gc.core.nodeTime._type]: 'gui-value',
@@ -153,7 +148,6 @@ function registerWebComponents(options: WebOptions) {
     [gc.core.bool._type]: 'gui-input-bool',
     [gc.core.String._type]: 'gui-input-string',
     [gc.core.char._type]: 'gui-input-string',
-    [gc.core.str._type]: 'gui-input-str',
     [gc.core.time._type]: 'gui-input-time',
     [gc.core.null_._type]: 'gui-input-null',
     [gc.core.type._type]: 'gui-input-type',
@@ -206,7 +200,6 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-heatmap', GuiHeatmap);
   registerCustomElement('gui-histogram', GuiHistogram);
   registerCustomElement('gui-input-string', GuiInputString);
-  registerCustomElement('gui-input-str', GuiInputStr);
   registerCustomElement('gui-input-number', GuiInputNumber);
   registerCustomElement('gui-input-bool', GuiInputBool);
   registerCustomElement('gui-input-time', GuiInputTime);
@@ -235,9 +228,6 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-roles', GuiRoles);
   registerCustomElement('gui-role-permissions', GuiRolePermissions);
   registerCustomElement('gui-search-input', GuiSearchInput);
-  registerCustomElement('gui-users', GuiUsers);
-  registerCustomElement('gui-user-group-policy', GuiUserGroupPolicy);
-  registerCustomElement('gui-user-form', GuiUserForm);
   registerCustomElement('gui-tasks', GuiTasks);
   registerCustomElement('gui-panel', GuiPanel);
   registerCustomElement('gui-tab', GuiTab);
@@ -305,7 +295,6 @@ declare global {
       GuiInputNull,
       GuiInputNumber,
       GuiInputObject,
-      GuiInputStr,
       GuiInputString,
       GuiInputTime,
       GuiInputType,
@@ -340,9 +329,6 @@ declare global {
       GuiTasks,
       GuiTensor,
       GuiTime,
-      GuiUserForm,
-      GuiUserGroupPolicy,
-      GuiUsers,
       GuiValue,
       // GuiNodeTime,
       registerCustomElement,

@@ -264,7 +264,7 @@ namespace gc {
       initialize_functions(name, g);
 
       try {
-        g.permissions = await runtime.User.permissions(g);
+        g.permissions = await runtime.Identity.permissions(g);
       } catch {
         // we probably don't have the permission to access this endpoint
       }
@@ -1051,34 +1051,6 @@ namespace gc {
 
       createDuration(value: bigint | number): core.duration {
         return this.abi.createDuration(typeof value === 'bigint' ? value : BigInt(value));
-      }
-
-      createT2(x0: bigint | number, x1: bigint | number): core.t2 {
-        return this.abi.createT2(x0, x1);
-      }
-
-      createT3(x0: bigint | number, x1: bigint | number, x2: bigint | number): core.t3 {
-        return this.abi.createT3(x0, x1, x2);
-      }
-
-      createT4(x0: bigint | number, x1: bigint | number, x2: bigint | number, x3: bigint | number): core.t4 {
-        return this.abi.createT4(x0, x1, x2, x3);
-      }
-
-      createStr(str: string) {
-        return core.str.fromString(str, this);
-      }
-
-      createT2f(x0: number, x1: number): core.t2f {
-        return this.abi.createT2f(x0, x1);
-      }
-
-      createT3f(x0: number, x1: number, x2: number): core.t3f {
-        return this.abi.createT3f(x0, x1, x2);
-      }
-
-      createT4f(x0: number, x1: number, x2: number, x3: number): core.t4f {
-        return this.abi.createT4f(x0, x1, x2, x3);
       }
 
       findType(fqn: gc.$Types): AbiType | undefined {

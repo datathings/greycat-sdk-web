@@ -1,5 +1,4 @@
 export interface StringifyProps extends gc.sdk.ToStringOptions {
-  value: unknown;
   /**
    * use `name` to override node's ref with the given value
    */
@@ -17,13 +16,11 @@ export interface StringifyProps extends gc.sdk.ToStringOptions {
   quotedString?: boolean;
 }
 
-// TODO: remove `value` from `props` and pass it as its own argument
 /**
  * Best-effort to stringify the given value.
  */
-export function stringify(props: StringifyProps): string {
+export function stringify(value: unknown, props: StringifyProps): string {
   const text = props.text;
-  const value = props.value;
   const name = props.name;
   const tiny = props.tiny;
   const pretty = props.pretty ?? false;
@@ -44,17 +41,11 @@ export function stringify(props: StringifyProps): string {
     return gc.core.time.fromDate(value).toString(props);
   } else if (value instanceof gc.core.Date) {
     return value.toString(props);
-  } else if (value instanceof gc.core.str) {
-    return value.toString(props);
   } else if (value instanceof gc.core.Tuple) {
-    const tmp = props.value;
     const tmpQuotedString = props.quotedString;
-    props.value = value.x;
     props.quotedString = true;
-    const x = stringify(props);
-    props.value = value.y;
-    const y = stringify(props);
-    props.value = tmp;
+    const x = stringify(value.x, props);
+    const y = stringify(value.y, props);
     props.quotedString = tmpQuotedString;
     return `(${x}, ${y})`;
   } else if (gc.sdk.isNode(value)) {
@@ -88,15 +79,6 @@ export function stringify(props: StringifyProps): string {
     }
   } else if ('Node' in globalThis && value instanceof globalThis['Node']) {
     return value.textContent ?? '';
-  } else if (
-    value instanceof gc.core.t2 ||
-    value instanceof gc.core.t2f ||
-    value instanceof gc.core.t3 ||
-    value instanceof gc.core.t3f ||
-    value instanceof gc.core.t4 ||
-    value instanceof gc.core.t4f
-  ) {
-    return value.toString(props);
   } else if (value instanceof Map) {
     return `Map { size: ${value.size} }`;
   } else if (value instanceof gc.runtime.Task) {

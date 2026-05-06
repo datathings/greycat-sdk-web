@@ -31,21 +31,14 @@ namespace gc {
       cubic: 13,
       enum: 14,
       object: 15,
-      t2: 16,
-      t3: 17,
-      t4: 18,
-      str: 19,
-      t2f: 20,
-      t3f: 21,
-      t4f: 22,
-      block_ref: 23,
-      block_inline: 24,
-      function: 25,
-      undefined: 26,
-      type: 27,
-      field: 28,
-      stringlit: 29,
-      error: 30,
+      block_ref: 16,
+      block_inline: 17,
+      function: 18,
+      undefined: 19,
+      type: 20,
+      field: 21,
+      stringlit: 22,
+      error: 23,
     } as const;
 
     export const PrimitiveTypeName = {
@@ -65,21 +58,14 @@ namespace gc {
       13: 'cubic',
       14: 'enum',
       15: 'object',
-      16: 't2',
-      17: 't3',
-      18: 't4',
-      19: 'str',
-      20: 't2f',
-      21: 't3f',
-      22: 't4f',
-      23: 'block_ref',
-      24: 'block_inline',
-      25: 'function',
-      26: 'undefined',
-      27: 'type',
-      28: 'field',
-      29: 'stringlit',
-      30: 'error',
+      16: 'block_ref',
+      17: 'block_inline',
+      18: 'function',
+      19: 'undefined',
+      20: 'type',
+      21: 'field',
+      22: 'stringlit',
+      23: 'error',
     } as const;
 
     export type PrimitiveType = ExtractValues<typeof PrimitiveType>;
@@ -202,16 +188,28 @@ namespace gc {
       if (type.offset === type.abi.core.node || type.generic_abi_type === type.abi.core.node) {
         return PrimitiveType.node;
       }
-      if (type.offset === type.abi.core.node_time || type.generic_abi_type === type.abi.core.node_time) {
+      if (
+        type.offset === type.abi.core.node_time ||
+        type.generic_abi_type === type.abi.core.node_time
+      ) {
         return PrimitiveType.node_time;
       }
-      if (type.offset === type.abi.core.node_index || type.generic_abi_type === type.abi.core.node_index) {
+      if (
+        type.offset === type.abi.core.node_index ||
+        type.generic_abi_type === type.abi.core.node_index
+      ) {
         return PrimitiveType.node_index;
       }
-      if (type.offset === type.abi.core.node_list || type.generic_abi_type === type.abi.core.node_list) {
+      if (
+        type.offset === type.abi.core.node_list ||
+        type.generic_abi_type === type.abi.core.node_list
+      ) {
         return PrimitiveType.node_list;
       }
-      if (type.offset === type.abi.core.node_geo || type.generic_abi_type === type.abi.core.node_geo) {
+      if (
+        type.offset === type.abi.core.node_geo ||
+        type.generic_abi_type === type.abi.core.node_geo
+      ) {
         return PrimitiveType.node_geo;
       }
       if (type.offset === type.abi.core.geo) {
@@ -225,27 +223,6 @@ namespace gc {
       }
       if (type.offset === type.abi.core.cubic) {
         return PrimitiveType.cubic;
-      }
-      if (type.offset === type.abi.core.t2) {
-        return PrimitiveType.t2;
-      }
-      if (type.offset === type.abi.core.t3) {
-        return PrimitiveType.t3;
-      }
-      if (type.offset === type.abi.core.t4) {
-        return PrimitiveType.t4;
-      }
-      if (type.offset === type.abi.core.str) {
-        return PrimitiveType.str;
-      }
-      if (type.offset === type.abi.core.t2f) {
-        return PrimitiveType.t2f;
-      }
-      if (type.offset === type.abi.core.t3f) {
-        return PrimitiveType.t3f;
-      }
-      if (type.offset === type.abi.core.t4f) {
-        return PrimitiveType.t4f;
       }
       if (type.offset === type.abi.core.fn) {
         return PrimitiveType.function;

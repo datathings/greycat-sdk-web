@@ -363,34 +363,6 @@ namespace gc {
           const ty = r.abi.types[r.abi.core.cubic];
           return ty.ctor.load(r, ty);
         },
-        [PrimitiveType.t2]: (r) => {
-          const ty = r.abi.types[r.abi.core.t2];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.t3]: (r) => {
-          const ty = r.abi.types[r.abi.core.t3];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.t4]: (r) => {
-          const ty = r.abi.types[r.abi.core.t4];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.str]: (r) => {
-          const ty = r.abi.types[r.abi.core.str];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.t2f]: (r) => {
-          const ty = r.abi.types[r.abi.core.t2f];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.t3f]: (r) => {
-          const ty = r.abi.types[r.abi.core.t3f];
-          return ty.ctor.load(r, ty);
-        },
-        [PrimitiveType.t4f]: (r) => {
-          const ty = r.abi.types[r.abi.core.t4f];
-          return ty.ctor.load(r, ty);
-        },
         [PrimitiveType.enum]: this.read_enum.bind(this),
         [PrimitiveType.object]: this.read_object.bind(this),
         [PrimitiveType.block_ref]: deserialize_error,
