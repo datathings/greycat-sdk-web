@@ -295,18 +295,16 @@ function getIndexFromCoordinates(tensor: gc.core.Tensor, coordinates: number[]) 
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTensor} */
     'gui-tensor': GuiTensor;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiTensor} */
         'gui-tensor': GreyCat.Element<GuiTensor>;
       }
     }
   }
-}
-
-if (!customElements.get('gui-tensor')) {
-  customElements.define('gui-tensor', GuiTensor);
 }

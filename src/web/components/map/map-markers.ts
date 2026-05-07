@@ -79,12 +79,14 @@ export class GuiMapMarkers<T = unknown> extends GuiMapElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiMapMarkers} */
     'gui-map-markers': GuiMapMarkers;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiMapMarkers} */
         'gui-map-markers': GreyCat.Element<GuiMapMarkers>;
       }
     }

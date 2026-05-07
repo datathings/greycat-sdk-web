@@ -281,12 +281,14 @@ export class GuiLayout extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiLayout} */
     'gui-layout': GuiLayout;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiLayout} */
         'gui-layout': GreyCat.Element<GuiLayout>;
       }
     }

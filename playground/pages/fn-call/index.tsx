@@ -1,4 +1,5 @@
-import { GuiFnSelect, GuiInputFn } from '@greycat/web';
+import '@greycat/web';
+import type { GuiFnSelect, GuiInputFn } from '@greycat/web';
 import { appLayout } from '~/common';
 import './index.css';
 

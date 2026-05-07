@@ -102,6 +102,7 @@ function getSelectValue(select: sl.SlSelect): string | undefined {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTableMapping} */
     'gui-table-mapping': GuiTableMapping;
   }
 
@@ -110,6 +111,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiTableMapping} */
         'gui-table-mapping': GreyCat.Element<GuiTableMapping, GuiTableMappingEventMap>;
       }
     }

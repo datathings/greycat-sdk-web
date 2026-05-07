@@ -616,8 +616,11 @@ export class GuiObjectFieldValue extends HTMLElement {}
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiObject} */
     'gui-object': GuiObject;
+    /** @see {@link GuiObjectFieldName} */
     'gui-object-fieldname': GuiObjectFieldName;
+    /** @see {@link GuiObjectFieldValue} */
     'gui-object-fieldvalue': GuiObjectFieldValue;
   }
 
@@ -626,12 +629,18 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiObject}
          */
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         'gui-object': GreyCat.Element<GuiObject>;
-        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiObjectFieldName}
+         */
         'gui-object-fieldname': GreyCat.Element<GuiObjectFieldName>;
-        /** Please, don't use this in a React context. Use `WCWrapper`. */
+        /**
+         * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiObjectFieldValue}
+         */
         'gui-object-fieldvalue': GreyCat.Element<GuiObjectFieldValue>;
       }
     }

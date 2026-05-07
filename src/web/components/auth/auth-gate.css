@@ -1,0 +1,53 @@
+:host {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 360px;
+  padding: 2rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing, 0.75rem);
+  align-items: stretch;
+  text-align: center;
+}
+
+.auth-card h1 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.auth-card h2 {
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--sl-color-neutral-600);
+  margin: 0 0 0.5rem;
+}
+
+.auth-stack {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing, 0.75rem);
+}
+
+.auth-stack sl-button {
+  width: 100%;
+}
+
+.auth-status {
+  color: var(--sl-color-neutral-500);
+  margin: 0;
+}
+
+.auth-err {
+  display: block;
+  color: var(--sl-color-danger-600, #b91c1c);
+  background: var(--sl-color-danger-100, rgba(239, 68, 68, 0.08));
+  padding: var(--spacing, 0.75rem);
+  border-radius: var(--sl-border-radius-medium, 6px);
+}

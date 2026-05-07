@@ -256,6 +256,7 @@ export class GuiValue extends GuiElement implements GuiValueProps {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiValue} */
     'gui-value': GuiValue;
   }
 
@@ -264,6 +265,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiValue}
          */
         'gui-value': GreyCat.Element<GuiValue>;
       }

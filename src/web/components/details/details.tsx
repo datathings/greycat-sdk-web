@@ -7,13 +7,17 @@ export class GuiDetails extends sl.SlDetails {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiDetails} */
     'gui-details': GuiDetails;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        /** Please, do not use this in a React context */
+        /**
+         * Please, do not use this in a React context
+         * @see {@link GuiDetails}
+         */
         'gui-details': GreyCat.Element<GuiDetails, SlDetailsEventMap>;
       }
     }

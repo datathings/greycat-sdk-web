@@ -1,3 +1,7 @@
 :host {
   display: contents;
 }
+
+gui-table::part(subheader) {
+  display: none;
+}

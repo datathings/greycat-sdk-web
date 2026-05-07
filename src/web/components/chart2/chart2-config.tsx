@@ -624,12 +624,14 @@ export class GuiChart2Config extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiChart2Config} */
     'gui-chart2-config': GuiChart2Config;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiChart2Config} */
         'gui-chart2-config': GreyCat.Element<GuiChart2Config>;
       }
     }

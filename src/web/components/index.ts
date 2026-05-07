@@ -19,6 +19,8 @@ export * from './tabs/index.js';
 export * from './dashboard/index.js';
 export * from './fn-select/index.js';
 export * from './roles/index.js';
+export * from './identities/index.js';
+export * from './auth/index.js';
 export * from './histogram/index.js';
 export * from './files/index.js';
 export * from './factory/index.js';

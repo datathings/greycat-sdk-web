@@ -128,12 +128,14 @@ export class GuiMap extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiMap} */
     'gui-map': GuiMap;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiMap} */
         'gui-map': GreyCat.Element<GuiMap>;
       }
     }

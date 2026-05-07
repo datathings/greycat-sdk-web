@@ -635,6 +635,7 @@ export class GuiHeatmapCursorEvent extends CustomEvent<{ data: HeatmapData; curs
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiHeatmap} */
     'gui-heatmap': GuiHeatmap;
   }
 
@@ -649,6 +650,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiHeatmap}
          */
         'gui-heatmap': GreyCat.Element<GuiHeatmap, GuiHeatmapEventMap>;
       }

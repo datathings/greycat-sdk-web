@@ -261,8 +261,11 @@ export class GuiTabChangeEvent extends CustomEvent<GuiTab> {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTabs} */
     'gui-tabs': GuiTabs;
+    /** @see {@link GuiTab} */
     'gui-tab': GuiTab;
+    /** @see {@link GuiPanel} */
     'gui-panel': GuiPanel;
   }
 
@@ -277,9 +280,12 @@ declare global {
       interface IntrinsicElements {
         /**
          * Children of `gui-tabs` should be either `gui-tab` or `gui-panel` (or subclasses of them).
+         * @see {@link GuiTabs}
          */
         'gui-tabs': GreyCat.Element<GuiTabs, GuiTabsEventMap>;
+        /** @see {@link GuiTab} */
         'gui-tab': GreyCat.Element<GuiTab>;
+        /** @see {@link GuiPanel} */
         'gui-panel': GreyCat.Element<GuiPanel>;
       }
     }

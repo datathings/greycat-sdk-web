@@ -1,0 +1,53 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.auth-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing, 0.75rem);
+  width: 100%;
+}
+
+.auth-form sl-input,
+.auth-form sl-button,
+.auth-providers-list sl-button {
+  width: 100%;
+}
+
+.auth-err {
+  display: block;
+  color: var(--sl-color-danger-600, #b91c1c);
+  background: var(--sl-color-danger-100, rgba(239, 68, 68, 0.08));
+  padding: var(--spacing, 0.75rem);
+  border-radius: var(--sl-border-radius-medium, 6px);
+  margin-top: var(--spacing, 0.75rem);
+}
+
+.auth-providers {
+  margin-top: var(--spacing, 0.75rem);
+}
+
+.auth-providers-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing, 0.75rem);
+}
+
+.auth-divider {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing, 0.75rem);
+  color: var(--sl-color-neutral-500);
+  font-size: var(--sl-font-size-small, 0.875rem);
+  margin-bottom: var(--spacing, 0.75rem);
+}
+
+.auth-divider::before,
+.auth-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--sl-color-neutral-200);
+}

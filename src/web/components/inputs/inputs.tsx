@@ -2758,29 +2758,53 @@ export function findParentInputElement(
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiInput} */
     'gui-input': GuiInput;
+    /** @see {@link GuiInputString} */
     'gui-input-string': GuiInputString;
+    /** @see {@link GuiInputNumber} */
     'gui-input-number': GuiInputNumber;
+    /** @see {@link GuiInputBool} */
     'gui-input-bool': GuiInputBool;
+    /** @see {@link GuiInputTime} */
     'gui-input-time': GuiInputTime;
+    /** @see {@link GuiInputEnum} */
     'gui-input-enum': GuiInputEnum;
+    /** @see {@link GuiInputObject} */
     'gui-input-object': GuiInputObject;
+    /** @see {@link GuiInputAbstract} */
     'gui-input-abstract': GuiInputAbstract;
+    /** @see {@link GuiInputFn} */
     'gui-input-fn': GuiInputFn;
+    /** @see {@link GuiInputDuration} */
     'gui-input-duration': GuiInputDuration;
+    /** @see {@link GuiInputAny} */
     'gui-input-any': GuiInputAny;
+    /** @see {@link GuiInputArray} */
     'gui-input-array': GuiInputArray;
+    /** @see {@link GuiInputMap} */
     'gui-input-map': GuiInputMap;
+    /** @see {@link GuiInputNode} */
     'gui-input-node': GuiInputNode;
+    /** @see {@link GuiInputNodeIndex} */
     'gui-input-node-index': GuiInputNodeIndex;
+    /** @see {@link GuiInputNodeList} */
     'gui-input-node-list': GuiInputNodeList;
+    /** @see {@link GuiInputNodeTime} */
     'gui-input-node-time': GuiInputNodeTime;
+    /** @see {@link GuiInputNodeGeo} */
     'gui-input-node-geo': GuiInputNodeGeo;
+    /** @see {@link GuiInputGeo} */
     'gui-input-geo': GuiInputGeo;
+    /** @see {@link GuiInputFnPtr} */
     'gui-input-fnptr': GuiInputFnPtr;
+    /** @see {@link GuiInputUnsupported} */
     'gui-input-unsupported': GuiInputUnsupported;
+    /** @see {@link GuiInputNull} */
     'gui-input-null': GuiInputNull;
+    /** @see {@link GuiInputType} */
     'gui-input-type': GuiInputType;
+    /** @see {@link GuiInputField} */
     'gui-input-field': GuiInputField;
   }
 
@@ -2794,29 +2818,53 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiInput} */
         'gui-input': GreyCat.Element<GuiInput, GuiInputEventMap>;
+        /** @see {@link GuiInputString} */
         'gui-input-string': GreyCat.Element<GuiInputString, GuiInputEventMap>;
+        /** @see {@link GuiInputNumber} */
         'gui-input-number': GreyCat.Element<GuiInputNumber, GuiInputEventMap>;
+        /** @see {@link GuiInputBool} */
         'gui-input-bool': GreyCat.Element<GuiInputBool, GuiInputEventMap>;
+        /** @see {@link GuiInputTime} */
         'gui-input-time': GreyCat.Element<GuiInputTime, GuiInputEventMap>;
+        /** @see {@link GuiInputEnum} */
         'gui-input-enum': GreyCat.Element<GuiInputEnum, GuiInputEventMap>;
+        /** @see {@link GuiInputObject} */
         'gui-input-object': GreyCat.Element<GuiInputObject, GuiInputEventMap>;
+        /** @see {@link GuiInputAbstract} */
         'gui-input-abstract': GreyCat.Element<GuiInputAbstract, GuiInputEventMap>;
+        /** @see {@link GuiInputFn} */
         'gui-input-fn': GreyCat.Element<GuiInputFn, GuiInputEventMap>;
+        /** @see {@link GuiInputDuration} */
         'gui-input-duration': GreyCat.Element<GuiInputDuration, GuiInputEventMap>;
+        /** @see {@link GuiInputAny} */
         'gui-input-any': GreyCat.Element<GuiInputAny, GuiInputEventMap>;
+        /** @see {@link GuiInputArray} */
         'gui-input-array': GreyCat.Element<GuiInputArray, GuiInputEventMap>;
+        /** @see {@link GuiInputMap} */
         'gui-input-map': GreyCat.Element<GuiInputMap, GuiInputEventMap>;
+        /** @see {@link GuiInputNode} */
         'gui-input-node': GreyCat.Element<GuiInputNode, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeTime} */
         'gui-input-node-time': GreyCat.Element<GuiInputNodeTime, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeIndex} */
         'gui-input-node-index': GreyCat.Element<GuiInputNodeIndex, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeList} */
         'gui-input-node-list': GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeGeo} */
         'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
+        /** @see {@link GuiInputGeo} */
         'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
+        /** @see {@link GuiInputFnPtr} */
         'gui-input-fnptr': GreyCat.Element<GuiInputFnPtr, GuiInputEventMap>;
+        /** @see {@link GuiInputUnsupported} */
         'gui-input-unsupported': GreyCat.Element<GuiInputUnsupported, GuiInputEventMap>;
+        /** @see {@link GuiInputNull} */
         'gui-input-null': GreyCat.Element<GuiInputNull, GuiInputEventMap>;
+        /** @see {@link GuiInputType} */
         'gui-input-type': GreyCat.Element<GuiInputType, GuiInputEventMap>;
+        /** @see {@link GuiInputField} */
         'gui-input-field': GreyCat.Element<GuiInputField, GuiInputEventMap>;
       }
     }

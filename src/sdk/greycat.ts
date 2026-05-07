@@ -86,7 +86,7 @@ namespace gc {
       const attempts = location.pathname.split('/').length - 1;
       let prefix = '.';
       for (let i = 0; i < attempts; i++) {
-        const res = await fetch(`${prefix}/runtime::User::me`, opts);
+        const res = await fetch(`${prefix}/runtime::Identity::current_id`, opts);
         if (res.status === 401 || res.status === 200) {
           let url: URL;
           if (location.pathname.endsWith('/')) {
@@ -158,6 +158,7 @@ namespace gc {
       const res = await fetch(`${cleanUrl}/${method}`, {
         method: 'POST',
         headers,
+        credentials: 'include',
         signal,
       });
       if (res.status === 401) {
@@ -313,7 +314,7 @@ namespace gc {
        * The generic param `T` is there only for convenience as no runtime checks are made on the deserialized value.
        *
        * @param method the exposed GreyCat function to call, without leading slash
-       * (eg. `'runtime::User::me'`)
+       * (eg. `'runtime::Identity::current_id'`)
        * @param args the function's arguments to send along.
        *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
@@ -329,7 +330,7 @@ namespace gc {
        * Spawns a GreyCat task.
        *
        * @param method the exposed GreyCat function to spawn, without leading slash
-       * (eg. `'runtime::User::me'`)
+       * (eg. `'runtime::Identity::current_id'`)
        * @param args the function's arguments to send along.
        *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
@@ -347,7 +348,7 @@ namespace gc {
        * *This is equivalent to `gc.sdk.await(await gc.sdk.spawn(...))`*
        *
        * @param method the exposed GreyCat function to spawn, without leading slash
-       * (eg. `'runtime::User::me'`)
+       * (eg. `'runtime::Identity::current_id'`)
        * @param args the function's arguments to send along.
        *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
        *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
@@ -714,7 +715,7 @@ namespace gc {
       /**
        * This method is used internally by: `call(...)`, `spawn(...)` and `spawnAwait(...)`.
        *
-       * @param uri the uri of the method to call (eg. `runtime::User::me`)
+       * @param uri the uri of the method to call (eg. `runtime::Identity::current_id`)
        * @param args the arguments of the method to call
        * @param signal an `AbortSignal` to cancel the request on demand
        * @param task whether or not to call the method as a task (defaults to `false`)
@@ -1259,6 +1260,62 @@ namespace gc {
       };
     }
 
+    export type CallJsonOptions = {
+      /** Base URL of the GreyCat server. Default: `findGreyCat()`. */
+      url?: URL | string;
+      signal?: AbortSignal;
+    };
+
+    /**
+     * Calls a GreyCat function over plain JSON HTTP — bypasses the binary
+     * ABI protocol entirely.
+     *
+     * Useful before `gc.sdk.init()` (e.g. on a sign-in page where the ABI
+     * download itself is gated behind auth) or when interoperating with
+     * lightweight clients that don't ship the full SDK.
+     *
+     * Always sends `credentials: 'include'` so cookies set by the server
+     * (e.g. the session cookie returned by `runtime::Identity::login`) are
+     * stored and forwarded on subsequent calls.
+     *
+     * @param fn full function name, e.g. `runtime::Identity::current`
+     * @param args positional arguments, JSON-serialised
+     * @param options optional URL override and abort signal
+     * @returns the JSON-parsed response (`null` for `204 No Content`)
+     * @throws `Error` with `status` and the server's `message` on non-2xx
+     */
+    export async function callJson<T = unknown>(
+      fn: string,
+      args: unknown[] = [],
+      options: CallJsonOptions = {},
+    ): Promise<T> {
+      const baseUrl = options.url ?? (await findGreyCat());
+      const base = typeof baseUrl === 'string' ? baseUrl.replace(/\/$/, '') : normalizeUrl(baseUrl);
+      const res = await fetch(`${base}/${fn}`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(args),
+        signal: options.signal,
+      });
+      if (!res.ok) {
+        const gc_err = await res.json();
+        let message = 'unable to login';
+        if (gc_err?.message?.length > 0) {
+          message += ` (${gc_err.message})`;
+        }
+        const err = new Error(message);
+        // oxlint-disable-next-line typescript/no-explicit-any
+        (err as any).status = res.status;
+        // oxlint-disable-next-line typescript/no-explicit-any
+        (err as any).body = gc_err;
+      }
+      if (res.status === 204) {
+        return null as T;
+      }
+      return res.json() as Promise<T>;
+    }
+
     export type LoginOptions = IdentityAuth & {
       url?: URL;
       signal?: AbortSignal;
@@ -1275,10 +1332,12 @@ namespace gc {
         method: 'POST',
         body: JSON.stringify([auth.username, auth.password]),
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'include',
         signal,
       });
       if (res.ok) {
-        return (await res.json()) as string;
+        const token = (await res.json()) as string;
+        return token;
       }
       const gc_err = await res.json();
       let message = 'unable to login';
@@ -1315,6 +1374,7 @@ namespace gc {
       const res = await fetch(`${normalizeUrl(url)}/runtime::User::logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        credentials: 'include',
         signal,
       });
       if (res.ok) {

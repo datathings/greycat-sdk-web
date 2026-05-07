@@ -196,6 +196,7 @@ export class GuiTableMappingsApplyEvent extends CustomEvent<gc.core.TableColumnM
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTableMappings} */
     'gui-table-mappings': GuiTableMappings;
   }
 
@@ -212,6 +213,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiTableMappings} */
         'gui-table-mappings': GreyCat.Element<GuiTableMappings, GuiTableMappingsEventMap>;
       }
     }

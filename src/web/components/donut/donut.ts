@@ -524,6 +524,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiDonut} */
     'gui-donut': GuiDonut;
   }
 
@@ -532,6 +533,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiDonut}
          */
         'gui-donut': GreyCat.Element<GuiDonut>;
       }

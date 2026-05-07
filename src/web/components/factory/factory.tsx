@@ -584,14 +584,18 @@ export type InputElementFn<T = any> = (value: T, el: GuiInputElement<T>, data?: 
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiFactory} */
     'gui-factory': GuiFactory;
+    /** @see {@link GuiInputFactory} */
     'gui-input-factory': GuiInputFactory;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiFactory} */
         'gui-factory': GreyCat.Element<GuiFactory>;
+        /** @see {@link GuiInputFactory} */
         'gui-input-factory': GreyCat.Element<GuiInputFactory>;
       }
     }

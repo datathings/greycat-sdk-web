@@ -1236,5 +1236,3 @@ declare global {
     }
   }
 }
-
-registerCustomElement('gui-node-time', GuiNodeTime);

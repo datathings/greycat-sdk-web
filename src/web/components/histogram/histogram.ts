@@ -192,6 +192,7 @@ export class GuiHistogram extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiHistogram} */
     'gui-histogram': GuiHistogram;
   }
 
@@ -200,6 +201,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiHistogram}
          */
         'gui-histogram': GreyCat.Element<GuiHistogram>;
       }

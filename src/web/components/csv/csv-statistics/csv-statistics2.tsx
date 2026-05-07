@@ -268,6 +268,7 @@ declare global {
     GuiCsvStatistics2: typeof GuiCsvStatistics2;
   }
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiCsvStatistics2} */
     'gui-csv-statistics2': GuiCsvStatistics2;
   }
 
@@ -276,6 +277,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiCsvStatistics2}
          */
         'gui-csv-statistics2': GreyCat.Element<GuiCsvStatistics2>;
       }

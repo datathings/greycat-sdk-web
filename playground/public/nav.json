@@ -8,6 +8,10 @@
     "route": "pages/array/"
   },
   {
+    "label": "Auth",
+    "route": "pages/auth/"
+  },
+  {
     "label": "Chart",
     "route": "pages/chart/",
     "link": true,
@@ -352,7 +356,7 @@
     "route": "pages/tensor/"
   },
   {
-    "label": "Users",
+    "label": "Identities",
     "route": "pages/users/"
   },
   {

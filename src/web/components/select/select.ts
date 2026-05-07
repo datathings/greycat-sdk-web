@@ -390,6 +390,7 @@ function isElementOutOfView(element: Element): boolean {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiSelect} */
     'gui-select': GuiSelect;
   }
 
@@ -405,6 +406,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiSelect}
          */
         'gui-select': GreyCat.Element<GuiSelect, GuiSelectEventMap>;
       }

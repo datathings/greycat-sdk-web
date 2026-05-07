@@ -57,6 +57,7 @@ export class GuiMultiSelectCheckbox extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiMultiSelectCheckbox} */
     'gui-multi-select-checkbox': GuiMultiSelectCheckbox;
   }
 
@@ -65,6 +66,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiMultiSelectCheckbox}
          */
         'gui-multi-select-checkbox': GreyCat.Element<GuiMultiSelectCheckbox>;
       }

@@ -2013,6 +2013,7 @@ interface GuiChartEventMap {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiChart} */
     'gui-chart': GuiChart;
   }
 
@@ -2023,6 +2024,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiChart}
          */
         'gui-chart': GreyCat.Element<GuiChart, GuiChartEventMap>;
       }

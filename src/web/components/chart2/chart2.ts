@@ -356,6 +356,7 @@ interface GuiChart2EventMap {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiChart2} */
     'gui-chart2': GuiChart2;
   }
 
@@ -364,6 +365,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiChart2} */
         'gui-chart2': GreyCat.Element<GuiChart2>;
       }
     }

@@ -63,6 +63,7 @@ export class GuiFnSelect extends sl.SlSelect {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiFnSelect} */
     'gui-fn-select': GuiFnSelect;
   }
 
@@ -73,6 +74,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiFnSelect} */
         'gui-fn-select': GreyCat.Element<GuiFnSelect, GuiFnSelectEventMap>;
       }
     }

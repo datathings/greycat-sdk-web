@@ -218,6 +218,7 @@ export class GuiTasks extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTasks} */
     'gui-tasks': GuiTasks;
   }
 
@@ -228,6 +229,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiTasks} */
         'gui-tasks': GreyCat.Element<GuiTasks, GuiTasksEventMap>;
       }
     }

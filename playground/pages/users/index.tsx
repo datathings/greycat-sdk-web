@@ -4,7 +4,7 @@ import { appLayout } from '~/common';
 await gc.sdk.init({ debug: true });
 
 document.body.appendChild(
-  appLayout({ title: 'Users', mainStyle: { display: 'grid' } },
-    <gui-users />,
+  appLayout({ title: 'Identities', mainStyle: { display: 'grid' } },
+    <gui-identities />,
   ),
 );

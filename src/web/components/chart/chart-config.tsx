@@ -1371,12 +1371,19 @@ function getSelectValue(select: sl.SlSelect): string | undefined {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiChartConfig} */
     'gui-chart-config': GuiChartConfig;
+    /** @see {@link GuiChartAxisInput} */
     'gui-chart-axis-input': GuiChartAxisInput;
+    /** @see {@link GuiChartYAxesInput} */
     'gui-chart-yaxes-input': GuiChartYAxesInput;
+    /** @see {@link GuiChartOrdinateInput} */
     'gui-chart-ordinate-input': GuiChartOrdinateInput;
+    /** @see {@link GuiChartSelectionInput} */
     'gui-chart-selection-input': GuiChartSelectionInput;
+    /** @see {@link GuiChartSeriesInput} */
     'gui-chart-series-input': GuiChartSeriesInput;
+    /** @see {@link GuiChartSerieInput} */
     'gui-chart-serie-input': GuiChartSerieInput;
   }
 
@@ -1390,12 +1397,19 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiChartConfig} */
         'gui-chart-config': GreyCat.Element<GuiChartConfig, GuiChartConfigEventMap>;
+        /** @see {@link GuiChartAxisInput} */
         'gui-chart-axis-input': GreyCat.Element<GuiChartAxisInput>;
+        /** @see {@link GuiChartYAxesInput} */
         'gui-chart-yaxes-input': GreyCat.Element<GuiChartYAxesInput>;
+        /** @see {@link GuiChartOrdinateInput} */
         'gui-chart-ordinate-input': GreyCat.Element<GuiChartOrdinateInput>;
+        /** @see {@link GuiChartSelectionInput} */
         'gui-chart-selection-input': GreyCat.Element<GuiChartSelectionInput>;
+        /** @see {@link GuiChartSeriesInput} */
         'gui-chart-series-input': GreyCat.Element<GuiChartSeriesInput>;
+        /** @see {@link GuiChartSerieInput} */
         'gui-chart-serie-input': GreyCat.Element<GuiChartSerieInput>;
       }
     }

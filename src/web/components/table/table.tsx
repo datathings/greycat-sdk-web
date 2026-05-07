@@ -1997,11 +1997,17 @@ export class GuiTableApplyMappingsEvent extends CustomEvent<void> {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTable} */
     'gui-table': GuiTable;
+    /** @see {@link GuiTableHead} */
     'gui-thead': GuiTableHead;
+    /** @see {@link GuiTableHeadCell} */
     'gui-thead-cell': GuiTableHeadCell;
+    /** @see {@link GuiTableBody} */
     'gui-tbody': GuiTableBody;
+    /** @see {@link GuiTableBodyRow} */
     'gui-tbody-row': GuiTableBodyRow;
+    /** @see {@link GuiTableBodyCell} */
     'gui-tbody-cell': GuiTableBodyCell;
   }
 
@@ -2030,26 +2036,32 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTable}
          */
         'gui-table': GreyCat.Element<GuiTable, GuiTableEventMap>;
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTableHead}
          */
         'gui-thead': GreyCat.Element<GuiTableHead>;
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTableHeadCell}
          */
         'gui-thead-cell': GreyCat.Element<GuiTableHeadCell, GuiTableHeadCellEventMap>;
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTableBody}
          */
         'gui-tbody': GreyCat.Element<GuiTableBody>;
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTableBodyRow}
          */
         'gui-tbody-row': GreyCat.Element<GuiTableBodyRow>;
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTableBodyCell}
          */
         'gui-tbody-cell': GreyCat.Element<GuiTableBodyCell>;
       }

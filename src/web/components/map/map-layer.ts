@@ -23,12 +23,14 @@ export class GuiMapLayer extends GuiMapElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiMapLayer} */
     'gui-map-layer': GuiMapLayer;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiMapLayer} */
         'gui-map-layer': GreyCat.Element<GuiMapLayer>;
       }
     }

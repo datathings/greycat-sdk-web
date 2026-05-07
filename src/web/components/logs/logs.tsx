@@ -863,12 +863,14 @@ export interface GuiLogsAttrs {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiLogs} */
     'gui-logs': GuiLogs;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiLogs} */
         'gui-logs': GreyCat.Element<GuiLogs>;
       }
     }

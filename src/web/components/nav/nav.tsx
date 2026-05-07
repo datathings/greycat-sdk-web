@@ -277,6 +277,7 @@ function join(a: string, b: string): string {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiNav} */
     'gui-nav': GuiNav;
   }
 
@@ -296,6 +297,7 @@ declare global {
          * - `nav.json`
          *
          * You can also bypass the dynamic resolution by directly providing the tree structure with the `value` property.
+         * @see {@link GuiNav}
          */
         'gui-nav': GreyCat.Element<GuiNav>;
       }

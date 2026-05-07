@@ -111,6 +111,7 @@ export class GuiTime extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTime} */
     'gui-time': GuiTime;
   }
 
@@ -119,6 +120,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiTime}
          */
         'gui-time': GreyCat.Element<GuiTime>;
       }

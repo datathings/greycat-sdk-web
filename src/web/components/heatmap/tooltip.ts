@@ -61,12 +61,14 @@ export class GuiHeatmapTooltip extends HTMLElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiHeatmapTooltip} */
     'gui-heatmap-tooltip': GuiHeatmapTooltip;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiHeatmapTooltip} */
         'gui-heatmap-tooltip': GreyCat.Element<GuiHeatmapTooltip>;
       }
     }

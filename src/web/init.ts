@@ -36,6 +36,7 @@ import {
   GuiGauge,
   GuiHeatmap,
   GuiHistogram,
+  GuiIdentities,
   GuiInput,
   GuiInputString,
   GuiInputNumber,
@@ -81,6 +82,11 @@ import {
   GuiRuntimeUsage,
   // GuiNodeTime,
 } from './exports.js';
+// Direct imports — avoid the circular `./exports.js` cycle so these classes
+// are fully evaluated before this module's top-level registration runs.
+import { GuiAuthGate } from './components/auth/auth-gate.js';
+import { GuiSignIn } from './components/auth/sign-in.js';
+import { GuiSignInButton } from './components/auth/sign-in-button.js';
 
 export interface WebOptions {
   maplibregl?: typeof import('maplibre-gl');
@@ -97,6 +103,13 @@ declare global {
     }
   }
 }
+
+// Auth components are registered eagerly at module load so they are usable
+// before (or instead of) `gc.sdk.init()` — that's the whole point: the user
+// sees a sign-in form *because* init has not yet run successfully.
+registerCustomElement('gui-sign-in', GuiSignIn);
+registerCustomElement('gui-auth-gate', GuiAuthGate);
+registerCustomElement('gui-sign-in-button', GuiSignInButton);
 
 const sdkInit = gc.sdk.init;
 gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
@@ -199,6 +212,7 @@ function registerWebComponents(options: WebOptions) {
   registerCustomElement('gui-gauge', GuiGauge);
   registerCustomElement('gui-heatmap', GuiHeatmap);
   registerCustomElement('gui-histogram', GuiHistogram);
+  registerCustomElement('gui-identities', GuiIdentities);
   registerCustomElement('gui-input-string', GuiInputString);
   registerCustomElement('gui-input-number', GuiInputNumber);
   registerCustomElement('gui-input-bool', GuiInputBool);
@@ -274,6 +288,10 @@ declare global {
       GuiGauge,
       GuiHeatmap,
       GuiHistogram,
+      GuiAuthGate,
+      GuiSignIn,
+      GuiSignInButton,
+      GuiIdentities,
       GuiInput,
       GuiInputAbstract,
       GuiInputAny,

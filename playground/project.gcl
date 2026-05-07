@@ -57,6 +57,17 @@ type ComplexForm {
 }
 
 fn main() {
+    Identity::set_password("root", "root");
+
+    Identity::create("leiko", "user");
+    Identity::create("thols", "user");
+    Identity::create("daroth", "user");
+    Identity::create("tashack", "user");
+    Identity::create("thargone", "user");
+    for (var i = 0; i < 100; i++) {
+        Identity::create("user${i}", "user");
+    }
+
     cities::import();
     init_non_overlapping();
 
@@ -609,7 +620,7 @@ fn complex_object() {
 fn obj1() {
     return Obj1 {
         prop1: "Hello",
-        prop2: Identity { id: 1000, name: "user1", role: "user" },
+        prop2: Identity { id: 1000, name: "user1", role: "user", grants: Array<IdentityGrant> {} },
         prop3: Runtime::info(),
     };
 }
@@ -625,9 +636,9 @@ fn obj2() {
     return Obj2 {
         prop1: "Hello",
         prop2: Array<Identity?> {
-            Identity { id: 1000, name: "user1", role: "user" },
+            Identity { id: 1000, name: "user1", role: "user", grants: Array<IdentityGrant> {} },
             null,
-            Identity { id: 1001, name: "user2", role: "user" },
+            Identity { id: 1001, name: "user2", role: "user", grants: Array<IdentityGrant> {} },
         },
         prop3: prop3,
         prop4: mapTest(),

@@ -7,13 +7,17 @@ export class GuiDialog extends sl.SlDialog {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiDialog} */
     'gui-dialog': GuiDialog;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        /** Please, do not use this in a React context */
+        /**
+         * Please, do not use this in a React context
+         * @see {@link GuiDialog}
+         */
         'gui-dialog': GreyCat.Element<GuiDialog, SlDialogEventMap>;
       }
     }

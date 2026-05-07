@@ -844,12 +844,14 @@ export class GuiRuntimeUsage extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiRuntimeUsage} */
     'gui-runtime-usage': GuiRuntimeUsage;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiRuntimeUsage} */
         'gui-runtime-usage': GreyCat.Element<GuiRuntimeUsage>;
       }
     }

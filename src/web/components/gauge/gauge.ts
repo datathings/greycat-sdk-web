@@ -119,6 +119,7 @@ function computePath(width: number, thickness: number, progress: number) {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiGauge} */
     'gui-gauge': GuiGauge;
   }
 
@@ -127,6 +128,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiGauge}
          */
         'gui-gauge': GreyCat.Element<GuiGauge>;
       }

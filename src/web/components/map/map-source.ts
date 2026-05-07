@@ -7,12 +7,14 @@ export class GuiMapSource extends GuiMapElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiMapSource} */
     'gui-map-source': GuiMapSource;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiMapSource} */
         'gui-map-source': GreyCat.Element<GuiMapSource>;
       }
     }

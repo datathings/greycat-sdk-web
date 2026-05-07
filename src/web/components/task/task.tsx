@@ -7,12 +7,14 @@ export class GuiTask extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiTask} */
     'gui-task': GuiTask;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiTask} */
         'gui-task': GreyCat.Element<GuiTask>;
       }
     }

@@ -317,6 +317,7 @@ class DashboardPanel implements IContentRenderer {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiDashboard} */
     'gui-dashboard': GuiDashboard;
   }
 
@@ -331,6 +332,7 @@ declare global {
       interface IntrinsicElements {
         /**
          * Please, don't use this in a React context. Use `WCWrapper`.
+         * @see {@link GuiDashboard}
          */
         'gui-dashboard': GreyCat.Element<GuiDashboard, GuiDashboardEventMap>;
       }

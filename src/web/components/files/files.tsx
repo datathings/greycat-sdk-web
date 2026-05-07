@@ -154,6 +154,7 @@ export class GuiFiles extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiFiles} */
     'gui-files': GuiFiles;
   }
 
@@ -166,6 +167,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiFiles} */
         'gui-files': GreyCat.Element<GuiFiles, GuiFilesEventMap>;
       }
     }

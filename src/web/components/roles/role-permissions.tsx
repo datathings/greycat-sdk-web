@@ -25,12 +25,14 @@ export class GuiRolePermissions extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiRolePermissions} */
     'gui-role-permissions': GuiRolePermissions;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiRolePermissions} */
         'gui-role-permissions': GreyCat.Element<GuiRolePermissions>;
       }
     }

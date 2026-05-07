@@ -16,12 +16,14 @@ export class GuiSearchInput extends sl.SlInput {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiSearchInput} */
     'gui-search-input': GuiSearchInput;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiSearchInput} */
         'gui-search-input': GreyCat.Element<GuiSearchInput, SlInputEventMap>;
       }
     }

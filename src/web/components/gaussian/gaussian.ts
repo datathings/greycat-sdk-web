@@ -123,12 +123,14 @@ export class GuiGaussian extends GuiElement {
 
 declare global {
   interface HTMLElementTagNameMap {
+    /** @see {@link GuiGaussian} */
     'gui-gaussian': GuiGaussian;
   }
 
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
+        /** @see {@link GuiGaussian} */
         'gui-gaussian': GreyCat.Element<GuiGaussian>;
       }
     }
