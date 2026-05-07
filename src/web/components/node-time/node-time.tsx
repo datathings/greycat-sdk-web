@@ -24,7 +24,6 @@ import {
   type GuiInputEnum,
   type GuiInputDuration,
   type GuiTableProps,
-  registerCustomElement,
   css,
   type GuiTabs,
   type sl,
