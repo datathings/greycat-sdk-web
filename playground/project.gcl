@@ -1,4 +1,4 @@
-@library("explorer", "7.8.5-dev");
+@library("explorer", "8.0.3-dev");
 
 @include("pages");
 
@@ -72,9 +72,9 @@ fn main() {
     node_time::init_node_time();
     heatmap::init();
 
-    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "users" });
-    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "moderators" });
-    SecurityEntity::set(UserGroup { id: -1, activated: true, name: "reviewers" });
+    Identity::create("users", "user");
+    Identity::create("moderators", "user");
+    Identity::create("reviewers", "user");
 
     random_data.set(0, nodeList<float> {});
     random_data.set(1, nodeList<float> {});
@@ -530,13 +530,6 @@ type ComplexObject {
     nested: any?;
     map: Map<String, any>;
     tuple: Tuple<any, any>;
-    t2: t2;
-    t2f: t2f;
-    t3: t3;
-    t3f: t3f;
-    t4: t4;
-    t4f: t4f;
-    str: str;
     date: Date;
 }
 
@@ -588,13 +581,6 @@ fn complex_object() {
         nodeIndex: nodeIndex {},
         nodeList: nodeList {},
         nodeGeo: nodeGeo {},
-        t2: t2 { 1, 2 },
-        t2f: t2f { 1.42, 2.42 },
-        t3: t3 { 1, 2, 3 },
-        t3f: t3f { 1.42, 2.42, 3.42 },
-        t4: t4 { 1, 2, 3, 4 },
-        t4f: t4f { 1.42, 2.42, 3.42, 4.42 },
-        str: str { "hello" },
         date: time::now().toDate(null),
         tuple: Tuple<String, String> { x: "This is", y: "a tuple" },
         nested: ComplexObject {
@@ -613,13 +599,6 @@ fn complex_object() {
             nodeList: nodeList {},
             nodeGeo: nodeGeo {},
             enum: TimeZone::"Europe/Luxembourg",
-            t2: t2 { 1, 2 },
-            t2f: t2f { 1.42, 2.42 },
-            t3: t3 { 1, 2, 3 },
-            t3f: t3f { 1.42, 2.42, 3.42 },
-            t4: t4 { 1, 2, 3, 4 },
-            t4f: t4f { 1.42, 2.42, 3.42, 4.42 },
-            str: str { "hello" },
             date: time::now().toDate(null),
         },
         map: map,
@@ -630,7 +609,7 @@ fn complex_object() {
 fn obj1() {
     return Obj1 {
         prop1: "Hello",
-        prop2: User { id: 1000, name: "user1", activated: false, external: false },
+        prop2: Identity { id: 1000, name: "user1", role: "user" },
         prop3: Runtime::info(),
     };
 }
@@ -645,9 +624,10 @@ fn obj2() {
 
     return Obj2 {
         prop1: "Hello",
-        prop2: Array<User?> {
-            User { id: 1000, name: "user1", activated: false, external: false },
-            User { id: 1001, name: "user2", activated: false, external: false },
+        prop2: Array<Identity?> {
+            Identity { id: 1000, name: "user1", role: "user" },
+            null,
+            Identity { id: 1001, name: "user2", role: "user" },
         },
         prop3: prop3,
         prop4: mapTest(),
@@ -828,7 +808,7 @@ fn real_example(): Country {
 
 type Obj1 {
     prop1: String;
-    prop2: User;
+    prop2: Identity;
     prop3: RuntimeInfo;
 }
 
@@ -841,7 +821,7 @@ type TimeZones {
 
 type Obj2 {
     prop1: String;
-    prop2: Array<User?>;
+    prop2: Array<Identity?>;
     prop3: Map<String, Person?>;
     prop4: any?;
 }

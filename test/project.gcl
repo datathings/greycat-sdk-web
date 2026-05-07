@@ -1,15 +1,9 @@
-@library("std", "8.0.249-dev");
+@library("std", "8.0.260-dev");
 
 // Each round-trip fixture is written to its own file fixtures/<idx>.gcb so that
 // tests can deserialize them independently. A node<int?> counter is required
 // because module-level vars must be nodes in greycat.
 var w_idx: node<int?>;
-
-fn w(value: any?) {
-    var i = *w_idx ?? 0;
-    GcbWriter { path: "fixtures/${i}.gcb" }.write(value);
-    w_idx.set(i + 1);
-}
 
 type Person {
     name: String;
@@ -25,6 +19,16 @@ enum Color {
     red;
     green;
     blue;
+}
+
+fn main() {
+    write_fixtures();
+}
+
+fn w(value: any?) {
+    var i = *w_idx ?? 0;
+    GcbWriter { path: "fixtures/${i}.gcb" }.write(value);
+    w_idx.set(i + 1);
 }
 
 fn write_fixtures() {
@@ -132,7 +136,3 @@ fn boom() {
 
 @expose
 fn no_result() {}
-
-fn main() {
-    write_fixtures();
-}
