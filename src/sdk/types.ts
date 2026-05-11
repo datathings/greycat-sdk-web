@@ -164,7 +164,7 @@ namespace gc {
     export type Auth = IdentityAuth | TokenAuth;
 
     export interface WithoutAbiOptions extends Options {
-      /** If defined, will call `runtime::User::login` or `runtime::User::tokenLogin` prior to initialization */
+      /** If defined, will call `runtime::Identity::login` prior to initialization */
       auth?: Auth;
       /** This signal is given to the request that loads the ABI. */
       signal?: AbortSignal;

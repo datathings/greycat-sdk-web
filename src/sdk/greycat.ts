@@ -199,7 +199,7 @@ namespace gc {
      *
      * This method is asynchronous as it needs to download the ABI in order to communicate with the server.
      *
-     * *If the `auth` property is given, a first call to `runtime::User::login` will be made before anything else.*
+     * *If the `auth` property is given, a first call to `runtime::Identity::login` will be made before anything else.*
      *
      * *For `libraries`, specifying `stdlib` is not required as it will always be loaded by default.*
      *
@@ -1034,7 +1034,7 @@ namespace gc {
 
       /**
        * Constructs a non-native type by resolving the AbiType from its fqn and passing in the attributes values
-       * @param name non-native type fqn (eg. 'runtime::User')
+       * @param name non-native type fqn (eg. 'runtime::Identity')
        * @param attributes
        * @returns
        */
@@ -1371,7 +1371,7 @@ namespace gc {
 
     export async function logout(options: LogoutOptions = {}): Promise<void> {
       const { url = await findGreyCat(), signal } = options;
-      const res = await fetch(`${normalizeUrl(url)}/runtime::User::logout`, {
+      const res = await fetch(`${normalizeUrl(url)}/runtime::Identity::logout`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         credentials: 'include',
