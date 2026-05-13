@@ -35,7 +35,7 @@ export class GuiIdentities extends GuiElement {
         {
           index: gc.runtime.Identity.$fields.grants,
           header: 'Grants',
-          cell: ({ value }: CellData<gc.runtime.IdentityGrant[] | null>) => {
+          cell: ({ value }: CellData<gc.runtime.IdentityGrant[]>) => {
             return renderGrants(value);
           },
         },
@@ -57,11 +57,7 @@ export class GuiIdentities extends GuiElement {
       return;
     }
     try {
-      const [identities, roles] = await Promise.all([
-        gc.runtime.Identity.all(),
-        gc.runtime.Role.all(),
-      ]);
-      console.log({identities, roles});
+      const [identities, roles] = await Promise.all([gc.runtime.Identity.all(), gc.runtime.Role.all()]);
       this._identities = identities;
       this._roles = roles;
       this.table.value = this._identities;
@@ -124,8 +120,8 @@ export class GuiIdentities extends GuiElement {
 
 const INLINE_GRANTS_LIMIT = 3;
 
-function renderGrants(grants: gc.runtime.IdentityGrant[] | null): Node {
-  if (grants === null || grants.length === 0) {
+function renderGrants(grants: gc.runtime.IdentityGrant[]): Node {
+  if (grants.length === 0) {
     return document.createTextNode('');
   }
 
@@ -152,9 +148,7 @@ function renderGrants(grants: gc.runtime.IdentityGrant[] | null): Node {
   );
 }
 
-function variantFor(
-  t: gc.runtime.IdentityGrantType,
-): 'primary' | 'success' | 'warning' | 'neutral' {
+function variantFor(t: gc.runtime.IdentityGrantType): 'primary' | 'success' | 'warning' | 'neutral' {
   if (t === gc.runtime.IdentityGrantType.read_write) {
     return 'success';
   }
@@ -179,9 +173,7 @@ function variantFor(
  * Exported so a future `GuiIdentityCreate` form can reuse the same editor.
  */
 export function buildIdentityForm(
-  owner:
-    | gc.runtime.Identity
-    | { name: string; role: string; grants: gc.runtime.IdentityGrant[] | null },
+  owner: gc.runtime.Identity | { name: string; role: string; grants: gc.runtime.IdentityGrant[] | null },
   allIdentities: gc.runtime.Identity[],
   allRoles: gc.runtime.Role[],
 ): {
@@ -323,9 +315,7 @@ export function buildIdentityForm(
       // user cleared the picker, or update() reset us after we added a row
       return;
     }
-    const level =
-      (levelInput.value as gc.runtime.IdentityGrantType | null) ??
-      gc.runtime.IdentityGrantType.read;
+    const level = (levelInput.value as gc.runtime.IdentityGrantType | null) ?? gc.runtime.IdentityGrantType.read;
     state.set(name, level);
     renderList();
     refreshPickerOptions(); // also resets picker.value to undefined

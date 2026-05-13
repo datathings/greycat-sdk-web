@@ -1784,10 +1784,11 @@ export class GuiTableBodyCell extends HTMLElement {
     }
 
     const rawValue = table.cols[colIdx][rowIdx];
+    let needReplace = false;
 
     if (rawValue instanceof Node) {
       this._cell = rawValue as AnyValueElement;
-      this.replaceChildren(this._cell);
+      needReplace = true;
     } else if (this._cell?.tagName !== column.factory.tag) {
       // Recreate the cell element if the tag changed, or if we don't have one yet
       this._cell = document.createElement(column.factory.tag) as AnyValueElement;
@@ -1797,7 +1798,7 @@ export class GuiTableBodyCell extends HTMLElement {
         this._cell.rowIdx = rowIdx;
       }
 
-      this.replaceChildren(this._cell);
+      needReplace = true;
     }
 
     // Compute the resolved value once, now that we're sure _cell exists
@@ -1818,6 +1819,10 @@ export class GuiTableBodyCell extends HTMLElement {
       this._cell.setAttrs(props);
     } else {
       Object.assign(this._cell, props);
+    }
+
+    if (needReplace) {
+      this.replaceChildren(this._cell);
     }
 
     // this.style.width = `${column.width}px`;
