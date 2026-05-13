@@ -120,7 +120,7 @@ export class GuiIdentities extends GuiElement {
 
 const INLINE_GRANTS_LIMIT = 3;
 
-function renderGrants(grants: gc.runtime.IdentityGrant[]): Node {
+export function renderGrants(grants: gc.runtime.IdentityGrant[]): Node {
   if (grants.length === 0) {
     return document.createTextNode('');
   }
@@ -161,6 +161,10 @@ function variantFor(t: gc.runtime.IdentityGrantType): 'primary' | 'success' | 'w
   return 'neutral';
 }
 
+export interface IdentityFormOptions {
+  passwordPlaceholder?: string;
+}
+
 /**
  * Builds an editor for an identity's password, role, and the access it grants
  * to other identities' file spaces. The grants section is O(grants), not
@@ -176,6 +180,7 @@ export function buildIdentityForm(
   owner: gc.runtime.Identity | { name: string; role: string; grants: gc.runtime.IdentityGrant[] | null },
   allIdentities: gc.runtime.Identity[],
   allRoles: gc.runtime.Role[],
+  options?: IdentityFormOptions,
 ): {
   form: Node;
   getValue(): {
@@ -200,7 +205,6 @@ export function buildIdentityForm(
   root.style.display = 'flex';
   root.style.flexDirection = 'column';
   root.style.gap = '0.5rem';
-  root.style.minWidth = '360px';
 
   // The form lives inside a `gui-dialog` whose body clips overflow. Every
   // dropdown (gui-select, gui-input-enum) needs its inner sl-popup hoisted out
@@ -218,7 +222,7 @@ export function buildIdentityForm(
   const passwordInput = document.createElement('sl-input') as sl.SlInput;
   passwordInput.type = 'password';
   passwordInput.passwordToggle = true;
-  passwordInput.placeholder = 'Leave empty to keep current';
+  passwordInput.placeholder = options?.passwordPlaceholder ?? 'Leave empty to keep current';
   passwordInput.autocomplete = 'new-password';
 
   // Role picker
@@ -234,7 +238,12 @@ export function buildIdentityForm(
   topSection.style.alignItems = 'center';
   topSection.style.borderBottom = '1px solid var(--sl-color-neutral-200)';
   topSection.style.paddingBottom = '0.5rem';
-  topSection.append(<label>Password</label>, passwordInput, <label>Role</label>, roleInput);
+  topSection.append(
+    <label htmlFor={passwordInput.name}>Password</label>,
+    passwordInput,
+    <label htmlFor={roleInput.name}>Role</label>,
+    roleInput,
+  );
 
   const list = document.createElement('div');
   list.style.display = 'grid';
@@ -285,7 +294,8 @@ export function buildIdentityForm(
     const names = Array.from(state.keys()).sort((a, b) => a.localeCompare(b));
     for (const name of names) {
       const input = document.createElement('gui-input-enum') as GuiInputEnum;
-      input.type = 'runtime::IdentityGrantType';
+      input.name = `grant_${name}`;
+      input.type = gc.runtime.IdentityGrantType._type;
       input.value = state.get(name)!;
       hoist(input.input);
       input.addEventListener('gui-change', () => {
@@ -305,7 +315,7 @@ export function buildIdentityForm(
         />
       );
 
-      list.append(<label>{name}</label>, input, remove);
+      list.append(<label htmlFor={input.name}>{name}</label>, input, remove);
     }
   }
 
