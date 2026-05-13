@@ -10,7 +10,7 @@ const MIN_COL_WIDTH = 24;
 
 /**
  * Custom CSV parser for GreyCat Logs
- * 
+ *
  * Right now logs have 7 columns, the last could potentially contain commas
  * so we only look for the 6 first columns and then take the rest of the line until '\n'
  */
@@ -39,7 +39,7 @@ function parseLine(line: string): string[] {
 export class GuiLogs extends GuiElement {
   static override styles = [css(style)];
 
-  private _filepath = '1/log.csv';
+  private _filepath = 'root/log.csv';
   private _chunkSize = 64 * 1024;
   private _greycat: gc.sdk.GreyCat = gc.$.default;
 
@@ -140,10 +140,7 @@ export class GuiLogs extends GuiElement {
       if (!this._scrubberMoved) {
         const ratio = this._ratioFromClientY(e.clientY);
         const target = this._totalFileSize * (1 - ratio);
-        if (
-          (target < this._loadHeadOffset || target > this._loadTailOffset) &&
-          !this._isFullyLoaded()
-        ) {
+        if ((target < this._loadHeadOffset || target > this._loadTailOffset) && !this._isFullyLoaded()) {
           this._jumpToOffset(target);
         }
       }
@@ -247,11 +244,7 @@ export class GuiLogs extends GuiElement {
     this._isLoading = true;
     try {
       const chunkSize = Math.min(this._chunkSize, this._totalFileSize - this._loadTailOffset);
-      const text = (await this._greycat.getFile(
-        this._filepath,
-        this._loadTailOffset,
-        chunkSize,
-      )) as string;
+      const text = (await this._greycat.getFile(this._filepath, this._loadTailOffset, chunkSize)) as string;
 
       if (typeof text !== 'string' || text.length === 0) {
         this._loadTailOffset = this._totalFileSize;
@@ -295,10 +288,7 @@ export class GuiLogs extends GuiElement {
     this._leadingPartialLine = '';
     this._trailingPartialLine = '';
 
-    this._loadHeadOffset = Math.min(
-      this._totalFileSize,
-      Math.floor(targetByteOffset) + this._chunkSize,
-    );
+    this._loadHeadOffset = Math.min(this._totalFileSize, Math.floor(targetByteOffset) + this._chunkSize);
     this._loadTailOffset = this._loadHeadOffset;
 
     await this._loadPreviousChunk();
@@ -372,9 +362,7 @@ export class GuiLogs extends GuiElement {
   private _rowsAboveOffset(): number {
     const loadedBytes = this._loadTailOffset - this._loadHeadOffset;
     if (loadedBytes <= 0 || this._totalFileSize <= 0) return 0;
-    return Math.round(
-      ((this._totalFileSize - this._loadTailOffset) / loadedBytes) * this._filteredIndices.length,
-    );
+    return Math.round(((this._totalFileSize - this._loadTailOffset) / loadedBytes) * this._filteredIndices.length);
   }
 
   private _getTotalHeight(): number {
@@ -436,8 +424,7 @@ export class GuiLogs extends GuiElement {
   }
 
   private _scrollToRatio(ratio: number): void {
-    const loadedStart =
-      this._totalFileSize > 0 ? 1 - this._loadTailOffset / this._totalFileSize : 0;
+    const loadedStart = this._totalFileSize > 0 ? 1 - this._loadTailOffset / this._totalFileSize : 0;
     const loadedEnd = this._totalFileSize > 0 ? 1 - this._loadHeadOffset / this._totalFileSize : 1;
     const loadedFraction = loadedEnd - loadedStart;
     const clamped = Math.max(loadedStart, Math.min(ratio, loadedEnd));
@@ -451,18 +438,15 @@ export class GuiLogs extends GuiElement {
   // --- Rendering ---
   private _renderVisible(): void {
     this._scroller.style.height = `${this._getTotalHeight()}px`;
-    const fromRowIdx =
-      this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
+    const fromRowIdx = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
     this._renderRows(fromRowIdx);
     this._updateScrubber();
-    this._emptyState.style.display =
-      this._filteredIndices.length === 0 && !this._isFullyLoaded() ? '' : 'none';
+    this._emptyState.style.display = this._filteredIndices.length === 0 && !this._isFullyLoaded() ? '' : 'none';
   }
 
   private _renderRows(fromRowIdx: number): void {
     if (this._rowHeight <= 0) return;
-    const maxVisible =
-      Math.ceil(this._logContainer.clientHeight / this._rowHeight) + 2 * BUFFER_ROWS;
+    const maxVisible = Math.ceil(this._logContainer.clientHeight / this._rowHeight) + 2 * BUFFER_ROWS;
     const start = Math.max(0, fromRowIdx - BUFFER_ROWS);
     const end = Math.min(this._filteredIndices.length, start + maxVisible);
 
@@ -491,8 +475,7 @@ export class GuiLogs extends GuiElement {
       for (let c = 2; c < COL_COUNT; c++) {
         const cell = cells[c] as HTMLSpanElement;
         cell.textContent = entry[c] || '';
-        cell.className =
-          c === 5 ? 'log-cell col-tag' : c === COL_COUNT - 1 ? 'log-cell col-data' : 'log-cell';
+        cell.className = c === 5 ? 'log-cell col-tag' : c === COL_COUNT - 1 ? 'log-cell col-data' : 'log-cell';
       }
 
       if (isExpanded) {
@@ -728,8 +711,7 @@ export class GuiLogs extends GuiElement {
               this._sortAsc = true;
             }
             for (let j = 0; j < this._sortIndicators.length; j++) {
-              this._sortIndicators[j].textContent =
-                j === this._sortColumn ? (this._sortAsc ? '\u25B2' : '\u25BC') : '';
+              this._sortIndicators[j].textContent = j === this._sortColumn ? (this._sortAsc ? '\u25B2' : '\u25BC') : '';
             }
             this._rebuildFilteredIndices();
             this._prevFromRowIdx = -1;
@@ -757,8 +739,7 @@ export class GuiLogs extends GuiElement {
 
     this._emptyState = (
       <div className="log-empty-state">
-        No matching logs in the loaded portion of the file. Try scrolling or clicking the scrubber
-        to load more data.
+        No matching logs in the loaded portion of the file. Try scrolling or clicking the scrubber to load more data.
       </div>
     ) as HTMLDivElement;
     this._emptyState.style.display = 'none';
@@ -778,11 +759,9 @@ export class GuiLogs extends GuiElement {
     ) as HTMLDivElement;
 
     this._logContainer.addEventListener('scroll', () => {
-      const fromRowIdx =
-        this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
+      const fromRowIdx = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
       if (this._loadHeadOffset > 0 && this._filteredIndices.length > 0) {
-        const visibleEnd =
-          fromRowIdx + Math.ceil(this._logContainer.clientHeight / (this._rowHeight || 30));
+        const visibleEnd = fromRowIdx + Math.ceil(this._logContainer.clientHeight / (this._rowHeight || 30));
         if (visibleEnd >= this._filteredIndices.length - BUFFER_ROWS * 2) {
           this._loadPreviousChunk();
         }
