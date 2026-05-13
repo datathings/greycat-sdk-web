@@ -32,16 +32,13 @@ function isAuthError(err: unknown): boolean {
 }
 
 function renderGate(): void {
-  const signIn = document.createElement('gui-sign-in');
-  signIn.style.maxWidth = '360px';
-  signIn.style.width = '100%';
-  signIn.addEventListener('gui-auth-success', () => location.reload());
-
   document.body.replaceChildren(
-    <div
-      style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem;"
-    >
-      {signIn}
+    <div style="display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 1rem;">
+      <gui-auth-gate
+        brand="GreyCat Playground"
+        style={{ maxWidth: '360px', width: '100%' }}
+        ongui-auth-success={() => location.reload()}
+      />
     </div>,
   );
 }

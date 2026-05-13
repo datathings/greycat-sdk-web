@@ -2,7 +2,8 @@
 // note in `sign-in.tsx` for context.
 import { GuiElement } from '../element.js';
 import { css } from '../common.js';
-import { GuiAuthSuccessEvent, type GuiSignIn } from './sign-in.js';
+import { GuiAuthSuccessEvent } from '../events.js';
+import { type GuiSignIn } from './sign-in.js';
 import style from './auth-gate.css?inline';
 
 /**
@@ -57,6 +58,7 @@ export class GuiAuthGate extends GuiElement {
   private async _probeUser(): Promise<void> {
     let user: gc.runtime.Identity | null = null;
     try {
+      // we use raw JSON calls on purpose, this component can be used without the SDK initialized
       user = await gc.sdk.callJson<gc.runtime.Identity>('runtime::Identity::current', [], {
         url: this.url,
       });
@@ -93,11 +95,10 @@ export class GuiAuthGate extends GuiElement {
       return;
     }
     try {
-      const redirectTo = await gc.sdk.callJson<string | null>(
-        'openid::Openid::callback',
-        [code, state],
-        { url: this.url },
-      );
+      // we use raw JSON calls on purpose, this component can be used without the SDK initialized
+      const redirectTo = await gc.sdk.callJson<string | null>('openid::Openid::callback', [code, state], {
+        url: this.url,
+      });
       location.replace(redirectTo || '/');
     } catch (err) {
       this._renderCallbackError(err instanceof Error ? err.message : `${err}`);
@@ -126,7 +127,11 @@ export class GuiAuthGate extends GuiElement {
     Promise.all([this._probe('/explorer/'), this._probe('/files/')]).then(([hasExplorer, hasFiles]) => {
       const ls: Node[] = [];
       if (hasExplorer) {
-        ls.push(<sl-button href="/explorer/" variant="primary">Explorer</sl-button>);
+        ls.push(
+          <sl-button href="/explorer/" variant="primary">
+            Explorer
+          </sl-button>,
+        );
       }
       if (hasFiles) {
         ls.push(<sl-button href="/files/">Files</sl-button>);
@@ -156,6 +161,7 @@ export class GuiAuthGate extends GuiElement {
 
   private async _signout(): Promise<void> {
     try {
+      // we use raw JSON calls on purpose, this component can be used without the SDK initialized
       await gc.sdk.callJson('runtime::Identity::logout', [], { url: this.url });
     } catch {
       // ignore — reload either way

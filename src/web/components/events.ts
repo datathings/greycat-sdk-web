@@ -61,6 +61,20 @@ export class GuiUpdateEvent<T = any> extends CustomEvent<T> {
   }
 }
 
+export class GuiAuthSuccessEvent extends CustomEvent<gc.runtime.Identity | null> {
+  static readonly NAME = 'gui-auth-success';
+  constructor(detail: gc.runtime.Identity | null) {
+    super(GuiAuthSuccessEvent.NAME, { detail, bubbles: true, composed: true });
+  }
+}
+
+export class GuiSignedOutEvent extends CustomEvent<void> {
+  static readonly NAME = 'gui-signed-out';
+  constructor() {
+    super(GuiSignedOutEvent.NAME, { detail: void 0, bubbles: true, composed: true });
+  }
+}
+
 declare global {
   interface HTMLElementEventMap {
     [GuiInputEvent.NAME]: GuiInputEvent;

@@ -3,7 +3,7 @@
 import { GuiElement } from '../element.js';
 import { css } from '../common.js';
 import { type sl, type GuiDialog } from '../../exports.js';
-import { GuiAuthSuccessEvent } from './sign-in.js';
+import { GuiAuthSuccessEvent, GuiSignedOutEvent } from '../events.js';
 import style from './sign-in-button.css?inline';
 
 /**
@@ -70,6 +70,7 @@ export class GuiSignInButton extends GuiElement {
         // ignore
       }
       this._btn.loading = false;
+      this.dispatchEvent(new GuiSignedOutEvent());
       this.refresh();
       return;
     }
@@ -104,11 +105,17 @@ declare global {
     'gui-sign-in-button': GuiSignInButton;
   }
 
+  interface GuiSignInButtonEventMap {
+    [GuiAuthSuccessEvent.NAME]: GuiAuthSuccessEvent;
+    [GuiSignedOutEvent.NAME]: GuiSignedOutEvent;
+  }
+  interface HTMLElementEventMap extends GuiSignInButtonEventMap {}
+
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
         /** @see {@link GuiSignInButton} */
-        'gui-sign-in-button': GreyCat.Element<GuiSignInButton>;
+        'gui-sign-in-button': GreyCat.Element<GuiSignInButton, GuiSignInButtonEventMap>;
       }
     }
   }

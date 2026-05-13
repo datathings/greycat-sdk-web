@@ -3,15 +3,9 @@
 // through `./init.js` and would leave `GuiElement` / `css` in the TDZ.
 import { GuiElement } from '../element.js';
 import { css } from '../common.js';
+import { GuiAuthSuccessEvent } from '../events.js';
 import { type sl } from '../../exports.js';
 import style from './sign-in.css?inline';
-
-export class GuiAuthSuccessEvent extends CustomEvent<gc.runtime.Identity | null> {
-  static readonly NAME = 'gui-auth-success';
-  constructor(detail: gc.runtime.Identity | null) {
-    super(GuiAuthSuccessEvent.NAME, { detail, bubbles: true, composed: true });
-  }
-}
 
 /**
  * Sign-in form component. Username/password against `runtime::Identity::login`,

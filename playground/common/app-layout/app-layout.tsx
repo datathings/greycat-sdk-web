@@ -32,6 +32,7 @@ export function appLayout(titleOrOpts: string | AppLayoutOptions, ...children: N
   const actions = (
     <div className="app-actions-right">
       {themeBtn}
+      <gui-sign-in-button ongui-signed-out={() => location.reload()} />
     </div>
   ) as HTMLElement;
 
