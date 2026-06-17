@@ -98,32 +98,49 @@ private fn import_data() {
         },
     };
 
+    var before = earthquakes_by_geo.size();
+    var skipped = 0;
+    var from = earthquakes_by_time.lastTime();
+
     var record: Record;
     while (reader.can_read()) {
-        record = reader.read();
-        var earthquake = Earthquake {
-            location: geo { record.latitude, record.longitude },
-            time: record.time,
-            depth: record.depth,
-            depthError: record.depthError,
-            mag: record.mag,
-            magType: record.magType,
-            nst: record.nst,
-            gap: record.gap,
-            dmin: record.dmin,
-            rms: record.rms,
-            net: record.net,
-            id: record.id,
-            updated: record.updated,
-            place: record.place,
-            magError: record.magError,
-            magNst: record.magNst,
-            magSource: record.magSource,
-        };
-        earthquakes_by_geo.set(earthquake.location, clone(earthquake));
-        earthquakes_by_time.setAt(earthquake.time, earthquake);
+        try {
+            record = reader.read();
+            var earthquake = Earthquake {
+                location: geo { record.latitude, record.longitude },
+                time: record.time,
+                depth: record.depth,
+                depthError: record.depthError,
+                mag: record.mag,
+                magType: record.magType,
+                nst: record.nst,
+                gap: record.gap,
+                dmin: record.dmin,
+                rms: record.rms,
+                net: record.net,
+                id: record.id,
+                updated: record.updated,
+                place: record.place,
+                magError: record.magError,
+                magNst: record.magNst,
+                magSource: record.magSource,
+            };
+            earthquakes_by_geo.set(earthquake.location, clone(earthquake));
+            earthquakes_by_time.setAt(earthquake.time, earthquake);
+        } catch (err) {
+            warn("skipped earthquake record: ${err.message}");
+            skipped++;
+        }
     }
-    println("Imported ${earthquakes_by_geo.size()} eartquakes from ${earthquakes_by_time.firstTime()} to ${earthquakes_by_time.lastTime()}");
+
+    if (from == null) {
+        from = earthquakes_by_time.firstTime();
+    }
+    var imported = earthquakes_by_geo.size() - before;
+    var to = earthquakes_by_time.lastTime();
+    if (imported > 0) {
+        println("Imported ${imported} eartquakes from ${from} to ${to} (${skipped} skipped)");
+    }
 }
 
 @expose

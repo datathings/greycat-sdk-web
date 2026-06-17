@@ -38,6 +38,7 @@
     "io.ts",
     "serde.ts",
     "crypto.ts",
+    "openid.ts",
     "../../std.d.ts",
     "../../std.ext.d.ts",
     "std.ext.ts",

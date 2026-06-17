@@ -1,0 +1,6 @@
+@expose
+fn create_users(count: int) {
+    for (var i = 0; i < count; i++) {
+        Identity::create("user${i}", "user");
+    }
+}

@@ -8,10 +8,10 @@ type Filters {
 }
 
 @expose
-fn filter_something(f: Filters) {}
+fn filter_something(_: Filters) {}
 
 
 @expose
-fn array_any_map_any(arr: Array, map: Map) {
+fn array_any_map_any(arr: Array, map: Map): Array<any?> {
   return [arr, map];
 }

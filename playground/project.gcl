@@ -1,4 +1,5 @@
 @library("explorer", "8.0.3-dev");
+@library("openid", "8.0.232-dev");
 
 @include("pages");
 
@@ -60,13 +61,6 @@ fn main() {
     Identity::set_password("root", "root");
 
     Identity::create("leiko", "user");
-    Identity::create("thols", "user");
-    Identity::create("daroth", "user");
-    Identity::create("tashack", "user");
-    Identity::create("thargone", "user");
-    for (var i = 0; i < 100; i++) {
-        Identity::create("user${i}", "user");
-    }
 
     cities::import();
     init_non_overlapping();
@@ -293,7 +287,6 @@ fn chart_time(): Table {
 @expose
 fn chart_colored_area(): Table {
     var firstTime = time::now();
-    var rand = Random {};
 
     var table = Table {};
     // 0
@@ -332,7 +325,6 @@ fn chart_colored_area(): Table {
 
 @expose
 fn donut(): Table {
-    var nbRows = 5;
     var table = Table {};
 
     var continents = ["Africa", "Antartica", "Asia", "Europe", "North America", "South America", "Oceania"];
@@ -459,12 +451,12 @@ fn objects_table(): Table<Person> {
 // pages/tasks start
 
 @expose
-fn task_without_params() {
+fn task_without_params(): int {
     return 42;
 }
 
 @expose
-fn task_with_params(name: String, age: int) {
+fn task_with_params(name: String, _age: int): String {
     return name;
 }
 
@@ -508,7 +500,8 @@ fn mainTask() {
     );
 }
 
-fn subTask(id: int) {
+@expose
+fn subTask(id: int): int {
     return id;
 }
 // pages/tasks end
@@ -558,7 +551,7 @@ type MapContainer {
 }
 
 @expose
-fn obj() {
+fn obj(): Obj {
     return Obj {
         tuple: Tuple<String, String> { x: "Hello", y: "world!" },
         field: Obj {
@@ -568,7 +561,7 @@ fn obj() {
 }
 
 @expose
-fn complex_object() {
+fn complex_object(): ComplexObject {
     var map = Map<String, any> {};
     map.set("first", ("BAR", 42));
     map.set("second", TimeZone::"Africa/Abidjan");
@@ -617,7 +610,7 @@ fn complex_object() {
 }
 
 @expose
-fn obj1() {
+fn obj1(): Obj1 {
     return Obj1 {
         prop1: "Hello",
         prop2: Identity { id: 1000, name: "user1", role: "user", grants: Array<IdentityGrant> {} },
@@ -626,7 +619,7 @@ fn obj1() {
 }
 
 @expose
-fn obj2() {
+fn obj2(): Obj2 {
     var prop3 = Map<String, Person?> {
         "John": Person { name: "John", age: 42, activated: true },
         "Paul": Person { name: "Paul", age: 36, activated: false },
@@ -649,7 +642,7 @@ fn obj2() {
 var person: node<Person2?>;
 
 @expose
-fn get_person() {
+fn get_person(): node<Person2?> {
     person ?= node<Person2> {
         Person2 {
             id: 42,
@@ -668,7 +661,7 @@ type Node {
 }
 
 @expose
-fn tree() {
+fn tree(): node<Node> {
     var root = node<Node> { Node { id: "root", value: 0 } };
     var node0 = node<Node> { Node { id: "node_0", value: 42 } };
     var node1 = node<Node> { Node { id: "node_1", value: 1337 } };
@@ -705,10 +698,10 @@ fn mapTest(): Map<DurationUnit, Tuple<String, int>> {
 }
 
 @expose
-fn goodFnForTestingFnCallInput(name: String, flag: bool, item: DurationUnit, optionalFlag: bool?) {}
+fn goodFnForTestingFnCallInput(_name: String, _flag: bool, _item: DurationUnit, _optionalFlag: bool?) {}
 
 @expose
-fn now() {
+fn now(): TimeZones {
     var now = time::now();
     return TimeZones {
         azores: Date::from_time(now, TimeZone::"Atlantic/Azores"),
@@ -739,14 +732,14 @@ type Link {
     next: Link?;
 
     @expose
-    static fn whatever(link: node<Link>) {
-        // 
+    static fn whatever(_link: node<Link>) {
+        //
     }
 }
 
 @expose
-fn link_whatever(l: node<Link>) {
-    // 
+fn link_whatever(_l: node<Link>) {
+    //
 }
 
 @expose
@@ -902,7 +895,7 @@ fn nextValueInt(prev: int, random: Random, threshold: int): int {
 }
 
 @expose
-fn serie_of_obj() {
+fn serie_of_obj(): Table {
     if (kline.size() == 0) {
         return Table {};
     }
@@ -1130,12 +1123,12 @@ fn display_fn(fn_: function) {
 
 @volatile
 private type ObjWithFn {
-    fn: function;
+    fn_: function;
 }
 
 @expose
 fn display_fn_in_obj(o: ObjWithFn) {
-    println("I WILL execute: ${o.fn}");
+    println("I WILL execute: ${o.fn_}");
 }
 
 @volatile

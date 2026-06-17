@@ -1204,11 +1204,41 @@ namespace gc {
       };
     }
 
-    export type CallJsonOptions = {
+    export type CallJsonRawOptions = {
       /** Base URL of the GreyCat server. Default: `findGreyCat()`. */
       url?: URL | string;
       signal?: AbortSignal;
+      /** `fetch` credentials mode. Default: `'include'`. */
+      credentials?: RequestCredentials;
     };
+
+    export type CallJsonOptions = CallJsonRawOptions;
+
+    /**
+     * Low-level JSON-over-HTTP call to a GreyCat function. Returns the raw
+     * `Response` untouched — the caller is responsible for status handling and
+     * body parsing. Shared transport for {@link callJson}, {@link login},
+     * {@link logout} and the openid client.
+     *
+     * @param fn full function name, e.g. `runtime::Identity::current`
+     * @param args positional arguments, JSON-serialised
+     * @param options optional URL override, abort signal and credentials mode
+     */
+    export async function callJsonRaw(
+      fn: string,
+      args: unknown[] = [],
+      options: CallJsonRawOptions = {},
+    ): Promise<Response> {
+      const baseUrl = options.url ?? (await findGreyCat());
+      const base = typeof baseUrl === 'string' ? baseUrl.replace(/\/+$/, '') : normalizeUrl(baseUrl);
+      return fetch(`${base}/${fn}`, {
+        method: 'POST',
+        credentials: options.credentials ?? 'include',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify(args),
+        signal: options.signal,
+      });
+    }
 
     /**
      * Calls a GreyCat function over plain JSON HTTP — bypasses the binary
@@ -1218,41 +1248,34 @@ namespace gc {
      * download itself is gated behind auth) or when interoperating with
      * lightweight clients that don't ship the full SDK.
      *
-     * Always sends `credentials: 'include'` so cookies set by the server
+     * Defaults to `credentials: 'include'` so cookies set by the server
      * (e.g. the session cookie returned by `runtime::Identity::login`) are
      * stored and forwarded on subsequent calls.
      *
      * @param fn full function name, e.g. `runtime::Identity::current`
      * @param args positional arguments, JSON-serialised
-     * @param options optional URL override and abort signal
+     * @param options optional URL override, abort signal and credentials mode
      * @returns the JSON-parsed response (`null` for `204 No Content`)
-     * @throws `Error` with `status` and the server's `message` on non-2xx
+     * @throws `Error` with `status` and the server's `body` on non-2xx
      */
     export async function callJson<T = unknown>(
       fn: string,
       args: unknown[] = [],
       options: CallJsonOptions = {},
     ): Promise<T> {
-      const baseUrl = options.url ?? (await findGreyCat());
-      const base = typeof baseUrl === 'string' ? baseUrl.replace(/\/$/, '') : normalizeUrl(baseUrl);
-      const res = await fetch(`${base}/${fn}`, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        body: JSON.stringify(args),
-        signal: options.signal,
-      });
+      const res = await callJsonRaw(fn, args, options);
       if (!res.ok) {
-        const gc_err = await res.json();
-        let message = 'unable to login';
+        const gc_err = await res.json().catch(() => null);
+        let message = `call to '${fn}' failed (${res.status})`;
         if (gc_err?.message?.length > 0) {
-          message += ` (${gc_err.message})`;
+          message += `: ${gc_err.message}`;
         }
         const err = new Error(message);
         // oxlint-disable-next-line typescript/no-explicit-any
         (err as any).status = res.status;
         // oxlint-disable-next-line typescript/no-explicit-any
         (err as any).body = gc_err;
+        throw err;
       }
       if (res.status === 204) {
         return null as T;
@@ -1271,19 +1294,12 @@ namespace gc {
      * @returns the user token
      */
     export async function login(options: LoginOptions): Promise<string> {
-      const { url = await findGreyCat(), signal, ...auth } = options;
-      const res = await fetch(`${normalizeUrl(url)}/runtime::Identity::login`, {
-        method: 'POST',
-        body: JSON.stringify([auth.username, auth.password]),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        credentials: 'include',
-        signal,
-      });
+      const { url, signal, ...auth } = options;
+      const res = await callJsonRaw('runtime::Identity::login', [auth.username, auth.password], { url, signal });
       if (res.ok) {
-        const token = (await res.json()) as string;
-        return token;
+        return (await res.json()) as string;
       }
-      const gc_err = await res.json();
+      const gc_err = await res.json().catch(() => null);
       let message = 'unable to login';
       if (gc_err?.message?.length > 0) {
         message += ` (${gc_err.message})`;
@@ -1314,17 +1330,11 @@ namespace gc {
     };
 
     export async function logout(options: LogoutOptions = {}): Promise<void> {
-      const { url = await findGreyCat(), signal } = options;
-      const res = await fetch(`${normalizeUrl(url)}/runtime::Identity::logout`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-        credentials: 'include',
-        signal,
-      });
-      if (res.ok) {
-        return;
+      const { url, signal } = options;
+      const res = await callJsonRaw('runtime::Identity::logout', [], { url, signal });
+      if (!res.ok) {
+        throw new Error(`unable to logout (${res.status} ${res.statusText})`);
       }
-      throw new Error(`unable to logout (${res.status} ${res.statusText})`);
     }
 
     /**
