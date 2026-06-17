@@ -1,4 +1,4 @@
-@library("std", "8.0.291-dev");
+@library("std", "8.0.427-dev");
 
 // Each round-trip fixture is written to its own file fixtures/<idx>.gcb so that
 // tests can deserialize them independently. A node<int?> counter is required
