@@ -163,9 +163,69 @@ namespace gc {
     };
     export type Auth = IdentityAuth | TokenAuth;
 
+    /** Context handed to an {@link AuthStrategy} before the ABI download. */
+    export interface AuthContext {
+      /** Normalized GreyCat base URL `init` resolved (no trailing slash). */
+      url: string;
+      signal?: AbortSignal;
+    }
+
+    /**
+     * How a strategy wants the ABI request (and subsequent calls) authenticated.
+     * The generic `T` is the strategy-specific payload surfaced on {@link Ready.auth}.
+     */
+    export type AuthOutcome<T = void> =
+      /** Send `token` as the `Authorization` header (password/token path). */
+      | { kind: 'token'; token: string; info: T }
+      /** A session cookie is already established; rely on `credentials: 'include'`. */
+      | { kind: 'cookie'; info: T }
+      /** The browser is navigating away (e.g. OIDC redirect); `init` must bail. */
+      | { kind: 'redirecting' };
+
+    /**
+     * A pluggable way to authenticate an `init`, run once before the ABI download.
+     * Built-ins: {@link gc.sdk.passwordAuth}, {@link gc.sdk.tokenAuth},
+     * {@link gc.sdk.openidServerAuth}, {@link gc.sdk.openidPkceAuth}.
+     */
+    export interface AuthStrategy<T = void> {
+      authenticate(ctx: AuthContext): Promise<AuthOutcome<T>>;
+    }
+
+    /** Ready arm of an `init` driven by a strategy or an openid spec. */
+    export interface Ready<T = void> {
+      greycat: GreyCat;
+      /** Whatever the strategy resolved (e.g. OIDC claims + returnTo), else `undefined`. */
+      auth: T;
+    }
+
+    /** Returned by `init` when a strategy navigated the browser away. */
+    export interface Redirecting {
+      redirecting: true;
+    }
+
     export interface WithoutAbiOptions extends Options {
-      /** If defined, will call `runtime::Identity::login` prior to initialization */
-      auth?: Auth;
+      /**
+       * How to authenticate before the ABI is downloaded. Accepts:
+       *
+       *  - `undefined` - no authentication (default).
+       *  - `{ username, password }` - logs in via `runtime::Identity::login`, then
+       *    sends the returned token as the `Authorization` header.
+       *  - `{ token }` - sends a pre-obtained token as the `Authorization` header.
+       *  - `{ openid: provider }` - **server-driven OpenID** (recommended). GreyCat
+       *    brokers the whole OAuth dance (`Openid::login` / `Openid::callback`); the
+       *    browser only follows redirects and the session is carried by a cookie.
+       *    `provider` is the id registered via `Openid::register` (e.g. `"keycloak"`),
+       *    or an {@link OpenidServerConfig} for `returnTo`/origin overrides.
+       *  - `{ openidPkce: ... }` - **client-driven OpenID (PKCE)**, for public clients
+       *    where GreyCat does not broker tokens. Takes a provider id or {@link OidcConfig}.
+       *  - an {@link AuthStrategy} - a custom or built-in strategy instance.
+       *
+       * When an openid spec or a strategy is used, `init` resolves to
+       * {@link Ready} `| `{@link Redirecting} instead of a bare `GreyCat` (the page
+       * may navigate away to the identity provider). Use {@link gc.sdk.isRedirecting}
+       * to narrow.
+       */
+      auth?: Auth | AuthStrategy | OpenidServerSpec | OpenidPkceSpec;
       /** This signal is given to the request that loads the ABI. */
       signal?: AbortSignal;
     }
@@ -186,28 +246,16 @@ namespace gc {
       if (type.offset === type.abi.core.node || type.generic_abi_type === type.abi.core.node) {
         return PrimitiveType.node;
       }
-      if (
-        type.offset === type.abi.core.node_time ||
-        type.generic_abi_type === type.abi.core.node_time
-      ) {
+      if (type.offset === type.abi.core.node_time || type.generic_abi_type === type.abi.core.node_time) {
         return PrimitiveType.node_time;
       }
-      if (
-        type.offset === type.abi.core.node_index ||
-        type.generic_abi_type === type.abi.core.node_index
-      ) {
+      if (type.offset === type.abi.core.node_index || type.generic_abi_type === type.abi.core.node_index) {
         return PrimitiveType.node_index;
       }
-      if (
-        type.offset === type.abi.core.node_list ||
-        type.generic_abi_type === type.abi.core.node_list
-      ) {
+      if (type.offset === type.abi.core.node_list || type.generic_abi_type === type.abi.core.node_list) {
         return PrimitiveType.node_list;
       }
-      if (
-        type.offset === type.abi.core.node_geo ||
-        type.generic_abi_type === type.abi.core.node_geo
-      ) {
+      if (type.offset === type.abi.core.node_geo || type.generic_abi_type === type.abi.core.node_geo) {
         return PrimitiveType.node_geo;
       }
       if (type.offset === type.abi.core.geo) {

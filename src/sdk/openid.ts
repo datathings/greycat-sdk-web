@@ -77,6 +77,29 @@ namespace gc {
       returnTo: string;
     }
 
+    /** Config for the server-driven OpenID strategy ({@link openidServerAuth}). */
+    export interface OpenidServerConfig {
+      /** GreyCat provider id, as registered via `Openid::register` (e.g. "keycloak"). */
+      provider: string;
+      /** Where the provider should send the browser back. Default: the current URL. */
+      returnTo?: string;
+      /** Base URL of the GreyCat server. Default: the URL `init` resolved. */
+      greycatOrigin?: string;
+      /** fetch credentials mode. Default: "same-origin". */
+      credentials?: RequestCredentials;
+    }
+
+    /** What the server-driven OpenID strategy resolves once signed in. */
+    export interface OpenidServerResult {
+      /** The URL the originating `Openid::login` asked to return to. */
+      returnTo: string;
+    }
+
+    /** `init({ auth })` spec for the server-driven OpenID flow (provider id or config). */
+    export type OpenidServerSpec = { openid: string | OpenidServerConfig };
+    /** `init({ auth })` spec for the client-driven (PKCE) OpenID flow. */
+    export type OpenidPkceSpec = { openidPkce: string | OidcConfig };
+
     /** Transport options for the standalone path-RPC helper and static factories. */
     export interface RpcOptions {
       /** Base URL of the GreyCat server. Default: "" (same origin). */
@@ -422,7 +445,126 @@ namespace gc {
       }
     }
 
+    // --- init strategies ---------------------------------------------------------
+
+    /**
+     * Server-driven OpenID strategy (recommended). GreyCat brokers the whole OAuth
+     * dance via `Openid::login` / `Openid::callback`; the browser only follows
+     * redirects and the session is carried by a cookie - no token or JWT in the page.
+     *
+     * Pass to `gc.sdk.init({ auth: gc.sdk.openidServerAuth('keycloak') })`, or use the
+     * `{ openid: 'keycloak' }` shorthand on `init`.
+     *
+     * @param config a provider id (as registered via `Openid::register`) or an
+     *               {@link OpenidServerConfig} for returnTo/origin overrides.
+     */
+    export function openidServerAuth(
+      config: string | OpenidServerConfig,
+    ): gc.sdk.AuthStrategy<OpenidServerResult | null> {
+      const cfg: OpenidServerConfig = typeof config === 'string' ? { provider: config } : config;
+      return {
+        async authenticate(ctx): Promise<gc.sdk.AuthOutcome<OpenidServerResult | null>> {
+          const tx: RpcOptions = { greycatOrigin: cfg.greycatOrigin ?? ctx.url, credentials: cfg.credentials };
+          const q = new URLSearchParams(window.location.search);
+          const code = q.get('code');
+          const state = q.get('state');
+
+          // STATE A - back from the provider: let the server finish the exchange.
+          if (code && state) {
+            const res = await rpc('openid::Openid::callback', [code, state], tx);
+            stripOauthParams();
+            if (!res.ok) {
+              throw new Error(`openid: server callback failed (${res.status})`);
+            }
+            const returnTo = (await res.json()) as string | null;
+            if (!(await hasSession(ctx, cfg.credentials))) {
+              throw new Error('openid: callback succeeded but no session is visible');
+            }
+            return { kind: 'cookie', info: returnTo ? { returnTo } : null };
+          }
+
+          // STATE B - already signed in on a normal load.
+          if (await hasSession(ctx, cfg.credentials)) {
+            return { kind: 'cookie', info: null };
+          }
+
+          // STATE C - ask the server for the authorization URL, then leave.
+          const res = await rpc('openid::Openid::login', [cfg.provider, cfg.returnTo ?? window.location.href], tx);
+          if (!res.ok) {
+            throw new Error(`openid: server login() failed (${res.status})`);
+          }
+          window.location.assign((await res.json()) as string);
+          return { kind: 'redirecting' };
+        },
+      };
+    }
+
+    /**
+     * Client-driven OpenID strategy (PKCE), for public clients where GreyCat does
+     * not broker tokens: the browser performs the token exchange and validates the
+     * ID token. Prefer {@link openidServerAuth} unless you specifically need this.
+     *
+     * Pass to `gc.sdk.init({ auth: gc.sdk.openidAuth(...) })`, or use the
+     * `{ openidPkce: ... }` shorthand on `init`.
+     *
+     * @param config a provider id (resolved via `Openid::public_config`), an
+     *               {@link OidcConfig}, or a pre-built {@link OpenidClient}.
+     */
+    export function openidPkceAuth(
+      config: string | OidcConfig | OpenidClient,
+    ): gc.sdk.AuthStrategy<HandleRedirectResult | null> {
+      return {
+        async authenticate(ctx): Promise<gc.sdk.AuthOutcome<HandleRedirectResult | null>> {
+          const client =
+            config instanceof OpenidClient
+              ? config
+              : typeof config === 'string'
+                ? await OpenidClient.fromProvider(config, { greycatOrigin: ctx.url })
+                : new OpenidClient({ greycatOrigin: ctx.url, ...config });
+
+          // STATE A - returning from the provider: finish the exchange (sets the cookie).
+          const redirect = await client.handleRedirect();
+          if (redirect) {
+            if (!(await hasSession(ctx, client.credentials))) {
+              throw new Error('openid: token_login succeeded but no session is visible');
+            }
+            return { kind: 'cookie', info: redirect };
+          }
+
+          // STATE B - already signed in on a normal load.
+          if (await hasSession(ctx, client.credentials)) {
+            return { kind: 'cookie', info: null };
+          }
+
+          // STATE C - no session, not a callback: start the redirect dance.
+          await client.login();
+          return { kind: 'redirecting' };
+        },
+      };
+    }
+
     // --- helpers -----------------------------------------------------------------
+
+    /**
+     * Cheap pre-ABI session probe over the JSON path: `runtime::Identity::current_id`
+     * returns 200 when a session exists, 401 otherwise.
+     */
+    async function hasSession(ctx: gc.sdk.AuthContext, credentials?: RequestCredentials): Promise<boolean> {
+      try {
+        const id = await gc.sdk.callJson<number>('runtime::Identity::current_id', [], {
+          url: ctx.url,
+          signal: ctx.signal,
+          credentials: credentials || 'same-origin',
+        });
+        return id !== 0;
+      } catch (err) {
+        // oxlint-disable-next-line typescript/no-explicit-any
+        if ((err as any).status === 401) {
+          return false;
+        }
+        throw err;
+      }
+    }
 
     /**
      * Path-RPC to a GreyCat @expose'd function. Standalone so the static factories

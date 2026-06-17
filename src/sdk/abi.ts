@@ -89,7 +89,7 @@ namespace gc {
     }
 
     export class Abi {
-      static readonly protocol_version = 2;
+      static readonly protocol_version = 3;
 
       readonly magic: number;
       readonly version: number;

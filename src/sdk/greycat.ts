@@ -123,7 +123,7 @@ namespace gc {
      * @returns {[ArrayBuffer, string | undefined]} returns a tuple containing the ABI data and optionally the token if a login has occured
      */
     export async function downloadAbi(
-      options: WithoutAbiOptions = {},
+      options: Omit<WithoutAbiOptions, 'auth'> & { auth?: Auth } = {},
       logger: DebugLogger,
     ): Promise<[ArrayBuffer, string | undefined]> {
       const { auth, signal, cache, unauthorizedHandler, url = await findGreyCat() } = options;
@@ -189,20 +189,77 @@ namespace gc {
       return [data, token];
     }
 
+    /** Strategy: log in with username/password, then authenticate via `Authorization`. */
+    export function passwordAuth(auth: IdentityAuth): AuthStrategy {
+      return {
+        async authenticate(ctx) {
+          const token = await login({ ...auth, url: new URL(ctx.url), signal: ctx.signal });
+          return { kind: 'token', token, info: undefined };
+        },
+      };
+    }
+
+    /** Strategy: authenticate with a pre-obtained token via the `Authorization` header. */
+    export function tokenAuth(token: string): AuthStrategy {
+      return { authenticate: async () => ({ kind: 'token', token, info: undefined }) };
+    }
+
+    /** Normalize the `auth` option (data form, openid spec, or strategy) into a strategy. */
+    function toStrategy(auth: WithoutAbiOptions['auth']): AuthStrategy<unknown> | null {
+      if (!auth) {
+        return null;
+      }
+      if ('authenticate' in auth) {
+        return auth;
+      }
+      if ('username' in auth) {
+        return passwordAuth(auth);
+      }
+      if ('token' in auth) {
+        return tokenAuth(auth.token);
+      }
+      if ('openid' in auth) {
+        return openidServerAuth(auth.openid);
+      }
+      if ('openidPkce' in auth) {
+        return openidPkceAuth(auth.openidPkce);
+      }
+      throw new Error(`gc.sdk.init: unknown auth form ${JSON.stringify(auth)}`);
+    }
+
+    /** Narrows an `init` result to the redirecting arm (the page is navigating away). */
+    export function isRedirecting(r: GreyCat | Ready<unknown> | Redirecting): r is Redirecting {
+      return (r as Redirecting).redirecting === true;
+    }
+
     /**
      * Initializes a GreyCat client using the given `options`.
      *
      * This method is asynchronous as it needs to download the ABI in order to communicate with the server.
      *
-     * *If the `auth` property is given, a first call to `runtime::Identity::login` will be made before anything else.*
-     *
-     * *For `libraries`, specifying `stdlib` is not required as it will always be loaded by default.*
+     * Authentication is resolved before the ABI download via `options.auth` (see
+     * {@link WithoutAbiOptions.auth}). With no auth or a data form (`{username,password}`
+     * / `{token}`) this resolves to a `GreyCat`. With an openid spec (`{ openid }` /
+     * `{ openidPkce }`) or an {@link AuthStrategy} it resolves to {@link Ready} `|`
+     * {@link Redirecting} - the page may navigate to the identity provider; narrow with
+     * {@link isRedirecting}.
      *
      * @param options
-     * @returns a GreyCat instance to initiate call requests to the backend.
+     * @returns a GreyCat instance (or a {@link Ready}/{@link Redirecting} result for strategy auth)
      * @throws on IO and ABI parse errors
      */
-    export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat> {
+    export function init(options?: WithoutAbiOptions & { auth?: Auth }): Promise<GreyCat>;
+    export function init(
+      options: WithoutAbiOptions & { auth: OpenidServerSpec },
+    ): Promise<Ready<OpenidServerResult | null> | Redirecting>;
+    export function init(
+      options: WithoutAbiOptions & { auth: OpenidPkceSpec },
+    ): Promise<Ready<HandleRedirectResult | null> | Redirecting>;
+    export function init<T>(options: WithoutAbiOptions & { auth: AuthStrategy<T> }): Promise<Ready<T> | Redirecting>;
+    // Fallback for callers holding a broadly-typed `WithoutAbiOptions` (the `auth`
+    // form is not statically known): the result may be any of the three shapes.
+    export function init(options?: WithoutAbiOptions): Promise<GreyCat | Ready<unknown> | Redirecting>;
+    export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat | Ready<unknown> | Redirecting> {
       const {
         name = 'default',
         url = await findGreyCat(),
@@ -217,11 +274,29 @@ namespace gc {
         abiMismatchHandler,
       } = options;
       const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
+      const cleanUrl = normalizeUrl(url);
 
-      const [data, token] = await downloadAbi(
+      // Resolve authentication (login / openid dance / token) before touching the ABI.
+      let token: string | undefined;
+      let info: unknown;
+      const strategy = toStrategy(auth);
+      if (strategy) {
+        const outcome = await strategy.authenticate({ url: cleanUrl, signal });
+        if (outcome.kind === 'redirecting') {
+          return { redirecting: true };
+        }
+        if (outcome.kind === 'token') {
+          token = outcome.token;
+        }
+        info = outcome.info;
+      }
+
+      const [data] = await downloadAbi(
         {
           url,
-          auth,
+          // strategy already authenticated; pass the token (if any) as a bearer,
+          // cookie-based outcomes rely on `credentials: 'include'`.
+          auth: token ? { token } : undefined,
           cache,
           maxTasks,
           unauthorizedHandler,
@@ -231,7 +306,6 @@ namespace gc {
         logger,
       );
       const abi = new Abi(data);
-      const cleanUrl = normalizeUrl(url);
 
       const wasm = await compileWasm();
 
@@ -261,7 +335,8 @@ namespace gc {
         // we probably don't have the permission to access this endpoint
       }
 
-      return g;
+      const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
+      return rich ? { greycat: g, auth: info } : g;
     }
 
     export function initWithAbi({
@@ -718,7 +793,9 @@ namespace gc {
         if (cachedRes) {
           headers['If-None-Match'] = cachedRes.etag;
         }
-        const init: RequestInit = { method: httpMethod, headers, signal };
+        // `include` so cookie-based sessions (e.g. openid) work cross-origin too;
+        // for same-origin it behaves like the default.
+        const init: RequestInit = { method: httpMethod, headers, credentials: 'include', signal };
         if (httpMethod === 'POST') {
           init.body = body;
         }

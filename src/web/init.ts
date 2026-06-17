@@ -98,7 +98,22 @@ export interface WebWithAbiOptions extends WebOptions, gc.sdk.WithAbiOptions {}
 declare global {
   namespace gc {
     namespace sdk {
-      function init(options: WebWithoutAbiOptions): Promise<gc.sdk.GreyCat>;
+      // Mirror the SDK `init` overloads with the web-specific options so callers
+      // keep the correct return shape (bare `GreyCat` for data auth, `Ready`/`Redirecting`
+      // for openid specs and strategies).
+      function init(options?: WebWithoutAbiOptions & { auth?: gc.sdk.Auth }): Promise<gc.sdk.GreyCat>;
+      function init(
+        options: WebWithoutAbiOptions & { auth: gc.sdk.OpenidServerSpec },
+      ): Promise<gc.sdk.Ready<gc.sdk.OpenidServerResult | null> | gc.sdk.Redirecting>;
+      function init(
+        options: WebWithoutAbiOptions & { auth: gc.sdk.OpenidPkceSpec },
+      ): Promise<gc.sdk.Ready<gc.sdk.HandleRedirectResult | null> | gc.sdk.Redirecting>;
+      function init<T>(
+        options: WebWithoutAbiOptions & { auth: gc.sdk.AuthStrategy<T> },
+      ): Promise<gc.sdk.Ready<T> | gc.sdk.Redirecting>;
+      function init(
+        options?: WebWithoutAbiOptions,
+      ): Promise<gc.sdk.GreyCat | gc.sdk.Ready<unknown> | gc.sdk.Redirecting>;
       function initWithAbi(options: WebWithAbiOptions): gc.sdk.GreyCat;
     }
   }
@@ -113,10 +128,13 @@ registerCustomElement('gui-sign-in-button', GuiSignInButton);
 
 const sdkInit = gc.sdk.init;
 gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
-  const g = await sdkInit(options);
-  registerWebComponents(options);
-  return g;
-};
+  const r = await sdkInit(options as gc.sdk.WithoutAbiOptions);
+  // Don't register components when the page is navigating away to an identity provider.
+  if (!gc.sdk.isRedirecting(r)) {
+    registerWebComponents(options);
+  }
+  return r;
+} as typeof gc.sdk.init;
 
 const sdkInitWithAbi = gc.sdk.initWithAbi;
 gc.sdk.initWithAbi = function webInitWithAbi(options: WebWithAbiOptions) {
