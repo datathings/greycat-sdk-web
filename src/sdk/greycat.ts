@@ -621,7 +621,7 @@ namespace gc {
 
         const updated = this.getTask(task.task_id);
         if (updated === undefined || isTaskRunning(updated)) {
-          const poll_id = this._poll.register(opts.pollEvery ?? 500);
+          const poll_id = this._poll.register(opts.pollEvery ?? 100);
           const { promise, resolve } = Promise.withResolvers<void>();
           const disposeTaskPollUpdate = this.on('tasks', async (tasks) => {
             const updated = tasks.find((t) => t.task_id === task.task_id);
