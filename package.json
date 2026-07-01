@@ -77,10 +77,5 @@
   "optionalDependencies": {
     "maplibre-gl": "5.16.0"
   },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "esbuild",
-      "lightningcss-cli"
-    ]
-  }
+  "packageManager": "pnpm@11.9.0"
 }
