@@ -1,4 +1,5 @@
-import { $, gcreg, getWasmLoader, type GreyCatWasmExports } from './registry.js';
+import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.js';
+import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { Poll } from './poll.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
@@ -123,13 +124,7 @@ const findGreyCat = async () => {
 };
 
 const NOOP_LOGGER = (): void => void 0;
-export const DEFAULT_LOGGER = (
-  name: string,
-  status: number,
-  method: string,
-  args?: unknown,
-  value?: unknown,
-): void => {
+export const DEFAULT_LOGGER = (name: string, status: number, method: string, args?: unknown, value?: unknown): void => {
   const bg = status >= 400 ? '#e8590c' : '#1983c1';
   console.log('%cGreyCat', `background:${bg};color:#fff;padding:2px;font-weight:bold`, `[${name}]`, {
     method,
@@ -252,6 +247,17 @@ export function isRedirecting(r: GreyCat | Ready<unknown> | Redirecting): r is R
   return (r as Redirecting).redirecting === true;
 }
 
+async function resolveWasm(source: WithoutAbiOptions['wasm']): Promise<GreyCatWasm | undefined> {
+  if (source === false) {
+    return undefined;
+  }
+  if (source === undefined) {
+    return loadPackagedWasm();
+  }
+  const wasm = await compileWasm(source);
+  return { module: wasm.module, exports: wasm.instance.exports };
+}
+
 /**
  * Initializes a GreyCat client using the given `options`.
  *
@@ -296,6 +302,12 @@ export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat | R
   const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
   const cleanUrl = normalizeUrl(url);
 
+  // Start the wasm load now so it runs while authentication and the ABI download proceed.
+  const wasmPromise = resolveWasm(options.wasm);
+  // The result is awaited after the ABI download; if that throws first, this
+  // handler keeps a wasm failure from surfacing as an unhandled rejection.
+  wasmPromise.catch(() => {});
+
   // Resolve authentication (login / openid dance / token) before touching the ABI.
   let token: string | undefined;
   let info: unknown;
@@ -327,7 +339,16 @@ export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat | R
   );
   const abi = new Abi(data);
 
-  const wasm = await getWasmLoader()?.();
+  let wasm: GreyCatWasm | undefined;
+  try {
+    wasm = await wasmPromise;
+  } catch (err) {
+    if (options.wasm !== undefined) {
+      // an explicitly requested source must load
+      throw err;
+    }
+    console.warn(`unable to load greycat.wasm`, err);
+  }
 
   const g = new GreyCat(
     name,
@@ -449,12 +470,7 @@ export interface GreyCat {
    */
   await<T = unknown>(task: TaskLike<T>, opts?: TaskOptions, signal?: AbortSignal): Promise<T>;
 
-  getFile<T = unknown>(
-    filepath: `${string}.gcb`,
-    offset?: number,
-    max?: number,
-    signal?: AbortSignal,
-  ): Promise<T[]>;
+  getFile<T = unknown>(filepath: `${string}.gcb`, offset?: number, max?: number, signal?: AbortSignal): Promise<T[]>;
   getFile<T = unknown>(filepath: string, offset?: number, max?: number, signal?: AbortSignal): Promise<T | T[]>;
   /**
    * Emitted everytime a task is spawn on this instance
@@ -504,7 +520,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   tasks: gc.runtime.Task[] = [];
   /** currently connected user permissions */
   permissions: string[];
-  /** GreyCat Wasm Module (`undefined` unless a wasm loader was registered, e.g. by importing `@greycat/web/wasm`) */
+  /** GreyCat Wasm Module (`undefined` when `init` ran with `wasm: false` or the load failed) */
   readonly module: WebAssembly.Module | undefined;
   /** GreyCat Wasm Exports */
   private _exports: GreyCatWasmExports | undefined;
@@ -1283,13 +1299,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   private wasmExports(): GreyCatWasmExports {
     if (this._exports === undefined) {
       throw new Error(
-        `GreyCat wasm is not loaded; import '@greycat/web/wasm' before init() or pass 'exports' to initWithAbi()`,
+        `GreyCat wasm is not loaded: pass a 'wasm' source to init({ wasm: ... }) or 'exports' to initWithAbi()`,
       );
     }
     return this._exports;
   }
 }
-
 
 export type CallJsonRawOptions = {
   /** Base URL of the GreyCat server. Default: `findGreyCat()`. */

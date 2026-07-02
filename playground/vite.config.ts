@@ -21,7 +21,6 @@ export default defineConfig(({ mode }) => ({
       '~': resolve(__dirname),
       '@greycat/web/jsx-dev-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
       '@greycat/web/jsx-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
-      '@greycat/web/wasm': resolve(__dirname, '../dist/wasm/index.js'),
       '@greycat/web/sdk': resolve(__dirname, '../dist/sdk/index.js'),
       '@greycat/web/greycat.css': resolve(__dirname, '../css/greycat.css'),
       '@greycat/web/greycat-full.css': resolve(__dirname, '../css/greycat-full.css'),

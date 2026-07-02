@@ -1,4 +1,4 @@
-import { copyFileSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
 import { rollup } from 'rollup';
 import dts from 'rollup-plugin-dts';
 
@@ -71,15 +71,3 @@ ${aliases.join('\n')}
 `,
 );
 writeFileSync('dist/sdk/index.js', `export * from './lib/global.js';\n`);
-
-// '@greycat/web/wasm' entry: shares the sdk module instances
-mkdirSync('dist/wasm', { recursive: true });
-writeFileSync(
-  'dist/wasm/index.d.ts',
-  `/// <reference path="../sdk/std.d.ts" />
-/// <reference path="../sdk/std.ext.d.ts" />
-/// <reference path="../sdk/gc-global.d.ts" />
-export * from '../sdk/lib/wasm.js';
-`,
-);
-writeFileSync('dist/wasm/index.js', `export * from '../sdk/lib/wasm.js';\n`);

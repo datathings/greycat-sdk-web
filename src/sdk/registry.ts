@@ -51,21 +51,3 @@ export interface GreyCatWasm {
   module: WebAssembly.Module;
   exports: GreyCatWasmExports;
 }
-
-export type WasmLoader = () => Promise<GreyCatWasm>;
-
-let wasmLoader: WasmLoader | undefined;
-
-/**
- * Registers the loader `init()` uses to compile GreyCat's wasm module.
- *
- * Importing `@greycat/web/wasm` calls this with a loader for the packaged `greycat.wasm`.
- * Without a registered loader, `GreyCat.parseTime`/`printTime` throw.
- */
-export function registerWasmLoader(loader: WasmLoader): void {
-  wasmLoader = loader;
-}
-
-export function getWasmLoader(): WasmLoader | undefined {
-  return wasmLoader;
-}

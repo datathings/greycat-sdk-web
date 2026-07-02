@@ -9,7 +9,6 @@ await gc.sdk.init();
 
 // after
 import '@greycat/web/components/all.js'; // or cherry-pick, see below
-import '@greycat/web/wasm';              // only if you use parseTime/printTime
 await gc.sdk.init();
 ```
 
@@ -41,36 +40,27 @@ import '@greycat/web/components/chart';
   tables render as `gui-table`; unimported types fall back to
   `gui-object`/`gui-value`.
 
-## Wasm is opt-in
+## Wasm
 
-`GreyCat.parseTime`/`printTime` need the wasm module. It is no longer
-inlined; import it once before `init()`:
-
-```ts
-import '@greycat/web/wasm';
-```
-
-Without it, `parseTime`/`printTime` throw. `dist/greycat.wasm` ships in the
-package and resolves relative to the module (works with Vite, Node, Bun).
-
-### Loading the wasm from a custom path
-
-Register your own loader after the import (the last registered loader
-wins; `init()` calls it):
+The wasm bytes are no longer inlined in the JS bundle. `init()` loads the
+packaged `dist/greycat.wasm` by default (resolved relative to the module;
+works with Vite, Node, Bun) - nothing to do.
 
 ```ts
-import { compileWasm } from '@greycat/web/wasm';
-import { registerWasmLoader } from '@greycat/web/sdk';
+// custom path
+await gc.sdk.init({ wasm: new URL('/assets/greycat.wasm', location.href) });
 
-registerWasmLoader(async () => {
-  const { module, instance } = await compileWasm(new URL('/assets/greycat.wasm', location.href));
-  return { module, exports: instance.exports };
-});
+// skip it (parseTime/printTime will throw)
+await gc.sdk.init({ wasm: false });
 ```
 
-`compileWasm(source)` accepts a `URL` (http or file), a `Response`, a
-`BufferSource` (bytes you fetched yourself) or a precompiled
-`WebAssembly.Module`.
+`wasm` accepts a `URL` (http or file), a `Response`, a `BufferSource` or a
+precompiled `WebAssembly.Module`. If the default load fails, `init()` warns
+and continues; an explicit `wasm` source that fails rejects `init()`.
+
+`initWithAbi()` is synchronous and cannot fetch: precompile with
+`compileWasm()` (exported by `@greycat/web/sdk`) and pass
+`{ module, exports }` as before.
 
 ## Vendor re-exports are gone
 
@@ -121,7 +111,7 @@ await gc.sdk.init();
   bundler resolves dependencies and tree-shakes unused components.
 - New export subpaths: `./components/all.js`, `./components/<name>`
   (registers + exports classes), `./components/<path>.js` (raw module),
-  `./shoelace.js`, `./wasm`.
+  `./shoelace.js`.
 
 ## Removed
 

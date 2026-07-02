@@ -3,7 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 import '@greycat/web/sdk';
-import { compileWasm } from '@greycat/web/wasm';
+import { compileWasm } from '@greycat/web/sdk';
 
 const here = dirname(fileURLToPath(import.meta.url));
 

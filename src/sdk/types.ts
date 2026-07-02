@@ -2,6 +2,7 @@ import type { GCObject } from './GCObject.js';
 import type { Abi, AbiType } from './abi.js';
 import type { AbiReader } from './io.js';
 import type { GreyCatWasmExports } from './registry.js';
+import type { WasmSource } from './wasm.js';
 import type { OpenidServerSpec, OpenidPkceSpec } from './openid.js';
 import type { GreyCat } from './greycat.js';
 // using Pick<...> to catch bug earlier if `runtime.Task` changes
@@ -230,14 +231,24 @@ export interface WithoutAbiOptions extends Options {
   auth?: Auth | AuthStrategy | OpenidServerSpec | OpenidPkceSpec;
   /** This signal is given to the request that loads the ABI. */
   signal?: AbortSignal;
+  /**
+   * GreyCat wasm source, needed by `GreyCat.parseTime`/`printTime`.
+   *
+   *  - `undefined` (default): loads the `greycat.wasm` packaged with `@greycat/web`.
+   *    A load failure logs a warning and `init` proceeds without wasm.
+   *  - `URL | Response | BufferSource | WebAssembly.Module`: loads that source
+   *    (see `compileWasm`). A load failure rejects `init`.
+   *  - `false`: skips wasm loading; `parseTime`/`printTime` will throw.
+   */
+  wasm?: WasmSource | false;
 }
 
 export interface WithAbiOptions extends Options {
   /** The ABI to use internally */
   abi: Abi;
-  /** Wasm module (use `compileWasm()` from `@greycat/web/wasm`) */
+  /** Wasm module (use `compileWasm()`) */
   module?: WebAssembly.Module;
-  /** Wasm instance exports (use `compileWasm()` from `@greycat/web/wasm`) */
+  /** Wasm instance exports (use `compileWasm()`) */
   exports?: GreyCatWasmExports;
   /** Optional auth token */
   token?: string;

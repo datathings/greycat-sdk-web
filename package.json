@@ -12,8 +12,6 @@
     "./dist/sdk/index.js",
     "./dist/sdk/lib/global.js",
     "./dist/sdk/lib/polyfill.js",
-    "./dist/sdk/lib/wasm.js",
-    "./dist/wasm/index.js",
     "./dist/web/index.js",
     "./dist/web/init.js",
     "./dist/web/extensions.js",
@@ -30,10 +28,6 @@
     "./sdk": {
       "types": "./dist/sdk/index.d.ts",
       "import": "./dist/sdk/index.js"
-    },
-    "./wasm": {
-      "types": "./dist/wasm/index.d.ts",
-      "import": "./dist/wasm/index.js"
     },
     "./greycat.wasm": "./dist/greycat.wasm",
     "./jsx-runtime": {
@@ -68,7 +62,7 @@
     "gen": "greycat install && rm lib/installed && GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
-    "build:sdk": "node scripts/gen-wasm.js && rm -rf dist/sdk dist/wasm && tsc -p src/sdk/tsconfig.json && node scripts/build-dts.js",
+    "build:sdk": "node scripts/gen-wasm.js && rm -rf dist/sdk && tsc -p src/sdk/tsconfig.json && node scripts/build-dts.js",
     "build:web": "rm -rf dist/web && tsc -p src/web/tsconfig.json && rollup -c rollup.web.js",
     "build:vite-plugin": "tsc -p src/vite-plugin/tsconfig.json",
     "build:css": "pnpm run build:css:greycat && pnpm run build:css:greycat-full",

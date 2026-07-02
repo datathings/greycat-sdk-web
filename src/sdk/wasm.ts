@@ -1,4 +1,4 @@
-import { registerWasmLoader, type GreyCatWasmExports } from './registry.js';
+import type { GreyCatWasm, GreyCatWasmExports } from './registry.js';
 
 /**
  * URL of the packaged `greycat.wasm`, resolved relative to this module.
@@ -12,8 +12,8 @@ export type WasmSource = URL | Response | BufferSource | WebAssembly.Module;
 /**
  * Instantiates GreyCat's wasm module.
  *
- * Importing this module registers a loader so that `gc.sdk.init()` compiles the packaged
- * `greycat.wasm` automatically; call this directly only to control the source yourself.
+ * `gc.sdk.init()` handles this automatically (see `WithoutAbiOptions.wasm`); call this directly
+ * only to precompile for `initWithAbi()`.
  *
  * @param source defaults to {@link WASM_URL}. Pass a `BufferSource` to skip fetching (e.g. bytes
  *               read from disk or an inlined binary).
@@ -61,7 +61,10 @@ export async function compileWasm(source: WasmSource = WASM_URL): Promise<{
   };
 }
 
-registerWasmLoader(async () => {
-  const wasm = await compileWasm();
-  return { module: wasm.module, exports: wasm.instance.exports };
-});
+let packagedWasm: Promise<GreyCatWasm> | undefined;
+
+/** Compiles the packaged `greycat.wasm` ({@link WASM_URL}) once; subsequent calls share the result. */
+export function loadPackagedWasm(): Promise<GreyCatWasm> {
+  packagedWasm ??= compileWasm().then((wasm) => ({ module: wasm.module, exports: wasm.instance.exports }));
+  return packagedWasm;
+}

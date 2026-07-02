@@ -1,12 +1,7 @@
 import './polyfill.js';
 
-export {
-  registerWasmLoader,
-  getWasmLoader,
-  type GreyCatWasmExports,
-  type GreyCatWasm,
-  type WasmLoader,
-} from './registry.js';
+export { type GreyCatWasmExports, type GreyCatWasm } from './registry.js';
+export * from './wasm.js';
 export * from './emitter.js';
 export * from './poll.js';
 export * from './GCObject.js';
