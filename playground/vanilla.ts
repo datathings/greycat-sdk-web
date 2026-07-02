@@ -1,4 +1,5 @@
 import '@greycat/web';
+import '@greycat/web/wasm';
 import type { GuiObject, GuiTable, sl } from '@greycat/web';
 import '@greycat/web/greycat.css';
 
@@ -15,14 +16,17 @@ const entries = [
 
 table.rowHeight = 40;
 table.value = entries;
-table.columnFactory = {
-  3: (_, rowIdx) => {
-    const link = document.createElement('a');
-    link.textContent = 'Details';
-    link.onclick = () => {
-      details.value = entries[rowIdx];
-      drawer.show();
-    };
-    return link;
+table.columns = [
+  {
+    index: 3,
+    cell: ({ row }) => {
+      const link = document.createElement('a');
+      link.textContent = 'Details';
+      link.onclick = () => {
+        details.value = entries[row];
+        drawer.show();
+      };
+      return link;
+    },
   },
-};
+];

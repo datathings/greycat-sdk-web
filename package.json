@@ -8,15 +8,28 @@
     "src"
   ],
   "type": "module",
+  "sideEffects": [
+    "./dist/sdk/index.js",
+    "./dist/sdk/lib/global.js",
+    "./dist/sdk/lib/polyfill.js",
+    "./dist/sdk/lib/wasm.js",
+    "./dist/wasm/index.js",
+    "./dist/web/**/*.js"
+  ],
   "exports": {
     ".": {
-      "types": "./dist/types/index.d.ts",
-      "import": "./dist/greycat.web.esm.js"
+      "types": "./dist/web/index.d.ts",
+      "import": "./dist/web/index.js"
     },
     "./sdk": {
-      "types": "./dist/greycat.d.ts",
-      "import": "./dist/greycat.js"
+      "types": "./dist/sdk/index.d.ts",
+      "import": "./dist/sdk/index.js"
     },
+    "./wasm": {
+      "types": "./dist/wasm/index.d.ts",
+      "import": "./dist/wasm/index.js"
+    },
+    "./greycat.wasm": "./dist/greycat.wasm",
     "./jsx-runtime": {
       "types": "./dist/jsx/jsx-runtime.d.ts",
       "import": "./dist/jsx/jsx-runtime.js"
@@ -37,8 +50,8 @@
     "gen": "greycat install && rm lib/installed && GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",
     "build": "pnpm build:jsx && pnpm build:sdk && pnpm build:web && pnpm build:vite-plugin && pnpm build:css",
     "build:jsx": "tsc -p src/jsx/tsconfig.json",
-    "build:sdk": "node scripts/gen-wasm.js && rm -rf dist/greycat.d.ts && tsc -p src/sdk/tsconfig.json && cat std.d.ts >> dist/greycat.d.ts && cat std.ext.d.ts >> dist/greycat.d.ts",
-    "build:web": "tsc -p src/web/tsconfig.json && node esbuild.config.js",
+    "build:sdk": "node scripts/gen-wasm.js && rm -rf dist/sdk dist/wasm && tsc -p src/sdk/tsconfig.json && node scripts/build-dts.js",
+    "build:web": "rm -rf dist/web && tsc -p src/web/tsconfig.json && rollup -c rollup.web.js",
     "build:vite-plugin": "tsc -p src/vite-plugin/tsconfig.json",
     "build:css": "pnpm run build:css:greycat && pnpm run build:css:greycat-full",
     "build:css:greycat": "lightningcss --minify --bundle --targets '>=0.25%' css/greycat.css -o dist/greycat.css",
@@ -53,6 +66,7 @@
   },
   "dependencies": {
     "@shoelace-style/shoelace": "2.20.1",
+    "@types/d3": "7.4.3",
     "d3": "7.9.0",
     "dockview-core": "3.2.0",
     "echarts": "6.0.0",
@@ -61,7 +75,6 @@
   },
   "devDependencies": {
     "@tabler/icons": "2.47.0",
-    "@types/d3": "7.4.3",
     "@types/node": "24.9.2",
     "esbuild": "0.27.2",
     "lightningcss": "1.31.0",

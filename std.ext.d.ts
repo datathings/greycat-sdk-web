@@ -1,28 +1,4 @@
 declare namespace gc {
-  export namespace sdk {
-    export interface GreyCatWasmExports {
-      memory: WebAssembly.Memory;
-      /**
-       * @param {number} str_ptr Pointer to `const char *str`
-       * @param {number} len `str_ptr` length
-       * @param {number} tz `core::TimeZone` field offset
-       * @param {number} out_epoch_us_ptr address of the result epoch `i64_t *out_epoch_us`
-       * @result `1`=success, `0`=error
-       */
-      gc_dtz_time__parse(str_ptr: number, len: number, tz: number, out_epoch_us_ptr: number): number;
-
-      /**
-       * i64_t epoch_us, u32_t tz, const char *format_c_str, char *out, u32_t out_cap
-       * @param {bigint} epoch_us timestamp in microseconds
-       * @param {number} tz `core::TimeZone` field offset
-       * @param {number} format_ptr pointer to a c-string format specifier
-       * @param {number} out_ptr pointer to the print buffer to write to
-       * @param {number} out_cap maximum capacity of the print buffer
-       * @return {number} the number of bytes written to print buffer
-       */
-      gc_dtz_time__print(epoch_us: bigint, tz: number, format_ptr: number, out_ptr: number, out_cap: number): number;
-    }
-  }
 
   interface $TypesMap {}
   type AllTypes = keyof $TypesMap extends never ? string : keyof $TypesMap;

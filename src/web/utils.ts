@@ -180,7 +180,7 @@ export function getIndexInParent(element: Node): number {
   return index;
 }
 
-export function greycatTypeFromValueStr(value: unknown, g = gc.$.default): string {
+export function greycatTypeFromValueStr(value: unknown, g: gc.sdk.GreyCat = gc.$.default): string {
   switch (typeof value) {
     case 'bigint':
     case 'number':

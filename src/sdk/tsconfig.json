@@ -1,13 +1,12 @@
 {
   "compilerOptions": {
-    "ignoreDeprecations": "6.0",
-
     "rootDir": ".",
-    "outFile": "../../dist/greycat.js",
+    "outDir": "../../dist/sdk/lib",
     "declaration": true,
 
     "target": "ES2024",
-    "module": "none",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
 
     "sourceMap": true,
     "strict": true,
@@ -17,7 +16,6 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitOverride": true,
-    "allowJs": true,
 
     "lib": ["DOM", "ES2024"],
     // This empty array IS important to prevent TypeScript
@@ -25,51 +23,6 @@
     // common resolution directories (node_modules, etc.)
     "types": []
   },
-  // ORDER IS IMPORTANT
-  "files": [
-    "polyfill.ts",
-    "wasm.ts",
-    "emitter.ts",
-    "poll.ts",
-    "GCObject.ts",
-    "GCEnum.ts",
-    "abi.ts",
-    "types.ts",
-    "io.ts",
-    "serde.ts",
-    "crypto.ts",
-    "openid.ts",
-    "../../std.d.ts",
-    "../../std.ext.d.ts",
-    "std.ext.ts",
-    "std_n/core/Array.ts",
-    "std_n/core/bool.ts",
-    "std_n/core/Buffer.ts",
-    "std_n/core/char.ts",
-    "std_n/core/duration.ts",
-    "std_n/core/field.ts",
-    "std_n/core/float.ts",
-    "std_n/core/fn.ts",
-    "std_n/core/geo.ts",
-    "std_n/core/int.ts",
-    "std_n/core/Map.ts",
-    "std_n/core/nodeGeo.ts",
-    "std_n/core/nodeIndex.ts",
-    "std_n/core/nodeList.ts",
-    "std_n/core/nodeTimeCursor.ts",
-    "std_n/core/nodeTime.ts",
-    "std_n/core/node.ts",
-    "std_n/core/null.ts",
-    "std_n/core/String.ts",
-    "std_n/core/Table.ts",
-    "std_n/core/Tensor.ts",
-    "std_n/core/time.ts",
-    "std_n/core/type.ts",
-    "utils/bytes.ts",
-    "utils/duration.ts",
-    "utils/error.ts",
-    "utils/misc.ts",
-    "greycat.ts",
-    "global.ts"
-  ]
+  "files": ["../../std.d.ts", "../../std.ext.d.ts", "_global.d.ts"],
+  "include": ["**/*.ts"]
 }

@@ -3,6 +3,7 @@ import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
 import '@greycat/web/sdk';
+import { compileWasm } from '@greycat/web/wasm';
 
 const here = dirname(fileURLToPath(import.meta.url));
 
@@ -10,7 +11,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 export async function initLocal() {
   const abiBuf = /** @type {ArrayBuffer} */ ((await readFile(join(here, 'abi.bin'))).buffer);
   const abi = new gc.sdk.Abi(abiBuf);
-  const wasm = await gc.sdk.compileWasm();
+  const wasm = await compileWasm();
   gc.sdk.initWithAbi({ abi, module: wasm.module, exports: wasm.instance.exports });
   return abi;
 }

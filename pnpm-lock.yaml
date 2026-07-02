@@ -11,6 +11,9 @@ importers:
       '@shoelace-style/shoelace':
         specifier: 2.20.1
         version: 2.20.1(@floating-ui/utils@0.2.11)(@types/react@19.2.17)
+      '@types/d3':
+        specifier: 7.4.3
+        version: 7.4.3
       d3:
         specifier: 7.9.0
         version: 7.9.0
@@ -30,9 +33,6 @@ importers:
       '@tabler/icons':
         specifier: 2.47.0
         version: 2.47.0
-      '@types/d3':
-        specifier: 7.4.3
-        version: 7.4.3
       '@types/node':
         specifier: 24.9.2
         version: 24.9.2

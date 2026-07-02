@@ -26,12 +26,4 @@ cd dist
 
 # sdk/web
 curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/sdk/web/${BRANCH}/latest"
-curl -s -X PUT -H "Authorization: $token" -T sdk_web.zip                         "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.zip"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/package.tgz                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.tgz"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.css                 "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.css"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.js                  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.js"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.web.js              "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.web.js"
-curl -s -X PUT -H "Authorization: $token" -T sdk/web/greycat.web.esm.js          "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.web.esm.js"
-# web
-curl -s -X PUT -H "Authorization: $token" -d "${VERSION_MAJOR_MINOR}/${VERSION}" "${ROOT_URL}/web/${BRANCH}/latest"
-curl -s -X PUT -H "Authorization: $token" -T web.zip                             "${ROOT_URL}/web/${BRANCH}/${VERSION_MAJOR_MINOR}/noarch/${VERSION}.zip"
+curl -s -X PUT -H "Authorization: $token" -T package.tgz                         "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${VERSION}.tgz"

@@ -14,7 +14,8 @@
       "~/*": ["./*"],
       "@greycat/web/jsx-dev-runtime": ["../src/jsx/jsx-runtime.ts"],
       "@greycat/web/jsx-runtime": ["../src/jsx/jsx-runtime.ts"],
-      "@greycat/web/sdk": ["../src/sdk"],
+      "@greycat/web/sdk": ["../dist/sdk/index.d.ts"],
+      "@greycat/web/wasm": ["../dist/wasm/index.d.ts"],
       "@greycat/web": ["../src/web"]
     }
   },
