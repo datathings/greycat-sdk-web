@@ -78,13 +78,6 @@
   "dependencies": {
     "@types/d3": "7.4.3"
   },
-  "peerDependencies": {
-    "@shoelace-style/shoelace": "^2.20.1",
-    "d3": "^7.9.0",
-    "dockview-core": "^3.2.0",
-    "echarts": "^6.0.0",
-    "maplibre-gl": "^5.16.0"
-  },
   "devDependencies": {
     "@shoelace-style/shoelace": "2.20.1",
     "@tabler/icons": "2.47.0",
@@ -97,12 +90,19 @@
     "lightningcss-cli": "1.31.0",
     "maplibre-gl": "5.16.0",
     "oxfmt": "0.26.0",
-    "oxlint": "1.41.0",
+    "oxlint": "1.72.0",
     "rollup": "4.55.2",
     "rollup-plugin-dts": "6.3.0",
     "tslib": "2.8.1",
     "typescript": "6.0.3",
     "vite": "7.3.1"
+  },
+  "peerDependencies": {
+    "@shoelace-style/shoelace": "^2.20.1",
+    "d3": "^7.9.0",
+    "dockview-core": "^3.2.0",
+    "echarts": "^6.0.0",
+    "maplibre-gl": "^5.16.0"
   },
   "packageManager": "pnpm@11.9.0"
 }
