@@ -3,7 +3,6 @@ import './card/register.js';
 import './chart/register.js';
 import './chart2/register.js';
 import './csv/register.js';
-import './dashboard/register.js';
 import './details/register.js';
 import './dialog/register.js';
 import './donut/register.js';

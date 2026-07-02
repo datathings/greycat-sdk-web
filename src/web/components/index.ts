@@ -16,7 +16,6 @@ export * from './object/index.js';
 export * from './select/index.js';
 export * from './inputs/index.js';
 export * from './tabs/index.js';
-export * from './dashboard/index.js';
 export * from './fn-select/index.js';
 export * from './roles/index.js';
 export * from './identities/index.js';

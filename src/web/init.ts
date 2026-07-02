@@ -15,7 +15,6 @@ import type {
   GuiChartYAxesInput,
   GuiCsvStatistics,
   GuiCsvStatistics2,
-  GuiDashboard,
   GuiDetails,
   GuiDialog,
   GuiDonut,
