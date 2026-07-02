@@ -1,4 +1,7 @@
-import { css, getIndexInParent, GuiChangeEvent, GuiInputEvent, type sl } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { getIndexInParent } from '../../utils.js';
+import { css } from '../common.js';
+import { GuiChangeEvent, GuiInputEvent } from '../events.js';
 import { GuiInputElement } from '../inputs/index.js';
 
 import style from './select.css?inline';

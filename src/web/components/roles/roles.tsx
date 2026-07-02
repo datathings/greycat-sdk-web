@@ -1,4 +1,7 @@
-import { GuiElement, css, toast, type GuiTable } from '../../exports.js';
+import { toast } from '../../toast.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
+import type { GuiTable } from '../table/table.js';
 import style from './roles.css?inline';
 
 export class GuiRoles extends GuiElement {

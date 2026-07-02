@@ -1,4 +1,6 @@
-import { chart2Config, type Chart2Grid, getThemeColors, type GuiChart2 } from '../../exports.js';
+import type { GuiChart2 } from '../chart2/chart2.js';
+import { chart2Config, type Chart2Grid } from '../chart2/types.js';
+import { getThemeColors } from '../chart2/utils.js';
 import { css } from '../common.js';
 import { GuiElement } from '../element.js';
 

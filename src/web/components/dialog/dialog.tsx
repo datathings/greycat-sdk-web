@@ -1,8 +1,10 @@
-import { css, sl, SlDialogEventMap } from '../../exports.js';
+import SlDialog from '@shoelace-style/shoelace/dist/components/dialog/dialog.js';
+import { SlDialogEventMap } from '../../shoelace.js';
+import { css } from '../common.js';
 import styles from './dialog.css?inline';
 
-export class GuiDialog extends sl.SlDialog {
-  static override styles = [sl.SlDialog.styles as CSSStyleSheet, css(styles)];
+export class GuiDialog extends SlDialog {
+  static override styles = [SlDialog.styles as CSSStyleSheet, css(styles)];
 }
 
 declare global {

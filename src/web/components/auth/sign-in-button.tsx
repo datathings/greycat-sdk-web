@@ -2,7 +2,8 @@
 // note in `sign-in.tsx` for context.
 import { GuiElement } from '../element.js';
 import { css } from '../common.js';
-import { type sl, type GuiDialog } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import type { GuiDialog } from '../dialog/dialog.js';
 import { GuiAuthSuccessEvent, GuiSignedOutEvent } from '../events.js';
 import style from './sign-in-button.css?inline';
 

@@ -1,4 +1,4 @@
-import { ChartConfig } from '../../exports.js';
+import { ChartConfig } from '../chart/types.js';
 
 export class GuiHistogram extends HTMLElement {
   static GC_UTIL_THRESHOLD_LOG = 1e-4;

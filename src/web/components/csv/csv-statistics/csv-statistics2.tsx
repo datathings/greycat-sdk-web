@@ -1,4 +1,7 @@
-import { type GuiTable, GuiElement, css, GuiDialog } from '../../../exports.js';
+import { css } from '../../common.js';
+import { GuiDialog } from '../../dialog/dialog.js';
+import { GuiElement } from '../../element.js';
+import type { GuiTable } from '../../table/table.js';
 import '../../table/index.js'; // ensures table is defined
 import '../../tabs/index.js';
 // import ../../donut/index.js;

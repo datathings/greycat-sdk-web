@@ -1,4 +1,10 @@
-import { toast, type GuiTable, GuiClickEvent, sl, modal, css, GuiElement, CellValueData } from '../../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { modal } from '../../../modal.js';
+import { toast } from '../../../toast.js';
+import { css } from '../../common.js';
+import { GuiElement } from '../../element.js';
+import { GuiClickEvent } from '../../events.js';
+import { CellValueData, type GuiTable } from '../../table/table.js';
 import style from './tasks.css?inline';
 
 export class GuiTasks extends GuiElement {

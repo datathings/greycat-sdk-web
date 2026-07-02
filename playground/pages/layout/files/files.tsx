@@ -2,10 +2,10 @@ import {
   GuiFiles,
   querySelectorAllWithShadow,
   setGlobalDateTimeFormatTimezone,
-  sl,
   svg,
   toggleTheme,
 } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import '@greycat/web/greycat.css';
 import './styles.css';
 import LogoIcon from './logo.svg?raw';

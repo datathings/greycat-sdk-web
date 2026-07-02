@@ -1,4 +1,4 @@
-import { GuiDashboardFetcher } from '../../exports.js';
+import { GuiDashboardFetcher } from './dashboard.js';
 
 export interface GreycatFetcherState {
   /**

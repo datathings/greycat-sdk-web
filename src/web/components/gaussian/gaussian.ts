@@ -1,4 +1,6 @@
-import { css, GuiChart, GuiElement } from '../../exports.js';
+import { GuiChart } from '../chart/chart.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './gaussian.css?inline';
 
 export class GuiGaussian extends GuiElement {

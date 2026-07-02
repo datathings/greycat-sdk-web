@@ -1,4 +1,6 @@
-import { css, GuiElement, sl } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import styles from './tensor.css?inline';
 
 const COL = 'col';

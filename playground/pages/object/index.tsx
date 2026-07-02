@@ -1,4 +1,5 @@
-import { GuiFactory, GuiObject, GuiObjectFieldValue, type sl } from '@greycat/web';
+import { GuiFactory, GuiObject, GuiObjectFieldValue } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import { appLayout } from '~/common';
 import './index.css';
 

@@ -1,6 +1,6 @@
 import * as d3 from 'd3';
 import { Axis, ChartConfig, Scale, SerieTableColumn } from './types.js';
-import { greycatTypeFromValueStr } from '../../exports.js';
+import { greycatTypeFromValueStr } from '../../utils.js';
 
 const SECONDS_IN_MS = 1000;
 const MINUTES_IN_MS = SECONDS_IN_MS * 60;

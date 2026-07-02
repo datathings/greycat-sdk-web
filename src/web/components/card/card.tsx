@@ -1,9 +1,10 @@
-import { css, sl } from '../../exports.js';
+import SlCard from '@shoelace-style/shoelace/dist/components/card/card.js';
+import { css } from '../common.js';
 import styles from './card.css?inline';
 import componentStyles from '../component.styles.css?inline';
 
-export class GuiCard extends sl.SlCard {
-  static override styles = [sl.SlCard.styles as CSSStyleSheet, css(componentStyles), css(styles)];
+export class GuiCard extends SlCard {
+  static override styles = [SlCard.styles as CSSStyleSheet, css(componentStyles), css(styles)];
 }
 
 declare global {

@@ -1,18 +1,12 @@
 import * as d3 from 'd3';
 
 import { debounce } from '../../utils.js';
-import {
-  TableLike,
-  Cursor,
-  CanvasContext,
-  getColors,
-  HeatmapConfig,
-  HeatmapData,
-  HeatmapStyle,
-  convertToTable,
-  GuiElement,
-  css,
-} from '../../exports.js';
+import { getColors } from '../../utils.js';
+import { CanvasContext } from '../chart/ctx.js';
+import { Cursor } from '../chart/types.js';
+import { TableLike, convertToTable, css } from '../common.js';
+import { GuiElement } from '../element.js';
+import { HeatmapConfig, HeatmapData, HeatmapStyle } from './types.js';
 import './tooltip.js';
 import { GuiHeatmapTooltip } from './tooltip.js';
 import style from './heatmap.css?inline';

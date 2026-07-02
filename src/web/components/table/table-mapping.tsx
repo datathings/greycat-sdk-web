@@ -1,4 +1,7 @@
-import { GuiElement, css, sl, GuiTableMappingsDeleteEvent } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
+import { GuiTableMappingsDeleteEvent } from './table-mappings.js';
 import style from './table-mapping.css?inline';
 
 export class GuiTableMapping extends GuiElement {

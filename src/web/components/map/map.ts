@@ -1,5 +1,7 @@
+import maplibregl from 'maplibre-gl';
 import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline';
-import { css, GuiElement } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import { GuiMapLayer } from './map-layer.js';
 import { GuiMapSource } from './map-source.js';
 import { GuiMapElement } from './model.js';
@@ -8,7 +10,7 @@ import style from './map.css?inline';
 export type GuiMapOptions = Omit<maplibregl.MapOptions, 'container'>;
 
 /**
- * This component is only available if `maplibre-gl` is globally available
+ * Wraps a `maplibre-gl` map; requires the `maplibre-gl` peer dependency
  */
 export class GuiMap extends GuiElement {
   static override styles = [css(maplibreStyle), css(style)];

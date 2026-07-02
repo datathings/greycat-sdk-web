@@ -1,4 +1,5 @@
-import { css, getBooleanAttribute, GuiElement } from '../../exports.js';
+import { css, getBooleanAttribute } from '../common.js';
+import { GuiElement } from '../element.js';
 import tabsStyle from './tabs.css?inline';
 import tabStyle from './tab.css?inline';
 import panelStyle from './panel.css?inline';

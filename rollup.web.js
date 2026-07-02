@@ -1,4 +1,4 @@
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import { transform } from 'esbuild';
@@ -81,8 +81,13 @@ const esbuildTransform = {
   },
 };
 
+// every self-registering component module is its own entry point
+const registerInputs = readdirSync('src/web/components', { withFileTypes: true })
+  .filter((e) => e.isDirectory() && existsSync(`src/web/components/${e.name}/register.ts`))
+  .map((e) => `src/web/components/${e.name}/register.ts`);
+
 export default {
-  input: 'src/web/index.ts',
+  input: ['src/web/index.ts', 'src/web/shoelace.ts', 'src/web/components/all.ts', ...registerInputs],
   // bare imports (lit, d3, echarts, shoelace, dockview-core, maplibre-gl,
   // @greycat/web self-references) stay external and resolve in the consumer
   external: (id) => !id.startsWith('.') && !path.isAbsolute(id) && !id.includes('?'),

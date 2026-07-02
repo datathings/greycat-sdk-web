@@ -1,5 +1,6 @@
 import { vMap } from './components/chart/internals.js';
-import { Axis, Ordinate, Scale, Serie, tableGetCell } from './exports.js';
+import { Axis, Ordinate, Scale, Serie } from './components/chart/types.js';
+import { tableGetCell } from './components/chart/utils.js';
 
 export function stripOffset(iso: string): string {
   for (let i = iso.length - 1; i >= 0; i--) {

@@ -10,7 +10,8 @@ import {
 } from 'dockview-core';
 
 import { createElement } from '@greycat/web/jsx-runtime';
-import { css, GuiElement } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './dashboard.css?inline';
 import dockviewStyle from 'dockview-core/dist/styles/dockview.css?inline';
 

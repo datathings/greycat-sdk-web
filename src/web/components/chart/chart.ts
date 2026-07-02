@@ -15,25 +15,15 @@ import type {
   Axis,
 } from './types.js';
 import { vMap } from './internals.js';
-import {
-  createFormatter,
-  smartTimeFormatSpecifier,
-  CanvasContext,
-  getColors,
-  convertToTable,
-  GuiChartConfig,
-  GuiElement,
-  css,
-  tableGetCell,
-  tableGetColumn,
-  tableGetColumnIndex,
-  isOrdSerieTableColumn,
-  padLinear,
-  padLog,
-  inferConfig,
-  GuiChartConfigUpdateEvent,
-} from '../../exports.js';
-import type { sl, TableLike } from '../../exports.js';
+import { getColors } from '../../utils.js';
+import { convertToTable, css } from '../common.js';
+import { GuiElement } from '../element.js';
+import { GuiChartConfig, GuiChartConfigUpdateEvent } from './chart-config.js';
+import { CanvasContext } from './ctx.js';
+import { isOrdSerieTableColumn } from './types.js';
+import { createFormatter, smartTimeFormatSpecifier, tableGetCell, tableGetColumn, tableGetColumnIndex, padLinear, padLog, inferConfig } from './utils.js';
+import type * as sl from '@shoelace-style/shoelace';
+import type { TableLike } from '../common.js';
 import style from './chart.css?inline';
 
 type ComputedState = {

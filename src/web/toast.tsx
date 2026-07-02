@@ -1,4 +1,6 @@
-import { type sl } from './exports.js';
+import '@shoelace-style/shoelace/dist/components/alert/alert.js';
+import '@shoelace-style/shoelace/dist/components/icon/icon.js';
+import type * as sl from '@shoelace-style/shoelace';
 
 export interface Toast {
   message: Node | string;

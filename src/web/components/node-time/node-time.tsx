@@ -17,18 +17,13 @@ echarts.use([
   CanvasRenderer,
 ]);
 
-import {
-  GuiElement,
-  type GuiTable,
-  type GuiInputNumber,
-  type GuiInputEnum,
-  type GuiInputDuration,
-  type GuiTableProps,
-  css,
-  type GuiTabs,
-  type sl,
-  smartTimeFormatSpecifier,
-} from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { smartTimeFormatSpecifier } from '../chart/utils.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
+import type { GuiInputNumber, GuiInputEnum, GuiInputDuration } from '../inputs/inputs.js';
+import type { GuiTable, GuiTableProps } from '../table/table.js';
+import type { GuiTabs } from '../tabs/tabs.js';
 import { getColors, debounce } from '../../utils.js';
 import { getThemeColors, buildAxis, inferConfig2, mergeChartConfig } from '../chart2/utils.js';
 import { GuiChart2ConfigUpdateEvent } from '../chart2/chart2.js';

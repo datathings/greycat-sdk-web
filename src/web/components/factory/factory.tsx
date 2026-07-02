@@ -1,14 +1,7 @@
 import { createElement } from '@greycat/web/jsx-runtime';
-import {
-  GuiInputElement,
-  AnyValueElement,
-  GuiElement,
-  css,
-  GuiInputEnum,
-  GuiInputAbstract,
-  GuiInputArray,
-  GuiInputMap,
-} from '../../exports.js';
+import { css } from '../common.js';
+import { AnyValueElement, GuiElement } from '../element.js';
+import { GuiInputElement, GuiInputEnum, GuiInputAbstract, GuiInputArray, GuiInputMap } from '../inputs/inputs.js';
 
 type Props = {
   [key: string]: unknown;

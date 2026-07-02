@@ -1,10 +1,13 @@
-import { GuiChangeEvent, GuiElement, sl, SlSelectEventMap } from '../../exports.js';
+import SlSelect from '@shoelace-style/shoelace/dist/components/select/select.js';
+import { SlSelectEventMap } from '../../shoelace.js';
+import { GuiElement } from '../element.js';
+import { GuiChangeEvent } from '../events.js';
 
 /**
  * Provides a selector for the currently defined ABI functions.
  */
-export class GuiFnSelect extends sl.SlSelect {
-  static override styles = [sl.SlSelect.styles as CSSStyleSheet, GuiElement.BASE_STYLE];
+export class GuiFnSelect extends SlSelect {
+  static override styles = [SlSelect.styles as CSSStyleSheet, GuiElement.BASE_STYLE];
 
   constructor() {
     super();

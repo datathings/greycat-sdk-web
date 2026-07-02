@@ -1,3 +1,5 @@
+import '@greycat/web/sdk';
+import '../init.js';
 import { GuiValueElement } from './element.js';
 
 declare global {
@@ -143,8 +145,39 @@ export type HTMLElementConstructor<K extends keyof HTMLElementTagNameMap> = new 
   ...args: any[]
 ) => HTMLElementTagNameMap[K];
 
+export interface RegisterCustomElementOptions extends ElementDefinitionOptions {
+  /**
+   * Defines the element immediately instead of waiting for `gc.sdk.init()`/`gc.sdk.initWithAbi()`.
+   *
+   * Eagerly defined elements upgrade as soon as their module is imported, therefore their
+   * constructors, field initializers and `connectedCallback` must not rely on `gc.$.default`
+   * nor on any ABI-registered type (`gc.core.*`, `gc.runtime.*`, ...).
+   */
+  eager?: boolean;
+}
+
+interface PendingDefinition {
+  tagName: string;
+  constructor: CustomElementConstructor;
+  options: ElementDefinitionOptions | undefined;
+}
+
+let componentsReady = false;
+const pendingDefinitions: PendingDefinition[] = [];
+const readyCallbacks: Array<() => void> = [];
+
+function define(tagName: string, constructor: CustomElementConstructor, options?: ElementDefinitionOptions) {
+  if (!customElements.get(tagName)) {
+    customElements.define(tagName, constructor, options);
+  }
+}
+
 /**
  * Calls `customElements.define(tagName, constructor)` if necessary.
+ *
+ * The definition is deferred until `gc.sdk.init()`/`gc.sdk.initWithAbi()` completes, so that
+ * elements never upgrade before the ABI types (`gc.core.*`, ...) and `gc.$.default` exist.
+ * Pass `{ eager: true }` to define immediately (see {@link RegisterCustomElementOptions.eager}).
  *
  * *This method strictly types the `constructor` relative to the `tagName` to prevent
  * developper from forgetting to declare there element in `HTMLElementTagNameMap`.*
@@ -173,11 +206,71 @@ export type HTMLElementConstructor<K extends keyof HTMLElementTagNameMap> = new 
 export function registerCustomElement<K extends keyof HTMLElementTagNameMap>(
   tagName: K,
   constructor: HTMLElementConstructor<K>,
-  options?: ElementDefinitionOptions | undefined,
+  options?: RegisterCustomElementOptions | undefined,
 ) {
-  if (!customElements.get(tagName)) {
-    customElements.define(tagName, constructor as CustomElementConstructor, options);
+  if (componentsReady || options?.eager) {
+    define(tagName, constructor as CustomElementConstructor, options);
+    return;
   }
+  pendingDefinitions.push({ tagName, constructor: constructor as CustomElementConstructor, options });
+}
+
+/**
+ * Runs `callback` once components are defined (after the first successful
+ * `gc.sdk.init()`/`gc.sdk.initWithAbi()`), or immediately if they already are.
+ */
+export function onComponentsReady(callback: () => void): void {
+  if (componentsReady) {
+    callback();
+  } else {
+    readyCallbacks.push(callback);
+  }
+}
+
+/**
+ * Defines every queued custom element and runs the {@link onComponentsReady} callbacks.
+ *
+ * Called by `gc.sdk.init()`/`gc.sdk.initWithAbi()`; subsequent calls are no-ops, and
+ * later `registerCustomElement` calls define immediately.
+ */
+export function flushComponentRegistrations(): void {
+  if (componentsReady) {
+    return;
+  }
+  componentsReady = true;
+  for (let i = 0; i < pendingDefinitions.length; i++) {
+    const { tagName, constructor, options } = pendingDefinitions[i];
+    define(tagName, constructor, options);
+  }
+  pendingDefinitions.length = 0;
+  for (let i = 0; i < readyCallbacks.length; i++) {
+    readyCallbacks[i]();
+  }
+  readyCallbacks.length = 0;
+}
+
+/**
+ * Type fqn to tagName mappings used by the global `GuiFactory` (`gui-factory`).
+ *
+ * Component modules add their own entries at import time via {@link registerFactoryMapping}.
+ */
+export const factoryMappings: { [typeFqn: string]: keyof HTMLElementTagNameMap } = {};
+
+/**
+ * Type fqn to tagName mappings used by the global `GuiInputFactory` (`gui-input-factory`).
+ *
+ * Component modules add their own entries at import time via {@link registerInputFactoryMapping}.
+ */
+export const inputFactoryMappings: { [typeFqn: string]: keyof HTMLElementTagNameMap } = {};
+
+/** Maps a GreyCat type fqn to the tagName the global `GuiFactory` creates for it. */
+export function registerFactoryMapping(typeFqn: string, tagName: keyof HTMLElementTagNameMap): void {
+  factoryMappings[typeFqn] = tagName;
+}
+
+/** Maps a GreyCat type fqn to the tagName the global `GuiInputFactory` creates for it. */
+export function registerInputFactoryMapping(typeFqn: string, tagName: keyof HTMLElementTagNameMap): void {
+  inputFactoryMappings[typeFqn] = tagName;
 }
 
 export function getBooleanAttribute(el: Element, name: string): boolean {

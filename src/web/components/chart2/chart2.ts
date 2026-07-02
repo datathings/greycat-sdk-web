@@ -19,7 +19,7 @@ import {
 // @ts-ignore — MatrixComponent types not yet re-exported from echarts/components
 import { install as MatrixComponent } from 'echarts/lib/component/matrix/install.js';
 import { CanvasRenderer } from 'echarts/renderers';
-import type { sl } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
 
 echarts.use([
   LineChart,

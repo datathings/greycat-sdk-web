@@ -1,4 +1,5 @@
-import { GuiElement, GuiInputElement, GuiInputFactory, GuiObject, css, registerCustomElement, sl } from '@greycat/web';
+import { GuiElement, GuiInputElement, GuiInputFactory, GuiObject, css, registerCustomElement } from '@greycat/web';
+import * as sl from '@shoelace-style/shoelace';
 import { appLayout } from '~/common';
 import './project-sensor-form';
 import IndexStyle from './index.css?inline';

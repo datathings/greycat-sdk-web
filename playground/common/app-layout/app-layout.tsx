@@ -1,4 +1,4 @@
-import type { sl } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import { cx } from '@greycat/web/jsx-runtime';
 import './main.css';
 import './app-layout.css';

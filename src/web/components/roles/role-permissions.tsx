@@ -1,4 +1,5 @@
-import { css, GuiElement } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './role-permissions.css?inline';
 
 export class GuiRolePermissions extends GuiElement {

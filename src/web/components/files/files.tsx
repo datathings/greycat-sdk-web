@@ -1,4 +1,7 @@
-import { CellData, css, GuiClickEvent, GuiElement, type GuiTable } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
+import { GuiClickEvent } from '../events.js';
+import { CellData, type GuiTable } from '../table/table.js';
 import '../table/index.js';
 import '../value/index.js';
 import style from './files.css?inline';

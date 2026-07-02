@@ -1,12 +1,12 @@
 import '@greycat/web';
 import { appLayout } from '~/common';
-import maplibregl from 'maplibre-gl';
-import { GuiObject, sl } from '@greycat/web';
+import { GuiObject } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 
 // Example inspired from: https://maplibre.org/maplibre-gl-js/docs/examples/create-a-heatmap-layer/
 // Using data from: https://earthquake.usgs.gov/earthquakes/feed/v1.0/csv.php
 
-await gc.sdk.init({ debug: true, maplibregl });
+await gc.sdk.init({ debug: true });
 
 // Fetch data from GreyCat
 const earthquakes = await gc.heatmap.major_earthquakes();

@@ -1,4 +1,5 @@
-import { GuiElement, css } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import { stringify } from './utils.js';
 import style from './value.css?inline';
 

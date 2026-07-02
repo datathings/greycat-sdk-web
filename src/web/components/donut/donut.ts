@@ -1,5 +1,7 @@
 import * as d3 from 'd3';
-import { GuiElement, getColors, css } from '../../exports.js';
+import { getColors } from '../../utils.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './donut.css?inline';
 
 const DEFAULT_SIZE = { height: 450, width: 450 };

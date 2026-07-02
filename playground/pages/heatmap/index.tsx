@@ -1,4 +1,5 @@
-import { type GuiHeatmap, sl } from '@greycat/web';
+import { type GuiHeatmap } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import { appLayout } from '~/common';
 import './index.css';
 

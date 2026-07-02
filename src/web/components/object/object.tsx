@@ -1,4 +1,8 @@
-import { css, GuiCard, GuiElement, GuiFactory, type GuiValueElement, type sl } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { GuiCard } from '../card/card.js';
+import { css } from '../common.js';
+import { GuiElement, type GuiValueElement } from '../element.js';
+import { GuiFactory } from '../factory/factory.js';
 import { createElement } from '@greycat/web/jsx-runtime';
 import style from './object.css?inline';
 

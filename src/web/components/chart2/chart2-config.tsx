@@ -1,5 +1,7 @@
 import type { ECharts } from 'echarts/core';
-import { sl, css, GuiElement } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import { GuiChart2ConfigUpdateEvent } from './chart2.js';
 import type { Chart2Config, Chart2Serie, Chart2Axis, Chart2SerieType, Chart2AxisType } from './types.js';
 import { getEffectiveGrid, getThemeColors } from './utils.js';

@@ -1,14 +1,10 @@
-import {
-  css,
-  sl,
-  GuiElement,
-  GuiInputFactory,
-  getIndexInParent,
-  GuiChangeEvent,
-  GuiInputEvent,
-  GuiSelect,
-  GuiOption,
-} from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { getIndexInParent } from '../../utils.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
+import { GuiChangeEvent, GuiInputEvent } from '../events.js';
+import { GuiInputFactory } from '../factory/factory.js';
+import { GuiSelect, GuiOption } from '../select/select.js';
 import { getBooleanAttribute } from '../common.js';
 
 import InputStyle from './input.css?inline';

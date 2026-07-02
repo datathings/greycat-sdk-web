@@ -1,4 +1,7 @@
-import { css, GuiElement, sl, svg } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { svg } from '../../utils.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './layout.css?inline';
 import MenuIcon from './menu.svg?raw';
 

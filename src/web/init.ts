@@ -1,6 +1,76 @@
-import {
+import '@greycat/web/sdk';
+import { flushComponentRegistrations } from './components/common.js';
+import type {
+  GuiAuthGate,
+  GuiCard,
+  GuiChart,
+  GuiChart2,
+  GuiChart2Config,
+  GuiChartAxisInput,
+  GuiChartConfig,
+  GuiChartOrdinateInput,
+  GuiChartSelectionInput,
+  GuiChartSerieInput,
+  GuiChartSeriesInput,
+  GuiChartYAxesInput,
+  GuiCsvStatistics,
+  GuiCsvStatistics2,
+  GuiDashboard,
+  GuiDetails,
+  GuiDialog,
+  GuiDonut,
   GuiFactory,
+  GuiFiles,
+  GuiFnSelect,
+  GuiGauge,
+  GuiHeatmap,
+  GuiHistogram,
+  GuiIdentities,
+  GuiInput,
+  GuiInputAbstract,
+  GuiInputAny,
+  GuiInputArray,
+  GuiInputBool,
+  GuiInputDuration,
+  GuiInputEnum,
   GuiInputFactory,
+  GuiInputField,
+  GuiInputFn,
+  GuiInputFnPtr,
+  GuiInputGeo,
+  GuiInputMap,
+  GuiInputNode,
+  GuiInputNodeGeo,
+  GuiInputNodeIndex,
+  GuiInputNodeList,
+  GuiInputNodeTime,
+  GuiInputNull,
+  GuiInputNumber,
+  GuiInputObject,
+  GuiInputString,
+  GuiInputTime,
+  GuiInputType,
+  GuiInputUnsupported,
+  GuiLayout,
+  GuiLogs,
+  GuiMap,
+  GuiMapLayer,
+  GuiMapMarkers,
+  GuiMapSource,
+  GuiMultiSelectCheckbox,
+  GuiNav,
+  GuiObject,
+  GuiObjectFieldName,
+  GuiObjectFieldValue,
+  GuiPanel,
+  GuiRolePermissions,
+  GuiRoles,
+  GuiRuntimeUsage,
+  GuiSearchInput,
+  GuiSelect,
+  GuiSignIn,
+  GuiSignInButton,
+  GuiTab,
   GuiTable,
   GuiTableBody,
   GuiTableBodyCell,
@@ -9,276 +79,30 @@ import {
   GuiTableHeadCell,
   GuiTableMapping,
   GuiTableMappings,
-  GuiValue,
-  GuiCard,
-  registerCustomElement,
-  GuiObject,
-  GuiObjectFieldName,
-  GuiObjectFieldValue,
-  GuiChart,
-  GuiChart2,
-  GuiChart2Config,
-  GuiChartConfig,
-  GuiChartYAxesInput,
-  GuiChartAxisInput,
-  GuiChartOrdinateInput,
-  GuiChartSelectionInput,
-  GuiChartSerieInput,
-  GuiChartSeriesInput,
-  GuiCsvStatistics,
-  GuiCsvStatistics2,
-  GuiDashboard,
-  GuiDetails,
-  GuiDialog,
-  GuiDonut,
-  GuiFiles,
-  GuiFnSelect,
-  GuiGauge,
-  GuiHeatmap,
-  GuiHistogram,
-  GuiIdentities,
-  GuiInput,
-  GuiInputString,
-  GuiInputNumber,
-  GuiInputBool,
-  GuiInputTime,
-  GuiInputEnum,
-  GuiInputObject,
-  GuiInputAbstract,
-  GuiInputFn,
-  GuiInputDuration,
-  GuiInputAny,
-  GuiInputArray,
-  GuiInputMap,
-  GuiInputNode,
-  GuiInputNodeTime,
-  GuiInputNodeIndex,
-  GuiInputNodeList,
-  GuiInputNodeGeo,
-  GuiInputGeo,
-  GuiInputFnPtr,
-  GuiInputUnsupported,
-  GuiInputNull,
-  GuiInputType,
-  GuiInputField,
-  GuiLayout,
-  GuiMultiSelectCheckbox,
-  GuiRoles,
-  GuiRolePermissions,
-  GuiSearchInput,
-  GuiTasks,
   GuiTabs,
-  GuiTab,
-  GuiTime,
-  GuiPanel,
-  GuiSelect,
-  GuiMap,
-  GuiMapLayer,
-  GuiMapSource,
-  GuiMapMarkers,
-  GuiNav,
+  GuiTasks,
   GuiTensor,
-  GuiLogs,
-  GuiRuntimeUsage,
-  // GuiNodeTime,
-} from './exports.js';
-// Direct imports — avoid the circular `./exports.js` cycle so these classes
-// are fully evaluated before this module's top-level registration runs.
-import { GuiAuthGate } from './components/auth/auth-gate.js';
-import { GuiSignIn } from './components/auth/sign-in.js';
-import { GuiSignInButton } from './components/auth/sign-in-button.js';
-
-export interface WebOptions {
-  maplibregl?: typeof import('maplibre-gl');
-}
-
-export interface WebWithoutAbiOptions extends WebOptions, gc.sdk.WithoutAbiOptions {}
-export interface WebWithAbiOptions extends WebOptions, gc.sdk.WithAbiOptions {}
-
-declare global {
-  namespace gc {
-    namespace sdk {
-      // Mirror the SDK `init` overloads with the web-specific options so callers
-      // keep the correct return shape (bare `GreyCat` for data auth, `Ready`/`Redirecting`
-      // for openid specs and strategies).
-      function init(options?: WebWithoutAbiOptions & { auth?: gc.sdk.Auth }): Promise<gc.sdk.GreyCat>;
-      function init(
-        options: WebWithoutAbiOptions & { auth: gc.sdk.OpenidServerSpec },
-      ): Promise<gc.sdk.Ready<gc.sdk.OpenidServerResult | null> | gc.sdk.Redirecting>;
-      function init(
-        options: WebWithoutAbiOptions & { auth: gc.sdk.OpenidPkceSpec },
-      ): Promise<gc.sdk.Ready<gc.sdk.HandleRedirectResult | null> | gc.sdk.Redirecting>;
-      function init<T>(
-        options: WebWithoutAbiOptions & { auth: gc.sdk.AuthStrategy<T> },
-      ): Promise<gc.sdk.Ready<T> | gc.sdk.Redirecting>;
-      function init(
-        options?: WebWithoutAbiOptions,
-      ): Promise<gc.sdk.GreyCat | gc.sdk.Ready<unknown> | gc.sdk.Redirecting>;
-      function initWithAbi(options: WebWithAbiOptions): gc.sdk.GreyCat;
-    }
-  }
-}
-
-// Auth components are registered eagerly at module load so they are usable
-// before (or instead of) `gc.sdk.init()` — that's the whole point: the user
-// sees a sign-in form *because* init has not yet run successfully.
-registerCustomElement('gui-sign-in', GuiSignIn);
-registerCustomElement('gui-auth-gate', GuiAuthGate);
-registerCustomElement('gui-sign-in-button', GuiSignInButton);
+  GuiTime,
+  GuiValue,
+  registerCustomElement,
+} from './components/index.js';
 
 const sdkInit = gc.sdk.init;
-gc.sdk.init = async function webInit(options: WebWithoutAbiOptions = {}) {
-  const r = await sdkInit(options as gc.sdk.WithoutAbiOptions);
-  // Don't register components when the page is navigating away to an identity provider.
+gc.sdk.init = async function webInit(options: gc.sdk.WithoutAbiOptions = {}) {
+  const r = await sdkInit(options);
+  // Don't define components when the page is navigating away to an identity provider.
   if (!gc.sdk.isRedirecting(r)) {
-    registerWebComponents(options);
+    flushComponentRegistrations();
   }
   return r;
 } as typeof gc.sdk.init;
 
 const sdkInitWithAbi = gc.sdk.initWithAbi;
-gc.sdk.initWithAbi = function webInitWithAbi(options: WebWithAbiOptions) {
+gc.sdk.initWithAbi = function webInitWithAbi(options: gc.sdk.WithAbiOptions) {
   const g = sdkInitWithAbi(options);
-  registerWebComponents(options);
+  flushComponentRegistrations();
   return g;
 };
-
-function registerWebComponents(options: WebOptions) {
-  registerCustomElement('gui-factory', GuiFactory);
-  GuiFactory.global = new GuiFactory(
-    'gui-object',
-    'gui-value',
-    {
-      [gc.core.Table._type]: 'gui-table',
-      [gc.core.Map._type]: 'gui-table',
-      [gc.core.Array._type]: 'gui-table',
-      [gc.core.String._type]: 'gui-value',
-      [gc.core.int._type]: 'gui-value',
-      [gc.core.float._type]: 'gui-value',
-      [gc.core.bool._type]: 'gui-value',
-      [gc.core.geo._type]: 'gui-value',
-      [gc.core.time._type]: 'gui-value',
-      [gc.core.Date._type]: 'gui-value',
-      [gc.core.node._type]: 'gui-value',
-      [gc.core.nodeTime._type]: 'gui-value',
-      [gc.core.nodeIndex._type]: 'gui-value',
-      [gc.core.nodeGeo._type]: 'gui-value',
-      [gc.core.nodeList._type]: 'gui-value',
-      [gc.io.CsvStatistics._type]: 'gui-csv-statistics2',
-      [gc.util.HistogramStats._type]: 'gui-histogram',
-      [gc.core.Tensor._type]: 'gui-tensor',
-    },
-    'default',
-  );
-
-  registerCustomElement('gui-input-factory', GuiInputFactory);
-  GuiInputFactory.global = new GuiInputFactory({
-    ['core::any']: 'gui-input-any',
-    [gc.core.int._type]: 'gui-input-number',
-    [gc.core.float._type]: 'gui-input-number',
-    [gc.core.bool._type]: 'gui-input-bool',
-    [gc.core.String._type]: 'gui-input-string',
-    [gc.core.char._type]: 'gui-input-string',
-    [gc.core.time._type]: 'gui-input-time',
-    [gc.core.null_._type]: 'gui-input-null',
-    [gc.core.type._type]: 'gui-input-type',
-    [gc.core.field._type]: 'gui-input-field',
-    [gc.core.duration._type]: 'gui-input-duration',
-    [gc.core.Array._type]: 'gui-input-array',
-    [gc.core.Map._type]: 'gui-input-map',
-    [gc.core.geo._type]: 'gui-input-geo',
-    [gc.core.node._type]: 'gui-input-node',
-    [gc.core.nodeIndex._type]: 'gui-input-node-index',
-    [gc.core.nodeTime._type]: 'gui-input-node-time',
-    [gc.core.nodeList._type]: 'gui-input-node-list',
-    [gc.core.nodeGeo._type]: 'gui-input-node-geo',
-    [gc.core.function_._type]: 'gui-input-fnptr',
-  });
-
-  registerCustomElement('gui-time', GuiTime);
-  registerCustomElement('gui-thead-cell', GuiTableHeadCell);
-  registerCustomElement('gui-tbody-cell', GuiTableBodyCell);
-  registerCustomElement('gui-tbody-row', GuiTableBodyRow);
-  registerCustomElement('gui-thead', GuiTableHead);
-  registerCustomElement('gui-tbody', GuiTableBody);
-  registerCustomElement('gui-table', GuiTable);
-  registerCustomElement('gui-value', GuiValue);
-  registerCustomElement('gui-table-mapping', GuiTableMapping);
-  registerCustomElement('gui-table-mappings', GuiTableMappings);
-  registerCustomElement('gui-card', GuiCard);
-  registerCustomElement('gui-object-fieldname', GuiObjectFieldName);
-  registerCustomElement('gui-object-fieldvalue', GuiObjectFieldValue);
-  registerCustomElement('gui-object', GuiObject);
-  registerCustomElement('gui-chart-axis-input', GuiChartAxisInput);
-  registerCustomElement('gui-chart-ordinate-input', GuiChartOrdinateInput);
-  registerCustomElement('gui-chart-yaxes-input', GuiChartYAxesInput);
-  registerCustomElement('gui-chart-selection-input', GuiChartSelectionInput);
-  registerCustomElement('gui-chart-serie-input', GuiChartSerieInput);
-  registerCustomElement('gui-chart-series-input', GuiChartSeriesInput);
-  registerCustomElement('gui-chart-config', GuiChartConfig);
-  registerCustomElement('gui-chart', GuiChart);
-  registerCustomElement('gui-chart2', GuiChart2);
-  registerCustomElement('gui-chart2-config', GuiChart2Config);
-  registerCustomElement('gui-csv-statistics', GuiCsvStatistics);
-  registerCustomElement('gui-csv-statistics2', GuiCsvStatistics2);
-  registerCustomElement('gui-dashboard', GuiDashboard);
-  registerCustomElement('gui-details', GuiDetails);
-  registerCustomElement('gui-dialog', GuiDialog);
-  registerCustomElement('gui-donut', GuiDonut);
-  registerCustomElement('gui-files', GuiFiles);
-  registerCustomElement('gui-fn-select', GuiFnSelect);
-  registerCustomElement('gui-gauge', GuiGauge);
-  registerCustomElement('gui-heatmap', GuiHeatmap);
-  registerCustomElement('gui-histogram', GuiHistogram);
-  registerCustomElement('gui-identities', GuiIdentities);
-  registerCustomElement('gui-input-string', GuiInputString);
-  registerCustomElement('gui-input-number', GuiInputNumber);
-  registerCustomElement('gui-input-bool', GuiInputBool);
-  registerCustomElement('gui-input-time', GuiInputTime);
-  registerCustomElement('gui-input-enum', GuiInputEnum);
-  registerCustomElement('gui-input-object', GuiInputObject);
-  registerCustomElement('gui-input-abstract', GuiInputAbstract);
-  registerCustomElement('gui-input-fn', GuiInputFn);
-  registerCustomElement('gui-input-duration', GuiInputDuration);
-  registerCustomElement('gui-input-any', GuiInputAny);
-  registerCustomElement('gui-input-array', GuiInputArray);
-  registerCustomElement('gui-input-map', GuiInputMap);
-  registerCustomElement('gui-input-node', GuiInputNode);
-  registerCustomElement('gui-input-node-time', GuiInputNodeTime);
-  registerCustomElement('gui-input-node-index', GuiInputNodeIndex);
-  registerCustomElement('gui-input-node-list', GuiInputNodeList);
-  registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
-  registerCustomElement('gui-input-geo', GuiInputGeo);
-  registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
-  registerCustomElement('gui-input-unsupported', GuiInputUnsupported);
-  registerCustomElement('gui-input-null', GuiInputNull);
-  registerCustomElement('gui-input-type', GuiInputType);
-  registerCustomElement('gui-input-field', GuiInputField);
-  registerCustomElement('gui-input', GuiInput);
-  registerCustomElement('gui-layout', GuiLayout);
-  registerCustomElement('gui-multi-select-checkbox', GuiMultiSelectCheckbox);
-  registerCustomElement('gui-roles', GuiRoles);
-  registerCustomElement('gui-role-permissions', GuiRolePermissions);
-  registerCustomElement('gui-search-input', GuiSearchInput);
-  registerCustomElement('gui-tasks', GuiTasks);
-  registerCustomElement('gui-panel', GuiPanel);
-  registerCustomElement('gui-tab', GuiTab);
-  registerCustomElement('gui-tabs', GuiTabs);
-  registerCustomElement('gui-select', GuiSelect);
-  registerCustomElement('gui-nav', GuiNav);
-  registerCustomElement('gui-tensor', GuiTensor);
-  registerCustomElement('gui-logs', GuiLogs);
-  registerCustomElement('gui-runtime-usage', GuiRuntimeUsage);
-  // registerCustomElement('gui-node-time', GuiNodeTime);
-
-  if (options.maplibregl || 'maplibregl' in globalThis) {
-    globalThis['maplibregl'] = options.maplibregl ?? globalThis['maplibregl'];
-    registerCustomElement('gui-map-source', GuiMapSource);
-    registerCustomElement('gui-map-layer', GuiMapLayer);
-    registerCustomElement('gui-map-markers', GuiMapMarkers);
-    registerCustomElement('gui-map', GuiMap);
-  }
-}
 
 declare global {
   namespace gc {
@@ -366,7 +190,6 @@ declare global {
       GuiTensor,
       GuiTime,
       GuiValue,
-      // GuiNodeTime,
       registerCustomElement,
     };
   }

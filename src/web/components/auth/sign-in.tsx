@@ -4,7 +4,7 @@
 import { GuiElement } from '../element.js';
 import { css } from '../common.js';
 import { GuiAuthSuccessEvent } from '../events.js';
-import { type sl } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
 import style from './sign-in.css?inline';
 
 /**

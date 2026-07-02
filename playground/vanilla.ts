@@ -1,6 +1,8 @@
 import '@greycat/web';
+import '@greycat/web/components/all.js';
 import '@greycat/web/wasm';
-import type { GuiObject, GuiTable, sl } from '@greycat/web';
+import type { GuiObject, GuiTable } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import '@greycat/web/greycat.css';
 
 await gc.sdk.init();

@@ -1,19 +1,13 @@
-import {
-  GuiChangeEvent,
-  GuiElement,
-  sl,
-  toast,
-  css,
-  AnyValueElement,
-  convertToTable,
-  TableLike,
-  GuiValue,
-  GuiValueProps,
-  GuiTableMappings,
-  modal,
-  createElement,
-  GuiFactory,
-} from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { modal } from '../../modal.js';
+import { toast } from '../../toast.js';
+import { css, convertToTable, TableLike } from '../common.js';
+import { GuiElement, AnyValueElement } from '../element.js';
+import { GuiChangeEvent } from '../events.js';
+import { GuiFactory } from '../factory/factory.js';
+import { GuiValue, GuiValueProps } from '../value/value.js';
+import { GuiTableMappings } from './table-mappings.js';
+import { createElement } from '@greycat/web/jsx-runtime';
 import '../search-input/index.js';
 import style from './table.css?inline';
 

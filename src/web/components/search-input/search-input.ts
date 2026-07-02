@@ -1,11 +1,12 @@
-import { sl, SlInputEventMap } from '../../exports.js';
+import SlInput from '@shoelace-style/shoelace/dist/components/input/input.js';
+import { SlInputEventMap } from '../../shoelace.js';
 
 /**
- * Thin wrapper around `sl.SlInput` that adds a search icon.
+ * Thin wrapper around `SlInput` that adds a search icon.
  *
- * *This component emits the same events as `sl.SlInput`.*
+ * *This component emits the same events as `SlInput`.*
  */
-export class GuiSearchInput extends sl.SlInput {
+export class GuiSearchInput extends SlInput {
   override connectedCallback() {
     super.connectedCallback();
     const icon = document.createElement('sl-icon');

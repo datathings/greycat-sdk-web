@@ -1,14 +1,11 @@
-import {
-  GuiElement,
-  css,
-  toast,
-  type GuiTable,
-  type GuiInputEnum,
-  type GuiDialog,
-  type GuiSelect,
-  type sl,
-  CellData,
-} from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { toast } from '../../toast.js';
+import { css } from '../common.js';
+import type { GuiDialog } from '../dialog/dialog.js';
+import { GuiElement } from '../element.js';
+import type { GuiInputEnum } from '../inputs/inputs.js';
+import type { GuiSelect } from '../select/select.js';
+import { CellData, type GuiTable } from '../table/table.js';
 import style from './identities.css?inline';
 
 export class GuiIdentities extends GuiElement {

@@ -1,4 +1,5 @@
-import { GuiElement, css } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './time.css?inline';
 
 export class GuiTime extends GuiElement {

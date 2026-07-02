@@ -1,4 +1,6 @@
-import { css, GuiElement, highlight } from '../../exports.js';
+import { highlight } from '../../utils.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './logs.css?inline';
 
 const LOG_LEVELS = ['error', 'warn', 'info', 'perf', 'trace'] as const;

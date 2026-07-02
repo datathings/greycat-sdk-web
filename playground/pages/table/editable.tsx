@@ -1,4 +1,5 @@
-import { createElement, GuiChangeEvent, sl } from '@greycat/web';
+import { createElement, GuiChangeEvent } from '@greycat/web';
+import type * as sl from '@shoelace-style/shoelace';
 import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });

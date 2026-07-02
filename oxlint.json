@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "ignorePatterns": ["test/playground", "vendor", "dist"],
+  "ignorePatterns": ["test/playground", "dist"],
   "rules": {
     "no-unused-vars": "warn",
     "no-new-array": "allow",

@@ -1,4 +1,8 @@
-import { css, GuiElement, sl, toast } from '../../exports.js';
+import SlTree from '@shoelace-style/shoelace/dist/components/tree/tree.js';
+import SlTreeItem from '@shoelace-style/shoelace/dist/components/tree-item/tree-item.js';
+import { toast } from '../../toast.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './nav.css?inline';
 
 export type NavTree = NavItem[];
@@ -117,7 +121,7 @@ export class GuiNav extends GuiElement {
       >
         {this._createNavChildren(this._value, root)}
       </sl-tree>
-    ) as sl.SlTree;
+    ) as SlTree;
     this.shadowRoot.replaceChildren(treeEl);
     await treeEl.updateComplete;
     treeEl.querySelectorAll('a').forEach((link) => {
@@ -125,10 +129,10 @@ export class GuiNav extends GuiElement {
         const url = new URL(link.href);
         if (url.pathname === location.pathname) {
           const item = link.parentElement;
-          if (item instanceof sl.SlTreeItem) {
+          if (item instanceof SlTreeItem) {
             item.selected = true;
             let parent = item.parentElement;
-            while (parent instanceof sl.SlTreeItem) {
+            while (parent instanceof SlTreeItem) {
               parent.expanded = true;
               parent = parent.parentElement;
             }

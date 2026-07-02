@@ -1,5 +1,6 @@
 import type { SlCheckbox } from '@shoelace-style/shoelace';
-import { css, GuiElement } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './multi-select-checkbox.css?inline';
 
 /**

@@ -1,8 +1,11 @@
-import { css, GuiElement, sl, SlDetailsEventMap } from '../../exports.js';
+import SlDetails from '@shoelace-style/shoelace/dist/components/details/details.js';
+import { SlDetailsEventMap } from '../../shoelace.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import styles from './details.css?inline';
 
-export class GuiDetails extends sl.SlDetails {
-  static override styles = [sl.SlDetails.styles as CSSStyleSheet, GuiElement.BASE_STYLE, css(styles)];
+export class GuiDetails extends SlDetails {
+  static override styles = [SlDetails.styles as CSSStyleSheet, GuiElement.BASE_STYLE, css(styles)];
 }
 
 declare global {

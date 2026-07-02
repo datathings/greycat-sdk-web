@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
-import { css, GuiElement } from '../../exports.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './gauge.css?inline';
 
 /**

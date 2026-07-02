@@ -1,4 +1,7 @@
-import { GuiElement, type sl, css, toast } from '../../exports.js';
+import type * as sl from '@shoelace-style/shoelace';
+import { toast } from '../../toast.js';
+import { css } from '../common.js';
+import { GuiElement } from '../element.js';
 import style from './table-mappings.css?inline';
 import { GuiTableMapping } from './table-mapping.js';
 
