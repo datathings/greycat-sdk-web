@@ -18,14 +18,14 @@ type PickElement<Target, Map> = {
 
 export type InputElementTagNameMap = Pick<
   HTMLElementTagNameMap,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   PickElement<GuiInputElement<any>, HTMLElementTagNameMap>
 >;
 export type InputFactoryMap = {
   [typeFqn: string]: keyof InputElementTagNameMap;
 };
 export interface GuiInputElementElementConstructor {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   new (...params: any[]): GuiInputElement<any>;
 }
 
@@ -570,9 +570,9 @@ export class GuiInputFactory extends GuiElement {
 
 const TAG_NAME_REGEX = /[^a-z0-9-]+|^[^a-z]+/g;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type CustomElementFn<T = any> = (value: T, el: AnyValueElement, data?: any) => Node;
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type InputElementFn<T = any> = (value: T, el: GuiInputElement<T>, data?: any) => Node;
 
 declare global {

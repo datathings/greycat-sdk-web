@@ -29,11 +29,11 @@ export function attr() {
 
     Object.defineProperty(target, propertyKey, {
       get: function get(this: E) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         return (this as any)[privateKey];
       },
       set: function set(this: E, newValue: E[K]) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         (this as any)[privateKey] = newValue;
         this._internalUpdate();
       },
@@ -141,7 +141,7 @@ export function displayType(type: gc.sdk.AbiType, nullable = false): string {
 }
 
 export type HTMLElementConstructor<K extends keyof HTMLElementTagNameMap> = new (
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ...args: any[]
 ) => HTMLElementTagNameMap[K];
 

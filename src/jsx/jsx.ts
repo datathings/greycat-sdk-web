@@ -11,7 +11,7 @@ declare global {
     type ExtendedHTMLProperties = {
       className?: string | string[] | { [className: string]: boolean };
       style?: GreyCat.ElementStyle;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       children?: any;
     };
 
@@ -20,7 +20,7 @@ declare global {
         this: T,
         ev: EventMap[EVENT],
         options?: boolean | AddEventListenerOptions,
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
       ) => any;
     };
 
@@ -28,7 +28,7 @@ declare global {
       [K in keyof T]-?: IfEquals<{ [P in K]: T[K] }, { -readonly [P in K]: T[K] }, K>;
     }[keyof T];
     type FunctionKeys<T> = keyof {
-      // eslint-disable-next-line @typescript-eslint/ban-types
+      // oxlint-disable-next-line typescript/ban-types
       [K in keyof T as T[K] extends Function ? K : never]: T[K];
     };
     type IfEquals<X, Y, A = X, B = never> =
@@ -46,12 +46,12 @@ declare global {
       | keyof HTMLElementFunctionsKeys;
     type WrapElement<T> = Partial<Omit<Pick<T, WritableKeys<T>>, UnwantedKeys>>;
 
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // oxlint-disable-next-line typescript/ban-types
     type Element<T, EventMap = HTMLElementEventMap> = WrapElement<T> &
       ExtendedHTMLProperties &
       (T extends DocumentFragment ? {} : AttrPrefixed) &
       ElementEventMap<T, EventMap> & {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         onclick?: (this: T, ev: MouseEvent) => any;
         exportparts?: string;
         /** A space-separated list of the part names of the element */

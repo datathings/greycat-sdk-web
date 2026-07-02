@@ -1,7 +1,7 @@
 import type { AbiType } from './abi.js';
 
 if (!('withResolvers' in globalThis.Promise)) {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   (globalThis.Promise as any).withResolvers = function withResolvers() {
     let resolve;
     let reject;

@@ -151,7 +151,7 @@ declare global {
   namespace GreyCat {
     namespace JSX {
       interface IntrinsicElements {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         'gui-list': GreyCat.Element<GuiList<any>>;
       }
     }

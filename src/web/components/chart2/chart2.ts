@@ -302,7 +302,7 @@ export class GuiChart2 extends GuiElement {
     const option = buildEChartsOption(this._table, config, colors, theme);
 
     // append HTML tooltip inside shadow DOM so it renders correctly
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const tooltip = (option as any).tooltip;
     if (tooltip && typeof tooltip === 'object') {
       tooltip.appendTo = () => this._container;

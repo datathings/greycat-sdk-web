@@ -72,7 +72,7 @@ document.body.appendChild(
   ),
 );
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 async function randomize() {
   chart.value = await gc.project.chart_time();
   chart.compute();

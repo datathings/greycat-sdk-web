@@ -589,7 +589,7 @@ export class AbiType {
     readonly is_core: boolean,
     readonly abi: Abi,
   ) {
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    // oxlint-disable-next-line typescript/no-this-alias
     const type = this;
     const module_name = abi.symbols[module];
     let type_name = abi.symbols[symbol];

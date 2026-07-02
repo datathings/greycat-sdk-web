@@ -23,7 +23,7 @@ const table = (
 
 const debug = document.createElement('gui-object');
 table.addEventListener('gui-table-debug', (ev) => {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   debug.value = (ev as any).detail;
 });
 

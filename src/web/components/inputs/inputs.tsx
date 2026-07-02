@@ -130,7 +130,7 @@ export class GuiInput extends GuiInputElement<unknown> {
     this.input.size = size;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   setAttrs(attrs: any) {
     this.input = GuiInputFactory.closest(this).createElement(attrs.value);
     Object.assign(this.input, attrs);
@@ -1002,7 +1002,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
 }
 
 export type ExcludeFunctions<T> = {
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // oxlint-disable-next-line typescript/ban-types
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 
@@ -1023,7 +1023,7 @@ export type FieldElements<T extends object> = Partial<{
  */
 export type TypedHtmlElement<T> = Node & { value: T };
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<
   T | undefined
 > {
@@ -1104,7 +1104,7 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
       );
       fields.appendChild(attrEl);
       if (inputEl) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         this.fields[attr.name as keyof FilterKeys<T>] = inputEl as any;
       }
     }
@@ -1274,7 +1274,7 @@ export class GuiInputFn extends GuiInputObject {
     super.value = value;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   get args(): any {
     if (this._value && this._value.$fields) {
       return this._value.$fields;
@@ -2730,10 +2730,10 @@ export class GuiInputUnsupported extends GuiInputElement<undefined> {
  * @returns
  */
 export function findParentInputElement(
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   from: GuiInputElement<any>,
   level = 1,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
 ): GuiInputElement<any> {
   let parent: ParentNode | null = from;
   while (parent !== null) {

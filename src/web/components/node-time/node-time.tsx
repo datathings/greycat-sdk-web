@@ -910,7 +910,7 @@ export class GuiNodeTime extends GuiElement {
     const overviewSeriesData = this._buildSeriesData(this._overviewTable);
     const detailSeriesData = this._buildSeriesData(this._detailTable);
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const series: Record<string, any>[] = [];
 
     // overview series (invisible, first for data shadow)
@@ -959,11 +959,11 @@ export class GuiNodeTime extends GuiElement {
     yAxisOverview.show = false;
 
     // tooltip formatter for time axis (only detail series)
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const tooltipFormatter = (params: any) => {
       const all = Array.isArray(params) ? params : [params];
       // filter to detail series only (yAxisIndex === 0)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       const detail = all.filter((p: any) => p.data && p.seriesId?.startsWith('detail-'));
       if (detail.length === 0) {
         return '';
@@ -982,7 +982,7 @@ export class GuiNodeTime extends GuiElement {
       return html;
     };
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const option: Record<string, any> = {
       color: colors,
       animation: false,

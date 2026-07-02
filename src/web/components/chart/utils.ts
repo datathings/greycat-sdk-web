@@ -69,7 +69,7 @@ export function createFormatter(
   axis: Axis,
   scale: Scale,
   isCursor = false,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
 ): (...args: any[]) => string {
   const format = axis[isCursor ? 'cursorFormat' : 'format'];
 

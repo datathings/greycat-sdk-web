@@ -1,7 +1,7 @@
 /**
  * Bound to the underlying 'input' events
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiInputEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-input';
 
@@ -13,7 +13,7 @@ export class GuiInputEvent<T = any> extends CustomEvent<T> {
 /**
  * Bound to the underlying 'change' events
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiChangeEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-change';
 
@@ -25,7 +25,7 @@ export class GuiChangeEvent<T = any> extends CustomEvent<T> {
 /**
  * Bound to the underlying 'change' events
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiSubmitEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-submit';
 
@@ -34,7 +34,7 @@ export class GuiSubmitEvent<T = any> extends CustomEvent<T> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiClickEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-click';
 
@@ -43,7 +43,7 @@ export class GuiClickEvent<T = any> extends CustomEvent<T> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiDblClickEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-dblclick';
 
@@ -52,7 +52,7 @@ export class GuiDblClickEvent<T = any> extends CustomEvent<T> {
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiUpdateEvent<T = any> extends CustomEvent<T> {
   static readonly NAME = 'gui-update';
 

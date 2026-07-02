@@ -36,7 +36,7 @@ export type CellAttrs = Partial<Omit<GuiValueProps, 'value'>>;
 /**
  * The generic param is for convenience, **it is not enforced whatsoever**.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type CellValueData<T = any> = {
   value: T;
   /** the current table */
@@ -121,7 +121,7 @@ export type CellTagFactory = string | CleanCellFactory;
 /**
  * The generic param is for convenience, **it is not enforced whatsoever**.
  */
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type CellData<T = any> = {
   value: T;
   /** the row index in the table */
@@ -1884,7 +1884,7 @@ export type GuiTableEventDetail = {
 
 export type GuiTableChangeEventDetail = GuiTableEventDetail & {
   /** The value */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   value: any;
 };
 

@@ -4,7 +4,7 @@ import type { AbiReader, AbiWriter } from '../../io.js';
 import type { AbiType } from '../../abi.js';
 import type { GreyCat } from '../../greycat.js';
 import { $ } from '../../registry.js';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class Array<T extends Value = any> extends GCObject {
   static readonly _type = 'core::Array' as const;
 
@@ -12,7 +12,7 @@ export class Array<T extends Value = any> extends GCObject {
     super();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   static create<T extends Value = any>(value: globalThis.Array<T>, g: GreyCat = $.default): Array<T> {
     const ty = g.abi.types[g.abi.core.array];
     return new ty.ctor(value) as Array<T>;

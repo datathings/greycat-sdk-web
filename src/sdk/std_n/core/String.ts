@@ -9,10 +9,10 @@ export class String extends GCPrimitive {
     super();
   }
 
-  // eslint-disable-next-line @typescript-eslint/ban-types
+  // oxlint-disable-next-line typescript/ban-types
   static create(value: string, g: GreyCat = $.default): String {
     const ty = g.abi.types[g.abi.core.string];
-    // eslint-disable-next-line @typescript-eslint/ban-types
+    // oxlint-disable-next-line typescript/ban-types
     return new ty.ctor(value) as String;
   }
 

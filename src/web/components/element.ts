@@ -2,7 +2,7 @@ import { css } from './common.js';
 
 import componentStyle from './component.styles.css?inline';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type AnyValueElement = HTMLElement & { value: any };
 export interface Disposable {
   (): void;

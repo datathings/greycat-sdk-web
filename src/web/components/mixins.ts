@@ -5,7 +5,7 @@ abstract class WebComponent extends HTMLElement {
   disconnectedCallback(): void | Promise<void> {}
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/ban-types
+// oxlint-disable-next-line typescript/no-explicit-any, typescript/ban-types
 type Constructor<T = {}> = new (...args: any[]) => T;
 
 export interface Resizable {

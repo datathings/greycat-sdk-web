@@ -206,7 +206,7 @@ export function clone<T>(value: T): T {
       }
       const res = {};
       for (const [key, val] of Object.entries(value)) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         (res as any)[clone(key)] = clone(val);
       }
       return res as T;

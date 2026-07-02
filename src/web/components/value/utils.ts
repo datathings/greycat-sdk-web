@@ -104,7 +104,7 @@ export function stringify(value: unknown, props: StringifyProps): string {
         }
         return `Object(${Object.keys(value).length})`;
       }
-      // eslint-disable-next-line no-prototype-builtins
+      // oxlint-disable-next-line no-prototype-builtins
       if (value.hasOwnProperty('toString')) {
         return value.toString();
       }

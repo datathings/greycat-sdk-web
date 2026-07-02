@@ -2,7 +2,7 @@ import type { Abi, AbiType } from './abi.js';
 import type { AbiReader, AbiWriter } from './io.js';
 import { PrimitiveType, type Value } from './types.js';
 import type { GreyCat } from './greycat.js';
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export interface GCObject {
   readonly $type: AbiType;
   readonly $fields?: Value[];
@@ -34,7 +34,7 @@ export const DEFAULT_TO_STRING_OPTIONS: ToStringOptions = {
 /**
  * A dynamic GreyCat type instance, used when no matching class found in the factory
  */
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GCObject {
   // SAFETY: This is dynamically set when the Abi is loaded
   readonly $type!: AbiType;
@@ -58,7 +58,7 @@ export class GCObject {
         const fields = new Array(abi_type.attrs.length);
         for (let i = 0; i < abi_type.attrs.length; i++) {
           const attr = abi_type.attrs[i];
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           fields[i] = (value as any)[attr.name];
         }
         return new abi_type.ctor(...fields);
@@ -176,7 +176,7 @@ export class GCObject {
     this.saveContent(w);
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   toJSON(): any {
     if (!this.$fields) {
       return { _type: this.$type.name };
@@ -323,7 +323,7 @@ export class GCEnum extends GCObject {
     const valueOffset = r.read_vu32();
     const abiTypeAtt = type.attrs[valueOffset];
     // this is an enum, so we know `static_values` is gonna be initialized
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // oxlint-disable-next-line typescript/no-non-null-assertion
     return programType.static_values![abiTypeAtt.name];
   }
 

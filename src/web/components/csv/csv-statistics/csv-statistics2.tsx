@@ -48,7 +48,7 @@ export class GuiCsvStatistics2 extends GuiElement {
       return;
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const table = gc.core.Table.fromRows<any[]>([
       ['Column offset (zero-based)', ...this._stats.columns.map((_, i) => i)],
       ['Nb rows', ...this._stats.columns.map(countValues)],

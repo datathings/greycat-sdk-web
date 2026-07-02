@@ -51,7 +51,7 @@ export function buildEChartsOption(
   config: Chart2Config,
   colors: string[],
   theme: Chart2ThemeColors,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
 ): Record<string, any> {
   const xAxes = normalizeAxes(config.xAxis);
   const yAxes = normalizeAxes(config.yAxis);
@@ -62,7 +62,7 @@ export function buildEChartsOption(
   const xAxisIsCategory = xAxes.length > 0 && xAxes[0].type === 'category';
   const xCol: SerieTableColumn = config.xCol ?? 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const series: Record<string, any>[] = [];
   // track hidden series for legend.selected (kept in legend but grayed out)
   const legendSelected: Record<string, boolean> = {};
@@ -89,9 +89,9 @@ export function buildEChartsOption(
   const numGrids = Math.max(xAxes.length, grids.length);
 
   // Build themed axes for each grid, broadcasting the last config if fewer than numGrids
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const builtXAxes: Record<string, any>[] = [];
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const builtYAxes: Record<string, any>[] = [];
 
   for (let i = 0; i < numGrids; i++) {
@@ -121,7 +121,7 @@ export function buildEChartsOption(
     builtXAxes[0].data = catData;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const option: Record<string, any> = {
     color: colors,
     animation: false,
@@ -134,7 +134,7 @@ export function buildEChartsOption(
 
   // tooltip
   if (config.tooltip?.enabled !== false) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const tooltip: Record<string, any> = {
       show: true,
       trigger: config.tooltip?.trigger ?? 'axis',
@@ -152,7 +152,7 @@ export function buildEChartsOption(
         const tz = xAxes[0].timezone;
         const globalPrecision = config.tooltip?.precision;
         const seriePrecisions = config.series.map((s) => s.precision);
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         tooltip.formatter = (params: any) => {
           const all = Array.isArray(params) ? params : [params];
           if (all.length === 0) {
@@ -188,7 +188,7 @@ export function buildEChartsOption(
 
   // legend
   if (config.legend?.enabled !== false) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const legend: Record<string, any> = {
       show: true,
       textStyle: { color: textColor },
@@ -219,7 +219,7 @@ export function buildEChartsOption(
 
   // dataZoom
   if (config.dataZoom?.enabled) {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const zooms: Record<string, any>[] = [];
     const zoomType = config.dataZoom.type ?? 'inside';
     if (zoomType === 'inside' || zoomType === 'both') {
@@ -242,9 +242,9 @@ export function buildEChartsOption(
   }
 
   // grid — build echarts grid objects, merging per-grid echarts overrides
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   option.grid = grids.map((g) => {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const built: Record<string, any> = { ...g };
     delete built.echarts;
     if (g.echarts) {
@@ -269,12 +269,12 @@ function buildSerie(
   rows: number,
   colors: string[],
   xAxisIsCategory: boolean,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
 ): Record<string, any> {
   const type = s.type ?? 'line';
   const xCol: SerieTableColumn = s.xCol ?? config.xCol ?? 0;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const serie: Record<string, any> = {
     type,
     name: s.name ?? `Serie ${idx}`,
@@ -387,9 +387,9 @@ function buildSerie(
   return serie;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function buildAxis(axis: Chart2Axis, textColor: string, borderColor: string, timeSpan: number): Record<string, any> {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   const result: Record<string, any> = {
     type: axis.type ?? 'value',
     axisLine: { lineStyle: { color: borderColor } },
@@ -587,7 +587,7 @@ function withAlpha(color: string, alpha: number): string {
   return color;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function deepMerge(target: Record<string, any>, source: Record<string, any>): void {
   for (const key of Object.keys(source)) {
     const sv = source[key];

@@ -6,17 +6,17 @@ import { GuiInputElement } from '../inputs/index.js';
 
 import style from './select.css?inline';
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type GuiOption<T = any> = {
   value: T;
   /** If defined this is the text of the option, otherwise `value.toString()` will be used */
   text?: string;
   selected?: boolean;
 };
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type IOption<T = any> = GuiOption<T> | string;
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
   static override styles = [...GuiInputElement.styles, css(style)];
 
@@ -293,12 +293,12 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
   }
 
   private _setValue(value: T | undefined): void {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     (this.input as any).__value = value;
   }
 
   private _getValue(): T | undefined {
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     return (this.input as any).__value;
   }
 
