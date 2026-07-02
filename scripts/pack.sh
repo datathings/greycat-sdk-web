@@ -14,4 +14,6 @@ pnpm pack
 
 mv greycat-web-*.tgz dist/package.tgz
 
-echo $VERSION
+echo "-> dist/package.tgz"
+
+echo ${VERSION:-0.0.0}
