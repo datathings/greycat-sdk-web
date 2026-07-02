@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import maplibreStyle from 'maplibre-gl/dist/maplibre-gl.css?inline';
 import { css } from '../common.js';
 import { GuiElement } from '../element.js';

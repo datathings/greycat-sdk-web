@@ -1,6 +1,6 @@
 import '@greycat/web';
 import { appLayout } from '~/common';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import { GeoData, GuiMap } from '@greycat/web';
 
 const greycat = await gc.sdk.init({ debug: true });
@@ -8,7 +8,8 @@ const greycat = await gc.sdk.init({ debug: true });
 const markers = document.createElement('gui-map-markers');
 
 document.body.appendChild(
-  appLayout({ title: 'Map', mainStyle: { display: 'grid' } },
+  appLayout(
+    { title: 'Map', mainStyle: { display: 'grid' } },
     <gui-map
       $ref={init}
       options={{

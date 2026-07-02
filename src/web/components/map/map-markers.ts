@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import { GuiFactory } from '../factory/factory.js';
 import { GuiObjectProps } from '../object/object.js';
 import { GuiMapElement } from './model.js';
