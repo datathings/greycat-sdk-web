@@ -6,7 +6,7 @@ const deserialize_error: IPrimitiveLoader = () => {
   throw new Error(`invalid primitive type`);
 };
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 function assert_buffer_has_enough_bytes(expr: boolean) {
   if (!expr) {
     throw new Error(`buffer overflow, not enough bytes`);
@@ -475,9 +475,9 @@ export class AbiReader extends Reader implements Iterable<unknown> {
     if (type === undefined) {
       throw new Error(`unknown enum id '${id}'`);
     }
-    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+    // oxlint-disable-next-line typescript/no-non-null-assertion
     if (type.enum_values!.length > off) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      // oxlint-disable-next-line typescript/no-non-null-assertion
       return type.enum_values![off];
     }
     throw new Error(`no value registered for enum '${id}' at field offset '${off}'`);
@@ -551,7 +551,7 @@ export class AbiReader extends Reader implements Iterable<unknown> {
         const type_id = all_abi_type === -1 ? this.read_vu32() : all_abi_type;
         const field_off = this.read_vu32();
         const abi_type = this.abi.types[type_id];
-        // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+        // oxlint-disable-next-line typescript/no-non-null-assertion
         arr[i] = abi_type.enum_values![field_off];
       } else if (all_slot_type === PrimitiveType.float && !is_monotonic) {
         arr[i] = this.read_f64();
@@ -884,7 +884,7 @@ export class AbiWriter extends Writer {
     if (!target_type) {
       // Typescript does not understand that 'value' as param must be of the right type
       // in regard to the method because we used typeof value;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       (this[typeof value] as any)(value);
     } else if (target_type.offset === this.abi.core.float) {
       if (value === null) {
@@ -925,7 +925,7 @@ export class AbiWriter extends Writer {
     } else {
       // Typescript does not understand that 'value' as param must be of the right type
       // in regard to the method because we used typeof value;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       (this[typeof value] as any)(value);
     }
   }
@@ -937,7 +937,7 @@ export class AbiWriter extends Writer {
   serializeRaw(value: Value, target_type?: AbiType): void {
     // Typescript does not understand that 'value' as param must be of the right type
     // in regard to the method because we used typeof value;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     (this[`raw_${typeof value}`] as any)(value, target_type);
   }
 
@@ -1370,12 +1370,12 @@ export class AbiWriter extends Writer {
   }
 }
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 function is_elem_nullable(nullable_mask: Uint8Array, i: number): boolean {
   return (nullable_mask[i >> 3] & (1 << (i & 7))) !== 0;
 }
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 function closest_upper_power_of_2(value: number) {
   if (value < 1) {
     return 1;
@@ -1394,7 +1394,7 @@ function closest_upper_power_of_2(value: number) {
   return closestPower;
 }
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 function isASCIICharCode(code: number): boolean {
   return code >= 0 && code <= 127;
 }

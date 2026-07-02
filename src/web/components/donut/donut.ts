@@ -56,19 +56,19 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
   private _svg: d3.Selection<SVGGElement, unknown, null, undefined> | null = null;
   private _resizeObserver: ResizeObserver;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _pie = d3
     .pie()
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     .value((d: any) => d)
     .sort(null);
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _arc = d3.arc<any>();
   private _line = d3.line();
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _outerArc = d3.arc<any>();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _breakArc = d3.arc<any>();
 
   constructor() {
@@ -316,7 +316,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
 
     const total = this._getTableData().reduce((sum, v) => sum + Number(v), 0);
 
-    // eslint-disable-next-line @typescript-eslint/no-this-alias
+    // oxlint-disable-next-line typescript/no-this-alias
     const ref = this;
     const pieData = this._pie(this._getTableData());
     this._svg?.selectAll('path').remove();
@@ -328,7 +328,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
         .data(pieData)
         .join('path')
         .attr('d', this._arc)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         .attr('value', (d: any) => Number(d.data))
         .attr('label', (_, index: number) => (labels ? `${labels[index]}` : null))
         .attr('fill', (_, idx: number) => this._colors[idx % this._colors.length])
@@ -362,7 +362,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _getMidAngle(d: any) {
     const angle = d.startAngle + (d.endAngle - d.startAngle) / 2;
     const twopi = 2 * Math.PI;
@@ -409,7 +409,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
       .data(pieData)
       .join('path')
       .style('fill', 'none')
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       .attr('d', (d: any) => {
         const posA = ref._outerArc.centroid(d);
         const posB = ref._breakArc.centroid(d);

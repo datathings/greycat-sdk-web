@@ -192,7 +192,7 @@ export type TooltipPosition = 'top-left' | 'top-right' | 'bottom-right' | 'botto
 export type SerieWithOptions = Serie & SerieOptions;
 
 // we don't care about the type here, it is user-defined
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
 export type SelectionOptions = {
@@ -253,7 +253,7 @@ export type CommonAxis = {
    *
    * **When defined, no other axis properties will be applied `format`, `ticks`, etc.**
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   hook?: (axis: d3.Axis<any>) => void;
 };
 
@@ -264,7 +264,7 @@ export interface LinearAxis extends CommonAxis {
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ticks?: any[];
 }
 
@@ -275,7 +275,7 @@ export interface LogAxis extends CommonAxis {
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ticks?: any[];
 }
 
@@ -315,7 +315,7 @@ export type SerieOptions = {
    * @param v the current cell value
    * @returns the color used for canvas painting
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   colorMapping?: (v: any) => Color | null | undefined;
 };
 ```

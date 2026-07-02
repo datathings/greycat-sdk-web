@@ -376,7 +376,7 @@ export class GuiRuntimeUsage extends GuiElement {
       }
 
       // Create one label element per series, using the series color for the border
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       const palette = (ec.getOption() as any).color as string[];
       const labels: HTMLDivElement[] = SERIES_INFO.map((_info, si) => {
         const el = document.createElement('div');
@@ -402,7 +402,7 @@ export class GuiRuntimeUsage extends GuiElement {
         }
       };
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       ec.on('updateAxisPointer', (event: any) => {
         const axesInfo = event.axesInfo;
         if (!axesInfo || axesInfo.length === 0) {
@@ -410,7 +410,7 @@ export class GuiRuntimeUsage extends GuiElement {
           return;
         }
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         const hoveredXAxis = axesInfo.find((a: any) => a.axisDim === 'x');
         const xVal = hoveredXAxis?.value;
 
@@ -430,7 +430,7 @@ export class GuiRuntimeUsage extends GuiElement {
         }
 
         const option = ec.getOption();
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         const seriesOpts = option.series as any[];
 
         for (let si = 0; si < SERIES_INFO.length; si++) {
@@ -513,7 +513,7 @@ export class GuiRuntimeUsage extends GuiElement {
       ec.on('globalout', hideAll);
 
       // Track mouse position for re-dispatching after data refresh
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       ec.getZr().on('mousemove', (e: any) => {
         this._lastMousePos = { x: e.offsetX, y: e.offsetY };
       });
@@ -680,7 +680,7 @@ export class GuiRuntimeUsage extends GuiElement {
         enabled: true,
         trigger: 'axis',
         formatter: (params: unknown) => {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           const all = Array.isArray(params) ? params : [params as any];
           if (all.length === 0) return '';
           const hoveredAxis = all[0].axisIndex;

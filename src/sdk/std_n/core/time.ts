@@ -4,7 +4,7 @@ import type { AbiReader, AbiWriter } from '../../io.js';
 import type { AbiType } from '../../abi.js';
 import type { GreyCat } from '../../greycat.js';
 import { $ } from '../../registry.js';
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export interface time {
   sub(duration: gc.core.duration): gc.core.time;
   sub(time: gc.core.time): gc.core.duration;
@@ -25,7 +25,7 @@ export interface time {
   format(options: Intl.DateTimeFormatOptions, locales?: string): string;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class time extends GCPrimitive {
   private static readonly LOCALE = 'fr-FR';
   private static readonly FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {

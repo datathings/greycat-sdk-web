@@ -1,5 +1,5 @@
 // AUTO-GENERATED FILE PLEASE DO NOT MODIFY MANUALLY
-/* eslint-disable */
+/* oxlint-disable */
 /* oxlint-disable */
 declare namespace gc {
   namespace project {

@@ -297,7 +297,7 @@ export function querySelectorAllWithShadow(
   return elements;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function throttle<T extends (...args: any[]) => void>(callback: T, interval: number) {
   let enableCall = true;
 
@@ -312,7 +312,7 @@ export function throttle<T extends (...args: any[]) => void>(callback: T, interv
   };
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export function debounce<T extends (...args: any[]) => void>(
   callback: T,
   delay: number,

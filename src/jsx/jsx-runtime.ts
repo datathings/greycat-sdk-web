@@ -38,7 +38,7 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
     setElementAttrs(element as unknown as GuiElement, props);
   } else {
     for (const key in props) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       applyProp(element as unknown as GuiElement, key, (props as any)[key]);
     }
   }
@@ -75,7 +75,7 @@ export function cx(element: HTMLElement, value: GreyCat.ExtendedHTMLProperties['
         element.classList.add(...value);
       } else if (value !== null) {
         for (const className in value) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           if ((value as any)[className]) {
             element.classList.add(className);
           } else {
@@ -105,7 +105,7 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
     }
 
     case 'className': {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       cx(element, value as any);
       break;
     }
@@ -161,7 +161,7 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
         if (key in element) {
           // safety: we just validated that 'key' was a property in 'element'
           // therefore we can, at least, set it
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           (element as any)[key] = value;
         }
       }
@@ -170,7 +170,7 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
   }
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 function appendChild(parent: Node, child: any) {
   if (typeof child === 'undefined' || child === null) {
     return;

@@ -23,12 +23,12 @@ export type GuiObjectProps<T = unknown> = {
   resolve: boolean;
 } & ObjectProps;
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export interface GuiObject {
   [key: string]: unknown;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GuiObject<T = unknown> extends GuiElement {
   static override styles = [css(style)];
   static get observedAttributes() {

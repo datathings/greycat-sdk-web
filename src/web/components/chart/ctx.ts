@@ -854,7 +854,7 @@ export class CanvasContext {
     }
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   horizontalAxis(y: number, scale: Scale, fmt: (v: any) => string): void {
     this.ctx.save();
 
@@ -899,7 +899,7 @@ export class CanvasContext {
   verticalAxis(
     x: number,
     scale: Scale,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     fmt: (v: any) => string,
     position: VerticalAxisPos = VerticalAxisPos.Left,
   ): void {

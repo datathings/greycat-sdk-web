@@ -85,7 +85,7 @@ export function __extend_std() {
   Object.assign(gcreg.core.Date.prototype, core_Date_ext);
 }
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 function compareFile(a: gc.io.File, b: gc.io.File): number {
   const aDir = a.path.endsWith('/');
   const bDir = b.path.endsWith('/');
@@ -104,7 +104,7 @@ function compareFile(a: gc.io.File, b: gc.io.File): number {
   });
 }
 
-// eslint-disable-next-line no-inner-declarations
+// oxlint-disable-next-line no-inner-declarations
 async function resolveFileChildrenRecursively(
   file: gc.io.File,
   maxDepth: number,

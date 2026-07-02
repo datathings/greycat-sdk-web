@@ -26,7 +26,7 @@ export type SerieStyle = {
 };
 
 // we don't care about the type here, it is user-defined
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export type SerieData = Serie & SerieOptions & { xValue?: any; yValue?: any; rowIdx: number };
 
 export type Cursor = {
@@ -92,7 +92,7 @@ export type CommonAxis = {
    *
    * **When defined, no other axis properties will be applied `format`, `ticks`, etc.**
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   hook?: (axis: d3.Axis<any>) => void;
 
   /**
@@ -118,7 +118,7 @@ export type LinearAxis = {
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ticks?: any[];
 
   /**
@@ -146,7 +146,7 @@ export type LogAxis = {
    *
    * However, any tick arguments will still be passed to the scale’s tickFormat function if a tick format is not also set.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   ticks?: any[];
 
   /**
@@ -255,7 +255,7 @@ export interface SerieOptions<C = SerieTableColumn> {
      * @param v the column (`col`) value
      * @returns the style used for canvas painting, or `null` to get the default style of the serie
      */
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     mapping?: (v: any) => SerieStyle | null;
   };
 }

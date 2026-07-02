@@ -642,9 +642,9 @@ export class GuiChart extends GuiElement {
         yAxis.max = this._userYAxes[name].max;
       }
     } else {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       this._config.xAxis.min = selection.from as any;
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       this._config.xAxis.max = selection.to as any;
     }
     this.compute();
@@ -1524,7 +1524,7 @@ export class GuiChart extends GuiElement {
 
       const ord = this._config.yAxes[yAxisName];
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // oxlint-disable-next-line typescript/no-explicit-any
       let yAxis: d3.Axis<any>;
       let translateX: number = 0;
       let textAnchor = 'start';

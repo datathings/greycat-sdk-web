@@ -75,7 +75,7 @@ function initialize_functions(name: string, g: GreyCat): void {
       enumerable: false,
     });
     Object.defineProperty(call, 'spawn', { value: spawn });
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const globalGc = gcreg as any;
     if (!globalGc[fn.module]) {
       globalGc[fn.module] = {};
@@ -419,7 +419,7 @@ export function initWithAbi({
   return g;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export interface GreyCat {
   /**
    * The generic param `T` is there only for convenience as no runtime checks are made on the deserialized value.
@@ -502,7 +502,7 @@ interface GreyCatEvents {
   'tasks': gc.runtime.Task[];
 }
 
-// eslint-disable-next-line @typescript-eslint/no-unsafe-declaration-merging
+// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GreyCat extends Emitter<GreyCatEvents> {
   /** This instance name (must be the name registered in `gc.$`) */
   readonly name: string;
@@ -986,7 +986,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param signal optional `AbortSignal` to cancel the request prematurely
    * @returns
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   async getFile(filepath: string, offset?: number, max?: number, signal?: AbortSignal) {
     const res = await this.getFileResponse(filepath, offset, max, signal);
     if (filepath.endsWith('.json')) {

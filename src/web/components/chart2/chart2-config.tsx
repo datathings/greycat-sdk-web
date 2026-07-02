@@ -240,7 +240,7 @@ export class GuiChart2Config extends GuiElement {
       />
     );
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     const chartColors = (this._chart?.getOption() as any)?.color as string[] | undefined;
     const dotColor = serie.color || chartColors?.[idx] || 'var(--sl-color-neutral-400)';
     const colorDot = document.createElement('span');

@@ -4,7 +4,7 @@ import type { AbiReader, AbiWriter } from '../../io.js';
 import type { AbiType } from '../../abi.js';
 import type { GreyCat } from '../../greycat.js';
 import { $ } from '../../registry.js';
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
+// oxlint-disable-next-line typescript/no-explicit-any
 export class Map<K extends Value = any, V extends Value = any> extends GCObject {
   static readonly _type = 'core::Map' as const;
 
@@ -12,7 +12,7 @@ export class Map<K extends Value = any, V extends Value = any> extends GCObject 
     super();
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   static create<K extends Value = any, V extends Value = any>(
     map: globalThis.Map<K, V>,
     g: GreyCat = $.default,
@@ -48,7 +48,7 @@ export class Map<K extends Value = any, V extends Value = any> extends GCObject 
 
   forEach(
     callback: (value: V, key: K, map: globalThis.Map<K, V>) => void,
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     thisArg?: any,
   ): void {
     this.map.forEach(callback, thisArg);

@@ -54,7 +54,7 @@ export type GuiDashboardFetcher<S = Record<string, unknown>> = (
 export class GuiDashboard extends GuiElement {
   static override styles = [css(dockviewStyle), css(style)];
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   private _components: Record<string, GuiDashboardComponent<any>> = {};
   private _associations: Record<string, GuiDashboardAssociation> = {};
   private _fetchers: Record<string, GuiDashboardFetcher> = {};
@@ -127,7 +127,7 @@ export class GuiDashboard extends GuiElement {
     return this._components;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   set components(components: Record<string, GuiDashboardComponent<any>>) {
     this._components = components;
     this.update();
@@ -156,7 +156,7 @@ export class GuiDashboard extends GuiElement {
     return this._fetchers;
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   set fetchers(fetchers: Record<string, GuiDashboardFetcher<any>>) {
     this._fetchers = fetchers;
     this.update();
@@ -192,7 +192,7 @@ export class GuiDashboard extends GuiElement {
     updateEvery = this._updateEvery,
     model,
   }: Partial<{
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    // oxlint-disable-next-line typescript/no-explicit-any
     components: Record<string, GuiDashboardComponent<any>>;
     associations: Record<string, GuiDashboardAssociation>;
     fetchers: Record<string, GuiDashboardFetcher>;
@@ -309,7 +309,7 @@ class DashboardPanel implements IContentRenderer {
     for (const name in event.params.attrs) {
       const value = event.params.attrs[name];
       if (name in this.inner) {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        // oxlint-disable-next-line typescript/no-explicit-any
         (this.inner as any)[name] = value;
       }
     }

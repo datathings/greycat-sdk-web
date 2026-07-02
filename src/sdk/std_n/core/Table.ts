@@ -16,7 +16,7 @@ export class Table<T = unknown[]> extends GCObject {
     numeric: true,
     sensitivity: 'base',
   });
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   static compare(a: any, b: any, ord: SortOrd): number {
     let diff: number;
     if (typeof a === 'string' && typeof b === 'string') {
@@ -37,7 +37,7 @@ export class Table<T = unknown[]> extends GCObject {
   public subheaders: string[] | undefined;
   private _initial_value: T[] | undefined;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   constructor(public cols: any[][] = []) {
     super();
   }
@@ -102,13 +102,13 @@ export class Table<T = unknown[]> extends GCObject {
     rows: globalThis.Array<[C0, C1, C3, C4, C5, C6, C7, C8, C9, C10]>,
     g?: GreyCat,
   ): Table<[C0, C1, C3, C4, C5, C6, C7, C8, C9, C10]>;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   static fromRows<T extends any[]>(rows: globalThis.Array<[...T]>, g?: GreyCat): Table<[...T]>;
 
   /**
    * Creates a table using an array of rows.
    */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  // oxlint-disable-next-line typescript/no-explicit-any
   static fromRows(rows: any[][], g: GreyCat = $.default): gc.core.Table<any[]> {
     const ty = g.abi.types[g.abi.core.table];
 
@@ -218,7 +218,7 @@ export class Table<T = unknown[]> extends GCObject {
       const obj = objects[row];
       if (typeof obj === 'object' && obj !== null) {
         for (let col = 0; col < cols.length; col++) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          // oxlint-disable-next-line typescript/no-explicit-any
           cols[col][row] = (obj as any)[keys[col]];
         }
       } else {
