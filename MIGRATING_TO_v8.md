@@ -28,8 +28,8 @@ import '@greycat/web/components/table';
 import '@greycat/web/components/chart';
 ```
 
-- Each component import pulls its own dependencies (other gui-* elements,
-  the shoelace elements it renders, echarts/maplibre-gl/dockview-core for
+- Each component import pulls its own dependencies (other gui-\* elements,
+  the shoelace elements it renders, echarts/maplibre-gl for
   chart2/map/dashboard).
 - Elements are still defined when `gc.sdk.init()`/`initWithAbi()` resolves,
   never before. Auth components (`gui-sign-in`, `gui-auth-gate`,
@@ -78,9 +78,8 @@ The full shoelace kit registration moved to `@greycat/web/shoelace.js`
 ## Peer dependencies
 
 Moved from `dependencies` to `peerDependencies`:
-`@shoelace-style/shoelace`, `d3`, `echarts`, `dockview-core`,
-`maplibre-gl`. You can pin your own versions; duplicates with your direct
-deps are gone.
+`@shoelace-style/shoelace`, `d3`, `echarts`, `maplibre-gl`.
+You can pin your own versions; duplicates with your direct deps are gone.
 
 ## gui-map
 

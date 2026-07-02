@@ -48,9 +48,7 @@ const assetModules = () => {
       const real = m[1].startsWith('.') ? path.resolve(path.dirname(importer), m[1]) : require.resolve(m[1]);
       // bare package assets get a local, root-relative id so preserveModules
       // emits them next to their importer
-      const id = m[1].startsWith('.')
-        ? `${real}.js`
-        : path.join(path.dirname(importer), `${path.basename(real)}.js`);
+      const id = m[1].startsWith('.') ? `${real}.js` : path.join(path.dirname(importer), `${path.basename(real)}.js`);
       sources.set(id, real);
       return id;
     },
@@ -88,8 +86,7 @@ const registerInputs = readdirSync('src/web/components', { withFileTypes: true }
 
 export default {
   input: ['src/web/index.ts', 'src/web/shoelace.ts', 'src/web/components/all.ts', ...registerInputs],
-  // bare imports (lit, d3, echarts, shoelace, dockview-core, maplibre-gl,
-  // @greycat/web self-references) stay external and resolve in the consumer
+  // bare imports (lit, d3, echarts, shoelace, maplibre-gl, @greycat/web self-references) stay external and resolve in the consumer
   external: (id) => !id.startsWith('.') && !path.isAbsolute(id) && !id.includes('?'),
   plugins: [resolveTs, assetModules(), esbuildTransform],
   output: {

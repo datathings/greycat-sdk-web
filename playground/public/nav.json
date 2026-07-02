@@ -132,10 +132,6 @@
     ]
   },
   {
-    "label": "Dashboard",
-    "route": "pages/dashboard/"
-  },
-  {
     "label": "Gauge",
     "route": "pages/gauge/"
   },
