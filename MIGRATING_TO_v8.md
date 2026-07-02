@@ -72,9 +72,6 @@ import * as sl from '@shoelace-style/shoelace';
 import * as d3 from 'd3';
 ```
 
-The full shoelace kit registration moved to `@greycat/web/shoelace.js`
-(opt-in).
-
 ## Peer dependencies
 
 Moved from `dependencies` to `peerDependencies`:
@@ -109,8 +106,7 @@ await gc.sdk.init();
 - ESM only, no pre-bundling: `dist/web` is a module-per-file tree; your
   bundler resolves dependencies and tree-shakes unused components.
 - New export subpaths: `./components/all.js`, `./components/<name>`
-  (registers + exports classes), `./components/<path>.js` (raw module),
-  `./shoelace.js`.
+  (registers + exports classes), `./components/<path>.js` (raw module).
 
 ## Removed
 
