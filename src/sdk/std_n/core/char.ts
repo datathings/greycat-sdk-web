@@ -10,10 +10,8 @@ export class char extends GCPrimitive {
     super();
   }
 
-  // oxlint-disable-next-line typescript/ban-types
   static create(value: string, g: GreyCat = $.default): char {
     const ty = g.abi.types[g.abi.core.char];
-    // oxlint-disable-next-line typescript/ban-types
     return new ty.ctor(value) as char;
   }
 

@@ -5,6 +5,5 @@
     "no-unused-vars": "warn",
     "no-new-array": "off",
     "typescript/no-explicit-any": "warn"
-  },
-  "overrides": [{ "files": ["src/sdk/**"], "rules": { "no-unused-vars": "off" } }]
+  }
 }

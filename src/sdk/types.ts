@@ -6,6 +6,7 @@ import type { WasmSource } from './wasm.js';
 import type { OpenidServerSpec, OpenidPkceSpec } from './openid.js';
 import type { GreyCat } from './greycat.js';
 // using Pick<...> to catch bug earlier if `runtime.Task` changes
+// oxlint-disable-next-line typescript/no-explicit-any
 export type TaskLike<T = any> = Pick<gc.runtime.Task<T>, 'user_id' | 'task_id'>;
 
 export type TaskOptions = {
@@ -75,6 +76,7 @@ export const PrimitiveTypeName = {
 export type PrimitiveType = ExtractValues<typeof PrimitiveType>;
 
 export interface IGCObjectClass {
+  // oxlint-disable-next-line typescript/no-explicit-any
   new (...fields: any[]): GCObject;
   _type: string;
   load: ILoader;

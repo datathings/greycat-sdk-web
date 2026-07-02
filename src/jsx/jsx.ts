@@ -46,8 +46,17 @@ declare global {
       | keyof HTMLElementFunctionsKeys;
     type WrapElement<T> = Partial<Omit<Pick<T, WritableKeys<T>>, UnwantedKeys>>;
 
+    type HTMLElementProps = WrapElement<HTMLElement>;
+    type SVGElementProps = WrapElement<SVGElement>;
+    type OwnProps<T, Base> = WrapElement<Omit<T, keyof Base>>;
+    type ElementProps<T> = [T] extends [HTMLElement]
+      ? HTMLElementProps & OwnProps<T, HTMLElement>
+      : [T] extends [SVGElement]
+        ? SVGElementProps & OwnProps<T, SVGElement>
+        : WrapElement<T>;
+
     // oxlint-disable-next-line typescript/ban-types
-    type Element<T, EventMap = HTMLElementEventMap> = WrapElement<T> &
+    type Element<T, EventMap = HTMLElementEventMap> = ElementProps<T> &
       ExtendedHTMLProperties &
       (T extends DocumentFragment ? {} : AttrPrefixed) &
       ElementEventMap<T, EventMap> & {

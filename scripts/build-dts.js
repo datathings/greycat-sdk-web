@@ -1,4 +1,4 @@
-import { copyFileSync, readFileSync, writeFileSync } from 'node:fs';
+import { copyFileSync, writeFileSync } from 'node:fs';
 import { rollup } from 'rollup';
 import dts from 'rollup-plugin-dts';
 

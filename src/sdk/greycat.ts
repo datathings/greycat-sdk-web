@@ -45,7 +45,6 @@ export function unregister(name: string): void {
 function initialize_functions(name: string, g: GreyCat): void {
   for (const fn of g.abi.functions) {
     const call = (...args: unknown[]) => {
-      // oxlint-disable-next-line no-new-array
       const args_ = new Array(fn.params.length);
       for (let i = 0; i < fn.params.length; i++) {
         args_[i] = args[i];
@@ -60,7 +59,6 @@ function initialize_functions(name: string, g: GreyCat): void {
       enumerable: false,
     });
     const spawn = (...args: unknown[]) => {
-      // oxlint-disable-next-line no-new-array
       const args_ = new Array(fn.params.length);
       for (let i = 0; i < fn.params.length; i++) {
         args_[i] = args[i];
@@ -502,7 +500,6 @@ interface GreyCatEvents {
   'tasks': gc.runtime.Task[];
 }
 
-// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GreyCat extends Emitter<GreyCatEvents> {
   /** This instance name (must be the name registered in `gc.$`) */
   readonly name: string;
@@ -986,7 +983,6 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param signal optional `AbortSignal` to cancel the request prematurely
    * @returns
    */
-  // oxlint-disable-next-line typescript/no-explicit-any
   async getFile(filepath: string, offset?: number, max?: number, signal?: AbortSignal) {
     const res = await this.getFileResponse(filepath, offset, max, signal);
     if (filepath.endsWith('.json')) {

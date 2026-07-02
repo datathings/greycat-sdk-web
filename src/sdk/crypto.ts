@@ -6,6 +6,7 @@
  * @returns The hash of the data as a hexadecimal string.
  */
 export function sha256hex(data: string, utf8encode: boolean = true): string {
+  // oxlint-disable-next-line typescript/no-explicit-any
   const c: { [key: string]: any } = {};
 
   c.hash = function (a: string, f: boolean): string {
@@ -28,10 +29,8 @@ export function sha256hex(data: string, utf8encode: boolean = true): string {
     a += String.fromCharCode(128);
 
     const i = Math.ceil((a.length / 4 + 2) / 16);
-    // oxlint-disable-next-line no-new-array
     const j: number[][] = new Array(i);
     for (let ji = 0; ji < i; ji++) {
-      // oxlint-disable-next-line no-new-array
       j[ji] = new Array(16).fill(0, 0, 16);
     }
 

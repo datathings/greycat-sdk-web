@@ -132,7 +132,6 @@ export class Abi {
 
     /* const symbols_size = */ cursor.read_u64();
     const nb_symbols = cursor.read_u32();
-    // oxlint-disable-next-line no-new-array
     this.symbols = new Array(nb_symbols + 1);
     this.symbols[0] = ''; // symbol zero is a special symbol for "not found"
 
@@ -147,7 +146,6 @@ export class Abi {
     const nb_types = cursor.read_u32();
     /* const nb_attrs = */ cursor.read_u32(); // unused
 
-    // oxlint-disable-next-line no-new-array
     this.types = new Array(nb_types);
 
     for (let i = 0; i < this.types.length; i++) {
@@ -174,7 +172,6 @@ export class Abi {
       const is_ambiguous = (flags & (1 << 4)) !== 0;
       const is_volatile = (flags & (1 << 5)) !== 0;
 
-      // oxlint-disable-next-line no-new-array
       const attrs: AbiAttribute[] = new Array(attributes_len);
       for (let i = 0; i < attributes_len; i++) {
         const name = cursor.read_vu32();
@@ -321,7 +318,6 @@ export class Abi {
 
     /* const functions_size = */ cursor.read_u64();
     const functions_len = cursor.read_u32();
-    // oxlint-disable-next-line no-new-array
     this.functions = new Array(functions_len);
     for (let i = 0; i < functions_len; i++) {
       const module = cursor.read_vu32();
@@ -329,9 +325,7 @@ export class Abi {
       const name = cursor.read_vu32();
       const lib = cursor.read_vu32();
       const arity = cursor.read_vu32();
-      // oxlint-disable-next-line no-new-array
       const attrs = new Array(arity);
-      // oxlint-disable-next-line no-new-array
       const params = new Array(arity);
       for (let p = 0; p < arity; p++) {
         const nullable = cursor.read_u8() === 1;
@@ -387,8 +381,10 @@ export class Abi {
     }
 
     const create_monomorphic_class = (type: AbiType, supertype: IGCObjectClass): IGCObjectClass => {
+      // oxlint-disable-next-line typescript/no-explicit-any
       const GCObject = class extends (supertype as any) {
         static _type = type.name;
+        // oxlint-disable-next-line typescript/no-explicit-any
         constructor(values: any[]) {
           super(values);
           Object.defineProperty(this, '$type', {
@@ -411,41 +407,49 @@ export class Abi {
       switch (type.generic_abi_type) {
         case this.core.array: {
           type.ctor = create_monomorphic_class(type, gcreg.core.Array);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.table: {
           type.ctor = create_monomorphic_class(type, gcreg.core.Table);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.map: {
           type.ctor = create_monomorphic_class(type, gcreg.core.Map);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.node: {
           type.ctor = create_monomorphic_class(type, gcreg.core.node);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.node_time: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeTime);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.node_list: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeList);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.node_index: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeIndex);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
         case this.core.node_geo: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeGeo);
+          // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
@@ -556,6 +560,7 @@ type AbiTypeProperties = {
 
 export class AbiType {
   /** can either be `GCEnum` in case of enum or the static fields `Value` in case of `GCObject` */
+  // oxlint-disable-next-line typescript/no-explicit-any
   static_values?: Record<string, any> = {};
   /** the enum instances of that type (singleton) */
   readonly enum_values?: GCEnumBase[];
@@ -609,7 +614,6 @@ export class AbiType {
       this.static_values = {};
       if (offset === mapped_type_off) {
         // initialize all enum fields
-        // oxlint-disable-next-line no-new-array
         this.enum_values = new Array(attrs.length);
         for (let offset = 0; offset < attrs.length; offset++) {
           const en_field_name = attrs[offset].name;
@@ -673,9 +677,12 @@ export class AbiType {
             break;
           }
           default: {
+            // oxlint-disable-next-line typescript/no-explicit-any
             if ((std_n_core as any)[type_name]) {
+              // oxlint-disable-next-line typescript/no-explicit-any
               const GCObject = class extends (std_n_core as any)[type_name] {
                 static readonly _type = type.name;
+                // oxlint-disable-next-line typescript/no-explicit-any
                 constructor(...args: any[]) {
                   super(...args);
                   Object.defineProperty(this, '$type', {
@@ -747,6 +754,7 @@ export class AbiType {
             const fields = new globalThis.Array(type.attrs.length);
             for (let i = 0; i < type.attrs.length; i++) {
               const attr = type.attrs[i];
+              // oxlint-disable-next-line typescript/no-explicit-any
               fields[i] = (o as any)[attr.name];
             }
             return new type.ctor(...fields);
@@ -786,16 +794,21 @@ export class AbiType {
 
     // Dynamically store the constructor
     if (!Object.hasOwn(gcreg, module_name)) {
+      // oxlint-disable-next-line typescript/no-explicit-any
       (gcreg as any)[module_name] = {};
     }
     // Store the constructor using its fqn
+    // oxlint-disable-next-line typescript/no-explicit-any
     (gcreg as any)[module_name][type_name] = this.ctor;
     // Store the constructor using the shortcut
+    // oxlint-disable-next-line typescript/no-explicit-any
     if (typeof (gcreg as any)[type_name] === 'function') {
+      // oxlint-disable-next-line typescript/no-explicit-any
       delete (gcreg as any)[type_name];
     } else if (type_name.indexOf('$') !== -1) {
       // noop
     } else {
+      // oxlint-disable-next-line typescript/no-explicit-any
       (gcreg as any)[type_name] = this.ctor;
     }
   }

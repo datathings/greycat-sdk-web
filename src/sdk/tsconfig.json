@@ -3,6 +3,7 @@
     "rootDir": ".",
     "outDir": "../../dist/sdk/lib",
     "declaration": true,
+    "skipLibCheck": true,
 
     "target": "ES2024",
     "module": "ESNext",

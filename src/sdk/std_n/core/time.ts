@@ -25,7 +25,6 @@ export interface time {
   format(options: Intl.DateTimeFormatOptions, locales?: string): string;
 }
 
-// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class time extends GCPrimitive {
   private static readonly LOCALE = 'fr-FR';
   private static readonly FORMAT_OPTIONS: Intl.DateTimeFormatOptions = {

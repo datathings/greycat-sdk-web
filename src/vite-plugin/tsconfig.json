@@ -3,6 +3,7 @@
     "rootDir": ".",
     "outDir": "../../dist/vite-plugin",
     "declaration": true,
+    "skipLibCheck": true,
 
     "target": "ES2024",
     "module": "NodeNext",

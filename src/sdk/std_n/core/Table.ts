@@ -74,10 +74,7 @@ export class Table<T = unknown[]> extends GCObject {
 
   static fromRows<C0, C1>(rows: globalThis.Array<[C0, C1]>, g?: GreyCat): Table<[C0, C1]>;
   static fromRows<C0, C1, C3>(rows: globalThis.Array<[C0, C1, C3]>, g?: GreyCat): Table<[C0, C1, C3]>;
-  static fromRows<C0, C1, C3, C4>(
-    rows: globalThis.Array<[C0, C1, C3, C4]>,
-    g?: GreyCat,
-  ): Table<[C0, C1, C3, C4]>;
+  static fromRows<C0, C1, C3, C4>(rows: globalThis.Array<[C0, C1, C3, C4]>, g?: GreyCat): Table<[C0, C1, C3, C4]>;
   static fromRows<C0, C1, C3, C4, C5>(
     rows: globalThis.Array<[C0, C1, C3, C4, C5]>,
     g?: GreyCat,
@@ -143,10 +140,7 @@ export class Table<T = unknown[]> extends GCObject {
    * and end-up as columns of fields, unless the objects are `GCPrimitive`s in which case it creates a
    * table of one column.
    */
-  static fromObjects<T extends object | null | undefined>(
-    objects: T[],
-    g: GreyCat = $.default,
-  ): gc.core.Table<T> {
+  static fromObjects<T extends object | null | undefined>(objects: T[], g: GreyCat = $.default): gc.core.Table<T> {
     if (objects.length === 0) {
       const ty = g.abi.types[g.abi.core.table];
       return new ty.ctor([]) as gc.core.Table<T>;
@@ -446,7 +440,6 @@ export class Table<T = unknown[]> extends GCObject {
     }
     const offset = table.cols.length;
     const newTable = await gcreg.core.Table.applyMappings(table, mappings, g);
-    // oxlint-disable-next-line no-new-array
     const headers: string[] = new globalThis.Array(newTable.cols.length);
     for (let i = 0; i < offset; i++) {
       headers[i] = table.headers?.[i] ?? `Column ${i}`;

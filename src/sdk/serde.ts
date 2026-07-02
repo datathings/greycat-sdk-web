@@ -61,6 +61,7 @@ export class BinaryWriter extends AbiWriter {
   }
 }
 
+// oxlint-disable-next-line typescript/no-explicit-any
 export type BinaryReaderFactory = Record<string, new (...args: any[]) => any>;
 
 export class BinaryReader extends AbiReader {
@@ -154,7 +155,6 @@ const HEX_TABLE = Array.from({ length: 256 }, (_, i) => i.toString(16).padStart(
 
 export const toHex = (buffer: ArrayBufferLike) => {
   const bytes = new Uint8Array(buffer);
-  // oxlint-disable-next-line unicorn/no-new-array
   const chars = new Array(bytes.length);
   for (let i = 0; i < bytes.length; i++) {
     chars[i] = HEX_TABLE[bytes[i]];
