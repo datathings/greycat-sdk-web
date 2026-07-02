@@ -24,9 +24,6 @@ importers:
       d3:
         specifier: 7.9.0
         version: 7.9.0
-      dockview-core:
-        specifier: 3.2.0
-        version: 3.2.0
       echarts:
         specifier: 6.0.0
         version: 6.0.0
@@ -870,9 +867,6 @@ packages:
   detect-libc@2.1.2:
     resolution: {integrity: sha512-Btj2BOOO83o3WyH59e8MgXsxEQVcarkUOpEYrubB0urwnN10yQ364rsiByU11nZlqWYZm05i/of7io4mzihBtQ==}
     engines: {node: '>=8'}
-
-  dockview-core@3.2.0:
-    resolution: {integrity: sha512-SmLbj1WkqOoSU8SQAqG6RLeZc+VqBAi0Uch80NvCbF3QyeVe2QIuy9SwEbjoGfesskWC+HUeYEoV/edARFjYOg==}
 
   earcut@3.1.1:
     resolution: {integrity: sha512-zD5UNOQNJMiAERoZwDJsgVrngtBS7nnJwUHdVgiaqMAH5usYw4ig0p1nO1MhEfbNFNFFNPTCC5gqmdJ2yt7NvQ==}
@@ -1887,8 +1881,6 @@ snapshots:
       robust-predicates: 3.0.3
 
   detect-libc@2.1.2: {}
-
-  dockview-core@3.2.0: {}
 
   earcut@3.1.1: {}
 
