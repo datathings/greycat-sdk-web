@@ -119,7 +119,6 @@ declare global {
       GuiChartYAxesInput,
       GuiCsvStatistics,
       GuiCsvStatistics2,
-      GuiDashboard,
       GuiDetails,
       GuiDialog,
       GuiDonut,
