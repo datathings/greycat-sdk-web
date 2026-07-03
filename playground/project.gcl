@@ -1,5 +1,4 @@
-@library("explorer", "8.0.3-dev");
-@library("openid", "8.0.232-dev");
+@library("explorer", "8.0.8-dev");
 
 @include("pages");
 

@@ -716,8 +716,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   async await<T = unknown>(task: TaskLike<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
-    // trigger a poll right away to improve UX
-    await this.pollTasks();
+    await this.pollTasks(); // trigger a poll right away to improve UX
 
     const updated = this.getTask(task.task_id);
     if (updated === undefined || isTaskRunning(updated)) {

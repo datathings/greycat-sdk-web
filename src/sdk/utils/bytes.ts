@@ -501,7 +501,6 @@ export function deinterleave64_2df(x: bigint): [number, number] {
   return res;
 }
 
-// oxlint-disable-next-line no-inner-declarations
 function toF32(x: number) {
   u32view[0] = x;
   return f32view[0];

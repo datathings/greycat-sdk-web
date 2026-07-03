@@ -18,12 +18,7 @@ export function __extend_std() {
   const runtime_Task_ext = {
     async getFile(this: gc.runtime.Task, filepath: string, g: GreyCat = $.default, signal?: AbortSignal) {
       if (filepath === 'result.gcb') {
-        const res = await g.getFile(
-          `${this.user_id}/tasks/${this.task_id}/${filepath}`,
-          undefined,
-          undefined,
-          signal,
-        );
+        const res = await g.getFile(`${this.user_id}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
         return res[0];
       }
       return g.getFile(`${this.user_id}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
@@ -85,7 +80,6 @@ export function __extend_std() {
   Object.assign(gcreg.core.Date.prototype, core_Date_ext);
 }
 
-// oxlint-disable-next-line no-inner-declarations
 function compareFile(a: gc.io.File, b: gc.io.File): number {
   const aDir = a.path.endsWith('/');
   const bDir = b.path.endsWith('/');
@@ -104,7 +98,6 @@ function compareFile(a: gc.io.File, b: gc.io.File): number {
   });
 }
 
-// oxlint-disable-next-line no-inner-declarations
 async function resolveFileChildrenRecursively(
   file: gc.io.File,
   maxDepth: number,
