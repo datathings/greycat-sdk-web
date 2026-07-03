@@ -41,9 +41,11 @@ declare global {
     'project-sensor-form': ProjectSensorForm;
   }
 
-  namespace JSX {
-    interface IntrinsicElements {
-      'project-sensor-form': GreyCat.Element<ProjectSensorForm>;
+  namespace GreyCat {
+    namespace JSX {
+      interface IntrinsicElements {
+        'project-sensor-form': GreyCat.Element<ProjectSensorForm>;
+      }
     }
   }
 }

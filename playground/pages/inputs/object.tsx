@@ -3,12 +3,6 @@ import { appLayout } from '~/common';
 
 await gc.sdk.init({ debug: true });
 
-const filter = new gc.object.Filter(42);
+const person = new gc.project.Person('John', 42, true);
 
-document.body.appendChild(
-  appLayout('Inputs (object)',
-    <gui-input-object value={filter}>
-      <gui-select slot="b" nullable />
-    </gui-input-object>,
-  ),
-);
+document.body.appendChild(appLayout('Inputs (object)', <gui-input-object value={person} />));

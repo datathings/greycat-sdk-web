@@ -228,7 +228,7 @@ function isPotentiallyChartable(value: unknown): boolean {
   );
 }
 
-export function tableGetColumnIndex(col: number | gc.$Fields | (number | gc.$Fields)[]): number | undefined {
+export function tableGetColumnIndex(col: SerieTableColumn): number | undefined {
   if (typeof col === 'number') {
     return col;
   }

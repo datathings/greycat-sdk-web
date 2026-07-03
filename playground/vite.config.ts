@@ -1,4 +1,4 @@
-import { basename, resolve } from 'node:path';
+import { relative, resolve } from 'node:path';
 import { defineConfig } from 'vite';
 import { readdirSync, statSync } from 'node:fs';
 import greycat from '@greycat/web/vite-plugin';
@@ -18,7 +18,6 @@ export default defineConfig(({ mode }) => ({
   },
   resolve: {
     alias: {
-      '~': resolve(__dirname),
       '@greycat/web/jsx-dev-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
       '@greycat/web/jsx-runtime': resolve(__dirname, '../src/jsx/jsx-runtime.ts'),
       '@greycat/web/sdk': resolve(__dirname, '../dist/sdk/index.js'),
@@ -29,7 +28,6 @@ export default defineConfig(({ mode }) => ({
   },
   build: {
     outDir: resolve(__dirname, '../dist/playground'),
-    target: 'esnext',
     rollupOptions: {
       input: {
         index: resolve(__dirname, 'index.html'),
@@ -54,7 +52,10 @@ function inputsFromDirectories(rootDir: string, prefix = '') {
         // recursive descent
         walkDir(filepath);
       } else if (filename.endsWith('.html')) {
-        const entryName = `${prefix}${basename(path)}`;
+        // key by the file's path relative to rootDir (minus extension) so every
+        // page is a distinct entry; keying by directory alone collides when a
+        // directory holds more than one page.
+        const entryName = `${prefix}${relative(rootDir, filepath).slice(0, -'.html'.length)}`;
         inputs[entryName] = filepath;
       }
     }

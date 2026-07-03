@@ -23,7 +23,7 @@ class AppValue extends GuiValue {
       } else if (value instanceof Map) {
         attrs.text = `Map { size: ${value.size} }`;
       } else if (value instanceof gc.sdk.GCEnum) {
-        attrs.text = stringify({ value });
+        attrs.text = stringify(value, attrs);
       } else if (value instanceof gc.sdk.GCObject && !value.$type.is_native) {
         if (value.$type.attrs.length >= 5) {
           attrs.text = `${value.$type.name} { ${value.$type.attrs

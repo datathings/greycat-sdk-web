@@ -13,9 +13,9 @@ async function runAnalysis(filepath: string) {
   ]);
 
   const reader = new gc.io.CsvReader(filepath, undefined, new gc.io.CsvFormat(1));
-  sample.value = await gc.io.CsvReader.sample(reader);
+  sample.value = await gc.io.Csv.sample(reader);
 
-  const stats = (await task.await()) as gc.io.CsvStatistics;
+  const stats = (await task.result()) as gc.io.CsvStatistics;
   console.log(stats);
   return stats;
 }
@@ -54,7 +54,7 @@ async function generateCode() {
   if (!stats) {
     return;
   }
-  const code = await gc.io.CsvStatistics.generate(stats);
+  const code = await gc.io.Csv.generate(stats);
   modal.info({
     title: 'Generated code',
     message: (
@@ -70,7 +70,8 @@ async function generateCode() {
 }
 
 document.body.appendChild(
-  appLayout({ title: 'Csv Analysis', mainStyle: { display: 'grid', gridTemplateRows: 'auto 1fr', rowGap: 'var(--spacing)' } },
+  appLayout(
+    { title: 'Csv Analysis', mainStyle: { display: 'grid', gridTemplateRows: 'auto 1fr', rowGap: 'var(--spacing)' } },
     <div
       style={{
         display: 'grid',

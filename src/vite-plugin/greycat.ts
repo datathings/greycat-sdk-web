@@ -86,18 +86,30 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
         console.log(`[greycat] app_root: ${app_root}`);
         console.log(`[greycat] app_root_absolute: ${app_root_absolute}`);
       }
-      const htmlInputs = listHtmlFiles(app_root);
+      // Only auto-discover pages when the consumer has not declared its own
+      // input. Leaving input out of our returned config lets mergeConfig keep
+      // the consumer's untouched: merging our array into a user object wraps
+      // that object as the first array entry, and merging into a user array
+      // concatenates and duplicates every entry.
+      const hasUserInput = config.build?.rollupOptions?.input !== undefined;
+      const htmlInputs = hasUserInput ? undefined : listHtmlFiles(app_root);
       if (debug) {
-        if (htmlInputs.length > 0) {
-          console.log(`[greycat] ${htmlInputs.length} pages:`);
-        }
-        for (const page of htmlInputs) {
-          console.log(`  - ${page}`);
+        if (hasUserInput) {
+          console.log('[greycat] using consumer-provided rollupOptions.input');
+        } else if (htmlInputs!.length > 0) {
+          console.log(`[greycat] ${htmlInputs!.length} pages:`);
+          for (const page of htmlInputs!) {
+            console.log(`  - ${page}`);
+          }
         }
       }
 
+      // Every default below is only applied when the consumer has not set that
+      // key: mergeConfig gives our returned values precedence over the inline
+      // config, so unconditionally returning them would silently override an
+      // explicit consumer choice. We fill gaps, we do not overrule.
       return {
-        base: './', // makes generated urls relative to each file
+        ...(config.base === undefined && { base: './' }), // relative urls per file
         appType: 'mpa',
         root: app_root,
         resolve: {
@@ -106,13 +118,17 @@ export function greycat(options: GreyCatPluginOptions = {}): PluginOption {
             '~': resolve(project_dir, app_root),
           },
         },
-        publicDir: config.root === undefined ? relative(app_root_absolute, 'public') : 'public',
+        ...(config.publicDir === undefined && {
+          publicDir: config.root === undefined ? relative(app_root_absolute, 'public') : 'public',
+        }),
         build: {
-          outDir: config.root === undefined ? relative(app_root_absolute, 'webroot') : 'webroot',
+          ...(config.build?.outDir === undefined && {
+            outDir: config.root === undefined ? relative(app_root_absolute, 'webroot') : 'webroot',
+          }),
           emptyOutDir: true,
-          target: 'esnext',
+          ...(config.build?.target === undefined && { target: 'esnext' }),
           rollupOptions: {
-            input: htmlInputs,
+            ...(htmlInputs !== undefined && { input: htmlInputs }),
             output: {
               entryFileNames: (chunk) => {
                 // get relative path from app_root_absolute

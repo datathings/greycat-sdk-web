@@ -1,5 +1,4 @@
 declare namespace gc {
-
   interface $TypesMap {}
   type AllTypes = keyof $TypesMap extends never ? string : keyof $TypesMap;
   export type $Types = AllTypes;

@@ -1240,11 +1240,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.abi.createDuration(typeof value === 'bigint' ? value : BigInt(value));
   }
 
-  findType(fqn: gc.$Types): AbiType | undefined {
+  findType(fqn: gc.$Types | (string & {})): AbiType | undefined {
     return this.abi.type_by_fqn.get(fqn);
   }
 
-  findFn(fqn: gc.$Functions): AbiFunction | undefined {
+  findFn(fqn: gc.$Functions | (string & {})): AbiFunction | undefined {
     return this.abi.fn_by_fqn.get(fqn);
   }
 
@@ -1253,7 +1253,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param fqn
    * @returns
    */
-  field(fqn: gc.$Fields): AbiAttribute {
+  field(fqn: gc.$Fields | (string & {})): AbiAttribute {
     let field = this._fields_map.get(fqn);
     if (field) {
       return field;
@@ -1276,7 +1276,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     throw new Error(`unknown type field '${fqn}'`);
   }
 
-  findField(fqn: gc.$Fields): AbiAttribute | undefined {
+  findField(fqn: gc.$Fields | (string & {})): AbiAttribute | undefined {
     let field = this._fields_map.get(fqn);
     if (field) {
       return field;
@@ -1304,11 +1304,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param fqn
    * @returns
    */
-  fieldOffset(fqn: gc.$Fields): number {
+  fieldOffset(fqn: gc.$Fields | (string & {})): number {
     return this.field(fqn).mapped_att_offset;
   }
 
-  findFieldOffset(fqn: gc.$Fields): number | undefined {
+  findFieldOffset(fqn: gc.$Fields | (string & {})): number | undefined {
     const attr = this.findField(fqn);
     if (attr) {
       return attr.mapped_att_offset;

@@ -1,10 +1,4 @@
-import {
-  GuiFiles,
-  querySelectorAllWithShadow,
-  setGlobalDateTimeFormatTimezone,
-  svg,
-  toggleTheme,
-} from '@greycat/web';
+import { GuiFiles, svg, toggleTheme } from '@greycat/web';
 import type * as sl from '@shoelace-style/shoelace';
 import '@greycat/web/greycat.css';
 import './styles.css';
@@ -72,20 +66,6 @@ document.body.appendChild(
       {svg(LogoIcon)}
     </a>
     <div slot="header" className="row">
-      <gui-input-enum
-        type="core::TimeZone"
-        ongui-change={function () {
-          if (this.value) {
-            setGlobalDateTimeFormatTimezone(this.value as gc.core.TimeZone);
-          } else {
-            setGlobalDateTimeFormatTimezone(gc.core.TimeZone.UTC);
-          }
-          const values = querySelectorAllWithShadow('gui-value');
-          for (const value of values) {
-            value.update();
-          }
-        }}
-      />
       <sl-button variant="text" onclick={toggleTheme}>
         Light / Dark
       </sl-button>
