@@ -54,9 +54,14 @@
   display: none !important;
 }
 
-html,
+html {
+  min-height: 100%;
+}
+
 body {
+  min-height: 100dvh;
   margin: 0;
+  background-color: var(--background-color);
 }
 
 /* Small devices */
