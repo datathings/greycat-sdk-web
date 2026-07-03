@@ -1,5 +1,5 @@
 import type { AuthContext, AuthOutcome, AuthStrategy } from './types.js';
-import { callJson, callJsonRaw } from './greycat.js';
+import { callJson, callJsonRaw, HttpError } from './greycat.js';
 const PENDING_KEY = 'gc-openid:pending';
 const ID_TOKEN_KEY = 'gc-openid:id_token';
 
@@ -558,8 +558,7 @@ async function hasSession(ctx: AuthContext, credentials?: RequestCredentials): P
     });
     return id !== 0;
   } catch (err) {
-    // oxlint-disable-next-line typescript/no-explicit-any
-    if ((err as any).status === 401) {
+    if (err instanceof HttpError && err.status === 401) {
       return false;
     }
     throw err;

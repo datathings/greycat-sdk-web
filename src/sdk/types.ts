@@ -5,6 +5,11 @@ import type { GreyCatWasmExports } from './registry.js';
 import type { WasmSource } from './wasm.js';
 import type { OpenidServerSpec, OpenidPkceSpec } from './openid.js';
 import type { GreyCat } from './greycat.js';
+
+export type InitHook = (greycat: GreyCat) => void;
+
+export type InitErrorHook = (err: unknown, ctx: { options: WithoutAbiOptions }) => Promise<never> | void;
+
 // using Pick<...> to catch bug earlier if `runtime.Task` changes
 // oxlint-disable-next-line typescript/no-explicit-any
 export type TaskLike<T = any> = Pick<gc.runtime.Task<T>, 'user_id' | 'task_id'>;

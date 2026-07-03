@@ -1,35 +1,16 @@
 import '@greycat/web';
 
-// Side-effect module: wraps gc.sdk.init so that an unauthenticated boot
-// (the ABI download throws because /runtime::Runtime::abi requires login)
-// is intercepted and replaced with a sign-in form. The page's `await
-// gc.sdk.init(...)` never resolves in that case — control stays in the gate
-// until the user signs in and the page reloads.
-//
 // `gui-sign-in` is registered eagerly by `@greycat/web` itself (see
 // src/web/init.ts), so we can mount it here without waiting for init.
 
-const origInit = gc.sdk.init;
-
-gc.sdk.init = async function gatedInit(opts: gc.sdk.WithoutAbiOptions = {}) {
-  try {
-    return await origInit(opts);
-  } catch (err) {
-    if (!isAuthError(err)) {
-      throw err;
-    }
-    renderGate();
-    // halt the caller — the page should never reach its render code
-    return new Promise<gc.sdk.GreyCat>(() => {});
+gc.sdk.onInitError((err) => {
+  if (!(err instanceof gc.sdk.HttpError) || err.status !== 401) {
+    return;
   }
-};
-
-function isAuthError(err: unknown): boolean {
-  if (!(err instanceof Error)) return false;
-  // The SDK throws this exact prefix on a 401 from the ABI download (see
-  // src/sdk/greycat.ts:168). Match loosely so other 401 paths trigger too.
-  return /logged-in/i.test(err.message) || /unauthorized/i.test(err.message);
-}
+  renderGate();
+  // halt the caller - the page should never reach its render code
+  return new Promise<never>(() => {});
+});
 
 function renderGate(): void {
   document.body.replaceChildren(

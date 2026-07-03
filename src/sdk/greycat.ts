@@ -19,6 +19,8 @@ import {
   type Ready,
   type Redirecting,
   type CacheData,
+  InitHook,
+  InitErrorHook,
 } from './types.js';
 import {
   openidServerAuth,
@@ -133,6 +135,24 @@ export const DEFAULT_LOGGER = (name: string, status: number, method: string, arg
 export type DebugLogger = typeof DEFAULT_LOGGER;
 
 /**
+ * Error thrown when a GreyCat HTTP request fails; carries the response
+ * `status` and, when one was available, the parsed response `body`.
+ */
+export class HttpError extends Error {
+  /** HTTP response status code */
+  readonly status: number;
+  /** Parsed response body, if one was available */
+  readonly body: unknown;
+
+  constructor(message: string, status: number, body?: unknown) {
+    super(message);
+    this.name = 'HttpError';
+    this.status = status;
+    this.body = body;
+  }
+}
+
+/**
  * @returns {[ArrayBuffer, string | undefined]} returns a tuple containing the ABI data and optionally the token if a login has occured
  */
 export async function downloadAbi(
@@ -174,7 +194,7 @@ export async function downloadAbi(
     logger('_', res.status, method);
     // call handler if any
     unauthorizedHandler?.();
-    throw new Error(`you need to be logged-in to access '${method}'`);
+    throw new HttpError(`you need to be logged-in to access '${method}'`, res.status);
   } else if (res.status === 304) {
     if (cachedRes) {
       return [cachedRes.data, token];
@@ -192,7 +212,7 @@ export async function downloadAbi(
       );
     }
   } else if (!res.ok) {
-    throw new Error(`unable to fetch ABI (${res.status} ${res.statusText})`);
+    throw new HttpError(`unable to fetch ABI (${res.status} ${res.statusText})`, res.status);
   }
   const data = await res.arrayBuffer();
   const etag = res.headers.get('etag');
@@ -256,6 +276,50 @@ async function resolveWasm(source: WithoutAbiOptions['wasm']): Promise<GreyCatWa
   return { module: wasm.module, exports: wasm.instance.exports };
 }
 
+const initHooks: InitHook[] = [];
+const initErrorHooks: InitErrorHook[] = [];
+
+/**
+ * Registers a hook called with the new `GreyCat` instance every time
+ * {@link init} or {@link initWithAbi} completes. Hooks do not fire when
+ * `init` resolves to {@link Redirecting}.
+ *
+ * @returns a function that unregisters the hook
+ */
+export function onInit(hook: InitHook): EmitterDisposable {
+  initHooks.push(hook);
+  return () => {
+    const index = initHooks.indexOf(hook);
+    if (index !== -1) {
+      initHooks.splice(index, 1);
+    }
+  };
+}
+
+/**
+ * Registers a hook called when {@link init} rejects. Hooks run in
+ * registration order; the first one to return a promise substitutes it as
+ * the `init` result (eg. a never-resolving `Promise<never>` halts the
+ * caller). When no hook returns a promise, the error is rethrown.
+ *
+ * @returns a function that unregisters the hook
+ */
+export function onInitError(hook: InitErrorHook): EmitterDisposable {
+  initErrorHooks.push(hook);
+  return () => {
+    const index = initErrorHooks.indexOf(hook);
+    if (index !== -1) {
+      initErrorHooks.splice(index, 1);
+    }
+  };
+}
+
+function fireInitHooks(greycat: GreyCat): void {
+  for (const hook of initHooks.slice()) {
+    hook(greycat);
+  }
+}
+
 /**
  * Initializes a GreyCat client using the given `options`.
  *
@@ -267,6 +331,9 @@ async function resolveWasm(source: WithoutAbiOptions['wasm']): Promise<GreyCatWa
  * `{ openidPkce }`) or an {@link AuthStrategy} it resolves to {@link Ready} `|`
  * {@link Redirecting} - the page may navigate to the identity provider; narrow with
  * {@link isRedirecting}.
+ *
+ * Lifecycle hooks registered via {@link onInit} / {@link onInitError} fire
+ * on completion / failure.
  *
  * @param options
  * @returns a GreyCat instance (or a {@link Ready}/{@link Redirecting} result for strategy auth)
@@ -284,6 +351,25 @@ export function init<T>(options: WithoutAbiOptions & { auth: AuthStrategy<T> }):
 // form is not statically known): the result may be any of the three shapes.
 export function init(options?: WithoutAbiOptions): Promise<GreyCat | Ready<unknown> | Redirecting>;
 export async function init(options: WithoutAbiOptions = {}): Promise<GreyCat | Ready<unknown> | Redirecting> {
+  let result: GreyCat | Ready<unknown> | Redirecting;
+  try {
+    result = await initImpl(options);
+  } catch (err) {
+    for (const hook of initErrorHooks.slice()) {
+      const substitute = hook(err, { options });
+      if (substitute) {
+        return substitute;
+      }
+    }
+    throw err;
+  }
+  if (!isRedirecting(result)) {
+    fireInitHooks(result instanceof GreyCat ? result : result.greycat);
+  }
+  return result;
+}
+
+async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unknown> | Redirecting> {
   const {
     name = 'default',
     url = await findGreyCat(),
@@ -414,6 +500,7 @@ export function initWithAbi({
   register(name, g);
   // initialize runtime RPCs based on Abi
   initialize_functions(name, g);
+  fireInitHooks(g);
   return g;
 }
 
@@ -766,15 +853,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     } else if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, url.pathname);
-      throw new Error(`file '${result_route}' access forbidden`);
+      throw new HttpError(`file '${result_route}' access forbidden`, res.status);
     } else if (res.status === 401) {
       // unauthorized
       this.logger(this.name, res.status, url.pathname);
       this.token = undefined;
       this.unauthorizedHandler?.();
-      throw new Error('unauthorized');
+      throw new HttpError('unauthorized', res.status);
     }
-    throw new Error(`unexpected error while getting file '${result_route}'`);
+    throw new HttpError(`unexpected error while getting file '${result_route}'`, res.status);
   }
 
   /**
@@ -869,30 +956,30 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.token = undefined;
       // call handler if any
       this.unauthorizedHandler?.();
-      throw new Error(`you need to be logged-in to access '${uri}'`);
+      throw new HttpError(`you need to be logged-in to access '${uri}'`, res.status);
     } else if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, uri, args);
-      throw new Error(`access to '${uri}' is forbidden`);
+      throw new HttpError(`access to '${uri}' is forbidden`, res.status);
     } else if (res.status === 404) {
       // not found
       this.logger(this.name, res.status, uri, args, null);
-      throw new Error(`unknown method '${uri}'`);
+      throw new HttpError(`unknown method '${uri}'`, res.status);
     } else if (res.status === 422) {
       // unprocessable content (abi mismatch)
       this.logger(this.name, res.status, uri, args);
       // call handler if any
       this.abiMismatchHandler?.();
-      throw new Error('ABI mismatch error');
+      throw new HttpError('ABI mismatch error', res.status);
     }
     const data = await res.arrayBuffer();
     const value = this.deserializeWithHeader(data);
     const err = value as gc.core.Error | null;
     this.logger(this.name, res.status, uri, args, value);
     if (err === null) {
-      throw new Error(`calling '${uri}' failed`);
+      throw new HttpError(`calling '${uri}' failed`, res.status);
     }
-    throw new Error(`[greycat] ${err}\nCaused by: calling '${uri}'`);
+    throw new HttpError(`[greycat] ${err}\nCaused by: calling '${uri}'`, res.status, err);
   }
 
   /**
@@ -1025,19 +1112,19 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
     if (res.status === 404) {
       this.logger(this.name, res.status, url.pathname + url.search);
-      throw new Error(`file '${filepath}' not found`);
+      throw new HttpError(`file '${filepath}' not found`, res.status);
     } else if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, url.pathname + url.search);
-      throw new Error(`file '${filepath}' access forbidden`);
+      throw new HttpError(`file '${filepath}' access forbidden`, res.status);
     } else if (res.status === 401) {
       // unauthorized
       this.logger(this.name, res.status, url.pathname + url.search);
       this.token = undefined;
       this.unauthorizedHandler?.();
-      throw new Error('unauthorized');
+      throw new HttpError('unauthorized', res.status);
     }
-    throw new Error(`unexpected error while getting file '${filepath}'`);
+    throw new HttpError(`unexpected error while getting file '${filepath}'`, res.status);
   }
 
   /**
@@ -1056,15 +1143,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, route);
-      throw new Error('forbidden');
+      throw new HttpError('forbidden', res.status);
     } else if (res.status === 401) {
       // unauthorized
       this.logger(this.name, res.status, route);
       this.token = undefined;
       this.unauthorizedHandler?.();
-      throw new Error('unauthorized');
+      throw new HttpError('unauthorized', res.status);
     }
-    throw new Error(`unexpected error while uploading file '${filepath}'`);
+    throw new HttpError(`unexpected error while uploading file '${filepath}'`, res.status);
   }
 
   /**
@@ -1082,15 +1169,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, route);
-      throw new Error('forbidden');
+      throw new HttpError('forbidden', res.status);
     } else if (res.status === 401) {
       // unauthorized
       this.logger(this.name, res.status, route);
       this.token = undefined;
       this.unauthorizedHandler?.();
-      throw new Error('unauthorized');
+      throw new HttpError('unauthorized', res.status);
     }
-    throw new Error(`unexpected error while deleting file '${filepath}'`);
+    throw new HttpError(`unexpected error while deleting file '${filepath}'`, res.status);
   }
 
   /**
@@ -1353,7 +1440,7 @@ export async function callJsonRaw(
  * @param args positional arguments, JSON-serialised
  * @param options optional URL override, abort signal and credentials mode
  * @returns the JSON-parsed response (`null` for `204 No Content`)
- * @throws `Error` with `status` and the server's `body` on non-2xx
+ * @throws {@link HttpError} with `status` and the server's `body` on non-2xx
  */
 export async function callJson<T = unknown>(
   fn: string,
@@ -1367,12 +1454,7 @@ export async function callJson<T = unknown>(
     if (gc_err?.message?.length > 0) {
       message += `: ${gc_err.message}`;
     }
-    const err = new Error(message);
-    // oxlint-disable-next-line typescript/no-explicit-any
-    (err as any).status = res.status;
-    // oxlint-disable-next-line typescript/no-explicit-any
-    (err as any).body = gc_err;
-    throw err;
+    throw new HttpError(message, res.status, gc_err);
   }
   if (res.status === 204) {
     return null as T;
@@ -1401,12 +1483,7 @@ export async function login(options: LoginOptions): Promise<string> {
   if (gc_err?.message?.length > 0) {
     message += ` (${gc_err.message})`;
   }
-  const err = new Error(message);
-  // oxlint-disable-next-line typescript/no-explicit-any
-  (err as any).status = res.status;
-  // oxlint-disable-next-line typescript/no-explicit-any
-  (err as any).body = gc_err;
-  throw err;
+  throw new HttpError(message, res.status, gc_err);
 }
 
 function isTaskRunning(task: gc.runtime.Task): boolean {
@@ -1430,7 +1507,7 @@ export async function logout(options: LogoutOptions = {}): Promise<void> {
   const { url, signal } = options;
   const res = await callJsonRaw('runtime::Identity::logout', [], { url, signal });
   if (!res.ok) {
-    throw new Error(`unable to logout (${res.status} ${res.statusText})`);
+    throw new HttpError(`unable to logout (${res.status} ${res.statusText})`, res.status);
   }
 }
 

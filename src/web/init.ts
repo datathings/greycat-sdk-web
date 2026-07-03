@@ -86,22 +86,8 @@ import type {
   registerCustomElement,
 } from './components/index.js';
 
-const sdkInit = gc.sdk.init;
-gc.sdk.init = async function webInit(options: gc.sdk.WithoutAbiOptions = {}) {
-  const r = await sdkInit(options);
-  // Don't define components when the page is navigating away to an identity provider.
-  if (!gc.sdk.isRedirecting(r)) {
-    flushComponentRegistrations();
-  }
-  return r;
-} as typeof gc.sdk.init;
-
-const sdkInitWithAbi = gc.sdk.initWithAbi;
-gc.sdk.initWithAbi = function webInitWithAbi(options: gc.sdk.WithAbiOptions) {
-  const g = sdkInitWithAbi(options);
-  flushComponentRegistrations();
-  return g;
-};
+// Defines the queued custom elements once `gc.sdk.init()`/`gc.sdk.initWithAbi()` completes.
+gc.sdk.onInit(flushComponentRegistrations);
 
 declare global {
   namespace gc {
