@@ -6,7 +6,6 @@ const deserialize_error: IPrimitiveLoader = () => {
   throw new Error(`invalid primitive type`);
 };
 
-// oxlint-disable-next-line no-inner-declarations
 function assert_buffer_has_enough_bytes(expr: boolean) {
   if (!expr) {
     throw new Error(`buffer overflow, not enough bytes`);
@@ -475,9 +474,7 @@ export class AbiReader extends Reader implements Iterable<unknown> {
     if (type === undefined) {
       throw new Error(`unknown enum id '${id}'`);
     }
-    // oxlint-disable-next-line typescript/no-non-null-assertion
     if (type.enum_values!.length > off) {
-      // oxlint-disable-next-line typescript/no-non-null-assertion
       return type.enum_values![off];
     }
     throw new Error(`no value registered for enum '${id}' at field offset '${off}'`);
@@ -529,7 +526,6 @@ export class AbiReader extends Reader implements Iterable<unknown> {
       }
     }
 
-    // oxlint-disable-next-line no-new-array
     const arr = new Array(len);
     for (let i = 0; i < len; i++) {
       if (nullable_mask) {
@@ -551,7 +547,6 @@ export class AbiReader extends Reader implements Iterable<unknown> {
         const type_id = all_abi_type === -1 ? this.read_vu32() : all_abi_type;
         const field_off = this.read_vu32();
         const abi_type = this.abi.types[type_id];
-        // oxlint-disable-next-line typescript/no-non-null-assertion
         arr[i] = abi_type.enum_values![field_off];
       } else if (all_slot_type === PrimitiveType.float && !is_monotonic) {
         arr[i] = this.read_f64();
@@ -1370,12 +1365,10 @@ export class AbiWriter extends Writer {
   }
 }
 
-// oxlint-disable-next-line no-inner-declarations
 function is_elem_nullable(nullable_mask: Uint8Array, i: number): boolean {
   return (nullable_mask[i >> 3] & (1 << (i & 7))) !== 0;
 }
 
-// oxlint-disable-next-line no-inner-declarations
 function closest_upper_power_of_2(value: number) {
   if (value < 1) {
     return 1;
@@ -1394,7 +1387,6 @@ function closest_upper_power_of_2(value: number) {
   return closestPower;
 }
 
-// oxlint-disable-next-line no-inner-declarations
 function isASCIICharCode(code: number): boolean {
   return code >= 0 && code <= 127;
 }

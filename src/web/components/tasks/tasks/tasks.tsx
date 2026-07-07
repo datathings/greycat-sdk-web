@@ -14,7 +14,6 @@ export class GuiTasks extends GuiElement {
   readonly table: GuiTable;
   private _updateDelay: number;
   private _showDefrags = false;
-  private _users: Record<number, string> = {};
   private _tasks: gc.runtime.Task[] = [];
 
   constructor() {
@@ -29,20 +28,20 @@ export class GuiTasks extends GuiElement {
       columns: [
         {
           index: gc.runtime.Task.$fields.task_id,
-          header: 'Task',
+          header: 'ID',
           width: 100,
         },
         {
-          index: gc.runtime.Task.$fields.user_id,
-          header: 'User',
-          value: ({ value }) => {
-            const user_id = Number(value);
-            return this._users[user_id] ?? user_id;
+          index: gc.runtime.Task.$fields.user_name,
+          header: 'Created by',
+          value: (c) => {
+            c.container.title = `ID: ${this._tasks[c.row].user_id}`;
+            return c.value;
           },
         },
         {
           index: gc.runtime.Task.$fields.fun,
-          header: 'Name',
+          header: 'Function',
           value: ({ row }) => {
             const task = this._tasks[row];
             if (task.type) {
@@ -58,22 +57,35 @@ export class GuiTasks extends GuiElement {
         {
           index: gc.runtime.Task.$fields.start,
           header: 'Started',
-          value: ({ value }) => value ?? '',
+          value: (c) => c.value ?? '',
         },
         {
-          index: gc.runtime.Task.$fields.duration,
+          index: gc.runtime.Task.$fields.start,
           header: 'Duration',
-          value: ({ value }) => value ?? '',
+          value: (c: CellValueData<gc.core.time | null>) => {
+            const task = this._tasks[c.row];
+            if (task.start !== null && task.completion !== null) {
+              c.container.title = task.completion.toString();
+              return task.completion.sub(task.start).toString();
+            }
+            if (
+              task.start !== null &&
+              (task.status === gc.runtime.TaskStatus.running || task.status === gc.runtime.TaskStatus.await)
+            ) {
+              return gc.core.time.now().sub(task.start).toString();
+            }
+            return '';
+          },
         },
         {
           index: gc.runtime.Task.$fields.status,
           header: 'Status',
           width: 120,
-          value: ({ value }: CellValueData<gc.runtime.TaskStatus>) => {
-            if (value.key == 'await') {
+          value: (c: CellValueData<gc.runtime.TaskStatus>) => {
+            if (c.value.key == 'await') {
               return 'running';
             }
-            return value.key;
+            return c.value.key;
           },
         },
         {
@@ -85,7 +97,7 @@ export class GuiTasks extends GuiElement {
           index: gc.runtime.Task.$fields.task_id,
           header: 'Action',
           cell: ({ value: task_id }) => {
-            const task = gc.$.default.tasks.find((t) => t.task_id === task_id);
+            const task = gc.$.default.getTask(task_id);
             if (!task) {
               return document.createTextNode(`Unknown task ${task_id}`);
             }
@@ -94,6 +106,8 @@ export class GuiTasks extends GuiElement {
               task.status === gc.runtime.TaskStatus.running ||
               task.status === gc.runtime.TaskStatus.await ||
               task.status === gc.runtime.TaskStatus.breakpoint;
+
+            const link = `/files/${task.user_name}/tasks/${task.task_id}/result.gcb`;
 
             return cancellable ? (
               <sl-button
@@ -112,6 +126,7 @@ export class GuiTasks extends GuiElement {
               <sl-button
                 variant="text"
                 size="small"
+                title={link}
                 onclick={async (ev) => {
                   const self = ev.target as sl.SlButton;
                   const prev = self.textContent;
@@ -127,7 +142,18 @@ export class GuiTasks extends GuiElement {
                     self.textContent = prev;
                     modal.info({
                       title: `Task ${task.task_id}`,
-                      message: <gui-object header value={value} />,
+                      message:
+                        value === undefined ? (
+                          <em style={{ color: 'var(--text-muted)' }}>No value</em>
+                        ) : (
+                          <div className="gui-list">
+                            <div style={{ display: 'flex', gap: 'var(--spacing)' }}>
+                              <strong>Path:</strong>
+                              <a href={`${gc.$.default.api}${link}`}>{link}</a>
+                            </div>
+                            <gui-object header value={value} />
+                          </div>
+                        ),
                     });
                   }
                 }}
@@ -145,7 +171,7 @@ export class GuiTasks extends GuiElement {
   }
 
   connectedCallback() {
-    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, () => this.reload()));
+    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, (tasks) => this.reload(tasks)));
     this.reload();
   }
 
@@ -161,7 +187,7 @@ export class GuiTasks extends GuiElement {
   set updateDelay(delay: number) {
     this._updateDelay = delay;
     this.dispose();
-    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, () => this.reload()));
+    this.addDisposable(gc.$.default.subscribeToTaskPoll(this._updateDelay, (tasks) => this.reload(tasks)));
   }
 
   get filter() {
@@ -186,36 +212,15 @@ export class GuiTasks extends GuiElement {
     this.reload();
   }
 
-  async reload(): Promise<void> {
+  async reload(tasks = [...gc.$.default.tasks]): Promise<void> {
     if (!this.isConnected) {
       return;
     }
 
-    // reset users
-    this._users = {};
-
-    // try to retrieve user names
     try {
-      const identities = await gc.runtime.Identity.all();
-      for (let i = 0; i < identities.length; i++) {
-        const identity = identities[i];
-        this._users[Number(identity.id)] = identity.name;
-      }
-    } catch {
-      // failing to access `SecurityEntity.all()` is not fatal
-      // it probably just means we do not have the permission
-    }
-
-    try {
-      // Keep our own shallow copy of tasks, filtered or not
-      if (this._showDefrags) {
-        this._tasks = Array.from(gc.$.default.tasks);
-      } else {
-        this._tasks = gc.$.default.tasks.filter((t) => `${t.mod}::${t.type}::${t.fun}` !== 'runtime::Runtime::defrag');
-      }
-
       // update table data
-      this.table.value = this._tasks;
+      this._tasks = tasks;
+      this.table.value = tasks;
     } catch (err) {
       toast.error(err);
     }

@@ -1,33 +1,16 @@
 import '@greycat/web';
 import '@greycat/web/components/all.js';
-import type { GuiObject, GuiTable } from '@greycat/web';
-import type * as sl from '@shoelace-style/shoelace';
 import '@greycat/web/greycat.css';
 
-await gc.sdk.init();
+await gc.sdk.init({ auth: { username: 'demo', password: 'demo' } });
 
-const table = document.getElementById('table') as GuiTable;
-const drawer = document.getElementById('drawer') as sl.SlDrawer;
-const details = document.getElementById('details') as GuiObject;
+gc.project.controlled_task.spawn(gc.core.duration.from_secs(60));
+gc.project.controlled_task.spawn(gc.core.duration.from_secs(15));
+gc.project.controlled_task.spawn(gc.core.duration.from_secs(30));
+gc.project.controlled_task.spawn(gc.core.duration.from_secs(5));
 
-const entries = [
-  { Ident: '189927-1', Type: 'MTS', Voltage: '20 kV (MV)', ' ': undefined },
-  { Ident: '142686-1', Type: 'MTS', Voltage: '15 kV (MV)', ' ': undefined },
-];
+const tasks = document.createElement('gui-tasks');
+tasks.updateDelay = 500;
+tasks.style.height = '100vh';
 
-table.rowHeight = 40;
-table.value = entries;
-table.columns = [
-  {
-    index: 3,
-    cell: ({ row }) => {
-      const link = document.createElement('a');
-      link.textContent = 'Details';
-      link.onclick = () => {
-        details.value = entries[row];
-        drawer.show();
-      };
-      return link;
-    },
-  },
-];
+document.body.appendChild(tasks);

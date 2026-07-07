@@ -1,4 +1,4 @@
-@library("explorer", "8.0.8-dev");
+@library("std", "8.0.612-dev");
 
 @include("pages");
 
@@ -59,7 +59,8 @@ type ComplexForm {
 fn main() {
     Identity::set_password("root", "root");
 
-    Identity::create("leiko", "user");
+    Identity::create("demo", "user");
+    Identity::set_password("demo", "demo");
 
     cities::import();
     init_non_overlapping();
@@ -84,9 +85,9 @@ fn main() {
     random_data.set(1, nodeList<float> {});
     random_data.set(2, nodeList<float> {});
 
-    Scheduler::add(fn () { insert_random_data(0, 10_000); }, FixedPeriodicity { every: 5s }, null);
-    Scheduler::add(fn () { insert_random_data(1, 1000); }, FixedPeriodicity { every: 2s }, null);
-    Scheduler::add(fn () { insert_random_data(2, 40_000); }, FixedPeriodicity { every: 5s }, null);
+    // Scheduler::add(fn () { insert_random_data(0, 10_000); }, FixedPeriodicity { every: 5s }, null);
+    // Scheduler::add(fn () { insert_random_data(1, 1000); }, FixedPeriodicity { every: 2s }, null);
+    // Scheduler::add(fn () { insert_random_data(2, 40_000); }, FixedPeriodicity { every: 5s }, null);
 }
 
 fn insert_random_data(id: int, nb: int) {

@@ -2,6 +2,7 @@ import type { GreyCat } from './greycat.js';
 import { $, gcreg } from './registry.js';
 import { DEFAULT_TO_STRING_OPTIONS, type ToStringOptions } from './GCObject.js';
 import type { TaskOptions } from './types.js';
+
 export function __extend_std() {
   const core_Error_ext = {
     toString(this: gc.core.Error) {
@@ -18,19 +19,21 @@ export function __extend_std() {
   const runtime_Task_ext = {
     async getFile(this: gc.runtime.Task, filepath: string, g: GreyCat = $.default, signal?: AbortSignal) {
       if (filepath === 'result.gcb') {
-        const res = await g.getFile(`${this.user_id}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
+        const res = await g.getFile(
+          `${this.user_name}/tasks/${this.task_id}/${filepath}`,
+          undefined,
+          undefined,
+          signal,
+        );
         return res[0];
       }
-      return g.getFile(`${this.user_id}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
+      return g.getFile(`${this.user_name}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
     },
     result(this: gc.runtime.Task, opts?: TaskOptions, g: GreyCat = $.default, signal?: AbortSignal) {
       return g.await(this, opts, signal);
     },
     isRunning(this: gc.runtime.Task, g: GreyCat = $.default, signal?: AbortSignal) {
       return gcreg.runtime.Task.is_running(this.task_id, g, signal);
-    },
-    on(_type: string, _callback: (...args: unknown[]) => void, _pollEvery = 500, _g: GreyCat = $.default) {
-      // TODO
     },
     getProgress(this: gc.runtime.Task, g: GreyCat = $.default): number | undefined | null {
       return g.getTask(this.task_id)?.progress;

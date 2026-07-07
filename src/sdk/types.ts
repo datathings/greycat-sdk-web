@@ -12,7 +12,7 @@ export type InitErrorHook = (err: unknown, ctx: { options: WithoutAbiOptions }) 
 
 // using Pick<...> to catch bug earlier if `runtime.Task` changes
 // oxlint-disable-next-line typescript/no-explicit-any
-export type TaskLike<T = any> = Pick<gc.runtime.Task<T>, 'user_id' | 'task_id'>;
+export type TaskLike<T = any> = Pick<gc.runtime.Task<T>, 'user_name' | 'task_id'>;
 
 export type TaskOptions = {
   /** Will poll the task at least once every `pollEvery` milliseconds. Defaults to `500` */

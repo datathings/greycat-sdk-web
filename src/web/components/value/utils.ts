@@ -88,9 +88,9 @@ export function stringify(value: unknown, props: StringifyProps): string {
       case 'ended_with_errors':
       case 'cancelled':
       case 'error':
-        return `${value.user_id}/${value.task_id} ${fn} ${value.status.key}, started at ${value.start?.toString()} took ${value.duration?.toString()}`;
+        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}, completed at ${value.completion?.toString()}`;
       default:
-        return `${value.user_id}/${value.task_id} ${fn} ${value.status.key}, created at ${value.creation.toString()}`;
+        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}, created at ${value.creation.toString()}`;
     }
   } else if (typeof value === 'object') {
     if (value) {
@@ -104,7 +104,6 @@ export function stringify(value: unknown, props: StringifyProps): string {
         }
         return `Object(${Object.keys(value).length})`;
       }
-      // oxlint-disable-next-line no-prototype-builtins
       if (value.hasOwnProperty('toString')) {
         return value.toString();
       }

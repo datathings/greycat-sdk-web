@@ -2,7 +2,10 @@ import { createElement } from '@greycat/web';
 import { appLayout } from '~/common';
 import actions from './actions';
 
-await gc.sdk.init({ debug: true });
+const greycat = await gc.sdk.init({ debug: true });
+greycat.on('task', (t) => {
+  console.log('new task registered', t);
+});
 
 const selector = createElement('gui-fn-select', {
   'ongui-change': (ev) => {

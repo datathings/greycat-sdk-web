@@ -12,13 +12,14 @@ export const $: { [name: string]: GreyCat } = {};
  *
  * ABI loading registers every type constructor at `gc.<module>.<type>` and `init()` registers
  * every exposed function at `gc.<module>.<fn>` (plus top-level shortcuts). The `core`, `runtime`
- * and `io` members are therefore only populated once an `Abi` has been constructed.
+ * `util` and `io` members are therefore only populated once an `Abi` has been constructed.
  */
 export interface GcRegistry {
   $: { [name: string]: GreyCat };
   core: typeof gc.core;
   runtime: typeof gc.runtime;
   io: typeof gc.io;
+  util: typeof gc.util;
   [key: string]: unknown;
 }
 
