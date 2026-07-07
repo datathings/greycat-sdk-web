@@ -1,4 +1,4 @@
-import type { GreyCat } from './greycat.js';
+import { type GreyCat } from './greycat.js';
 import { $, gcreg } from './registry.js';
 import { DEFAULT_TO_STRING_OPTIONS, type ToStringOptions } from './GCObject.js';
 import type { TaskOptions } from './types.js';
@@ -34,6 +34,26 @@ export function __extend_std() {
     },
     isRunning(this: gc.runtime.Task, g: GreyCat = $.default, signal?: AbortSignal) {
       return gcreg.runtime.Task.is_running(this.task_id, g, signal);
+    },
+    on(
+      this: gc.runtime.Task,
+      _: string,
+      cb: (task: gc.runtime.Task) => void,
+      pollEvery = 100,
+      g: GreyCat = $.default,
+    ): () => void {
+      const task_id = this.task_id;
+      g.watchTask(this);
+      const dispose = g.subscribeToTaskPoll(pollEvery ?? g.pollFrequency, (tasks) => {
+        const task = tasks.get(task_id);
+        if (task) {
+          cb(task);
+        }
+      });
+      return () => {
+        g.unwatchTask(this);
+        dispose();
+      };
     },
     getProgress(this: gc.runtime.Task, g: GreyCat = $.default): number | undefined | null {
       return g.getTask(this.task_id)?.progress;

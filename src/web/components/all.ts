@@ -27,7 +27,6 @@ import './search-input/register.js';
 import './select/register.js';
 import './table/register.js';
 import './tabs/register.js';
-import './tasks/register.js';
 import './tensor/register.js';
 import './time/register.js';
 import './value/register.js';

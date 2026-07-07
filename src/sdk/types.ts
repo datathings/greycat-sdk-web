@@ -10,10 +10,6 @@ export type InitHook = (greycat: GreyCat) => void;
 
 export type InitErrorHook = (err: unknown, ctx: { options: WithoutAbiOptions }) => Promise<never> | void;
 
-// using Pick<...> to catch bug earlier if `runtime.Task` changes
-// oxlint-disable-next-line typescript/no-explicit-any
-export type TaskLike<T = any> = Pick<gc.runtime.Task<T>, 'user_name' | 'task_id'>;
-
 export type TaskOptions = {
   /** Will poll the task at least once every `pollEvery` milliseconds. Defaults to `500` */
   pollEvery?: number;
@@ -129,11 +125,11 @@ export interface Options {
    */
   cache?: Cache;
   /**
-   * The maximum number of tasks polled from the history.
+   * The task polling frequency in milliseconds.
    *
    * Defaults to `100`
    */
-  maxTasks?: number;
+  pollFrequency?: number;
   /**
    * Called when a request (from `gc.sdk.call(...)`) returns a status code 401.
    *

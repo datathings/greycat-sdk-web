@@ -416,6 +416,9 @@ export class AbiReader extends Reader implements Iterable<unknown> {
     return this.deserialize();
   }
 
+  /**
+   * @returns `[<protocol>, <magic>, <version>]`
+   */
   headers(): [number, number, number] {
     const protocol = this.read_u16();
     if (protocol !== Abi.protocol_version) {

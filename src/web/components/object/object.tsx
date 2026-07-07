@@ -28,7 +28,6 @@ export interface GuiObject {
   [key: string]: unknown;
 }
 
-// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GuiObject<T = unknown> extends GuiElement {
   static override styles = [css(style)];
   static get observedAttributes() {
@@ -228,8 +227,7 @@ export class GuiObject<T = unknown> extends GuiElement {
 
     if (value instanceof gc.runtime.Task) {
       this.addDisposable(
-        gc.$[this._factory.greycatName].subscribeToTaskPoll(500, (tasks) => {
-          const task = tasks.find((t) => t.task_id === value.task_id);
+        value.on('update', (task) => {
           if (task) {
             this._renderAsGCObject(task);
             switch (task.status.key) {

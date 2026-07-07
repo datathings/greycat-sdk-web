@@ -57,7 +57,13 @@ declare namespace gc {
        * @param signal
        */
       isRunning(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
-      on(type: 'progress', callback: (p: number | null | undefined) => void, pollEvery?: number): void;
+      on(
+        this: gc.runtime.Task,
+        event: 'update',
+        cb: (task: gc.runtime.Task) => void,
+        pollEvery?: number,
+        g?: gc.sdk.GreyCat,
+      ): () => void;
       /**
        * Returns the current progress of the task.
        * @param g

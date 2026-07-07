@@ -9,7 +9,6 @@ import {
   type Value,
   type Cache,
   type CacheKey,
-  type TaskLike,
   type TaskOptions,
   type WithoutAbiOptions,
   type WithAbiOptions,
@@ -376,7 +375,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     timezone,
     numFmt,
     cache,
-    maxTasks,
+    pollFrequency,
     signal,
     auth,
     debug = false,
@@ -414,7 +413,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
       // cookie-based outcomes rely on `credentials: 'include'`.
       auth: token ? { token } : undefined,
       cache,
-      maxTasks,
+      pollFrequency,
       unauthorizedHandler,
       abiMismatchHandler,
       signal,
@@ -444,7 +443,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     timezone,
     numFmt,
     cache,
-    maxTasks,
+    pollFrequency,
     undefined,
     token,
     unauthorizedHandler,
@@ -453,7 +452,6 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
 
   register(name, g);
   initialize_functions(name, g);
-  g.fetchHistory();
 
   try {
     g.permissions = await gcreg.runtime.Identity.permissions(g);
@@ -471,7 +469,7 @@ export function initWithAbi({
   timezone,
   numFmt,
   cache,
-  maxTasks,
+  pollFrequency,
   abi,
   module,
   exports,
@@ -491,7 +489,7 @@ export function initWithAbi({
     timezone,
     numFmt,
     cache,
-    maxTasks,
+    pollFrequency,
     permissions,
     token,
     unauthorizedHandler,
@@ -555,7 +553,7 @@ export interface GreyCat {
   /**
    * Awaits the completion of the given GreyCat task.
    */
-  await<T = unknown>(task: TaskLike<T>, opts?: TaskOptions, signal?: AbortSignal): Promise<T>;
+  await<T = unknown>(task: gc.runtime.Task<T>, opts?: TaskOptions, signal?: AbortSignal): Promise<T>;
 
   getFile<T = unknown>(filepath: `${string}.gcb`, offset?: number, max?: number, signal?: AbortSignal): Promise<T[]>;
   getFile<T = unknown>(filepath: string, offset?: number, max?: number, signal?: AbortSignal): Promise<T | T[]>;
@@ -565,26 +563,14 @@ export interface GreyCat {
   on(ev: 'task', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
   /**
    * Emitted everytime this instance polls for tasks.
-   * The array only contains the current history of tasks
-   */
-  on(ev: 'tasks-history', callback: EmitterCallback<gc.runtime.Task[]>): EmitterDisposable;
-  /**
-   * Emitted everytime this instance polls for tasks.
-   * The array only contains the current running tasks
-   */
-  on(ev: 'tasks-running', callback: EmitterCallback<gc.runtime.Task[]>): EmitterDisposable;
-  /**
-   * Emitted everytime this instance polls for tasks.
    * The array contains the history and the running tasks
    */
-  on(ev: 'tasks', callback: EmitterCallback<gc.runtime.Task[]>): EmitterDisposable;
+  on(ev: 'tasks', callback: EmitterCallback<Map<number | bigint, gc.runtime.Task>>): EmitterDisposable;
 }
 
 interface GreyCatEvents {
-  // prettier-ignore
-  'task': gc.runtime.Task;
-  // prettier-ignore
-  'tasks': gc.runtime.Task[];
+  task: gc.runtime.Task;
+  tasks: Map<number | bigint, gc.runtime.Task>;
 }
 
 export class GreyCat extends Emitter<GreyCatEvents> {
@@ -602,6 +588,8 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   numFmt: Intl.NumberFormat;
   /** currently connected user permissions */
   permissions: string[];
+  /** By default tasks will be polled at this rate in milliseconds */
+  readonly pollFrequency: number;
   /** GreyCat Wasm Module (`undefined` when `init` ran with `wasm: false` or the load failed) */
   readonly module: WebAssembly.Module | undefined;
   /** GreyCat Wasm Exports */
@@ -616,11 +604,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
 
   /** Re-used by the serialize methods to prevent re-allocations */
   private _writer: AbiWriter;
-  private _max_tasks: number;
   private _fields_map: Map<string, AbiAttribute>;
   private _poll: Poll;
   private _debug_id: number | bigint | undefined;
-  private _tasks: Map<number | bigint, gc.runtime.Task>;
+  private _watched: Map<number | bigint, gc.runtime.Task>;
 
   constructor(
     name: string,
@@ -632,7 +619,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     timezone: gc.core.TimeZone.Field | undefined,
     numFmt: Intl.NumberFormat | undefined,
     cache: Cache = new NoopCache(),
-    maxTasks = 10000,
+    pollFrequency = 100,
     permissions: string[] = [],
     token?: string,
     unauthorizedHandler?: () => void,
@@ -645,16 +632,16 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this.api = api;
     this.abi = abi;
     this.cache = cache;
-    this._max_tasks = maxTasks;
     this.token = token;
     this.permissions = permissions;
     this.module = module;
+    this.pollFrequency = pollFrequency;
     this._exports = exports;
     this._writer = new AbiWriter(abi, 4096);
     this.unauthorizedHandler = unauthorizedHandler;
     this.abiMismatchHandler = abiMismatchHandler;
     this._fields_map = new Map();
-    this._tasks = new Map();
+    this._watched = new Map();
     this._poll = new Poll(async () => {
       try {
         await this.pollTasks();
@@ -684,7 +671,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.timezone.key,
       this.numFmt,
       this.cache,
-      this._max_tasks,
+      this.pollFrequency,
       this.permissions,
       this.token,
       this.unauthorizedHandler,
@@ -702,25 +689,16 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this._poll.isRunning();
   }
 
-  get tasks(): MapIterator<gc.runtime.Task> {
-    return this._tasks.values();
-  }
-
-  /**
-   * Returns the latest known information about a task.
-   *
-   * @param id the `task_id` of a `gc.runtime.Task` object
-   */
   getTask(id: number | bigint): gc.runtime.Task | undefined {
-    return this._tasks.get(id);
+    return this._watched.get(id);
   }
 
-  fetchHistory() {
-    gcreg.runtime.Task.history(0, this._max_tasks).then((tasks) => {
-      for (const task of tasks) {
-        this._tasks.set(task.task_id, task);
-      }
-    });
+  watchTask(task: gc.runtime.Task): void {
+    this._watched.set(task.task_id, task);
+  }
+
+  unwatchTask(task: gc.runtime.Task): void {
+    this._watched.delete(task.task_id);
   }
 
   /**
@@ -743,7 +721,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param callback Function called with the updated list of tasks
    * @returns A function that unsubscribes from the poller when invoked
    */
-  subscribeToTaskPoll(everyMs: number, callback: (tasks: gc.runtime.Task[]) => void) {
+  subscribeToTaskPoll(everyMs: number, callback: (tasks: Map<number | bigint, gc.runtime.Task>) => void) {
     const id = this._poll.register(everyMs);
     const dispose = this.on('tasks', callback);
     return () => {
@@ -753,35 +731,28 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   /**
-   * Manually trigger a fetch of the `runtime::Task::history` and `runtime::Task::running`.
+   * Triggers a fetch of the running tasks to get fresh statuses.
    *
    * *Calling this will also emit tasks events*
    */
-  async pollTasks(): Promise<gc.runtime.Task[]> {
-    const watched: Array<number | bigint> = [];
-    for (const task of this._tasks.values()) {
-      if (isTaskRunning(task)) {
-        watched.push(task.task_id);
-      }
+  async pollTasks(): Promise<void> {
+    if (this._watched.size === 0) {
+      return;
     }
     const logger = this.unregisterLogger();
+    const watched = [...this._watched.keys()];
     const watched_tasks = await gcreg.runtime.Task.tasks(watched);
+    this.registerLogger(logger);
     for (let i = 0; i < watched.length; i++) {
       const id = watched[i];
       const task = watched_tasks[i];
       if (task === null) {
-        this._tasks.delete(id);
+        this._watched.delete(id);
       } else {
-        this._tasks.set(id, task);
+        this._watched.set(id, task);
       }
     }
-    this.registerLogger(logger);
-
-    const tasks = [...this._tasks.values()];
-    // this.emit('tasks-running', running);
-    this.emit('tasks', tasks);
-
-    return tasks;
+    this.emit('tasks', this._watched);
   }
 
   unregisterLogger(): DebugLogger {
@@ -816,25 +787,28 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.await(task, opts, signal);
   }
 
-  async await<T = unknown>(task: TaskLike<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
-    const updated = this.getTask(task.task_id);
-    if (updated === undefined || isTaskRunning(updated)) {
-      const poll_id = this._poll.register(opts.pollEvery ?? 500);
-      const { promise, resolve } = Promise.withResolvers<void>();
-      const disposeTaskPollUpdate = this.on('tasks', async (tasks) => {
-        const updated = tasks.find((t) => t.task_id === task.task_id);
-        if (updated) {
-          if (!isTaskRunning(updated)) {
-            disposeTaskPollUpdate();
-            resolve();
-            return;
-          }
-          opts.onprogress?.(updated.progress);
-        }
-      });
-      await promise; // wait for completion
-      this._poll.unregister(poll_id);
-    }
+  async await<T = unknown>(task: gc.runtime.Task<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
+    this.watchTask(task);
+    const poll_id = this._poll.register(opts.pollEvery ?? this.pollFrequency);
+    const { promise, resolve } = Promise.withResolvers<void>();
+    const dispose = this.subscribeToTaskPoll(opts.pollEvery ?? this.pollFrequency, (tasks) => {
+      const updated_task = tasks.get(task.task_id);
+      if (updated_task === undefined) {
+        dispose();
+        resolve();
+        return;
+      }
+
+      if (!isTaskRunning(updated_task)) {
+        this.unwatchTask(task);
+        dispose();
+        resolve();
+        return;
+      }
+      opts.onprogress?.(updated_task.progress);
+    });
+    await promise; // wait for completion
+    this._poll.unregister(poll_id);
 
     opts.onprogress?.(1);
 
@@ -943,9 +917,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       }
       this.logger(this.name, res.status, uri, args, value);
       if (task) {
-        const t = value as gc.runtime.Task;
-        this._tasks.set(t.task_id, t);
-        this.emit('task', t);
+        this.emit('task', value as gc.runtime.Task);
       }
       if (this._debug_id !== undefined) {
         if (value instanceof gcreg.runtime.Task) {
@@ -1093,7 +1065,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         return undefined;
       }
       const reader = new AbiReader(this.abi, data);
-      reader.headers(); // TODO do not ignore headers
+      const [protocol] = reader.headers();
+      if (protocol !== Abi.protocol_version) {
+        throw new Error(`ABI protocol version mismatch (expected=${Abi.protocol_version}, actual=${protocol})`);
+      }
       return Array.from(reader);
     }
     return res.text();

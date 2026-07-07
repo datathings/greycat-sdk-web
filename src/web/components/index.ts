@@ -11,7 +11,6 @@ export * from './value/index.js';
 export * from './donut/index.js';
 export * from './chart/index.js';
 export * from './chart2/index.js';
-export * from './tasks/tasks/index.js';
 export * from './object/index.js';
 export * from './select/index.js';
 export * from './inputs/index.js';
