@@ -158,12 +158,19 @@ export async function downloadAbi(
   options: Omit<WithoutAbiOptions, 'auth'> & { auth?: Auth } = {},
   logger: DebugLogger,
 ): Promise<[ArrayBuffer, string | undefined]> {
-  const { auth, signal, cache, unauthorizedHandler, url = await findGreyCat() } = options;
+  const {
+    auth,
+    signal,
+    cache,
+    credentials: loginCredentials,
+    unauthorizedHandler,
+    url = await findGreyCat(),
+  } = options;
   let token: string | undefined;
 
   if (auth) {
     if ('username' in auth) {
-      token = await login({ ...auth, url, signal });
+      token = await login({ ...auth, url, signal, credentials: loginCredentials });
     } else {
       token = auth.token;
     }
@@ -223,11 +230,18 @@ export async function downloadAbi(
   return [data, token];
 }
 
-/** Strategy: log in with username/password, then authenticate via `Authorization`. */
-export function passwordAuth(auth: IdentityAuth): AuthStrategy {
+/** Strategy: log in with username/password, then authenticate via `Authorization`.
+ *  `credentials` is the login POST's mode (default `'include'`; `'omit'` for a
+ *  cross-origin, token-only login). */
+export function passwordAuth(auth: IdentityAuth, credentials?: RequestCredentials): AuthStrategy {
   return {
     async authenticate(ctx) {
-      const token = await login({ ...auth, url: new URL(ctx.url), signal: ctx.signal });
+      const token = await login({
+        ...auth,
+        url: new URL(ctx.url),
+        signal: ctx.signal,
+        credentials,
+      });
       return { kind: 'token', token, info: undefined };
     },
   };
@@ -239,7 +253,10 @@ export function tokenAuth(token: string): AuthStrategy {
 }
 
 /** Normalize the `auth` option (data form, openid spec, or strategy) into a strategy. */
-function toStrategy(auth: WithoutAbiOptions['auth']): AuthStrategy<unknown> | null {
+function toStrategy(
+  auth: WithoutAbiOptions['auth'],
+  credentials?: RequestCredentials,
+): AuthStrategy<unknown> | null {
   if (!auth) {
     return null;
   }
@@ -247,7 +264,7 @@ function toStrategy(auth: WithoutAbiOptions['auth']): AuthStrategy<unknown> | nu
     return auth;
   }
   if ('username' in auth) {
-    return passwordAuth(auth);
+    return passwordAuth(auth, credentials);
   }
   if ('token' in auth) {
     return tokenAuth(auth.token);
@@ -380,6 +397,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     pollFrequency,
     signal,
     auth,
+    credentials,
     debug = false,
     unauthorizedHandler,
     abiMismatchHandler,
@@ -396,7 +414,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   // Resolve authentication (login / openid dance / token) before touching the ABI.
   let token: string | undefined;
   let info: unknown;
-  const strategy = toStrategy(auth);
+  const strategy = toStrategy(auth, credentials);
   if (strategy) {
     const outcome = await strategy.authenticate({ url: cleanUrl, signal });
     if (outcome.kind === 'redirecting') {
@@ -1403,6 +1421,9 @@ export async function callJson<T = unknown>(
 export type LoginOptions = IdentityAuth & {
   url?: URL;
   signal?: AbortSignal;
+  /** `fetch` credentials mode for the login POST. Default: `'include'` (persist the
+   *  session cookie). Pass `'omit'` for a cross-origin, token-only login. */
+  credentials?: RequestCredentials;
 };
 
 /**
@@ -1411,8 +1432,12 @@ export type LoginOptions = IdentityAuth & {
  * @returns the user token
  */
 export async function login(options: LoginOptions): Promise<string> {
-  const { url, signal, ...auth } = options;
-  const res = await callJsonRaw('runtime::Identity::login', [auth.username, auth.password], { url, signal });
+  const { url, signal, credentials, ...auth } = options;
+  const res = await callJsonRaw('runtime::Identity::login', [auth.username, auth.password], {
+    url,
+    signal,
+    credentials,
+  });
   if (res.ok) {
     return (await res.json()) as string;
   }

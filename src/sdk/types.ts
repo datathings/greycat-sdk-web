@@ -232,6 +232,17 @@ export interface WithoutAbiOptions extends Options {
    * to narrow.
    */
   auth?: Auth | AuthStrategy | OpenidServerSpec | OpenidPkceSpec;
+  /**
+   * Credentials mode for the `{ username, password }` login handshake.
+   *
+   *  - `'include'` (default): persist the session cookie, so a same-origin session
+   *    resumes on reload without re-authenticating.
+   *  - `'omit'`: run a pure token session, never relying on the cookie. Required to
+   *    log in cross-origin against a server whose CORS allows a wildcard origin,
+   *    which the browser rejects for credentialed requests. The caller keeps the
+   *    returned token (`GreyCat.token`) to resume.
+   */
+  credentials?: 'include' | 'omit';
   /** This signal is given to the request that loads the ABI. */
   signal?: AbortSignal;
   /**
