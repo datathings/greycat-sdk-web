@@ -98,6 +98,58 @@ await gc.sdk.init();
 
 `gc.web` exists only after importing `@greycat/web/components/all.js`.
 
+## Task polling and events
+
+The instance exposes a task poller as `greycat.tasks`. Many tasks share a
+single batched poll, driven by whatever is waiting on or observing them.
+
+### Instance events
+
+`task` and `tasks` are replaced by a `task:*` triad:
+
+```ts
+// before
+greycat.on('task', (task) => {}); // spawned
+greycat.on('tasks', (map) => {}); // Map<id, Task>, every poll
+
+// after
+greycat.on('task:spawn', (task) => {}); // spawned
+greycat.on('task:update', (task) => {}); // fresh snapshot of a tracked task
+greycat.on('task:settle', ({ task, error }) => {}); // left the poller; error is null on success
+```
+
+`task:update` and `task:settle` only fire for tasks something is waiting on or
+subscribed to.
+
+### Waiting on / observing a task
+
+```ts
+// resolves the terminal Task, rejects with a TaskError on failure
+const done = await greycat.tasks.wait(id);
+
+// every update until it settles; returns an unsubscribe
+const off = greycat.tasks.subscribe(id, (task) => {});
+```
+
+`task.on(...)` takes two events:
+
+```ts
+task.on('update', (task) => {}); // every poll, incl. terminal
+task.on('settle', ({ task, error }) => {}); // once, when it completes
+```
+
+### Removed / changed
+
+- `greycat.subscribeToTaskPoll(everyMs, cb)` -> `greycat.on('task:update', cb)`
+  to observe, or `greycat.tasks.subscribe(id, cb)` to also drive polling.
+- `greycat.watchTask(task)` / `greycat.unwatchTask(task)` ->
+  `greycat.tasks.subscribe(id, cb)` and the unsubscribe it returns.
+- `greycat.getTask(id)` and `greycat.pollTasks()` are gone.
+- `task.getProgress()` is gone; read `progress` from a `task:update` snapshot.
+- `greycat.await(...)` and `task.result()` reject a cancelled task with a
+  `TaskError` instead of resolving `undefined`; failed tasks still throw their
+  `core.Error`.
+
 ## Distribution
 
 - npm package (tgz) only. The free-standing CDN files
