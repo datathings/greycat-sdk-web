@@ -1042,6 +1042,19 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   /**
+   * Authenticates a `/files/` request the same way as {@link rawCall}: sends the
+   * session token as a bearer with `credentials: 'omit'` (works cross-origin), or
+   * falls back to `credentials: 'include'` for a cookie session when no token is set.
+   */
+  private fileRequestInit(base: RequestInit): RequestInit {
+    const headers: Record<string, string> = { ...(base.headers as Record<string, string>) };
+    if (this.token) {
+      headers['Authorization'] = this.token;
+    }
+    return { ...base, headers, credentials: this.token ? 'omit' : 'include' };
+  }
+
+  /**
    * Request GreyCat for a file and returns the received `Response` on success.
    *
    * *This method should be used when you want to keep control over "how" to read the body bytes (eg. `res.text()`, `res.arrayBuffer()`, etc.).*
@@ -1061,7 +1074,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (max !== undefined) {
       url.searchParams.set('max', `${max}`);
     }
-    const res = await fetch(url, { signal });
+    const res = await fetch(url, this.fileRequestInit({ signal }));
     if (res.ok) {
       this.logger(this.name, res.status, url.pathname + url.search);
       return res;
@@ -1092,7 +1105,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    */
   async putFile(filepath: string, file: globalThis.File, signal?: AbortSignal): Promise<void> {
     const route = `files/${filepath}`;
-    const res = await fetch(`${this.api}/${route}`, { method: 'PUT', body: file, signal });
+    const res = await fetch(
+      `${this.api}/${route}`,
+      this.fileRequestInit({ method: 'PUT', body: file, signal }),
+    );
     if (res.ok) {
       return;
     }
@@ -1118,7 +1134,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    */
   async deleteFile(filepath: string, signal?: AbortSignal): Promise<void> {
     const route = `files/${filepath}`;
-    const res = await fetch(`${this.api}/${route}`, { method: 'DELETE', signal });
+    const res = await fetch(
+      `${this.api}/${route}`,
+      this.fileRequestInit({ method: 'DELETE', signal }),
+    );
     if (res.ok) {
       return;
     }
