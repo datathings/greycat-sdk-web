@@ -842,9 +842,14 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
     // `include` so cookie-based sessions (e.g. openid) work cross-origin too;
     // for same-origin it behaves like the default.
-    const init: RequestInit = { method: httpMethod, headers, credentials: 'include', signal };
+    const init: RequestInit = { method: httpMethod, headers, signal };
     if (httpMethod === 'POST') {
       init.body = body;
+    }
+    if (this.token) {
+      init.credentials = 'omit';
+    } else {
+      init.credentials = 'include';
     }
     const res = await fetch(url, init);
     if (res.status >= 200 && res.status < 300) {
