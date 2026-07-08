@@ -2,6 +2,7 @@ import { type GreyCat } from './greycat.js';
 import { $, gcreg } from './registry.js';
 import { DEFAULT_TO_STRING_OPTIONS, type ToStringOptions } from './GCObject.js';
 import type { TaskOptions } from './types.js';
+import type { TaskError, TaskSettleEvent } from './poll.js';
 
 export function __extend_std() {
   const core_Error_ext = {
@@ -37,26 +38,43 @@ export function __extend_std() {
     },
     on(
       this: gc.runtime.Task,
-      _: string,
-      cb: (task: gc.runtime.Task) => void,
-      pollEvery = 100,
+      event: 'update' | 'settle',
+      cb: ((task: gc.runtime.Task) => void) & ((e: TaskSettleEvent) => void),
+      pollEvery?: number,
       g: GreyCat = $.default,
     ): () => void {
-      const task_id = this.task_id;
-      g.watchTask(this);
-      const dispose = g.subscribeToTaskPoll(pollEvery ?? g.pollFrequency, (tasks) => {
-        const task = tasks.get(task_id);
-        if (task) {
-          cb(task);
-        }
-      });
-      return () => {
-        g.unwatchTask(this);
-        dispose();
-      };
+      const id = this.task_id;
+      if (event === 'settle') {
+        let disposed = false;
+        // `wait` drives the polling and only ever rejects with a `TaskError`;
+        // rebuild the settle payload from either outcome. Disposing suppresses
+        // the callback but lets the task poll through to completion.
+        g.tasks
+          .wait(id, pollEvery)
+          .then((task) => {
+            if (!disposed) {
+              cb({ task, error: null });
+            }
+          })
+          .catch((error: TaskError) => {
+            if (!disposed) {
+              cb({ task: error.task ?? null, error });
+            }
+          });
+        return () => {
+          disposed = true;
+        };
+      }
+      return g.tasks.subscribe(id, cb, pollEvery);
     },
-    getProgress(this: gc.runtime.Task, g: GreyCat = $.default): number | undefined | null {
-      return g.getTask(this.task_id)?.progress;
+    duration(this: gc.runtime.Task): gc.core.duration | undefined {
+      if (this.start && this.completion) {
+        return this.completion.sub(this.start) as gc.core.duration;
+      }
+      if (this.start) {
+        return gc.core.time.now().sub(this.start) as gc.core.duration;
+      }
+      return;
     },
   };
   Object.assign(gcreg.runtime.Task.prototype, runtime_Task_ext);

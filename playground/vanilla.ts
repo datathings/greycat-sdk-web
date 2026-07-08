@@ -4,8 +4,12 @@ import '@greycat/web/greycat.css';
 
 await gc.sdk.init({ auth: { username: 'demo', password: 'demo' } });
 
-const task0 = await gc.project.controlled_task.spawn(gc.core.duration.from_secs(60));
+const task = await gc.project.controlled_task.spawn(gc.core.duration.from_secs(15));
 
-task0.on('update', (task) => {
-  console.log(`received updated status for ${task.task_id} [${task.status.key}]`);
+const details = document.createElement('gui-object');
+details.value = task;
+task.on('update', (t) => {
+  details.value = t;
 });
+
+document.body.appendChild(details);

@@ -1727,7 +1727,6 @@ export class GuiTableBodyRow extends HTMLElement {
   }
 
   get value() {
-    // oxlint-disable-next-line no-new-array
     const values = new Array(this.children.length);
     this.childNodes.forEach((child, i) => {
       values[i] = (child as GuiTableBodyCell).value;

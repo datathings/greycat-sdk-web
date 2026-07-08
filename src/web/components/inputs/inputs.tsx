@@ -261,9 +261,7 @@ export class GuiInputNumber extends GuiInputElement<number | bigint | null> {
     return this.input.valueAsNumber;
   }
 
-  set value(
-    value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined,
-  ) {
+  set value(value: number | bigint | gc.sdk.std_n.core.int | gc.sdk.std_n.core.float | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = '';
     } else {
@@ -517,8 +515,7 @@ export class GuiInputTime extends GuiInputElement<gc.core.time | null> {
     if (this._value) {
       let tz: gc.core.TimeZone;
       if (this._timezone === undefined) {
-        const local_tz = new Intl.DateTimeFormat().resolvedOptions()
-          .timeZone as gc.core.TimeZone.Field;
+        const local_tz = new Intl.DateTimeFormat().resolvedOptions().timeZone as gc.core.TimeZone.Field;
         tz = gc.core.TimeZone[local_tz];
       } else {
         tz = this._timezone;
@@ -971,9 +968,7 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
       type = ty;
     }
     if (!type.is_abstract) {
-      console.warn(
-        `GuiInputAbstract 'type' field must be set with an abstract type ('${type.name}' is not abstract)`,
-      );
+      console.warn(`GuiInputAbstract 'type' field must be set with an abstract type ('${type.name}' is not abstract)`);
       return;
     }
     const options: sl.SlOption[] = [];
@@ -1002,7 +997,6 @@ export class GuiInputAbstract extends GuiInputElement<unknown> {
 }
 
 export type ExcludeFunctions<T> = {
-  // oxlint-disable-next-line typescript/ban-types
   [K in keyof T as T[K] extends Function ? never : K]: T[K];
 };
 
@@ -1023,10 +1017,7 @@ export type FieldElements<T extends object> = Partial<{
  */
 export type TypedHtmlElement<T> = Node & { value: T };
 
-// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
-export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<
-  T | undefined
-> {
+export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends GuiInputElement<T | undefined> {
   static override styles = [...GuiInputElement.styles, css(ObjectStyle)];
 
   protected _value: T | undefined;
@@ -1474,7 +1465,6 @@ export class GuiInputAny extends GuiInputElement<unknown> {
       this.dispatchEvent(new GuiChangeEvent(this.value));
     });
 
-    // oxlint-disable-next-line no-new-array
     const opts: GuiOption[] = new Array(gc.$.default.abi.types.length - 1);
     for (let index = 1; index < gc.$.default.abi.types.length; index++) {
       const t = gc.$.default.abi.types[index];
@@ -1708,11 +1698,7 @@ export class GuiInputArray extends GuiInputElement<unknown[] | gc.core.Array> {
       value = '';
     }
 
-    if (
-      this._generic_param &&
-      this._generic_param_nullable &&
-      (value === null || value === undefined)
-    ) {
+    if (this._generic_param && this._generic_param_nullable && (value === null || value === undefined)) {
       const generic_param = this._generic_param;
       const item = (
         <div className="item" part="item">
@@ -2002,11 +1988,7 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
             size="small"
             onclick={() => {
               const value = new value_type.ctor();
-              const [node, keyInputEl, valInput] = this._createEntry(
-                factory,
-                keyInput.value,
-                value,
-              );
+              const [node, keyInputEl, valInput] = this._createEntry(factory, keyInput.value, value);
               if (keyInputEl && valInput) {
                 this._value.set(keyInputEl.value, valInput.value);
               }

@@ -1,7 +1,7 @@
 import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.js';
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
-import { Poll } from './poll.js';
+import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
 import type { GCObject } from './GCObject.js';
@@ -558,19 +558,26 @@ export interface GreyCat {
   getFile<T = unknown>(filepath: `${string}.gcb`, offset?: number, max?: number, signal?: AbortSignal): Promise<T[]>;
   getFile<T = unknown>(filepath: string, offset?: number, max?: number, signal?: AbortSignal): Promise<T | T[]>;
   /**
-   * Emitted everytime a task is spawn on this instance
+   * Emitted when a task is spawned on this instance.
    */
-  on(ev: 'task', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
+  on(ev: 'task:spawn', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
   /**
-   * Emitted everytime this instance polls for tasks.
-   * The array contains the history and the running tasks
+   * Emitted on every poll with the fresh snapshot of a tracked task, including
+   * the terminal one. A task is tracked while something `wait`s or `subscribe`s
+   * to it via `greycat.tasks`.
    */
-  on(ev: 'tasks', callback: EmitterCallback<Map<number | bigint, gc.runtime.Task>>): EmitterDisposable;
+  on(ev: 'task:update', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
+  /**
+   * Emitted when a tracked task leaves the poller (terminal or inaccessible).
+   * `error` is `null` on success, a `TaskError` otherwise.
+   */
+  on(ev: 'task:settle', callback: EmitterCallback<TaskSettleEvent>): EmitterDisposable;
 }
 
 interface GreyCatEvents {
-  task: gc.runtime.Task;
-  tasks: Map<number | bigint, gc.runtime.Task>;
+  'task:spawn': gc.runtime.Task;
+  'task:update': gc.runtime.Task;
+  'task:settle': TaskSettleEvent;
 }
 
 export class GreyCat extends Emitter<GreyCatEvents> {
@@ -592,8 +599,6 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   readonly pollFrequency: number;
   /** GreyCat Wasm Module (`undefined` when `init` ran with `wasm: false` or the load failed) */
   readonly module: WebAssembly.Module | undefined;
-  /** GreyCat Wasm Exports */
-  private _exports: GreyCatWasmExports | undefined;
   /** used when making authenticated requests */
   token: string | undefined;
   /** called when a request returns a status code 401 */
@@ -602,12 +607,18 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   abiMismatchHandler: (() => void) | undefined;
   logger: DebugLogger;
 
+  /** GreyCat Wasm Exports */
+  private _exports: GreyCatWasmExports | undefined;
   /** Re-used by the serialize methods to prevent re-allocations */
   private _writer: AbiWriter;
+  /**
+   * Task poller for this instance: `wait` for a task to complete or `subscribe`
+   * to its updates. Many tasks share a single batched poll. The instance's
+   * `task:update` / `task:settle` events mirror what it observes.
+   */
+  readonly tasks: TaskPoller;
   private _fields_map: Map<string, AbiAttribute>;
-  private _poll: Poll;
   private _debug_id: number | bigint | undefined;
-  private _watched: Map<number | bigint, gc.runtime.Task>;
 
   constructor(
     name: string,
@@ -641,14 +652,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this.unauthorizedHandler = unauthorizedHandler;
     this.abiMismatchHandler = abiMismatchHandler;
     this._fields_map = new Map();
-    this._watched = new Map();
-    this._poll = new Poll(async () => {
-      try {
-        await this.pollTasks();
-      } catch {
-        /* noop */
-      }
-    });
+    this.tasks = new TaskPoller(this);
 
     if (timezone === undefined) {
       this.timezone =
@@ -685,74 +689,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this._debug_id = id;
   }
 
+  /** Whether the task poller currently has at least one task to poll. */
   isPollingTasks(): boolean {
-    return this._poll.isRunning();
-  }
-
-  getTask(id: number | bigint): gc.runtime.Task | undefined {
-    return this._watched.get(id);
-  }
-
-  watchTask(task: gc.runtime.Task): void {
-    this._watched.set(task.task_id, task);
-  }
-
-  unwatchTask(task: gc.runtime.Task): void {
-    this._watched.delete(task.task_id);
-  }
-
-  /**
-   * Subscribes to task updates that occur at least every `everyMs` milliseconds.
-   *
-   * GreyCat manages a single shared poller for all subscriptions. The backend is polled at the
-   * fastest interval requested by any subscriber, and all registered callbacks are invoked at
-   * that same frequency with the latest list of tasks.
-   *
-   * This lets multiple components receive up-to-date task data without each performing its own
-   * network fetch — the polling is multiplexed through GreyCat.
-   *
-   * If you only need to react when tasks are refreshed (without triggering polling yourself),
-   * use the event emitter directly via `greycat.on('tasks', ...)`.
-   *
-   * *Note that GreyCat will only start polling for tasks if at least one subscription exists
-   * and will stop polling for tasks when the last subscription is disposed*
-   *
-   * @param everyMs Desired polling interval in milliseconds
-   * @param callback Function called with the updated list of tasks
-   * @returns A function that unsubscribes from the poller when invoked
-   */
-  subscribeToTaskPoll(everyMs: number, callback: (tasks: Map<number | bigint, gc.runtime.Task>) => void) {
-    const id = this._poll.register(everyMs);
-    const dispose = this.on('tasks', callback);
-    return () => {
-      this._poll.unregister(id);
-      dispose();
-    };
-  }
-
-  /**
-   * Triggers a fetch of the running tasks to get fresh statuses.
-   *
-   * *Calling this will also emit tasks events*
-   */
-  async pollTasks(): Promise<void> {
-    if (this._watched.size === 0) {
-      return;
-    }
-    const logger = this.unregisterLogger();
-    const watched = [...this._watched.keys()];
-    const watched_tasks = await gcreg.runtime.Task.tasks(watched);
-    this.registerLogger(logger);
-    for (let i = 0; i < watched.length; i++) {
-      const id = watched[i];
-      const task = watched_tasks[i];
-      if (task === null) {
-        this._watched.delete(id);
-      } else {
-        this._watched.set(id, task);
-      }
-    }
-    this.emit('tasks', this._watched);
+    return this.tasks.isRunning();
   }
 
   unregisterLogger(): DebugLogger {
@@ -787,28 +726,31 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.await(task, opts, signal);
   }
 
-  async await<T = unknown>(task: gc.runtime.Task<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
-    this.watchTask(task);
-    const poll_id = this._poll.register(opts.pollEvery ?? this.pollFrequency);
-    const { promise, resolve } = Promise.withResolvers<void>();
-    const dispose = this.subscribeToTaskPoll(opts.pollEvery ?? this.pollFrequency, (tasks) => {
-      const updated_task = tasks.get(task.task_id);
-      if (updated_task === undefined) {
-        dispose();
-        resolve();
-        return;
-      }
+  /**
+   * Observes task `id` on every poll until it settles, returns an unsubscribe.
+   * Shorthand for `greycat.tasks.subscribe(...)`.
+   */
+  watchTask(id: TaskId, listener: TaskListener, pollFrequency?: number): () => void {
+    return this.tasks.subscribe(id, listener, pollFrequency);
+  }
 
-      if (!isTaskRunning(updated_task)) {
-        this.unwatchTask(task);
-        dispose();
-        resolve();
-        return;
+  async await<T = unknown>(task: gc.runtime.Task<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
+    const frequency = opts.pollEvery ?? this.pollFrequency;
+    const off = opts.onprogress
+      ? this.tasks.subscribe(task.task_id, (t) => opts.onprogress?.(t.progress), frequency)
+      : undefined;
+    try {
+      await this.tasks.wait(task.task_id, frequency);
+    } catch (err) {
+      // an errored task carries its `core.Error` in `result.gcb`; fall through to
+      // download it below so the concrete error is thrown. cancelled/inaccessible
+      // have no such payload and propagate as-is.
+      if (!(err instanceof TaskError && err.reason === 'error')) {
+        throw err;
       }
-      opts.onprogress?.(updated_task.progress);
-    });
-    await promise; // wait for completion
-    this._poll.unregister(poll_id);
+    } finally {
+      off?.();
+    }
 
     opts.onprogress?.(1);
 
@@ -917,7 +859,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       }
       this.logger(this.name, res.status, uri, args, value);
       if (task) {
-        this.emit('task', value as gc.runtime.Task);
+        this.emit('task:spawn', value as gc.runtime.Task);
       }
       if (this._debug_id !== undefined) {
         if (value instanceof gcreg.runtime.Task) {
@@ -1473,18 +1415,6 @@ export async function login(options: LoginOptions): Promise<string> {
     message += ` (${gc_err.message})`;
   }
   throw new HttpError(message, res.status, gc_err);
-}
-
-function isTaskRunning(task: gc.runtime.Task): boolean {
-  switch (task.status.key) {
-    case 'running':
-    case 'waiting':
-    case 'await':
-    case 'breakpoint':
-      return true;
-    default:
-      return false;
-  }
 }
 
 export type LogoutOptions = {

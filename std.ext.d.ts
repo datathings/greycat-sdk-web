@@ -57,6 +57,11 @@ declare namespace gc {
        * @param signal
        */
       isRunning(g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<boolean>;
+      /**
+       * Observes this task on every poll, including the terminal snapshot.
+       *
+       * Drives polling for this task and returns an unsubscribe that stops it.
+       */
       on(
         this: gc.runtime.Task,
         event: 'update',
@@ -65,10 +70,23 @@ declare namespace gc {
         g?: gc.sdk.GreyCat,
       ): () => void;
       /**
-       * Returns the current progress of the task.
-       * @param g
+       * Observes the completion of this task, once. `error` is `null` on
+       * success, a `TaskError` on cancel / failure / inaccessible.
+       *
+       * Drives polling until the task settles. The returned unsubscribe only
+       * suppresses the callback: it does not stop the task from being polled.
        */
-      getProgress(g?: gc.sdk.GreyCat): number | undefined | null;
+      on(
+        this: gc.runtime.Task,
+        event: 'settle',
+        cb: (e: gc.sdk.TaskSettleEvent) => void,
+        pollEvery?: number,
+        g?: gc.sdk.GreyCat,
+      ): () => void;
+      /**
+       * Returns the duration of the task or `undefined` when the task is not started.
+       */
+      duration(): gc.core.duration | undefined;
     }
   }
 

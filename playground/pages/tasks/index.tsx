@@ -3,7 +3,7 @@ import { appLayout } from '~/common';
 import actions from './actions';
 
 const greycat = await gc.sdk.init({ debug: true });
-greycat.on('task', (t) => {
+greycat.on('task:spawn', (t) => {
   console.log('new task registered', t);
 });
 

@@ -30,6 +30,10 @@ export abstract class GuiElement extends HTMLElement {
     this.dispose();
   }
 
+  /**
+   * Adds a disposable function to be called when this component will disconnect
+   * @param disposable
+   */
   protected addDisposable(disposable: Disposable): void {
     if (this._disposables === undefined) {
       this._disposables = [disposable];
