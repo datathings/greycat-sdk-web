@@ -170,8 +170,10 @@ export async function downloadAbi(
   }
 
   const headers: RequestInit['headers'] = { Accept: 'application/octet-stream' };
+  let credentials: 'include' | 'omit' = 'include';
   if (token) {
     headers['Authorization'] = token;
+    credentials = 'omit';
   }
 
   const method = 'runtime::Runtime::abi';
@@ -185,7 +187,7 @@ export async function downloadAbi(
   const res = await fetch(`${cleanUrl}/${method}`, {
     method: 'POST',
     headers,
-    credentials: 'include',
+    credentials,
     signal,
   });
   if (res.status === 401) {
