@@ -74,7 +74,3 @@ declare global {
     }
   }
 }
-
-if (!customElements.get('gui-heatmap-tooltip')) {
-  customElements.define('gui-heatmap-tooltip', GuiHeatmapTooltip);
-}

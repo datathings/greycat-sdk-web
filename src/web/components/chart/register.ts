@@ -8,7 +8,16 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/option/option.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
-import { GuiChart, GuiChartAxisInput, GuiChartConfig, GuiChartOrdinateInput, GuiChartSelectionInput, GuiChartSerieInput, GuiChartSeriesInput, GuiChartYAxesInput } from './index.js';
+import {
+  GuiChart,
+  GuiChartAxisInput,
+  GuiChartConfig,
+  GuiChartOrdinateInput,
+  GuiChartSelectionInput,
+  GuiChartSerieInput,
+  GuiChartSeriesInput,
+  GuiChartYAxesInput,
+} from './index.js';
 
 registerCustomElement('gui-chart-axis-input', GuiChartAxisInput);
 registerCustomElement('gui-chart-ordinate-input', GuiChartOrdinateInput);
