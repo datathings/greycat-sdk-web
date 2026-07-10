@@ -253,10 +253,7 @@ export function tokenAuth(token: string): AuthStrategy {
 }
 
 /** Normalize the `auth` option (data form, openid spec, or strategy) into a strategy. */
-function toStrategy(
-  auth: WithoutAbiOptions['auth'],
-  credentials?: RequestCredentials,
-): AuthStrategy<unknown> | null {
+function toStrategy(auth: WithoutAbiOptions['auth'], credentials?: RequestCredentials): AuthStrategy<unknown> | null {
   if (!auth) {
     return null;
   }
@@ -1105,10 +1102,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    */
   async putFile(filepath: string, file: globalThis.File, signal?: AbortSignal): Promise<void> {
     const route = `files/${filepath}`;
-    const res = await fetch(
-      `${this.api}/${route}`,
-      this.fileRequestInit({ method: 'PUT', body: file, signal }),
-    );
+    const res = await fetch(`${this.api}/${route}`, this.fileRequestInit({ method: 'PUT', body: file, signal }));
     if (res.ok) {
       return;
     }
@@ -1134,10 +1128,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    */
   async deleteFile(filepath: string, signal?: AbortSignal): Promise<void> {
     const route = `files/${filepath}`;
-    const res = await fetch(
-      `${this.api}/${route}`,
-      this.fileRequestInit({ method: 'DELETE', signal }),
-    );
+    const res = await fetch(`${this.api}/${route}`, this.fileRequestInit({ method: 'DELETE', signal }));
     if (res.ok) {
       return;
     }
