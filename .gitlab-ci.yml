@@ -23,7 +23,17 @@ build:
 
 publish:
   stage: publish
-  when: manual
+  tags: [linux]
+  rules:
+    # always publish automatically on the dev branch
+    - if: '$CI_COMMIT_BRANCH == "dev"'
+      when: always
+    # any other branch: manual, branch pipelines only. The `if: $CI_COMMIT_BRANCH` guard is
+    # required — a bare `when: manual` also matches merge_request_event, which spawns a
+    # duplicate detached MR pipeline on every push to a branch that has an open MR.
+    - if: '$CI_COMMIT_BRANCH'
+      when: manual
+      allow_failure: true
   script:
     - echo "VERSION=$VERSION"
     - ./scripts/codegen.sh
