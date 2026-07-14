@@ -142,6 +142,20 @@ export interface Options {
    * *You can also set this handler directly on the `GreyCat` instance after creating it*
    */
   abiMismatchHandler?: () => void;
+  /**
+   * Credentials mode for the whole connection: the `{ username, password }` login
+   * handshake, the ABI download, and every subsequent RPC / `/files/` request.
+   *
+   *  - unset (default): `'omit'` when a token is set, else `'include'` (cookie
+   *    session).
+   *  - `'include'`: persist and send the session cookie, so a same-origin session
+   *    resumes on reload without re-authenticating.
+   *  - `'omit'`: never rely on a cookie. Required to reach a server cross-origin
+   *    whose CORS allows a wildcard origin, which the browser rejects for
+   *    credentialed requests - both for a pure token session (keep `GreyCat.token`
+   *    to resume) and for an anonymous/public session (no token at all).
+   */
+  credentials?: RequestCredentials;
 }
 
 export type CacheKey = [method: string] | [method: string, params: ArrayBuffer];
@@ -232,17 +246,6 @@ export interface WithoutAbiOptions extends Options {
    * to narrow.
    */
   auth?: Auth | AuthStrategy | OpenidServerSpec | OpenidPkceSpec;
-  /**
-   * Credentials mode for the `{ username, password }` login handshake.
-   *
-   *  - `'include'` (default): persist the session cookie, so a same-origin session
-   *    resumes on reload without re-authenticating.
-   *  - `'omit'`: run a pure token session, never relying on the cookie. Required to
-   *    log in cross-origin against a server whose CORS allows a wildcard origin,
-   *    which the browser rejects for credentialed requests. The caller keeps the
-   *    returned token (`GreyCat.token`) to resume.
-   */
-  credentials?: 'include' | 'omit';
   /** This signal is given to the request that loads the ABI. */
   signal?: AbortSignal;
   /**

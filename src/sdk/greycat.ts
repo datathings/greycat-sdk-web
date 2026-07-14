@@ -177,7 +177,7 @@ export async function downloadAbi(
   }
 
   const headers: RequestInit['headers'] = { Accept: 'application/octet-stream' };
-  let credentials: 'include' | 'omit' = 'include';
+  let credentials: RequestCredentials = loginCredentials ?? 'include';
   if (token) {
     headers['Authorization'] = token;
     credentials = 'omit';
@@ -429,6 +429,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
       // strategy already authenticated; pass the token (if any) as a bearer,
       // cookie-based outcomes rely on `credentials: 'include'`.
       auth: token ? { token } : undefined,
+      credentials,
       cache,
       pollFrequency,
       unauthorizedHandler,
@@ -466,6 +467,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     unauthorizedHandler,
     abiMismatchHandler,
   );
+  g.credentials = credentials;
 
   register(name, g);
   initialize_functions(name, g);
@@ -495,6 +497,7 @@ export function initWithAbi({
   abiMismatchHandler,
   permissions = [],
   url = DEFAULT_URL,
+  credentials,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
     name,
@@ -512,6 +515,7 @@ export function initWithAbi({
     unauthorizedHandler,
     abiMismatchHandler,
   );
+  g.credentials = credentials;
   // register the instance
   register(name, g);
   // initialize runtime RPCs based on Abi
@@ -618,6 +622,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   readonly module: WebAssembly.Module | undefined;
   /** used when making authenticated requests */
   token: string | undefined;
+  /** Fetch credentials mode for ABI/RPC/`/files/` requests. When unset: `'omit'`
+   *  if a token is set, else `'include'` (cookie session). Set `'omit'` for an
+   *  explicit anonymous session so cross-origin wildcard-CORS requests are not
+   *  blocked by the browser. */
+  credentials?: RequestCredentials;
   /** called when a request returns a status code 401 */
   unauthorizedHandler: (() => void) | undefined;
   /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
@@ -698,6 +707,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.unauthorizedHandler,
       this.abiMismatchHandler,
     );
+    greycat.credentials = this.credentials;
     register(name, greycat);
     return greycat;
   }
@@ -863,11 +873,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (httpMethod === 'POST') {
       init.body = body;
     }
-    if (this.token) {
-      init.credentials = 'omit';
-    } else {
-      init.credentials = 'include';
-    }
+    init.credentials = this.credentials ?? (this.token ? 'omit' : 'include');
     const res = await fetch(url, init);
     if (res.status >= 200 && res.status < 300) {
       const data = await res.arrayBuffer();
@@ -1048,7 +1054,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
-    return { ...base, headers, credentials: this.token ? 'omit' : 'include' };
+    return { ...base, headers, credentials: this.credentials ?? (this.token ? 'omit' : 'include') };
   }
 
   /**
