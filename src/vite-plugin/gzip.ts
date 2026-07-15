@@ -1,65 +1,42 @@
-import type { Plugin } from 'vite';
-import type { NormalizedOutputOptions, OutputBundle } from 'rollup';
-import path from 'node:path';
+import { join } from 'node:path';
 import { createGzip } from 'node:zlib';
 import { createReadStream, createWriteStream } from 'node:fs';
-import { pipeline } from 'node:stream/promises';
 import { unlink } from 'node:fs/promises';
+import { pipeline } from 'node:stream/promises';
 
-export interface GzipPluginOptions {
-  /**
-   * Will only compress the files that matches this regex.
-   *
-   * *Defaults to: `/\.(js|mjs|json|css|ttf|woff|woff2|svg)$/`*
-   */
+/**
+ * Extensions GreyCat's static server serves pre-gzipped (it looks for a
+ * `<file>.gz` sibling when the request carries `Accept-Encoding: gzip`).
+ * Compressing anything outside this set produces `.gz` files the server never
+ * sends. Fonts are intentionally absent: `.woff2` is already compressed and is
+ * not in the server whitelist.
+ */
+export const GZIP_WHITELIST = /\.(js|mjs|cjs|css|svg|html|json|wasm)$/;
+
+export interface GzipOptions {
+  /** Only compress files matching this regex. Defaults to {@link GZIP_WHITELIST}. */
   filter?: RegExp;
-  /**
-   * Whether or not to keep the original file after compression.
-   *
-   * *Defaults to: `false`*
-   */
+  /** Keep the uncompressed original next to the `.gz`. Defaults to `true`. */
   keepOriginal?: boolean;
 }
 
-export const DEFAULT_FILTER = /\.(js|mjs|json|css|ttf|woff|woff2|svg)$/;
-
-export function gzip(options?: GzipPluginOptions): Plugin {
-  return {
-    name: 'gzip',
-    writeBundle(outputOptions, bundle) {
-      return gzipWriteBundle(options, outputOptions, bundle);
-    },
-  };
-}
-
-async function gzipFile(input_path: string, output_path: string, keep_original: boolean) {
-  await pipeline(createReadStream(input_path), createGzip(), createWriteStream(output_path));
-  if (!keep_original) {
-    await unlink(input_path);
-  }
-}
-
-export async function gzipWriteBundle(
-  { filter = DEFAULT_FILTER, keepOriginal = false }: GzipPluginOptions = {},
-  output_options: NormalizedOutputOptions,
-  bundle: OutputBundle,
+export async function gzipBundle(
+  outDir: string,
+  files: string[],
+  { filter = GZIP_WHITELIST, keepOriginal = true }: GzipOptions = {},
 ): Promise<void> {
-  const output_dir = output_options.file ? path.dirname(output_options.file) : output_options.dir || '';
-  const compress_file = async (bundle_entry: string) => {
-    const dirname = path.dirname(bundle_entry);
-    const filename = path.basename(bundle_entry);
-    const output = path.join(dirname, `${filename}.gz`);
-    const input_path = path.join(output_dir, bundle_entry);
-    const output_path = path.join(output_dir, output);
-    return gzipFile(input_path, output_path, keepOriginal);
-  };
-  const promises: Promise<void>[] = [];
-  const entries = Object.keys(bundle);
-  for (let i = 0; i < entries.length; i++) {
-    const entry = entries[i];
-    if (entry.match(filter)) {
-      promises.push(compress_file(entry));
+  const jobs: Promise<void>[] = [];
+  for (const file of files) {
+    if (filter.test(file)) {
+      jobs.push(gzipFile(join(outDir, file), keepOriginal));
     }
   }
-  await Promise.all(promises);
+  await Promise.all(jobs);
+}
+
+async function gzipFile(path: string, keepOriginal: boolean): Promise<void> {
+  await pipeline(createReadStream(path), createGzip(), createWriteStream(`${path}.gz`));
+  if (!keepOriginal) {
+    await unlink(path);
+  }
 }
