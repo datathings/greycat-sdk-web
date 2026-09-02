@@ -31,61 +31,61 @@ describe('call (JSON)', () => {
   // Single test: node --test --test-name-pattern="add"
 
   it('add(2, 3) -> 5', async () => {
-    assert.strictEqual(await callJson('project::add', [2, 3]), 5);
+    assert.strictEqual(await callJson('tests::add', [2, 3]), 5);
   });
 
   it('concat("hello", " world") -> "hello world"', async () => {
     assert.strictEqual(
-      await callJson('project::concat', ['hello', ' world']),
+      await callJson('tests::concat', ['hello', ' world']),
       'hello world',
     );
   });
 
   it('echo_any(42) -> 42', async () => {
-    assert.strictEqual(await callJson('project::echo_any', [42]), 42);
+    assert.strictEqual(await callJson('tests::echo_any', [42]), 42);
   });
 
   it('echo_any(null) -> null', async () => {
-    assert.strictEqual(await callJson('project::echo_any', [null]), null);
+    assert.strictEqual(await callJson('tests::echo_any', [null]), null);
   });
 
   it('echo_any("text") -> "text"', async () => {
-    assert.strictEqual(await callJson('project::echo_any', ['text']), 'text');
+    assert.strictEqual(await callJson('tests::echo_any', ['text']), 'text');
   });
 
   it('echo_array([1,2,3]) -> [1,2,3]', async () => {
     assert.deepStrictEqual(
-      await callJson('project::echo_array', [[1, 2, 3]]),
+      await callJson('tests::echo_array', [[1, 2, 3]]),
       [1, 2, 3],
     );
   });
 
   it('sum_array([10,20,30]) -> 60', async () => {
     assert.strictEqual(
-      await callJson('project::sum_array', [[10, 20, 30]]),
+      await callJson('tests::sum_array', [[10, 20, 30]]),
       60,
     );
   });
 
   it('make_person("X", 5, null) -> Person', async () => {
-    const result = await callJson('project::make_person', ['X', 5, null]);
+    const result = await callJson('tests::make_person', ['X', 5, null]);
     assert.strictEqual(result?.name, 'X');
     assert.strictEqual(result?.age, 5);
     assert.strictEqual(result?.nickname, undefined);
   });
 
   it('make_person("Y", 1, "nick") -> Person', async () => {
-    const result = await callJson('project::make_person', ['Y', 1, 'nick']);
+    const result = await callJson('tests::make_person', ['Y', 1, 'nick']);
     assert.strictEqual(result?.name, 'Y');
     assert.strictEqual(result?.age, 1);
     assert.strictEqual(result?.nickname, 'nick');
   });
 
   it('no_result() -> null', async () => {
-    assert.strictEqual(await callJson('project::no_result', []), null);
+    assert.strictEqual(await callJson('tests::no_result', []), null);
   });
 
   it('boom() throws', async () => {
-    await assert.rejects(callJson('project::boom', []), /boom|HTTP/);
+    await assert.rejects(callJson('tests::boom', []), /boom|HTTP/);
   });
 });

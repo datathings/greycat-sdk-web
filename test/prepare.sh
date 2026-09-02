@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
-pnpm --dir .. build:sdk
-rm -rf gcdata fixtures
-mkdir -p fixtures
+pnpm build:sdk
+rm -rf gcdata test/fixtures
+mkdir -p test/fixtures
 greycat install
 greycat run
-cp gcdata/abi abi.bin
+cp gcdata/abi test/abi.bin

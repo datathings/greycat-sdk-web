@@ -1,4 +1,4 @@
-// One entry per fixtures/<i>.gcb produced by project.gcl::write_fixtures().
+// One entry per fixtures/<i>.gcb produced by test/tests.gcl::write_fixtures().
 // `name` is used in test names (so --test-name-pattern can target one).
 // `expected` is the deserialized JSON-shape expected by the SDK's AbiReader.
 
@@ -25,15 +25,15 @@ export const fixtures = [
   { name: 'Map<String,int>',    expected: { x: 1, y: 2 } },
   {
     name: 'Person Alice',
-    expected: { _type: 'project::Person', name: 'Alice', age: 30, nickname: null },
+    expected: { _type: 'tests::Person', name: 'Alice', age: 30, nickname: null },
   },
   {
     name: 'Person Bob',
-    expected: { _type: 'project::Person', name: 'Bob', age: 7, nickname: 'Bobby' },
+    expected: { _type: 'tests::Person', name: 'Bob', age: 7, nickname: 'Bobby' },
   },
   {
     name: 'Box<int>',
-    expected: { _type: 'project::Box<core::int>', value: 42 },
+    expected: { _type: 'tests::Box<core::int>', value: 42 },
   },
   { name: 'Color::red',         expected: 'red' },
   { name: 'Color::blue',        expected: 'blue' },

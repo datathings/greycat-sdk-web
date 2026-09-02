@@ -17,60 +17,60 @@ describe('call (GCB)', () => {
   // To run a single one: node --test --test-name-pattern="add"
 
   it('add(2, 3) -> 5', async () => {
-    const result = await g.call('project::add', [2, 3]);
+    const result = await g.call('tests::add', [2, 3]);
     assert.strictEqual(result, 5);
   });
 
   it('concat("hello", " world") -> "hello world"', async () => {
-    const result = await g.call('project::concat', ['hello', ' world']);
+    const result = await g.call('tests::concat', ['hello', ' world']);
     assert.strictEqual(result, 'hello world');
   });
 
   it('echo_any(42) -> 42', async () => {
-    const result = await g.call('project::echo_any', [42]);
+    const result = await g.call('tests::echo_any', [42]);
     assert.strictEqual(result, 42);
   });
 
   it('echo_any(null) -> null', async () => {
-    const result = await g.call('project::echo_any', [null]);
+    const result = await g.call('tests::echo_any', [null]);
     assert.strictEqual(result, null);
   });
 
   it('echo_any("text") -> "text"', async () => {
-    const result = await g.call('project::echo_any', ['text']);
+    const result = await g.call('tests::echo_any', ['text']);
     assert.strictEqual(result, 'text');
   });
 
   it('echo_array([1,2,3]) -> [1,2,3]', async () => {
-    const result = await g.call('project::echo_array', [[1, 2, 3]]);
+    const result = await g.call('tests::echo_array', [[1, 2, 3]]);
     assert.deepStrictEqual(result, [1, 2, 3]);
   });
 
   it('sum_array([10,20,30]) -> 60', async () => {
-    const result = await g.call('project::sum_array', [[10, 20, 30]]);
+    const result = await g.call('tests::sum_array', [[10, 20, 30]]);
     assert.strictEqual(result, 60);
   });
 
   it('make_person("X", 5, null) -> Person', async () => {
-    const result = /** @type {any} */ (await g.call('project::make_person', ['X', 5, null]));
+    const result = /** @type {any} */ (await g.call('tests::make_person', ['X', 5, null]));
     assert.strictEqual(result.name, 'X');
     assert.strictEqual(result.age, 5);
     assert.strictEqual(result.nickname, null);
   });
 
   it('make_person("Y", 1, "nick") -> Person', async () => {
-    const result = /** @type {any} */ (await g.call('project::make_person', ['Y', 1, 'nick']));
+    const result = /** @type {any} */ (await g.call('tests::make_person', ['Y', 1, 'nick']));
     assert.strictEqual(result.name, 'Y');
     assert.strictEqual(result.age, 1);
     assert.strictEqual(result.nickname, 'nick');
   });
 
   it('no_result() -> null', async () => {
-    const result = await g.call('project::no_result', []);
+    const result = await g.call('tests::no_result', []);
     assert.strictEqual(result, null);
   });
 
   it('boom() throws', async () => {
-    await assert.rejects(g.call('project::boom', []), /boom/);
+    await assert.rejects(g.call('tests::boom', []), /boom/);
   });
 });

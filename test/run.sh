@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-cd "$(dirname "$0")"
+cd "$(dirname "$0")/.."
 
 PORT="${GREYCAT_PORT:-8181}"
 URL="http://127.0.0.1:${PORT}"
@@ -10,7 +10,7 @@ URL="http://127.0.0.1:${PORT}"
 greycat install
 
 # start server in background
-greycat serve --user=1 --port="$PORT" > greycat.log 2>&1 &
+greycat serve --user=1 --port="$PORT" > test/greycat.log 2>&1 &
 SERVER_PID=$!
 
 cleanup() {
@@ -28,4 +28,4 @@ for _ in $(seq 1 60); do
     sleep 0.5
 done
 
-GREYCAT_URL="$URL" node --enable-source-maps --test
+GREYCAT_URL="$URL" node --enable-source-maps --test test/*.test.js

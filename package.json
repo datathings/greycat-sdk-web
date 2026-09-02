@@ -59,7 +59,8 @@
   },
   "scripts": {
     "clean": "rm -rf dist",
-    "gen": "greycat install && rm lib/installed && GREYCAT_TARGET=wasm32 greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",
+    "gen": "greycat install && GREYCAT_CORE=1 ./bin/greycat codegen ts && mv project.d.ts std.d.ts",
+    "gen:test": "./bin/greycat codegen ts && mv project.d.ts test/project.d.ts",
     "build": "node scripts/build.js",
     "build:jsx": "node scripts/build.js jsx",
     "build:sdk": "node scripts/build.js sdk",

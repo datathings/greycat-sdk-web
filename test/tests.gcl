@@ -1,6 +1,4 @@
-@library("std", "8.1.0-dev");
-
-// Each round-trip fixture is written to its own file fixtures/<idx>.gcb so that
+// Each round-trip fixture is written to its own file test/fixtures/<idx>.gcb so that
 // tests can deserialize them independently. A node<int?> counter is required
 // because module-level vars must be nodes in greycat.
 var w_idx: node<int?>;
@@ -27,7 +25,7 @@ fn main() {
 
 fn w(value: any?) {
     var i = *w_idx ?? 0;
-    GcbWriter { path: "fixtures/${i}.gcb" }.write(value);
+    GcbWriter { path: "test/fixtures/${i}.gcb" }.write(value);
     w_idx.set(i + 1);
 }
 
@@ -48,7 +46,7 @@ fn write_fixtures() {
     w("");
     w('c');
 
-    // duration (raw `time` values format with the system timezone — leave them
+    // duration (raw `time` values format with the system timezone - leave them
     // for call-tests where we control input/output explicitly)
     w(42_us);
     w(3_s);
