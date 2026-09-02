@@ -1,43 +1,182 @@
-default:
-  tags: [linux]
-
 variables:
   GIT_STRATEGY: clone
-  GIT_DEPTH: '0'
+  GIT_DEPTH: "0"
+  GIT_SUBMODULE_STRATEGY: recursive
+  DEPS_ROOT: "/opt/pro_deps"
 
 stages:
   - build
   - publish
 
+# Publishing runs itself on `dev` once the build stage is green, and stays a
+# manual click on every other branch. publish.sh overwrites <lib>/<branch>/latest,
+# so an automatic publish moves what `greycat install` resolves for everyone
+# tracking that branch.
+
 before_script:
-  - export VERSION=`greycat build-version`
+  - export PROJECT_VERSION_MAJOR_MINOR=`cat VERSION`
+  - export PROJECT_VERSION=`greycat build-version`
+  - mkdir -p ${CI_PROJECT_DIR}/build
+  - mkdir -p $DEPS_ROOT
 
-build:
+# Reuse the prebuilt greycat-dev image. The image reference is read from the
+# "image" field of .devcontainer/devcontainer.json and pulled only
+# when it is not already present locally; otherwise the locally cached image
+# is reused.
+.docker_build:
+  script: &docker_build_script
+    - export GREYCAT_DEV_IMAGE=$(grep -o '"image"[[:space:]]*:[[:space:]]*"[^"]*"' ${CI_PROJECT_DIR}/.devcontainer/devcontainer.json | sed -E 's/.*"image"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
+    - docker image inspect "${GREYCAT_DEV_IMAGE}" >/dev/null 2>&1 || docker pull "${GREYCAT_DEV_IMAGE}"
+
+x64-linux:
   stage: build
+  rules: [{ exists: [CMakeLists.txt] }]
+  tags: [linux]
   script:
-    - echo "VERSION=$VERSION"
-    - ./scripts/codegen.sh
-    - ./scripts/build.sh
-    - ./scripts/test.sh
-    - echo "VERSION=$VERSION"
+    - *docker_build_script
+    - export GREYCAT_TARGET="x64-linux"
+    - export CFLAGS="-march=x86-64-v3 -O3"
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - ./script/test.sh
 
-publish:
+arm64-linux:
+  stage: build
+  rules: [{ exists: [CMakeLists.txt] }]
+  tags: [linux_arm64]
+  variables:
+    GREYCAT_TARGET: arm64-linux
+    CFLAGS: -march=armv8-a+crypto
+    OPENSSL_TARGET: linux-aarch64
+  script:
+    - *docker_build_script
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    #- ./script/test.sh
+
+arm64-apple:
+  stage: build
+  rules: [{ exists: [CMakeLists.txt] }]
+  tags: [macos_native]
+  variables:
+    GREYCAT_TARGET: arm64-apple
+    CFLAGS: "-target arm64-apple-macos15.4 -DHAVE_STRCHRNUL -mmacosx-version-min=15.4"
+    OPENSSL_TARGET: darwin64-arm64-cc
+  script:
+    - ./script/build.sh
+    - ./script/test.sh
+
+x64-windows:
+  stage: build
+  rules: [{ exists: [CMakeLists.txt] }]
+  tags: [mingw]
+  variables:
+    CROSS: true
+    GREYCAT_TARGET: x64-windows
+    OPENSSL_TARGET: mingw64
+  script:
+    - *docker_build_script
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
+
+x64-linux-publish:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      exists: [CMakeLists.txt]
+      when: on_success
+    - exists: [CMakeLists.txt]
+      when: manual
+  tags: [linux]
+  variables:
+    GREYCAT_TARGET: x64-linux
+    CFLAGS: "-march=x86-64-v3"
+  script:
+    - *docker_build_script
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - ./script/pack.sh
+    - ./script/publish.sh
+
+arm64-linux-publish:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      exists: [CMakeLists.txt]
+      when: on_success
+    - exists: [CMakeLists.txt]
+      when: manual
+  tags: [linux_arm64]
+  variables:
+    GREYCAT_TARGET: arm64-linux
+    CFLAGS: -march=armv8-a+crypto
+    OPENSSL_TARGET: linux-aarch64
+  script:
+    - *docker_build_script
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - ./script/pack.sh
+    - ./script/publish.sh
+
+arm64-apple-publish:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      exists: [CMakeLists.txt]
+      when: on_success
+    - exists: [CMakeLists.txt]
+      when: manual
+  tags: [macos_native]
+  variables:
+    GREYCAT_TARGET: arm64-apple
+    CFLAGS: "--target=arm64-apple-macos11"
+    OPENSSL_TARGET: darwin64-arm64-cc
+  script:
+    - ./script/build.sh
+    - ./script/pack.sh
+    - ./script/publish.sh
+
+x64-windows-publish:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      exists: [CMakeLists.txt]
+      when: on_success
+    - exists: [CMakeLists.txt]
+      when: manual
+  tags: [mingw]
+  variables:
+    CROSS: true
+    GREYCAT_TARGET: x64-windows
+    OPENSSL_TARGET: mingw64
+    CMAKE_TOOLCHAIN_FILE: /opt/x86_64-w64-mingw32ucrt.cmake
+  script:
+    - *docker_build_script
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
+    - ./script/pack.sh
+    - ./script/publish.sh
+
+# A pure-GCL library carries no CMakeLists.txt. There is nothing to
+# cross-compile, and its artifact is identical on every target, so it builds
+# once and pack.sh publishes it under `noarch`. `greycat install` asks for
+# <target>/<version>.zip and retries the same path under noarch when that 404s,
+# so the single upload serves all four.
+noarch:
+  stage: build
+  tags: [linux]
+  rules:
+    - exists: [CMakeLists.txt]
+      when: never
+    - when: on_success
+  script:
+    - ./script/build.sh
+    - ./script/test.sh
+
+noarch-publish:
   stage: publish
   tags: [linux]
   rules:
-    # always publish automatically on the dev branch
-    - if: '$CI_COMMIT_BRANCH == "dev"'
-      when: always
-    # any other branch: manual, branch pipelines only. The `if: $CI_COMMIT_BRANCH` guard is
-    # required — a bare `when: manual` also matches merge_request_event, which spawns a
-    # duplicate detached MR pipeline on every push to a branch that has an open MR.
-    - if: '$CI_COMMIT_BRANCH'
-      when: manual
-      allow_failure: true
+    - exists: [CMakeLists.txt]
+      when: never
+    - if: $CI_COMMIT_BRANCH == "dev"
+      when: on_success
+    - when: manual
   script:
-    - echo "VERSION=$VERSION"
-    - ./scripts/codegen.sh
-    - ./scripts/build.sh
-    - ./scripts/pack.sh
-    - ./scripts/publish.sh
-    - echo "VERSION=$VERSION"
+    - ./script/build.sh
+    - ./script/pack.sh
+    - ./script/publish.sh
