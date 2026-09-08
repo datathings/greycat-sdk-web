@@ -1,3 +1,3 @@
-@library("std", "8.2.165-stable");
+@library("std", "8.3.31-dev");
 
 @include("test");
