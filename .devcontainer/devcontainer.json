@@ -1,6 +1,6 @@
 {
   "name": "greycat-dev",
-  "image": "oci.datathings.com/greycat-oss/devcontainer:f174499ec3b8",
+  "image": "oci.datathings.com/greycat-oss/devcontainer:e0269a75fd5a",
   "workspaceFolder": "/project",
   "workspaceMount": "source=${localWorkspaceFolder},target=/project,type=bind,consistency=cached"
 }
