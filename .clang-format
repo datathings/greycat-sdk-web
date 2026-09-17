@@ -1,0 +1,37 @@
+---
+# We'll use defaults from the LLVM style, but with 4 columns indentation.
+BasedOnStyle: LLVM
+IndentWidth: 4
+# These settings are mirrored in .editorconfig.  Keep them in sync.
+UseTab: Never
+MaxEmptyLinesToKeep: 2
+TabWidth: 4
+ContinuationIndentWidth: 2
+ColumnLimit: 160
+IndentCaseLabels: false
+BreakBeforeBraces: Attach
+# Don't insert spaces inside empty '()'
+SpaceInEmptyParentheses: false
+# The number of spaces before trailing line comments (// - comments).
+# This does not affect trailing block comments (/* - comments).
+SpacesBeforeTrailingComments: 1
+# Don't insert spaces in casts
+# x = (int32) y;    not    x = ( int32 ) y;
+SpacesInCStyleCastParentheses: false
+# Insert spaces after cast
+# (void *) a;   not   (void *)a;
+SpaceAfterCStyleCast: true
+# Don't insert spaces inside container literals
+# var arr = [1, 2, 3];    not    var arr = [ 1, 2, 3 ];
+SpacesInContainerLiterals: false
+# Don't insert spaces after '(' or before ')'
+# f(arg);    not    f( arg );
+SpacesInParentheses: false
+# Don't insert spaces after '[' or before ']'
+# int a[5];    not    int a[ 5 ];
+SpacesInSquareBrackets: false
+PointerAlignment: Right
+AlignAfterOpenBracket: Align
+BinPackParameters: false
+ExperimentalAutoDetectBinPacking: true
+StatementMacros: [ case_op ]

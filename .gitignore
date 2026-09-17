@@ -1,14 +1,36 @@
-/node_modules
-/gcdata
-/files
-/pages/gcdata
-/playground/gcdata/
-/dist
-/*.tsbuildinfo
+/lib/*
+!/lib/sdk_web/
+/lib/sdk_web/*.gclib
+/lib/sdk_web/*.so
+/lib/sdk_web/*.so.*
+/lib/sdk_web/*.dll
+/lib/sdk_web/*.dylib
+/lib/sdk_web/README.md
+/lib/sdk_web/skills/
+# A webapp library bundles into lib/<name>/webroot/ and pulls its toolchain
+# into node_modules/; neither is source.
+/lib/sdk_web/webroot/
+node_modules/
+*.tsbuildinfo
 /bin
-/lib
-/webroot
+/gcdata/
+/files/
+/project.gcp
+/.env
+/build/
+/build-asan/
+/dist/
+/src/nativegen.c
+/src/nativegen.h
+/compile_commands.json
+/.cache/
+cmake-build-*/
 
-/package-lock.json
-/src/sdk_esm_not_working
-/meta.json
+# deps/: only the build scripts are source. The extracted dist/ and deps/
+# trees and the cached <dep>_<target>_<md5>.zip artifacts are all output.
+/deps/*
+!/deps/*.sh
+
+.DS_Store
+.idea/
+.vscode/

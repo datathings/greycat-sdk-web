@@ -1,0 +1,21 @@
+# LeakSanitizer suppressions for greycat-pro test runs.
+#
+# Everything here is a THIRD-PARTY / SYSTEM one-shot leak, NOT greycat code.
+# All are process-lifetime allocations made once at Vulkan backend init and
+# never freed by design; they do not grow with the number of tests.
+#
+# Use:  LSAN_OPTIONS=suppressions=$PWD/script/lsan.supp <asan greycat> test
+#
+# --- bundled ggml Vulkan backend (lib/ai/libggml-vulkan.so) ---------------
+# ggml_backend_vk_reg_get_device() stores `new ggml_backend_vk_device_context`
+# and `new ggml_backend_device` in a function-local `static std::vector` that
+# has no destructor -> one device-context per GPU, intentionally never freed.
+leak:ggml_backend_vk_reg_get_device
+leak:libggml-vulkan.so
+#
+# --- D-Bus connection state pulled in by Vulkan device enumeration --------
+# The Vulkan loader/driver queries the system bus while enumerating GPUs;
+# libdbus caches connection/message-loader state for the life of the process.
+leak:libdbus-1.so
+leak:dbus_*
+leak:_dbus_*
