@@ -79,12 +79,12 @@ export class Reader {
   }
 
   /**
-   * Reads a varint as a `number` while the value fits in 49 bits, falling back to
-   * {@link _read_varint_u64} beyond that.
+   * Reads a varint as a `number` while the value stays under 2^53, falling back
+   * to {@link _read_varint_u64} beyond that.
    *
    * Roughly 87% of the varints in a payload are a single byte, and the BigInt
    * path allocates to decode values in 0..127. Staying in float space is exact
-   * up to 2^53, which leaves plenty of room over the 49 bits read here.
+   * up to 2^53, which is where this stops.
    */
   private _read_varint_u53(): number | bigint {
     assert_buffer_has_enough_bytes(this._curr + 1 <= this._buf.byteLength);
@@ -135,7 +135,21 @@ export class Reader {
       this._curr = p + 7;
       return lo + hi * 0x10000000;
     }
-    // 50 bits or more: exactness needs BigInt. `this._curr` is still untouched,
+    c = b[p + 7];
+    hi |= (c & 0x7f) << 21;
+    if (!(c & 0x80)) {
+      // This byte can carry the value past 2^53, where the multiply below stops
+      // being exact. `hi < 2^25` is that limit: anything under it leaves room
+      // for all 28 bits of `lo`. Worth the extra step because an epoch in
+      // microseconds needs 51 bits, 52 once zigzagged, so every `core::time`
+      // lands here rather than in the seven-byte case above.
+      if (hi < 0x2000000) {
+        this._curr = p + 8;
+        return lo + hi * 0x10000000;
+      }
+      return this._read_varint_u64();
+    }
+    // 57 bits or more: exactness needs BigInt. `this._curr` is still untouched,
     // so the slow path re-reads the varint from its first byte.
     return this._read_varint_u64();
   }
