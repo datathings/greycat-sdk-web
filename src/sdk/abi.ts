@@ -558,6 +558,20 @@ type AbiTypeProperties = {
   [name: PropertyKey]: PropertyDescriptor & ThisType<GCObjectBase>;
 };
 
+/**
+ * Pins `$type` on a constructor's prototype, so instances inherit it instead of
+ * each paying an `Object.defineProperty` call. Only valid for non-generic types:
+ * a generic instance rebinds `$type` and needs its own writable slot.
+ */
+function defineSharedType(ctor: { prototype: object }, type: AbiType): void {
+  Object.defineProperty(ctor.prototype, '$type', {
+    value: type,
+    enumerable: false,
+    writable: false,
+    configurable: true,
+  });
+}
+
 export class AbiType {
   /** can either be `GCEnum` in case of enum or the static fields `Value` in case of `GCObject` */
   // oxlint-disable-next-line typescript/no-explicit-any
@@ -685,14 +699,20 @@ export class AbiType {
                 // oxlint-disable-next-line typescript/no-explicit-any
                 constructor(...args: any[]) {
                   super(...args);
-                  Object.defineProperty(this, '$type', {
-                    value: type,
-                    enumerable: false,
-                    writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
-                  });
+                  if (g1_abi_type_desc !== 0) {
+                    // Generic instances rebind $type, so it has to stay per-instance.
+                    Object.defineProperty(this, '$type', {
+                      value: type,
+                      enumerable: false,
+                      writable: true,
+                    });
+                  }
                   this.$init?.();
                 }
               } as IGCObjectClass;
+              if (g1_abi_type_desc === 0) {
+                defineSharedType(GCObject, type);
+              }
               this.ctor = GCObject;
             } else {
               // console.warn(`unable to find native class for: ${type.name}`);
@@ -741,11 +761,14 @@ export class AbiType {
           static readonly _type = type.name;
           constructor(...fields: unknown[]) {
             super();
-            Object.defineProperty(this, '$type', {
-              value: type,
-              enumerable: false,
-              writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
-            });
+            if (g1_abi_type_desc !== 0) {
+              // Generic instances rebind $type, so it has to stay per-instance.
+              Object.defineProperty(this, '$type', {
+                value: type,
+                enumerable: false,
+                writable: true,
+              });
+            }
             Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
           }
 
@@ -764,6 +787,8 @@ export class AbiType {
           static override readonly _type = type.name;
           constructor(...fields: unknown[]) {
             super(...fields);
+            // The generic base stamped its own $type on the instance; override it
+            // with the specialised one. Has to be per-instance to shadow that.
             Object.defineProperty(this, '$type', {
               value: type,
               enumerable: false,
@@ -776,6 +801,9 @@ export class AbiType {
       // every instance of the type. Defining them here costs one pass per type
       // instead of one pass per object, and keeps instances in fast mode.
       Object.defineProperties(GCObject.prototype, properties);
+      if (g1_abi_type_desc === 0) {
+        defineSharedType(GCObject, type);
+      }
 
       this.ctor = GCObject;
       Object.defineProperty(this.ctor, '$fields', {
