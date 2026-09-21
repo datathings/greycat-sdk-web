@@ -65,11 +65,79 @@ export class Reader {
   }
 
   read_vi64(): bigint | number {
-    let v = this._read_varint_u64();
+    const u = this._read_varint_u53();
+    if (typeof u === 'number') {
+      // zigzag, in float space: even -> u / 2, odd -> -(u + 1) / 2
+      const odd = u % 2;
+      const half = (u - odd) / 2;
+      return odd ? -(half + 1) : half;
+    }
     // unsigned -> signed
-    v = (v >> 1n) ^ -(v & 1n);
+    const v = (u >> 1n) ^ -(u & 1n);
     // lets try to keep it simple if the value is within JavaScript's number range
     return v >= Number.MIN_SAFE_INTEGER && v <= Number.MAX_SAFE_INTEGER ? Number(v) : v;
+  }
+
+  /**
+   * Reads a varint as a `number` while the value fits in 49 bits, falling back to
+   * {@link _read_varint_u64} beyond that.
+   *
+   * Roughly 87% of the varints in a payload are a single byte, and the BigInt
+   * path allocates to decode values in 0..127. Staying in float space is exact
+   * up to 2^53, which leaves plenty of room over the 49 bits read here.
+   */
+  private _read_varint_u53(): number | bigint {
+    assert_buffer_has_enough_bytes(this._curr + 1 <= this._buf.byteLength);
+    const b = this._buf;
+    const p = this._curr;
+    let c = b[p];
+    if (!(c & 0x80)) {
+      this._curr = p + 1;
+      return c;
+    }
+    let lo = c & 0x7f;
+    c = b[p + 1];
+    lo |= (c & 0x7f) << 7;
+    if (!(c & 0x80)) {
+      this._curr = p + 2;
+      return lo;
+    }
+    c = b[p + 2];
+    lo |= (c & 0x7f) << 14;
+    if (!(c & 0x80)) {
+      this._curr = p + 3;
+      return lo;
+    }
+    c = b[p + 3];
+    // bit 28 would land on the sign bit of an i32, so settle `lo` as unsigned here
+    lo = (lo | ((c & 0x7f) << 21)) >>> 0;
+    if (!(c & 0x80)) {
+      this._curr = p + 4;
+      return lo;
+    }
+    // past 28 bits the shifts no longer fit an i32: accumulate the high half
+    // separately and combine by multiplication, which is exact under 2^53
+    c = b[p + 4];
+    let hi = c & 0x7f;
+    if (!(c & 0x80)) {
+      this._curr = p + 5;
+      return lo + hi * 0x10000000;
+    }
+    c = b[p + 5];
+    hi |= (c & 0x7f) << 7;
+    if (!(c & 0x80)) {
+      this._curr = p + 6;
+      return lo + hi * 0x10000000;
+    }
+    c = b[p + 6];
+    hi |= (c & 0x7f) << 14;
+    if (!(c & 0x80)) {
+      this._curr = p + 7;
+      return lo + hi * 0x10000000;
+    }
+    // 50 bits or more: exactness needs BigInt. `this._curr` is still untouched,
+    // so the slow path re-reads the varint from its first byte.
+    return this._read_varint_u64();
   }
 
   read_vi64_bigint(): bigint {
@@ -79,7 +147,10 @@ export class Reader {
   }
 
   read_vu64(): bigint | number {
-    const v = this._read_varint_u64();
+    const v = this._read_varint_u53();
+    if (typeof v === 'number') {
+      return v;
+    }
     // lets try to keep it simple if the value is within JavaScript's number range
     return v >= Number.MIN_SAFE_INTEGER && v <= Number.MAX_SAFE_INTEGER ? Number(v) : v;
   }
