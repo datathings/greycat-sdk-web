@@ -208,13 +208,27 @@ export class Reader {
    * Decodes UTF-8 strings
    */
   read_string(len: number): string {
-    const bytes = this.take(len);
-    return this.txt.decode(bytes);
+    // decode() copies into a string straight away, so the view never escapes.
+    return this.txt.decode(this.takeView(len));
   }
 
+  /**
+   * Consumes `n` bytes and returns them as a **copy**, safe to retain past the
+   * lifetime of the reader's buffer. Prefer {@link takeView} when the bytes are
+   * read and discarded.
+   */
   take(n: number): Uint8Array {
+    return this.takeView(n).slice();
+  }
+
+  /**
+   * Consumes `n` bytes and returns them as a view **aliasing** the reader's
+   * buffer. No allocation, no copy. The caller must not retain the result, nor
+   * write through it.
+   */
+  takeView(n: number): Uint8Array {
     assert_buffer_has_enough_bytes(this._curr + n <= this._buf.byteLength);
-    const v = this._buf.slice(this._curr, this._curr + n);
+    const v = this._buf.subarray(this._curr, this._curr + n);
     this._curr += n;
     return v;
   }

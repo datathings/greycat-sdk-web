@@ -242,7 +242,7 @@ export class GCObject {
     for (let i = 0; i < fields.length; i++) {
       fields[i] = null;
     }
-    const previous_nullable = r.take(type.nullable_nb_bytes);
+    const previous_nullable = r.takeView(type.nullable_nb_bytes);
     let nullable_offset = -1;
     for (let attOffset = 0; attOffset < type.attrs.length; attOffset++) {
       const att = type.attrs[attOffset];

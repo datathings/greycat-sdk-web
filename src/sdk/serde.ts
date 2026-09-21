@@ -76,7 +76,7 @@ export class BinaryReader extends AbiReader {
       let ctor;
       if (!is_anon_object) {
         const ctor_name_len = r.read_vu32();
-        const bytes = r.take(ctor_name_len);
+        const bytes = r.takeView(ctor_name_len);
         const ctor_name = this.txt.decode(bytes);
         ctor = this.js_object_factory[ctor_name];
       }
@@ -95,13 +95,13 @@ export class BinaryReader extends AbiReader {
     this.deserializers[JS_UNDEFINED] = () => undefined;
     this.deserializers[ABI_FUNCTION] = (r) => {
       const len = r.read_vu32();
-      const bytes = r.take(len);
+      const bytes = r.takeView(len);
       const fqn = this.txt.decode(bytes);
       return r.abi.fn_by_fqn.get(fqn);
     };
     this.deserializers[ABI_TYPE] = (r) => {
       const len = r.read_vu32();
-      const bytes = r.take(len);
+      const bytes = r.takeView(len);
       const fqn = this.txt.decode(bytes);
       return r.abi.type_by_fqn.get(fqn);
     };
