@@ -747,7 +747,6 @@ export class AbiType {
               writable: g1_abi_type_desc !== 0, // we need to be able to update $type for generics
             });
             Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
-            Object.defineProperties(this, properties);
           }
 
           static createFrom(o: object) {
@@ -773,6 +772,11 @@ export class AbiType {
           }
         };
       }
+      // The accessors only ever read `this.$fields[i]`, so they are identical for
+      // every instance of the type. Defining them here costs one pass per type
+      // instead of one pass per object, and keeps instances in fast mode.
+      Object.defineProperties(GCObject.prototype, properties);
+
       this.ctor = GCObject;
       Object.defineProperty(this.ctor, '$fields', {
         enumerable: false,
