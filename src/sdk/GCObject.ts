@@ -5,7 +5,6 @@ import type { GreyCat } from './greycat.js';
 // oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export interface GCObject {
   readonly $type: AbiType;
-  readonly $fields?: Value[];
   // because we don't know what could be inside
   // we need to allow any key to be potentially a value
   // [key: string]: Value;
@@ -38,7 +37,19 @@ export const DEFAULT_TO_STRING_OPTIONS: ToStringOptions = {
 export class GCObject {
   // SAFETY: This is dynamically set when the Abi is loaded
   readonly $type!: AbiType;
-  readonly $fields?: Value[];
+
+  /**
+   * Attribute values, in `$type.attrs` order. `undefined` on the types that do
+   * not carry one: enums, and the `core` primitives that wrap a single value.
+   *
+   * An accessor rather than a property so the generated subclasses can back it
+   * with a private field. They used to give every instance its own
+   * non-enumerable `$fields` through `Object.defineProperty`, which costs about
+   * 9x a plain field write and showed up as a fifth of decode time.
+   */
+  get $fields(): Value[] | undefined {
+    return undefined;
+  }
 
   static from(value: unknown, abi: Abi): GCObject {
     if (typeof value !== 'object' || value === null || value === undefined) {

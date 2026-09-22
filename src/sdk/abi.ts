@@ -759,6 +759,9 @@ export class AbiType {
       if (generic_abi_type === 0) {
         GCObject = class extends GCObjectBase {
           static readonly _type = type.name;
+          /** Backing store for {@link $fields}. */
+          #fields: Value[];
+
           constructor(...fields: unknown[]) {
             super();
             if (g1_abi_type_desc !== 0) {
@@ -769,7 +772,18 @@ export class AbiType {
                 writable: true,
               });
             }
-            Object.defineProperty(this, '$fields', { value: fields, enumerable: false });
+            this.#fields = fields as Value[];
+          }
+
+          /**
+           * A class accessor is non-enumerable and lives on the prototype, so
+           * this keeps what `Object.defineProperty(this, ...)` used to give
+           * every instance -- `Object.keys()` and spread still skip it -- while
+           * costing one field write per object instead of a defineProperty call,
+           * which is around 9x more.
+           */
+          override get $fields(): Value[] {
+            return this.#fields;
           }
 
           static createFrom(o: object) {
