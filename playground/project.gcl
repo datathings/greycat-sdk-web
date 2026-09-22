@@ -1,4 +1,4 @@
-@library("std", "8.4.0-dev");
+@library("std", "8.3.101-stable");
 
 @include("pages");
 
