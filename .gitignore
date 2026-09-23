@@ -16,6 +16,7 @@ node_modules/
 /gcdata/
 /files/
 /project.gcp
+/project.d.ts
 /.env
 /build/
 /build-asan/
