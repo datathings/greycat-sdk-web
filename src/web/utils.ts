@@ -134,11 +134,7 @@ export function putFileProgress(
         g.logger(g.name, xhr.status, route);
         reject(new Error('forbidden'));
       } else if (xhr.status === 401) {
-        // unauthorized
-        g.logger(g.name, xhr.status, route);
-        g.token = undefined;
-        g.unauthorizedHandler?.();
-        reject(new Error(`you must be logged-in to upload files`));
+        reject(g.unauthorized(route, 'you must be logged-in to upload files'));
       } else {
         reject(new Error(`File upload failed with status ${xhr.status}`));
       }

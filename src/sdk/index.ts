@@ -4,6 +4,7 @@ export { type GreyCatWasmExports, type GreyCatWasm } from './registry.js';
 export * from './wasm.js';
 export * from './emitter.js';
 export * from './poll.js';
+export * from './task-stream.js';
 export * from './GCObject.js';
 export * from './GCEnum.js';
 export * from './abi.js';

@@ -1,5 +1,5 @@
 import assert from 'node:assert';
-import { describe, before, it } from 'node:test';
+import { describe, before, after, it } from 'node:test';
 
 import '@greycat/web/sdk';
 import { SERVER_URL } from './helpers.js';
@@ -11,6 +11,9 @@ describe('call (GCB)', () => {
   before(async () => {
     g = await gc.sdk.init({ url: new URL(SERVER_URL) });
   });
+
+  // the task event stream holds the process open otherwise
+  after(() => g.tasks.disconnect());
 
   // Each it() is fully independent: it issues one HTTP call with a fresh
   // arg payload and asserts on the parsed return — no inter-test state.

@@ -398,6 +398,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     debug = false,
     unauthorizedHandler,
     abiMismatchHandler,
+    taskEvents = true,
   } = options;
   const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
   const cleanUrl = normalizeUrl(url);
@@ -471,6 +472,10 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
 
   register(name, g);
   initialize_functions(name, g);
+  if (taskEvents) {
+    // not awaited: tasks tracked before the stream is open are polled until it is
+    g.tasks.connect();
+  }
 
   try {
     g.permissions = await gcreg.runtime.Identity.permissions(g);
@@ -498,6 +503,7 @@ export function initWithAbi({
   permissions = [],
   url = DEFAULT_URL,
   credentials,
+  taskEvents = false,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
     name,
@@ -520,6 +526,9 @@ export function initWithAbi({
   register(name, g);
   // initialize runtime RPCs based on Abi
   initialize_functions(name, g);
+  if (taskEvents) {
+    g.tasks.connect();
+  }
 
   fireInitHooks(g);
   return g;
@@ -583,9 +592,9 @@ export interface GreyCat {
    */
   on(ev: 'task:spawn', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
   /**
-   * Emitted on every poll with the fresh snapshot of a tracked task, including
-   * the terminal one. A task is tracked while something `wait`s or `subscribe`s
-   * to it via `greycat.tasks`.
+   * Emitted on every update of a tracked task, from the event stream or a poll,
+   * including the terminal one. A task is tracked while something `wait`s or
+   * `subscribe`s to it via `greycat.tasks`.
    */
   on(ev: 'task:update', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
   /**
@@ -593,13 +602,39 @@ export interface GreyCat {
    * `error` is `null` on success, a `TaskError` otherwise.
    */
   on(ev: 'task:settle', callback: EmitterCallback<TaskSettleEvent>): EmitterDisposable;
+  /**
+   * Emitted once when a request answers 401: the token is already dropped and the
+   * task event stream closed. A burst of failing requests fires it once.
+   * `unauthorizedHandler` is called right after it.
+   */
+  on(ev: 'auth:lost', callback: EmitterCallback<AuthLostEvent>): EmitterDisposable;
+  /**
+   * Emitted after `login` or `logout` completed on this instance, permissions reloaded
+   * and the task event stream restarted or closed.
+   */
+  on(ev: 'auth:changed', callback: EmitterCallback<AuthChangedEvent>): EmitterDisposable;
 }
 
 interface GreyCatEvents {
   'task:spawn': gc.runtime.Task;
   'task:update': gc.runtime.Task;
   'task:settle': TaskSettleEvent;
+  'auth:lost': AuthLostEvent;
+  'auth:changed': AuthChangedEvent;
 }
+
+/** Payload of `auth:lost`: a request answered 401 and the instance dropped its login. */
+export type AuthLostEvent = {
+  status: 401;
+  /** the route that was refused */
+  route: string;
+};
+
+/** Payload of `auth:changed`: `login` or `logout` completed on the instance. */
+export type AuthChangedEvent = {
+  /** `true` after a login, `false` after a logout */
+  loggedIn: boolean;
+};
 
 export class GreyCat extends Emitter<GreyCatEvents> {
   /** This instance name (must be the name registered in `gc.$`) */
@@ -620,8 +655,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   readonly pollFrequency: number;
   /** GreyCat Wasm Module (`undefined` when `init` ran with `wasm: false` or the load failed) */
   readonly module: WebAssembly.Module | undefined;
-  /** used when making authenticated requests */
-  token: string | undefined;
+  #token: string | undefined;
   /** Fetch credentials mode for ABI/RPC/`/files/` requests. When unset: `'omit'`
    *  if a token is set, else `'include'` (cookie session). Set `'omit'` for an
    *  explicit anonymous session so cross-origin wildcard-CORS requests are not
@@ -638,9 +672,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   /** Re-used by the serialize methods to prevent re-allocations */
   private _writer: AbiWriter;
   /**
-   * Task poller for this instance: `wait` for a task to complete or `subscribe`
-   * to its updates. Many tasks share a single batched poll. The instance's
-   * `task:update` / `task:settle` events mirror what it observes.
+   * Task tracker for this instance: `wait` for a task to complete or `subscribe`
+   * to its updates, over the task event stream when open and a single batched
+   * poll otherwise. The instance's `task:update` / `task:settle` events mirror
+   * what it observes.
    */
   readonly tasks: TaskPoller;
   private _fields_map: Map<string, AbiAttribute>;
@@ -669,7 +704,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this.api = api;
     this.abi = abi;
     this.cache = cache;
-    this.token = token;
+    this.#token = token;
     this.permissions = permissions;
     this.module = module;
     this.pollFrequency = pollFrequency;
@@ -688,6 +723,101 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
 
     this.numFmt = numFmt ?? new Intl.NumberFormat(navigator.language, {});
+  }
+
+  /** Sent as `Authorization` on every request; `undefined` for an anonymous or cookie session. */
+  get token(): string | undefined {
+    return this.#token;
+  }
+
+  /**
+   * A new value restarts the task event stream with it, and clearing the value closes the
+   * stream, so no event is delivered for a login the instance no longer holds. The stream
+   * is only touched if it was asked for; a cookie login leaves the token `undefined`, so
+   * call `tasks.reconnect()` yourself after one.
+   */
+  set token(value: string | undefined) {
+    if (value === this.#token) {
+      return;
+    }
+    this.#token = value;
+    this.tasks.reconnect();
+  }
+
+  #lostAt = 0;
+
+  /**
+   * Records that `route` answered 401: the login is gone. The token is dropped, which
+   * closes the task event stream, and `auth:lost` fires once per lost login, so a burst
+   * of failing requests reads as one event; a session without a token (anonymous, or a
+   * cookie) has nothing to drop, so it fires at most once a second. Returns the error to
+   * throw. Public for transports the instance does not run itself, like the upload XHR.
+   */
+  unauthorized(route: string, message = 'unauthorized'): HttpError {
+    this.logger(this.name, 401, route);
+    const hadToken = this.#token !== undefined;
+    this.token = undefined;
+    const now = Date.now();
+    if (hadToken || now - this.#lostAt > 1000) {
+      this.#lostAt = now;
+      this.emit('auth:lost', { status: 401, route });
+      this.unauthorizedHandler?.();
+    }
+    return new HttpError(message, 401);
+  }
+
+  /**
+   * Logs this instance in: a username and password are exchanged for a token through
+   * `runtime::Identity::login`, a token is taken as is. From then on every request
+   * carries it, the permissions are reloaded, the task event stream restarts with the new
+   * login, and `auth:changed` fires. Rejects with the login's `HttpError` and leaves the
+   * instance as it was.
+   */
+  async login(auth: Auth, signal?: AbortSignal): Promise<void> {
+    const token =
+      'token' in auth
+        ? auth.token
+        : await login({ ...auth, url: new URL(this.api), signal, credentials: this.credentials });
+    this.token = token;
+    await this.#reloadPermissions(signal);
+    this.emit('auth:changed', { loggedIn: true });
+  }
+
+  /**
+   * Logs this instance out: `runtime::Identity::logout` ends the server session, the token
+   * is dropped, the permissions cleared, the task event stream closed, and `auth:changed`
+   * fires. The local state is cleared even when the server call fails.
+   */
+  async logout(signal?: AbortSignal): Promise<void> {
+    try {
+      const res = await callJsonRaw('runtime::Identity::logout', [], {
+        url: new URL(this.api),
+        signal,
+        credentials: this.credentials,
+        token: this.#token,
+      });
+      if (!res.ok) {
+        throw new HttpError(`unable to logout (${res.status} ${res.statusText})`, res.status);
+      }
+    } finally {
+      const hadToken = this.#token !== undefined;
+      this.token = undefined;
+      if (!hadToken) {
+        // a cookie session: nothing changed on the instance, but the server side is gone
+        this.tasks.reconnect();
+      }
+      this.permissions = [];
+      this.emit('auth:changed', { loggedIn: false });
+    }
+  }
+
+  async #reloadPermissions(signal?: AbortSignal): Promise<void> {
+    try {
+      this.permissions = await gcreg.runtime.Identity.permissions(this, signal);
+    } catch {
+      // the endpoint itself may be off-limits to this login
+      this.permissions = [];
+    }
   }
 
   clone(name: string): GreyCat {
@@ -709,6 +839,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     );
     greycat.credentials = this.credentials;
     register(name, greycat);
+    if (this.tasks.streamState !== 'idle') {
+      greycat.tasks.connect();
+    }
     return greycat;
   }
 
@@ -716,7 +849,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this._debug_id = id;
   }
 
-  /** Whether the task poller currently has at least one task to poll. */
+  /** Whether the polling fallback currently has at least one task to poll. */
   isPollingTasks(): boolean {
     return this.tasks.isRunning();
   }
@@ -810,11 +943,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.logger(this.name, res.status, url.pathname);
       throw new HttpError(`file '${result_route}' access forbidden`, res.status);
     } else if (res.status === 401) {
-      // unauthorized
-      this.logger(this.name, res.status, url.pathname);
-      this.token = undefined;
-      this.unauthorizedHandler?.();
-      throw new HttpError('unauthorized', res.status);
+      throw this.unauthorized(url.pathname);
     }
     throw new HttpError(`unexpected error while getting file '${result_route}'`, res.status);
   }
@@ -906,13 +1035,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.logger(this.name, res.status, uri, args, value);
       return value as T;
     } else if (res.status === 401) {
-      // unauthorized
-      this.logger(this.name, res.status, uri, args);
-      // reset token
-      this.token = undefined;
-      // call handler if any
-      this.unauthorizedHandler?.();
-      throw new HttpError(`you need to be logged-in to access '${uri}'`, res.status);
+      throw this.unauthorized(uri, `you need to be logged-in to access '${uri}'`);
     } else if (res.status === 403) {
       // forbidden
       this.logger(this.name, res.status, uri, args);
@@ -1090,11 +1213,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.logger(this.name, res.status, url.pathname + url.search);
       throw new HttpError(`file '${filepath}' access forbidden`, res.status);
     } else if (res.status === 401) {
-      // unauthorized
-      this.logger(this.name, res.status, url.pathname + url.search);
-      this.token = undefined;
-      this.unauthorizedHandler?.();
-      throw new HttpError('unauthorized', res.status);
+      throw this.unauthorized(url.pathname + url.search);
     }
     throw new HttpError(`unexpected error while getting file '${filepath}'`, res.status);
   }
@@ -1117,11 +1236,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.logger(this.name, res.status, route);
       throw new HttpError('forbidden', res.status);
     } else if (res.status === 401) {
-      // unauthorized
-      this.logger(this.name, res.status, route);
-      this.token = undefined;
-      this.unauthorizedHandler?.();
-      throw new HttpError('unauthorized', res.status);
+      throw this.unauthorized(route);
     }
     throw new HttpError(`unexpected error while uploading file '${filepath}'`, res.status);
   }
@@ -1143,11 +1258,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.logger(this.name, res.status, route);
       throw new HttpError('forbidden', res.status);
     } else if (res.status === 401) {
-      // unauthorized
-      this.logger(this.name, res.status, route);
-      this.token = undefined;
-      this.unauthorizedHandler?.();
-      throw new HttpError('unauthorized', res.status);
+      throw this.unauthorized(route);
     }
     throw new HttpError(`unexpected error while deleting file '${filepath}'`, res.status);
   }
@@ -1366,6 +1477,8 @@ export type CallJsonRawOptions = {
   signal?: AbortSignal;
   /** `fetch` credentials mode. Default: `'include'`. */
   credentials?: RequestCredentials;
+  /** Sent as `Authorization` when set. */
+  token?: string;
 };
 
 export type CallJsonOptions = CallJsonRawOptions;
@@ -1387,10 +1500,14 @@ export async function callJsonRaw(
 ): Promise<Response> {
   const baseUrl = options.url ?? (await findGreyCat());
   const base = typeof baseUrl === 'string' ? baseUrl.replace(/\/+$/, '') : normalizeUrl(baseUrl);
+  const headers: Record<string, string> = { 'Content-Type': 'application/json', Accept: 'application/json' };
+  if (options.token) {
+    headers['Authorization'] = options.token;
+  }
   return fetch(`${base}/${fn}`, {
     method: 'POST',
     credentials: options.credentials ?? 'include',
-    headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+    headers,
     body: JSON.stringify(args),
     signal: options.signal,
   });
@@ -1470,8 +1587,15 @@ export type LogoutOptions = {
   signal?: AbortSignal;
 };
 
+/**
+ * Logs the default instance out (see `GreyCat.logout`), or, given a `url` or when no
+ * instance exists, ends the server session at that address without touching any instance.
+ */
 export async function logout(options: LogoutOptions = {}): Promise<void> {
   const { url, signal } = options;
+  if (url === undefined && $.default !== undefined) {
+    return $.default.logout(signal);
+  }
   const res = await callJsonRaw('runtime::Identity::logout', [], { url, signal });
   if (!res.ok) {
     throw new HttpError(`unable to logout (${res.status} ${res.statusText})`, res.status);

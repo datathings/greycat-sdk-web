@@ -11,9 +11,9 @@ export type InitHook = (greycat: GreyCat) => void;
 export type InitErrorHook = (err: unknown, ctx: { options: WithoutAbiOptions }) => Promise<never> | void;
 
 export type TaskOptions = {
-  /** Will poll the task at least once every `pollEvery` milliseconds. Defaults to `500` */
+  /** Polling cadence in milliseconds while the task event stream is not open. Defaults to the instance's `pollFrequency` */
   pollEvery?: number;
-  /** Will be called with the current progress of the task at least once every `pollEvery` milliseconds. */
+  /** Called with the task's progress on every update: each report over the event stream, or each poll. */
   onprogress?: (progress: number | null) => void;
 };
 
@@ -125,11 +125,23 @@ export interface Options {
    */
   cache?: Cache;
   /**
-   * The task polling frequency in milliseconds.
+   * Cadence of the task polling fallback in milliseconds, used while the task event
+   * stream is not open (see `taskEvents`).
    *
    * Defaults to `100`
    */
   pollFrequency?: number;
+  /**
+   * Whether to keep a task event stream open (`GET /runtime::Task::events`): tracked
+   * tasks are then updated as the server reports progress and completion, and polling
+   * only serves as the fallback while the stream is not open. Dropped connections
+   * reconnect on their own; a server without the endpoint leaves polling in charge.
+   *
+   * `init` defaults to `true`, `initWithAbi` to `false`. `greycat.tasks.connect()` and
+   * `disconnect()` control it afterwards; a Node process holding a stream does not exit
+   * on its own until `disconnect()`.
+   */
+  taskEvents?: boolean;
   /**
    * Called when a request (from `gc.sdk.call(...)`) returns a status code 401.
    *

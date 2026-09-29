@@ -134,3 +134,15 @@ fn boom() {
 
 @expose
 fn no_result() {}
+
+/// Reports `steps` progress steps, sleeping `step_ms` before each one.
+@expose
+fn slow(steps: int, step_ms: int): int {
+    var pause = duration::new(step_ms, DurationUnit::milliseconds);
+    Task::expected_steps(steps);
+    for (var i = 0; i < steps; i++) {
+        Runtime::sleep(pause);
+        Task::add_steps(1);
+    }
+    return steps;
+}
