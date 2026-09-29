@@ -29,7 +29,9 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
 - `spawnAwait(fqn, args, opts)` is `await(await spawn(...))`.
 
 A task is watched only while one of these holds it. A task spawned and never
-waited on emits nothing.
+waited on reaches the instance only through `task:event`, and only while the
+stream is open: a page listing every running task listens to it and refreshes
+from `runtime::Task::running` while `tasks.transport` is `'poll'`.
 
 ## Errors and events
 
@@ -45,6 +47,7 @@ The instance mirrors the tracker:
 | `task:spawn` | `runtime::Task` | this instance spawned a task |
 | `task:update` | `runtime::Task` | a tracked task has a fresh snapshot, terminal included |
 | `task:settle` | `{ task, error }` | a tracked task left the tracker; `error` is `null` or a `TaskError` |
+| `task:event` | `runtime::Task` | every frame of the event stream, tracked or not: each progress report and the end of every task the login may see; silent while the stream is not open |
 
 ## How updates arrive
 

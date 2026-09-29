@@ -65,7 +65,8 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
 - **Short work is a `call`, anything else is a task.** A `call` runs in the
   request on one of a few req workers and is reaped by the request ttl.
 - **A task is watched only while something waits on it.** `wait`, `subscribe`,
-  `await` and `spawnAwait` track; a task spawned and forgotten emits nothing.
+  `await` and `spawnAwait` track; an untracked task only shows up in
+  `task:event`, and only while the stream is open.
 - **An open task event stream keeps a Node process alive.** End scripts and
   tests with `greycat.tasks.disconnect()`, or init with `taskEvents: false`.
 - **One stream per instance, six connections per origin in a browser over

@@ -327,6 +327,8 @@ export class TaskPoller {
   };
 
   #onStreamTask = (task: gc.runtime.Task): void => {
+    // every frame the server pushes, tracked or not: what a task list needs
+    this.#g.emit('task:event', task);
     const key = TaskPoller.#key(task.task_id);
     const pending = this.#pending.get(key);
     if (pending !== undefined) {

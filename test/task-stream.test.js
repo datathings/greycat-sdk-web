@@ -231,9 +231,13 @@ describe('task stream', () => {
     });
     g = client(server.url);
     await waitFor(() => g?.tasks.streamState === 'open');
+    /** @type {unknown[]} */
+    const events = [];
+    g.on('task:event', (t) => events.push(t.task_id));
     const done = await g.tasks.wait(id);
     assert.equal(done.task_id, id);
     assert.equal(done.status.key, 'ended');
     assert.equal(done.progress, 1);
+    assert.deepEqual(events, [id], 'every frame is also emitted as task:event');
   });
 });

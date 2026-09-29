@@ -603,6 +603,13 @@ export interface GreyCat {
    */
   on(ev: 'task:settle', callback: EmitterCallback<TaskSettleEvent>): EmitterDisposable;
   /**
+   * Emitted for every frame of the task event stream, whether the task is tracked or
+   * not: each progress report and the end of every task this login may see. Nothing is
+   * emitted while the stream is not open; a list that must stay complete polls
+   * `runtime::Task::running` when `tasks.transport` is `'poll'`.
+   */
+  on(ev: 'task:event', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
+  /**
    * Emitted once when a request answers 401: the token is already dropped and the
    * task event stream closed. A burst of failing requests fires it once.
    * `unauthorizedHandler` is called right after it.
@@ -619,6 +626,7 @@ interface GreyCatEvents {
   'task:spawn': gc.runtime.Task;
   'task:update': gc.runtime.Task;
   'task:settle': TaskSettleEvent;
+  'task:event': gc.runtime.Task;
   'auth:lost': AuthLostEvent;
   'auth:changed': AuthChangedEvent;
 }
