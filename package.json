@@ -5,6 +5,7 @@
   "files": [
     "assets",
     "dist",
+    "skills",
     "src"
   ],
   "type": "module",
