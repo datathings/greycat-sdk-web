@@ -140,6 +140,32 @@ export class Table<T = unknown[]> extends GCObject {
    * and end-up as columns of fields, unless the objects are `GCPrimitive`s in which case it creates a
    * table of one column.
    */
+  /** Columns are the attributes of `objTy`, rows the `$fields` of each object. */
+  private static fromObjectsOf<T>(objects: T[], objTy: AbiType, g: GreyCat): gc.core.Table<T> {
+    const ty = g.abi.types[g.abi.core.table];
+    if (objTy.attrs.length === 0) {
+      const table = new ty.ctor(objects) as gc.core.Table<T>;
+      table.headers = ['Value'];
+      table.subheaders = [objTy.name];
+      table._initial_value = objects;
+      return table;
+    }
+    const cols = new globalThis.Array(objTy.attrs.length);
+    for (let c = 0; c < cols.length; c++) {
+      const rows = new globalThis.Array(objects.length);
+      for (let r = 0; r < rows.length; r++) {
+        const o = objects[r] as GCObject;
+        rows[r] = (o.$fields as unknown[])[c];
+      }
+      cols[c] = rows;
+    }
+    const table = new ty.ctor(cols) as gc.core.Table<T>;
+    table.headers = objTy.attrs.map((a) => a.name);
+    table.subheaders = objTy.attrs.map((a) => g.abi.types[a.abi_type].name);
+    table._initial_value = objects;
+    return table;
+  }
+
   static fromObjects<T extends object | null | undefined>(objects: T[], g: GreyCat = $.default): gc.core.Table<T> {
     if (objects.length === 0) {
       const ty = g.abi.types[g.abi.core.table];
@@ -147,30 +173,25 @@ export class Table<T = unknown[]> extends GCObject {
     }
 
     if (objects.$type !== undefined && objects.$type.generic_abi_type !== 0) {
-      const objTy = g.abi.types[objects.$type.g1()];
-      if (objTy.attrs.length === 0) {
-        const ty = g.abi.types[g.abi.core.table];
-        const table = new ty.ctor(objects) as gc.core.Table<T>;
-        table.headers = ['Value'];
-        table.subheaders = [objTy.name];
-        table._initial_value = objects;
-        return table;
-      }
-      const cols = new globalThis.Array(objTy.attrs.length);
-      for (let c = 0; c < cols.length; c++) {
-        const rows = new globalThis.Array(objects.length);
-        for (let r = 0; r < rows.length; r++) {
-          const o = objects[r] as GCObject;
-          rows[r] = (o.$fields as unknown[])[c];
+      return Table.fromObjectsOf(objects, g.abi.types[objects.$type.g1()], g);
+    }
+
+    // An array built by hand or filtered carries no `$type`, but objects of one type still
+    // say what the columns are. A GCObject keeps its attributes in `$fields`, not in
+    // enumerable keys, so the generic branch below would find no column at all.
+    const first = objects[0];
+    if (first instanceof GCObject && !(first instanceof GCPrimitive) && first.$fields !== undefined) {
+      let uniform = true;
+      for (let i = 1; i < objects.length; i++) {
+        const o = objects[i];
+        if (!(o instanceof GCObject) || o.$type !== first.$type) {
+          uniform = false;
+          break;
         }
-        cols[c] = rows;
       }
-      const ty = g.abi.types[g.abi.core.table];
-      const table = new ty.ctor(cols) as gc.core.Table<T>;
-      table.headers = objTy.attrs.map((a) => a.name);
-      table.subheaders = objTy.attrs.map((a) => g.abi.types[a.abi_type].name);
-      table._initial_value = objects;
-      return table;
+      if (uniform) {
+        return Table.fromObjectsOf(objects, first.$type, g);
+      }
     }
 
     let allPrimitives = true;
