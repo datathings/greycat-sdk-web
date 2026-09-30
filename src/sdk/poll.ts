@@ -50,8 +50,13 @@ export class Poll {
     this._delays.clear();
   }
 
+  /**
+   * Whether at least one registration is live. This follows the registrations, not the
+   * timer: the loop only notices an empty set on its next tick, which is one timer
+   * later than the `unregister` that emptied it.
+   */
   isRunning(): boolean {
-    return this._running;
+    return this._delays.size > 0;
   }
 
   private _loop = async () => {
