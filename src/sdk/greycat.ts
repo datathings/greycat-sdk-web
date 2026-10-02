@@ -991,15 +991,28 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param uri the uri of the method to call (eg. `runtime::Identity::current_id`)
    * @param args the arguments of the method to call
    * @param signal an `AbortSignal` to cancel the request on demand
-   * @param task whether or not to call the method as a task, `true` meaning the `'regular'` class (defaults to `false`)
+   * @param task whether or not to call the method as a task, `true` meaning the `'regular'`
+   *             class (defaults to `false`)
    * @param httpMethod the http method to use (defaults to `POST`)
    */
-  async rawCall<T = unknown>(
+  rawCall<T = unknown>(
     uri: string,
     args?: Value[] | ArrayBuffer,
     signal?: AbortSignal,
     task: boolean | TaskClass = false,
     httpMethod: 'POST' | 'GET' = 'POST',
+  ): Promise<T> {
+    return this._rawCall(uri, args, signal, task, httpMethod, false);
+  }
+
+  /** `rawCall`, knowing whether this request is already the retry of a `304`. */
+  private async _rawCall<T>(
+    uri: string,
+    args: Value[] | ArrayBuffer | undefined,
+    signal: AbortSignal | undefined,
+    task: boolean | TaskClass,
+    httpMethod: 'POST' | 'GET',
+    retried: boolean,
   ): Promise<T> {
     const url = `${this.api}/${uri}`;
     const fn = this.abi.fn_by_fqn.get(uri);
@@ -1069,8 +1082,16 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       return value as T;
     } else if (res.status === 304) {
       if (cachedRes === null) {
-        // try again
-        return this.rawCall(uri, args, signal);
+        // the request sent no `If-None-Match`, so there is nothing to revalidate. Retried
+        // once, since something answering 304 every time would otherwise loop forever.
+        if (retried) {
+          this.logger(this.name, res.status, uri, args);
+          throw new HttpError(
+            `calling '${uri}' answered 304 with no cached answer to reuse`,
+            res.status,
+          );
+        }
+        return this._rawCall(uri, args, signal, task, httpMethod, true);
       }
       const value = this.deserializeWithHeader(cachedRes.data);
       this.logger(this.name, res.status, uri, args, value);
