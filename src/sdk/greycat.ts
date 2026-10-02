@@ -612,8 +612,8 @@ export interface GreyCat {
   on(ev: 'task:settle', callback: EmitterCallback<TaskSettleEvent>): EmitterDisposable;
   /**
    * Emitted for every frame of the task event stream, whether the task is tracked or
-   * not: each progress report and the end of every task this login may see. Nothing is
-   * emitted while the stream is not open; a list that must stay complete polls
+   * not: the start, each progress report and the end of every task this login may see.
+   * Nothing is emitted while the stream is not open; a list that must stay complete polls
    * `runtime::Task::running` when `tasks.transport` is `'poll'`.
    */
   on(ev: 'task:event', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;

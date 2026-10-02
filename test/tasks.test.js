@@ -74,6 +74,25 @@ describe('tasks', () => {
       assert.ok(statuses.includes('ended'), `saw ${statuses}`);
     });
 
+    it('reports a task as running before its first progress step', async () => {
+      /** @type {gc.runtime.Task[]} */
+      const events = [];
+      const off = g.on('task:event', (t) => events.push(t));
+      try {
+        const task = await g.spawn('tests::slow', [1, 300]);
+        await waitFor(() => events.some((t) => t.task_id === task.task_id));
+        const first = /** @type {gc.runtime.Task} */ (
+          events.find((t) => t.task_id === task.task_id)
+        );
+        assert.strictEqual(first.status.key, 'running');
+        assert.notStrictEqual(first.start, null);
+        assert.strictEqual(first.progress, null);
+        await g.tasks.wait(task.task_id);
+      } finally {
+        off();
+      }
+    });
+
     it('settles a task that ended before it was tracked', async () => {
       const task = await g.spawn('tests::add', [1, 2]);
       await new Promise((r) => setTimeout(r, 200));

@@ -10,11 +10,16 @@ export type TaskStreamState = 'idle' | 'connecting' | 'open' | 'closed';
 const WATCHDOG_MS = 45_000;
 /** Delays before each reconnect attempt; the last one repeats. */
 const RETRY_DELAYS_MS = [1_000, 5_000, 10_000, 20_000, 30_000];
+/**
+ * The frames that carry a `runtime::Task`. `task-started` is sent once, when the task
+ * leaves the queue and its code starts running, never again on a resume from `await`.
+ */
+const TASK_EVENTS = new Set(['task-started', 'task-progress', 'task-complete']);
 
 export type TaskStreamHandlers = {
   /** The stream is open: events flow from here on. */
   onOpen(): void;
-  /** A `task-progress` or `task-complete` frame, decoded. */
+  /** A `task-started`, `task-progress` or `task-complete` frame, decoded. */
   onTask(task: gc.runtime.Task): void;
   /** The stream dropped, or a connect attempt failed; a retry may be scheduled. */
   onClose(): void;
@@ -168,7 +173,7 @@ export class TaskStream {
       }
       // comments (`: ping`) and unknown fields are ignored
     }
-    if ((event !== 'task-progress' && event !== 'task-complete') || data === '') {
+    if (!TASK_EVENTS.has(event) || data === '') {
       return;
     }
     let task: unknown;
