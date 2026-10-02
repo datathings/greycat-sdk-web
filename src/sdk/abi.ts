@@ -347,6 +347,7 @@ export class Abi {
       const return_type = cursor.read_vu32();
       const flags = cursor.read_u8();
       const return_nullable = (flags & 1) !== 0;
+      const is_reserved = (flags & (1 << 1)) !== 0;
 
       const lib_name = this.symbols[lib];
       const module_name = this.symbols[module];
@@ -376,6 +377,7 @@ export class Abi {
         this.types[return_type],
         return_nullable,
         this.type_by_fqn.get(args_type_name)!,
+        is_reserved,
       );
       this.fn_by_fqn.set(fqn, this.functions[i]);
     }
@@ -943,6 +945,12 @@ export class AbiFunction {
     readonly return_type: AbiType,
     readonly return_type_nullable: boolean,
     readonly args_type: AbiType,
+    /**
+     * A reserved function (eg. `runtime::Task::running`) is meant to be answered by the
+     * server's HTTP thread itself rather than by a task worker, so the SDK always calls it
+     * directly. `GreyCat.spawnAwait` returns its result and `GreyCat.spawn` rejects it.
+     */
+    readonly is_reserved: boolean = false,
   ) {}
 
   /**

@@ -560,6 +560,8 @@ export interface GreyCat {
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
    * @param signal an optional `AbortSignal` to cancel the underlying fetch call
    * @param taskClass the worker class the task runs in (defaults to `'regular'`)
+   *
+   * Rejects for a reserved function (see `AbiFunction.is_reserved`), which is never spawned.
    */
   spawn(
     method: string,
@@ -572,6 +574,9 @@ export interface GreyCat {
    * Spawns a GreyCat task and actively awaits for its completion.
    *
    * *This is equivalent to `gc.sdk.await(await gc.sdk.spawn(...))`*
+   *
+   * A reserved function (see `AbiFunction.is_reserved`) is never spawned. It is called
+   * directly and its result returned.
    *
    * @param method the exposed GreyCat function to spawn, without leading slash
    * (eg. `'runtime::Identity::current_id'`)
@@ -894,6 +899,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     signal?: AbortSignal,
     taskClass: TaskClass = 'regular',
   ): Promise<gc.runtime.Task> {
+    if (this.abi.fn_by_fqn.get(method)?.is_reserved) {
+      return Promise.reject(
+        new Error(`cannot spawn the reserved function '${method}' (use call() instead)`),
+      );
+    }
     return this.rawCall<gc.runtime.Task>(method, args, signal, taskClass);
   }
 
@@ -903,6 +913,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     opts?: SpawnOptions,
     signal?: AbortSignal,
   ): Promise<T> {
+    if (this.abi.fn_by_fqn.get(method)?.is_reserved) {
+      // there is no task to wait for, since the answer already is the result
+      const result = await this.rawCall<T>(method, args, signal);
+      opts?.onprogress?.(1);
+      return result;
+    }
     const task = await this.rawCall<gc.runtime.Task>(method, args, signal, opts?.taskClass ?? 'regular');
     return this.await(task, opts, signal);
   }
@@ -986,11 +1002,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     httpMethod: 'POST' | 'GET' = 'POST',
   ): Promise<T> {
     const url = `${this.api}/${uri}`;
+    const fn = this.abi.fn_by_fqn.get(uri);
+    const debug = this._debug_id !== undefined;
+    // a reserved function is meant to be answered by the HTTP thread itself, so it is always
+    // called directly. Any other debugged call runs as a task, so the debugger can attach to it.
+    const asTask = !fn?.is_reserved && (task !== false || debug);
     let body: ArrayBuffer;
     if (args instanceof ArrayBuffer) {
       body = args;
     } else if (httpMethod === 'POST') {
-      const fn = this.abi.fn_by_fqn.get(uri);
       if (!fn) {
         throw new Error(`function '${uri}' is not registered in the abi`);
       }
@@ -1005,13 +1025,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
-    // a debugged call always runs as a task, so the debugger can attach to it
-    if (task || this._debug_id !== undefined) {
+    if (asTask) {
       // the server refuses any `task` value but a class name or `true`
       headers['task'] = typeof task === 'string' ? task : 'regular';
-    }
-    if (this._debug_id !== undefined) {
-      headers['x-gc-debug'] = `${this._debug_id}`;
+      if (debug) {
+        headers['x-gc-debug'] = `${this._debug_id}`;
+      }
     }
     const key: CacheKey = [uri, body];
     const cachedRes = await this.cache.read(key);
@@ -1037,10 +1056,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         await this.cache.write(key, { etag, data });
       }
       this.logger(this.name, res.status, uri, args, value);
-      if (task) {
+      if (asTask && task !== false) {
         this.emit('task:spawn', value as gc.runtime.Task);
       }
-      if (this._debug_id !== undefined) {
+      if (asTask && debug) {
         if (value instanceof gcreg.runtime.Task) {
           return (value as gc.runtime.Task<T>).result(undefined, $.default);
         } else {
