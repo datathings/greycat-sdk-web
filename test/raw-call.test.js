@@ -37,7 +37,7 @@ async function notModifiedFirst(body, notModified = 1) {
       res.end(body());
     });
   });
-  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  await new Promise((r) => server.listen(0, '127.0.0.1', () => r(undefined)));
   const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
   return {
     url: `http://127.0.0.1:${port}`,
