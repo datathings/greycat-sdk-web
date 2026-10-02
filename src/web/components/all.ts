@@ -22,7 +22,6 @@ import './multi-select-checkbox/register.js';
 import './nav/register.js';
 import './object/register.js';
 import './roles/register.js';
-import './runtime-usage/register.js';
 import './search-input/register.js';
 import './select/register.js';
 import './table/register.js';

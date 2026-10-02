@@ -68,7 +68,7 @@ by the root. Most take their data through a `value` property.
 | tabs, details, dialog, card | `gui-tabs`, `gui-tab`, `gui-panel`, `gui-details`, `gui-dialog`, `gui-card` | tabs built from `gui-tab` / `gui-panel` children on first connect; the last three extend the Shoelace element of the same name |
 | layout, nav | `gui-layout`, `gui-nav` | an app shell with a responsive breakpoint; a navigation tree fed by a `nav.json` |
 | auth | `gui-auth-gate`, `gui-sign-in`, `gui-sign-in-button` | a landing page handling the OAuth callback, the signed-in and the anonymous states over raw JSON calls, so it works before `init`; the sign-in form with OpenID provider discovery |
-| admin | `gui-identities`, `gui-roles`, `gui-role-permissions`, `gui-files`, `gui-logs`, `gui-runtime-usage`, `gui-task` | user, role and permission management; a `/files/` browser at a `path`; the server log viewer; runtime usage over a time window; one task's state |
+| admin | `gui-identities`, `gui-roles`, `gui-role-permissions`, `gui-files`, `gui-logs`, `gui-task` | user, role and permission management; a `/files/` browser at a `path`; the server log viewer; one task's state |
 | factory | `gui-factory`, `gui-input-factory` | see below |
 
 ## Value display and the factory

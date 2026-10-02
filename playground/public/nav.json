@@ -358,9 +358,5 @@
   {
     "label": "List",
     "route": "pages/list/"
-  },
-  {
-    "label": "Usage",
-    "route": "pages/usage/"
   }
 ]
