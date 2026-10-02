@@ -76,4 +76,22 @@ describe('call (GCB)', () => {
   it('boom() throws', async () => {
     await assert.rejects(g.call('tests::boom', []), /boom/);
   });
+
+  it('an error answered without a body throws an HttpError, not an ABI mismatch', async () => {
+    let mismatch = false;
+    const handler = g.abiMismatchHandler;
+    g.abiMismatchHandler = () => (mismatch = true);
+    try {
+      // the server answers 400 with an empty body to a `task` header naming no class
+      const bogus = /** @type {any} */ ('bogus');
+      await assert.rejects(g.rawCall('tests::add', [1, 2], undefined, bogus), (err) => {
+        assert.ok(err instanceof gc.sdk.HttpError);
+        assert.strictEqual(err.status, 400);
+        return true;
+      });
+    } finally {
+      g.abiMismatchHandler = handler;
+    }
+    assert.strictEqual(mismatch, false);
+  });
 });

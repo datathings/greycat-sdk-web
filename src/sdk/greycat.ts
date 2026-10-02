@@ -1074,6 +1074,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       throw new HttpError('ABI mismatch error', res.status);
     }
     const data = await res.arrayBuffer();
+    if (data.byteLength === 0) {
+      // decoding an empty body would fail on the ABI headers and look like an ABI mismatch
+      this.logger(this.name, res.status, uri, args);
+      throw new HttpError(`calling '${uri}' failed`, res.status);
+    }
     const value = this.deserializeWithHeader(data);
     const err = value as gc.core.Error | null;
     this.logger(this.name, res.status, uri, args, value);
