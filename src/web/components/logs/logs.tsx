@@ -4,44 +4,68 @@ import { GuiElement } from '../element.js';
 import style from './logs.css?inline';
 
 const LOG_LEVELS = ['error', 'warn', 'info', 'perf', 'trace'] as const;
-const HEADERS = ['Level', 'Time', 'User', 'Task', 'Job', 'Tag', 'Data'] as const;
+const HEADERS = ['Level', 'Time', 'User', 'Task', 'Job', 'Source', 'Data'] as const;
 const COL_COUNT = HEADERS.length;
-const SIMPLE_COLS = COL_COUNT - 1;
 const BUFFER_ROWS = 5;
 const MIN_COL_WIDTH = 24;
 
+/** One record of the GreyCat log stream, a `runtime::Log` written as a JSON line. */
+type LogRecord = {
+  level?: string;
+  time?: string;
+  user_id?: number | null;
+  task_id?: number | null;
+  job_id?: number | null;
+  src?: string | null;
+  data?: unknown;
+};
+
 /**
- * Custom CSV parser for GreyCat Logs
+ * Converts an ISO-8601 time to epoch microseconds, keeping the microseconds that
+ * `Date.parse` drops. Returns `null` when the string is not a time.
+ */
+function isoToMicros(iso: string): number | null {
+  const ms = Date.parse(iso);
+  if (isNaN(ms)) return null;
+  const fraction = /\.(\d+)/.exec(iso)?.[1] ?? '';
+  return ms * 1000 + Number(fraction.padEnd(6, '0').slice(3, 6));
+}
+
+function cell(value: unknown): string {
+  return value === null || value === undefined ? '' : String(value);
+}
+
+/**
+ * Parses one line of the log stream into the cells of a row, in `HEADERS` order.
  *
- * Right now logs have 7 columns, the last could potentially contain commas
- * so we only look for the 6 first columns and then take the rest of the line until '\n'
+ * The time cell holds epoch microseconds so it sorts as a number and prints in the
+ * instance's time zone. `data` is kept as JSON unless it is a plain string. A line
+ * that is not JSON ends up whole in the data cell.
  */
 function parseLine(line: string): string[] {
-  const cols: string[] = [];
-  let start = 0;
-  for (let c = 0; c < SIMPLE_COLS; c++) {
-    const idx = line.indexOf(',', start);
-    if (idx === -1) {
-      cols.push(line.substring(start));
-      start = line.length;
-      break;
-    }
-    cols.push(line.substring(start, idx));
-    start = idx + 1;
+  let rec: LogRecord;
+  try {
+    rec = JSON.parse(line) as LogRecord;
+  } catch {
+    return ['', '', '', '', '', '', line];
   }
-  let remainder = start < line.length ? line.substring(start) : '';
-  if (remainder.startsWith(',')) {
-    remainder = remainder.substring(1);
-  }
-  cols.push(remainder);
-  while (cols.length < COL_COUNT) cols.push('');
-  return cols;
+  const time = rec.time ? (isoToMicros(rec.time) ?? rec.time) : '';
+  const data = typeof rec.data === 'string' ? rec.data : rec.data == null ? '' : JSON.stringify(rec.data);
+  return [
+    cell(rec.level),
+    cell(time),
+    cell(rec.user_id),
+    cell(rec.task_id),
+    cell(rec.job_id),
+    cell(rec.src),
+    data,
+  ];
 }
 
 export class GuiLogs extends GuiElement {
   static override styles = [css(style)];
 
-  private _filepath = 'root/log.csv';
+  private _filepath = 'root/streams/log.ndjson';
   private _chunkSize = 64 * 1024;
   private _greycat: gc.sdk.GreyCat = gc.$.default;
 
@@ -303,7 +327,8 @@ export class GuiLogs extends GuiElement {
     const lower = this._textFilter.toLowerCase();
     for (let i = 0; i < this._allRows.length; i++) {
       const row = this._allRows[i];
-      if (!this._levelFilter.has(row[0])) continue;
+      // a line that did not parse has no level and is never filtered out by one
+      if (row[0] !== '' && !this._levelFilter.has(row[0])) continue;
       if (lower.length > 0) {
         let match = false;
         for (let c = 0; c < row.length; c++) {
