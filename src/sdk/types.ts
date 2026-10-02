@@ -17,6 +17,20 @@ export type TaskOptions = {
   onprogress?: (progress: number | null) => void;
 };
 
+/**
+ * The worker class a task runs in, sent as the value of the `task` header.
+ *
+ * - `small`: short calls, served by the workers kept for quick answers
+ * - `regular`: the default class
+ * - `large`: heavy jobs, run by fewer workers with a larger object cache each
+ */
+export type TaskClass = gc.runtime.TaskClass.Field;
+
+export type SpawnOptions = TaskOptions & {
+  /** The worker class the task runs in. Defaults to `'regular'` */
+  taskClass?: TaskClass;
+};
+
 type ExtractValues<T> = T[keyof T];
 
 // prettier-ignore

@@ -10,6 +10,8 @@ import {
   type Cache,
   type CacheKey,
   type TaskOptions,
+  type TaskClass,
+  type SpawnOptions,
   type WithoutAbiOptions,
   type WithAbiOptions,
   type Auth,
@@ -557,8 +559,14 @@ export interface GreyCat {
    *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
    * @param signal an optional `AbortSignal` to cancel the underlying fetch call
+   * @param taskClass the worker class the task runs in (defaults to `'regular'`)
    */
-  spawn(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<gc.runtime.Task>;
+  spawn(
+    method: string,
+    args?: Value[] | ArrayBuffer,
+    signal?: AbortSignal,
+    taskClass?: TaskClass,
+  ): Promise<gc.runtime.Task>;
 
   /**
    * Spawns a GreyCat task and actively awaits for its completion.
@@ -570,13 +578,13 @@ export interface GreyCat {
    * @param args the function's arguments to send along.
    *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
-   * @param opts configuration options for the wait
+   * @param opts the worker class of the task and configuration options for the wait
    * @param signal an optional `AbortSignal` to cancel the underlying fetch call
    */
   spawnAwait<T = unknown>(
     method: string,
     args?: Value[] | ArrayBuffer,
-    opts?: TaskOptions,
+    opts?: SpawnOptions,
     signal?: AbortSignal,
   ): Promise<T>;
 
@@ -880,17 +888,22 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.rawCall(method, args, signal, false);
   }
 
-  spawn(method: string, args?: Value[] | ArrayBuffer, signal?: AbortSignal): Promise<gc.runtime.Task> {
-    return this.rawCall<gc.runtime.Task>(method, args, signal, true);
+  spawn(
+    method: string,
+    args?: Value[] | ArrayBuffer,
+    signal?: AbortSignal,
+    taskClass: TaskClass = 'regular',
+  ): Promise<gc.runtime.Task> {
+    return this.rawCall<gc.runtime.Task>(method, args, signal, taskClass);
   }
 
   async spawnAwait<T = unknown>(
     method: string,
     args?: Value[] | ArrayBuffer,
-    opts?: TaskOptions,
+    opts?: SpawnOptions,
     signal?: AbortSignal,
   ): Promise<T> {
-    const task = await this.rawCall<gc.runtime.Task>(method, args, signal, true);
+    const task = await this.rawCall<gc.runtime.Task>(method, args, signal, opts?.taskClass ?? 'regular');
     return this.await(task, opts, signal);
   }
 
@@ -962,14 +975,14 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param uri the uri of the method to call (eg. `runtime::Identity::current_id`)
    * @param args the arguments of the method to call
    * @param signal an `AbortSignal` to cancel the request on demand
-   * @param task whether or not to call the method as a task (defaults to `false`)
+   * @param task whether or not to call the method as a task, `true` meaning the `'regular'` class (defaults to `false`)
    * @param httpMethod the http method to use (defaults to `POST`)
    */
   async rawCall<T = unknown>(
     uri: string,
     args?: Value[] | ArrayBuffer,
     signal?: AbortSignal,
-    task = false,
+    task: boolean | TaskClass = false,
     httpMethod: 'POST' | 'GET' = 'POST',
   ): Promise<T> {
     const url = `${this.api}/${uri}`;
@@ -992,11 +1005,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
-    if (task) {
-      headers['task'] = '';
+    // a debugged call always runs as a task, so the debugger can attach to it
+    if (task || this._debug_id !== undefined) {
+      // the server refuses any `task` value but a class name or `true`
+      headers['task'] = typeof task === 'string' ? task : 'regular';
     }
     if (this._debug_id !== undefined) {
-      headers['task'] = '';
       headers['x-gc-debug'] = `${this._debug_id}`;
     }
     const key: CacheKey = [uri, body];

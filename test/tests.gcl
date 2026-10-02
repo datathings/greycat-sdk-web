@@ -146,3 +146,9 @@ fn slow(steps: int, step_ms: int): int {
     }
     return steps;
 }
+
+/// The worker class the calling task runs in.
+@expose
+fn task_class(): TaskClass {
+    return Task::task_class();
+}
