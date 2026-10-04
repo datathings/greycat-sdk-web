@@ -109,13 +109,13 @@ describe('tasks', () => {
       });
     });
 
-    it('runs a spawned task in the regular class by default', async () => {
+    it('runs a spawned task in the medium class by default', async () => {
       const cls = /** @type {gc.runtime.TaskClass} */ (await g.spawnAwait('tests::task_class'));
-      assert.strictEqual(cls.key, 'regular');
+      assert.strictEqual(cls.key, 'medium');
     });
 
     it('runs a spawned task in the class it asks for', async () => {
-      for (const taskClass of /** @type {const} */ (['small', 'regular', 'large'])) {
+      for (const taskClass of /** @type {const} */ (['small', 'medium', 'large'])) {
         const cls = /** @type {gc.runtime.TaskClass} */ (
           await g.spawnAwait('tests::task_class', [], { taskClass })
         );

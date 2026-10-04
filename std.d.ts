@@ -2663,11 +2663,11 @@ declare namespace gc {
       top_in: globalThis.Array<gc.runtime.HostPerfUser>;
       top_files: globalThis.Array<gc.runtime.HostPerfUser>;
       small: gc.runtime.HostPerfClass;
-      regular: gc.runtime.HostPerfClass;
+      medium: gc.runtime.HostPerfClass;
       large: gc.runtime.HostPerfClass;
       zones: gc.runtime.HostPerfZones;
-      constructor(period: gc.core.duration, cores: number | bigint, load: number, cpu_user: gc.core.duration, cpu_system: gc.core.duration, os_memory_total: number | bigint, os_memory_used: number | bigint, process_resident: number | bigint, process_virtual: number | bigint, process_shared: number | bigint, malloc_total: number | bigint, memory_drift: number | bigint, io_read: number | bigint, io_write: number | bigint, store_read: number | bigint, store_write: number | bigint, disk_free: number | bigint, disk_meta: number | bigint, tasks_live: number | bigint, http_connections: number | bigint, sse_subscribers: number | bigint, http_bytes_in: number | bigint, http_bytes_out: number | bigint, files_served: number | bigint, files_pushed: number | bigint, http_max_in: number | bigint, http_max_out: number | bigint, http_max_file: number | bigint, top_out: globalThis.Array<gc.runtime.HostPerfUser>, top_in: globalThis.Array<gc.runtime.HostPerfUser>, top_files: globalThis.Array<gc.runtime.HostPerfUser>, small: gc.runtime.HostPerfClass, regular: gc.runtime.HostPerfClass, large: gc.runtime.HostPerfClass, zones: gc.runtime.HostPerfZones);
-      static createFrom(fields: {period: gc.core.duration, cores: number | bigint, load: number, cpu_user: gc.core.duration, cpu_system: gc.core.duration, os_memory_total: number | bigint, os_memory_used: number | bigint, process_resident: number | bigint, process_virtual: number | bigint, process_shared: number | bigint, malloc_total: number | bigint, memory_drift: number | bigint, io_read: number | bigint, io_write: number | bigint, store_read: number | bigint, store_write: number | bigint, disk_free: number | bigint, disk_meta: number | bigint, tasks_live: number | bigint, http_connections: number | bigint, sse_subscribers: number | bigint, http_bytes_in: number | bigint, http_bytes_out: number | bigint, files_served: number | bigint, files_pushed: number | bigint, http_max_in: number | bigint, http_max_out: number | bigint, http_max_file: number | bigint, top_out: globalThis.Array<gc.runtime.HostPerfUser>, top_in: globalThis.Array<gc.runtime.HostPerfUser>, top_files: globalThis.Array<gc.runtime.HostPerfUser>, small: gc.runtime.HostPerfClass, regular: gc.runtime.HostPerfClass, large: gc.runtime.HostPerfClass, zones: gc.runtime.HostPerfZones}): HostPerf;
+      constructor(period: gc.core.duration, cores: number | bigint, load: number, cpu_user: gc.core.duration, cpu_system: gc.core.duration, os_memory_total: number | bigint, os_memory_used: number | bigint, process_resident: number | bigint, process_virtual: number | bigint, process_shared: number | bigint, malloc_total: number | bigint, memory_drift: number | bigint, io_read: number | bigint, io_write: number | bigint, store_read: number | bigint, store_write: number | bigint, disk_free: number | bigint, disk_meta: number | bigint, tasks_live: number | bigint, http_connections: number | bigint, sse_subscribers: number | bigint, http_bytes_in: number | bigint, http_bytes_out: number | bigint, files_served: number | bigint, files_pushed: number | bigint, http_max_in: number | bigint, http_max_out: number | bigint, http_max_file: number | bigint, top_out: globalThis.Array<gc.runtime.HostPerfUser>, top_in: globalThis.Array<gc.runtime.HostPerfUser>, top_files: globalThis.Array<gc.runtime.HostPerfUser>, small: gc.runtime.HostPerfClass, medium: gc.runtime.HostPerfClass, large: gc.runtime.HostPerfClass, zones: gc.runtime.HostPerfZones);
+      static createFrom(fields: {period: gc.core.duration, cores: number | bigint, load: number, cpu_user: gc.core.duration, cpu_system: gc.core.duration, os_memory_total: number | bigint, os_memory_used: number | bigint, process_resident: number | bigint, process_virtual: number | bigint, process_shared: number | bigint, malloc_total: number | bigint, memory_drift: number | bigint, io_read: number | bigint, io_write: number | bigint, store_read: number | bigint, store_write: number | bigint, disk_free: number | bigint, disk_meta: number | bigint, tasks_live: number | bigint, http_connections: number | bigint, sse_subscribers: number | bigint, http_bytes_in: number | bigint, http_bytes_out: number | bigint, files_served: number | bigint, files_pushed: number | bigint, http_max_in: number | bigint, http_max_out: number | bigint, http_max_file: number | bigint, top_out: globalThis.Array<gc.runtime.HostPerfUser>, top_in: globalThis.Array<gc.runtime.HostPerfUser>, top_files: globalThis.Array<gc.runtime.HostPerfUser>, small: gc.runtime.HostPerfClass, medium: gc.runtime.HostPerfClass, large: gc.runtime.HostPerfClass, zones: gc.runtime.HostPerfZones}): HostPerf;
     }
     namespace HostPerf {
       interface $Fields {
@@ -2703,7 +2703,7 @@ declare namespace gc {
         top_in: 29;
         top_files: 30;
         small: 31;
-        regular: 32;
+        medium: 32;
         large: 33;
         zones: 34;
       }
@@ -3807,11 +3807,11 @@ declare namespace gc {
       key: TaskClass.Field;
       constructor(type: gc.sdk.AbiType, offset: number, key: TaskClass.Field);
       static small: TaskClass;
-      static regular: TaskClass;
+      static medium: TaskClass;
       static large: TaskClass;
     }
     namespace TaskClass  {
-      type Field = "small"|"regular"|"large";
+      type Field = "small"|"medium"|"large";
     }
 
     class Identity$all$args extends gc.sdk.GCObject {
@@ -4033,11 +4033,11 @@ declare namespace gc {
       mem_total: number | bigint;
       mem_workers: number | bigint;
       small: gc.runtime.RuntimeInfoClass;
-      regular: gc.runtime.RuntimeInfoClass;
+      medium: gc.runtime.RuntimeInfoClass;
       large: gc.runtime.RuntimeInfoClass;
       disk_data_bytes: number | bigint;
-      constructor(version: string, program_version: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, mem_total: number | bigint, mem_workers: number | bigint, small: gc.runtime.RuntimeInfoClass, regular: gc.runtime.RuntimeInfoClass, large: gc.runtime.RuntimeInfoClass, disk_data_bytes: number | bigint);
-      static createFrom(fields: {version: string, program_version?: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, mem_total: number | bigint, mem_workers: number | bigint, small: gc.runtime.RuntimeInfoClass, regular: gc.runtime.RuntimeInfoClass, large: gc.runtime.RuntimeInfoClass, disk_data_bytes: number | bigint}): RuntimeInfo;
+      constructor(version: string, program_version: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, mem_total: number | bigint, mem_workers: number | bigint, small: gc.runtime.RuntimeInfoClass, medium: gc.runtime.RuntimeInfoClass, large: gc.runtime.RuntimeInfoClass, disk_data_bytes: number | bigint);
+      static createFrom(fields: {version: string, program_version?: string | null, arch: string, timezone: gc.core.TimeZone, license: gc.runtime.License, io_threads: number | bigint, mem_total: number | bigint, mem_workers: number | bigint, small: gc.runtime.RuntimeInfoClass, medium: gc.runtime.RuntimeInfoClass, large: gc.runtime.RuntimeInfoClass, disk_data_bytes: number | bigint}): RuntimeInfo;
     }
     namespace RuntimeInfo {
       interface $Fields {
@@ -4050,7 +4050,7 @@ declare namespace gc {
         mem_total: 6;
         mem_workers: 7;
         small: 8;
-        regular: 9;
+        medium: 9;
         large: 10;
         disk_data_bytes: 11;
       }

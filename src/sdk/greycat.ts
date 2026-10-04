@@ -559,7 +559,7 @@ export interface GreyCat {
    *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
    * @param signal an optional `AbortSignal` to cancel the underlying fetch call
-   * @param taskClass the worker class the task runs in (defaults to `'regular'`)
+   * @param taskClass the worker class the task runs in (defaults to `'medium'`)
    *
    * Rejects for a reserved function (see `AbiFunction.is_reserved`), which is never spawned.
    */
@@ -897,7 +897,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     method: string,
     args?: Value[] | ArrayBuffer,
     signal?: AbortSignal,
-    taskClass: TaskClass = 'regular',
+    taskClass: TaskClass = 'medium',
   ): Promise<gc.runtime.Task> {
     if (this.abi.fn_by_fqn.get(method)?.is_reserved) {
       return Promise.reject(
@@ -919,7 +919,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       opts?.onprogress?.(1);
       return result;
     }
-    const task = await this.rawCall<gc.runtime.Task>(method, args, signal, opts?.taskClass ?? 'regular');
+    const task = await this.rawCall<gc.runtime.Task>(method, args, signal, opts?.taskClass ?? 'medium');
     return this.await(task, opts, signal);
   }
 
@@ -991,7 +991,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param uri the uri of the method to call (eg. `runtime::Identity::current_id`)
    * @param args the arguments of the method to call
    * @param signal an `AbortSignal` to cancel the request on demand
-   * @param task whether or not to call the method as a task, `true` meaning the `'regular'`
+   * @param task whether or not to call the method as a task, `true` meaning the `'medium'`
    *             class (defaults to `false`)
    * @param httpMethod the http method to use (defaults to `POST`)
    */
@@ -1040,7 +1040,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
     if (asTask) {
       // the server refuses any `task` value but a class name or `true`
-      headers['task'] = typeof task === 'string' ? task : 'regular';
+      headers['task'] = typeof task === 'string' ? task : 'medium';
       if (debug) {
         headers['x-gc-debug'] = `${this._debug_id}`;
       }
