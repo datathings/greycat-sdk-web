@@ -561,7 +561,8 @@ export interface GreyCat {
    * @param signal an optional `AbortSignal` to cancel the underlying fetch call
    * @param taskClass the worker class the task runs in (defaults to `'medium'`)
    *
-   * Rejects for a reserved function (see `AbiFunction.is_reserved`), which is never spawned.
+   * Rejects when the server cannot spawn `method` as a task (it answers such a call with the
+   * value directly, marked with the `task: none` response header). The function did run then.
    */
   spawn(
     method: string,
@@ -575,8 +576,8 @@ export interface GreyCat {
    *
    * *This is equivalent to `gc.sdk.await(await gc.sdk.spawn(...))`*
    *
-   * A reserved function (see `AbiFunction.is_reserved`) is never spawned. It is called
-   * directly and its result returned.
+   * When the server cannot spawn `method` as a task, it answers with the value directly,
+   * marked with the `task: none` response header. That value is returned as is.
    *
    * @param method the exposed GreyCat function to spawn, without leading slash
    * (eg. `'runtime::Identity::current_id'`)
@@ -634,6 +635,9 @@ export interface GreyCat {
    */
   on(ev: 'auth:changed', callback: EmitterCallback<AuthChangedEvent>): EmitterDisposable;
 }
+
+/** The value a call answered with, and whether the call was spawned (the value then is the `Task`). */
+type RawAnswer<T> = { value: T; spawned: boolean };
 
 interface GreyCatEvents {
   'task:spawn': gc.runtime.Task;
@@ -893,18 +897,17 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.rawCall(method, args, signal, false);
   }
 
-  spawn(
+  async spawn(
     method: string,
     args?: Value[] | ArrayBuffer,
     signal?: AbortSignal,
     taskClass: TaskClass = 'medium',
   ): Promise<gc.runtime.Task> {
-    if (this.abi.fn_by_fqn.get(method)?.is_reserved) {
-      return Promise.reject(
-        new Error(`cannot spawn the reserved function '${method}' (use call() instead)`),
-      );
+    const answer = await this._rawCall<gc.runtime.Task>(method, args, signal, taskClass, 'POST', false);
+    if (!answer.spawned) {
+      throw new Error(`'${method}' cannot be spawned, the server answered with its value (use call() instead)`);
     }
-    return this.rawCall<gc.runtime.Task>(method, args, signal, taskClass);
+    return answer.value;
   }
 
   async spawnAwait<T = unknown>(
@@ -913,14 +916,13 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     opts?: SpawnOptions,
     signal?: AbortSignal,
   ): Promise<T> {
-    if (this.abi.fn_by_fqn.get(method)?.is_reserved) {
+    const answer = await this._rawCall<unknown>(method, args, signal, opts?.taskClass ?? 'medium', 'POST', false);
+    if (!answer.spawned) {
       // there is no task to wait for, since the answer already is the result
-      const result = await this.rawCall<T>(method, args, signal);
       opts?.onprogress?.(1);
-      return result;
+      return answer.value as T;
     }
-    const task = await this.rawCall<gc.runtime.Task>(method, args, signal, opts?.taskClass ?? 'medium');
-    return this.await(task, opts, signal);
+    return this.await(answer.value as gc.runtime.Task<T>, opts, signal);
   }
 
   /**
@@ -992,20 +994,24 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * @param args the arguments of the method to call
    * @param signal an `AbortSignal` to cancel the request on demand
    * @param task whether or not to call the method as a task, `true` meaning the `'medium'`
-   *             class (defaults to `false`)
+   *             class (defaults to `false`). A function the server cannot spawn is answered
+   *             with its value even then.
    * @param httpMethod the http method to use (defaults to `POST`)
    */
-  rawCall<T = unknown>(
+  async rawCall<T = unknown>(
     uri: string,
     args?: Value[] | ArrayBuffer,
     signal?: AbortSignal,
     task: boolean | TaskClass = false,
     httpMethod: 'POST' | 'GET' = 'POST',
   ): Promise<T> {
-    return this._rawCall(uri, args, signal, task, httpMethod, false);
+    return (await this._rawCall<T>(uri, args, signal, task, httpMethod, false)).value;
   }
 
-  /** `rawCall`, knowing whether this request is already the retry of a `304`. */
+  /**
+   * `rawCall`, knowing whether this request is already the retry of a `304`, and telling
+   * whether the call was spawned as a task.
+   */
   private async _rawCall<T>(
     uri: string,
     args: Value[] | ArrayBuffer | undefined,
@@ -1013,13 +1019,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     task: boolean | TaskClass,
     httpMethod: 'POST' | 'GET',
     retried: boolean,
-  ): Promise<T> {
+  ): Promise<RawAnswer<T>> {
     const url = `${this.api}/${uri}`;
     const fn = this.abi.fn_by_fqn.get(uri);
     const debug = this._debug_id !== undefined;
-    // a reserved function is meant to be answered by the HTTP thread itself, so it is always
-    // called directly. Any other debugged call runs as a task, so the debugger can attach to it.
-    const asTask = !fn?.is_reserved && (task !== false || debug);
+    // a debugged call runs as a task, so the debugger can attach to it
+    const asTask = task !== false || debug;
     let body: ArrayBuffer;
     if (args instanceof ArrayBuffer) {
       body = args;
@@ -1058,10 +1063,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
     init.credentials = this.credentials ?? (this.token ? 'omit' : 'include');
     const res = await fetch(url, init);
+    // a function the server cannot spawn is answered with its value, marked `task: none`
+    const spawned = asTask && res.headers.get('task') !== 'none';
     if (res.status >= 200 && res.status < 300) {
       const data = await res.arrayBuffer();
       if (data.byteLength === 0) {
-        return null as T;
+        return { value: null as T, spawned };
       }
       const value = this.deserializeWithHeader(data);
       const etag = res.headers.get('etag');
@@ -1069,33 +1076,31 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         await this.cache.write(key, { etag, data });
       }
       this.logger(this.name, res.status, uri, args, value);
-      if (asTask && task !== false) {
+      if (spawned && task !== false) {
         this.emit('task:spawn', value as gc.runtime.Task);
       }
-      if (asTask && debug) {
+      if (spawned && debug) {
         if (value instanceof gcreg.runtime.Task) {
-          return (value as gc.runtime.Task<T>).result(undefined, $.default);
+          // the answer is the result of the task, not the task to wait for
+          return { value: await (value as gc.runtime.Task<T>).result(undefined, $.default), spawned: false };
         } else {
           throw new Error(`expecting a core.Task response when debugId is set`);
         }
       }
-      return value as T;
+      return { value: value as T, spawned };
     } else if (res.status === 304) {
       if (cachedRes === null) {
         // the request sent no `If-None-Match`, so there is nothing to revalidate. Retried
         // once, since something answering 304 every time would otherwise loop forever.
         if (retried) {
           this.logger(this.name, res.status, uri, args);
-          throw new HttpError(
-            `calling '${uri}' answered 304 with no cached answer to reuse`,
-            res.status,
-          );
+          throw new HttpError(`calling '${uri}' answered 304 with no cached answer to reuse`, res.status);
         }
         return this._rawCall(uri, args, signal, task, httpMethod, true);
       }
       const value = this.deserializeWithHeader(cachedRes.data);
       this.logger(this.name, res.status, uri, args, value);
-      return value as T;
+      return { value: value as T, spawned };
     } else if (res.status === 401) {
       throw this.unauthorized(uri, `you need to be logged-in to access '${uri}'`);
     } else if (res.status === 403) {

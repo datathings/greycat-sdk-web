@@ -31,9 +31,22 @@ workers and is cut by the request ttl. Anything slow, anything that reports
 progress, anything the caller may want to cancel is a task; see
 [tasks.md](tasks.md).
 
+A task runs in a worker class: `'small'`, `'medium'` (the default) or
+`'large'`. Pick it with `greycat.spawn(fqn, args, signal, 'large')` or
+`greycat.spawnAwait(fqn, args, { taskClass: 'large' })`.
+
+Some exposed functions are never spawned, whatever the caller asks
+(`runtime::Task::running`, `Task::history`, `Task::cancel`, `Task::is_running`,
+`Runtime::abi`, the `Debug` functions). The server answers a task call to one
+of them with its value, as it would a `call`, and adds the response header
+`task: none`. `spawnAwait` then returns that value, and `spawn` rejects
+because there is no `Task` to give back. The function has run all the same,
+so call these with `call`.
+
 `greycat.rawCall(fqn, args, signal, task, method)` is the transport under all
-three: `task: true` adds the `task` header, `method: 'GET'` issues a GET with no
-body, for a function that takes no arguments.
+three: `task: true` (the `'medium'` class) or a class name adds the `task`
+header, `method: 'GET'` issues a GET with no body, for a function that takes no
+arguments. A `task: none` answer is returned as the value.
 
 ## Errors
 

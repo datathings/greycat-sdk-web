@@ -81,9 +81,7 @@ describe('tasks', () => {
       try {
         const task = await g.spawn('tests::slow', [1, 300]);
         await waitFor(() => events.some((t) => t.task_id === task.task_id));
-        const first = /** @type {gc.runtime.Task} */ (
-          events.find((t) => t.task_id === task.task_id)
-        );
+        const first = /** @type {gc.runtime.Task} */ (events.find((t) => t.task_id === task.task_id));
         assert.strictEqual(first.status.key, 'running');
         assert.notStrictEqual(first.start, null);
         assert.strictEqual(first.progress, null);
@@ -124,6 +122,51 @@ describe('tasks', () => {
     });
   });
 
+  // the server answers a task call to such a function (eg. `runtime::Task::running`) with
+  // its value, marked with the `task: none` response header
+  describe('a function the server cannot spawn', () => {
+    /** @type {gc.sdk.GreyCat} */
+    let g;
+    /** @type {gc.runtime.Task[]} */
+    let spawned;
+    /** @type {() => void} */
+    let off;
+
+    before(async () => {
+      g = await gc.sdk.init({ name: 'unspawnable', url: new URL(SERVER_URL), taskEvents: false });
+      spawned = [];
+      off = g.on('task:spawn', (t) => spawned.push(t));
+    });
+
+    after(() => off());
+
+    it('is answered with its value to spawnAwait', async () => {
+      /** @type {(number | null)[]} */
+      const progress = [];
+      const running = await g.spawnAwait('runtime::Task::running', [], {
+        onprogress: (p) => progress.push(p),
+      });
+      assert.ok(Array.isArray(running));
+      assert.deepStrictEqual(progress, [1]);
+    });
+
+    it('is refused by spawn', async () => {
+      await assert.rejects(
+        g.spawn('runtime::Task::running', []),
+        /'runtime::Task::running' cannot be spawned/,
+      );
+    });
+
+    it('is answered with its value to rawCall, even when asked for a task', async () => {
+      const running = await g.rawCall('runtime::Task::running', [], undefined, 'large');
+      assert.ok(Array.isArray(running));
+    });
+
+    it('never emits task:spawn', () => {
+      assert.deepStrictEqual(spawned, []);
+    });
+  });
+
   describe('over the polling fallback', () => {
     /** @type {gc.sdk.GreyCat} */
     let g;
@@ -152,7 +195,11 @@ describe('tasks', () => {
       assert.strictEqual(polled, true, 'the poll fallback ran');
       const reported = progress.filter((p) => p !== null);
       assert.ok(reported.length > 0, 'saw some progress');
-      assert.deepStrictEqual(reported, [...reported].sort((a, b) => a - b), 'monotonic');
+      assert.deepStrictEqual(
+        reported,
+        [...reported].sort((a, b) => a - b),
+        'monotonic',
+      );
       assert.strictEqual(g.isPollingTasks(), false, 'polling stops once settled');
     });
   });
