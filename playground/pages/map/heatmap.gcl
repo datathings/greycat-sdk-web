@@ -89,7 +89,7 @@ private fn import_data() {
 
     var now = time::now().toDate(TimeZone::UTC);
     var filepath = "files/earthquakes_${now.month}_${now.year}.csv";
-    Http {}.getFile("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv", filepath, null);
+    Http::getFile("https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_month.csv", filepath, null);
 
     var reader = CsvReader<Record> {
         path: filepath,
