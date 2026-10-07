@@ -2,7 +2,7 @@ import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
-import type { TaskEvent } from './task-stream.js';
+import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
 import type { GCObject } from './GCObject.js';
@@ -635,6 +635,16 @@ export interface GreyCat {
    */
   on(ev: 'task:event', callback: EmitterCallback<TaskEvent>): EmitterDisposable;
   /**
+   * Emitted whenever the task event stream changes state: `connecting` (on each attempt),
+   * `open` with its `id`, `closed` (dropped, or an attempt failed, a retry may follow) and
+   * `idle` (closed on purpose).
+   *
+   * A `task:event` listener misses the frames of the tasks bound to a stream that closed,
+   * since the next stream does not report them. Tracked tasks are polled instead, untracked ones
+   * are not followed anymore.
+   */
+  on(ev: 'task:stream', callback: EmitterCallback<TaskStreamChange>): EmitterDisposable;
+  /**
    * Emitted once when a request answers 401: the token is already dropped and the
    * task event stream closed. A burst of failing requests fires it once.
    * `unauthorizedHandler` is called right after it.
@@ -655,6 +665,7 @@ interface GreyCatEvents {
   'task:update': gc.runtime.Task;
   'task:settle': TaskSettleEvent;
   'task:event': TaskEvent;
+  'task:stream': TaskStreamChange;
   'auth:lost': AuthLostEvent;
   'auth:changed': AuthChangedEvent;
 }

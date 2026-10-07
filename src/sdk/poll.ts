@@ -1,6 +1,6 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
-import { TaskStream, type TaskEvent, type TaskStreamState } from './task-stream.js';
+import { TaskStream, type TaskEvent, type TaskStreamChange, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
 type AsyncRun = () => Promise<void>;
@@ -195,6 +195,7 @@ export class TaskPoller {
       onOpen: this.#onStreamOpen,
       onEvent: this.#onStreamEvent,
       onClose: this.#onStreamClose,
+      onChange: this.#onStreamChange,
     });
   }
 
@@ -368,6 +369,10 @@ export class TaskPoller {
 
   #onStreamClose = (): void => {
     this.#streamGone();
+  };
+
+  #onStreamChange = (change: TaskStreamChange): void => {
+    this.#g.emit('task:stream', change);
   };
 
   #onStreamEvent = (event: TaskEvent): void => {

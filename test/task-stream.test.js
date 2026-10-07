@@ -31,7 +31,7 @@ describe('task stream', () => {
     server = undefined;
   });
 
-  /** @param {string} url @param {{ token?: string }} [extra] */
+  /** @param {string} url @param {{ token?: string, taskEvents?: boolean }} [extra] */
   function client(url, extra = {}) {
     return gc.sdk.initWithAbi({
       abi,
@@ -247,5 +247,34 @@ describe('task stream', () => {
     await waitFor(() => g?.tasks.streamId === '2');
     assert.equal((await done).status.key, 'ended');
     assert.equal(pollsSinceReopen, 2);
+  });
+
+  it('reports every change of the stream as task:stream', async () => {
+    server = await fakeServer((req, res) => {
+      if (req.url !== STREAM) {
+        res.writeHead(404).end();
+        return;
+      }
+      const streams = /** @type {NonNullable<typeof server>} */ (server).count;
+      openStream(res, `${streams}`);
+      if (streams === 1) {
+        setTimeout(() => res.socket?.destroy(), 50);
+      }
+    });
+    g = client(server.url, { taskEvents: false });
+    /** @type {unknown[]} */
+    const changes = [];
+    g.on('task:stream', (c) => changes.push([c.state, c.id]));
+    g.tasks.connect();
+    await waitFor(() => g?.tasks.streamId === '2');
+    g.tasks.disconnect();
+    assert.deepEqual(changes, [
+      ['connecting', undefined],
+      ['open', '1'],
+      ['closed', undefined],
+      ['connecting', undefined],
+      ['open', '2'],
+      ['idle', undefined],
+    ]);
   });
 });

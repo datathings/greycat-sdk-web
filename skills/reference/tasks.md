@@ -53,6 +53,7 @@ The instance mirrors the tracker:
 | `task:update` | `runtime::Task` | a tracked task has a fresh snapshot, terminal included |
 | `task:settle` | `{ task, error }` | a tracked task left the tracker; `error` is `null` or a `TaskError` |
 | `task:event` | `{ kind, task }` | every frame of the event stream, tracked or not (see below), and nothing while the stream is not open |
+| `task:stream` | `{ state, id }` | the stream changed state: `connecting`, `open` with its id, `closed` (a retry may follow) or `idle` |
 
 ## How updates arrive
 

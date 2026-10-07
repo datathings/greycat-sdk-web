@@ -41,6 +41,12 @@ const TASK_EVENTS: ReadonlyMap<string, TaskEventKind> = new Map([
   ['task-complete', 'complete'],
 ]);
 
+/** Where the stream stands after a change, and its id while it is open. */
+export type TaskStreamChange = {
+  state: TaskStreamState;
+  id: string | undefined;
+};
+
 export type TaskStreamHandlers = {
   /** The stream is open as `id`, and the calls naming it are reported from here on. */
   onOpen(id: string): void;
@@ -48,6 +54,8 @@ export type TaskStreamHandlers = {
   onEvent(event: TaskEvent): void;
   /** The stream dropped, or a connect attempt failed; a retry may be scheduled. */
   onClose(): void;
+  /** The state changed, called after `onOpen` or `onClose`. */
+  onChange(change: TaskStreamChange): void;
 };
 
 /**
@@ -143,12 +151,20 @@ export class TaskStream {
     this.#ctrl?.abort();
     this.#ctrl = undefined;
     this.#id = undefined;
-    this.#state = 'idle';
+    this.#setState('idle');
     this.#settleWaiters(false);
   }
 
+  #setState(state: TaskStreamState): void {
+    if (state === this.#state) {
+      return;
+    }
+    this.#state = state;
+    this.#handlers.onChange({ state, id: this.#id });
+  }
+
   async #run(): Promise<void> {
-    this.#state = 'connecting';
+    this.#setState('connecting');
     const ctrl = new AbortController();
     this.#ctrl = ctrl;
 
@@ -276,6 +292,7 @@ export class TaskStream {
     this.#state = 'open';
     this.#attempt = 0;
     this.#handlers.onOpen(id);
+    this.#handlers.onChange({ state: 'open', id });
     this.#settleWaiters(true);
   }
 
@@ -294,6 +311,7 @@ export class TaskStream {
     if (wasOpen) {
       this.#handlers.onClose();
     }
+    this.#handlers.onChange({ state: 'closed', id: undefined });
     this.#settleWaiters(false);
     if (!retry || !this.#wanted) {
       return;
