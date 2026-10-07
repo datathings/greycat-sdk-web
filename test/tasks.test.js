@@ -154,6 +154,12 @@ describe('tasks', () => {
       assert.strictEqual(cls.key, 'medium');
     });
 
+    it('runs a task spawned through the generated binding in the class it asks for', async () => {
+      const task = await gc.tests.task_class.spawn(g, undefined, 'large');
+      const cls = /** @type {gc.runtime.TaskClass} */ (await g.await(task));
+      assert.strictEqual(cls.key, 'large');
+    });
+
     it('runs a spawned task in the class it asks for', async () => {
       for (const taskClass of /** @type {const} */ (['small', 'medium', 'large'])) {
         const cls = /** @type {gc.runtime.TaskClass} */ (

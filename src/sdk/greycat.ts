@@ -69,7 +69,8 @@ function initialize_functions(name: string, g: GreyCat): void {
       }
       const g = (args[fn.params.length] as GreyCat | undefined) ?? $[name];
       const signal = args[fn.params.length + 1] as AbortSignal | undefined;
-      return g.spawn(fn.fqn, args_, signal);
+      const taskClass = args[fn.params.length + 2] as TaskClass | undefined;
+      return g.spawn(fn.fqn, args_, signal, taskClass);
     };
     Object.defineProperty(spawn, 'name', {
       value: `task#${fn.fqn}`,
