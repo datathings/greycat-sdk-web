@@ -1,5 +1,5 @@
-@library("std", "8.4.176-dev");
-@library("http", "8.4.18-dev");
+@library("std", "8.4.257-dev");
+@library("http", "8.4.19-dev");
 
 @include("pages");
 
@@ -497,7 +497,6 @@ fn mainTask() {
             Job { function: project::subTask, arguments: Array<any?> { 0 } },
             Job { function: project::subTask, arguments: Array<any?> { 1 } },
         },
-        MergeStrategy::strict,
     );
 }
 
