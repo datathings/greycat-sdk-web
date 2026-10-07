@@ -1,5 +1,5 @@
 @library("std", "8.4.257-dev");
-@library("http", "8.4.19-dev");
+@library("http", "8.4.26-dev");
 
 @include("pages");
 
