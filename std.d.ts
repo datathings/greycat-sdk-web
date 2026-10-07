@@ -8,27 +8,27 @@ declare namespace gc {
        * Produces a new table by applying mappings to columns.
        */
       static applyMappings: ((table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(table: gc.core.Table, mappings: globalThis.Array<gc.core.TableColumnMapping>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
     }
 
     class nodeGeo<T = any> extends gc.sdk.std_n.core.nodeGeo<T> {
       search: ((center: gc.core.geo, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.SearchResult<gc.core.geo, T>>>) & {
-        spawn(center: gc.core.geo, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.SearchResult<gc.core.geo, T>>>>;
+        spawn(center: gc.core.geo, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.SearchResult<gc.core.geo, T>>>>;
       };
       /**
        * Returns the NodeInfo of all the nodeGeo passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeGeo in input array parameter.
        */
       static info: ((nodes: globalThis.Array<gc.core.nodeGeo>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>) & {
-        spawn(nodes: globalThis.Array<gc.core.nodeGeo>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>>;
+        spawn(nodes: globalThis.Array<gc.core.nodeGeo>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<gc.core.geo>>>>;
       };
       /**
        * Sample, using `mode` sampling, the nodeLists in `refs` within the `GeoBox` initialized with the geo points `from` and `to`.
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
       static sample: ((refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(refs: globalThis.Array<gc.core.nodeGeo>, from: gc.core.geo | null, to: gc.core.geo | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
     }
 
@@ -141,14 +141,14 @@ declare namespace gc {
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeList in input array parameter.
        */
       static info: ((nodes: globalThis.Array<gc.core.nodeList>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.NodeInfo<number | bigint>>>) & {
-        spawn(nodes: globalThis.Array<gc.core.nodeList>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<number | bigint>>>>;
+        spawn(nodes: globalThis.Array<gc.core.nodeList>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<number | bigint>>>>;
       };
       /**
        * Sample, using `mode` sampling, the nodeLists in `refs` within the interval `[from, to]`.
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
       static sample: ((refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(refs: globalThis.Array<gc.core.nodeList>, from: number | bigint | null, to: number | bigint | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
     }
 
@@ -183,14 +183,14 @@ declare namespace gc {
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeTime in input array parameter.
        */
       static info: ((nodes: globalThis.Array<gc.core.nodeTime>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>) & {
-        spawn(nodes: globalThis.Array<gc.core.nodeTime>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>>;
+        spawn(nodes: globalThis.Array<gc.core.nodeTime>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo<gc.core.time>>>>;
       };
       /**
        * Sample, using `mode` sampling, the nodeTimes in `refs` within the interval [`from`, `to`].
        * Also set that at most `maxRows` rows are allowed to the resulting Table and the max dephasing of points is `maxDephasing`.
        */
       static sample: ((refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(refs: globalThis.Array<gc.core.nodeTime>, from: gc.core.time | null, to: gc.core.time | null, maxRows: number | bigint, mode: gc.core.SamplingMode, maxDephasing?: gc.core.duration | null, tz?: gc.core.TimeZone | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
     }
 
@@ -201,7 +201,7 @@ declare namespace gc {
        * Return an array with the contents of the addresses pointed by the nodes in the array `n`
        */
       static resolve_all: ((n: globalThis.Array<gc.core.node | null>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<any | null>>) & {
-        spawn(n: globalThis.Array<gc.core.node | null>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<any | null>>>;
+        spawn(n: globalThis.Array<gc.core.node | null>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<any | null>>>;
       };
     }
 
@@ -398,20 +398,20 @@ declare namespace gc {
 
     class nodeIndex<K = any, V = any> extends gc.sdk.std_n.core.nodeIndex<K, V> {
       static search_closest: ((i: gc.core.nodeIndex, key: any, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.SearchResult>>) & {
-        spawn(i: gc.core.nodeIndex, key: any, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.SearchResult>>>;
+        spawn(i: gc.core.nodeIndex, key: any, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.SearchResult>>>;
       };
       /**
        * Returns the NodeInfo of all the nodeIndex passed as input parameters.
        * The return Array will have exactly the same size as input and every NodeInfo result will be positioned at the same offset than nodeIndex in input array parameter.
        */
       static info: ((nodes: globalThis.Array<gc.core.nodeIndex>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.NodeInfo>>) & {
-        spawn(nodes: globalThis.Array<gc.core.nodeIndex>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo>>>;
+        spawn(nodes: globalThis.Array<gc.core.nodeIndex>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.NodeInfo>>>;
       };
       /**
        * Using `mode` sampling, samples maxRows elements from nodeIndexes in `refs`, starting from the key: from.
        */
       static sample: ((refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(refs: globalThis.Array<gc.core.nodeIndex>, from: any | null, maxRows: number | bigint, mode: gc.core.SamplingMode, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
     }
 
@@ -1595,19 +1595,19 @@ declare namespace gc {
        * By specifying `reader.pos` the reads will be made after the end of the line at that byte offset
        */
       static sample: ((reader: gc.io.CsvReader, max_lines?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.core.Table>) & {
-        spawn(reader: gc.io.CsvReader, max_lines?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.core.Table>>;
+        spawn(reader: gc.io.CsvReader, max_lines?: number | bigint | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.core.Table>>;
       };
       /**
        * Analyses a collection of csv files to infer statistics eventually to generate types
        */
       static analyze: ((paths: globalThis.Array<string>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.io.CsvStatistics>) & {
-        spawn(paths: globalThis.Array<string>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.io.CsvStatistics>>;
+        spawn(paths: globalThis.Array<string>, config?: gc.io.CsvAnalysisConfig | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.io.CsvStatistics>>;
       };
       /**
        * Generates the necessary types and enums to read the records defined by this statistics
        */
       static generate: ((stats: gc.io.CsvStatistics, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
-        spawn(stats: gc.io.CsvStatistics, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<string>>;
+        spawn(stats: gc.io.CsvStatistics, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
       };
     }
 
@@ -1895,7 +1895,7 @@ declare namespace gc {
       constructor(name: string, permissions: globalThis.Array<string>);
       static createFrom(fields: {name: string, permissions: globalThis.Array<string>}): Role;
       static all: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Role>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Role>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Role>>>;
       };
     }
     namespace Role {
@@ -2151,7 +2151,7 @@ declare namespace gc {
        * Returns `true` if a matching task was found and deactivated, `false` otherwise.
        */
       static deactivate: ((function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Tries to find a task that matches `function` and activates it.
@@ -2162,7 +2162,7 @@ declare namespace gc {
        * Returns `true` if a matching task was found and activated, `false` otherwise.
        */
       static activate: ((function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Looks for a task that matches the given `function`.
@@ -2171,7 +2171,7 @@ declare namespace gc {
        * Uses function pointer equality for matching.
        */
       static find: ((function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.PeriodicTask | null>) & {
-        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.PeriodicTask | null>>;
+        spawn(function_: gc.core.function_, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.PeriodicTask | null>>;
       };
       /**
        * Returns the current list of all scheduled tasks.
@@ -2180,7 +2180,7 @@ declare namespace gc {
        * Use `PeriodicTask.is_active` to check individual task status.
        */
       static list: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.PeriodicTask>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.PeriodicTask>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.PeriodicTask>>>;
       };
       /**
        * Schedules a function to be executed as a task periodically.
@@ -2209,7 +2209,7 @@ declare namespace gc {
        * ```
        */
       static add: ((function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn(function_: gc.core.function_, periodicity: gc.runtime.Periodicity, options?: gc.runtime.PeriodicOptions | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
     }
 
@@ -2278,13 +2278,13 @@ declare namespace gc {
       constructor(id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any);
       static createFrom(fields: {id: number | bigint, frames: globalThis.Array<gc.runtime.Frame>, root: any}): Debug;
       static resume: ((id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
       static get: ((id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.Debug>) & {
-        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.Debug>>;
+        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.Debug>>;
       };
       static all: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<number | bigint>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<number | bigint>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<number | bigint>>>;
       };
     }
     namespace Debug {
@@ -2474,7 +2474,7 @@ declare namespace gc {
     class System extends gc.sdk.GCObject {
       static readonly _type = 'runtime::System';
       static get_all_envs: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.core.Tuple<string, string | null>>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.core.Tuple<string, string | null>>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.core.Tuple<string, string | null>>>>;
       };
     }
 
@@ -2626,7 +2626,7 @@ declare namespace gc {
        * only the `public` endpoints.
        */
       static v3: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.OpenApiV3>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.OpenApiV3>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.OpenApiV3>>;
       };
     }
 
@@ -2790,23 +2790,23 @@ declare namespace gc {
        * files occupy on disk. Reads every live block, so it lasts as long as a full backup.
        */
       static store_stats: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.StoreStats>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.StoreStats>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.StoreStats>>;
       };
       /**
        * Performs a full backup even if incremental delta are present in backup directory.
        * Returns the path of the archive, under the backup directory of the server.
        */
       static backup_full: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<string>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
       };
       static root: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<any>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<any>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<any>>;
       };
       static abi: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
       static info: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.RuntimeInfo>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.RuntimeInfo>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.RuntimeInfo>>;
       };
     }
 
@@ -3469,7 +3469,7 @@ declare namespace gc {
        * The returned array may contain `null` entries for unknown or inaccessible tasks.
        */
       static tasks: ((ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Task | null>>) & {
-        spawn(ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task | null>>>;
+        spawn(ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task | null>>>;
       };
       /**
        * Returns whether each task is still active.
@@ -3478,13 +3478,13 @@ declare namespace gc {
        * Unknown tasks or tasks inaccessible to the current user return `false`.
        */
       static live: ((ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<boolean>>) & {
-        spawn(ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<boolean>>>;
+        spawn(ids: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<boolean>>>;
       };
       static is_running: ((task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       static cancel: ((task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(task_id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Server-Sent Events stream of task events, one per subscribed connection.
@@ -3501,13 +3501,13 @@ declare namespace gc {
        * in JSON. Comment lines (`: ping`) keep the connection alive.
        */
       static events: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
       static history: ((offset: number | bigint, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Task>>) & {
-        spawn(offset: number | bigint, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task>>>;
+        spawn(offset: number | bigint, max: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task>>>;
       };
       static running: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Task>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Task>>>;
       };
     }
     namespace Task {
@@ -4196,7 +4196,7 @@ declare namespace gc {
       constructor(name: string, description: string);
       static createFrom(fields: {name: string, description: string}): Permission;
       static all: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Permission>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Permission>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Permission>>>;
       };
     }
     namespace Permission {
@@ -4264,7 +4264,7 @@ declare namespace gc {
        * Returns the access this removed, `none` when `name` held none of it.
        */
       static revoke: ((name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.IdentityGrantType>) & {
-        spawn(name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.IdentityGrantType>>;
+        spawn(name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.IdentityGrantType>>;
       };
       /**
        * Grants `name` the `grant` access to the files of `target`, keeping the
@@ -4272,7 +4272,7 @@ declare namespace gc {
        * `name` held all of it.
        */
       static grant: ((name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.IdentityGrantType>) & {
-        spawn(name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.IdentityGrantType>>;
+        spawn(name: string, target: string, grant: gc.runtime.IdentityGrantType, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.IdentityGrantType>>;
       };
       /**
        * Removes the identity `name`, with its role, password and the grants it
@@ -4280,7 +4280,7 @@ declare namespace gc {
        * root identities cannot be removed.
        */
       static remove: ((name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Sets the role of the user named `name`. Returns `false` if no such
@@ -4298,7 +4298,7 @@ declare namespace gc {
        * `role` into this call is a privilege-escalation hole.
        */
       static set_role: ((name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Replaces the read/write grants the user named `name` extends to other
@@ -4309,7 +4309,7 @@ declare namespace gc {
        * update any user.
        */
       static set_grants: ((name: string, grants: globalThis.Array<gc.runtime.IdentityGrant>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn(name: string, grants: globalThis.Array<gc.runtime.IdentityGrant>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn(name: string, grants: globalThis.Array<gc.runtime.IdentityGrant>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
       /**
        * Sets the password for the user named `login`. Returns `false` if
@@ -4319,20 +4319,20 @@ declare namespace gc {
        * update any user.
        */
       static set_password: ((name: string, pass: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<boolean>) & {
-        spawn(name: string, pass: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<boolean>>;
+        spawn(name: string, pass: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<boolean>>;
       };
       /**
        * Returns the permission names granted to the calling user (e.g.
        * `["api", "files"]`). Returns `["public"]` for anonymous callers by default.
        */
       static permissions: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<string>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<string>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<string>>>;
       };
       /**
        * Clears the session cookie for the current connection.
        */
       static logout: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
       };
       /**
        * Authenticates a user with `login`/`password` credentials and
@@ -4344,7 +4344,7 @@ declare namespace gc {
        * - header: `Authorization: <TOKEN>` _(no `Bearer` prefix)_
        */
       static login: ((login: string, password: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
-        spawn(login: string, password: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<string>>;
+        spawn(login: string, password: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
       };
       /**
        * Issues a session token for the user with the given `id`.
@@ -4355,7 +4355,7 @@ declare namespace gc {
        * Throws if the user id does not exist.
        */
       static token: ((id: number | bigint, ttl?: gc.core.duration | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
-        spawn(id: number | bigint, ttl?: gc.core.duration | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<string>>;
+        spawn(id: number | bigint, ttl?: gc.core.duration | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
       };
       /**
        * Creates a new identity with the given `name` and `role` and returns
@@ -4363,27 +4363,27 @@ declare namespace gc {
        * is returned unchanged (the role is not updated).
        */
       static create: ((name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.Identity>) & {
-        spawn(name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.Identity>>;
+        spawn(name: string, role: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.Identity>>;
       };
       /**
        * Returns every identity currently registered on the server.
        */
       static all: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<gc.runtime.Identity>>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Identity>>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<gc.runtime.Identity>>>;
       };
       /**
        * Looks up an identity by its login name. Returns `null` if no
        * identity with that name exists.
        */
       static get_by_name: ((name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.Identity | null>) & {
-        spawn(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.Identity | null>>;
+        spawn(name: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.Identity | null>>;
       };
       /**
        * Looks up an identity by its numeric id. Returns `null` if no
        * identity with that id exists.
        */
       static get_by_id: ((id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.Identity | null>) & {
-        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.Identity | null>>;
+        spawn(id: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.Identity | null>>;
       };
       /**
        * Returns the full `Identity` of the calling user.
@@ -4392,7 +4392,7 @@ declare namespace gc {
        * `current_id` for a public, lock-free check of the calling id.
        */
       static current: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.Identity>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.Identity>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.Identity>>;
       };
       /**
        * Returns the id of the calling user, or `0` if the caller is
@@ -4401,7 +4401,7 @@ declare namespace gc {
        * Cheap: does not touch the user database.
        */
       static current_id: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
-        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+        spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
       };
     }
     namespace Identity {
@@ -4614,31 +4614,31 @@ declare namespace gc {
     }
 
     const mcp_initialize: ((params: gc.runtime.McpInitializeParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpInitializeResult>) & {
-      spawn(params: gc.runtime.McpInitializeParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpInitializeResult>>;
+      spawn(params: gc.runtime.McpInitializeParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpInitializeResult>>;
     };
     const mcp_tools_list: ((params?: gc.runtime.McpToolsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpToolsListResult>) & {
-      spawn(params?: gc.runtime.McpToolsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpToolsListResult>>;
+      spawn(params?: gc.runtime.McpToolsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpToolsListResult>>;
     };
     const mcp_tools_call: ((params: gc.runtime.McpToolsCallParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<any>) & {
-      spawn(params: gc.runtime.McpToolsCallParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<any>>;
+      spawn(params: gc.runtime.McpToolsCallParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<any>>;
     };
     const mcp_prompts_list: ((params?: gc.runtime.McpPromptsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpPromptsListResult>) & {
-      spawn(params?: gc.runtime.McpPromptsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpPromptsListResult>>;
+      spawn(params?: gc.runtime.McpPromptsListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpPromptsListResult>>;
     };
     const mcp_resources_list: ((params?: gc.runtime.McpResourcesListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpResourcesListResult>) & {
-      spawn(params?: gc.runtime.McpResourcesListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpResourcesListResult>>;
+      spawn(params?: gc.runtime.McpResourcesListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpResourcesListResult>>;
     };
     const mcp_tasks_get: ((params: gc.runtime.McpTasksGetParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<any>) & {
-      spawn(params: gc.runtime.McpTasksGetParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<any>>;
+      spawn(params: gc.runtime.McpTasksGetParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<any>>;
     };
     const mcp_tasks_result: ((params: gc.runtime.McpTasksResultParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpToolsCallResult>) & {
-      spawn(params: gc.runtime.McpTasksResultParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpToolsCallResult>>;
+      spawn(params: gc.runtime.McpTasksResultParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpToolsCallResult>>;
     };
     const mcp_tasks_list: ((params?: gc.runtime.McpTasksListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpTasksListResult>) & {
-      spawn(params?: gc.runtime.McpTasksListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpTasksListResult>>;
+      spawn(params?: gc.runtime.McpTasksListParams | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpTasksListResult>>;
     };
     const mcp_tasks_cancel: ((params: gc.runtime.McpTasksCancelParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.McpTask>) & {
-      spawn(params: gc.runtime.McpTasksCancelParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.McpTask>>;
+      spawn(params: gc.runtime.McpTasksCancelParams, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.McpTask>>;
     };
   }
 

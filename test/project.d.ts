@@ -178,46 +178,46 @@ declare namespace gc {
     }
 
     const add: ((a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
-      spawn(a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+      spawn(a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
     };
     const concat: ((a: string, b: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
-      spawn(a: string, b: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<string>>;
+      spawn(a: string, b: string, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
     };
     const echo_any: ((v?: any | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<any | null>) & {
-      spawn(v?: any | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<any | null>>;
+      spawn(v?: any | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<any | null>>;
     };
     const echo_array: ((a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<globalThis.Array<number | bigint>>) & {
-      spawn(a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<globalThis.Array<number | bigint>>>;
+      spawn(a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<globalThis.Array<number | bigint>>>;
     };
     const make_person: ((name: string, age: number | bigint, nickname?: string | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.tests.Person>) & {
-      spawn(name: string, age: number | bigint, nickname?: string | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.tests.Person>>;
+      spawn(name: string, age: number | bigint, nickname?: string | null, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.tests.Person>>;
     };
     const sum_array: ((a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
-      spawn(a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+      spawn(a: globalThis.Array<number | bigint>, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
     };
     const boom: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
     };
     const no_result: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
-      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
     };
     /**
      * Reports `steps` progress steps, sleeping `step_ms` before each one.
      */
     const slow: ((steps: number | bigint, step_ms: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
-      spawn(steps: number | bigint, step_ms: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+      spawn(steps: number | bigint, step_ms: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
     };
     /**
      * Pauses on a breakpoint until `runtime::Debug::resume`, then answers 42.
      */
     const paused: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
-      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
     };
     /**
      * The worker class the calling task runs in.
      */
     const task_class: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.TaskClass>) & {
-      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<gc.runtime.TaskClass>>;
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.TaskClass>>;
     };
   }
 
