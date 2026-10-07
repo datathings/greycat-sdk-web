@@ -1,9 +1,0 @@
-:host {
-  display: contents;
-}
-
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: var(--spacing);
-}

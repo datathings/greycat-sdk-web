@@ -21,23 +21,6 @@ import '@greycat/web/css/greycat.css';
 globalThis.greycat.default = await GreyCat.init();
 ```
 
-## Dev
-
-Start the GreyCat demo server:
-
-```sh
-cd pages
-greycat serve
-```
-
-Start the Web dev server:
-
-```sh
-pnpm dev
-```
-
-Open your browser at `http://localhost:5173/`
-
 ## v7 Breaking changes:
 
 - Removed `gui-enum-select`, replaced with `gui-input-enum`

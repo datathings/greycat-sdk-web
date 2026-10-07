@@ -65,6 +65,4 @@ Without `hostname`, `sitemap` and `robots` are skipped silently.
   `build.rollupOptions.output.manualChunks`; the package is large enough to
   warrant it.
 - `pnpm build` in this repository builds `dist/sdk`, `dist/web`, `dist/jsx`,
-  `dist/vite-plugin` and the CSS; `playground/` is a vite app over every
-  component family, started with `pnpm build:playground` after
-  `greycat serve` in `playground/`.
+  `dist/vite-plugin` and the CSS.

@@ -127,5 +127,4 @@ handlers are `on<event>` props; see [jsx.md](jsx.md).
 The package ships its sources: props, events and styles of a family are in
 `lib/sdk_web/src/web/components/<family>/` (a `.tsx` per element, a
 `register.ts`), and `index.md` files exist for `chart`, `heatmap`, `object`,
-`table` and `value`. `src/web/init.ts` lists every class. The `playground/`
-directory of the repository has one page per family with a working example.
+`table` and `value`. `src/web/init.ts` lists every class.

@@ -1,8 +1,0 @@
-gui-table.custom-style {
-  --table-head-height: 40px;
-  --table-border-color: transparent;
-}
-
-gui-table::part(title) {
-  font-weight: bold;
-}

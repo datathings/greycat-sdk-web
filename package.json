@@ -68,10 +68,8 @@
     "build:web": "node scripts/build.js web",
     "build:vite-plugin": "node scripts/build.js vite-plugin",
     "build:css": "node scripts/build.js css",
-    "build:playground": "tsc -p playground/tsconfig.json && vite build -c playground/vite.config.ts",
     "prepare:test": "./test/prepare.sh",
     "test": "./test/run.sh",
-    "dev": "vite -c playground/vite.config.ts",
     "lint": "oxlint",
     "fmt": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\""
   },

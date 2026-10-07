@@ -58,7 +58,7 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
   elements, why nothing re-renders.
 - **[reference/build.md](reference/build.md)**: every entry point of the
   package, the CSS files and themes, the vite plugin (gzip, sitemap, robots),
-  bundling notes and the playground.
+  and bundling notes.
 
 ## Rules that save a debugging session
 
