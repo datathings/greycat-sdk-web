@@ -1,12 +1,8 @@
 import assert from 'node:assert/strict';
 import { describe, before, afterEach, it } from 'node:test';
-import http from 'node:http';
-import { readFile } from 'node:fs/promises';
-import { fileURLToPath } from 'node:url';
-import { dirname, join } from 'node:path';
 
 import '@greycat/web/sdk';
-import { compileWasm } from '@greycat/web/sdk';
+import { STREAM, answer, fakeServer, frame, loadAbi, makeTask, openStream, waitFor } from './fake-server.js';
 
 /**
  * The task event stream against a fake server, for what a real one cannot be made to do
@@ -14,98 +10,10 @@ import { compileWasm } from '@greycat/web/sdk';
  * deliver a frame in pieces.
  */
 
-const here = dirname(fileURLToPath(import.meta.url));
-const STREAM = '/runtime::Task::events';
-
-/** @param {() => boolean} cond */
-async function waitFor(cond, timeoutMs = 5000) {
-  const deadline = Date.now() + timeoutMs;
-  while (!cond()) {
-    if (Date.now() > deadline) {
-      throw new Error('condition not met in time');
-    }
-    await new Promise((r) => setTimeout(r, 20));
-  }
-}
-
-/**
- * Serves `handler(req, res, n)` with `n` the 1-based count of requests so far.
- * @param {(req: http.IncomingMessage, res: http.ServerResponse, n: number) => void} handler
- */
-async function fakeServer(handler) {
-  let count = 0;
-  const server = http.createServer((req, res) => {
-    count += 1;
-    handler(req, res, count);
-  });
-  await new Promise((r) => server.listen(0, '127.0.0.1', r));
-  const { port } = /** @type {import('node:net').AddressInfo} */ (server.address());
-  return {
-    url: `http://127.0.0.1:${port}`,
-    get count() {
-      return count;
-    },
-    /** Drops every open connection, the stream included, and keeps listening. */
-    drop: () => server.closeAllConnections(),
-    close: () => {
-      server.closeAllConnections();
-      server.close();
-    },
-  };
-}
-
-/**
- * Opens a stream whose id is `id`.
- * @param {http.ServerResponse} res
- * @param {string} [id]
- */
-function openStream(res, id = '1') {
-  res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-  res.write(`event: connected\ndata: ${id}\n\n`);
-}
-
-/**
- * @param {number} taskId
- * @param {number} userId
- * @param {gc.runtime.TaskStatus} status
- */
-function makeTask(taskId, userId, status) {
-  return gc.runtime.Task.createFrom({
-    user_id: userId,
-    user_name: userId === 1 ? 'root' : 'someone',
-    task_id: taskId,
-    creation: gc.core.time.fromMs(Date.now()),
-    status,
-    progress: status === gc.runtime.TaskStatus.ended ? 1 : 0.5,
-  });
-}
-
-/**
- * Answers an RPC with `value` as GCB.
- * @param {gc.sdk.GreyCat | undefined} g
- * @param {http.ServerResponse} res
- * @param {unknown} value
- */
-function answer(g, res, value) {
-  res.writeHead(200, { 'content-type': 'application/octet-stream' });
-  res.end(Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders(value)));
-}
-
-/**
- * The SSE frame for `task`.
- * @param {gc.sdk.GreyCat | undefined} g
- * @param {string} event
- * @param {gc.runtime.Task} task
- */
-function frame(g, event, task) {
-  const data = Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders(task)).toString('base64');
-  return `event: ${event}\ndata: ${data}\n\n`;
-}
-
 describe('task stream', () => {
   /** @type {gc.sdk.Abi} */
   let abi;
-  /** @type {Awaited<ReturnType<typeof compileWasm>>} */
+  /** @type {Awaited<ReturnType<typeof loadAbi>>['wasm']} */
   let wasm;
   /** @type {gc.sdk.GreyCat | undefined} */
   let g;
@@ -113,9 +21,7 @@ describe('task stream', () => {
   let server;
 
   before(async () => {
-    const abiBuf = /** @type {ArrayBuffer} */ ((await readFile(join(here, 'abi.bin'))).buffer);
-    abi = new gc.sdk.Abi(abiBuf);
-    wasm = await compileWasm();
+    ({ abi, wasm } = await loadAbi());
   });
 
   afterEach(() => {
@@ -249,7 +155,7 @@ describe('task stream', () => {
     // past what a `number` holds exactly, so it must be sent back as received
     const streamId = '18446744073709551615';
     const id = 7;
-    /** @type {http.ServerResponse | undefined} */
+    /** @type {import('node:http').ServerResponse | undefined} */
     let stream;
     /** @type {unknown} */
     let named;
