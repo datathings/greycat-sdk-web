@@ -146,12 +146,13 @@ export interface Options {
    */
   pollFrequency?: number;
   /**
-   * Whether to keep a task event stream open (`GET /runtime::Task::events`): tracked
-   * tasks are then updated as the server reports progress and completion, and polling
-   * only serves as the fallback while the stream is not open. Dropped connections
-   * reconnect on their own; a server without the endpoint leaves polling in charge.
+   * Whether to keep a task event stream open (`GET /runtime::Task::events`). The tasks
+   * the instance spawns while it is open are then updated as the server reports them, and
+   * polling serves every other tracked task. Dropped connections reconnect on their own,
+   * and a server without the endpoint leaves polling in charge.
    *
-   * `init` defaults to `true`, `initWithAbi` to `false`. `greycat.tasks.connect()` and
+   * `init` defaults to `true` and waits up to 2 s for the stream to open before it
+   * returns, `initWithAbi` defaults to `false`. `greycat.tasks.connect()` and
    * `disconnect()` control it afterwards; a Node process holding a stream does not exit
    * on its own until `disconnect()`.
    */

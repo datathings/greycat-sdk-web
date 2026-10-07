@@ -1,6 +1,6 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
-import { TaskStream, type TaskStreamState } from './task-stream.js';
+import { TaskStream, type TaskEvent, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
 type AsyncRun = () => Promise<void>;
@@ -153,14 +153,22 @@ type Pending = {
 };
 
 /**
+ * How many bound tasks are remembered at most. A task forgotten early is polled instead of
+ * followed on the stream, which is slower but still correct.
+ */
+const MAX_BOUND = 1024;
+
+/**
  * Tracks many tasks for their consumers, through the instance's task event stream when
- * it is open and by polling otherwise.
+ * it reports them and by polling otherwise.
  *
- * Over the stream the server pushes every progress report and the end of each task as
- * it happens. Polling refreshes every tracked task in one batched
- * `runtime::Task::tasks(ids)` call per tick, at the fastest cadence any consumer
- * requested; it runs whenever the stream is not open (never connected, connecting,
- * dropped and reconnecting, or disabled). Consumers pick a style:
+ * The stream only reports the tasks of the calls that named it. The instance names the
+ * open stream in every call it spawns, and the tracker follows those tasks on it, from
+ * their start to their end. Every other tracked task is polled: one spawned by another
+ * instance, tab or page load, one of another user, one spawned while the stream was not
+ * open, or bound to a stream that has since closed. Polling refreshes those tasks in one
+ * batched `runtime::Task::tasks(ids)` call per tick, at the fastest cadence any consumer
+ * requested. Consumers pick a style:
  *
  *  - {@link wait} resolves once a task reaches a terminal state (rejects with a {@link TaskError} on failure),
  *  - {@link subscribe} observes every update until the task settles.
@@ -174,13 +182,18 @@ export class TaskPoller {
   #stream: TaskStream;
   /** `connect()` was called and `disconnect()` was not since. */
   #wanted = false;
+  /**
+   * Tasks spawned by a call that named the open stream, oldest first. Emptied whenever the
+   * stream opens or goes, since a new stream reports none of the calls that named the old one.
+   */
+  #bound: Set<TaskId> = new Set();
 
   constructor(g: GreyCat) {
     this.#g = g;
     this.#poller = new Poll(this.#poll);
     this.#stream = new TaskStream(g, {
       onOpen: this.#onStreamOpen,
-      onTask: this.#onStreamTask,
+      onEvent: this.#onStreamEvent,
       onClose: this.#onStreamClose,
     });
   }
@@ -190,7 +203,10 @@ export class TaskPoller {
     return this.#poller.isRunning();
   }
 
-  /** Which transport delivers updates right now. */
+  /**
+   * Which transport delivers updates right now. While it is `'stream'`, the tasks the
+   * instance did not spawn on that stream are still polled.
+   */
   get transport(): TaskTransport {
     return this.#stream.state === 'open' ? 'stream' : 'poll';
   }
@@ -198,6 +214,15 @@ export class TaskPoller {
   /** Where the event stream stands; `idle` until {@link connect} is called. */
   get streamState(): TaskStreamState {
     return this.#stream.state;
+  }
+
+  /**
+   * The id of the open stream, which a call names in its `sse` request header to have its
+   * task reported there, or `undefined` while the stream is not open. Kept as the decimal
+   * text the server sent, since it may not fit a `number`.
+   */
+  get streamId(): string | undefined {
+    return this.#stream.id;
   }
 
   /**
@@ -212,13 +237,22 @@ export class TaskPoller {
   }
 
   /**
+   * Resolves `true` once the stream is open, `false` as soon as the attempt in progress
+   * fails, the stream is not being opened, or `timeoutMs` passes. A task spawned before the
+   * stream is open is polled for its whole life, which is why `init` waits on this.
+   */
+  opened(timeoutMs: number): Promise<boolean> {
+    return this.#stream.opened(timeoutMs);
+  }
+
+  /**
    * Closes the event stream and stops reconnecting; tracked tasks fall back to polling.
    * A Node process holding a stream does not exit on its own: call this when done.
    */
   disconnect(): void {
     this.#wanted = false;
     this.#stream.disconnect();
-    this.#resumePolling();
+    this.#streamGone();
   }
 
   /**
@@ -231,8 +265,24 @@ export class TaskPoller {
       return;
     }
     this.#stream.disconnect();
-    this.#resumePolling();
+    this.#streamGone();
     this.#stream.connect();
+  }
+
+  /**
+   * Records that task `id` was spawned by a call naming the stream `streamId`, so the
+   * stream reports it. Ignored unless that stream is still the open one. The instance calls
+   * this for the calls it spawns.
+   */
+  bind(id: TaskId, streamId: string): void {
+    if (streamId !== this.#stream.id) {
+      return;
+    }
+    if (this.#bound.size >= MAX_BOUND) {
+      const [oldest] = this.#bound;
+      this.#bound.delete(oldest);
+    }
+    this.#bound.add(TaskPoller.#key(id));
   }
 
   /** Resolve once the task reaches a terminal state, reject on failure. */
@@ -263,9 +313,9 @@ export class TaskPoller {
     if (!pending) {
       pending = { id, listeners: new Set(), pollId: -1, frequency, updated: false };
       this.#pending.set(key, pending);
-      if (this.transport === 'stream') {
-        // the stream only carries what happens from now on: a task that already ended
-        // (spawned a moment ago, or an old id) would never settle without a look
+      if (this.#bound.has(key)) {
+        // the stream reports this task, but only from now on. A look tells whether it
+        // already ended, or reported something before it was tracked.
         void this.#snapshot(key, pending);
       } else {
         // each consumer registers its own cadence: `Poll` runs at the min of all
@@ -297,10 +347,7 @@ export class TaskPoller {
   }
 
   #settle(pending: Pending): void {
-    if (pending.pollId !== -1) {
-      this.#poller.unregister(pending.pollId);
-      pending.pollId = -1;
-    }
+    this.#unpoll(pending);
     this.#pending.delete(TaskPoller.#key(pending.id));
   }
 
@@ -314,38 +361,42 @@ export class TaskPoller {
     }
   }
 
-  /** The stream is open: it delivers from now on, and one poll catches up on the meantime. */
+  /** A new stream reports none of the tasks tracked so far, so they stay polled. */
   #onStreamOpen = (): void => {
-    for (const pending of this.#pending.values()) {
-      if (pending.pollId !== -1) {
-        this.#poller.unregister(pending.pollId);
-        pending.pollId = -1;
-      }
-    }
-    if (this.#pending.size !== 0) {
-      void this.#poll();
-    }
+    this.#bound.clear();
   };
 
   #onStreamClose = (): void => {
-    this.#resumePolling();
+    this.#streamGone();
   };
 
-  #onStreamTask = (task: gc.runtime.Task): void => {
-    // every frame the server pushes, tracked or not: what a task list needs
-    this.#g.emit('task:event', task);
-    const key = TaskPoller.#key(task.task_id);
+  #onStreamEvent = (event: TaskEvent): void => {
+    // every frame the server pushes, tracked or not
+    this.#g.emit('task:event', event);
+    const key = TaskPoller.#key(event.task.task_id);
+    if (event.kind === 'complete') {
+      this.#bound.delete(key);
+    }
     const pending = this.#pending.get(key);
     if (pending !== undefined) {
-      this.#handle(pending, task);
+      this.#handle(pending, event.task);
     }
   };
 
-  #resumePolling(): void {
+  /** The stream closed or is about to reopen, and the tasks it followed are polled from now on. */
+  #streamGone(): void {
+    this.#bound.clear();
     for (const pending of this.#pending.values()) {
       if (pending.pollId === -1) {
         pending.pollId = this.#poller.register(pending.frequency);
       }
+    }
+  }
+
+  #unpoll(pending: Pending): void {
+    if (pending.pollId !== -1) {
+      this.#poller.unregister(pending.pollId);
+      pending.pollId = -1;
     }
   }
 
@@ -360,13 +411,16 @@ export class TaskPoller {
     }
   }
 
-  /** One-off look at a task registered while the stream was open. */
+  /** One-off look at a task the stream reports, when it starts being tracked. */
   async #snapshot(key: TaskId, pending: Pending): Promise<void> {
     let task: gc.runtime.Task | null;
     try {
       [task] = await this.#fetch([key]);
     } catch (err) {
-      console.warn(`[TaskPoller] snapshot of task '${key}' failed`, err);
+      console.warn(`[TaskPoller] snapshot of task '${key}' failed, polling it`, err);
+      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1) {
+        pending.pollId = this.#poller.register(pending.frequency);
+      }
       return;
     }
     // gone, or already brought up to date by the stream in the meantime

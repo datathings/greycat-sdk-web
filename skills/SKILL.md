@@ -66,7 +66,11 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
   request on one of a few req workers and is reaped by the request ttl.
 - **A task is watched only while something waits on it.** `wait`, `subscribe`,
   `await` and `spawnAwait` track; an untracked task only shows up in
-  `task:event`, and only while the stream is open.
+  `task:event`, and only if the instance spawned it on the open stream.
+- **The task event stream only reports what the instance spawned on it.**
+  Calls name it in their `sse` header, and it is how the SDK follows them
+  without polling. Any other task is polled. Listing every task the login may
+  see is done with `runtime::Task::running` and `runtime::Task::history`.
 - **An open task event stream keeps a Node process alive.** End scripts and
   tests with `greycat.tasks.disconnect()`, or init with `taskEvents: false`.
 - **One stream per instance, six connections per origin in a browser over

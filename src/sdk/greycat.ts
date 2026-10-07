@@ -2,6 +2,7 @@ import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
+import type { TaskEvent } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
 import type { GCObject } from './GCObject.js';
@@ -96,6 +97,9 @@ function initialize_functions(name: string, g: GreyCat): void {
 }
 
 export const DEFAULT_URL = new URL('http://127.0.0.1:8080');
+
+/** How long `init` waits for the task event stream to open before it returns anyway. */
+const STREAM_OPEN_TIMEOUT_MS = 2_000;
 
 const findGreyCat = async () => {
   if (globalThis.location === undefined) {
@@ -475,15 +479,19 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   register(name, g);
   initialize_functions(name, g);
   if (taskEvents) {
-    // not awaited: tasks tracked before the stream is open are polled until it is
     g.tasks.connect();
   }
 
-  try {
-    g.permissions = await gcreg.runtime.Identity.permissions(g);
-  } catch {
-    // we probably don't have the permission to access this endpoint
-  }
+  const [permissions] = await Promise.all([
+    gcreg.runtime.Identity.permissions(g).catch(() => {
+      // we probably don't have the permission to access this endpoint
+      return [];
+    }),
+    // a task spawned before the stream is open is never reported on it and gets polled
+    // instead, so the first calls of the app wait for it, unless it is slow to come
+    taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
+  ]);
+  g.permissions = permissions;
 
   const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
   return rich ? { greycat: g, auth: info } : g;
@@ -617,12 +625,15 @@ export interface GreyCat {
    */
   on(ev: 'task:settle', callback: EmitterCallback<TaskSettleEvent>): EmitterDisposable;
   /**
-   * Emitted for every frame of the task event stream, whether the task is tracked or
-   * not: the start, each progress report and the end of every task this login may see.
-   * Nothing is emitted while the stream is not open; a list that must stay complete polls
-   * `runtime::Task::running` when `tasks.transport` is `'poll'`.
+   * Emitted for every frame of the task event stream: the start, each progress report,
+   * each pause on a breakpoint and resume, and the end of every task this instance spawned
+   * while the stream was open, tracked or not. Nothing is emitted while the stream is not
+   * open, and no task spawned elsewhere (another instance, tab or page load) is ever sent.
+   *
+   * It is the back-channel of the instance's own calls, not a monitor. A view of every task
+   * the login may see reads `runtime::Task::running` and `runtime::Task::history`.
    */
-  on(ev: 'task:event', callback: EmitterCallback<gc.runtime.Task>): EmitterDisposable;
+  on(ev: 'task:event', callback: EmitterCallback<TaskEvent>): EmitterDisposable;
   /**
    * Emitted once when a request answers 401: the token is already dropped and the
    * task event stream closed. A burst of failing requests fires it once.
@@ -643,7 +654,7 @@ interface GreyCatEvents {
   'task:spawn': gc.runtime.Task;
   'task:update': gc.runtime.Task;
   'task:settle': TaskSettleEvent;
-  'task:event': gc.runtime.Task;
+  'task:event': TaskEvent;
   'auth:lost': AuthLostEvent;
   'auth:changed': AuthChangedEvent;
 }
@@ -1043,9 +1054,14 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
+    // the stream this call names, which then reports the task the call spawns
+    const sse = asTask ? this.tasks.streamId : undefined;
     if (asTask) {
       // the server refuses any `task` value but a class name or `true`
       headers['task'] = typeof task === 'string' ? task : 'medium';
+      if (sse !== undefined) {
+        headers['sse'] = sse;
+      }
       if (debug) {
         headers['x-gc-debug'] = `${this._debug_id}`;
       }
@@ -1055,12 +1071,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (cachedRes) {
       headers['If-None-Match'] = cachedRes.etag;
     }
-    // `include` so cookie-based sessions (e.g. openid) work cross-origin too;
-    // for same-origin it behaves like the default.
     const init: RequestInit = { method: httpMethod, headers, signal };
     if (httpMethod === 'POST') {
       init.body = body;
     }
+    // `include` so cookie-based sessions (e.g. openid) work cross-origin too
+    // for same-origin it behaves like the default.
     init.credentials = this.credentials ?? (this.token ? 'omit' : 'include');
     const res = await fetch(url, init);
     // a function the server cannot spawn is answered with its value, marked `task: none`
@@ -1076,6 +1092,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         await this.cache.write(key, { etag, data });
       }
       this.logger(this.name, res.status, uri, args, value);
+      if (spawned && sse !== undefined && value instanceof gcreg.runtime.Task) {
+        this.tasks.bind(value.task_id, sse);
+      }
       if (spawned && task !== false) {
         this.emit('task:spawn', value as gc.runtime.Task);
       }

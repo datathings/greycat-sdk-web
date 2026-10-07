@@ -3490,14 +3490,15 @@ declare namespace gc {
        * Server-Sent Events stream of task events, one per subscribed connection.
        *
        * Served by the HTTP server on `GET /runtime::Task::events` for authenticated callers only
-       * (`Content-Type: text/event-stream`). It is the back-channel of the caller's own tasks:
-       * every root task the caller created produces one `event: task-started` frame when its code
-       * starts running, `event: task-progress` frames while it reports progress, `event:
-       * task-breakpoint` and `event: task-resumed` when it pauses on a `breakpoint` and goes on, and
-       * one `event: task-complete` frame when it ends. Nobody else's tasks are sent, whatever the
-       * caller's role or grants, so watching every task is done with `running`, `history` and
-       * `live`. The `data:` line of each frame is the `Task` in JSON. Comment lines (`: ping`) keep
-       * the connection alive.
+       * (`Content-Type: text/event-stream`). The first frame, `event: connected`, carries the id of
+       * the stream as its `data:` line. It is the back-channel of the calls that name it: the task
+       * of an RPC call carrying the request header `sse: <id>` produces one `event: task-started`
+       * frame when its code starts running, `event: task-progress` frames while it reports
+       * progress, `event: task-breakpoint` and `event: task-resumed` when it pauses on a
+       * `breakpoint` and goes on, and one `event: task-complete` frame when it ends. A call without
+       * the header, or naming a stream of another user, is not reported, so watching every task is
+       * done with `running`, `history` and `live`. The `data:` line of each task frame is the `Task`
+       * in JSON. Comment lines (`: ping`) keep the connection alive.
        */
       static events: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
         spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<unknown>>;

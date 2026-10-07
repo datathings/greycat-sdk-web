@@ -45,6 +45,8 @@ async function fakeServer(handler) {
     get count() {
       return count;
     },
+    /** Drops every open connection, the stream included, and keeps listening. */
+    drop: () => server.closeAllConnections(),
     close: () => {
       server.closeAllConnections();
       server.close();
@@ -52,10 +54,52 @@ async function fakeServer(handler) {
   };
 }
 
-/** @param {http.ServerResponse} res */
-function openStream(res) {
+/**
+ * Opens a stream whose id is `id`.
+ * @param {http.ServerResponse} res
+ * @param {string} [id]
+ */
+function openStream(res, id = '1') {
   res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-  res.write(': connected\n\n');
+  res.write(`event: connected\ndata: ${id}\n\n`);
+}
+
+/**
+ * @param {number} taskId
+ * @param {number} userId
+ * @param {gc.runtime.TaskStatus} status
+ */
+function makeTask(taskId, userId, status) {
+  return gc.runtime.Task.createFrom({
+    user_id: userId,
+    user_name: userId === 1 ? 'root' : 'someone',
+    task_id: taskId,
+    creation: gc.core.time.fromMs(Date.now()),
+    status,
+    progress: status === gc.runtime.TaskStatus.ended ? 1 : 0.5,
+  });
+}
+
+/**
+ * Answers an RPC with `value` as GCB.
+ * @param {gc.sdk.GreyCat | undefined} g
+ * @param {http.ServerResponse} res
+ * @param {unknown} value
+ */
+function answer(g, res, value) {
+  res.writeHead(200, { 'content-type': 'application/octet-stream' });
+  res.end(Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders(value)));
+}
+
+/**
+ * The SSE frame for `task`.
+ * @param {gc.sdk.GreyCat | undefined} g
+ * @param {string} event
+ * @param {gc.runtime.Task} task
+ */
+function frame(g, event, task) {
+  const data = Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders(task)).toString('base64');
+  return `event: ${event}\ndata: ${data}\n\n`;
 }
 
 describe('task stream', () => {
@@ -201,43 +245,101 @@ describe('task stream', () => {
     assert.deepEqual(changed, [{ loggedIn: true }, { loggedIn: false }]);
   });
 
-  it('decodes a GCB frame that arrives in two pieces', async () => {
+  it('follows a spawned task on the stream its call names, decoding a frame cut in two', async () => {
+    // past what a `number` holds exactly, so it must be sent back as received
+    const streamId = '18446744073709551615';
     const id = 7;
-    /** @param {gc.runtime.TaskStatus} status */
-    const task = (status) =>
-      gc.runtime.Task.createFrom({
-        user_id: 1,
-        user_name: 'root',
-        task_id: id,
-        creation: gc.core.time.fromMs(Date.now()),
-        status,
-        progress: status === gc.runtime.TaskStatus.ended ? 1 : 0.5,
-      });
+    /** @type {http.ServerResponse | undefined} */
+    let stream;
+    /** @type {unknown} */
+    let named;
+    let polls = 0;
     server = await fakeServer((req, res) => {
-      if (req.url !== STREAM) {
-        // the snapshot a newly tracked task triggers while the stream is open
-        res.writeHead(200, { 'content-type': 'application/octet-stream' });
-        res.end(Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders([task(gc.runtime.TaskStatus.running)])));
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res, streamId);
         return;
       }
-      openStream(res);
-      const data = Buffer.from(/** @type {gc.sdk.GreyCat} */ (g).serializeWithHeaders(task(gc.runtime.TaskStatus.ended))).toString('base64');
-      const frame = `event: task-complete\ndata: ${data}\n\n`;
-      const cut = Math.floor(frame.length / 2);
-      setTimeout(() => {
-        res.write(frame.slice(0, cut));
-        setTimeout(() => res.write(frame.slice(cut)), 30);
-      }, 100);
+      if (req.url === '/tests::slow') {
+        named = req.headers.sse;
+        answer(g, res, makeTask(id, 1, gc.runtime.TaskStatus.waiting));
+        const complete = frame(g, 'task-complete', makeTask(id, 1, gc.runtime.TaskStatus.ended));
+        const cut = Math.floor(complete.length / 2);
+        setTimeout(() => {
+          stream?.write(complete.slice(0, cut));
+          setTimeout(() => stream?.write(complete.slice(cut)), 30);
+        }, 300);
+        return;
+      }
+      // the snapshot a bound task gets when it starts being tracked
+      polls += 1;
+      answer(g, res, [makeTask(id, 1, gc.runtime.TaskStatus.running)]);
     });
     g = client(server.url);
-    await waitFor(() => g?.tasks.streamState === 'open');
+    assert.equal(await g.tasks.opened(1000), true);
+    assert.equal(g.tasks.streamId, streamId);
     /** @type {unknown[]} */
     const events = [];
-    g.on('task:event', (t) => events.push(t.task_id));
-    const done = await g.tasks.wait(id);
-    assert.equal(done.task_id, id);
+    g.on('task:event', (e) => events.push([e.kind, e.task.task_id]));
+    const task = await g.spawn('tests::slow', [1, 1]);
+    const done = await g.tasks.wait(task.task_id, 20);
+    assert.equal(named, streamId);
     assert.equal(done.status.key, 'ended');
     assert.equal(done.progress, 1);
-    assert.deepEqual(events, [id], 'every frame is also emitted as task:event');
+    assert.equal(polls, 1, 'only the snapshot');
+    assert.deepEqual(events, [['complete', id]], 'every frame is also emitted as task:event');
+  });
+
+  it('polls a task it did not spawn while the stream is open', async () => {
+    const id = 8;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        openStream(res);
+        return;
+      }
+      // the stream never reports a task no call of this instance named it for
+      polls += 1;
+      const status = polls < 3 ? gc.runtime.TaskStatus.running : gc.runtime.TaskStatus.ended;
+      answer(g, res, [makeTask(id, 1, status)]);
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const done = await g.tasks.wait(id, 20);
+    assert.equal(done.status.key, 'ended');
+    assert.equal(polls, 3);
+    assert.equal(g.tasks.transport, 'stream');
+  });
+
+  it('polls a task bound to a stream that closed, after the new one opens', async () => {
+    const id = 9;
+    let streams = 0;
+    let pollsSinceReopen = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        streams += 1;
+        openStream(res, `${streams}`);
+        return;
+      }
+      if (req.url === '/tests::slow') {
+        answer(g, res, makeTask(id, 1, gc.runtime.TaskStatus.waiting));
+        return;
+      }
+      // the task only ends once the second stream is open, which never reports it
+      if (streams === 2) {
+        pollsSinceReopen += 1;
+      }
+      const status = pollsSinceReopen < 2 ? gc.runtime.TaskStatus.running : gc.runtime.TaskStatus.ended;
+      answer(g, res, [makeTask(id, 1, status)]);
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const task = await g.spawn('tests::slow', [1, 1]);
+    const done = g.tasks.wait(task.task_id, 20);
+    // drops the first stream, which the client reopens after 1s
+    server.drop();
+    await waitFor(() => g?.tasks.streamId === '2');
+    assert.equal((await done).status.key, 'ended');
+    assert.equal(pollsSinceReopen, 2);
   });
 });

@@ -147,6 +147,13 @@ fn slow(steps: int, step_ms: int): int {
     return steps;
 }
 
+/// Pauses on a breakpoint until `runtime::Debug::resume`, then answers 42.
+@expose
+fn paused(): int {
+    breakpoint;
+    return 42;
+}
+
 /// The worker class the calling task runs in.
 @expose
 fn task_class(): TaskClass {

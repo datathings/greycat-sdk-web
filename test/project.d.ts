@@ -17,33 +17,18 @@ declare namespace gc {
   }
 
   namespace tests {
-    class task_class$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::task_class$args';
+    class slow$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::slow$args';
+      static readonly $fields: slow$args.$Fields;
+      steps: number | bigint;
+      step_ms: number | bigint;
+      constructor(steps: number | bigint, step_ms: number | bigint);
+      static createFrom(fields: {steps: number | bigint, step_ms: number | bigint}): slow$args;
     }
-
-    class sum_array$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::sum_array$args';
-      static readonly $fields: sum_array$args.$Fields;
-      a: globalThis.Array<number | bigint>;
-      constructor(a: globalThis.Array<number | bigint>);
-      static createFrom(fields: {a: globalThis.Array<number | bigint>}): sum_array$args;
-    }
-    namespace sum_array$args {
+    namespace slow$args {
       interface $Fields {
-        a: 0;
-      }
-    }
-
-    class Box<T = any> extends gc.sdk.GCObject {
-      static readonly _type = 'tests::Box';
-      static readonly $fields: Box.$Fields;
-      value: T;
-      constructor(value?: T);
-      static createFrom<T>(fields: {value?: T}): Box;
-    }
-    namespace Box {
-      interface $Fields {
-        value: 0;
+        steps: 0;
+        step_ms: 1;
       }
     }
 
@@ -64,8 +49,17 @@ declare namespace gc {
       }
     }
 
-    class boom$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::boom$args';
+    class Box<T = any> extends gc.sdk.GCObject {
+      static readonly _type = 'tests::Box';
+      static readonly $fields: Box.$Fields;
+      value: T;
+      constructor(value?: T);
+      static createFrom<T>(fields: {value?: T}): Box;
+    }
+    namespace Box {
+      interface $Fields {
+        value: 0;
+      }
     }
 
     class echo_array$args extends gc.sdk.GCObject {
@@ -76,6 +70,19 @@ declare namespace gc {
       static createFrom(fields: {a: globalThis.Array<number | bigint>}): echo_array$args;
     }
     namespace echo_array$args {
+      interface $Fields {
+        a: 0;
+      }
+    }
+
+    class sum_array$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::sum_array$args';
+      static readonly $fields: sum_array$args.$Fields;
+      a: globalThis.Array<number | bigint>;
+      constructor(a: globalThis.Array<number | bigint>);
+      static createFrom(fields: {a: globalThis.Array<number | bigint>}): sum_array$args;
+    }
+    namespace sum_array$args {
       interface $Fields {
         a: 0;
       }
@@ -94,34 +101,27 @@ declare namespace gc {
       }
     }
 
-    class add$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::add$args';
-      static readonly $fields: add$args.$Fields;
-      a: number | bigint;
-      b: number | bigint;
-      constructor(a: number | bigint, b: number | bigint);
-      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
+    class task_class$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::task_class$args';
     }
-    namespace add$args {
+
+    class concat$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::concat$args';
+      static readonly $fields: concat$args.$Fields;
+      a: string;
+      b: string;
+      constructor(a: string, b: string);
+      static createFrom(fields: {a: string, b: string}): concat$args;
+    }
+    namespace concat$args {
       interface $Fields {
         a: 0;
         b: 1;
       }
     }
 
-    class slow$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::slow$args';
-      static readonly $fields: slow$args.$Fields;
-      steps: number | bigint;
-      step_ms: number | bigint;
-      constructor(steps: number | bigint, step_ms: number | bigint);
-      static createFrom(fields: {steps: number | bigint, step_ms: number | bigint}): slow$args;
-    }
-    namespace slow$args {
-      interface $Fields {
-        steps: 0;
-        step_ms: 1;
-      }
+    class no_result$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::no_result$args';
     }
 
     class Color extends gc.sdk.GCEnum {
@@ -137,8 +137,8 @@ declare namespace gc {
       type Field = "red"|"green"|"blue";
     }
 
-    class no_result$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::no_result$args';
+    class boom$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::boom$args';
     }
 
     class Person extends gc.sdk.GCObject {
@@ -158,19 +158,23 @@ declare namespace gc {
       }
     }
 
-    class concat$args extends gc.sdk.GCObject {
-      static readonly _type = 'tests::concat$args';
-      static readonly $fields: concat$args.$Fields;
-      a: string;
-      b: string;
-      constructor(a: string, b: string);
-      static createFrom(fields: {a: string, b: string}): concat$args;
+    class add$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::add$args';
+      static readonly $fields: add$args.$Fields;
+      a: number | bigint;
+      b: number | bigint;
+      constructor(a: number | bigint, b: number | bigint);
+      static createFrom(fields: {a: number | bigint, b: number | bigint}): add$args;
     }
-    namespace concat$args {
+    namespace add$args {
       interface $Fields {
         a: 0;
         b: 1;
       }
+    }
+
+    class paused$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::paused$args';
     }
 
     const add: ((a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
@@ -204,6 +208,12 @@ declare namespace gc {
       spawn(steps: number | bigint, step_ms: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
     };
     /**
+     * Pauses on a breakpoint until `runtime::Debug::resume`, then answers 42.
+     */
+    const paused: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal): Promise<gc.runtime.Task<number | bigint>>;
+    };
+    /**
      * The worker class the calling task runs in.
      */
     const task_class: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.TaskClass>) & {
@@ -212,235 +222,235 @@ declare namespace gc {
   }
 
   interface $TypesMap {
-    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0,
-    'core::Tuple<core::int,core::int>': 0,
-    'core::nodeGeo$info$args': 0,
+    'core::Array<runtime::HostPerfUser>': 0,
+    'core::nodeGeo$sample$args': 0,
     'core::Table': 0,
-    'core::Array<core::String>': 0,
+    'core::Array<core::any>': 0,
     'core::nodeGeo': 0,
-    'core::Tuple<core::int,core::any?>': 0,
-    'core::Array<core::nodeIndex>': 0,
-    'core::NodeInfo<core::int>': 0,
-    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0,
-    'core::nodeList$info$args': 0,
+    'core::Array<core::SearchResult>': 0,
+    'core::Array<core::node?>': 0,
+    'core::Array<core::nodeList>': 0,
+    'core::SearchResult<core::Tensor,core::any?>': 0,
+    'core::nodeList$sample$args': 0,
     'core::time': 0,
     'core::float': 0,
+    'core::nodeGeo$search$args': 0,
     'core::VectorVertex': 0,
     'core::geo': 0,
     'core::Tuple': 0,
-    'core::Array<core::float>': 0,
-    'core::Array<runtime::StoreDamagedBlock>': 0,
-    'core::Array<core::NodeInfo<core::geo>>': 0,
+    'core::Array<core::SearchResult<core::Tensor,core::any?>>': 0,
+    'core::Array<runtime::StoreTypeStats>': 0,
+    'core::NodeInfo<core::geo>': 0,
     'core::Array<util::HistogramBin>': 0,
-    'core::Array<core::node?>': 0,
+    'core::Array<core::int?>': 0,
+    'core::Array<core::NodeInfo<core::time>>': 0,
     'core::Chars': 0,
-    'core::Map<core::String,core::String>': 0,
+    'core::Array<core::Tuple<core::String,core::String?>>': 0,
     'core::nodeList': 0,
     'core::ErrorCode': 0,
-    'core::Array<runtime::Task>': 0,
-    'core::nodeTime$sample$args': 0,
+    'core::Map<core::String,core::String>': 0,
+    'core::Array<runtime::McpRole>': 0,
     'core::Map': 0,
     'core::MathConstants': 0,
-    'core::Array<runtime::McpTask>': 0,
-    'core::Array<core::nodeTime>': 0,
+    'core::Tuple<core::time,core::any?>': 0,
     'core::SearchResult': 0,
-    'core::Map<core::String,runtime::MediaTypeObject>': 0,
-    'core::bool': 0,
-    'core::Array<core::NodeInfo<core::int>>': 0,
-    'core::Array<core::nodeGeo>': 0,
-    'core::node<core::Tensor>': 0,
-    'core::nodeTime': 0,
     'core::Map<core::String,runtime::ResponseObject>': 0,
-    'core::Array<core::nodeList>': 0,
+    'core::bool': 0,
+    'core::NodeInfo<core::int>': 0,
+    'core::Tuple<core::geo,core::any?>': 0,
+    'core::Array<core::NodeInfo<core::int>>': 0,
+    'core::nodeTime': 0,
+    'core::Map<core::String,runtime::PathItemObject>': 0,
+    'core::Tuple<core::int,core::any?>': 0,
     'core::node': 0,
     'core::String': 0,
     'core::field': 0,
     'core::Buffer': 0,
-    'core::Array<runtime::McpResource>': 0,
+    'core::Array<runtime::McpPrompt>': 0,
     'core::nodeIndexBucket': 0,
-    'core::Map<core::String,core::any>': 0,
-    'core::NodeInfo<core::time>': 0,
+    'core::Map<core::String,runtime::HeaderObject>': 0,
+    'core::Array<core::nodeTime>': 0,
     'core::TensorType': 0,
-    'core::Tuple<core::String,core::String?>': 0,
-    'core::Array<runtime::SchemaObject>': 0,
     'core::Array<core::Tuple<core::int,core::int>>': 0,
-    'core::Table<core::Tuple<core::time,core::any?>>': 0,
+    'core::Map<core::String,runtime::SchemaObject>': 0,
+    'core::Tuple<core::int,core::int>': 0,
+    'core::Array<io::File>': 0,
     'core::SortOrder': 0,
-    'core::Array<runtime::ResponseObject>': 0,
-    'core::nodeTime$info$args': 0,
-    'core::Map<core::any,core::int>': 0,
+    'core::Array<runtime::PathItemObject>': 0,
+    'core::nodeTime$sample$args': 0,
+    'core::Map<core::String,core::int>': 0,
+    'core::Array<core::Map<core::String,core::any>>': 0,
     'core::Tensor': 0,
     'core::Error': 0,
-    'core::Array<runtime::DateTuple>': 0,
-    'core::Array<runtime::MediaTypeObject>': 0,
-    'core::Array<core::char>': 0,
+    'core::Array<runtime::DayOfWeek>': 0,
+    'core::Array<core::String>': 0,
+    'core::Array<runtime::ResponseObject>': 0,
     'core::TableColumnMapping': 0,
-    'core::Array<core::SearchResult>': 0,
+    'core::Array<core::NodeInfo>': 0,
+    'core::Array<util::Quantizer>': 0,
     'core::nodeTimeCursor': 0,
-    'core::SearchResult<core::Tensor,core::any?>': 0,
-    'core::Array<runtime::Permission>': 0,
-    'core::Array<runtime::McpPromptArgument>': 0,
-    'core::Array<core::field>': 0,
-    'core::Array<runtime::Task?>': 0,
-    'core::Table<util::GaussianProfileSlot?>': 0,
-    'core::Array<runtime::StoreTypeStats>': 0,
+    'core::node<core::VectorVertex>': 0,
+    'core::Array<core::SearchResult<core::geo,core::any?>>': 0,
+    'core::Array<runtime::McpTool>': 0,
+    'core::Array<core::type>': 0,
+    'core::Array<core::bool>': 0,
+    'core::Array<runtime::McpTask>': 0,
     'core::null': 0,
     'core::type': 0,
-    'core::Array<core::SearchResult<core::geo,core::any?>>': 0,
-    'core::Array<core::geo>': 0,
-    'core::Array<runtime::IdentityGrant>': 0,
-    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0,
-    'core::SamplingMode': 0,
-    'core::Array<core::GeoBox>': 0,
-    'core::Array<io::File>': 0,
-    'core::nodeIndex$info$args': 0,
-    'core::GeoPoly': 0,
-    'core::Array<runtime::Role>': 0,
-    'core::Table$applyMappings$args': 0,
-    'core::nodeIndex': 0,
-    'core::Array<core::bool>': 0,
-    'core::node<core::VectorVertex>': 0,
-    'core::Array<core::Tuple<core::String,core::String?>>': 0,
-    'core::Array<util::Quantizer>': 0,
-    'core::Array<runtime::McpRole>': 0,
-    'core::Array<core::NodeInfo>': 0,
     'core::SearchResult<core::geo,core::any?>': 0,
-    'core::Array<runtime::DayOfWeek>': 0,
-    'core::Map<core::String,runtime::HeaderObject>': 0,
-    'core::Map<core::String,runtime::PathItemObject>': 0,
-    'core::NodeInfo<core::geo>': 0,
-    'core::Array<runtime::McpContentBlock>': 0,
-    'core::GeoCircle': 0,
-    'core::Array<runtime::Frame>': 0,
-    'core::nodeIndex$search_closest$args': 0,
-    'core::Array<runtime::HeaderObject>': 0,
-    'core::Map<core::String,core::int>': 0,
-    'core::Array<core::NodeInfo<core::time>>': 0,
-    'core::nodeGeo$search$args': 0,
-    'core::Array<runtime::McpPrompt>': 0,
-    'core::Array<core::TableColumnMapping>': 0,
-    'core::nodeGeo$sample$args': 0,
+    'core::Array<core::char>': 0,
+    'core::Array<runtime::Task?>': 0,
+    'core::node<core::Tensor>': 0,
+    'core::SamplingMode': 0,
+    'core::Array<core::geo>': 0,
     'core::Array<io::CsvColumnStatistics>': 0,
+    'core::nodeIndex$sample$args': 0,
+    'core::GeoPoly': 0,
+    'core::Array<runtime::Permission>': 0,
+    'core::nodeList$info$args': 0,
+    'core::nodeIndex': 0,
+    'core::Array<runtime::Task>': 0,
+    'core::nodeIndex<core::node<core::Tensor>,core::any?>': 0,
+    'core::Tuple<core::String,core::String?>': 0,
+    'core::Array<runtime::McpContentBlock>': 0,
+    'core::Array<core::nodeIndex>': 0,
+    'core::Array<core::NodeInfo<core::geo>>': 0,
+    'core::Array<runtime::PeriodicTask>': 0,
+    'core::Array<runtime::SchemaObject>': 0,
+    'core::Array<runtime::DateTuple>': 0,
+    'core::Array<core::nodeGeo>': 0,
+    'core::Array<runtime::McpResource>': 0,
+    'core::GeoCircle': 0,
     'core::nodeIndexBucket<core::node<core::Tensor>,core::any?>': 0,
-    'core::Array<runtime::PathItemObject>': 0,
+    'core::Array<runtime::Variable>': 0,
+    'core::nodeIndex$info$args': 0,
+    'core::Array<runtime::MediaTypeObject>': 0,
+    'core::NodeInfo<core::time>': 0,
+    'core::nodeGeo$info$args': 0,
+    'core::Array<runtime::McpPromptArgument>': 0,
+    'core::Array<core::ErrorFrame>': 0,
+    'core::Table$applyMappings$args': 0,
+    'core::Map<core::any,core::int>': 0,
     'core::TensorDistance': 0,
     'core::CalendarUnit': 0,
     'core::int': 0,
     'core::VectorIndex': 0,
-    'core::Map<core::String,core::Map<core::String,core::any>>': 0,
-    'core::Array<core::any>': 0,
+    'core::Map<core::String,core::any>': 0,
+    'core::Array<core::TableColumnMapping>': 0,
     'core::duration': 0,
     'core::char': 0,
-    'core::Array<runtime::Job>': 0,
+    'core::Array<runtime::Role>': 0,
     'core::any': 0,
     'core::ErrorFrame': 0,
-    'core::Array<runtime::Variable>': 0,
-    'core::node$resolve_all$args': 0,
-    'core::nodeList$sample$args': 0,
-    'core::node<core::int?>': 0,
-    'core::TimeZone': 0,
     'core::Array<runtime::Identity>': 0,
+    'core::nodeTime$info$args': 0,
+    'core::nodeIndex$search_closest$args': 0,
+    'core::TimeZone': 0,
+    'core::Array<runtime::IdentityGrant>': 0,
     'core::function': 0,
-    'core::Array<core::type>': 0,
-    'core::Array<core::int?>': 0,
-    'core::Tuple<core::time,core::any?>': 0,
+    'core::Table<util::GaussianProfileSlot?>': 0,
+    'core::Array<core::field>': 0,
     'core::GeoBox': 0,
-    'core::Array<core::node<core::VectorVertex>?>': 0,
+    'core::Array<core::int>': 0,
     'core::Array': 0,
     'core::NodeInfo': 0,
-    'core::Array<core::int>': 0,
-    'core::nodeIndex$sample$args': 0,
-    'core::Array<core::ErrorFrame>': 0,
-    'core::Array<runtime::HostPerfUser>': 0,
+    'core::Array<core::float>': 0,
+    'core::node$resolve_all$args': 0,
+    'core::Array<core::node<core::VectorVertex>?>': 0,
+    'core::node<core::int?>': 0,
+    'core::Array<runtime::Job>': 0,
+    'core::Array<runtime::StoreDamagedBlock>': 0,
+    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0,
     'core::FloatPrecision': 0,
     'core::Date': 0,
-    'core::Array<core::Map<core::String,core::any>>': 0,
-    'core::Array<runtime::McpTool>': 0,
-    'core::Array<core::SearchResult<core::node<core::Tensor>,core::any?>>': 0,
-    'core::Array<runtime::PeriodicTask>': 0,
-    'core::Tuple<core::geo,core::any?>': 0,
-    'core::Map<core::String,runtime::SchemaObject>': 0,
+    'core::Array<runtime::HeaderObject>': 0,
+    'core::Map<core::String,core::Map<core::String,core::any>>': 0,
+    'core::SearchResult<core::node<core::Tensor>,core::any?>': 0,
+    'core::Array<runtime::Frame>': 0,
+    'core::Array<core::GeoBox>': 0,
+    'core::Map<core::String,runtime::MediaTypeObject>': 0,
     'core::DurationUnit': 0,
+    'core::Table<core::Tuple<core::time,core::any?>>': 0,
     'runtime::Runtime': 0,
     'runtime::McpPromptsListResult': 0,
     'runtime::McpTasksGetParams': 0,
     'runtime::Permission': 0,
     'runtime::Job': 0,
-    'runtime::Runtime$abi$args': 0,
-    'runtime::mcp_tasks_cancel$args': 0,
+    'runtime::Runtime$info$args': 0,
+    'runtime::mcp_tasks_list$args': 0,
     'runtime::McpTasksListResult': 0,
-    'runtime::Permission$all$args': 0,
     'runtime::RuntimeInfoClass': 0,
+    'runtime::mcp_tasks_cancel$args': 0,
     'runtime::McpTasksListParams': 0,
     'runtime::FixedPeriodicity': 0,
     'runtime::SchemaType': 0,
     'runtime::MonthlyPeriodicity': 0,
-    'runtime::Debug$get$args': 0,
+    'runtime::Debug$all$args': 0,
     'runtime::McpToolsCallParams': 0,
     'runtime::McpInitializeParams': 0,
-    'runtime::Task$history$args': 0,
+    'runtime::Task$running$args': 0,
     'runtime::Task': 0,
     'runtime::TaskClass': 0,
-    'runtime::Debug$all$args': 0,
+    'runtime::Identity$revoke$args': 0,
     'runtime::InfoObject': 0,
     'runtime::McpImplementation': 0,
     'runtime::McpTaskCreateParams': 0,
-    'runtime::mcp_tools_list$args': 0,
+    'runtime::mcp_initialize$args': 0,
     'runtime::HostPerfZones': 0,
-    'runtime::Identity$get_by_name$args': 0,
+    'runtime::Identity$get_by_id$args': 0,
     'runtime::McpContentBlock': 0,
     'runtime::RequestBodyObject': 0,
-    'runtime::Identity$set_role$args': 0,
-    'runtime::mcp_tools_call$args': 0,
+    'runtime::Identity$set_grants$args': 0,
+    'runtime::mcp_tools_list$args': 0,
     'runtime::McpResource': 0,
-    'runtime::OpenApi$v3$args': 0,
+    'runtime::Scheduler$deactivate$args': 0,
     'runtime::McpAnnotations': 0,
     'runtime::McpTask': 0,
-    'runtime::Identity$create$args': 0,
-    'runtime::Task$events$args': 0,
+    'runtime::Identity$all$args': 0,
+    'runtime::Task$history$args': 0,
     'runtime::ResponseObject': 0,
     'runtime::LicenseType': 0,
     'runtime::McpResourcesListParams': 0,
-    'runtime::Identity$current_id$args': 0,
-    'runtime::Scheduler$list$args': 0,
+    'runtime::Task$tasks$args': 0,
+    'runtime::Scheduler$add$args': 0,
     'runtime::McpResourcesListResult': 0,
     'runtime::StoreStats': 0,
-    'runtime::Identity$logout$args': 0,
-    'runtime::Identity$token$args': 0,
+    'runtime::Identity$login$args': 0,
+    'runtime::Identity$create$args': 0,
     'runtime::McpResult': 0,
-    'runtime::Runtime$root$args': 0,
+    'runtime::Runtime$abi$args': 0,
     'runtime::McpToolExecution': 0,
-    'runtime::Identity$set_password$args': 0,
-    'runtime::System$get_all_envs$args': 0,
-    'runtime::Scheduler$find$args': 0,
+    'runtime::Identity$permissions$args': 0,
+    'runtime::Runtime$store_stats$args': 0,
+    'runtime::Scheduler$list$args': 0,
     'runtime::Role': 0,
-    'runtime::Identity$all$args': 0,
+    'runtime::Identity$get_by_name$args': 0,
     'runtime::ResponseCode': 0,
-    'runtime::Scheduler$activate$args': 0,
+    'runtime::Scheduler$find$args': 0,
     'runtime::Identity': 0,
     'runtime::HostPerf': 0,
     'runtime::MediaTypeObject': 0,
-    'runtime::Scheduler$add$args': 0,
+    'runtime::Debug$resume$args': 0,
     'runtime::OpenApi': 0,
-    'runtime::mcp_tasks_list$args': 0,
+    'runtime::mcp_tasks_result$args': 0,
     'runtime::McpServerToolsCapabilities': 0,
     'runtime::HostPerfUser': 0,
     'runtime::LicenseObject': 0,
     'runtime::Periodicity': 0,
     'runtime::OpenApiV3': 0,
     'runtime::McpToolsListParams': 0,
-    'runtime::mcp_initialize$args': 0,
+    'runtime::OpenApi$v3$args': 0,
     'runtime::McpTextContent': 0,
     'runtime::OpenApiVersion': 0,
-    'runtime::Identity$login$args': 0,
+    'runtime::Identity$token$args': 0,
     'runtime::DailyPeriodicity': 0,
     'runtime::McpTaskSupport': 0,
-    'runtime::Identity$remove$args': 0,
+    'runtime::Identity$set_role$args': 0,
     'runtime::McpClientCapabilities': 0,
     'runtime::StoreDamagedBlock': 0,
     'runtime::ContactObject': 0,
-    'runtime::Scheduler$deactivate$args': 0,
-    'runtime::mcp_tasks_result$args': 0,
+    'runtime::Scheduler$activate$args': 0,
+    'runtime::mcp_tasks_get$args': 0,
     'runtime::McpTasksCancelParams': 0,
     'runtime::McpToolsCallResult': 0,
     'runtime::McpImageContent': 0,
@@ -448,43 +458,43 @@ declare namespace gc {
     'runtime::McpTaskStatus': 0,
     'runtime::OperationObject': 0,
     'runtime::McpPromptsListParams': 0,
-    'runtime::Identity$grant$args': 0,
+    'runtime::Identity$remove$args': 0,
     'runtime::DayOfWeek': 0,
     'runtime::McpTasksResultParams': 0,
-    'runtime::mcp_resources_list$args': 0,
+    'runtime::mcp_prompts_list$args': 0,
     'runtime::McpServerPromptsCapabilities': 0,
-    'runtime::Role$all$args': 0,
+    'runtime::Permission$all$args': 0,
     'runtime::McpResourceContent': 0,
     'runtime::Log': 0,
     'runtime::McpTool': 0,
-    'runtime::Identity$permissions$args': 0,
+    'runtime::Identity$logout$args': 0,
     'runtime::McpInitializeResult': 0,
     'runtime::Frame': 0,
     'runtime::TaskStatus': 0,
     'runtime::McpRequestParams': 0,
     'runtime::IdentityGrant': 0,
-    'runtime::Identity$revoke$args': 0,
+    'runtime::Identity$grant$args': 0,
     'runtime::HostPerfClass': 0,
-    'runtime::mcp_tasks_get$args': 0,
+    'runtime::mcp_resources_list$args': 0,
     'runtime::McpPriority': 0,
-    'runtime::Runtime$backup_full$args': 0,
+    'runtime::Runtime$root$args': 0,
     'runtime::McpAudioContent': 0,
     'runtime::StoreTypeStats': 0,
     'runtime::McpServerCapabilities': 0,
     'runtime::PathItemObject': 0,
     'runtime::Debug': 0,
     'runtime::DateTuple': 0,
-    'runtime::Runtime$info$args': 0,
-    'runtime::Task$tasks$args': 0,
+    'runtime::Role$all$args': 0,
+    'runtime::Task$live$args': 0,
     'runtime::Variable': 0,
     'runtime::ComponentsObject': 0,
     'runtime::McpClientRoots': 0,
-    'runtime::Identity$current$args': 0,
+    'runtime::Identity$current_id$args': 0,
     'runtime::LogLevel': 0,
     'runtime::PeriodicOptions': 0,
-    'runtime::Task$is_running$args': 0,
     'runtime::Task$cancel$args': 0,
-    'runtime::Task$live$args': 0,
+    'runtime::Task$events$args': 0,
+    'runtime::Task$is_running$args': 0,
     'runtime::System': 0,
     'runtime::SchemaObject': 0,
     'runtime::McpPrompt': 0,
@@ -495,18 +505,18 @@ declare namespace gc {
     'runtime::TaskPerf': 0,
     'runtime::HeaderObject': 0,
     'runtime::McpTasksCreateResult': 0,
-    'runtime::Task$running$args': 0,
-    'runtime::Runtime$store_stats$args': 0,
+    'runtime::System$get_all_envs$args': 0,
+    'runtime::Runtime$backup_full$args': 0,
     'runtime::McpServerResourcesCapabilities': 0,
-    'runtime::Identity$set_grants$args': 0,
+    'runtime::Identity$set_password$args': 0,
     'runtime::ChildProcessResult': 0,
     'runtime::ChildProcess': 0,
     'runtime::McpServerTasksCapabilities': 0,
-    'runtime::Identity$get_by_id$args': 0,
-    'runtime::Debug$resume$args': 0,
+    'runtime::Identity$current$args': 0,
+    'runtime::Debug$get$args': 0,
     'runtime::License': 0,
     'runtime::Scheduler': 0,
-    'runtime::mcp_prompts_list$args': 0,
+    'runtime::mcp_tools_call$args': 0,
     'runtime::McpRole': 0,
     'runtime::McpClientTasksCapabilities': 0,
     'runtime::PeriodicTask': 0,
@@ -517,7 +527,7 @@ declare namespace gc {
     'runtime::RuntimeInfo': 0,
     'io::Json': 0,
     'io::CsvFormat': 0,
-    'io::Csv$sample$args': 0,
+    'io::Csv$analyze$args': 0,
     'io::Writer': 0,
     'io::Reader': 0,
     'io::JsonTypeTag': 0,
@@ -533,14 +543,14 @@ declare namespace gc {
     'io::Smtp': 0,
     'io::CsvAnalysisConfig': 0,
     'io::Stream': 0,
-    'io::Csv$generate$args': 0,
+    'io::Csv$sample$args': 0,
     'io::CsvSharding': 0,
     'io::GcbWriter': 0,
     'io::CsvStatistics': 0,
     'io::Reader<core::String>': 0,
     'io::Email': 0,
     'io::SmtpMode': 0,
-    'io::Csv$analyze$args': 0,
+    'io::Csv$generate$args': 0,
     'io::TextReader': 0,
     'io::CsvNested': 0,
     'io::CsvColumnStatistics': 0,
@@ -554,48 +564,66 @@ declare namespace gc {
     'util::CustomQuantizer': 0,
     'util::LinearQuantizer': 0,
     'util::Random': 0,
+    'util::Quantizer<core::Array>': 0,
     'util::HistogramStats': 0,
     'util::Gaussian': 0,
     'util::QuantizerSlotBound': 0,
     'util::Histogram': 0,
     'util::Assert': 0,
     'util::Uuid': 0,
-    'util::QuantizerSlotBound<core::Array>': 0,
     'util::Queue': 0,
     'util::Quantizer': 0,
     'util::MultiQuantizer': 0,
     'util::GaussianProfile': 0,
     'util::Crypto': 0,
+    'util::QuantizerSlotBound<core::Array>': 0,
     'util::TimeWindow': 0,
     'util::GaussianProfileSlot': 0,
-    'util::Quantizer<core::Array>': 0,
     'util::SlidingWindow': 0,
     'project::Root': 0,
-    'tests::Box<core::int>': 0,
-    'tests::task_class$args': 0,
-    'tests::sum_array$args': 0,
-    'tests::Box': 0,
-    'tests::make_person$args': 0,
-    'tests::boom$args': 0,
-    'tests::echo_array$args': 0,
-    'tests::echo_any$args': 0,
-    'tests::add$args': 0,
     'tests::slow$args': 0,
-    'tests::Color': 0,
-    'tests::no_result$args': 0,
-    'tests::Person': 0,
+    'tests::make_person$args': 0,
+    'tests::Box': 0,
+    'tests::echo_array$args': 0,
+    'tests::sum_array$args': 0,
+    'tests::echo_any$args': 0,
+    'tests::task_class$args': 0,
     'tests::concat$args': 0,
+    'tests::no_result$args': 0,
+    'tests::Color': 0,
+    'tests::Box<core::int>': 0,
+    'tests::boom$args': 0,
+    'tests::Person': 0,
+    'tests::add$args': 0,
+    'tests::paused$args': 0,
   }
 
   interface $FieldsMap {
-    'core::nodeGeo$info$args::nodes': 0,
-    'core::nodeList$info$args::nodes': 0,
+    'core::nodeGeo$sample$args::refs': 0,
+    'core::nodeGeo$sample$args::from': 0,
+    'core::nodeGeo$sample$args::to': 0,
+    'core::nodeGeo$sample$args::maxRows': 0,
+    'core::nodeGeo$sample$args::mode': 0,
+    'core::nodeList$sample$args::refs': 0,
+    'core::nodeList$sample$args::from': 0,
+    'core::nodeList$sample$args::to': 0,
+    'core::nodeList$sample$args::maxRows': 0,
+    'core::nodeList$sample$args::mode': 0,
+    'core::nodeList$sample$args::maxDephasing': 0,
+    'core::nodeGeo$search$args::center': 0,
+    'core::nodeGeo$search$args::max': 0,
     'core::VectorVertex::vector': 0,
     'core::VectorVertex::level_sizes': 0,
     'core::VectorVertex::neighbour_nodes': 0,
     'core::Tuple::x': 0,
     'core::Tuple::y': 0,
     'core::Chars::codepoints': 0,
+    'core::SearchResult::key': 0,
+    'core::SearchResult::value': 0,
+    'core::SearchResult::distance': 0,
+    'core::nodeIndexBucket::key': 0,
+    'core::nodeIndexBucket::value': 0,
+    'core::nodeIndexBucket::next': 0,
     'core::nodeTime$sample$args::refs': 0,
     'core::nodeTime$sample$args::from': 0,
     'core::nodeTime$sample$args::to': 0,
@@ -603,34 +631,23 @@ declare namespace gc {
     'core::nodeTime$sample$args::mode': 0,
     'core::nodeTime$sample$args::maxDephasing': 0,
     'core::nodeTime$sample$args::tz': 0,
-    'core::SearchResult::key': 0,
-    'core::SearchResult::value': 0,
-    'core::SearchResult::distance': 0,
-    'core::nodeIndexBucket::key': 0,
-    'core::nodeIndexBucket::value': 0,
-    'core::nodeIndexBucket::next': 0,
-    'core::nodeTime$info$args::nodes': 0,
     'core::Error::message': 0,
     'core::Error::stack': 0,
     'core::TableColumnMapping::column': 0,
     'core::TableColumnMapping::extractors': 0,
     'core::nodeTimeCursor::n': 0,
-    'core::nodeIndex$info$args::nodes': 0,
+    'core::nodeIndex$sample$args::refs': 0,
+    'core::nodeIndex$sample$args::from': 0,
+    'core::nodeIndex$sample$args::maxRows': 0,
+    'core::nodeIndex$sample$args::mode': 0,
     'core::GeoPoly::points': 0,
-    'core::Table$applyMappings$args::table': 0,
-    'core::Table$applyMappings$args::mappings': 0,
+    'core::nodeList$info$args::nodes': 0,
     'core::GeoCircle::center': 0,
     'core::GeoCircle::radius': 0,
-    'core::nodeIndex$search_closest$args::i': 0,
-    'core::nodeIndex$search_closest$args::key': 0,
-    'core::nodeIndex$search_closest$args::max': 0,
-    'core::nodeGeo$search$args::center': 0,
-    'core::nodeGeo$search$args::max': 0,
-    'core::nodeGeo$sample$args::refs': 0,
-    'core::nodeGeo$sample$args::from': 0,
-    'core::nodeGeo$sample$args::to': 0,
-    'core::nodeGeo$sample$args::maxRows': 0,
-    'core::nodeGeo$sample$args::mode': 0,
+    'core::nodeIndex$info$args::nodes': 0,
+    'core::nodeGeo$info$args::nodes': 0,
+    'core::Table$applyMappings$args::table': 0,
+    'core::Table$applyMappings$args::mappings': 0,
     'core::VectorIndex::values': 0,
     'core::VectorIndex::count': 0,
     'core::VectorIndex::max_level': 0,
@@ -641,22 +658,16 @@ declare namespace gc {
     'core::ErrorFrame::function': 0,
     'core::ErrorFrame::line': 0,
     'core::ErrorFrame::column': 0,
-    'core::node$resolve_all$args::n': 0,
-    'core::nodeList$sample$args::refs': 0,
-    'core::nodeList$sample$args::from': 0,
-    'core::nodeList$sample$args::to': 0,
-    'core::nodeList$sample$args::maxRows': 0,
-    'core::nodeList$sample$args::mode': 0,
-    'core::nodeList$sample$args::maxDephasing': 0,
+    'core::nodeTime$info$args::nodes': 0,
+    'core::nodeIndex$search_closest$args::i': 0,
+    'core::nodeIndex$search_closest$args::key': 0,
+    'core::nodeIndex$search_closest$args::max': 0,
     'core::GeoBox::sw': 0,
     'core::GeoBox::ne': 0,
     'core::NodeInfo::size': 0,
     'core::NodeInfo::from': 0,
     'core::NodeInfo::to': 0,
-    'core::nodeIndex$sample$args::refs': 0,
-    'core::nodeIndex$sample$args::from': 0,
-    'core::nodeIndex$sample$args::maxRows': 0,
-    'core::nodeIndex$sample$args::mode': 0,
+    'core::node$resolve_all$args::n': 0,
     'core::Date::year': 0,
     'core::Date::month': 0,
     'core::Date::day': 0,
@@ -674,19 +685,19 @@ declare namespace gc {
     'runtime::Job::function': 0,
     'runtime::Job::arguments': 0,
     'runtime::Job::task_class': 0,
-    'runtime::mcp_tasks_cancel$args::params': 0,
+    'runtime::mcp_tasks_list$args::params': 0,
     'runtime::McpTasksListResult::_meta': 0,
     'runtime::McpTasksListResult::tasks': 0,
     'runtime::McpTasksListResult::nextCursor': 0,
     'runtime::RuntimeInfoClass::workers': 0,
     'runtime::RuntimeInfoClass::mem_worker': 0,
     'runtime::RuntimeInfoClass::cache_ratio': 0,
+    'runtime::mcp_tasks_cancel$args::params': 0,
     'runtime::McpTasksListParams::_meta': 0,
     'runtime::McpTasksListParams::cursor': 0,
     'runtime::FixedPeriodicity::every': 0,
     'runtime::MonthlyPeriodicity::days': 0,
     'runtime::MonthlyPeriodicity::daily': 0,
-    'runtime::Debug$get$args::id': 0,
     'runtime::McpToolsCallParams::_meta': 0,
     'runtime::McpToolsCallParams::name': 0,
     'runtime::McpToolsCallParams::arguments': 0,
@@ -695,8 +706,6 @@ declare namespace gc {
     'runtime::McpInitializeParams::protocolVersion': 0,
     'runtime::McpInitializeParams::capabilities': 0,
     'runtime::McpInitializeParams::clientInfo': 0,
-    'runtime::Task$history$args::offset': 0,
-    'runtime::Task$history$args::max': 0,
     'runtime::Task::user_id': 0,
     'runtime::Task::user_name': 0,
     'runtime::Task::task_id': 0,
@@ -709,6 +718,9 @@ declare namespace gc {
     'runtime::Task::status': 0,
     'runtime::Task::progress': 0,
     'runtime::Task::task_class': 0,
+    'runtime::Identity$revoke$args::name': 0,
+    'runtime::Identity$revoke$args::target': 0,
+    'runtime::Identity$revoke$args::grant': 0,
     'runtime::InfoObject::title': 0,
     'runtime::InfoObject::version': 0,
     'runtime::InfoObject::summary': 0,
@@ -720,7 +732,7 @@ declare namespace gc {
     'runtime::McpImplementation::title': 0,
     'runtime::McpImplementation::version': 0,
     'runtime::McpTaskCreateParams::ttl': 0,
-    'runtime::mcp_tools_list$args::params': 0,
+    'runtime::mcp_initialize$args::params': 0,
     'runtime::HostPerfZones::count': 0,
     'runtime::HostPerfZones::used': 0,
     'runtime::HostPerfZones::size': 0,
@@ -731,18 +743,19 @@ declare namespace gc {
     'runtime::HostPerfZones::worst_zone': 0,
     'runtime::HostPerfZones::worst_ratio': 0,
     'runtime::HostPerfZones::defrag': 0,
-    'runtime::Identity$get_by_name$args::name': 0,
+    'runtime::Identity$get_by_id$args::id': 0,
     'runtime::RequestBodyObject::content': 0,
     'runtime::RequestBodyObject::required': 0,
-    'runtime::Identity$set_role$args::name': 0,
-    'runtime::Identity$set_role$args::role': 0,
-    'runtime::mcp_tools_call$args::params': 0,
+    'runtime::Identity$set_grants$args::name': 0,
+    'runtime::Identity$set_grants$args::grants': 0,
+    'runtime::mcp_tools_list$args::params': 0,
     'runtime::McpResource::name': 0,
     'runtime::McpResource::title': 0,
     'runtime::McpResource::uri': 0,
     'runtime::McpResource::description': 0,
     'runtime::McpResource::mimeType': 0,
     'runtime::McpResource::size': 0,
+    'runtime::Scheduler$deactivate$args::function': 0,
     'runtime::McpAnnotations::audience': 0,
     'runtime::McpAnnotations::priority': 0,
     'runtime::McpAnnotations::lastModified': 0,
@@ -753,13 +766,17 @@ declare namespace gc {
     'runtime::McpTask::lastUpdatedAt': 0,
     'runtime::McpTask::ttl': 0,
     'runtime::McpTask::pollInterval': 0,
-    'runtime::Identity$create$args::name': 0,
-    'runtime::Identity$create$args::role': 0,
+    'runtime::Task$history$args::offset': 0,
+    'runtime::Task$history$args::max': 0,
     'runtime::ResponseObject::description': 0,
     'runtime::ResponseObject::headers': 0,
     'runtime::ResponseObject::content': 0,
     'runtime::McpResourcesListParams::_meta': 0,
     'runtime::McpResourcesListParams::cursor': 0,
+    'runtime::Task$tasks$args::ids': 0,
+    'runtime::Scheduler$add$args::function': 0,
+    'runtime::Scheduler$add$args::periodicity': 0,
+    'runtime::Scheduler$add$args::options': 0,
     'runtime::McpResourcesListResult::_meta': 0,
     'runtime::McpResourcesListResult::resources': 0,
     'runtime::McpResourcesListResult::nextCursor': 0,
@@ -771,15 +788,15 @@ declare namespace gc {
     'runtime::StoreStats::types': 0,
     'runtime::StoreStats::damaged': 0,
     'runtime::StoreStats::unreadable_zones': 0,
-    'runtime::Identity$token$args::id': 0,
-    'runtime::Identity$token$args::ttl': 0,
+    'runtime::Identity$login$args::login': 0,
+    'runtime::Identity$login$args::password': 0,
+    'runtime::Identity$create$args::name': 0,
+    'runtime::Identity$create$args::role': 0,
     'runtime::McpToolExecution::taskSupport': 0,
-    'runtime::Identity$set_password$args::name': 0,
-    'runtime::Identity$set_password$args::pass': 0,
-    'runtime::Scheduler$find$args::function': 0,
     'runtime::Role::name': 0,
     'runtime::Role::permissions': 0,
-    'runtime::Scheduler$activate$args::function': 0,
+    'runtime::Identity$get_by_name$args::name': 0,
+    'runtime::Scheduler$find$args::function': 0,
     'runtime::Identity::id': 0,
     'runtime::Identity::name': 0,
     'runtime::Identity::role': 0,
@@ -820,10 +837,8 @@ declare namespace gc {
     'runtime::HostPerf::large': 0,
     'runtime::HostPerf::zones': 0,
     'runtime::MediaTypeObject::schema': 0,
-    'runtime::Scheduler$add$args::function': 0,
-    'runtime::Scheduler$add$args::periodicity': 0,
-    'runtime::Scheduler$add$args::options': 0,
-    'runtime::mcp_tasks_list$args::params': 0,
+    'runtime::Debug$resume$args::id': 0,
+    'runtime::mcp_tasks_result$args::params': 0,
     'runtime::McpServerToolsCapabilities::listChanged': 0,
     'runtime::HostPerfUser::user_id': 0,
     'runtime::HostPerfUser::bytes_in': 0,
@@ -839,18 +854,18 @@ declare namespace gc {
     'runtime::OpenApiV3::components': 0,
     'runtime::McpToolsListParams::_meta': 0,
     'runtime::McpToolsListParams::cursor': 0,
-    'runtime::mcp_initialize$args::params': 0,
     'runtime::McpTextContent::type': 0,
     'runtime::McpTextContent::_meta': 0,
     'runtime::McpTextContent::annotations': 0,
     'runtime::McpTextContent::text': 0,
-    'runtime::Identity$login$args::login': 0,
-    'runtime::Identity$login$args::password': 0,
+    'runtime::Identity$token$args::id': 0,
+    'runtime::Identity$token$args::ttl': 0,
     'runtime::DailyPeriodicity::hour': 0,
     'runtime::DailyPeriodicity::minute': 0,
     'runtime::DailyPeriodicity::second': 0,
     'runtime::DailyPeriodicity::timezone': 0,
-    'runtime::Identity$remove$args::name': 0,
+    'runtime::Identity$set_role$args::name': 0,
+    'runtime::Identity$set_role$args::role': 0,
     'runtime::McpClientCapabilities::experimental': 0,
     'runtime::McpClientCapabilities::roots': 0,
     'runtime::McpClientCapabilities::sampling': 0,
@@ -862,8 +877,8 @@ declare namespace gc {
     'runtime::ContactObject::name': 0,
     'runtime::ContactObject::url': 0,
     'runtime::ContactObject::email': 0,
-    'runtime::Scheduler$deactivate$args::function': 0,
-    'runtime::mcp_tasks_result$args::params': 0,
+    'runtime::Scheduler$activate$args::function': 0,
+    'runtime::mcp_tasks_get$args::params': 0,
     'runtime::McpTasksCancelParams::_meta': 0,
     'runtime::McpTasksCancelParams::taskId': 0,
     'runtime::McpToolsCallResult::_meta': 0,
@@ -883,12 +898,10 @@ declare namespace gc {
     'runtime::OperationObject::responses': 0,
     'runtime::McpPromptsListParams::_meta': 0,
     'runtime::McpPromptsListParams::cursor': 0,
-    'runtime::Identity$grant$args::name': 0,
-    'runtime::Identity$grant$args::target': 0,
-    'runtime::Identity$grant$args::grant': 0,
+    'runtime::Identity$remove$args::name': 0,
     'runtime::McpTasksResultParams::_meta': 0,
     'runtime::McpTasksResultParams::taskId': 0,
-    'runtime::mcp_resources_list$args::params': 0,
+    'runtime::mcp_prompts_list$args::params': 0,
     'runtime::McpServerPromptsCapabilities::listChanged': 0,
     'runtime::McpResourceContent::type': 0,
     'runtime::McpResourceContent::_meta': 0,
@@ -925,9 +938,9 @@ declare namespace gc {
     'runtime::Frame::scope': 0,
     'runtime::IdentityGrant::name': 0,
     'runtime::IdentityGrant::grant': 0,
-    'runtime::Identity$revoke$args::name': 0,
-    'runtime::Identity$revoke$args::target': 0,
-    'runtime::Identity$revoke$args::grant': 0,
+    'runtime::Identity$grant$args::name': 0,
+    'runtime::Identity$grant$args::target': 0,
+    'runtime::Identity$grant$args::grant': 0,
     'runtime::HostPerfClass::workers': 0,
     'runtime::HostPerfClass::busy': 0,
     'runtime::HostPerfClass::queued': 0,
@@ -938,7 +951,7 @@ declare namespace gc {
     'runtime::HostPerfClass::timeouts': 0,
     'runtime::HostPerfClass::memory': 0,
     'runtime::HostPerfClass::cache_budget': 0,
-    'runtime::mcp_tasks_get$args::params': 0,
+    'runtime::mcp_resources_list$args::params': 0,
     'runtime::McpAudioContent::type': 0,
     'runtime::McpAudioContent::_meta': 0,
     'runtime::McpAudioContent::annotations': 0,
@@ -962,7 +975,7 @@ declare namespace gc {
     'runtime::Debug::root': 0,
     'runtime::DateTuple::day': 0,
     'runtime::DateTuple::month': 0,
-    'runtime::Task$tasks$args::ids': 0,
+    'runtime::Task$live$args::ids': 0,
     'runtime::Variable::name': 0,
     'runtime::Variable::value': 0,
     'runtime::ComponentsObject::schemas': 0,
@@ -972,9 +985,8 @@ declare namespace gc {
     'runtime::PeriodicOptions::start': 0,
     'runtime::PeriodicOptions::max_duration': 0,
     'runtime::PeriodicOptions::task_class': 0,
-    'runtime::Task$is_running$args::task_id': 0,
     'runtime::Task$cancel$args::task_id': 0,
-    'runtime::Task$live$args::ids': 0,
+    'runtime::Task$is_running$args::task_id': 0,
     'runtime::SchemaObject::$ref': 0,
     'runtime::SchemaObject::$defs': 0,
     'runtime::SchemaObject::type': 0,
@@ -1033,8 +1045,8 @@ declare namespace gc {
     'runtime::McpTasksCreateResult::task': 0,
     'runtime::McpServerResourcesCapabilities::subscribe': 0,
     'runtime::McpServerResourcesCapabilities::listChanged': 0,
-    'runtime::Identity$set_grants$args::name': 0,
-    'runtime::Identity$set_grants$args::grants': 0,
+    'runtime::Identity$set_password$args::name': 0,
+    'runtime::Identity$set_password$args::pass': 0,
     'runtime::ChildProcessResult::code': 0,
     'runtime::ChildProcessResult::stdout': 0,
     'runtime::ChildProcessResult::stderr': 0,
@@ -1042,8 +1054,7 @@ declare namespace gc {
     'runtime::McpServerTasksCapabilities::list': 0,
     'runtime::McpServerTasksCapabilities::cancel': 0,
     'runtime::McpServerTasksCapabilities::requests': 0,
-    'runtime::Identity$get_by_id$args::id': 0,
-    'runtime::Debug$resume$args::id': 0,
+    'runtime::Debug$get$args::id': 0,
     'runtime::License::name': 0,
     'runtime::License::start': 0,
     'runtime::License::end': 0,
@@ -1052,7 +1063,7 @@ declare namespace gc {
     'runtime::License::extra_1': 0,
     'runtime::License::extra_2': 0,
     'runtime::License::type': 0,
-    'runtime::mcp_prompts_list$args::params': 0,
+    'runtime::mcp_tools_call$args::params': 0,
     'runtime::McpClientTasksCapabilities::list': 0,
     'runtime::McpClientTasksCapabilities::cancel': 0,
     'runtime::McpClientTasksCapabilities::requests': 0,
@@ -1092,8 +1103,8 @@ declare namespace gc {
     'io::CsvFormat::null_in_quotes': 0,
     'io::CsvFormat::nested': 0,
     'io::CsvFormat::nearest_time': 0,
-    'io::Csv$sample$args::reader': 0,
-    'io::Csv$sample$args::max_lines': 0,
+    'io::Csv$analyze$args::paths': 0,
+    'io::Csv$analyze$args::config': 0,
     'io::JsonWriter::path': 0,
     'io::JsonWriter::append': 0,
     'io::JsonWriter::type_tag': 0,
@@ -1135,7 +1146,8 @@ declare namespace gc {
     'io::CsvAnalysisConfig::enumerable_limit': 0,
     'io::CsvAnalysisConfig::date_check_limit': 0,
     'io::CsvAnalysisConfig::date_formats': 0,
-    'io::Csv$generate$args::stats': 0,
+    'io::Csv$sample$args::reader': 0,
+    'io::Csv$sample$args::max_lines': 0,
     'io::CsvSharding::id': 0,
     'io::CsvSharding::column': 0,
     'io::CsvSharding::modulo': 0,
@@ -1157,8 +1169,7 @@ declare namespace gc {
     'io::Email::to': 0,
     'io::Email::cc': 0,
     'io::Email::bcc': 0,
-    'io::Csv$analyze$args::paths': 0,
-    'io::Csv$analyze$args::config': 0,
+    'io::Csv$generate$args::stats': 0,
     'io::TextReader::path': 0,
     'io::TextReader::pos': 0,
     'io::CsvColumnStatistics::name': 0,
@@ -1262,22 +1273,22 @@ declare namespace gc {
     'util::SlidingWindow::sum': 0,
     'util::SlidingWindow::sumsq': 0,
     'util::SlidingWindow::field': 0,
-    'tests::sum_array$args::a': 0,
-    'tests::Box::value': 0,
+    'tests::slow$args::steps': 0,
+    'tests::slow$args::step_ms': 0,
     'tests::make_person$args::name': 0,
     'tests::make_person$args::age': 0,
     'tests::make_person$args::nickname': 0,
+    'tests::Box::value': 0,
     'tests::echo_array$args::a': 0,
+    'tests::sum_array$args::a': 0,
     'tests::echo_any$args::v': 0,
-    'tests::add$args::a': 0,
-    'tests::add$args::b': 0,
-    'tests::slow$args::steps': 0,
-    'tests::slow$args::step_ms': 0,
+    'tests::concat$args::a': 0,
+    'tests::concat$args::b': 0,
     'tests::Person::name': 0,
     'tests::Person::age': 0,
     'tests::Person::nickname': 0,
-    'tests::concat$args::a': 0,
-    'tests::concat$args::b': 0,
+    'tests::add$args::a': 0,
+    'tests::add$args::b': 0,
   }
 
   interface $FunctionsMap {
@@ -1354,6 +1365,7 @@ declare namespace gc {
     'tests::boom': 0,
     'tests::no_result': 0,
     'tests::slow': 0,
+    'tests::paused': 0,
     'tests::task_class': 0,
   }
 
@@ -1556,5 +1568,6 @@ declare namespace gc {
   export import boom = gc.tests.boom;
   export import no_result = gc.tests.no_result;
   export import slow = gc.tests.slow;
+  export import paused = gc.tests.paused;
   export import task_class = gc.tests.task_class;
 }
