@@ -31,7 +31,7 @@ describe('task stream', () => {
     server = undefined;
   });
 
-  /** @param {string} url @param {{ token?: string, taskEvents?: boolean }} [extra] */
+  /** @param {string} url @param {{ token?: string, taskEvents?: boolean, pauseWhenHidden?: boolean }} [extra] */
   function client(url, extra = {}) {
     return gc.sdk.initWithAbi({
       abi,
@@ -276,5 +276,30 @@ describe('task stream', () => {
       ['open', '2'],
       ['idle', undefined],
     ]);
+  });
+
+  it('closes the stream while the page is hidden', async () => {
+    const doc = Object.assign(new EventTarget(), { hidden: false });
+    /** @type {any} */ (globalThis).document = doc;
+    try {
+      server = await fakeServer((req, res) => {
+        openStream(res, `${/** @type {NonNullable<typeof server>} */ (server).count}`);
+      });
+      g = client(server.url, { pauseWhenHidden: true });
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(g.tasks.streamId, '1');
+
+      doc.hidden = true;
+      doc.dispatchEvent(new Event('visibilitychange'));
+      assert.equal(g.tasks.streamState, 'idle');
+      assert.equal(g.tasks.transport, 'poll');
+
+      doc.hidden = false;
+      doc.dispatchEvent(new Event('visibilitychange'));
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(g.tasks.streamId, '2');
+    } finally {
+      delete (/** @type {any} */ (globalThis).document);
+    }
   });
 });

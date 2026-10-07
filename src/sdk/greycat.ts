@@ -405,6 +405,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     unauthorizedHandler,
     abiMismatchHandler,
     taskEvents = true,
+    pauseWhenHidden = false,
   } = options;
   const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
   const cleanUrl = normalizeUrl(url);
@@ -478,6 +479,9 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
 
   register(name, g);
   initialize_functions(name, g);
+  if (pauseWhenHidden) {
+    g.tasks.pauseWhenHidden();
+  }
   if (taskEvents) {
     g.tasks.connect();
   }
@@ -514,6 +518,7 @@ export function initWithAbi({
   url = DEFAULT_URL,
   credentials,
   taskEvents = false,
+  pauseWhenHidden = false,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
     name,
@@ -536,6 +541,9 @@ export function initWithAbi({
   register(name, g);
   // initialize runtime RPCs based on Abi
   initialize_functions(name, g);
+  if (pauseWhenHidden) {
+    g.tasks.pauseWhenHidden();
+  }
   if (taskEvents) {
     g.tasks.connect();
   }

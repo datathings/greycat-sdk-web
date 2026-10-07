@@ -125,9 +125,13 @@ An open stream keeps a Node process alive. A script or a test that called
 `init` must end with `greycat.tasks.disconnect()`, or init with
 `taskEvents: false` and let polling do the work.
 
-A browser allows six connections per origin over HTTP/1.1, and each instance
-holds one for its stream. Do not create instances per component; share
-`gc.$.default`.
+A browser allows six connections per origin over HTTP/1.1, shared by all its
+tabs, and each instance holds one for its stream. Share `gc.$.default` rather
+than creating instances per component.
+With `init({ pauseWhenHidden: true })`, a hidden tab closes its stream and
+leaves the connection to the others. Its tracked tasks are polled in the
+meantime, and the ones spawned before the pause stay polled until they end,
+since the stream reopened on return reports none of them.
 
 ## Controlling the stream
 
@@ -137,3 +141,5 @@ holds one for its stream. Do not create instances per component; share
 | `greycat.tasks.connect()` | open it (an `initWithAbi` instance, or after `disconnect`) |
 | `greycat.tasks.disconnect()` | close it and stop reconnecting; tracked tasks fall back to polling |
 | `greycat.tasks.reconnect()` | close and reopen with the current credentials, if it was asked for |
+| `greycat.tasks.pauseWhenHidden(enabled)` | close it while the page is hidden, what the `pauseWhenHidden` option of `init` turns on |
+| `await greycat.tasks.opened(timeoutMs)` | `true` once it is open, `false` if the attempt fails, nothing is opening it, or the time runs out |

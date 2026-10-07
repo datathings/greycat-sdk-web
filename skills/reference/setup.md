@@ -67,6 +67,7 @@ resolves to it. Options:
 | `name` | registry key, `'default'` unless several instances coexist |
 | `auth`, `credentials` | see [auth.md](auth.md) |
 | `taskEvents` | keep a task event stream open, `true` by default; see [tasks.md](tasks.md) |
+| `pauseWhenHidden` | close that stream while the page is hidden, `false` by default (see [tasks.md](tasks.md)) |
 | `pollFrequency` | cadence of the polling fallback in ms, `100` |
 | `unauthorizedHandler`, `abiMismatchHandler` | see [auth.md](auth.md) |
 | `cache` | an ETag cache for the ABI and call responses |

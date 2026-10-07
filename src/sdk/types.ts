@@ -158,6 +158,13 @@ export interface Options {
    */
   taskEvents?: boolean;
   /**
+   * Closes the task event stream while the page is hidden and opens it again once it is
+   * visible, so a hidden tab leaves its connection to the others (a browser shares six per
+   * origin between all its tabs over HTTP/1.1). Tracked tasks are polled in the meantime.
+   * Ignored outside a browser. Defaults to `false`, see `greycat.tasks.pauseWhenHidden()`.
+   */
+  pauseWhenHidden?: boolean;
+  /**
    * Called when a request (from `gc.sdk.call(...)`) returns a status code 401.
    *
    * *You can also set this handler directly on the `GreyCat` instance after creating it*

@@ -187,6 +187,10 @@ export class TaskPoller {
    * stream opens or goes, since a new stream reports none of the calls that named the old one.
    */
   #bound: Set<TaskId> = new Set();
+  /** The `visibilitychange` listener installed by {@link pauseWhenHidden}. */
+  #visibility: (() => void) | undefined;
+  /** The page is hidden and {@link pauseWhenHidden} closed the stream for it. */
+  #hidden = false;
 
   constructor(g: GreyCat) {
     this.#g = g;
@@ -234,7 +238,49 @@ export class TaskPoller {
    */
   connect(): void {
     this.#wanted = true;
-    this.#stream.connect();
+    if (!this.#hidden) {
+      this.#stream.connect();
+    }
+  }
+
+  /**
+   * Closes the stream while the page is hidden (`document.hidden`) and opens it again once
+   * the page is visible, with `enabled` (the default). A browser shares six connections per
+   * origin between all its tabs over HTTP/1.1, and a hidden tab then leaves its own to the
+   * others. In the meantime, every tracked task is polled, and the ones spawned before the
+   * pause stay polled until they end, since the new stream does not report them. Does
+   * nothing outside a browser. `init` calls it for the `pauseWhenHidden` option.
+   */
+  pauseWhenHidden(enabled = true): void {
+    if (typeof document === 'undefined') {
+      return;
+    }
+    const listener = this.#visibility;
+    if (enabled && listener === undefined) {
+      this.#visibility = () => this.#onVisibility(document.hidden);
+      document.addEventListener('visibilitychange', this.#visibility);
+      this.#onVisibility(document.hidden);
+    } else if (!enabled && listener !== undefined) {
+      document.removeEventListener('visibilitychange', listener);
+      this.#visibility = undefined;
+      this.#onVisibility(false);
+    }
+  }
+
+  #onVisibility(hidden: boolean): void {
+    if (hidden === this.#hidden) {
+      return;
+    }
+    this.#hidden = hidden;
+    if (!this.#wanted) {
+      return;
+    }
+    if (hidden) {
+      this.#stream.disconnect();
+      this.#streamGone();
+    } else {
+      this.#stream.connect();
+    }
   }
 
   /**
@@ -267,7 +313,9 @@ export class TaskPoller {
     }
     this.#stream.disconnect();
     this.#streamGone();
-    this.#stream.connect();
+    if (!this.#hidden) {
+      this.#stream.connect();
+    }
   }
 
   /**
