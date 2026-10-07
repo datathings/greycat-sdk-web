@@ -19,3 +19,14 @@ sl-select::part(combobox) {
   border-top-right-radius: var(--border-radius);
   border-bottom-right-radius: var(--border-radius);
 }
+
+/* the field names the duration as a whole: the unit's label stays for screen readers only,
+   so the value and the unit line up as one control */
+sl-select::part(form-control-label) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}

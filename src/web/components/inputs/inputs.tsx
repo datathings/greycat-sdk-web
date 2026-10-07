@@ -1337,7 +1337,8 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
     } else {
       const [val, unit] = gc.sdk.decomposeDuration(value);
       this.input.value = `${val}`;
-      this.select.value = unit.key;
+      // the options are keyed by the unit's offset, see the constructor
+      this.select.value = `${unit.offset}`;
     }
   }
 
@@ -1355,7 +1356,7 @@ export class GuiInputDuration extends GuiInputElement<gc.core.duration | null> {
 
   set durationUnit(value: gc.core.DurationUnit | null) {
     if (value) {
-      this.select.value = value.key;
+      this.select.value = `${value.offset}`;
     } else {
       this.select.value = '';
     }
