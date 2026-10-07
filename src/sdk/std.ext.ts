@@ -67,6 +67,17 @@ export function __extend_std() {
       }
       return g.tasks.subscribe(id, cb, pollEvery);
     },
+    isTerminal(this: gc.runtime.Task): boolean {
+      switch (this.status.key) {
+        case 'ended':
+        case 'ended_with_errors':
+        case 'error':
+        case 'cancelled':
+          return true;
+        default:
+          return false;
+      }
+    },
     duration(this: gc.runtime.Task): gc.core.duration | undefined {
       if (this.start && this.completion) {
         return this.completion.sub(this.start) as gc.core.duration;

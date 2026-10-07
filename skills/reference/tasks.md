@@ -27,6 +27,9 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
 - `await(task, opts)` waits for the end, then fetches the result from the
   task's `result.gcb` file. `opts.onprogress` receives `task.progress`
   (`0..1` or `null`) on each update and `1` at the end.
+- `task.isTerminal()` says whether the status a `runtime::Task` holds is
+  final (`ended`, `ended_with_errors`, `error`, `cancelled`). It reads the
+  object only, unlike `task.isRunning()`, which asks the server.
 - `spawnAwait(fqn, args, opts)` is `await(await spawn(...))`, in the worker
   class `opts.taskClass` names. For a function the server never spawns, it
   returns the value the server answered with (see [calls.md](calls.md)).

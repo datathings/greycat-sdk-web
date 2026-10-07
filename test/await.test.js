@@ -54,4 +54,9 @@ describe('task results', () => {
     assert.deepEqual(resultAuths, ['secret']);
     assert.equal(g.token, 'secret');
   });
+
+  it('tells a terminal status from the others', async () => {
+    const terminal = gc.runtime.TaskStatus.$fields.filter((s) => makeTask(1, 1, s).isTerminal()).map((s) => s.key);
+    assert.deepEqual(terminal.sort(), ['cancelled', 'ended', 'ended_with_errors', 'error']);
+  });
 });

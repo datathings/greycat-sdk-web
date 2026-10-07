@@ -460,30 +460,18 @@ export class TaskPoller {
     this.#g.emit('task:update', task);
     this.#emit(pending, task);
 
-    switch (task.status.key) {
-      case 'ended':
-        pending.deferred?.resolve(task);
-        this.#g.emit('task:settle', { task, error: null });
-        this.#settle(pending);
-        break;
-      case 'cancelled': {
-        const error = new TaskError(pending.id, 'cancelled', task);
-        pending.deferred?.reject(error);
-        this.#g.emit('task:settle', { task, error });
-        this.#settle(pending);
-        break;
-      }
-      case 'ended_with_errors':
-      case 'error': {
-        const error = new TaskError(pending.id, 'error', task);
-        pending.deferred?.reject(error);
-        this.#g.emit('task:settle', { task, error });
-        this.#settle(pending);
-        break;
-      }
-      default:
-        // 'waiting' | 'running' | 'await' | 'breakpoint': keep tracking
-        break;
+    if (!task.isTerminal()) {
+      return;
     }
+    if (task.status.key === 'ended') {
+      pending.deferred?.resolve(task);
+      this.#g.emit('task:settle', { task, error: null });
+    } else {
+      const reason = task.status.key === 'cancelled' ? 'cancelled' : 'error';
+      const error = new TaskError(pending.id, reason, task);
+      pending.deferred?.reject(error);
+      this.#g.emit('task:settle', { task, error });
+    }
+    this.#settle(pending);
   }
 }

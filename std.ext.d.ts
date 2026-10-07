@@ -87,6 +87,12 @@ declare namespace gc {
        * Returns the duration of the task or `undefined` when the task is not started.
        */
       duration(): gc.core.duration | undefined;
+      /**
+       * Whether the status this object holds is final: `ended`, `ended_with_errors`, `error`
+       * or `cancelled`. It reads the snapshot only, unlike {@link isRunning}, which asks the
+       * server.
+       */
+      isTerminal(): boolean;
     }
   }
 
