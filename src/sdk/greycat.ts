@@ -726,13 +726,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   private _exports: GreyCatWasmExports | undefined;
   /** Re-used by the serialize methods to prevent re-allocations */
   private _writer: AbiWriter;
-  /**
-   * Task tracker for this instance: `wait` for a task to complete or `subscribe`
-   * to its updates, over the task event stream when open and a single batched
-   * poll otherwise. The instance's `task:update` / `task:settle` events mirror
-   * what it observes.
-   */
-  readonly tasks: TaskPoller;
+  #tasks: TaskPoller;
+  /** {@link tasks} belongs to the instance this one was cloned from. */
+  #sharedTasks = false;
   private _fields_map: Map<string, AbiAttribute>;
   private _debug_id: number | bigint | undefined;
 
@@ -768,7 +764,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this.unauthorizedHandler = unauthorizedHandler;
     this.abiMismatchHandler = abiMismatchHandler;
     this._fields_map = new Map();
-    this.tasks = new TaskPoller(this);
+    this.#tasks = new TaskPoller(this);
 
     if (timezone === undefined) {
       this.timezone =
@@ -778,6 +774,16 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
 
     this.numFmt = numFmt ?? new Intl.NumberFormat(navigator.language, {});
+  }
+
+  /**
+   * Task tracker for this instance: `wait` for a task to complete or `subscribe`
+   * to its updates, over the task event stream when open and a single batched
+   * poll otherwise. The `task:*` events of the instance that owns it mirror
+   * what it observes. A clone shares the tracker of its original until its token changes.
+   */
+  get tasks(): TaskPoller {
+    return this.#tasks;
   }
 
   /** Sent as `Authorization` on every request; `undefined` for an anonymous or cookie session. */
@@ -796,7 +802,13 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       return;
     }
     this.#token = value;
-    this.tasks.reconnect();
+    if (this.#sharedTasks) {
+      // the shared stream and polls run with the credentials of the original instance
+      this.#sharedTasks = false;
+      this.#tasks = this.#tasks.fork(this);
+    } else {
+      this.#tasks.reconnect();
+    }
   }
 
   #lostAt = 0;
@@ -875,6 +887,12 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
   }
 
+  /**
+   * A copy of this instance registered as `name`, with the same login and settings. It
+   * shares the task tracker and event stream of this instance, so tasks it spawns are
+   * followed on that stream and their `task:*` events are emitted here. Once its own token
+   * changes, it gets a tracker of its own.
+   */
   clone(name: string): GreyCat {
     const greycat = new GreyCat(
       name,
@@ -893,10 +911,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.abiMismatchHandler,
     );
     greycat.credentials = this.credentials;
+    // one stream per login, so the clone binds its calls to this instance's stream, and its
+    // tasks are tracked here, so their `task:*` events are emitted on this instance
+    greycat.#tasks = this.#tasks;
+    greycat.#sharedTasks = true;
     register(name, greycat);
-    if (this.tasks.streamState !== 'idle') {
-      greycat.tasks.connect();
-    }
     return greycat;
   }
 
@@ -1120,7 +1139,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       if (spawned && debug) {
         if (value instanceof gcreg.runtime.Task) {
           // the answer is the result of the task, not the task to wait for
-          return { value: await (value as gc.runtime.Task<T>).result(undefined, $.default), spawned: false };
+          return { value: await (value as gc.runtime.Task<T>).result(undefined, this), spawned: false };
         } else {
           throw new Error(`expecting a core.Task response when debugId is set`);
         }

@@ -126,8 +126,8 @@ An open stream keeps a Node process alive. A script or a test that called
 `taskEvents: false` and let polling do the work.
 
 A browser allows six connections per origin over HTTP/1.1, shared by all its
-tabs, and each instance holds one for its stream. Share `gc.$.default` rather
-than creating instances per component.
+tabs, and each instance holds one for its stream (a clone shares the stream of
+its original). Share `gc.$.default` rather than creating instances per component.
 With `init({ pauseWhenHidden: true })`, a hidden tab closes its stream and
 leaves the connection to the others. Its tracked tasks are polled in the
 meantime, and the ones spawned before the pause stay polled until they end,

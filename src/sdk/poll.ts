@@ -203,6 +203,21 @@ export class TaskPoller {
     });
   }
 
+  /**
+   * A tracker for `g`, set up like this one. Its stream is opened if this one's was asked
+   * for, and paused while the page is hidden if this one's is.
+   */
+  fork(g: GreyCat): TaskPoller {
+    const tasks = new TaskPoller(g);
+    if (this.#visibility !== undefined) {
+      tasks.pauseWhenHidden();
+    }
+    if (this.#wanted) {
+      tasks.connect();
+    }
+    return tasks;
+  }
+
   /** Whether the polling fallback currently has at least one task to poll. */
   isRunning(): boolean {
     return this.#poller.isRunning();

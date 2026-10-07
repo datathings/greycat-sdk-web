@@ -85,9 +85,11 @@ an instance while the browser navigates away: test with `gc.sdk.isRedirecting`.
 
 `gc.$` maps names to instances; `gc.$.default` is what the bindings use unless
 an instance is passed as their trailing `$g` argument. `greycat.clone(name)`
-makes a second instance on the same server, ABI and credentials;
-`setDebugId(id)` on it routes its calls through the debugger, which is what
-the explorer does per debugger session.
+makes a second instance on the same server, ABI and credentials. It shares
+the task tracker and event stream of its original, so the `task:*` events of
+the tasks it spawns are emitted on the original, until a token of its own
+gives it a tracker of its own. `setDebugId(id)` on it routes its calls through
+the debugger, which is what the explorer does per debugger session.
 
 `gc.sdk.initWithAbi({ abi, module, exports, url, token })` builds an instance
 from an ABI already at hand, with no network at construction: tests, workers,

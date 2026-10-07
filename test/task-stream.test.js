@@ -278,6 +278,47 @@ describe('task stream', () => {
     ]);
   });
 
+  it('shares the stream with a clone, until the clone gets a token of its own', async () => {
+    /** @type {(string | undefined)[]} */
+    const streamAuths = [];
+    /** @type {unknown} */
+    let named;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        streamAuths.push(req.headers.authorization);
+        openStream(res, `${streamAuths.length}`);
+        return;
+      }
+      if (req.url === '/tests::slow') {
+        named = req.headers.sse;
+        answer(g, res, makeTask(7, 1, gc.runtime.TaskStatus.waiting));
+        return;
+      }
+      answer(g, res, [makeTask(7, 1, gc.runtime.TaskStatus.ended)]);
+    });
+    g = client(server.url, { token: 'first' });
+    assert.equal(await g.tasks.opened(1000), true);
+    const copy = g.clone('copy');
+    try {
+      assert.equal(copy.tasks, g.tasks);
+      /** @type {unknown[]} */
+      const settled = [];
+      g.on('task:settle', (e) => settled.push(e.task?.task_id));
+      const task = await copy.spawn('tests::slow', [1, 1]);
+      await copy.tasks.wait(task.task_id);
+      assert.equal(named, '1', 'the clone names the stream of its original');
+      assert.deepEqual(settled, [7], 'its tasks are tracked by the original');
+
+      copy.token = 'second';
+      assert.notEqual(copy.tasks, g.tasks);
+      await waitFor(() => copy.tasks.streamId === '2');
+      assert.deepEqual(streamAuths, ['first', 'second']);
+      assert.equal(g.tasks.streamId, '1', 'the original keeps its stream');
+    } finally {
+      copy.tasks.disconnect();
+    }
+  });
+
   it('closes the stream while the page is hidden', async () => {
     const doc = Object.assign(new EventTarget(), { hidden: false });
     /** @type {any} */ (globalThis).document = doc;
