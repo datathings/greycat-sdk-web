@@ -967,7 +967,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     // download and parse 'result.gcb' if found
     const result_route = `files/${task.user_name}/tasks/${task.task_id}/result.gcb`;
     const url = new URL(`${this.api}/${result_route}`);
-    const res = await fetch(url, { signal });
+    const res = await fetch(url, this.fileRequestInit({ signal }));
     if (res.ok) {
       this.logger(this.name, res.status, url.pathname);
       const data = await res.arrayBuffer();
