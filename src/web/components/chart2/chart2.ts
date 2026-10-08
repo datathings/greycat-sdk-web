@@ -15,6 +15,9 @@ import {
   DataZoomComponent,
   VisualMapComponent,
   AxisPointerComponent,
+  MarkAreaComponent,
+  MarkLineComponent,
+  MarkPointComponent,
 } from 'echarts/components';
 // @ts-ignore — MatrixComponent types not yet re-exported from echarts/components
 import { install as MatrixComponent } from 'echarts/lib/component/matrix/install.js';
@@ -35,6 +38,10 @@ echarts.use([
   DataZoomComponent,
   VisualMapComponent,
   AxisPointerComponent,
+  // markers given through a series' `echarts` passthrough draw nothing unless registered
+  MarkAreaComponent,
+  MarkLineComponent,
+  MarkPointComponent,
   MatrixComponent,
   CanvasRenderer,
 ]);

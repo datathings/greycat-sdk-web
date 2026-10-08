@@ -56,7 +56,7 @@ by the root. Most take their data through a `value` property.
 | table | `gui-table`, `gui-thead`, `gui-thead-cell`, `gui-tbody`, `gui-tbody-row`, `gui-tbody-cell` | virtualized `core::Table`, sortable and filterable; accepts `TableLike` (Map, arrays of objects, `{ rows }`, `{ cols }`) |
 | table mappings | `gui-table-mappings`, `gui-table-mapping` | edit `core::TableColumnMapping` lists, emitting apply and delete events |
 | chart | `gui-chart` and its `gui-chart-*-input` config editors, `gui-chart-config` | d3 chart over a table: line, scatter, area, bar, step, stacked bars, time axes, cursor and selection |
-| chart2 | `gui-chart2`, `gui-chart2-config` | the newer chart with the same `value` / `config` / `drawerEnabled` surface |
+| chart2 | `gui-chart2`, `gui-chart2-config` | the newer chart with the same `value` / `config` / `drawerEnabled` surface. The config, its axes and each series take raw ECharts options under `echarts`, markers included (`markLine`, `markArea`, `markPoint`) |
 | node-time | `gui-node-time` | one or more `nodeTime` series with adaptive sampling and a full-range overview slider |
 | donut, gauge, histogram, gaussian, heatmap | `gui-donut`, `gui-gauge`, `gui-histogram`, `gui-gaussian`, `gui-heatmap`, `gui-heatmap-tooltip` | a table as a doughnut; a value on a gauge; `util::HistogramBin[]` or `HistogramStats`; a `util::Gaussian`; a matrix with color scales and labels |
 | tensor | `gui-tensor` | a `core::Tensor` |
