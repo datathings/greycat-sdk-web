@@ -7,6 +7,74 @@ export namespace JSX {
 
 export const Fragment = '<></>';
 
+const SVG_NS = 'http://www.w3.org/2000/svg';
+
+/**
+ * The SVG tags of `GreyCat.JSX.IntrinsicElements`. A child is created before its parent, so the
+ * tag alone decides the namespace. Tags that exist in both HTML and SVG (`a`, `title`, `style`,
+ * `script`) stay HTML.
+ */
+const SVG_TAGS = new Set([
+  'svg',
+  'animate',
+  'animateMotion',
+  'animateTransform',
+  'circle',
+  'clipPath',
+  'defs',
+  'desc',
+  'ellipse',
+  'feBlend',
+  'feColorMatrix',
+  'feComponentTransfer',
+  'feComposite',
+  'feConvolveMatrix',
+  'feDiffuseLighting',
+  'feDisplacementMap',
+  'feDistantLight',
+  'feDropShadow',
+  'feFlood',
+  'feFuncA',
+  'feFuncB',
+  'feFuncG',
+  'feFuncR',
+  'feGaussianBlur',
+  'feImage',
+  'feMerge',
+  'feMergeNode',
+  'feMorphology',
+  'feOffset',
+  'fePointLight',
+  'feSpecularLighting',
+  'feSpotLight',
+  'feTile',
+  'feTurbulence',
+  'filter',
+  'foreignObject',
+  'g',
+  'image',
+  'line',
+  'linearGradient',
+  'marker',
+  'mask',
+  'metadata',
+  'mpath',
+  'path',
+  'pattern',
+  'polygon',
+  'polyline',
+  'radialGradient',
+  'rect',
+  'stop',
+  'switch',
+  'symbol',
+  'text',
+  'textPath',
+  'tspan',
+  'use',
+  'view',
+]);
+
 export function createElement(
   tagName: typeof Fragment,
   props?: GreyCat.JSX.IntrinsicElements[typeof Fragment],
@@ -27,6 +95,15 @@ export function createElement<K extends keyof HTMLElementTagNameMap>(
       appendChild(fragment, props.children);
     }
     return fragment;
+  }
+
+  if (SVG_TAGS.has(tagName)) {
+    const element = document.createElementNS(SVG_NS, tagName);
+    for (const key in props) {
+      // oxlint-disable-next-line typescript/no-explicit-any
+      applyProp(element as unknown as GuiElement, key, (props as any)[key], false, true);
+    }
+    return element as unknown as HTMLElementTagNameMap[K];
   }
 
   const element = document.createElement(tagName);
@@ -91,7 +168,18 @@ export function cx(element: HTMLElement, value: GreyCat.ExtendedHTMLProperties['
   }
 }
 
-function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly = false) {
+/**
+ * Applies one JSX prop. An SVG element gets its props as attributes, since most of its properties
+ * are read-only `SVGAnimated*` values (`cx`, `width`, `viewBox`), and some attributes have no
+ * property at all (`d`, `stroke`).
+ */
+function applyProp(
+  element: GuiElement,
+  key: string,
+  value: unknown,
+  eventsOnly = false,
+  svg = false,
+) {
   if (value === undefined || value === null) {
     return;
   }
@@ -157,6 +245,8 @@ function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly 
         }
       } else if (key.startsWith('attr:')) {
         element.setAttribute(key.substring(5), value.toString());
+      } else if (svg) {
+        element.setAttribute(key, `${value}`);
       } else if (!eventsOnly) {
         if (key in element) {
           // safety: we just validated that 'key' was a property in 'element'

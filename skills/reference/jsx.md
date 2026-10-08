@@ -27,6 +27,13 @@ Props map onto the created element as follows:
 | `slot`, `part`, `exportparts` | `el.slot`, `el.part.add(...)`, the `exportparts` attribute |
 | anything else | assigned as a property, but only if `key in element`: `value={table}` is `el.value = table`; an unknown key is dropped silently |
 
+The SVG tags (`svg`, `g`, `path`, `circle`, `rect`, `line`, `text`, `defs`,
+the gradients and filters) are created in the SVG namespace, and every prop
+outside the rows above is set as an attribute rather than a property:
+`<path d="M0 0L10 10" stroke-width={2} />`, `<svg viewBox="0 0 10 10" />`.
+Most SVG properties are read-only, and some attributes have no property at
+all.
+
 A prop whose value is `null` or `undefined` is skipped, so nothing is removed
 through JSX. Children may be elements, strings, numbers, arrays, node lists,
 or `null`; `<></>` is a `DocumentFragment`. An element that implements
@@ -77,3 +84,6 @@ return `MyPanel`.
 - Boolean attributes of Shoelace and `gui-*` elements are properties:
   `<sl-button disabled>` sets `el.disabled = true`, which is what they read.
 - Event names keep their case and dashes: `ontable-click`, `onsl-change`.
+- A child is created before its parent, so the tag alone picks the namespace.
+  `a`, `title`, `style` and `script` exist in HTML and SVG and stay HTML, even
+  inside an `<svg>`. Build those with `document.createElementNS`.
