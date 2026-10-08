@@ -87,9 +87,9 @@ export class GuiIdentities extends GuiElement {
                 await gc.runtime.Identity.set_password(identity.name, next.password);
               }
               if (next.role !== identity.role) {
-                // Identity::create is upsert — same call updates the role
-                // when the name already exists.
-                await gc.runtime.Identity.create(identity.name, next.role);
+                // `create` on an existing name also clears its password, so it would lock the
+                // user out. `set_role` changes the role alone.
+                await gc.runtime.Identity.set_role(identity.name, next.role);
               }
               await gc.runtime.Identity.set_grants(identity.name, next.grants);
               toast.notify(`Updated ${identity.name}`);
