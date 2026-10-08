@@ -106,6 +106,12 @@ export function convertToTable(table: TableLike | undefined | null): gc.core.Tab
     }
     return gc.core.Table.create();
   }
+  if ('cols' in table && Array.isArray(table.cols)) {
+    return gc.core.Table.fromCols(table.cols);
+  }
+  if ('rows' in table && Array.isArray(table.rows)) {
+    return gc.core.Table.fromRows(table.rows);
+  }
   return gc.core.Table.create();
 }
 
