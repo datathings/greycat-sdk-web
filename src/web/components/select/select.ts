@@ -112,6 +112,10 @@ export class GuiSelect<T = any> extends GuiInputElement<T | undefined> {
         }
       } else if (ev.key === 'ArrowDown' || ev.key === 'ArrowUp') {
         const items = this._list.querySelectorAll(`div:not(.hidden)`);
+        if (items.length === 0) {
+          // the filter matches no option, so there is nothing to move to
+          return;
+        }
         let selectedIndex = -1;
         items.forEach((li, i) => {
           if (li.classList.contains('selected')) {
