@@ -100,11 +100,11 @@ export class Abi {
   readonly crc: bigint;
 
   /** Maps all the ABI symbols to their respective offset in `this.symbols` */
-  readonly symbol_ids: Map<string, number>;
+  readonly symbol_ids: globalThis.Map<string, number>;
   /** fqn `<module>::<name>` only */
-  readonly type_by_fqn: Map<string, AbiType>;
+  readonly type_by_fqn: globalThis.Map<string, AbiType>;
   /** fqn `<module>::<name>` only */
-  readonly fn_by_fqn: Map<string, AbiFunction>;
+  readonly fn_by_fqn: globalThis.Map<string, AbiFunction>;
   /** Known core type ids (after abi link) */
   readonly core: AbiCore;
 

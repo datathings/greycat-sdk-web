@@ -103,7 +103,7 @@ export type TaskErrorReason = 'inaccessible' | 'cancelled' | 'error';
 export type TaskTransport = 'stream' | 'poll';
 
 /** Rejection carried by {@link TaskPoller.wait} when a task fails to complete. */
-export class TaskError extends Error {
+export class TaskError extends globalThis.Error {
   readonly id: TaskId;
   readonly reason: TaskErrorReason;
   /** the terminal task, absent when the task is unknown or inaccessible */

@@ -144,7 +144,7 @@ export type DebugLogger = typeof DEFAULT_LOGGER;
  * Error thrown when a GreyCat HTTP request fails; carries the response
  * `status` and, when one was available, the parsed response `body`.
  */
-export class HttpError extends Error {
+export class HttpError extends globalThis.Error {
   /** HTTP response status code */
   readonly status: number;
   /** Parsed response body, if one was available */

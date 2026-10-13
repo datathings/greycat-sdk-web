@@ -609,7 +609,7 @@ export class AbiReader extends Reader implements Iterable<unknown> {
     return nullable_mask;
   }
 
-  read_array(len: number, can_skip = true): Array<Value> {
+  read_array(len: number, can_skip = true): globalThis.Array<Value> {
     if (len === 0 && can_skip) {
       return [];
     }
@@ -1272,7 +1272,7 @@ export class AbiWriter extends Writer {
    * *Note: this does not write the length*
    * @param map
    */
-  write_map(map: Map<unknown, unknown>, type?: AbiType): void {
+  write_map(map: globalThis.Map<unknown, unknown>, type?: AbiType): void {
     const key_type_off = type?.g1();
     const key_type = key_type_off === undefined ? undefined : this.abi.types[key_type_off];
     const val_type_off = type?.g2();
