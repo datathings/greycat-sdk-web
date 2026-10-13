@@ -140,6 +140,16 @@ describe('tasks', () => {
       }
     });
 
+    // `other` was initialized last, so `gc.runtime.Task` is its class, not the one of `g`
+    it('follows on the stream a task spawned once another instance exists', async () => {
+      let polled = false;
+      const result = await g.spawnAwait('tests::slow', [3, 50], {
+        onprogress: () => (polled ||= g.isPollingTasks()),
+      });
+      assert.strictEqual(result, 3);
+      assert.strictEqual(polled, false, 'the poll fallback stayed off');
+    });
+
     it('rejects a failing task with a TaskError', async () => {
       const task = await g.spawn('tests::boom', []);
       await assert.rejects(g.tasks.wait(task.task_id), (err) => {

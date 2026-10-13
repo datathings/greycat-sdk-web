@@ -554,6 +554,35 @@ export class Abi {
   }
 }
 
+const nativeHasInstance = Function.prototype[Symbol.hasInstance];
+
+/**
+ * Makes `value instanceof ctor` hold for a value of the same type decoded by another `Abi`.
+ *
+ * Each `Abi` builds its own class per type and registers it at `gc.<module>.<type>`, replacing
+ * the one of the previous `Abi`. Without this, `instanceof gc.core.X` would only hold for the
+ * values of the instance initialized last.
+ */
+function defineCrossAbiInstanceOf(ctor: IGCObjectClass, type: AbiType): void {
+  Object.defineProperty(ctor, Symbol.hasInstance, {
+    value(this: unknown, value: unknown): boolean {
+      if (nativeHasInstance.call(this, value)) {
+        return true;
+      }
+      // a subclass inherits this method, and only the registered class matches across ABIs
+      if (this !== ctor || !(value instanceof GCObjectBase)) {
+        return false;
+      }
+      const abi = value.$type.abi;
+      if (abi === type.abi) {
+        return false;
+      }
+      const own = abi.type_by_fqn.get(type.name)?.ctor;
+      return own !== undefined && nativeHasInstance.call(own, value);
+    },
+  });
+}
+
 type AbiTypeProperties = {
   [name: PropertyKey]: PropertyDescriptor & ThisType<GCObjectBase>;
 };
@@ -837,6 +866,8 @@ export class AbiType {
     if (type.mapped_type_off != this.offset) {
       return;
     }
+
+    defineCrossAbiInstanceOf(this.ctor, type);
 
     // Dynamically store the constructor
     if (!Object.hasOwn(gcreg, module_name)) {
