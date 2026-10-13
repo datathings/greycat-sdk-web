@@ -24,11 +24,12 @@ export function stringify(value: unknown, props: StringifyProps): string {
   const name = props.name;
   const tiny = props.tiny;
   const pretty = props.pretty ?? false;
+  // the `std_n` classes are shared by every instance, and `instanceof` on them is the native check
   if (text) {
     return text;
-  } else if (value instanceof gc.core.time) {
+  } else if (value instanceof gc.sdk.std_n.core.time) {
     return value.toString(props);
-  } else if (value instanceof gc.core.duration) {
+  } else if (value instanceof gc.sdk.std_n.core.duration) {
     return value.toString(props);
   } else if (typeof value === 'string') {
     if (tiny) {
@@ -54,7 +55,7 @@ export function stringify(value: unknown, props: StringifyProps): string {
       return `${type}/${encodeURIComponent(name)}`;
     }
     return value.toString(props);
-  } else if (value instanceof gc.core.geo) {
+  } else if (value instanceof gc.sdk.std_n.core.geo) {
     if (tiny) {
       return `${value.lat.toFixed(2)}, ${value.lng.toFixed(2)}`;
     } else {

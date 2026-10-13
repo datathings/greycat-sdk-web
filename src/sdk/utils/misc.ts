@@ -1,6 +1,7 @@
 import { GCObject } from '../GCObject.js';
 import { GCEnum } from '../GCEnum.js';
 import { gcreg } from '../registry.js';
+import * as std_n_core from '../std_n/core/index.js';
 const NUM = '0123456789';
 const LOWER_ALPHA = 'abcdefghijklmnopqrstuvwxyz';
 const UPPER_ALPHA = LOWER_ALPHA.toUpperCase();
@@ -76,15 +77,16 @@ export function isScalar(
     return val === null;
   }
   if (type === 'object') {
+    // the `std_n` classes are shared by every instance, and `instanceof` on them is the native check
     if (
       val instanceof GCEnum ||
-      val instanceof gcreg.core.time ||
-      val instanceof gcreg.core.int ||
-      val instanceof gcreg.core.float ||
-      val instanceof gcreg.core.bool ||
-      val instanceof gcreg.core.duration ||
+      val instanceof std_n_core.time ||
+      val instanceof std_n_core.int ||
+      val instanceof std_n_core.float ||
+      val instanceof std_n_core.bool ||
+      val instanceof std_n_core.duration ||
       val instanceof gcreg.core.Date ||
-      val instanceof gcreg.core.geo
+      val instanceof std_n_core.geo
     ) {
       return true;
     }
@@ -162,12 +164,13 @@ export function capitalize(txt: string): string {
 export function isNode(
   value: unknown,
 ): value is gc.core.node | gc.core.nodeTime | gc.core.nodeList | gc.core.nodeIndex | gc.core.nodeGeo {
+  // the `std_n` classes are shared by every instance, and `instanceof` on them is the native check
   return (
-    value instanceof gcreg.core.node ||
-    value instanceof gcreg.core.nodeTime ||
-    value instanceof gcreg.core.nodeList ||
-    value instanceof gcreg.core.nodeIndex ||
-    value instanceof gcreg.core.nodeGeo
+    value instanceof std_n_core.node ||
+    value instanceof std_n_core.nodeTime ||
+    value instanceof std_n_core.nodeList ||
+    value instanceof std_n_core.nodeIndex ||
+    value instanceof std_n_core.nodeGeo
   );
 }
 

@@ -8,7 +8,8 @@ export function vMap(x: unknown): number {
       if (x === null) {
         return NaN;
       }
-      if (x instanceof gc.core.time) {
+      // the `std_n` class is shared by every instance, and `instanceof` on it is the native check
+      if (x instanceof gc.sdk.std_n.core.time) {
         return Math.round(x.epochMs);
       } else if (x instanceof gc.core.Date) {
         return new Date(x.toString()).getTime();
