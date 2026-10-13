@@ -1,5 +1,6 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
+import { errorFrames } from './utils/error.js';
 import { TaskStream, type TaskEvent, type TaskStreamChange, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
@@ -102,29 +103,50 @@ export type TaskErrorReason = 'inaccessible' | 'cancelled' | 'error';
 /** How tracked tasks are currently refreshed. */
 export type TaskTransport = 'stream' | 'poll';
 
-/** Rejection carried by {@link TaskPoller.wait} when a task fails to complete. */
+/**
+ * Rejection carried by {@link TaskPoller.wait} when a task fails to complete.
+ *
+ * When the task threw, the message ends with the server's error message, and `stack` lists the
+ * GreyCat frames of that error rather than the JavaScript ones, which only point at the tracker.
+ */
 export class TaskError extends globalThis.Error {
   readonly id: TaskId;
   readonly reason: TaskErrorReason;
   /** the terminal task, absent when the task is unknown or inaccessible */
   readonly task?: gc.runtime.Task;
+  /**
+   * the error the task threw, read from its `result.gcb`. Absent unless `reason` is `'error'`, and
+   * then too when the file could not be read, in which case `cause` holds why.
+   */
+  readonly error?: gc.core.Error;
 
-  constructor(id: TaskId, reason: TaskErrorReason, task?: gc.runtime.Task) {
-    super(`task '${id}' ${TaskError.#message(reason)}`);
+  /**
+   * @param cause the `core.Error` the task threw, or why it could not be read
+   */
+  constructor(id: TaskId, reason: TaskErrorReason, task?: gc.runtime.Task, cause?: unknown) {
+    const error = cause instanceof gcreg.core.Error ? cause : undefined;
+    super(TaskError.#message(id, reason, error), cause === undefined ? undefined : { cause });
     this.name = 'TaskError';
     this.id = id;
     this.reason = reason;
     this.task = task;
+    this.error = error;
+    if (error !== undefined) {
+      this.stack = `${this.name}: ${this.message}\n${errorFrames(error)}`;
+    }
   }
 
-  static #message(reason: TaskErrorReason): string {
+  static #message(id: TaskId, reason: TaskErrorReason, error: gc.core.Error | undefined): string {
     switch (reason) {
       case 'inaccessible':
-        return 'is unknown or inaccessible';
+        return `task '${id}' is unknown or inaccessible`;
       case 'cancelled':
-        return 'was cancelled';
+        return `task '${id}' was cancelled`;
       case 'error':
-        return 'ended with errors';
+        if (error === undefined) {
+          return `task '${id}' ended with errors`;
+        }
+        return `task '${id}' failed: ${error.message ?? 'RuntimeError'}`;
     }
   }
 }
@@ -531,15 +553,36 @@ export class TaskPoller {
     if (!task.isTerminal()) {
       return;
     }
+    // the entry leaves before the error is read, so that no later snapshot settles it again
+    this.#settle(pending);
     if (task.status.key === 'ended') {
       pending.deferred?.resolve(task);
       this.#g.emit('task:settle', { task, error: null });
+    } else if (task.status.key === 'cancelled') {
+      this.#fail(pending, new TaskError(pending.id, 'cancelled', task));
     } else {
-      const reason = task.status.key === 'cancelled' ? 'cancelled' : 'error';
-      const error = new TaskError(pending.id, reason, task);
-      pending.deferred?.reject(error);
-      this.#g.emit('task:settle', { task, error });
+      void this.#thrown(task).then((cause) => this.#fail(pending, new TaskError(pending.id, 'error', task, cause)));
     }
-    this.#settle(pending);
+  }
+
+  #fail(pending: Pending, error: TaskError): void {
+    pending.deferred?.reject(error);
+    this.#g.emit('task:settle', { task: error.task ?? null, error });
+  }
+
+  /**
+   * The `core.Error` a failed task left in its `result.gcb`, or why the file could not be read.
+   * `undefined` when the file holds anything else.
+   */
+  async #thrown(task: gc.runtime.Task): Promise<unknown> {
+    try {
+      const values: unknown[] | undefined = await this.#g.getFile(
+        `${task.user_name}/tasks/${task.task_id}/result.gcb`,
+      );
+      const value = values?.[0];
+      return value instanceof gcreg.core.Error ? value : undefined;
+    } catch (err) {
+      return err;
+    }
   }
 }

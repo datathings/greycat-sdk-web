@@ -132,6 +132,16 @@ fn boom() {
     throw "boom";
 }
 
+fn fail_with(code: int) {
+    throw "failed with ${code}";
+}
+
+/// Throws from a nested call, so that its error has two frames.
+@expose
+fn nested_boom() {
+    fail_with(42);
+}
+
 @expose
 fn no_result() {}
 

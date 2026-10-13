@@ -3,15 +3,12 @@ import { $, gcreg } from './registry.js';
 import { DEFAULT_TO_STRING_OPTIONS, type ToStringOptions } from './GCObject.js';
 import type { TaskOptions } from './types.js';
 import type { TaskError, TaskSettleEvent } from './poll.js';
+import { errorFrames } from './utils/error.js';
 
 export function __extend_std() {
   const core_Error_ext = {
     toString(this: gc.core.Error) {
-      let err_msg = `${this.message ?? 'RuntimeError'}\n`;
-      for (const frame of this.stack.reverse()) {
-        err_msg += `    at ${frame.function} (${frame.module}.gcl:${frame.line}:${frame.column})\n`;
-      }
-      return err_msg;
+      return `${this.message ?? 'RuntimeError'}\n${errorFrames(this)}`;
     },
   };
   Object.assign(gcreg.core.Error.prototype, core_Error_ext);

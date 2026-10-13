@@ -45,6 +45,31 @@ the stream was open when it was spawned.
 `'inaccessible'` (unknown id, or another user's task); `task` holds the
 terminal task when there is one.
 
+When the task threw, the tracker reads the `core.Error` it left in
+`result.gcb` before it settles, so `wait`, `task:settle` and `on('settle')`
+all carry it:
+
+```ts
+try {
+  await greycat.tasks.wait(task.task_id);
+} catch (err) {
+  if (err instanceof gc.sdk.TaskError) {
+    console.error(err);
+    // TaskError: task '93' failed: failed with 42
+    //     at fail_with (project.gcl:4:36)
+    //     at nested (project.gcl:10:14)
+  }
+}
+```
+
+- `err.error` is the `core.Error`, also set as `err.cause`.
+- `err.message` ends with the error's message, and `err.stack` lists its
+  GreyCat frames, innermost call first, instead of JavaScript frames.
+- When `result.gcb` cannot be read, `err.error` is absent, the message is
+  `task '93' ended with errors`, and `err.cause` says why.
+
+`await` throws the `core.Error` itself rather than the `TaskError`.
+
 The instance mirrors the tracker:
 
 | Event | Payload | When |

@@ -991,11 +991,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     try {
       await this.tasks.wait(task.task_id, frequency);
     } catch (err) {
-      // an errored task carries its `core.Error` in `result.gcb`; fall through to
-      // download it below so the concrete error is thrown. cancelled/inaccessible
-      // have no such payload and propagate as-is.
+      // an errored task carries its `core.Error` in `result.gcb`, which the tracker already
+      // read, and that error is thrown. When it could not, fall through to download the file
+      // below. cancelled/inaccessible have no such payload and propagate as-is.
       if (!(err instanceof TaskError && err.reason === 'error')) {
         throw err;
+      }
+      if (err.error !== undefined) {
+        opts.onprogress?.(1);
+        throw err.error;
       }
     } finally {
       off?.();

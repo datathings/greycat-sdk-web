@@ -20,6 +20,25 @@ async function waitFor(cond, timeoutMs = 5000) {
   }
 }
 
+/**
+ * Checks that `err` is the `TaskError` of task `id`, which threw from `tests::nested_boom`.
+ * @param {unknown} err
+ * @param {gc.sdk.TaskId} id
+ */
+function assertThrown(err, id) {
+  assert.ok(err instanceof gc.sdk.TaskError);
+  assert.strictEqual(err.reason, 'error');
+  assert.strictEqual(err.message, `task '${id}' failed: failed with 42`);
+  assert.ok(err.error instanceof gc.core.Error);
+  assert.strictEqual(err.cause, err.error);
+  assert.strictEqual(
+    err.stack,
+    `TaskError: task '${id}' failed: failed with 42\n` +
+      `    at fail_with (tests.gcl:136:33)\n` +
+      `    at nested_boom (tests.gcl:142:18)\n`,
+  );
+}
+
 describe('tasks', () => {
   describe('over the event stream', () => {
     /** @type {gc.sdk.GreyCat} */
@@ -150,11 +169,50 @@ describe('tasks', () => {
       assert.strictEqual(polled, false, 'the poll fallback stayed off');
     });
 
-    it('rejects a failing task with a TaskError', async () => {
-      const task = await g.spawn('tests::boom', []);
+    it('rejects a failing task with a TaskError carrying what it threw', async () => {
+      const task = await g.spawn('tests::nested_boom', []);
+      await assert.rejects(g.tasks.wait(task.task_id), (err) => {
+        assertThrown(err, task.task_id);
+        return true;
+      });
+    });
+
+    it('carries what a failing task threw to task:settle and to on(settle)', async () => {
+      const task = await g.spawn('tests::nested_boom', []);
+      /** @type {Promise<gc.sdk.TaskSettleEvent>} */
+      const settled = new Promise((resolve) => {
+        const off = g.on('task:settle', (e) => {
+          if (e.task?.task_id === task.task_id) {
+            off();
+            resolve(e);
+          }
+        });
+      });
+      /** @type {Promise<gc.sdk.TaskSettleEvent>} */
+      const onSettle = new Promise((resolve) => task.on('settle', resolve, undefined, g));
+      assertThrown((await settled).error, task.task_id);
+      assertThrown((await onSettle).error, task.task_id);
+    });
+
+    it('await throws the core.Error a failing task threw', async () => {
+      const task = await g.spawn('tests::nested_boom', []);
+      await assert.rejects(g.await(task), (err) => {
+        assert.ok(err instanceof gc.core.Error);
+        assert.strictEqual(err.message, 'failed with 42');
+        // formatting twice gives the same text
+        assert.strictEqual(String(err), String(err));
+        return true;
+      });
+    });
+
+    it('rejects a cancelled task without reading its result', async () => {
+      const task = await g.spawn('tests::slow', [100, 50]);
+      await gc.runtime.Task.cancel(task.task_id, g);
       await assert.rejects(g.tasks.wait(task.task_id), (err) => {
         assert.ok(err instanceof gc.sdk.TaskError);
-        assert.strictEqual(err.reason, 'error');
+        assert.strictEqual(err.reason, 'cancelled');
+        assert.strictEqual(err.error, undefined);
+        assert.strictEqual(err.message, `task '${task.task_id}' was cancelled`);
         return true;
       });
     });
@@ -259,6 +317,14 @@ describe('tasks', () => {
         'monotonic',
       );
       assert.strictEqual(g.isPollingTasks(), false, 'polling stops once settled');
+    });
+
+    it('rejects a failing task with a TaskError carrying what it threw', async () => {
+      const task = await g.spawn('tests::nested_boom', []);
+      await assert.rejects(g.tasks.wait(task.task_id, 10), (err) => {
+        assertThrown(err, task.task_id);
+        return true;
+      });
     });
   });
 });

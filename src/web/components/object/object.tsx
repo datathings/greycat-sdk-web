@@ -283,6 +283,15 @@ export class GuiObject<T = unknown> extends GuiElement {
       return;
     }
 
+    if (value instanceof gc.sdk.TaskError && value.error) {
+      this.shadowRoot.replaceChildren(
+        <sl-alert variant="danger" open>
+          <pre>{`${value.message}\n${gc.sdk.errorFrames(value.error)}`}</pre>
+        </sl-alert>,
+      );
+      return;
+    }
+
     if (value instanceof Error) {
       this.shadowRoot.replaceChildren(
         <sl-alert variant="danger" open>
