@@ -33,7 +33,6 @@ export const DEFAULT_TO_STRING_OPTIONS: ToStringOptions = {
 /**
  * A dynamic GreyCat type instance, used when no matching class found in the factory
  */
-// oxlint-disable-next-line typescript/no-unsafe-declaration-merging
 export class GCObject {
   // SAFETY: This is dynamically set when the Abi is loaded
   readonly $type!: AbiType;
@@ -65,7 +64,6 @@ export class GCObject {
           return abi_type.static_values![value.field];
         }
 
-        // oxlint-disable-next-line no-new-array
         const fields = new Array(abi_type.attrs.length);
         for (let i = 0; i < abi_type.attrs.length; i++) {
           const attr = abi_type.attrs[i];
@@ -247,7 +245,6 @@ export class GCObject {
 
   static load(r: AbiReader, type: AbiType): unknown {
     const programType = type.abi.types[type.mapped_type_off];
-    // oxlint-disable-next-line no-new-array
     const fields = new Array(programType.attrs.length);
     // initialize every elements to null
     for (let i = 0; i < fields.length; i++) {
@@ -334,7 +331,6 @@ export class GCEnum extends GCObject {
     const valueOffset = r.read_vu32();
     const abiTypeAtt = type.attrs[valueOffset];
     // this is an enum, so we know `static_values` is gonna be initialized
-    // oxlint-disable-next-line typescript/no-non-null-assertion
     return programType.static_values![abiTypeAtt.name];
   }
 
