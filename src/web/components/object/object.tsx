@@ -230,16 +230,9 @@ export class GuiObject<T = unknown> extends GuiElement {
         value.on('update', (task) => {
           if (task) {
             this._renderAsGCObject(task);
-            switch (task.status.key) {
-              case 'await':
-              case 'running':
-              case 'waiting':
-              case 'breakpoint':
-                // TODO add a cancel button?
-                break;
-              default:
-                this.dispose();
-                break;
+            // TODO add a cancel button while it is in flight?
+            if (task.isTerminal()) {
+              this.dispose();
             }
           }
         }),
