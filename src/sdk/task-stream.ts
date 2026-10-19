@@ -21,7 +21,8 @@ const RETRY_DELAYS_MS = [1_000, 5_000, 10_000, 20_000, 30_000];
  *    `await` is not reported again, and a task cancelled while queued never starts),
  *  - `progress`: the whole percentage of its steps changed,
  *  - `breakpoint`: it paused on a `breakpoint`, its status is `breakpoint`,
- *  - `resumed`: it goes on after a breakpoint, its status is back to `running`,
+ *  - `resumed`: it goes on after a breakpoint, its status is back to what it was (`running`,
+ *    or `await` when one of its `await` jobs paused),
  *  - `complete`: it ended, whatever its final status.
  */
 export type TaskEventKind = 'started' | 'progress' | 'breakpoint' | 'resumed' | 'complete';

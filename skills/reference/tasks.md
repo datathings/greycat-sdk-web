@@ -29,7 +29,10 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
   (`0..1` or `null`) on each update and `1` at the end.
 - `task.isTerminal()` says whether the status a `runtime::Task` holds is
   final (`ended`, `ended_with_errors`, `error`, `cancelled`). It reads the
-  object only, unlike `task.isRunning()`, which asks the server.
+  object only, unlike `task.isRunning()`, which asks the server. Every other
+  status is in flight, `committing`, `cancelling` and `await_cancelling`
+  included. Once a task reads `ended`, its writes are committed, so a task
+  started after that reads them.
 - `spawnAwait(fqn, args, opts)` is `await(await spawn(...))`, in the worker
   class `opts.taskClass` names. For a function the server never spawns, it
   returns the value the server answered with (see [calls.md](calls.md)).
@@ -125,7 +128,7 @@ instance spawned while the stream was open, tracked or not:
 | `started` | the task leaves the queue and its code starts running, once (not again after an `await`, never for a task cancelled while queued) |
 | `progress` | the whole percentage of `Task::add_steps` over `Task::expected_steps` changes |
 | `breakpoint` | the task paused on a `breakpoint`, its status is `breakpoint` |
-| `resumed` | the task goes on after a breakpoint, its status is back to `running` |
+| `resumed` | the task goes on after a breakpoint, its status is back to what it was (`running`, or `await` when one of its `await` jobs paused) |
 | `complete` | the task ended, whatever its final status |
 
 Plain calls do not show up, since the instance names the stream only in the
