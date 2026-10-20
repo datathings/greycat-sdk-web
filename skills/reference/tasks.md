@@ -28,7 +28,8 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
   task's `result.gcb` file. `opts.onprogress` receives `task.progress`
   (`0..1` or `null`) on each update and `1` at the end.
 - `task.isTerminal()` says whether the status a `runtime::Task` holds is
-  final (`ended`, `ended_with_errors`, `error`, `cancelled`). It reads the
+  final (`ended`, `error`, `cancelled`, and the deprecated `ended_with_errors`
+  that no server produces). It reads the
   object only, unlike `task.isRunning()`, which asks the server. Every other
   status is in flight, `committing`, `cancelling` and `await_cancelling`
   included. Once a task reads `ended`, its writes are committed, so a task
@@ -44,7 +45,7 @@ the stream was open when it was spawned.
 ## Errors and events
 
 `wait` and `await` reject with `TaskError`: `reason` is `'cancelled'`,
-`'error'` (the task threw; `task.status` is `error` or `ended_with_errors`) or
+`'error'` (the task threw and `task.status` is `error`) or
 `'inaccessible'` (unknown id, or another user's task); `task` holds the
 terminal task when there is one.
 
