@@ -83,9 +83,7 @@ export class GuiSignInButton extends GuiElement {
     if (this.url !== undefined) {
       signIn.url = this.url;
     }
-    const dialog = (
-      <gui-dialog label="Sign in">{signIn}</gui-dialog>
-    ) as GuiDialog;
+    const dialog = (<gui-dialog label="Sign in">{signIn}</gui-dialog>) as GuiDialog;
     signIn.addEventListener(GuiAuthSuccessEvent.NAME, async () => {
       await dialog.hide();
       this.refresh();

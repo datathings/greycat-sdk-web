@@ -21,7 +21,16 @@ import { GuiElement } from '../element.js';
 import { GuiChartConfig, GuiChartConfigUpdateEvent } from './chart-config.js';
 import { CanvasContext } from './ctx.js';
 import { isOrdSerieTableColumn } from './types.js';
-import { createFormatter, smartTimeFormatSpecifier, tableGetCell, tableGetColumn, tableGetColumnIndex, padLinear, padLog, inferConfig } from './utils.js';
+import {
+  createFormatter,
+  smartTimeFormatSpecifier,
+  tableGetCell,
+  tableGetColumn,
+  tableGetColumnIndex,
+  padLinear,
+  padLog,
+  inferConfig,
+} from './utils.js';
 import type * as sl from '@shoelace-style/shoelace';
 import type { TableLike } from '../common.js';
 import style from './chart.css?inline';

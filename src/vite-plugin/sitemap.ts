@@ -24,9 +24,7 @@ export function htmlFilesToRoutes(files: string[]): string[] {
 
 export function buildSitemap(routes: string[], hostname: string): string {
   const base = hostname.replace(/\/+$/, '');
-  const urls = routes
-    .map((route) => `  <url>\n    <loc>${base}${route}</loc>\n  </url>`)
-    .join('\n');
+  const urls = routes.map((route) => `  <url>\n    <loc>${base}${route}</loc>\n  </url>`).join('\n');
   return (
     '<?xml version="1.0" encoding="UTF-8"?>\n' +
     '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +

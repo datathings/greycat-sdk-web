@@ -6,7 +6,32 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/option/option.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
-import { GuiInput, GuiInputAbstract, GuiInputAny, GuiInputArray, GuiInputBool, GuiInputDuration, GuiInputEnum, GuiInputField, GuiInputFn, GuiInputFnPtr, GuiInputGeo, GuiInputMap, GuiInputNode, GuiInputNodeGeo, GuiInputNodeIndex, GuiInputNodeList, GuiInputNodeTime, GuiInputNull, GuiInputNumber, GuiInputObject, GuiInputString, GuiInputTime, GuiInputType, GuiInputUnsupported } from './index.js';
+import {
+  GuiInput,
+  GuiInputAbstract,
+  GuiInputAny,
+  GuiInputArray,
+  GuiInputBool,
+  GuiInputDuration,
+  GuiInputEnum,
+  GuiInputField,
+  GuiInputFn,
+  GuiInputFnPtr,
+  GuiInputGeo,
+  GuiInputMap,
+  GuiInputNode,
+  GuiInputNodeGeo,
+  GuiInputNodeIndex,
+  GuiInputNodeList,
+  GuiInputNodeTime,
+  GuiInputNull,
+  GuiInputNumber,
+  GuiInputObject,
+  GuiInputString,
+  GuiInputTime,
+  GuiInputType,
+  GuiInputUnsupported,
+} from './index.js';
 
 registerCustomElement('gui-input-string', GuiInputString);
 registerCustomElement('gui-input-number', GuiInputNumber);

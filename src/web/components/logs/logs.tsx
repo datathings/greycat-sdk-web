@@ -51,15 +51,7 @@ function parseLine(line: string): string[] {
   }
   const time = rec.time ? (isoToMicros(rec.time) ?? rec.time) : '';
   const data = typeof rec.data === 'string' ? rec.data : rec.data == null ? '' : JSON.stringify(rec.data);
-  return [
-    cell(rec.level),
-    cell(time),
-    cell(rec.user_id),
-    cell(rec.task_id),
-    cell(rec.job_id),
-    cell(rec.src),
-    data,
-  ];
+  return [cell(rec.level), cell(time), cell(rec.user_id), cell(rec.task_id), cell(rec.job_id), cell(rec.src), data];
 }
 
 export class GuiLogs extends GuiElement {

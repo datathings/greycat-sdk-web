@@ -45,9 +45,7 @@ export const processCssVars = (component: HTMLElement, cssVars: (string | undefi
   /**
    * First check that both object CSS properties and in-function CSS vars arrays are of the same length.
    */
-  const propNames = Object.getOwnPropertyNames(component).filter((propName) =>
-    propName.endsWith('Css'),
-  );
+  const propNames = Object.getOwnPropertyNames(component).filter((propName) => propName.endsWith('Css'));
   if (propNames.length !== cssVars.length) {
     return;
   }
@@ -309,11 +307,7 @@ export function throttle<T extends (...args: any[]) => void>(callback: T, interv
 }
 
 // oxlint-disable-next-line typescript/no-explicit-any
-export function debounce<T extends (...args: any[]) => void>(
-  callback: T,
-  delay: number,
-  immediate = false,
-) {
+export function debounce<T extends (...args: any[]) => void>(callback: T, delay: number, immediate = false) {
   let debounceTimeoutId: ReturnType<typeof setTimeout> | undefined;
 
   return function <U>(this: U, ...args: Parameters<typeof callback>) {
@@ -425,14 +419,7 @@ export function highlightGCL(raw: string): Node {
       i += 5;
     } else if (/[A-Z]/.test(ch)) {
       let end = i + 1;
-      while (
-        end < len &&
-        raw[end] !== '{' &&
-        raw[end] !== ',' &&
-        raw[end] !== '}' &&
-        raw[end] !== ']'
-      )
-        end++;
+      while (end < len && raw[end] !== '{' && raw[end] !== ',' && raw[end] !== '}' && raw[end] !== ']') end++;
       frag.appendChild(span('tok-type', raw.substring(i, end)));
       i = end;
     } else if (/[a-z_]/.test(ch)) {

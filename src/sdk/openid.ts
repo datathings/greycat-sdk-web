@@ -458,9 +458,7 @@ export class OpenidClient {
  * @param config a provider id (as registered via `Openid::register`) or an
  *               {@link OpenidServerConfig} for returnTo/origin overrides.
  */
-export function openidServerAuth(
-  config: string | OpenidServerConfig,
-): AuthStrategy<OpenidServerResult | null> {
+export function openidServerAuth(config: string | OpenidServerConfig): AuthStrategy<OpenidServerResult | null> {
   const cfg: OpenidServerConfig = typeof config === 'string' ? { provider: config } : config;
   return {
     async authenticate(ctx): Promise<AuthOutcome<OpenidServerResult | null>> {
@@ -510,9 +508,7 @@ export function openidServerAuth(
  * @param config a provider id (resolved via `Openid::public_config`), an
  *               {@link OidcConfig}, or a pre-built {@link OpenidClient}.
  */
-export function openidPkceAuth(
-  config: string | OidcConfig | OpenidClient,
-): AuthStrategy<HandleRedirectResult | null> {
+export function openidPkceAuth(config: string | OidcConfig | OpenidClient): AuthStrategy<HandleRedirectResult | null> {
   return {
     async authenticate(ctx): Promise<AuthOutcome<HandleRedirectResult | null>> {
       const client =

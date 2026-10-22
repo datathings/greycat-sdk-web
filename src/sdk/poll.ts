@@ -614,9 +614,7 @@ export class TaskPoller {
    */
   async #thrown(task: gc.runtime.Task): Promise<unknown> {
     try {
-      const values: unknown[] | undefined = await this.#g.getFile(
-        `${task.user_name}/tasks/${task.task_id}/result.gcb`,
-      );
+      const values: unknown[] | undefined = await this.#g.getFile(`${task.user_name}/tasks/${task.task_id}/result.gcb`);
       const value = values?.[0];
       return value instanceof gcreg.core.Error ? value : undefined;
     } catch (err) {

@@ -173,13 +173,7 @@ export function cx(element: HTMLElement, value: GreyCat.ExtendedHTMLProperties['
  * are read-only `SVGAnimated*` values (`cx`, `width`, `viewBox`), and some attributes have no
  * property at all (`d`, `stroke`).
  */
-function applyProp(
-  element: GuiElement,
-  key: string,
-  value: unknown,
-  eventsOnly = false,
-  svg = false,
-) {
+function applyProp(element: GuiElement, key: string, value: unknown, eventsOnly = false, svg = false) {
   if (value === undefined || value === null) {
     return;
   }

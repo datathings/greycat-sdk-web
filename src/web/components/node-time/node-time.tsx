@@ -1,21 +1,9 @@
 import * as echarts from 'echarts/core';
 import { LineChart } from 'echarts/charts';
-import {
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  DataZoomComponent,
-} from 'echarts/components';
+import { GridComponent, TooltipComponent, LegendComponent, DataZoomComponent } from 'echarts/components';
 import { CanvasRenderer } from 'echarts/renderers';
 
-echarts.use([
-  LineChart,
-  GridComponent,
-  TooltipComponent,
-  LegendComponent,
-  DataZoomComponent,
-  CanvasRenderer,
-]);
+echarts.use([LineChart, GridComponent, TooltipComponent, LegendComponent, DataZoomComponent, CanvasRenderer]);
 
 import type * as sl from '@shoelace-style/shoelace';
 import { smartTimeFormatSpecifier } from '../chart/utils.js';
@@ -290,8 +278,7 @@ export class GuiNodeTime extends GuiElement {
 
     this._tabs.addEventListener('gui-tab-change', (e) => {
       this._isTableTab = (e as CustomEvent).detail?.textContent === 'Table';
-      this._tableModeGroup.style.visibility =
-        this._isTableTab && this._rawTable !== this._detailTable ? '' : 'hidden';
+      this._tableModeGroup.style.visibility = this._isTableTab && this._rawTable !== this._detailTable ? '' : 'hidden';
       if (this._isTableTab) {
         // re-fetch for current zoom window so the table matches the chart view
         const zoom = this._currentZoomRange();
@@ -563,11 +550,7 @@ export class GuiNodeTime extends GuiElement {
 
   /** Compute the current zoom window as gc.core.time values, or undefined for full range. */
   private _currentZoomRange(): { from: gc.core.time; to: gc.core.time } | undefined {
-    if (
-      !this._fullFrom ||
-      !this._fullTo ||
-      (this._currentStart === 0 && this._currentEnd === 100)
-    ) {
+    if (!this._fullFrom || !this._fullTo || (this._currentStart === 0 && this._currentEnd === 100)) {
       return undefined;
     }
     const fullFromMs = this._fullFrom.epochMs;
@@ -712,10 +695,7 @@ export class GuiNodeTime extends GuiElement {
   }
 
   /** Call nodeTime.sample with current sampling parameters (supports multiple nodeTimes). */
-  private _sampleNodeTime(
-    from: gc.core.time | undefined,
-    to: gc.core.time | undefined,
-  ): Promise<gc.core.Table> {
+  private _sampleNodeTime(from: gc.core.time | undefined, to: gc.core.time | undefined): Promise<gc.core.Table> {
     return gc.core.nodeTime.sample(
       this._nodeTimes,
       from ?? null,
@@ -799,7 +779,11 @@ export class GuiNodeTime extends GuiElement {
   }
 
   /** Populate table.subheaders using GreyCat ABI types from the raw table and mappings. */
-  private _populateSubheaders(flat: gc.core.Table, raw: gc.core.Table, mappings: gc.core.TableColumnMapping[] | null): void {
+  private _populateSubheaders(
+    flat: gc.core.Table,
+    raw: gc.core.Table,
+    mappings: gc.core.TableColumnMapping[] | null,
+  ): void {
     if (flat.cols.length === 0) {
       return;
     }
@@ -851,11 +835,16 @@ export class GuiNodeTime extends GuiElement {
       return value.$type.name;
     }
     switch (typeof value) {
-      case 'number': return 'float';
-      case 'bigint': return 'int';
-      case 'string': return 'String';
-      case 'boolean': return 'bool';
-      default: return typeof value;
+      case 'number':
+        return 'float';
+      case 'bigint':
+        return 'int';
+      case 'string':
+        return 'String';
+      case 'boolean':
+        return 'bool';
+      default:
+        return typeof value;
     }
   }
 
@@ -968,8 +957,7 @@ export class GuiNodeTime extends GuiElement {
       if (detail.length === 0) {
         return '';
       }
-      const axisVal =
-        detail[0].axisValue ?? (Array.isArray(detail[0].value) ? detail[0].value[0] : undefined);
+      const axisVal = detail[0].axisValue ?? (Array.isArray(detail[0].value) ? detail[0].value[0] : undefined);
       const header =
         typeof axisVal === 'number'
           ? gc.$.default.printTime(gc.core.time.fromMs(Math.round(axisVal)))

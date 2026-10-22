@@ -3,7 +3,16 @@ import { modal } from '../../modal.js';
 import { getIndexInParent, querySelectorAllWithShadow } from '../../utils.js';
 import { css } from '../common.js';
 import { GuiElement } from '../element.js';
-import { Axis, Ordinate, SelectionOptions, TooltipPosition, Serie, ChartConfig, ScaleType, MarkerShape } from './types.js';
+import {
+  Axis,
+  Ordinate,
+  SelectionOptions,
+  TooltipPosition,
+  Serie,
+  ChartConfig,
+  ScaleType,
+  MarkerShape,
+} from './types.js';
 import style from './chart-config.css?inline';
 
 export class GuiChartConfig extends GuiElement {

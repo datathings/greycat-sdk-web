@@ -8,7 +8,16 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/option/option.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/tooltip/tooltip.js';
-import { GuiTable, GuiTableBody, GuiTableBodyCell, GuiTableBodyRow, GuiTableHead, GuiTableHeadCell, GuiTableMapping, GuiTableMappings } from './index.js';
+import {
+  GuiTable,
+  GuiTableBody,
+  GuiTableBodyCell,
+  GuiTableBodyRow,
+  GuiTableHead,
+  GuiTableHeadCell,
+  GuiTableMapping,
+  GuiTableMappings,
+} from './index.js';
 
 registerCustomElement('gui-thead-cell', GuiTableHeadCell);
 registerCustomElement('gui-tbody-cell', GuiTableBodyCell);

@@ -78,10 +78,7 @@ export function greycat(options: GreycatPluginOptions = {}): Plugin {
       }
 
       if (robots.enabled && hostname) {
-        await writeFile(
-          join(outDir, 'robots.txt'),
-          buildRobots(hostname, sitemap.enabled, robots.options),
-        );
+        await writeFile(join(outDir, 'robots.txt'), buildRobots(hostname, sitemap.enabled, robots.options));
       }
 
       if (gzip.enabled) {

@@ -267,9 +267,7 @@ export class GuiChart2 extends GuiElement {
     this._configEl = document.createElement('gui-chart2-config') as GuiChart2Config;
     this._configEl.value = this._config ?? inferConfig2(this._table);
     this._configEl.echartsInstance = this._chart;
-    this._configEl.addEventListener('gui-chart2-config-update', ((
-      e: GuiChart2ConfigUpdateEvent,
-    ) => {
+    this._configEl.addEventListener('gui-chart2-config-update', ((e: GuiChart2ConfigUpdateEvent) => {
       this._config = e.detail;
       this._render();
     }) as EventListener);

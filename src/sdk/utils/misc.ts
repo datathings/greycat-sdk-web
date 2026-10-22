@@ -69,9 +69,7 @@ export function isGreycatNumber(type: string): boolean {
  * @param val
  * @returns
  */
-export function isScalar(
-  val: unknown,
-): val is string | number | boolean | bigint | null | undefined {
+export function isScalar(val: unknown): val is string | number | boolean | bigint | null | undefined {
   const type = typeof val;
   if (type === 'function') {
     return val === null;

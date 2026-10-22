@@ -3,11 +3,7 @@ export interface RobotsOptions {
   rules?: string[];
 }
 
-export function buildRobots(
-  hostname: string,
-  sitemap: boolean,
-  { rules = [] }: RobotsOptions = {},
-): string {
+export function buildRobots(hostname: string, sitemap: boolean, { rules = [] }: RobotsOptions = {}): string {
   const base = hostname.replace(/\/+$/, '');
   const lines = ['User-agent: *', 'Allow: /', ...rules];
   if (sitemap) {

@@ -15,12 +15,7 @@ export class function_ extends GCPrimitive {
     super();
   }
 
-  static create(
-    mod: string,
-    type: string | undefined,
-    name: string,
-    g: GreyCat = $.default,
-  ): gc.core.function_ {
+  static create(mod: string, type: string | undefined, name: string, g: GreyCat = $.default): gc.core.function_ {
     const ty = g.abi.types[g.abi.core.fn];
     return new ty.ctor(
       g.abi.symbol_ids.get(mod) ?? 0,

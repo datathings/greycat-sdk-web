@@ -387,8 +387,13 @@ function buildSerie(
   return serie;
 }
 
-// oxlint-disable-next-line typescript/no-explicit-any
-export function buildAxis(axis: Chart2Axis, textColor: string, borderColor: string, timeSpan: number): Record<string, any> {
+export function buildAxis(
+  axis: Chart2Axis,
+  textColor: string,
+  borderColor: string,
+  timeSpan: number,
+  // oxlint-disable-next-line typescript/no-explicit-any
+): Record<string, any> {
   // oxlint-disable-next-line typescript/no-explicit-any
   const result: Record<string, any> = {
     type: axis.type ?? 'value',

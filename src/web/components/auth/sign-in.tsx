@@ -47,17 +47,9 @@ export class GuiSignIn extends GuiElement {
   constructor() {
     super();
 
-    this._username = (
-      <sl-input type="text" placeholder="Username" autocomplete="username" required />
-    ) as sl.SlInput;
+    this._username = (<sl-input type="text" placeholder="Username" autocomplete="username" required />) as sl.SlInput;
     this._password = (
-      <sl-input
-        type="password"
-        placeholder="Password"
-        autocomplete="current-password"
-        passwordToggle
-        required
-      />
+      <sl-input type="password" placeholder="Password" autocomplete="current-password" passwordToggle required />
     ) as sl.SlInput;
     this._submit = (
       <sl-button variant="primary" type="submit">
@@ -151,9 +143,7 @@ export class GuiSignIn extends GuiElement {
 
     const fragment = document.createDocumentFragment();
     for (const id of ids) {
-      const btn = (
-        <sl-button onclick={() => this._oidcLogin(id, btn)}>Continue with {id}</sl-button>
-      ) as sl.SlButton;
+      const btn = (<sl-button onclick={() => this._oidcLogin(id, btn)}>Continue with {id}</sl-button>) as sl.SlButton;
       fragment.appendChild(btn);
     }
     this._providersList.replaceChildren(fragment);
