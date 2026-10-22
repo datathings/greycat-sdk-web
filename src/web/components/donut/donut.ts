@@ -341,7 +341,7 @@ export class GuiDonut extends GuiElement implements GuiDoughnutProps {
             ref._drawInfo(true, total, innerRadius, Number(partial), label, partialColor);
           }
         })
-        .on('mouseout', function (_) {
+        .on('mouseout', function () {
           ref._drawDefaultInfo(total, innerRadius);
         })
         .attr('class', 'pie-piece');

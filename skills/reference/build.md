@@ -61,8 +61,11 @@ Without `hostname`, `sitemap` and `robots` are skipped silently.
   `--with=<cmd>`); the built `webroot/` is what `greycat serve` serves at `/`.
 - `project.d.ts` from `greycat codegen ts` is generated: exclude it from the
   formatter, regenerate it on every `.gcl` change.
-- The explorer splits `@greycat/web` into its own chunk in
-  `build.rollupOptions.output.manualChunks`; the package is large enough to
-  warrant it.
+- Give `@greycat/web` its own chunk, as the explorer does, since the package
+  is large enough to warrant it. On vite 8 that is a group in
+  `build.rolldownOptions.output.codeSplitting`
+  (`{ groups: [{ name: 'greycat', test: /@greycat\/web/ }] }`). Vite 7 uses
+  `build.rollupOptions.output.manualChunks`, which vite 8 still accepts as
+  deprecated.
 - `pnpm build` in this repository builds `dist/sdk`, `dist/web`, `dist/jsx`,
   `dist/vite-plugin` and the CSS.

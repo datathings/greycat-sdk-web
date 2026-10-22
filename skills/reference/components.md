@@ -25,7 +25,9 @@ loads the Shoelace subset the components rely on (`sl-alert`, `sl-button`,
 `sl-input`, `sl-option`, `sl-popup`, `sl-select`, `sl-spinner`, `sl-tag`,
 `sl-tooltip`, `sl-tree`, `sl-tree-item`), re-exports the JSX runtime, and
 adds `Array.prototype.toFeatureCollection` for GeoJSON. `d3` and
-`maplibre-gl` come with it; `gui-map` needs the latter at runtime.
+`maplibre-gl` come with it; `gui-map` needs the latter at runtime. Shoelace,
+`d3`, `echarts` and `maplibre-gl` are peer dependencies, and the versions they
+accept are the `peerDependencies` in the package's `package.json`.
 
 The core `greycat` skill's webapp reference prescribes Lit and Web Awesome
 with `@greycat/web/sdk` alone for a new app. The explorer and older apps use

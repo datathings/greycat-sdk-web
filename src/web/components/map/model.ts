@@ -1,3 +1,4 @@
+import type * as maplibregl from 'maplibre-gl';
 import { GuiElement } from '../element.js';
 
 export abstract class GuiMapElement extends GuiElement {

@@ -18,15 +18,10 @@
     "noUnusedParameters": true,
     "noImplicitOverride": true,
     "allowJs": true,
-    // This is necessary for our handling of maplibre-gl
-    // We use it as if it was defined globally because the components that leverages
-    // this library will not be registered if it is not found globally
-    "allowUmdGlobalAccess": true,
 
     "lib": ["DOM", "ES2024"],
     "jsx": "react-jsx",
     "jsxImportSource": "@greycat/web",
-    "types": ["maplibre-gl"]
   },
   "include": ["**/*", "ambient.d.ts"],
   "exclude": ["../sdk"]

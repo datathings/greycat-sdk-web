@@ -1,3 +1,4 @@
+import type * as maplibregl from 'maplibre-gl';
 import { GuiMapElement } from './model.js';
 
 export class GuiMapLayer extends GuiMapElement {
