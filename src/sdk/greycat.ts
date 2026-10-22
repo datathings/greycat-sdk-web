@@ -5,6 +5,7 @@ import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './
 import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
+import { anySignal } from './utils/signal.js';
 import type { GCObject } from './GCObject.js';
 import {
   type Value,
@@ -575,7 +576,9 @@ export interface GreyCat {
    * @param args the function's arguments to send along.
    *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
-   * @param signal an optional `AbortSignal` to cancel the underlying fetch call
+   * @param signal an optional `AbortSignal`. Aborting it before the task is returned rejects with
+   *               its reason and cancels the task once the server answers. Aborting it later does
+   *               nothing, since the caller then holds the task.
    * @param taskClass the worker class the task runs in (defaults to `'medium'`)
    *
    * Rejects when the server cannot spawn `method` as a task (it answers such a call with the
@@ -602,7 +605,8 @@ export interface GreyCat {
    *             If `args` is an `Array` it will be serialized with `AbiWriter` to the ABI-compliant bytes for you.
    *             If `args` is an `ArrayBuffer`, the bytes will be sent as-is.
    * @param opts the worker class of the task and configuration options for the wait
-   * @param signal an optional `AbortSignal` to cancel the underlying fetch call
+   * @param signal an optional `AbortSignal`. Aborting it rejects with its reason and cancels the
+   *               task on the server, whether it is still being spawned or already running.
    */
   spawnAwait<T = unknown>(
     method: string,
@@ -613,6 +617,10 @@ export interface GreyCat {
 
   /**
    * Awaits the completion of the given GreyCat task.
+   *
+   * @param signal an optional `AbortSignal`. Aborting it rejects with its reason and stops
+   *               following the task, which keeps running. Give `opts.cancelSignal` to cancel
+   *               it as well.
    */
   await<T = unknown>(task: gc.runtime.Task<T>, opts?: TaskOptions, signal?: AbortSignal): Promise<T>;
 
@@ -953,7 +961,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     signal?: AbortSignal,
     taskClass: TaskClass = 'medium',
   ): Promise<gc.runtime.Task> {
-    const answer = await this._rawCall<gc.runtime.Task>(method, args, signal, taskClass, 'POST', false);
+    const answer = await this.#spawnCall<gc.runtime.Task>(method, args, signal, taskClass);
     if (!answer.spawned) {
       throw new Error(`'${method}' cannot be spawned, the server answered with its value (use call() instead)`);
     }
@@ -966,13 +974,64 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     opts?: SpawnOptions,
     signal?: AbortSignal,
   ): Promise<T> {
-    const answer = await this._rawCall<unknown>(method, args, signal, opts?.taskClass ?? 'medium', 'POST', false);
+    const answer = await this.#spawnCall<unknown>(method, args, signal, opts?.taskClass ?? 'medium');
     if (!answer.spawned) {
       // there is no task to wait for, since the answer already is the result
       opts?.onprogress?.(1);
       return answer.value as T;
     }
-    return this.await(answer.value as gc.runtime.Task<T>, opts, signal);
+    // `signal` also cancels the task, because the caller never sees the task to cancel it
+    const [cancelSignal, dispose] = anySignal(opts?.cancelSignal, signal);
+    try {
+      return await this.await(answer.value as gc.runtime.Task<T>, { ...opts, cancelSignal }, signal);
+    } finally {
+      dispose();
+    }
+  }
+
+  /**
+   * Spawns `method`. Aborting `signal` while the request is in flight rejects with the signal's
+   * reason right away, and cancels the task the server spawned anyway once its id is known,
+   * since no one else could. The request itself is not aborted, as that would lose the id.
+   */
+  #spawnCall<T>(
+    method: string,
+    args: Value[] | ArrayBuffer | undefined,
+    signal: AbortSignal | undefined,
+    taskClass: TaskClass,
+  ): Promise<RawAnswer<T>> {
+    if (signal?.aborted) {
+      return Promise.reject(signal.reason);
+    }
+    const call = this._rawCall<T>(method, args, undefined, taskClass, 'POST', false);
+    if (signal === undefined) {
+      return call;
+    }
+    const { promise, resolve, reject } = Promise.withResolvers<RawAnswer<T>>();
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+    call.then(
+      (answer) => {
+        signal.removeEventListener('abort', onAbort);
+        if (!signal.aborted) {
+          resolve(answer);
+        } else if (answer.spawned && answer.value instanceof gcreg.runtime.Task) {
+          this.#cancelTask(answer.value.task_id);
+        }
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      },
+    );
+    return promise;
+  }
+
+  /** Cancels task `id` on the server, logging rather than throwing when that fails. */
+  #cancelTask(id: TaskId): void {
+    gcreg.runtime.Task.cancel(id, this).catch((err: unknown) => {
+      console.warn(`[GreyCat] cancelling task '${id}' failed`, err);
+    });
   }
 
   /**
@@ -984,12 +1043,30 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   async await<T = unknown>(task: gc.runtime.Task<T>, opts: TaskOptions = {}, signal?: AbortSignal): Promise<T> {
+    const cancelSignal = opts.cancelSignal;
+    if (cancelSignal?.aborted) {
+      this.#cancelTask(task.task_id);
+      throw cancelSignal.reason;
+    }
+    const onCancel = () => this.#cancelTask(task.task_id);
+    cancelSignal?.addEventListener('abort', onCancel, { once: true });
+    // the wait and the download of the result both stop on either signal
+    const [stop, dispose] = anySignal(signal, cancelSignal);
+    try {
+      return await this.#await(task, opts, stop);
+    } finally {
+      cancelSignal?.removeEventListener('abort', onCancel);
+      dispose();
+    }
+  }
+
+  async #await<T>(task: gc.runtime.Task<T>, opts: TaskOptions, signal: AbortSignal | undefined): Promise<T> {
     const frequency = opts.pollEvery ?? this.pollFrequency;
     const off = opts.onprogress
       ? this.tasks.subscribe(task.task_id, (t) => opts.onprogress?.(t.progress), frequency)
       : undefined;
     try {
-      await this.tasks.wait(task.task_id, frequency);
+      await this.tasks.wait(task.task_id, frequency, signal);
     } catch (err) {
       // an errored task carries its `core.Error` in `result.gcb`, which the tracker already
       // read, and that error is thrown. When it could not, fall through to download the file

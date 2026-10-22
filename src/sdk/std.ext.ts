@@ -42,25 +42,21 @@ export function __extend_std() {
     ): () => void {
       const id = this.task_id;
       if (event === 'settle') {
-        let disposed = false;
-        // `wait` drives the polling and only ever rejects with a `TaskError`;
-        // rebuild the settle payload from either outcome. Disposing suppresses
-        // the callback but lets the task poll through to completion.
+        // `wait` rejects with a `TaskError` on failure, and with the abort reason once disposed.
+        // The settle payload is rebuilt from either outcome. Disposing withdraws the wait, so the
+        // task stops being followed unless another consumer still is.
+        const controller = new AbortController();
         g.tasks
-          .wait(id, pollEvery)
+          .wait(id, pollEvery, controller.signal)
           .then((task) => {
-            if (!disposed) {
-              cb({ task, error: null });
-            }
+            cb({ task, error: null });
           })
           .catch((error: TaskError) => {
-            if (!disposed) {
+            if (!controller.signal.aborted) {
               cb({ task: error.task ?? null, error });
             }
           });
-        return () => {
-          disposed = true;
-        };
+        return () => controller.abort();
       }
       return g.tasks.subscribe(id, cb, pollEvery);
     },

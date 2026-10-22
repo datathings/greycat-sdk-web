@@ -45,9 +45,9 @@ declare namespace gc {
        *
        * If an error has been thrown during the execution of the task then this call will also throw an error with the `core.Error`
        *
-       * @param opts configuration options for the wait
+       * @param opts configuration options for the wait, `cancelSignal` to cancel the task on abort
        * @param g
-       * @param signal
+       * @param signal aborting it rejects with its reason and stops following the task, which keeps running
        */
       result(opts?: sdk.TaskOptions, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
 

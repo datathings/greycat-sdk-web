@@ -15,6 +15,12 @@ export type TaskOptions = {
   pollEvery?: number;
   /** Called with the task's progress on every update: each report over the event stream, or each poll. */
   onprogress?: (progress: number | null) => void;
+  /**
+   * Aborting it cancels the task on the server, and rejects the wait with the signal's reason
+   * right away, the same way the `signal` of the wait does. Give it when the caller owns the
+   * task. A wait aborted through its `signal` alone leaves the task running.
+   */
+  cancelSignal?: AbortSignal;
 };
 
 /**

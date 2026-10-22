@@ -164,6 +164,8 @@ type Pending = {
   id: TaskId;
   /** present once someone `wait`s for terminal completion */
   deferred?: PromiseWithResolvers<gc.runtime.Task>;
+  /** how many `wait` calls are still waiting (an aborted one no longer counts) */
+  waiters: number;
   /** reactive subscribers, notified on every update */
   listeners: Set<TaskListener>;
   /** the {@link Poll} registration id backing this task's cadence, `-1` while the stream delivers */
@@ -371,11 +373,43 @@ export class TaskPoller {
     this.#bound.add(TaskPoller.#key(id));
   }
 
-  /** Resolve once the task reaches a terminal state, reject on failure. */
-  wait(id: TaskId, pollFrequency = this.#g.pollFrequency): Promise<gc.runtime.Task> {
+  /**
+   * Resolve once the task reaches a terminal state, reject on failure.
+   *
+   * Aborting `signal` rejects this wait with the signal's reason and withdraws it. The task
+   * itself keeps running, and the other consumers of the same task still get its updates. The task stops being tracked once it has no consumer left.
+   */
+  wait(id: TaskId, pollFrequency = this.#g.pollFrequency, signal?: AbortSignal): Promise<gc.runtime.Task> {
+    if (signal?.aborted) {
+      return Promise.reject(signal.reason);
+    }
     const pending = this.#ensure(id, pollFrequency);
     pending.deferred ??= Promise.withResolvers();
-    return pending.deferred.promise;
+    pending.waiters++;
+    if (signal === undefined) {
+      return pending.deferred.promise;
+    }
+
+    const own = Promise.withResolvers<gc.runtime.Task>();
+    const onAbort = () => {
+      pending.waiters--;
+      if (!this.#has_consumers(pending)) {
+        this.#settle(pending);
+      }
+      own.reject(signal.reason);
+    };
+    signal.addEventListener('abort', onAbort, { once: true });
+    pending.deferred.promise.then(
+      (task) => {
+        signal.removeEventListener('abort', onAbort);
+        own.resolve(task);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        own.reject(err);
+      },
+    );
+    return own.promise;
   }
 
   /** Observe every update until the task settles. Returns an unsubscribe. */
@@ -397,7 +431,7 @@ export class TaskPoller {
     let pending = this.#pending.get(key);
 
     if (!pending) {
-      pending = { id, listeners: new Set(), pollId: -1, frequency, updated: false };
+      pending = { id, listeners: new Set(), waiters: 0, pollId: -1, frequency, updated: false };
       this.#pending.set(key, pending);
       if (this.#bound.has(key)) {
         // the stream reports this task, but only from now on. A look tells whether it
@@ -429,12 +463,16 @@ export class TaskPoller {
   }
 
   #has_consumers(pending: Pending): boolean {
-    return pending.deferred !== undefined || pending.listeners.size > 0;
+    return pending.waiters > 0 || pending.listeners.size > 0;
   }
 
   #settle(pending: Pending): void {
     this.#unpoll(pending);
-    this.#pending.delete(TaskPoller.#key(pending.id));
+    const key = TaskPoller.#key(pending.id);
+    // a consumer leaving late must not drop the entry a newer consumer created for the same id
+    if (this.#pending.get(key) === pending) {
+      this.#pending.delete(key);
+    }
   }
 
   #emit(pending: Pending, task: gc.runtime.Task): void {
