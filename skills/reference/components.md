@@ -29,6 +29,18 @@ adds `Array.prototype.toFeatureCollection` for GeoJSON. `d3` and
 `d3`, `echarts` and `maplibre-gl` are peer dependencies, and the versions they
 accept are the `peerDependencies` in the package's `package.json`.
 
+maplibre-gl 6 loads its worker from a file next to its own module. Once a
+bundler moves that module into a chunk, the worker file is missing and every
+`gui-map` stays blank. An app that bundles maplibre-gl 6 sets the worker URL
+once, before any map renders. With Vite:
+
+```ts
+import { setWorkerUrl } from 'maplibre-gl';
+import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
+
+setWorkerUrl(maplibreWorkerUrl);
+```
+
 The core `greycat` skill's webapp reference prescribes Lit and Web Awesome
 with `@greycat/web/sdk` alone for a new app. The explorer and older apps use
 these components instead. Both are supported; follow the project's own
