@@ -408,6 +408,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     abiMismatchHandler,
     taskEvents = true,
     pauseWhenHidden = false,
+    world,
   } = options;
   const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
   const cleanUrl = normalizeUrl(url);
@@ -489,6 +490,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   }
 
   const [permissions] = await Promise.all([
+    // made before the instance gets its world, so it runs in main
     gcreg.runtime.Identity.permissions(g).catch(() => {
       // we probably don't have the permission to access this endpoint
       return [];
@@ -498,6 +500,9 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
   ]);
   g.permissions = permissions;
+  if (world !== undefined) {
+    g.world = world;
+  }
 
   const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
   return rich ? { greycat: g, auth: info } : g;
@@ -521,6 +526,7 @@ export function initWithAbi({
   credentials,
   taskEvents = false,
   pauseWhenHidden = false,
+  world,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
     name,
@@ -539,6 +545,9 @@ export function initWithAbi({
     abiMismatchHandler,
   );
   g.credentials = credentials;
+  if (world !== undefined) {
+    g.world = world;
+  }
   // register the instance
   register(name, g);
   // initialize runtime RPCs based on Abi
@@ -725,6 +734,17 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    *  explicit anonymous session so cross-origin wildcard-CORS requests are not
    *  blocked by the browser. */
   credentials?: RequestCredentials;
+  /**
+   * The world the RPC calls of this instance run in, sent as the `world` header: the name
+   * of a world, or `'main'`. `undefined` (the default) sends no header, and the calls run
+   * in main.
+   *
+   * Only RPC calls, and the tasks they spawn, run in a world. `/files/`, task tracking and
+   * the task event stream are the same in every world. A world the caller may not use
+   * answers `403` and an unknown one `400`, both thrown as an `HttpError` whose `body` is
+   * the server's `core.Error`.
+   */
+  world: string | undefined;
   /** called when a request returns a status code 401 */
   unauthorizedHandler: (() => void) | undefined;
   /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
@@ -772,6 +792,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this._writer = new AbiWriter(abi, 4096);
     this.unauthorizedHandler = unauthorizedHandler;
     this.abiMismatchHandler = abiMismatchHandler;
+    this.world = undefined;
     this._fields_map = new Map();
     this.#tasks = new TaskPoller(this);
 
@@ -889,7 +910,15 @@ export class GreyCat extends Emitter<GreyCatEvents> {
 
   async #reloadPermissions(signal?: AbortSignal): Promise<void> {
     try {
-      this.permissions = await gcreg.runtime.Identity.permissions(this, signal);
+      // in main, which every identity may use, unlike the world the instance runs in
+      this.permissions = await this.rawCall<string[]>(
+        'runtime::Identity::permissions',
+        [],
+        signal,
+        false,
+        'POST',
+        'main',
+      );
     } catch {
       // the endpoint itself may be off-limits to this login
       this.permissions = [];
@@ -901,6 +930,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * shares the task tracker and event stream of this instance, so tasks it spawns are
    * followed on that stream and their `task:*` events are emitted here. Once its own token
    * changes, it gets a tracker of its own.
+   *
+   * The clone starts in the same {@link world}, which it may then change on its own, so a
+   * clone is the way to work in another world next to this instance.
    */
   clone(name: string): GreyCat {
     const greycat = new GreyCat(
@@ -920,6 +952,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.abiMismatchHandler,
     );
     greycat.credentials = this.credentials;
+    greycat.world = this.world;
     // one stream per login, so the clone binds its calls to this instance's stream, and its
     // tasks are tracked here, so their `task:*` events are emitted on this instance
     greycat.#tasks = this.#tasks;
@@ -1003,7 +1036,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (signal?.aborted) {
       return Promise.reject(signal.reason);
     }
-    const call = this._rawCall<T>(method, args, undefined, taskClass, 'POST', false);
+    const call = this._rawCall<T>(method, args, undefined, taskClass, 'POST', false, this.world);
     if (signal === undefined) {
       return call;
     }
@@ -1128,6 +1161,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    *             class (defaults to `false`). A function the server cannot spawn is answered
    *             with its value even then.
    * @param httpMethod the http method to use (defaults to `POST`)
+   * @param world the world the call runs in, `'main'` for main (defaults to {@link world})
    */
   async rawCall<T = unknown>(
     uri: string,
@@ -1135,13 +1169,14 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     signal?: AbortSignal,
     task: boolean | TaskClass = false,
     httpMethod: 'POST' | 'GET' = 'POST',
+    world: string | undefined = this.world,
   ): Promise<T> {
-    return (await this._rawCall<T>(uri, args, signal, task, httpMethod, false)).value;
+    return (await this._rawCall<T>(uri, args, signal, task, httpMethod, false, world)).value;
   }
 
   /**
-   * `rawCall`, knowing whether this request is already the retry of a `304`, and telling
-   * whether the call was spawned as a task.
+   * `rawCall`, knowing whether this request is already the retry of a `304`, telling
+   * whether the call was spawned as a task, and running in `world` rather than {@link world}.
    */
   private async _rawCall<T>(
     uri: string,
@@ -1150,6 +1185,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     task: boolean | TaskClass,
     httpMethod: 'POST' | 'GET',
     retried: boolean,
+    world: string | undefined,
   ): Promise<RawAnswer<T>> {
     const url = `${this.api}/${uri}`;
     const fn = this.abi.fn_by_fqn.get(uri);
@@ -1174,6 +1210,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
+    if (world !== undefined) {
+      headers['world'] = world;
+    }
     // the stream this call names, which then reports the task the call spawns
     const sse = asTask ? this.tasks.streamId : undefined;
     if (asTask) {
@@ -1186,7 +1225,8 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         headers['x-gc-debug'] = `${this._debug_id}`;
       }
     }
-    const key: CacheKey = [uri, body];
+    // `'main'` and no header are the same world, so they share a key
+    const key: CacheKey = world === undefined || world === 'main' ? [uri, body] : [uri, body, world];
     const cachedRes = await this.cache.read(key);
     if (cachedRes) {
       headers['If-None-Match'] = cachedRes.etag;
@@ -1235,17 +1275,13 @@ export class GreyCat extends Emitter<GreyCatEvents> {
           this.logger(this.name, res.status, uri, args);
           throw new HttpError(`calling '${uri}' answered 304 with no cached answer to reuse`, res.status);
         }
-        return this._rawCall(uri, args, signal, task, httpMethod, true);
+        return this._rawCall(uri, args, signal, task, httpMethod, true, world);
       }
       const value = this.deserializeWithHeader(cachedRes.data);
       this.logger(this.name, res.status, uri, args, value);
       return { value: value as T, spawned };
     } else if (res.status === 401) {
       throw this.unauthorized(uri, `you need to be logged-in to access '${uri}'`);
-    } else if (res.status === 403) {
-      // forbidden
-      this.logger(this.name, res.status, uri, args);
-      throw new HttpError(`access to '${uri}' is forbidden`, res.status);
     } else if (res.status === 404) {
       // not found
       this.logger(this.name, res.status, uri, args, null);
@@ -1261,6 +1297,10 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (data.byteLength === 0) {
       // decoding an empty body would fail on the ABI headers and look like an ABI mismatch
       this.logger(this.name, res.status, uri, args);
+      if (res.status === 403) {
+        // a missing permission, while a world the caller may not use answers a `core.Error`
+        throw new HttpError(`access to '${uri}' is forbidden`, res.status);
+      }
       throw new HttpError(`calling '${uri}' failed`, res.status);
     }
     const value = this.deserializeWithHeader(data);

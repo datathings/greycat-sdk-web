@@ -181,6 +181,10 @@ declare namespace gc {
       }
     }
 
+    class world$args extends gc.sdk.GCObject {
+      static readonly _type = 'tests::world$args';
+    }
+
     const add: ((a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<number | bigint>) & {
       spawn(a: number | bigint, b: number | bigint, $g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<number | bigint>>;
     };
@@ -228,6 +232,12 @@ declare namespace gc {
      */
     const task_class: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<gc.runtime.TaskClass>) & {
       spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<gc.runtime.TaskClass>>;
+    };
+    /**
+     * The world the calling task runs in, `main` for main.
+     */
+    const world: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<string>) & {
+      spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<string>>;
     };
   }
 
@@ -628,6 +638,7 @@ declare namespace gc {
     'tests::sum_array$args': 0,
     'tests::task_class$args': 0,
     'tests::slow$args': 0,
+    'tests::world$args': 0,
   }
 
   interface $FieldsMap {
@@ -1459,6 +1470,7 @@ declare namespace gc {
     'tests::slow': 0,
     'tests::paused': 0,
     'tests::task_class': 0,
+    'tests::world': 0,
   }
 
   export import Table = gc.core.Table;
@@ -1675,4 +1687,5 @@ declare namespace gc {
   export import slow = gc.tests.slow;
   export import paused = gc.tests.paused;
   export import task_class = gc.tests.task_class;
+  export import world = gc.tests.world;
 }

@@ -169,3 +169,9 @@ fn paused(): int {
 fn task_class(): TaskClass {
     return Task::task_class();
 }
+
+/// The world the calling task runs in, `main` for main.
+@expose
+fn world(): String {
+    return World::current();
+}

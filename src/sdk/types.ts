@@ -196,9 +196,18 @@ export interface Options {
    *    to resume) and for an anonymous/public session (no token at all).
    */
   credentials?: RequestCredentials;
+  /**
+   * The world every RPC call of the instance runs in, sent as the `world` header, `'main'`
+   * for main. Unset sends no header, and the calls run in main. See `GreyCat.world`.
+   */
+  world?: string;
 }
 
-export type CacheKey = [method: string] | [method: string, params: ArrayBuffer];
+/** A call made in a world other than main carries the world's name, since each world answers its own. */
+export type CacheKey =
+  | [method: string]
+  | [method: string, params: ArrayBuffer]
+  | [method: string, params: ArrayBuffer, world: string];
 
 export type CacheData = {
   etag: string;

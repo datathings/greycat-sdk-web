@@ -533,7 +533,15 @@ export class TaskPoller {
     // silence the debug logger so a fast cadence does not spam it every tick.
     const logger = this.#g.unregisterLogger();
     try {
-      return await gcreg.runtime.Task.tasks(ids, this.#g);
+      // in main, since tasks are the same in every world and the instance's world may be removed
+      return await this.#g.rawCall<(gc.runtime.Task | null)[]>(
+        'runtime::Task::tasks',
+        [ids],
+        undefined,
+        false,
+        'POST',
+        'main',
+      );
     } finally {
       this.#g.registerLogger(logger);
     }
