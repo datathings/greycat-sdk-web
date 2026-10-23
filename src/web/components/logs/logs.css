@@ -207,11 +207,11 @@
   left: 0;
   font-size: var(--sl-font-size-small);
   border-left: 3px solid transparent;
-  cursor: pointer;
   overflow: hidden;
 }
 
 .log-row-cells {
+  cursor: pointer;
   display: grid;
   grid-template-columns: var(--col-0-width) var(--col-1-width) var(--col-2-width) var(--col-3-width) var(--col-4-width) var(--col-5-width) 1fr;
 }
@@ -317,6 +317,7 @@
   word-break: break-all;
   max-height: 300px;
   overflow: auto;
+  cursor: text;
 }
 
 /* Syntax highlighting tokens */

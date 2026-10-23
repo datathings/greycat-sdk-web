@@ -509,7 +509,10 @@ export class GuiLogs extends GuiElement {
       }
 
       const capturedFi = fi;
-      row.onclick = () => {
+      // Only the summary line toggles, so the detail stays open while its text is selected.
+      cellRow.onclick = () => {
+        // a drag that selects text ends with a click, which must not toggle the row
+        if (!(getSelection()?.isCollapsed ?? true)) return;
         if (this._expandedFi === capturedFi) {
           this._expandedFi = -1;
           this._expandedExtraHeight = 0;
