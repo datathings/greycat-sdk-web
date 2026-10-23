@@ -409,6 +409,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     taskEvents = true,
     pauseWhenHidden = false,
     world,
+    identityWorld = true,
   } = options;
   const logger = debug ? DEFAULT_LOGGER : NOOP_LOGGER;
   const cleanUrl = normalizeUrl(url);
@@ -495,6 +496,8 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
       // we probably don't have the permission to access this endpoint
       return [];
     }),
+    // an explicit world wins over the identity's default one
+    world === undefined && identityWorld ? g.useIdentityWorld(signal) : undefined,
     // a task spawned before the stream is open is never reported on it and gets polled
     // instead, so the first calls of the app wait for it, unless it is slow to come
     taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
@@ -734,17 +737,6 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    *  explicit anonymous session so cross-origin wildcard-CORS requests are not
    *  blocked by the browser. */
   credentials?: RequestCredentials;
-  /**
-   * The world the RPC calls of this instance run in, sent as the `world` header: the name
-   * of a world, or `'main'`. `undefined` (the default) sends no header, and the calls run
-   * in main.
-   *
-   * Only RPC calls, and the tasks they spawn, run in a world. `/files/`, task tracking and
-   * the task event stream are the same in every world. A world the caller may not use
-   * answers `403` and an unknown one `400`, both thrown as an `HttpError` whose `body` is
-   * the server's `core.Error`.
-   */
-  world: string | undefined;
   /** called when a request returns a status code 401 */
   unauthorizedHandler: (() => void) | undefined;
   /** called when a request has been sent with wrong ABI headers and therefore the response as status 422 */
@@ -760,6 +752,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   #sharedTasks = false;
   private _fields_map: Map<string, AbiAttribute>;
   private _debug_id: number | bigint | undefined;
+  /** {@link world} follows the default world of the logged-in identity. */
+  #identityWorld = false;
+  #world: string | undefined;
 
   constructor(
     name: string,
@@ -792,7 +787,6 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     this._writer = new AbiWriter(abi, 4096);
     this.unauthorizedHandler = unauthorizedHandler;
     this.abiMismatchHandler = abiMismatchHandler;
-    this.world = undefined;
     this._fields_map = new Map();
     this.#tasks = new TaskPoller(this);
 
@@ -814,6 +808,28 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    */
   get tasks(): TaskPoller {
     return this.#tasks;
+  }
+
+  /**
+   * The world the RPC calls of this instance run in, sent as the `world` header: the name
+   * of a world, or `'main'`. `undefined` sends no header, and the calls run in main.
+   *
+   * `init` follows the default world of the identity unless given a `world` (see
+   * {@link useIdentityWorld}). Setting this stops following it, so a later login keeps
+   * the world set here.
+   *
+   * Only RPC calls, and the tasks they spawn, run in a world. `/files/`, task tracking and
+   * the task event stream are the same in every world. A world the caller may not use
+   * answers `403` and an unknown one `400`, both thrown as an `HttpError` whose `body` is
+   * the server's `core.Error`.
+   */
+  get world(): string | undefined {
+    return this.#world;
+  }
+
+  set world(value: string | undefined) {
+    this.#identityWorld = false;
+    this.#world = value;
   }
 
   /** Sent as `Authorization` on every request; `undefined` for an anonymous or cookie session. */
@@ -869,6 +885,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * carries it, the permissions are reloaded, the task event stream restarts with the new
    * login, and `auth:changed` fires. Rejects with the login's `HttpError` and leaves the
    * instance as it was.
+   *
+   * An instance following the identity's default world (see {@link useIdentityWorld})
+   * reads the new identity's one before `auth:changed` fires.
    */
   async login(auth: Auth, signal?: AbortSignal): Promise<void> {
     const token =
@@ -876,14 +895,18 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         ? auth.token
         : await login({ ...auth, url: new URL(this.api), signal, credentials: this.credentials });
     this.token = token;
-    await this.#reloadPermissions(signal);
+    await Promise.all([
+      this.#reloadPermissions(signal),
+      this.#identityWorld ? this.#readIdentityWorld(signal) : undefined,
+    ]);
     this.emit('auth:changed', { loggedIn: true });
   }
 
   /**
    * Logs this instance out: `runtime::Identity::logout` ends the server session, the token
    * is dropped, the permissions cleared, the task event stream closed, and `auth:changed`
-   * fires. The local state is cleared even when the server call fails.
+   * fires. The local state is cleared even when the server call fails. An instance following
+   * the identity's default world goes back to main.
    */
   async logout(signal?: AbortSignal): Promise<void> {
     try {
@@ -904,6 +927,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         this.tasks.reconnect();
       }
       this.permissions = [];
+      if (this.#identityWorld) {
+        this.#world = undefined;
+      }
       this.emit('auth:changed', { loggedIn: false });
     }
   }
@@ -926,13 +952,51 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   /**
+   * Runs the calls of this instance in the default world of the logged-in identity
+   * (`Identity.world`) from now on: sets {@link world} to it, and does it again after
+   * each {@link login}. {@link logout} goes back to main. The server never applies that
+   * default by itself, since a call without a `world` header runs in main.
+   *
+   * `init` does this unless given a `world` or `identityWorld: false`. Setting
+   * {@link world} stops it.
+   *
+   * Resolves to whether the identity was read. An anonymous session, or a login that
+   * cannot read its own identity, leaves {@link world} as it was and resolves to `false`.
+   */
+  async useIdentityWorld(signal?: AbortSignal): Promise<boolean> {
+    this.#identityWorld = true;
+    return this.#readIdentityWorld(signal);
+  }
+
+  async #readIdentityWorld(signal?: AbortSignal): Promise<boolean> {
+    let identity: gc.runtime.Identity;
+    try {
+      // in main, since the identity may not use the world the instance runs in
+      identity = await this.rawCall<gc.runtime.Identity>(
+        'runtime::Identity::current',
+        [],
+        signal,
+        false,
+        'POST',
+        'main',
+      );
+    } catch {
+      // anonymous callers are answered 403
+      return false;
+    }
+    this.#world = identity.world ?? undefined;
+    return true;
+  }
+
+  /**
    * A copy of this instance registered as `name`, with the same login and settings. It
    * shares the task tracker and event stream of this instance, so tasks it spawns are
    * followed on that stream and their `task:*` events are emitted here. Once its own token
    * changes, it gets a tracker of its own.
    *
-   * The clone starts in the same {@link world}, which it may then change on its own, so a
-   * clone is the way to work in another world next to this instance.
+   * The clone starts in the same {@link world}, which it may then change on its own, and
+   * does not follow the identity's default world, so a clone is the way to work in another
+   * world next to this instance.
    */
   clone(name: string): GreyCat {
     const greycat = new GreyCat(
@@ -952,7 +1016,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       this.abiMismatchHandler,
     );
     greycat.credentials = this.credentials;
-    greycat.world = this.world;
+    greycat.#world = this.#world;
     // one stream per login, so the clone binds its calls to this instance's stream, and its
     // tasks are tracked here, so their `task:*` events are emitted on this instance
     greycat.#tasks = this.#tasks;

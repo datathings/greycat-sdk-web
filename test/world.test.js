@@ -1,14 +1,20 @@
 import assert from 'node:assert/strict';
 import { describe, before, after, afterEach, it } from 'node:test';
+import { readFile } from 'node:fs/promises';
+import { fileURLToPath } from 'node:url';
+import { dirname, join } from 'node:path';
 
 import '@greycat/web/sdk';
 import { SERVER_URL } from './helpers.js';
-import { fakeServer, loadAbi } from './fake-server.js';
+import { answer, fakeServer, loadAbi } from './fake-server.js';
 
 /**
  * The world calls run in. Against the test server, whose every request runs as root, and a
- * fake one for the refusals root never gets.
+ * fake one for the refusals root never gets and for the default world of an identity, which
+ * set on root would reach the instances of the other test files.
  */
+
+const here = dirname(fileURLToPath(import.meta.url));
 
 describe('worlds', () => {
   const url = new URL(SERVER_URL);
@@ -191,5 +197,131 @@ describe('worlds refused', () => {
       return true;
     });
     assert.deepEqual(worlds, [undefined]);
+  });
+});
+
+describe('the default world of the identity', () => {
+  /** @type {ArrayBuffer} */
+  let abiData;
+  /** @type {gc.sdk.GreyCat} */
+  let ser;
+  /** @type {Awaited<ReturnType<typeof fakeServer>> | undefined} */
+  let server;
+  /** @type {gc.sdk.GreyCat[]} */
+  const instances = [];
+
+  before(async () => {
+    const data = await readFile(join(here, 'abi.bin'));
+    abiData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    const { abi, wasm } = await loadAbi();
+    ser = gc.sdk.initWithAbi({ name: 'identity-ser', abi, module: wasm.module, exports: wasm.instance.exports });
+  });
+
+  afterEach(() => {
+    server?.close();
+    server = undefined;
+    for (const g of instances.splice(0)) {
+      g.tasks.disconnect();
+    }
+  });
+
+  /**
+   * Serves the ABI, an identity whose default world is `world`, and `3` to any other call.
+   * Records the path and the `world` header of each request.
+   * @param {string | null} world
+   */
+  async function identityServer(world) {
+    /** @type {{ path: string, world: string | string[] | undefined }[]} */
+    const requests = [];
+    server = await fakeServer((req, res) => {
+      const path = new URL(req.url ?? '/', 'http://fake').pathname.slice(1);
+      requests.push({ path, world: req.headers['world'] });
+      req.resume();
+      req.on('end', () => {
+        if (path === 'runtime::Runtime::abi') {
+          res.writeHead(200, { 'content-type': 'application/octet-stream' });
+          res.end(Buffer.from(abiData));
+        } else if (path === 'runtime::Identity::permissions') {
+          answer(ser, res, ['public', 'api']);
+        } else if (path === 'runtime::Identity::current') {
+          answer(ser, res, gc.runtime.Identity.createFrom({ id: 2, name: 'alice', role: 'user', grants: [], world }));
+        } else if (path === 'runtime::Identity::logout') {
+          res.writeHead(200);
+          res.end();
+        } else {
+          answer(ser, res, 3);
+        }
+      });
+    });
+    /** @param {string} path */
+    const worldsOf = (path) => requests.filter((r) => r.path === path).map((r) => r.world);
+    return { url: server.url, worldsOf };
+  }
+
+  /** @param {gc.sdk.WithoutAbiOptions & { name: string }} options */
+  async function client(options) {
+    const g = await gc.sdk.init({ taskEvents: false, ...options });
+    instances.push(g);
+    return g;
+  }
+
+  it('is followed by default, and read in main', async () => {
+    const { url, worldsOf } = await identityServer('what-if');
+    const g = await client({ name: 'identity-default', url: new URL(url) });
+
+    assert.equal(g.world, 'what-if');
+    await g.call('tests::add', [1, 2]);
+    assert.deepEqual(worldsOf('runtime::Identity::current'), ['main']);
+    assert.deepEqual(worldsOf('runtime::Identity::permissions'), [undefined]);
+    assert.deepEqual(worldsOf('tests::add'), ['what-if']);
+  });
+
+  it('leaves the calls in main when the identity has none', async () => {
+    const { url, worldsOf } = await identityServer(null);
+    const g = await client({ name: 'identity-none', url: new URL(url) });
+
+    assert.equal(g.world, undefined);
+    await g.call('tests::add', [1, 2]);
+    assert.deepEqual(worldsOf('tests::add'), [undefined]);
+  });
+
+  it('gives way to an explicit world, which is not even read', async () => {
+    const { url, worldsOf } = await identityServer('what-if');
+    const g = await client({ name: 'identity-explicit', url: new URL(url), world: 'main' });
+
+    assert.equal(g.world, 'main');
+    await g.call('tests::add', [1, 2]);
+    assert.deepEqual(worldsOf('runtime::Identity::current'), []);
+    assert.deepEqual(worldsOf('tests::add'), ['main']);
+  });
+
+  it('is not followed with identityWorld: false', async () => {
+    const { url, worldsOf } = await identityServer('what-if');
+    const g = await client({ name: 'identity-off', url: new URL(url), identityWorld: false });
+
+    assert.equal(g.world, undefined);
+    assert.deepEqual(worldsOf('runtime::Identity::current'), []);
+  });
+
+  it('is read again on login, and dropped on logout', async () => {
+    const { url, worldsOf } = await identityServer('what-if');
+    const g = await client({ name: 'identity-login', url: new URL(url) });
+
+    await g.login({ token: 'another' });
+    assert.equal(worldsOf('runtime::Identity::current').length, 2);
+    assert.equal(g.world, 'what-if');
+
+    await g.logout();
+    assert.equal(g.world, undefined);
+  });
+
+  it('stops being followed once the world is set', async () => {
+    const { url, worldsOf } = await identityServer('what-if');
+    const g = await client({ name: 'identity-set', url: new URL(url) });
+
+    g.world = 'variant';
+    await g.login({ token: 'another' });
+    assert.equal(worldsOf('runtime::Identity::current').length, 1);
+    assert.equal(g.world, 'variant');
   });
 });

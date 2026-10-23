@@ -198,7 +198,8 @@ export interface Options {
   credentials?: RequestCredentials;
   /**
    * The world every RPC call of the instance runs in, sent as the `world` header, `'main'`
-   * for main. Unset sends no header, and the calls run in main. See `GreyCat.world`.
+   * for main. It wins over the default world of the identity (see `identityWorld`). See
+   * `GreyCat.world`.
    */
   world?: string;
 }
@@ -307,6 +308,15 @@ export interface WithoutAbiOptions extends Options {
    *  - `false`: skips wasm loading; `parseTime`/`printTime` will throw.
    */
   wasm?: WasmSource | false;
+  /**
+   * Runs the calls in the default world of the logged-in identity (`Identity.world`), read
+   * once authenticated and again after each `login`, unless `world` is given. The server
+   * never applies that default by itself, so `false` runs the calls in main. An anonymous
+   * session cannot read its identity and runs in main. See `GreyCat.useIdentityWorld()`.
+   *
+   * Defaults to `true`.
+   */
+  identityWorld?: boolean;
 }
 
 export interface WithAbiOptions extends Options {
