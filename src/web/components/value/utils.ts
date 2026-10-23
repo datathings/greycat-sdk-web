@@ -84,14 +84,16 @@ export function stringify(value: unknown, props: StringifyProps): string {
     return `Map { size: ${value.size} }`;
   } else if (value instanceof gc.runtime.Task) {
     const fn = value.type ? `${value.mod}::${value.type}::${value.fun}` : `${value.mod}::${value.fun}`;
+    // `world` is null for a task read back from the history, and absent from older servers
+    const world = value.world && value.world !== 'main' ? ` in world ${value.world}` : '';
     switch (value.status.key) {
       case 'ended':
       case 'ended_with_errors':
       case 'cancelled':
       case 'error':
-        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}, completed at ${value.completion?.toString()}`;
+        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}${world}, completed at ${value.completion?.toString()}`;
       default:
-        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}, created at ${value.creation.toString()}`;
+        return `${value.user_name}/${value.task_id} ${fn} ${value.status.key}${world}, created at ${value.creation.toString()}`;
     }
   } else if (typeof value === 'object') {
     if (value) {

@@ -1,0 +1,27 @@
+:host {
+  display: contents;
+}
+
+gui-card::part(header) {
+  --border-width: 0;
+}
+
+gui-card::part(body) {
+  padding: 0;
+}
+
+header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+gui-table {
+  --gui-table-filter-border-top-left-radius: 0;
+  --gui-table-filter-border-top-right-radius: 0;
+  min-height: var(--gui-table-min-height);
+}
+
+gui-tbody-row:hover {
+  cursor: pointer;
+}

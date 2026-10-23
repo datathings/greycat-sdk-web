@@ -29,6 +29,7 @@ import './tabs/register.js';
 import './tensor/register.js';
 import './time/register.js';
 import './value/register.js';
+import './worlds/register.js';
 
 import * as web from '../exports.js';
 
