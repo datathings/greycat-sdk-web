@@ -83,6 +83,7 @@ by the root. Most take their data through a `value` property.
 | layout, nav | `gui-layout`, `gui-nav` | an app shell with a responsive breakpoint; a navigation tree fed by a `nav.json` |
 | auth | `gui-auth-gate`, `gui-sign-in`, `gui-sign-in-button` | a landing page handling the OAuth callback, the signed-in and the anonymous states over raw JSON calls, so it works before `init`; the sign-in form with OpenID provider discovery |
 | admin | `gui-identities`, `gui-roles`, `gui-role-permissions`, `gui-files`, `gui-logs`, `gui-task` | user, role and permission management; a `/files/` browser at a `path`; the server log viewer; one task's state |
+| worlds | `gui-worlds`, `gui-world-select` | the worlds the caller may use, created and removed with the `world` permission; a picker setting the `world` of its `greycat` instance (`gc.$.default` unless set), see [worlds.md](worlds.md) |
 | factory | `gui-factory`, `gui-input-factory` | see below |
 
 ## Value display and the factory

@@ -3,7 +3,8 @@
 The server serves each user's directory under `/files/<user>/...`; a path
 given to the SDK never includes the `/files/` prefix. Requests carry the
 instance's credentials like a call, and a 401 runs the same unauthorized path
-(see [auth.md](auth.md)); a 403 rejects with `HttpError`.
+(see [auth.md](auth.md)); a 403 rejects with `HttpError`. The tree is the
+same in every world, and no `world` header goes with these requests.
 
 ## Download
 

@@ -46,10 +46,11 @@ of them with its value, as it would a `call`, and adds the response header
 because there is no `Task` to give back. The function has run all the same,
 so call these with `call`.
 
-`greycat.rawCall(fqn, args, signal, task, method)` is the transport under all
+`greycat.rawCall(fqn, args, signal, task, method, world)` is the transport under all
 three: `task: true` (the `'medium'` class) or a class name adds the `task`
 header, `method: 'GET'` issues a GET with no body, for a function that takes no
-arguments. A `task: none` answer is returned as the value.
+arguments. A `task: none` answer is returned as the value. `world` sends that
+world in place of `greycat.world` (see [worlds.md](worlds.md)).
 
 ## Errors
 
@@ -57,7 +58,8 @@ A non-2xx answer rejects with `HttpError`, whose `status` is the HTTP status
 and `body` the decoded error when the server sent one. A 401 also runs the
 unauthorized path described in [auth.md](auth.md); a 422 runs
 `abiMismatchHandler`; a 404 means the function is not in the ABI or not
-exposed.
+exposed. A 403 has no `body` for a missing permission, and a `core.Error` for a
+world the caller may not use (see [worlds.md](worlds.md)).
 
 ## The binary transport
 

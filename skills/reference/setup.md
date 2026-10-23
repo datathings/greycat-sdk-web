@@ -66,6 +66,7 @@ resolves to it. Options:
 | `url` | server base URL; discovered from the page's origin in a browser, `http://127.0.0.1:8080` in Node |
 | `name` | registry key, `'default'` unless several instances coexist |
 | `auth`, `credentials` | see [auth.md](auth.md) |
+| `world`, `identityWorld` | the world every call runs in; unset, the identity's default one unless `identityWorld: false` (see [worlds.md](worlds.md)) |
 | `taskEvents` | keep a task event stream open, `true` by default; see [tasks.md](tasks.md) |
 | `pauseWhenHidden` | close that stream while the page is hidden, `false` by default (see [tasks.md](tasks.md)) |
 | `pollFrequency` | cadence of the polling fallback in ms, `100` |
@@ -85,7 +86,7 @@ an instance while the browser navigates away: test with `gc.sdk.isRedirecting`.
 
 `gc.$` maps names to instances; `gc.$.default` is what the bindings use unless
 an instance is passed as their trailing `$g` argument. `greycat.clone(name)`
-makes a second instance on the same server, ABI and credentials. It shares
+makes a second instance on the same server, ABI, credentials and world. It shares
 the task tracker and event stream of its original, so the `task:*` events of
 the tasks it spawns are emitted on the original, until a token of its own
 gives it a tracker of its own. `setDebugId(id)` on it routes its calls through
