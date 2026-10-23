@@ -22,6 +22,10 @@ gui-table {
   min-height: var(--gui-table-min-height);
 }
 
+gui-table::part(subheader) {
+  display: none;
+}
+
 gui-tbody-row:hover {
   cursor: pointer;
 }

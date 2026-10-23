@@ -36,8 +36,19 @@ export class GuiWorlds extends GuiElement {
       columns: [
         { index: gc.runtime.WorldInfo.$fields.id, header: 'ID', width: 80 },
         { index: gc.runtime.WorldInfo.$fields.name, header: 'Name', width: 250 },
-        { index: gc.runtime.WorldInfo.$fields.mode, header: 'Mode', width: 120 },
-        { index: gc.runtime.WorldInfo.$fields.base, header: 'Base', width: 200 },
+        {
+          index: gc.runtime.WorldInfo.$fields.mode,
+          header: 'Mode',
+          width: 120,
+          value: ({ value }) => (value as gc.runtime.WorldMode).key,
+        },
+        {
+          index: gc.runtime.WorldInfo.$fields.base,
+          header: 'Base',
+          width: 200,
+          // a standalone world has none
+          value: ({ value }) => value ?? '',
+        },
         { index: gc.runtime.WorldInfo.$fields.created, header: 'Created', width: 250 },
         { index: gc.runtime.WorldInfo.$fields.user_id, header: 'Creator', width: 100 },
       ],
