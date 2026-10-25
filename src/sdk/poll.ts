@@ -215,6 +215,10 @@ export class TaskPoller {
   #visibility: (() => void) | undefined;
   /** The page is hidden and {@link pauseWhenHidden} closed the stream for it. */
   #hidden = false;
+  /** The page was left, maybe into the back/forward cache, and {@link #followPage} closed the stream for it. */
+  #left = false;
+  /** The `pagehide` and `pageshow` listeners of {@link #followPage} are installed. */
+  #following = false;
 
   constructor(g: GreyCat) {
     this.#g = g;
@@ -277,7 +281,45 @@ export class TaskPoller {
    */
   connect(): void {
     this.#wanted = true;
-    if (!this.#hidden) {
+    this.#followPage();
+    if (!this.#hidden && !this.#left) {
+      this.#stream.connect();
+    }
+  }
+
+  /**
+   * Closes the stream when the page is left (`pagehide`) and opens it again if the page comes
+   * back from the back/forward cache (`pageshow` with `persisted`). A browser keeps a page it
+   * navigates away from frozen in that cache for minutes, an open fetch included: its stream
+   * would hold one of the six connections per origin a browser allows over HTTP/1.1, so a few
+   * page switches would leave none for the page in use, and its requests would wait. Closing
+   * it also keeps the page eligible for that cache. Does nothing outside a browser.
+   */
+  #followPage(): void {
+    if (this.#following || typeof window === 'undefined') {
+      return;
+    }
+    this.#following = true;
+    window.addEventListener('pagehide', () => this.#onLeft(true));
+    window.addEventListener('pageshow', (event) => {
+      if (event.persisted) {
+        this.#onLeft(false);
+      }
+    });
+  }
+
+  #onLeft(left: boolean): void {
+    if (left === this.#left) {
+      return;
+    }
+    this.#left = left;
+    if (!this.#wanted) {
+      return;
+    }
+    if (left) {
+      this.#stream.disconnect();
+      this.#streamGone();
+    } else if (!this.#hidden) {
       this.#stream.connect();
     }
   }
@@ -317,7 +359,7 @@ export class TaskPoller {
     if (hidden) {
       this.#stream.disconnect();
       this.#streamGone();
-    } else {
+    } else if (!this.#left) {
       this.#stream.connect();
     }
   }
@@ -352,7 +394,7 @@ export class TaskPoller {
     }
     this.#stream.disconnect();
     this.#streamGone();
-    if (!this.#hidden) {
+    if (!this.#hidden && !this.#left) {
       this.#stream.connect();
     }
   }

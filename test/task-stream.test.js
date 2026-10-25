@@ -343,4 +343,33 @@ describe('task stream', () => {
       delete (/** @type {any} */ (globalThis).document);
     }
   });
+
+  it('closes the stream when the page is left and reopens it back from the back/forward cache', async () => {
+    const win = new EventTarget();
+    /** @type {any} */ (globalThis).window = win;
+    /** @param {boolean} persisted */
+    const pageshow = (persisted) => Object.assign(new Event('pageshow'), { persisted });
+    try {
+      server = await fakeServer((req, res) => {
+        openStream(res, `${/** @type {NonNullable<typeof server>} */ (server).count}`);
+      });
+      g = client(server.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(g.tasks.streamId, '1');
+
+      // a link followed: the page may be kept frozen, its open fetches with it
+      win.dispatchEvent(new Event('pagehide'));
+      assert.equal(g.tasks.streamState, 'idle');
+      assert.equal(g.tasks.transport, 'poll');
+      // a page shown for the first time is not a return
+      win.dispatchEvent(pageshow(false));
+      assert.equal(g.tasks.streamState, 'idle');
+
+      win.dispatchEvent(pageshow(true));
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(g.tasks.streamId, '2');
+    } finally {
+      delete (/** @type {any} */ (globalThis).window);
+    }
+  });
 });
