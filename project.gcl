@@ -1,3 +1,3 @@
-@library("std", "8.4.519-dev");
+@library("std", "8.4.584-dev");
 
 @include("test");
