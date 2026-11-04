@@ -51,8 +51,7 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
   what stays the same in every world, the 400 and 403 a world answers,
   creating and removing worlds.
 - **[reference/files.md](reference/files.md)**: `/files/` access, `getFile` and
-  its decoding by extension, `putFile`, upload progress, `deleteFile`, task
-  results on disk.
+  its decoding by extension, `putFile`, upload progress, `deleteFile`.
 - **[reference/components.md](reference/components.md)**: the `gui-*`
   elements by family (value, object, table, charts, inputs, map, admin
   panels, auth), registration after init, the value factory, events, the

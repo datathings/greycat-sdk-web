@@ -89,8 +89,8 @@ Codec access when a value must cross something other than a call:
 
 - `greycat.serialize(value)` / `greycat.deserialize(buf)`: one value, no header.
 - `greycat.serializeWithHeaders(value)` / `greycat.deserializeWithHeader(buf)`:
-  with the ABI header the server puts on every response, which `result.gcb`
-  files and task event frames also carry.
+  with the ABI header the server puts on every response, which `.gcb` files
+  and task event frames also carry.
 - `greycat.deserializeAll(buf)`: every value in a buffer, for `.gcb` files.
 
 `greycat.findType(fqn)`, `findFn(fqn)`, `field(fqn)` look the ABI up by name.

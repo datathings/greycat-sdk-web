@@ -24,9 +24,13 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
 - `subscribe(id, listener)` calls the listener on every update, the terminal
   one included, and returns an unsubscribe. `greycat.watchTask` is a
   shorthand.
-- `await(task, opts)` waits for the end, then fetches the result from the
-  task's `result.gcb` file. `opts.onprogress` receives `task.progress`
-  (`0..1` or `null`) on each update and `1` at the end.
+- `await(task, opts)` waits for the end, then reads the value the task
+  returned with `runtime::Task::result`, `null` when it returned nothing.
+  `opts.onprogress` receives `task.progress` (`0..1` or `null`) on each
+  update and `1` at the end.
+- `gc.runtime.Task.result(task_id)` reads that value without waiting. It
+  rejects with an `HttpError` of status `409` while the task runs, and `410`
+  once the task ended longer ago than the server's `--task_retention`.
 - `task.isTerminal()` says whether the status a `runtime::Task` holds is
   final (`ended`, `error`, `cancelled`, and the deprecated `ended_with_errors`
   that no server produces). It reads the
@@ -49,8 +53,8 @@ the stream was open when it was spawned.
 `'inaccessible'` (unknown id, or another user's task); `task` holds the
 terminal task when there is one.
 
-When the task threw, the tracker reads the `core.Error` it left in
-`result.gcb` before it settles, so `wait`, `task:settle` and `on('settle')`
+When the task threw, the tracker reads the `core.Error` it threw with
+`runtime::Task::result` before it settles, so `wait`, `task:settle` and `on('settle')`
 all carry it:
 
 ```ts
@@ -69,7 +73,7 @@ try {
 - `err.error` is the `core.Error`, also set as `err.cause`.
 - `err.message` ends with the error's message, and `err.stack` lists its
   GreyCat frames, innermost call first, instead of JavaScript frames.
-- When `result.gcb` cannot be read, `err.error` is absent, the message is
+- When that error cannot be read, `err.error` is absent, the message is
   `task '93' ended with errors`, and `err.cause` says why.
 
 `await` throws the `core.Error` itself rather than the `TaskError`.

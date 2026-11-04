@@ -31,9 +31,3 @@ await greycat.deleteFile('root/upload.csv');
 For a progress bar in a browser, `putFileProgress(file, path, onProgress)`
 from the `@greycat/web` root entry uploads with an `XMLHttpRequest` and
 returns a promise with an `abort()`.
-
-## Task results
-
-A task's result lives at `<user>/tasks/<id>/result.gcb`, written when the task
-ends; `greycat.await(task)` fetches and decodes it. A task that returned
-nothing has no result file, and `await` resolves with `undefined`.
