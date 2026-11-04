@@ -1,0 +1,28 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: minmax(8rem, 1fr) auto auto auto;
+  gap: 0.25rem 0.75rem;
+  align-items: center;
+  width: 100%;
+  max-height: 30vh;
+  overflow-y: auto;
+}
+
+.list > * {
+  white-space: nowrap;
+}
+
+.list sl-tag {
+  margin-left: 0.5rem;
+}
+
+.empty {
+  color: var(--sl-color-neutral-500);
+}

@@ -82,7 +82,7 @@ by the root. Most take their data through a `value` property.
 | tabs, details, dialog, card | `gui-tabs`, `gui-tab`, `gui-panel`, `gui-details`, `gui-dialog`, `gui-card` | tabs built from `gui-tab` / `gui-panel` children on first connect; the last three extend the Shoelace element of the same name |
 | layout, nav | `gui-layout`, `gui-nav` | an app shell with a responsive breakpoint; a navigation tree fed by a `nav.json` |
 | auth | `gui-auth-gate`, `gui-sign-in`, `gui-sign-in-button` | a landing page handling the OAuth callback, the signed-in and the anonymous states over raw JSON calls, so it works before `init`; the sign-in form with OpenID provider discovery |
-| admin | `gui-identities`, `gui-roles`, `gui-role-permissions`, `gui-files`, `gui-logs`, `gui-task` | user, role and permission management, the permissions an identity grants on what it owns; a `/files/` browser at a `path`; the server log viewer; one task's state |
+| admin | `gui-identities`, `gui-identity-tokens`, `gui-roles`, `gui-role-permissions`, `gui-files`, `gui-logs`, `gui-task` | user, role and permission management, the permissions an identity grants on what it owns, the tokens of an identity and their revocation; a `/files/` browser at a `path`; the server log viewer; one task's state |
 | worlds | `gui-worlds`, `gui-world-select` | the worlds the caller may use, created and removed with the `world` permission; a picker setting the `world` of its `greycat` instance (`gc.$.default` unless set), see [worlds.md](worlds.md) |
 | factory | `gui-factory`, `gui-input-factory` | see below |
 

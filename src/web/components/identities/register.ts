@@ -9,8 +9,9 @@ import '@shoelace-style/shoelace/dist/components/input/input.js';
 import '@shoelace-style/shoelace/dist/components/option/option.js';
 import '@shoelace-style/shoelace/dist/components/select/select.js';
 import '@shoelace-style/shoelace/dist/components/tag/tag.js';
-import { GuiIdentities } from './index.js';
+import { GuiIdentities, GuiIdentityTokens } from './index.js';
 
 registerCustomElement('gui-identities', GuiIdentities);
+registerCustomElement('gui-identity-tokens', GuiIdentityTokens);
 
 export * from './index.js';

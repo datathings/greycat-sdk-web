@@ -5,6 +5,7 @@ import type { GuiDialog } from '../dialog/dialog.js';
 import { GuiElement } from '../element.js';
 import type { GuiSelect, GuiOption } from '../select/select.js';
 import type { GuiTable } from '../table/table.js';
+import type { GuiIdentityTokens } from './identity-tokens.js';
 import style from './identities.css?inline';
 
 /** How many grants or tokens one paged call reads. */
@@ -87,10 +88,15 @@ export class GuiIdentities extends GuiElement {
       this._roles,
       this._permissions,
     );
+    const tokens = document.createElement('gui-identity-tokens') as GuiIdentityTokens;
+    tokens.greycat = this.greycat;
+    tokens.name = identity.name;
 
     const dialog = (
       <gui-dialog label={`Edit ${identity.name}`}>
         {form}
+        <h4 style={{ margin: '1rem 0 0.5rem' }}>Tokens</h4>
+        {tokens}
         <sl-button slot="footer" onclick={() => dialog.hide()}>
           Cancel
         </sl-button>
