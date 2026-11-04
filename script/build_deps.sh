@@ -57,26 +57,32 @@ fi
 cd ${DIR}/../deps
 rm -rf "${DIR}/../deps/deps" "${DIR}/../deps/dist"
 
-# Deps that statically embed OpenSSL. Their prebuilt zips must be invalidated
-# whenever openssl.sh changes (version bump, config change) -- otherwise a stale
-# cache hands back statics linked against a different OpenSSL, and the gclibs
-# segfault at load when two embedded OpenSSL ABIs collide in one process.
-# We fold openssl.sh's md5 into their cache key so a bump auto-rebuilds them.
+# Deps that link OpenSSL. They build against the shared OpenSSL the greycat
+# binary ships in lib/ssl (see lib/ssl/openssl.cmake), so their prebuilt zips
+# must be invalidated whenever that OpenSSL changes -- otherwise a stale cache
+# hands back statics compiled against other headers. We fold the md5 of its
+# version and configuration headers into their cache key, so a greycat with
+# another OpenSSL rebuilds them. `greycat install` must therefore run before
+# this script.
 #
 # A dep opts in two ways: by being named in this list, or by carrying a
 # `# links-openssl` line in its own deps/<name>.sh. The list stays because
 # deps/*.sh belong to each lib repo and are not synced from the template, so removing
-# it would un-fold openssl from these four the moment this script syncs out --
+# it would un-fold openssl from these the moment this script syncs out --
 # silently, and months before their dep scripts could gain the marker.
-openssl_linkers=" curl ssh2 kafka open62541 "
-if [ -f openssl.sh ]; then
+openssl_linkers=" curl ssh2 kafka open62541 mqtt fast_dds "
+openssl_headers="${DIR}/../lib/ssl/include/openssl"
+if [ -f "${openssl_headers}/opensslv.h" ]; then
+  openssl_checksum=$(cat "${openssl_headers}/opensslv.h" "${openssl_headers}/configuration.h" | md5sum | cut -d' ' -f1)
+elif [ -f openssl.sh ]; then
+  # a lib not moved to the shared OpenSSL yet still builds its own with deps/openssl.sh
   openssl_checksum=$(md5sum openssl.sh | cut -d' ' -f1)
 else
   openssl_checksum=""
 fi
 
-# Effective cache-key checksum for a dep: its own .sh md5, plus the openssl.sh
-# md5 when the dep links OpenSSL statically.
+# Effective cache-key checksum for a dep: its own .sh md5, plus the OpenSSL
+# headers md5 when the dep links OpenSSL.
 dep_checksum() {
   local name="$1"
   local sum

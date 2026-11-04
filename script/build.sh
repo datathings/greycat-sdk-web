@@ -12,7 +12,6 @@ NPROC="$(nproc 2>/dev/null || sysctl -n hw.ncpu)"
 
 cd "$DIR/.."
 
-./script/build_deps.sh
 # we need to have an executable greycat for codegen
 # no matter the crosscompile env
 if [[ $(uname) == 'Darwin' ]]; then
@@ -42,6 +41,8 @@ fi
 ./script/codegen.sh
 rm lib/installed
 greycat install
+# the deps that link OpenSSL build against the one this install put in lib/ssl
+./script/build_deps.sh
 cmake -S . -B build \
   -DCMAKE_BUILD_TYPE="Release" \
   -DFORCE_PROJECT_VERSION="${PROJECT_VERSION}" \
