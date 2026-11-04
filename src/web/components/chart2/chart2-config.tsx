@@ -4,7 +4,7 @@ import { css } from '../common.js';
 import { GuiElement } from '../element.js';
 import { GuiChart2ConfigUpdateEvent } from './chart2.js';
 import type { Chart2Config, Chart2Serie, Chart2Axis, Chart2SerieType, Chart2AxisType } from './types.js';
-import { getEffectiveGrid, getThemeColors } from './utils.js';
+import { getThemeColors, normalizeGrids } from './utils.js';
 
 import style from './chart2-config.css?inline';
 
@@ -538,7 +538,7 @@ export class GuiChart2Config extends GuiElement {
   }
 
   private _renderGrid(): HTMLElement {
-    const grid = getEffectiveGrid(this._value);
+    const grid = normalizeGrids(this._value)[0];
 
     const topInput = (
       <sl-input

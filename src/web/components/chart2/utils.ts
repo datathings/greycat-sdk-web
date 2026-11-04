@@ -18,13 +18,6 @@ export function normalizeGrids(config: Chart2Config): Chart2Grid[] {
   return grids.map((g) => ({ ...defaults, ...g }));
 }
 
-/**
- * @deprecated Use `normalizeGrids` instead.
- */
-export function getEffectiveGrid(config: Chart2Config): Record<string, number | string | boolean> {
-  return normalizeGrids(config)[0] as Record<string, number | string | boolean>;
-}
-
 export interface Chart2ThemeColors {
   textColor: string;
   bgColor: string;
