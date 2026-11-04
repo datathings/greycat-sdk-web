@@ -13,10 +13,6 @@ declare namespace gc {
     // @ts-ignore
     interface Task<T> {
       /**
-       * Downloads the returned value of a task (its `result.gcb`) and deserializes it.
-       */
-      getFile(filepath: 'result.gcb', g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T>;
-      /**
        * Downloads a GCB task file.
        *
        * The given `filepath` will be concatenated with the task path eg. `/files/${task.user_id}/tasks/${task.task_id}/${filepath}`
@@ -41,7 +37,8 @@ declare namespace gc {
       getFile<T = unknown>(filepath: string, g?: gc.sdk.GreyCat, signal?: AbortSignal): Promise<T | T[]>;
 
       /**
-       * Awaits for the completion of the task and returns the deserialized content of its `result.gcb`.
+       * Awaits for the completion of the task and returns the value it returned, `null` when it
+       * returned nothing.
        *
        * If an error has been thrown during the execution of the task then this call will also throw an error with the `core.Error`
        *

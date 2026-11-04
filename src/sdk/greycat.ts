@@ -1,7 +1,7 @@
 import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.js';
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
-import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
+import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent, taskResult } from './poll.js';
 import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
@@ -1165,9 +1165,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     try {
       await this.tasks.wait(task.task_id, frequency, signal);
     } catch (err) {
-      // an errored task carries its `core.Error` in `result.gcb`, which the tracker already
-      // read, and that error is thrown. When it could not, fall through to download the file
-      // below. cancelled/inaccessible have no such payload and propagate as-is.
+      // the tracker already read the `core.Error` of an errored task, and that error is thrown.
+      // When it could not, fall through to read the result below, which throws it.
+      // cancelled/inaccessible have no such payload and propagate as-is.
       if (!(err instanceof TaskError && err.reason === 'error')) {
         throw err;
       }
@@ -1180,39 +1180,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     }
 
     opts.onprogress?.(1);
-
-    // download and parse 'result.gcb' if found
-    const result_route = `files/${task.user_name}/tasks/${task.task_id}/result.gcb`;
-    const url = new URL(`${this.api}/${result_route}`);
-    const res = await fetch(url, this.fileRequestInit({ signal }));
-    if (res.ok) {
-      this.logger(this.name, res.status, url.pathname);
-      const data = await res.arrayBuffer();
-      if (data.byteLength === 0) {
-        return undefined as T;
-      }
-      const reader = new AbiReader(this.abi, data);
-      const value = reader.deserializeWithHeaders();
-      if (!reader.is_empty) {
-        throw new Error(`The request buffer for '${result_route}' has bytes left in it`);
-      }
-      if (value instanceof gcreg.core.Error) {
-        throw value;
-      }
-      return value as T;
-    }
-    if (res.status === 404) {
-      this.logger(this.name, res.status, url.pathname);
-      // 404 on result.gcb might probably mean that the task returned 'void', therefore we do not fail in this case
-      return undefined as T;
-    } else if (res.status === 403) {
-      // forbidden
-      this.logger(this.name, res.status, url.pathname);
-      throw new HttpError(`file '${result_route}' access forbidden`, res.status);
-    } else if (res.status === 401) {
-      throw this.unauthorized(url.pathname);
-    }
-    throw new HttpError(`unexpected error while getting file '${result_route}'`, res.status);
+    return taskResult<T>(this, task.task_id, signal);
   }
 
   /**

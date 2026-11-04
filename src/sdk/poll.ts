@@ -115,8 +115,8 @@ export class TaskError extends globalThis.Error {
   /** the terminal task, absent when the task is unknown or inaccessible */
   readonly task?: gc.runtime.Task;
   /**
-   * the error the task threw, read from its `result.gcb`. Absent unless `reason` is `'error'`, and
-   * then too when the file could not be read, in which case `cause` holds why.
+   * the error the task threw, read with `runtime::Task::result`. Absent unless `reason` is
+   * `'error'`, and then too when it could not be read, in which case `cause` holds why.
    */
   readonly error?: gc.core.Error;
 
@@ -148,6 +148,24 @@ export class TaskError extends globalThis.Error {
         }
         return `task '${id}' failed: ${error.message ?? 'RuntimeError'}`;
     }
+  }
+}
+
+/**
+ * The value the ended task `id` returned, `null` when it returned nothing. It is read with
+ * `runtime::Task::result`, which answers a task that failed with the `core.Error` it threw.
+ * That error is thrown as is, rather than wrapped in the `HttpError` of the call.
+ */
+export async function taskResult<T = unknown>(g: GreyCat, id: TaskId, signal?: AbortSignal): Promise<T> {
+  try {
+    return (await gcreg.runtime.Task.result(id, g, signal)) as T;
+  } catch (err) {
+    // an `HttpError` (not imported, since `greycat.ts` imports this module) holds the decoded body
+    const body = (err as { body?: unknown } | null)?.body;
+    if (body instanceof gcreg.core.Error) {
+      throw body;
+    }
+    throw err;
   }
 }
 
@@ -659,14 +677,13 @@ export class TaskPoller {
   }
 
   /**
-   * The `core.Error` a failed task left in its `result.gcb`, or why the file could not be read.
-   * `undefined` when the file holds anything else.
+   * The `core.Error` a failed task threw, or why it could not be read. `undefined` when the
+   * server answers anything else.
    */
   async #thrown(task: gc.runtime.Task): Promise<unknown> {
     try {
-      const values: unknown[] | undefined = await this.#g.getFile(`${task.user_name}/tasks/${task.task_id}/result.gcb`);
-      const value = values?.[0];
-      return value instanceof gcreg.core.Error ? value : undefined;
+      await taskResult(this.#g, task.task_id);
+      return undefined;
     } catch (err) {
       return err;
     }

@@ -37,7 +37,7 @@ describe('task results', () => {
     /** @type {(string | undefined)[]} */
     const resultAuths = [];
     server = await fakeServer((req, res) => {
-      if (req.url === '/files/root/tasks/7/result.gcb') {
+      if (req.url === '/runtime::Task::result') {
         resultAuths.push(req.headers.authorization);
         if (req.headers.authorization === 'secret') {
           answer(g, res, 42);

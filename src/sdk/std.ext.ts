@@ -16,15 +16,6 @@ export function __extend_std() {
   // augment runtime.Task
   const runtime_Task_ext = {
     async getFile(this: gc.runtime.Task, filepath: string, g: GreyCat = $.default, signal?: AbortSignal) {
-      if (filepath === 'result.gcb') {
-        const res = await g.getFile(
-          `${this.user_name}/tasks/${this.task_id}/${filepath}`,
-          undefined,
-          undefined,
-          signal,
-        );
-        return res[0];
-      }
       return g.getFile(`${this.user_name}/tasks/${this.task_id}/${filepath}`, undefined, undefined, signal);
     },
     result(this: gc.runtime.Task, opts?: TaskOptions, g: GreyCat = $.default, signal?: AbortSignal) {
