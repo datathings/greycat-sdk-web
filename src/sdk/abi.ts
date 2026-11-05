@@ -890,6 +890,18 @@ export class AbiType {
     }
   }
 
+  /**
+   * The generic type this type specialises, or `undefined` if it is not a specialisation.
+   *
+   * eg. `core::nodeList` for `core::nodeList<core::String>`
+   */
+  generic(): AbiType | undefined {
+    if (this.generic_abi_type === 0) {
+      return undefined;
+    }
+    return this.abi.types[this.generic_abi_type];
+  }
+
   g1(): number {
     return this.g1_abi_type_desc >> 1;
   }

@@ -315,7 +315,7 @@ export class GuiObject<T = unknown> extends GuiElement {
     }
 
     if (value instanceof gc.sdk.GCObject) {
-      const tagName = this._factory.get(value.$type.name);
+      const tagName = this._factory.getByType(value.$type);
       if (tagName) {
         this.shadowRoot.replaceChildren(createElement(tagName, { ...this._props, value }) as Node);
         return;

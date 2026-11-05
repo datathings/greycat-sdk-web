@@ -1182,7 +1182,7 @@ export class GuiInputObject<T extends gc.sdk.GCObject = gc.sdk.GCObject> extends
     if (slottedAttr) {
       input = slottedAttr;
     } else {
-      const tagName = factory.get(`${type.name}::${attr.name}`);
+      const tagName = factory.getAttr(type, attr.name);
       input = tagName ? document.createElement(tagName) : factory.createElement(value, attrType);
     }
     if ('value' in input) {
