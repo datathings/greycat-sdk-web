@@ -1,6 +1,8 @@
 // One entry per fixtures/<i>.gcb produced by test/tests.gcl::write_fixtures().
 // `name` is used in test names (so --test-name-pattern can target one).
 // `expected` is the deserialized JSON-shape expected by the SDK's AbiReader.
+// `check`, when given, must hold for the decoded value and for its round trip. A node fixture
+// has no `expected`, since its id is picked by the store.
 
 export const fixtures = [
   { name: 'bool true',          expected: true },
@@ -53,6 +55,16 @@ export const fixtures = [
     },
     // Tensor's `dim` field is implementation-detail; check structurally only.
     partial: ['_type', 'shape', 'type', 'data'],
+  },
+  {
+    name: 'nodeSet<int>',
+    check: (/** @type {unknown} */ v) => v instanceof gc.core.nodeSet && gc.sdk.isNode(v),
+  },
+  {
+    name: 'Box<nodeSet<int>>',
+    expected: { _type: 'tests::Box<core::nodeSet<core::int>>' },
+    partial: ['_type'],
+    check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeSet,
   },
   {
     name: 'Error oops',

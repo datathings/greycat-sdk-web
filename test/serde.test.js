@@ -1,4 +1,5 @@
 // @ts-check
+import assert from 'node:assert';
 import { describe, before, it } from 'node:test';
 
 import { fixtures } from './fixtures.js';
@@ -25,6 +26,13 @@ describe('serde', () => {
         epsilon: 0,
         partial: fx.partial,
       });
+      if (fx.check) {
+        assert.ok(fx.check(actual), 'check fails on the decoded value');
+        assert.ok(fx.check(back), 'check fails on the round trip');
+      }
+      if (!('expected' in fx)) {
+        return;
+      }
       // Compare against the JS-side expected value (with optional tolerance).
       assertNearlyEqual(toPlain(actual), fx.expected, {
         epsilon: fx.epsilon ?? 1e-9,

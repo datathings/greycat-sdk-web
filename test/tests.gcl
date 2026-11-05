@@ -84,6 +84,10 @@ fn write_fixtures() {
     t.add(Array<int> { 2 }, 3.0);
     w(t);
 
+    // nodes
+    w(nodeSet<int> {});
+    w(Box<nodeSet<int>> { value: nodeSet<int> {} });
+
     // error
     w(Error { message: "oops", stack: Array<ErrorFrame> {} });
 
