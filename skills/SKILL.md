@@ -1,6 +1,6 @@
 ---
 name: greycat-web-sdk
-description: "Calls a GreyCat server from TypeScript or JavaScript with @greycat/web, in a browser or in Node. Covers installing the SDK as a GreyCat library, the typed bindings greycat codegen ts generates, init and auth (password, token, OpenID, cookie sessions, login and logout on a live instance, 401 handling), call versus spawn versus spawnAwait, task tracking over the task event stream with polling as fallback, the GCB binary transport, /files/ access, several instances, worlds (the world header), the gui-* web components (tables, charts, inputs, maps, admin panels) and their factory, the JSX runtime that builds real DOM elements, the CSS themes and the vite plugin. Use when writing a frontend or a script against a GreyCat backend, rendering GreyCat values in a page, following a task's progress, deciding between call and spawn, or working out why a task never settles, why a Node process does not exit, why events stop after a login change, or why a gui-* tag stays an unknown element."
+description: "Calls a GreyCat server from TypeScript or JavaScript with @greycat/web, in a browser or in Node. Covers installing the SDK as a GreyCat library, the typed bindings greycat codegen ts generates, init and auth (password, token, OpenID, cookie sessions, login and logout on a live instance, 401 handling), call versus spawn versus spawnAwait, task tracking over the task event stream with polling as fallback, the GCB binary transport, /files/ access, several instances, worlds (the world header, the root of each world), the gui-* web components (tables, charts, inputs, maps, admin panels) and their factory, the JSX runtime that builds real DOM elements, the CSS themes and the vite plugin. Use when writing a frontend or a script against a GreyCat backend, rendering GreyCat values in a page, following a task's progress, deciding between call and spawn, or working out why a task never settles, why a Node process does not exit, why events stop after a login change, or why a gui-* tag stays an unknown element."
 ---
 
 # GreyCat web SDK
@@ -47,9 +47,10 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
   `TaskError`, the task events, how the event stream and the polling fallback
   work, reconnects, credentials, Node and browser constraints.
 - **[reference/worlds.md](reference/worlds.md)**: running calls in a world,
-  `greycat.world` and the `world` header, the identity's default world,
-  what stays the same in every world, the 400 and 403 a world answers,
-  creating and removing worlds.
+  `greycat.world` and the `world` header, `world:changed`, several worlds
+  side by side with `inWorld`, the root of a world (`root()`, kept per world),
+  the identity's default world, what stays the same in every world, the 400
+  and 403 a world answers, creating and removing worlds.
 - **[reference/files.md](reference/files.md)**: `/files/` access, `getFile` and
   its decoding by extension, `putFile`, upload progress, `deleteFile`.
 - **[reference/components.md](reference/components.md)**: the `gui-*`
@@ -82,6 +83,10 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
   reads `Identity.world` and sends it as the `world` header, since the server
   never applies it on its own. An explicit `world` option or `greycat.world`
   wins, and `identityWorld: false` keeps main.
+- **A node belongs to the world it was read in.** Each world has its own
+  nodes for the module variables, so read the root with `root()` on the
+  instance of the world you call in (`greycat.inWorld(name).root()`). A node
+  of main sent in another world answers `400 unresolved block`.
 - **Change the login through the instance.** `greycat.login(auth)` and
   `greycat.logout()` carry the stream and the permissions along; a cookie
   session changed elsewhere needs `greycat.tasks.reconnect()`.

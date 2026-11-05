@@ -23,6 +23,6 @@ export function createWorld(
 export async function removeWorld(greycat: gc.sdk.GreyCat, name: string): Promise<void> {
   await greycat.rawCall('runtime::World::remove', [name], undefined, false, 'POST', 'main');
   if (greycat.world === name) {
-    greycat.world = undefined;
+    greycat.world = 'main';
   }
 }

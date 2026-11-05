@@ -45,7 +45,7 @@ describe('worlds', () => {
   });
 
   it('runs the calls of an instance without a world in main', async () => {
-    assert.equal(main.world, undefined);
+    assert.equal(main.world, 'main');
     assert.equal(await main.call('tests::world'), 'main');
   });
 
@@ -271,7 +271,8 @@ describe('the default world of the identity', () => {
 
     assert.equal(g.world, 'what-if');
     await g.call('tests::add', [1, 2]);
-    assert.deepEqual(worldsOf('runtime::Identity::current'), ['main']);
+    // read in main, which sends no header
+    assert.deepEqual(worldsOf('runtime::Identity::current'), [undefined]);
     assert.deepEqual(worldsOf('runtime::Identity::permissions'), [undefined]);
     assert.deepEqual(worldsOf('tests::add'), ['what-if']);
   });
@@ -280,7 +281,7 @@ describe('the default world of the identity', () => {
     const { url, worldsOf } = await identityServer(null);
     const g = await client({ name: 'identity-none', url: new URL(url) });
 
-    assert.equal(g.world, undefined);
+    assert.equal(g.world, 'main');
     await g.call('tests::add', [1, 2]);
     assert.deepEqual(worldsOf('tests::add'), [undefined]);
   });
@@ -292,14 +293,14 @@ describe('the default world of the identity', () => {
     assert.equal(g.world, 'main');
     await g.call('tests::add', [1, 2]);
     assert.deepEqual(worldsOf('runtime::Identity::current'), []);
-    assert.deepEqual(worldsOf('tests::add'), ['main']);
+    assert.deepEqual(worldsOf('tests::add'), [undefined]);
   });
 
   it('is not followed with identityWorld: false', async () => {
     const { url, worldsOf } = await identityServer('what-if');
     const g = await client({ name: 'identity-off', url: new URL(url), identityWorld: false });
 
-    assert.equal(g.world, undefined);
+    assert.equal(g.world, 'main');
     assert.deepEqual(worldsOf('runtime::Identity::current'), []);
   });
 
@@ -312,7 +313,7 @@ describe('the default world of the identity', () => {
     assert.equal(g.world, 'what-if');
 
     await g.logout();
-    assert.equal(g.world, undefined);
+    assert.equal(g.world, 'main');
   });
 
   it('stops being followed once the world is set', async () => {
@@ -323,5 +324,238 @@ describe('the default world of the identity', () => {
     await g.login({ token: 'another' });
     assert.equal(worldsOf('runtime::Identity::current').length, 1);
     assert.equal(g.world, 'variant');
+  });
+});
+
+describe('the root of the world', () => {
+  /** @type {ArrayBuffer} */
+  let abiData;
+  /** @type {gc.sdk.GreyCat} */
+  let ser;
+  /** @type {Awaited<ReturnType<typeof fakeServer>> | undefined} */
+  let server;
+  /** @type {gc.sdk.GreyCat[]} */
+  const instances = [];
+
+  before(async () => {
+    const data = await readFile(join(here, 'abi.bin'));
+    abiData = data.buffer.slice(data.byteOffset, data.byteOffset + data.byteLength);
+    const { abi, wasm } = await loadAbi();
+    ser = gc.sdk.initWithAbi({ name: 'root-ser', abi, module: wasm.module, exports: wasm.instance.exports });
+  });
+
+  afterEach(() => {
+    server?.close();
+    server = undefined;
+    for (const g of instances.splice(0)) {
+      g.tasks.disconnect();
+    }
+  });
+
+  /**
+   * Serves the ABI, an identity whose default world is `world`, and as the root the number of
+   * roots read so far, after `delayMs`. The first `failures` reads of the root answer 500.
+   * @param {{ world?: string | null, delayMs?: number, failures?: number }} [options]
+   */
+  async function rootServer({ world = null, delayMs = 0, failures = 0 } = {}) {
+    /** @type {(string | string[] | undefined)[]} */
+    const roots = [];
+    server = await fakeServer((req, res) => {
+      const path = new URL(req.url ?? '/', 'http://fake').pathname.slice(1);
+      req.resume();
+      req.on('end', () => {
+        if (path === 'runtime::Runtime::abi') {
+          res.writeHead(200, { 'content-type': 'application/octet-stream' });
+          res.end(Buffer.from(abiData));
+        } else if (path === 'runtime::Identity::permissions') {
+          answer(ser, res, ['public', 'api']);
+        } else if (path === 'runtime::Identity::current') {
+          answer(ser, res, gc.runtime.Identity.createFrom({ id: 2, name: 'alice', role: 'user', grants: [], world }));
+        } else if (path === 'runtime::Runtime::root') {
+          roots.push(req.headers['world']);
+          const n = roots.length;
+          setTimeout(() => {
+            if (n <= failures) {
+              res.writeHead(500);
+              res.end();
+            } else {
+              answer(ser, res, n);
+            }
+          }, delayMs);
+        } else {
+          answer(ser, res, 3);
+        }
+      });
+    });
+    return { url: new URL(server.url), roots };
+  }
+
+  /** @param {gc.sdk.WithoutAbiOptions & { name: string }} options */
+  async function client(options) {
+    const g = await gc.sdk.init({ taskEvents: false, ...options });
+    instances.push(g);
+    return g;
+  }
+
+  it('is not read before it is asked for', async () => {
+    const { url, roots } = await rootServer();
+    await client({ name: 'root-lazy', url });
+    assert.deepEqual(roots, []);
+  });
+
+  it('is read once, and shared by concurrent and later calls', async () => {
+    const { url, roots } = await rootServer({ delayMs: 50 });
+    const g = await client({ name: 'root-once', url });
+    const [a, b] = await Promise.all([g.root(), g.root()]);
+    assert.equal(await g.root(), 1);
+    assert.equal(a, 1);
+    assert.equal(b, 1);
+    assert.equal(roots.length, 1);
+  });
+
+  it('is read again in the new world after a world change, which is emitted', async () => {
+    const { url, roots } = await rootServer();
+    const g = await client({ name: 'root-switch', url });
+    /** @type {string[]} */
+    const changes = [];
+    g.on('world:changed', ({ world }) => changes.push(world));
+
+    assert.equal(await g.root(), 1);
+    g.world = 'variant';
+    assert.equal(await g.root(), 2);
+    assert.equal(await g.root(), 2);
+    assert.deepEqual(roots, [undefined, 'variant']);
+    assert.deepEqual(changes, ['variant']);
+  });
+
+  it('is kept when the world is set to the one the instance is in', async () => {
+    const { url, roots } = await rootServer();
+    const g = await client({ name: 'root-same', url });
+    /** @type {string[]} */
+    const changes = [];
+    g.on('world:changed', ({ world }) => changes.push(world));
+
+    await g.root();
+    // `main` and no world are the same world
+    g.world = 'main';
+    g.world = undefined;
+    await g.root();
+    assert.equal(roots.length, 1);
+    assert.deepEqual(changes, []);
+  });
+
+  it('is not kept from a world the instance left while it was read', async () => {
+    const { url, roots } = await rootServer({ delayMs: 50 });
+    const g = await client({ name: 'root-late', url });
+    const before = g.root();
+    g.world = 'variant';
+    assert.equal(await before, 1);
+    assert.equal(await g.root(), 2);
+    assert.deepEqual(roots, [undefined, 'variant']);
+  });
+
+  it('follows the default world of the identity, and goes back to main on logout', async () => {
+    const { url, roots } = await rootServer({ world: 'what-if' });
+    const g = await client({ name: 'root-identity', url });
+    /** @type {string[]} */
+    const changes = [];
+    g.on('world:changed', ({ world }) => changes.push(world));
+
+    assert.equal(await g.root(), 1);
+    // the same identity, so the same world, and the root is kept
+    await g.login({ token: 'another' });
+    assert.equal(await g.root(), 1);
+    await g.logout();
+    assert.equal(await g.root(), 2);
+    assert.deepEqual(roots, ['what-if', undefined]);
+    assert.deepEqual(changes, ['main']);
+  });
+
+  it('gives one instance per world with inWorld(), each keeping the root of its world', async () => {
+    const { url, roots } = await rootServer();
+    const g = await client({ name: 'root-in-world', url });
+    const whatIf = g.inWorld('what-if');
+
+    assert.equal(g.inWorld('what-if'), whatIf);
+    assert.equal(whatIf.name, 'root-in-world@what-if');
+    assert.equal(gc.$['root-in-world@what-if'], whatIf);
+    assert.equal(whatIf.world, 'what-if');
+    assert.equal(g.world, 'main');
+    // `main` and no world are the same world
+    assert.equal(g.inWorld(undefined), g.inWorld('main'));
+
+    assert.equal(await whatIf.root(), 1);
+    assert.equal(await g.root(), 2);
+    assert.equal(await whatIf.root(), 1);
+    assert.deepEqual(roots, ['what-if', undefined]);
+  });
+
+  it('starts empty on a clone, which reads the root of its own world', async () => {
+    const { url, roots } = await rootServer();
+    const g = await client({ name: 'root-original', url });
+    await g.root();
+    const clone = g.clone('root-clone');
+    clone.world = 'variant';
+    assert.equal(await clone.root(), 2);
+    assert.equal(await g.root(), 1);
+    assert.deepEqual(roots, [undefined, 'variant']);
+  });
+
+  it('is read again after invalidateRoot() or a debug session change', async () => {
+    const { url, roots } = await rootServer();
+    const g = await client({ name: 'root-invalidate', url });
+    await g.root();
+    g.invalidateRoot();
+    assert.equal(await g.root(), 2);
+    g.setDebugId(7);
+    // a debug session answers a task, which this server does not, but the root is read again
+    await assert.rejects(g.root());
+    assert.equal(roots.length, 3);
+  });
+
+  it('aborts the wait of one call without failing the read the others share', async () => {
+    const { url, roots } = await rootServer({ delayMs: 50 });
+    const g = await client({ name: 'root-abort', url });
+    const ctrl = new AbortController();
+    const aborted = g.root(ctrl.signal);
+    const other = g.root();
+    ctrl.abort('gone');
+    await assert.rejects(aborted, (err) => err === 'gone');
+    assert.equal(await other, 1);
+    assert.equal(roots.length, 1);
+  });
+
+  it('does not keep a failed read', async () => {
+    const { url, roots } = await rootServer({ failures: 1 });
+    const g = await client({ name: 'root-failure', url });
+    await assert.rejects(g.root());
+    assert.equal(await g.root(), 2);
+    assert.equal(roots.length, 2);
+  });
+});
+
+describe('the root of a standalone world', () => {
+  const url = new URL(SERVER_URL);
+  // unique, since a world outlives the store of a test run that crashed
+  const name = `sdk-root-${process.pid}-${Date.now()}`;
+  /** @type {gc.sdk.GreyCat} */
+  let g;
+
+  before(async () => {
+    g = await gc.sdk.init({ name: 'root-standalone', url, taskEvents: false });
+    await gc.runtime.World.create(name, gc.runtime.WorldMode.standalone, null, g);
+  });
+
+  after(async () => {
+    g.world = undefined;
+    await gc.runtime.World.remove(name, g);
+    g.tasks.disconnect();
+  });
+
+  it('holds the nodes of that world, which differ from the ones of main', async () => {
+    const main = /** @type {Record<string, gc.core.node>} */ (/** @type {unknown} */ (await g.root()));
+    g.world = name;
+    const world = /** @type {Record<string, gc.core.node>} */ (/** @type {unknown} */ (await g.root()));
+    assert.notEqual(world['tests::w_idx'].value, main['tests::w_idx'].value);
   });
 });

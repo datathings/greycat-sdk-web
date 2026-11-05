@@ -90,7 +90,9 @@ makes a second instance on the same server, ABI, credentials and world. It share
 the task tracker and event stream of its original, so the `task:*` events of
 the tasks it spawns are emitted on the original, until a token of its own
 gives it a tracker of its own. `setDebugId(id)` on it routes its calls through
-the debugger, which is what the explorer does per debugger session.
+the debugger, which is what the explorer does per debugger session. For an
+instance in another world, `greycat.inWorld(name)` makes and keeps the clone
+(see [worlds.md](worlds.md)).
 
 `gc.sdk.initWithAbi({ abi, module, exports, url, token })` builds an instance
 from an ABI already at hand, with no network at construction: tests, workers,

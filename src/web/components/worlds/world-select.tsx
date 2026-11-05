@@ -8,13 +8,16 @@ import { listWorlds } from './utils.js';
 /**
  * Picks the world the calls of a `GreyCat` instance run in: `main`, then every world the
  * caller may use. Choosing one sets `greycat.world` and dispatches a `gui-change` with its
- * name. Call `reload()` once worlds were created or removed.
+ * name, and the select follows the world of the instance when it changes otherwise (eg.
+ * a login). Call `reload()` once worlds were created or removed.
  */
 export class GuiWorldSelect extends SlSelect {
   static override styles = [SlSelect.styles as CSSStyleSheet, GuiElement.BASE_STYLE];
 
   /** The instance whose world this selects. Defaults to `gc.$.default`. */
   greycat: gc.sdk.GreyCat = gc.$.default;
+
+  #worldChanged: gc.sdk.EmitterDisposable | undefined;
 
   constructor() {
     super();
@@ -23,14 +26,23 @@ export class GuiWorldSelect extends SlSelect {
     this.addEventListener('sl-change', (ev) => {
       ev.stopPropagation();
       const world = this.value as string;
-      this.greycat.world = world === 'main' ? undefined : world;
+      this.greycat.world = world;
       this.dispatchEvent(new GuiChangeEvent(world));
     });
   }
 
   override connectedCallback(): void {
     super.connectedCallback();
+    this.#worldChanged = this.greycat.on('world:changed', ({ world }) => {
+      this.value = world;
+    });
     this.reload();
+  }
+
+  override disconnectedCallback(): void {
+    super.disconnectedCallback();
+    this.#worldChanged?.();
+    this.#worldChanged = undefined;
   }
 
   async reload(): Promise<void> {
@@ -53,7 +65,7 @@ export class GuiWorldSelect extends SlSelect {
       );
     }
     this.replaceChildren(options);
-    this.value = this.greycat.world ?? 'main';
+    this.value = this.greycat.world;
   }
 }
 

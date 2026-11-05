@@ -684,6 +684,11 @@ export interface GreyCat {
    * and the task event stream restarted or closed.
    */
   on(ev: 'auth:changed', callback: EmitterCallback<AuthChangedEvent>): EmitterDisposable;
+  /**
+   * Emitted when {@link GreyCat.world} changes: set, read from the identity on `init` or
+   * `login`, or dropped on `logout`. Not emitted when the instance stays in the same world.
+   */
+  on(ev: 'world:changed', callback: EmitterCallback<WorldChangedEvent>): EmitterDisposable;
 }
 
 /** The value a call answered with, and whether the call was spawned (the value then is the `Task`). */
@@ -697,6 +702,7 @@ interface GreyCatEvents {
   'task:stream': TaskStreamChange;
   'auth:lost': AuthLostEvent;
   'auth:changed': AuthChangedEvent;
+  'world:changed': WorldChangedEvent;
 }
 
 /** Payload of `auth:lost`: a request answered 401 and the instance dropped its login. */
@@ -704,6 +710,12 @@ export type AuthLostEvent = {
   status: 401;
   /** the route that was refused */
   route: string;
+};
+
+/** Payload of `world:changed`: the world the calls of the instance now run in. */
+export type WorldChangedEvent = {
+  /** the name of the world, `'main'` for main */
+  world: string;
 };
 
 /** Payload of `auth:changed`: `login` or `logout` completed on the instance. */
@@ -754,7 +766,11 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   private _debug_id: number | bigint | undefined;
   /** {@link world} follows the default world of the logged-in identity. */
   #identityWorld = false;
-  #world: string | undefined;
+  #world = 'main';
+  /** The root of {@link world}, once {@link root} asked for it. */
+  #root: Promise<gc.project.Root> | undefined;
+  /** The instances {@link inWorld} made, by world. */
+  #inWorld = new Map<string, GreyCat>();
 
   constructor(
     name: string,
@@ -811,8 +827,9 @@ export class GreyCat extends Emitter<GreyCatEvents> {
   }
 
   /**
-   * The world the RPC calls of this instance run in, sent as the `world` header: the name
-   * of a world, or `'main'`. `undefined` sends no header, and the calls run in main.
+   * The world the RPC calls of this instance run in: the name of a world, or `'main'`.
+   * Every call outside main carries it as the `world` header. Setting `undefined` is the
+   * same as setting `'main'`.
    *
    * `init` follows the default world of the identity unless given a `world` (see
    * {@link useIdentityWorld}). Setting this stops following it, so a later login keeps
@@ -823,13 +840,44 @@ export class GreyCat extends Emitter<GreyCatEvents> {
    * answers `403` and an unknown one `400`, both thrown as an `HttpError` whose `body` is
    * the server's `core.Error`.
    */
-  get world(): string | undefined {
+  get world(): string {
     return this.#world;
   }
 
   set world(value: string | undefined) {
     this.#identityWorld = false;
-    this.#world = value;
+    this.#setWorld(value);
+  }
+
+  /**
+   * An instance of the same login whose calls run in `world` (`'main'` or `undefined` for
+   * main), for working in a world next to this instance. Made on first use, as a
+   * {@link clone} registered as `<name>@<world>`, and returned again for the same world,
+   * so it keeps the {@link root} of its world. Do not change its {@link world}.
+   */
+  inWorld(world: string | undefined): GreyCat {
+    const name = world ?? 'main';
+    let greycat = this.#inWorld.get(name);
+    if (greycat === undefined) {
+      greycat = this.clone(`${this.name}@${name}`);
+      greycat.world = name;
+      this.#inWorld.set(name, greycat);
+    }
+    return greycat;
+  }
+
+  /**
+   * Every change of {@link world} goes through here, since the root read in the previous
+   * world does not resolve in the new one.
+   */
+  #setWorld(value: string | undefined): void {
+    const world = value ?? 'main';
+    if (world === this.#world) {
+      return;
+    }
+    this.#world = world;
+    this.#root = undefined;
+    this.emit('world:changed', { world });
   }
 
   /** Sent as `Authorization` on every request; `undefined` for an anonymous or cookie session. */
@@ -928,7 +976,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       }
       this.permissions = [];
       if (this.#identityWorld) {
-        this.#world = undefined;
+        this.#setWorld('main');
       }
       this.emit('auth:changed', { loggedIn: false });
     }
@@ -984,7 +1032,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
       // anonymous callers are answered 403
       return false;
     }
-    this.#world = identity.world ?? undefined;
+    this.#setWorld(identity.world ?? 'main');
     return true;
   }
 
@@ -1027,6 +1075,8 @@ export class GreyCat extends Emitter<GreyCatEvents> {
 
   setDebugId(id: number | bigint | undefined) {
     this._debug_id = id;
+    // a debug session has a root of its own
+    this.#root = undefined;
   }
 
   /** Whether the polling fallback currently has at least one task to poll. */
@@ -1201,7 +1251,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     signal?: AbortSignal,
     task: boolean | TaskClass = false,
     httpMethod: 'POST' | 'GET' = 'POST',
-    world: string | undefined = this.world,
+    world: string = this.world,
   ): Promise<T> {
     return (await this._rawCall<T>(uri, args, signal, task, httpMethod, false, world)).value;
   }
@@ -1217,7 +1267,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     task: boolean | TaskClass,
     httpMethod: 'POST' | 'GET',
     retried: boolean,
-    world: string | undefined,
+    world: string,
   ): Promise<RawAnswer<T>> {
     const url = `${this.api}/${uri}`;
     const fn = this.abi.fn_by_fqn.get(uri);
@@ -1242,7 +1292,8 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     if (this.token) {
       headers['Authorization'] = this.token;
     }
-    if (world !== undefined) {
+    // a call without the header runs in main
+    if (world !== 'main') {
       headers['world'] = world;
     }
     // the stream this call names, which then reports the task the call spawns
@@ -1257,8 +1308,7 @@ export class GreyCat extends Emitter<GreyCatEvents> {
         headers['x-gc-debug'] = `${this._debug_id}`;
       }
     }
-    // `'main'` and no header are the same world, so they share a key
-    const key: CacheKey = world === undefined || world === 'main' ? [uri, body] : [uri, body, world];
+    const key: CacheKey = world === 'main' ? [uri, body] : [uri, body, world];
     const cachedRes = await this.cache.read(key);
     if (cachedRes) {
       headers['If-None-Match'] = cachedRes.etag;
@@ -1686,8 +1736,55 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.abi.root();
   }
 
+  /**
+   * The module variables of the program, as nodes of {@link world}.
+   *
+   * Read on the first call and kept, so the next calls share it, until the instance changes
+   * world (or debug session), when the next call reads it again. Each world has nodes of its
+   * own for the module variables (a standalone world starts with empty ones), so a node
+   * read in one world does not resolve in another. A failed read is not kept.
+   *
+   * `signal` aborts the wait of this call only, not the read the other callers share.
+   */
   root(signal?: AbortSignal): Promise<gc.project.Root> {
-    return gcreg.runtime.Runtime.root(this, signal);
+    let root = this.#root;
+    if (root === undefined) {
+      const read = gcreg.runtime.Runtime.root(this) as Promise<gc.project.Root>;
+      read.catch(() => {
+        if (this.#root === read) {
+          this.#root = undefined;
+        }
+      });
+      this.#root = root = read;
+    }
+    if (signal === undefined) {
+      return root;
+    }
+    if (signal.aborted) {
+      return Promise.reject(signal.reason);
+    }
+    const { promise, resolve, reject } = Promise.withResolvers<gc.project.Root>();
+    const onAbort = () => reject(signal.reason);
+    signal.addEventListener('abort', onAbort, { once: true });
+    root.then(
+      (value) => {
+        signal.removeEventListener('abort', onAbort);
+        resolve(value);
+      },
+      (err) => {
+        signal.removeEventListener('abort', onAbort);
+        reject(err);
+      },
+    );
+    return promise;
+  }
+
+  /**
+   * Drops the root kept by {@link root}, so the next call reads it again. Needed when the
+   * nodes of the world changed under the same name, eg. a world removed and created again.
+   */
+  invalidateRoot(): void {
+    this.#root = undefined;
   }
 
   /**
