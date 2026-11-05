@@ -11,11 +11,6 @@ DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 cd ${DIR}/..
 
 rm -rf gcdata
-if [[ $(uname) == 'Darwin' ]]; then
-  export CONTAINER_ENGINE="podman"
-else
-  export CONTAINER_ENGINE="docker"
-fi
 
 ./bin/greycat test --log=trace
 
