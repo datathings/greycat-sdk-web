@@ -435,6 +435,10 @@ export class AbiReader extends Reader implements Iterable<unknown> {
       const ty = r.abi.types[r.abi.core.node_time];
       return ty.ctor.load(r, ty);
     },
+    [PrimitiveType.node_set]: (r) => {
+      const ty = r.abi.types[r.abi.core.node_set];
+      return ty.ctor.load(r, ty);
+    },
     [PrimitiveType.node_index]: (r) => {
       const ty = r.abi.types[r.abi.core.node_index];
       return ty.ctor.load(r, ty);

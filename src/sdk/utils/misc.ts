@@ -161,13 +161,14 @@ export function capitalize(txt: string): string {
 
 export function isNode(
   value: unknown,
-): value is gc.core.node | gc.core.nodeTime | gc.core.nodeList | gc.core.nodeIndex | gc.core.nodeGeo {
+): value is gc.core.node | gc.core.nodeTime | gc.core.nodeList | gc.core.nodeIndex | gc.core.nodeSet | gc.core.nodeGeo {
   // the `std_n` classes are shared by every instance, and `instanceof` on them is the native check
   return (
     value instanceof std_n_core.node ||
     value instanceof std_n_core.nodeTime ||
     value instanceof std_n_core.nodeList ||
     value instanceof std_n_core.nodeIndex ||
+    value instanceof std_n_core.nodeSet ||
     value instanceof std_n_core.nodeGeo
   );
 }

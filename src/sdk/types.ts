@@ -48,23 +48,24 @@ export const PrimitiveType = {
   float: 4,
   node: 5,
   node_time: 6,
-  node_index: 7,
-  node_list: 8,
-  node_geo: 9,
-  geo: 10,
-  time: 11,
-  duration: 12,
-  cubic: 13,
-  enum: 14,
-  object: 15,
-  block_ref: 16,
-  block_inline: 17,
-  function: 18,
-  undefined: 19,
-  type: 20,
-  field: 21,
-  stringlit: 22,
-  error: 23,
+  node_set: 7,
+  node_index: 8,
+  node_list: 9,
+  node_geo: 10,
+  geo: 11,
+  time: 12,
+  duration: 13,
+  cubic: 14,
+  enum: 15,
+  object: 16,
+  block_ref: 17,
+  block_inline: 18,
+  function: 19,
+  undefined: 20,
+  type: 21,
+  field: 22,
+  stringlit: 23,
+  error: 24,
 } as const;
 
 export const PrimitiveTypeName = {
@@ -75,23 +76,24 @@ export const PrimitiveTypeName = {
   4: 'float',
   5: 'node',
   6: 'node_time',
-  7: 'node_index',
-  8: 'node_list',
-  9: 'node_geo',
-  10: 'geo',
-  11: 'time',
-  12: 'duration',
-  13: 'cubic',
-  14: 'enum',
-  15: 'object',
-  16: 'block_ref',
-  17: 'block_inline',
-  18: 'function',
-  19: 'undefined',
-  20: 'type',
-  21: 'field',
-  22: 'stringlit',
-  23: 'error',
+  7: 'node_set',
+  8: 'node_index',
+  9: 'node_list',
+  10: 'node_geo',
+  11: 'geo',
+  12: 'time',
+  13: 'duration',
+  14: 'cubic',
+  15: 'enum',
+  16: 'object',
+  17: 'block_ref',
+  18: 'block_inline',
+  19: 'function',
+  20: 'undefined',
+  21: 'type',
+  22: 'field',
+  23: 'stringlit',
+  24: 'error',
 } as const;
 
 export type PrimitiveType = ExtractValues<typeof PrimitiveType>;
@@ -337,6 +339,9 @@ export function primitiveType(type: AbiType): PrimitiveType {
   }
   if (type.offset === type.abi.core.node_time || type.generic_abi_type === type.abi.core.node_time) {
     return PrimitiveType.node_time;
+  }
+  if (type.offset === type.abi.core.node_set || type.generic_abi_type === type.abi.core.node_set) {
+    return PrimitiveType.node_set;
   }
   if (type.offset === type.abi.core.node_index || type.generic_abi_type === type.abi.core.node_index) {
     return PrimitiveType.node_index;

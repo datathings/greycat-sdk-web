@@ -13,6 +13,7 @@ export * from './node.js';
 export * from './nodeGeo.js';
 export * from './nodeIndex.js';
 export * from './nodeList.js';
+export * from './nodeSet.js';
 export * from './nodeTime.js';
 export * from './nodeTimeCursor.js';
 export * from './null.js';

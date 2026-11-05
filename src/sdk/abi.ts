@@ -15,6 +15,7 @@ class AbiCoreBuilder {
   public geo = 0;
   public node_list = 0;
   public node_index = 0;
+  public node_set = 0;
   public node_time = 0;
   public node = 0;
   public node_geo = 0;
@@ -43,6 +44,7 @@ class AbiCoreBuilder {
       this.geo,
       this.node_list,
       this.node_index,
+      this.node_set,
       this.node_time,
       this.node,
       this.node_geo,
@@ -74,6 +76,7 @@ export class AbiCore {
     readonly geo: number,
     readonly node_list: number,
     readonly node_index: number,
+    readonly node_set: number,
     readonly node_time: number,
     readonly node: number,
     readonly node_geo: number,
@@ -93,7 +96,7 @@ export class AbiCore {
 }
 
 export class Abi {
-  static readonly protocol_version = 3;
+  static readonly protocol_version = 4;
 
   readonly magic: number;
   readonly version: number;
@@ -273,6 +276,9 @@ export class Abi {
           case 'nodeIndex':
             core.node_index = i;
             break;
+          case 'nodeSet':
+            core.node_set = i;
+            break;
           case 'cubic':
             core.cubic = i;
             break;
@@ -447,6 +453,12 @@ export class Abi {
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
+        case this.core.node_set: {
+          type.ctor = create_monomorphic_class(type, gcreg.core.nodeSet);
+          // oxlint-disable-next-line typescript/no-explicit-any
+          (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
+          break;
+        }
         case this.core.node_geo: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeGeo);
           // oxlint-disable-next-line typescript/no-explicit-any
@@ -517,6 +529,11 @@ export class Abi {
   createNodeIndex(value: bigint) {
     const t = this.types[this.core.node_index];
     return new t.ctor(value) as gc.core.nodeIndex;
+  }
+
+  createNodeSet(value: bigint) {
+    const t = this.types[this.core.node_set];
+    return new t.ctor(value) as gc.core.nodeSet;
   }
 
   createNodeGeo(value: bigint) {
