@@ -158,9 +158,9 @@ export class GuiFactory extends GuiElement {
   }
 
   createAttrObject(type: gc.sdk.AbiType, attrName: string, attrType: gc.sdk.AbiType, props: Props = {}): Node {
-    let tagName = this.get(`${type.name}::${attrName}`);
+    let tagName = this.getAttr(type, attrName);
     if (tagName === undefined) {
-      tagName = this.get(attrType.name);
+      tagName = this.getByType(attrType);
     }
     if (tagName === undefined) {
       return createElement(this.objectTag, props) as Node;
@@ -173,7 +173,7 @@ export class GuiFactory extends GuiElement {
   }
 
   createAttrValue(type: gc.sdk.AbiType, attrName: string, props: Props = {}): Node {
-    const tagName = this.get(`${type.name}::${attrName}`);
+    const tagName = this.getAttr(type, attrName);
     if (tagName !== undefined) {
       return createElement(tagName, props) as Node;
     }
@@ -202,6 +202,36 @@ export class GuiFactory extends GuiElement {
       return undefined;
     }
     return this._parent.get(type);
+  }
+
+  /**
+   * Gets an element tag for an ABI type.
+   *
+   * A specialised generic type (eg. `core::nodeList<core::String>`) without a mapping of its own
+   * gets the mapping of its generic type (eg. `core::nodeList`).
+   */
+  getByType(type: gc.sdk.AbiType): keyof HTMLElementTagNameMap | undefined {
+    const tagName = this.get(type.name);
+    if (tagName !== undefined) {
+      return tagName;
+    }
+    const generic = type.generic();
+    return generic && this.get(generic.name);
+  }
+
+  /**
+   * Gets an element tag for the attribute `attrName` of `type`, mapped as `<type fqn>::<attrName>`.
+   *
+   * A specialised generic type without a mapping for that attribute gets the mapping of its
+   * generic type (eg. `project::Box::value` for `project::Box<core::int>`).
+   */
+  getAttr(type: gc.sdk.AbiType, attrName: string): keyof HTMLElementTagNameMap | undefined {
+    const tagName = this.get(`${type.name}::${attrName}`);
+    if (tagName !== undefined) {
+      return tagName;
+    }
+    const generic = type.generic();
+    return generic && this.get(`${generic.name}::${attrName}`);
   }
 
   /**
@@ -347,6 +377,36 @@ export class GuiInputFactory extends GuiElement {
     return parentFactory.get(type);
   }
 
+  /**
+   * Gets an input tag for an ABI type.
+   *
+   * A specialised generic type (eg. `core::nodeList<core::String>`) without a mapping of its own
+   * gets the mapping of its generic type (eg. `core::nodeList`).
+   */
+  getByType(type: gc.sdk.AbiType): keyof InputElementTagNameMap | undefined {
+    const tagName = this.get(type.name);
+    if (tagName !== undefined) {
+      return tagName;
+    }
+    const generic = type.generic();
+    return generic && this.get(generic.name);
+  }
+
+  /**
+   * Gets an input tag for the attribute `attrName` of `type`, mapped as `<type fqn>::<attrName>`.
+   *
+   * A specialised generic type without a mapping for that attribute gets the mapping of its
+   * generic type (eg. `project::Box::value` for `project::Box<core::int>`).
+   */
+  getAttr(type: gc.sdk.AbiType, attrName: string): keyof InputElementTagNameMap | undefined {
+    const tagName = this.get(`${type.name}::${attrName}`);
+    if (tagName !== undefined) {
+      return tagName;
+    }
+    const generic = type.generic();
+    return generic && this.get(`${generic.name}::${attrName}`);
+  }
+
   set(name: string, tagName: keyof InputElementTagNameMap): void {
     this.mappings[name] = tagName;
   }
@@ -480,7 +540,7 @@ export class GuiInputFactory extends GuiElement {
 
   createElementFromType(type: gc.sdk.AbiType): GuiInputElement<unknown> {
     const abi = type.abi;
-    const tagName = this.get(type.name);
+    const tagName = this.getByType(type);
     let input: GuiInputElement<unknown> | undefined;
     if (tagName) {
       input = document.createElement(tagName);
