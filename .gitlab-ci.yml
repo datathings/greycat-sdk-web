@@ -9,9 +9,8 @@ stages:
   - publish
 
 # Publishing runs itself on `dev` once the build stage is green, and stays a
-# manual click on every other branch. publish.sh overwrites <lib>/<branch>/latest,
-# so an automatic publish moves what `greycat install` resolves for everyone
-# tracking that branch.
+# manual click on every other branch. Each publish adds a version to the branch,
+# which becomes what `greycat install --bump` resolves for everyone tracking it.
 
 before_script:
   - export PROJECT_VERSION_MAJOR_MINOR=`cat VERSION`

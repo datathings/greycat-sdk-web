@@ -1,5 +1,21 @@
 #!/usr/bin/env bash
-set -e
+# Publish every library packed under dist/ to registry.greycat.io.
+#
+# dist/<lib>/<branch>/<major.minor>/<target>/<version>.zip is what pack.sh
+# writes, one archive per target the pipeline built. Each library is published
+# as one version holding all of its archives: every archive is staged with
+# `PUT /registry::upload`, then one `registry::publish` declares them, and the
+# registry verifies each sha256 before anything becomes visible. A version is
+# immutable, so a target missing here cannot be added to it later.
+#
+# REGISTRY_GC_CI_TOKEN is a personal access token of the publishing identity,
+# which owns every package it creates. REGISTRY_URL points at another registry
+# (a local one, a staging one).
+#
+# The version is <M.m.p>-<branch>, from PROJECT_VERSION and CI_COMMIT_REF_NAME.
+# The branch is the ref being built, which on a tagged or detached checkout is
+# not the one HEAD describes.
+set -euo pipefail
 
 SOURCE=${BASH_SOURCE[0]}
 while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symlink
@@ -8,32 +24,92 @@ while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
   [[ $SOURCE != /* ]] && SOURCE=$DIR/$SOURCE # if $SOURCE was a relative symlink, we need to resolve it relative to the path where the symlink file was located
 done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
-cd ${DIR}/..
+cd "${DIR}/.."
 
-sha256_hash=$(echo -n "$GET_GC_CI_PASS" | openssl dgst -sha256 | cut -d ' ' -f2)
-base64url_token=$(echo -n "root:$sha256_hash" | base64 -w 0 )
-token=$(curl -s -d "[\"${base64url_token}\", false]" -X POST https://get.greycat.io/runtime::User::login | tr -d '"')
+: "${REGISTRY_GC_CI_TOKEN:?REGISTRY_GC_CI_TOKEN is required (registry publish token)}"
+: "${PROJECT_VERSION:?PROJECT_VERSION is required}"
+: "${CI_COMMIT_REF_NAME:?CI_COMMIT_REF_NAME is required}"
 
-for lib in $(find dist -mindepth 1 -maxdepth 1 -type d); do
-  lib=$(basename $lib)
+base="${REGISTRY_URL:-https://registry.greycat.io}"
+token="$REGISTRY_GC_CI_TOKEN"
+branch="$CI_COMMIT_REF_NAME"
+version="${PROJECT_VERSION%%-*}-${branch}"
 
-  # Only publish if dist/$lib exists
-  [ -d "dist/$lib" ] || continue
+# The registry holds a branch to A-Za-z0-9._-, since it is a directory name, and
+# refuses the whole version otherwise. Saying which branch beats a 500.
+case "$branch" in
+  "" | "." | ".." | *[!A-Za-z0-9._-]*)
+    echo "publish: branch '$branch' is not a legal path segment" >&2
+    exit 1
+    ;;
+esac
 
-  echo "Publishing $lib"
-  find dist/$lib -type f -name '*.zip' -print0 | while IFS= read -r -d '' file; do
-      short_file=${file#dist/}
-      curl -s -o /dev/null -X PUT -H "Authorization: $token" -T $file "https://get.greycat.io/files/$short_file"
-      echo "➜ $short_file"
-  done
-  curl -s -o /dev/null -X PUT -H "Authorization: $token" -d "${PROJECT_VERSION_MAJOR_MINOR}/${PROJECT_VERSION}" -H "Content-Type: text/plain" "https://get.greycat.io/files/${lib}/${CI_COMMIT_REF_NAME}/latest"
+# A token the server does not accept is not an error: the request is served as
+# the anonymous identity, id 0. Refusing that here gives a clear message rather
+# than a 401 from the first upload.
+if ! identity=$(curl -fsS -X POST -H "Authorization: $token" \
+  -H 'Content-Type: application/json' -d '[]' \
+  "$base/runtime::Identity::current"); then
+  echo "publish: cannot reach $base" >&2
+  exit 1
+fi
+user_id=$(printf '%s' "$identity" | grep -o '"id":[0-9]*' | head -n 1 | cut -d ':' -f 2 || true)
+if [ -z "$user_id" ] || [ "$user_id" = "0" ]; then
+  echo "publish: REGISTRY_GC_CI_TOKEN was not accepted by $base" >&2
+  exit 1
+fi
+
+published=0
+for libdir in dist/*/; do
+  [ -d "$libdir" ] || continue
+  lib=$(basename "$libdir")
+
+  entries=""
+  count=0
+  while IFS= read -r -d '' file; do
+    # The target is the directory holding the archive, and <target>.zip is the
+    # name the registry serves it under.
+    target=$(basename "$(dirname "$file")")
+    sha=$(sha256sum "$file" | cut -d ' ' -f 1)
+    if ! curl -fsS -o /dev/null -X PUT -H "Authorization: $token" -T "$file" \
+      "$base/registry::upload?kind=lib&name=$lib&version=$version&filename=$target.zip"; then
+      echo "publish: staging $lib $target.zip failed" >&2
+      exit 1
+    fi
+    entries="${entries:+$entries,}{\"filename\":\"$target.zip\",\"target\":\"$target\",\"sha256\":\"$sha\"}"
+    echo "publish: staged $lib $target.zip"
+    count=$((count + 1))
+  done < <(find "$libdir" -type f -name '*.zip' -print0)
+
+  if [ "$count" -eq 0 ]; then
+    continue
+  fi
+
+  # `readme` is null, so the registry reads lib/<lib>/README.md out of the
+  # archive. Publishing the very same files again answers the stored version,
+  # so a re-run job succeeds.
+  response=$(curl -sS -w '\n%{http_code}' -X POST -H "Authorization: $token" \
+    -H 'Content-Type: application/json' \
+    -d "[\"lib\",\"$lib\",\"$version\",[$entries],null]" \
+    "$base/registry::publish")
+  code="${response##*$'\n'}"
+  if [ "$code" != "200" ]; then
+    echo "publish: $lib $version refused (HTTP $code): ${response%$'\n'*}" >&2
+    exit 1
+  fi
+  echo "publish: lib/$lib $version published with $count archive(s)"
+  published=$((published + 1))
 done
 
-# A library may have something to publish beyond its own <lib>/ zips, such as an
-# npm tarball kept on a legacy path for consumers that have not moved to
-# @library yet. The hook is handed the minted token so it does not log in a
-# second time, and `set -e` above makes a failure here fail the job.
+if [ "$published" -eq 0 ]; then
+  echo "publish: nothing under dist/ to publish (did pack.sh run?)" >&2
+  exit 1
+fi
+
+# A library may publish more than its archives, such as an npm tarball. The hook
+# runs with the same registry variables, and `set -e` makes its failure fail
+# the job.
 if [ -f post-publish.sh ]; then
   echo "Post-publish"
-  GREYCAT_FILES_TOKEN="$token" ./post-publish.sh
+  REGISTRY_URL="$base" REGISTRY_GC_CI_TOKEN="$token" ./post-publish.sh
 fi

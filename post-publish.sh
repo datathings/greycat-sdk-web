@@ -1,31 +1,41 @@
 #!/usr/bin/env bash
-# Publishes the npm tarball on the legacy sdk/web path, alongside the sdk_web
-# library zip that script/publish.sh has already uploaded. Projects that
-# resolve @greycat/web from a URL rather than @library("sdk_web", ...) still
-# read this path, so both ship until they have moved over.
+# Publishes the npm tarball of @greycat/web as the asset `greycat-web`, at the
+# version script/publish.sh has just published the sdk_web library under, for
+# projects that resolve the SDK from a URL rather than through
+# @library("sdk_web", ...).
 #
-# script/publish.sh calls this with GREYCAT_FILES_TOKEN already minted.
-set -e
+# script/publish.sh calls this with REGISTRY_URL and REGISTRY_GC_CI_TOKEN set.
+set -euo pipefail
 
 cd "$(cd -P "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-VERSION_MAJOR_MINOR=$(cat VERSION)
-PROJECT_VERSION=${PROJECT_VERSION:-"0.0.0"}
-BRANCH=${CI_COMMIT_REF_NAME:-$(git rev-parse --abbrev-ref HEAD)}
-ROOT_URL="https://get.greycat.io/files"
+: "${REGISTRY_URL:?REGISTRY_URL is required}"
+: "${REGISTRY_GC_CI_TOKEN:?REGISTRY_GC_CI_TOKEN is required}"
+: "${PROJECT_VERSION:?PROJECT_VERSION is required}"
+: "${CI_COMMIT_REF_NAME:?CI_COMMIT_REF_NAME is required}"
 
-if [ ! -f dist/package.tgz ]; then
-  echo "post-publish: dist/package.tgz is missing -- did post-build.sh run?" >&2
+name="greycat-web"
+version="${PROJECT_VERSION%%-*}-${CI_COMMIT_REF_NAME}"
+tarball="dist/package.tgz"
+
+if [ ! -f "$tarball" ]; then
+  echo "post-publish: $tarball is missing (did post-build.sh run?)" >&2
   exit 1
 fi
 
-# Artifact first, marker second: `latest` is what a consumer resolves a branch
-# through, so it must never name a version that is not uploaded yet.
-curl -s -o /dev/null -X PUT -H "Authorization: ${GREYCAT_FILES_TOKEN}" \
-  -T dist/package.tgz \
-  "${ROOT_URL}/sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${PROJECT_VERSION}.tgz"
-curl -s -o /dev/null -X PUT -H "Authorization: ${GREYCAT_FILES_TOKEN}" \
-  -d "${VERSION_MAJOR_MINOR}/${PROJECT_VERSION}" -H "Content-Type: text/plain" \
-  "${ROOT_URL}/sdk/web/${BRANCH}/latest"
+sha=$(sha256sum "$tarball" | cut -d ' ' -f 1)
+curl -fsS -o /dev/null -X PUT -H "Authorization: $REGISTRY_GC_CI_TOKEN" -T "$tarball" \
+  "$REGISTRY_URL/registry::upload?kind=asset&name=$name&version=$version&filename=package.tgz"
 
-echo "-> sdk/web/${BRANCH}/${VERSION_MAJOR_MINOR}/${PROJECT_VERSION}.tgz"
+# An asset has no lib/<name>/ layout to read a README from, so it sends one.
+readme="# greycat-web\\n\\nThe npm tarball of @greycat/web, the browser SDK of GreyCat. Projects using GreyCat should prefer @library(\\\"sdk_web\\\", ...)."
+response=$(curl -sS -w '\n%{http_code}' -X POST -H "Authorization: $REGISTRY_GC_CI_TOKEN" \
+  -H 'Content-Type: application/json' \
+  -d "[\"asset\",\"$name\",\"$version\",[{\"filename\":\"package.tgz\",\"target\":null,\"sha256\":\"$sha\"}],\"$readme\"]" \
+  "$REGISTRY_URL/registry::publish")
+code="${response##*$'\n'}"
+if [ "$code" != "200" ]; then
+  echo "post-publish: asset/$name $version refused (HTTP $code): ${response%$'\n'*}" >&2
+  exit 1
+fi
+echo "post-publish: asset/$name $version published"
