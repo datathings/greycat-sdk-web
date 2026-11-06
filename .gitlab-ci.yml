@@ -6,11 +6,15 @@ variables:
 
 stages:
   - build
+  - pack
   - publish
 
 # Publishing runs itself on `dev` once the build stage is green, and stays a
 # manual click on every other branch. Each publish adds a version to the branch,
 # which becomes what `greycat install --bump` resolves for everyone tracking it.
+#
+# A version is immutable and holds every target, so a native library packs each
+# target in its own job and one `publish` job sends all the archives together.
 
 before_script:
   - export PROJECT_VERSION_MAJOR_MINOR=`cat VERSION`
@@ -75,8 +79,8 @@ x64-windows:
     - *docker_build_script
     - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
 
-x64-linux-publish:
-  stage: publish
+x64-linux-pack:
+  stage: pack
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       exists: [CMakeLists.txt]
@@ -91,10 +95,12 @@ x64-linux-publish:
     - *docker_build_script
     - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     - ./script/pack.sh
-    - ./script/publish.sh
+  artifacts:
+    paths: [dist]
+    expire_in: 1 day
 
-arm64-linux-publish:
-  stage: publish
+arm64-linux-pack:
+  stage: pack
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       exists: [CMakeLists.txt]
@@ -110,10 +116,12 @@ arm64-linux-publish:
     - *docker_build_script
     - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     - ./script/pack.sh
-    - ./script/publish.sh
+  artifacts:
+    paths: [dist]
+    expire_in: 1 day
 
-arm64-apple-publish:
-  stage: publish
+arm64-apple-pack:
+  stage: pack
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       exists: [CMakeLists.txt]
@@ -128,10 +136,12 @@ arm64-apple-publish:
   script:
     - ./script/build.sh
     - ./script/pack.sh
-    - ./script/publish.sh
+  artifacts:
+    paths: [dist]
+    expire_in: 1 day
 
-x64-windows-publish:
-  stage: publish
+x64-windows-pack:
+  stage: pack
   rules:
     - if: $CI_COMMIT_BRANCH == "dev"
       exists: [CMakeLists.txt]
@@ -148,6 +158,21 @@ x64-windows-publish:
     - *docker_build_script
     - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
     - ./script/pack.sh
+  artifacts:
+    paths: [dist]
+    expire_in: 1 day
+
+publish:
+  stage: publish
+  rules:
+    - if: $CI_COMMIT_BRANCH == "dev"
+      exists: [CMakeLists.txt]
+      when: on_success
+    - exists: [CMakeLists.txt]
+      when: manual
+  tags: [linux]
+  needs: [x64-linux-pack, arm64-linux-pack, arm64-apple-pack, x64-windows-pack]
+  script:
     - ./script/publish.sh
 
 # A pure-GCL library carries no CMakeLists.txt. There is nothing to
