@@ -15,6 +15,7 @@ export * from './crypto.js';
 export * from './openid.js';
 export * from './std.ext.js';
 export * from './greycat.js';
+export * from './logs.js';
 export * from './utils/bytes.js';
 export * from './utils/duration.js';
 export * from './utils/error.js';
