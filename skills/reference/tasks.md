@@ -146,7 +146,9 @@ Which stream is resumed:
   only when it is the one the instance itself opened last (a hidden page
   back, a page restored before another page of the tab opened a stream). A
   stream recorded by another page is never claimed, so one the server still
-  holds open is not taken over.
+  holds open is not taken over. A page that may not use `sessionStorage` (a
+  sandboxed iframe, site data blocked) records nothing and opens a fresh
+  stream on those connects.
 - A tab opened with `window.open` starts with a copy of that record. Before it
   resumes a recorded stream other than its own, the instance asks on a
   `BroadcastChannel` whether a live instance holds it and waits 75 ms. An

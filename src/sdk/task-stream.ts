@@ -217,7 +217,13 @@ export class TaskStream {
     const ctrl = new AbortController();
     this.#ctrl = ctrl;
 
-    const resume = await this.#resumeHeader(retry);
+    let resume: string | undefined;
+    try {
+      resume = await this.#resumeHeader(retry);
+    } catch {
+      // the record could not be read, so a fresh stream
+      resume = undefined;
+    }
     if (ctrl.signal.aborted) {
       return;
     }
@@ -435,7 +441,8 @@ type HolderMessage = { who: string } | { holds: string };
 
 /**
  * Where an instance records the stream to resume, and how it learns whether another
- * instance still uses it. Does nothing outside a browser.
+ * instance still uses it. Does nothing outside a browser, nor where the page may not use
+ * `sessionStorage`.
  *
  * The record (`<run>:<id>`) lives in `sessionStorage` under `key`, so it survives a reload
  * and a page change in the same tab, and is cleared with the tab. Live instances of every
@@ -447,6 +454,8 @@ type HolderMessage = { who: string } | { holds: string };
 class ResumePoint {
   #key: string;
   #holds: () => string | undefined;
+  /** The `sessionStorage` of the page, `undefined` outside a browser or where it is blocked. */
+  #storage: Storage | undefined;
   #channel: BroadcastChannel | undefined;
   #suspended = false;
   /** Callers of {@link isHeld} waiting for an answer. */
@@ -455,18 +464,31 @@ class ResumePoint {
   constructor(key: string, holds: () => string | undefined) {
     this.#key = key;
     this.#holds = holds;
+    this.#storage = ResumePoint.#sessionStorage();
   }
 
-  static get #inBrowser(): boolean {
-    return typeof window !== 'undefined' && typeof sessionStorage !== 'undefined';
-  }
-
-  read(): string | undefined {
-    if (!ResumePoint.#inBrowser) {
+  /**
+   * The `sessionStorage` of the page, or `undefined`. Reading it throws a `SecurityError`
+   * where the page may not use it (a sandboxed iframe without `allow-same-origin`, site data
+   * blocked by the user).
+   */
+  static #sessionStorage(): Storage | undefined {
+    if (typeof window === 'undefined') {
       return undefined;
     }
     try {
-      return sessionStorage.getItem(this.#key) ?? undefined;
+      return globalThis.sessionStorage ?? undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  read(): string | undefined {
+    if (this.#storage === undefined) {
+      return undefined;
+    }
+    try {
+      return this.#storage.getItem(this.#key) ?? undefined;
     } catch {
       return undefined;
     }
@@ -474,14 +496,14 @@ class ResumePoint {
 
   /** Records `value`, or clears the record when `undefined`, and answers for it from now on. */
   write(value: string | undefined): void {
-    if (!ResumePoint.#inBrowser) {
+    if (this.#storage === undefined) {
       return;
     }
     try {
       if (value === undefined) {
-        sessionStorage.removeItem(this.#key);
+        this.#storage.removeItem(this.#key);
       } else {
-        sessionStorage.setItem(this.#key, value);
+        this.#storage.setItem(this.#key, value);
       }
     } catch {
       // storage disabled or full: the next page load opens a fresh stream
@@ -530,7 +552,7 @@ class ResumePoint {
     if (this.#channel !== undefined) {
       return this.#channel;
     }
-    if (this.#suspended || !ResumePoint.#inBrowser || typeof BroadcastChannel === 'undefined') {
+    if (this.#suspended || this.#storage === undefined || typeof BroadcastChannel === 'undefined') {
       return undefined;
     }
     let channel: BroadcastChannel;

@@ -564,6 +564,28 @@ describe('task stream', () => {
       }
     });
 
+    it('opens a fresh stream, and takes a new token, where the page may not use sessionStorage', async () => {
+      page();
+      const descriptor = Object.getOwnPropertyDescriptor(globalThis, 'sessionStorage');
+      Object.defineProperty(globalThis, 'sessionStorage', {
+        configurable: true,
+        get() {
+          throw new DOMException('The operation is insecure.', 'SecurityError');
+        },
+      });
+      try {
+        const { server: s, resumes } = await resumingServer();
+        server = s;
+        g = client(s.url, { token: 'first' });
+        assert.equal(await g.tasks.opened(1000), true);
+        g.token = 'second';
+        await waitFor(() => g?.tasks.streamId === '2');
+        assert.deepEqual(resumes, [undefined, undefined]);
+      } finally {
+        Object.defineProperty(globalThis, 'sessionStorage', /** @type {PropertyDescriptor} */ (descriptor));
+      }
+    });
+
     it('resumes nothing with a core that sends no run', async () => {
       page();
       const { server: s, resumes } = await resumingServer(null);
