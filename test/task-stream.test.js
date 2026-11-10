@@ -624,6 +624,31 @@ describe('task stream', () => {
       }
     });
 
+    it('keeps the record of the fresh stream when the credentials change during the liveness check', async () => {
+      page();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      const key = `greycat:task-stream:default@${s.url}`;
+      // the opener of the tab, which answers once the stream of the new login is open
+      sessionStorage.setItem(key, '7:5');
+      const opener = new BroadcastChannel(key);
+      opener.onmessage = (/** @type {MessageEvent} */ event) => {
+        if (event.data.who === '7:5') {
+          void waitFor(() => g?.tasks.streamId === '1').then(() => opener.postMessage({ holds: '7:5' }));
+        }
+      };
+      try {
+        g = client(s.url, { token: 'first' });
+        g.token = 'second';
+        await waitFor(() => g?.tasks.streamId === '1');
+        await new Promise((r) => setTimeout(r, 150));
+        assert.deepEqual(resumes, [undefined]);
+        assert.equal(recorded(g), '7:1');
+      } finally {
+        opener.close();
+      }
+    });
+
     it('resumes only its own stream where no instance can be asked who holds the recorded one', async () => {
       page();
       const channel = globalThis.BroadcastChannel;

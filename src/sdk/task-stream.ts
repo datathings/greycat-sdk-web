@@ -251,7 +251,7 @@ export class TaskStream {
 
     let resume: string | undefined;
     try {
-      resume = await this.#resumeHeader(retry);
+      resume = await this.#resumeHeader(retry, ctrl);
     } catch {
       // the record could not be read, so a fresh stream
       resume = undefined;
@@ -333,7 +333,8 @@ export class TaskStream {
   }
 
   /**
-   * The `sse-resume` header of a connect attempt, or `undefined` to open a fresh stream.
+   * The `sse-resume` header of the connect attempt `ctrl`, or `undefined` to open a fresh
+   * stream.
    *
    * A retry claims the stream this instance held. Any other attempt resumes the stream
    * recorded for the tab, which the last page of the tab to open one wrote: a page restored
@@ -347,7 +348,7 @@ export class TaskStream {
    * that another live instance says it holds is not resumed, nor any recorded stream of
    * another page where no instance can be asked.
    */
-  async #resumeHeader(retry: boolean): Promise<string | undefined> {
+  async #resumeHeader(retry: boolean, ctrl: AbortController): Promise<string | undefined> {
     if (retry && this.#held !== undefined) {
       return `${this.#held}; claim`;
     }
@@ -359,7 +360,11 @@ export class TaskStream {
       return `${recorded}; claim`;
     }
     if (await this.#point.isHeld(recorded, HOLDER_WAIT_MS)) {
-      this.#point.write(undefined);
+      // an attempt given up during the wait leaves the record alone, which by now may be
+      // the one of the stream a newer attempt opened
+      if (!ctrl.signal.aborted) {
+        this.#point.write(undefined);
+      }
       return undefined;
     }
     return recorded;
