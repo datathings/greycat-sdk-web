@@ -587,6 +587,47 @@ describe('task stream', () => {
       }
     });
 
+    it('forgets the stream to resume on a 401 of a cookie session', async () => {
+      page();
+      server = await fakeServer((req, res) => {
+        if (req.url === STREAM) {
+          openStream(res, '1', '7');
+          return;
+        }
+        res.writeHead(401).end();
+      });
+      g = client(server.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(recorded(g), '7:1');
+      await assert.rejects(g.call('runtime::Identity::current_id'));
+      assert.equal(recorded(g), null);
+    });
+
+    it('forgets the stream to resume when the stream is refused with a 401', async () => {
+      page();
+      /** @type {(string | undefined)[]} */
+      const resumes = [];
+      server = await fakeServer((req, res) => {
+        const header = req.headers['sse-resume'];
+        resumes.push(Array.isArray(header) ? header.join(',') : header);
+        if (resumes.length === 2) {
+          res.writeHead(401).end();
+          return;
+        }
+        openStream(res, `${resumes.length}`, '7');
+      });
+      g = client(server.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      server.drop();
+      await waitFor(() => resumes.length === 2 && g?.tasks.streamState === 'closed');
+      assert.equal(recorded(g), null);
+      // a reconnect that keeps the stream to resume, unlike `reconnect()`
+      g.tasks.disconnect();
+      g.tasks.connect();
+      await waitFor(() => g?.tasks.streamId === '3');
+      assert.deepEqual(resumes, [undefined, '7:1; claim', undefined]);
+    });
+
     it('resumes nothing with a core that sends no run', async () => {
       page();
       const { server: s, resumes } = await resumingServer(null);

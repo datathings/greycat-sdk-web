@@ -2,7 +2,7 @@ import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
-import { HOLD_EVENTS } from './internal.js';
+import { FORGET_STREAM, HOLD_EVENTS } from './internal.js';
 import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
@@ -871,14 +871,18 @@ export class GreyCat extends Emitter<GreyCatEvents> {
 
   /**
    * Records that `route` answered 401: the login is gone. The token is dropped, which
-   * closes the task event stream, and `auth:lost` fires once per lost login, so a burst
+   * closes the task event stream, the stream to resume is forgotten whatever the token
+   * was, and `auth:lost` fires once per lost login, so a burst
    * of failing requests reads as one event; a session without a token (anonymous, or a
-   * cookie) has nothing to drop, so it fires at most once a second. Returns the error to
+   * cookie) has no token to drop, so it fires at most once a second. Returns the error to
    * throw. Public for transports the instance does not run itself, like the upload XHR.
    */
   unauthorized(route: string, message = 'unauthorized'): HttpError {
     this.logger(this.name, 401, route);
     const hadToken = this.#token !== undefined;
+    // a cookie session has no token, so the setter forgets nothing, yet its stream belongs to
+    // the lost login too
+    this.#tasks[FORGET_STREAM]();
     this.token = undefined;
     const now = Date.now();
     if (hadToken || now - this.#lostAt > 1000) {

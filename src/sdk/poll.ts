@@ -1,7 +1,7 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
 import { errorFrames } from './utils/error.js';
-import { HOLD_EVENTS } from './internal.js';
+import { FORGET_STREAM, HOLD_EVENTS } from './internal.js';
 import { TaskStream, type TaskEvent, type TaskStreamChange, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
@@ -433,6 +433,19 @@ export class TaskPoller {
         }
       }
     };
+  }
+
+  /**
+   * Drops the stream to resume, so the next connect opens a fresh one, without touching the
+   * stream itself. For a 401, whose login is gone even when the instance holds no token. A
+   * page hidden with nothing left to resume polls its tasks from now on.
+   */
+  [FORGET_STREAM](): void {
+    const paused = this.#paused;
+    this.#stream.forget();
+    if (paused) {
+      this.#streamGone();
+    }
   }
 
   /** Queues `apply` if frames are held, and tells whether it was. */

@@ -156,8 +156,9 @@ Which stream is resumed:
   answer (the opener, even with its stream paused) makes it open a fresh
   stream instead.
 
-Nothing is resumed after a change of credentials (`login`, `logout`, a 401, a
-new `token`, `tasks.reconnect()`), which clears the record, after a server
+Nothing is resumed after a change of credentials (`login`, `logout`, a 401 on
+any request or on the stream itself, a cookie session included, a new `token`,
+`tasks.reconnect()`), which clears the record, after a server
 restart, or with a core that sends no run in its `connected` frame: the new
 stream then takes over no task, and the tracked ones are polled until they
 end.

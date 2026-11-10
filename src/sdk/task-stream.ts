@@ -272,8 +272,12 @@ export class TaskStream {
       return;
     }
     if (res.status === 401 || res.status === 403) {
-      // not for this caller: polling reports the same status and runs the handler
+      // not for this caller: polling reports the same status and runs the handler. The
+      // stream to resume belongs to a login the server no longer accepts.
       await res.body?.cancel().catch(() => {});
+      if (this.#ctrl === ctrl) {
+        this.forget();
+      }
       this.#refuse(ctrl);
       return;
     }
