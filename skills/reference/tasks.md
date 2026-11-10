@@ -118,6 +118,7 @@ server past its `max_sse` or `max_sse_per_user` cap answers 429 and is retried.
 | `greycat.tasks.transport` | `'stream'` or `'poll'` |
 | `greycat.tasks.streamState` | `idle`, `connecting` (until the server sent the id), `open` or `closed` |
 | `greycat.tasks.streamId` | the id of the open stream, a decimal string since it may not fit a `number` |
+| `greycat.tasks.followed()` | the tasks the stream took over from the one it resumed, in their latest state (see [Listening to the stream](#listening-to-the-stream-taskevent)) |
 | `greycat.isPollingTasks()` | whether the fallback has something to poll right now |
 
 ## Resuming the stream
@@ -176,6 +177,17 @@ tracked or not:
 Frames that arrive while `init` runs (a resumed stream sends its `state`
 frames as soon as it opens) are held and delivered once `init` returned, so a
 listener attached right after `await init()` sees every frame.
+
+`greycat.tasks.followed()` returns the running tasks the stream took over from
+the stream it resumed, each in the latest state the stream reported, as a new
+array. A task leaves it once it ends, and it empties when the stream closes. A
+view that mounts long after `init` reads it once and subscribes to
+`task:event` in the same synchronous step, so no frame falls in between:
+
+```ts
+const rows = new Map(greycat.tasks.followed().map((t) => [t.task_id, t]));
+greycat.on('task:event', ({ task }) => rows.set(task.task_id, task));
+```
 
 Plain calls do not show up, since the instance names the stream only in the
 calls it spawns. Neither do the calls of other instances, tabs or scripts,

@@ -428,6 +428,17 @@ export class TaskPoller {
   }
 
   /**
+   * The tasks the stream follows since it took them over from the stream it resumed, each
+   * in the latest state it reported, as a copy. A task leaves the list once it ends, and
+   * the list empties when the stream closes. A view mounted long after `init` reads it
+   * once, then listens to `task:event` for what follows, since nothing reaches the
+   * instance between the two when both happen in the same synchronous step.
+   */
+  followed(): gc.runtime.Task[] {
+    return [...this.#covered.values()];
+  }
+
+  /**
    * Resolves `true` once the stream is open, `false` as soon as the attempt in progress
    * fails, the stream is not being opened, or `timeoutMs` passes. A task spawned before the
    * stream is open is polled for its whole life, which is why `init` waits on this.
@@ -645,8 +656,6 @@ export class TaskPoller {
     if (this.#hold(() => this.#onStreamEvent(event))) {
       return;
     }
-    // every frame the server pushes, tracked or not
-    this.#g.emit('task:event', event);
     const key = TaskPoller.#key(event.task.task_id);
     if (event.kind === 'complete' || event.task.isTerminal()) {
       this.#bound.delete(key);
@@ -657,6 +666,8 @@ export class TaskPoller {
     } else if (this.#covered.has(key)) {
       this.#covered.set(key, event.task);
     }
+    // every frame the server pushes, tracked or not, once `followed()` includes it
+    this.#g.emit('task:event', event);
     const pending = this.#pending.get(key);
     if (pending !== undefined) {
       this.#handle(pending, event.task);

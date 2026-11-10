@@ -604,6 +604,44 @@ describe('task stream', () => {
     assert.equal(g.tasks.streamState, 'open');
     await waitFor(() => events.length === 1);
     assert.deepEqual(events, [['state', 41]]);
+    assert.deepEqual(
+      g.tasks.followed().map((t) => t.task_id),
+      [41],
+    );
+  });
+
+  it('lists the tasks the stream followed since it took them over', async () => {
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res, '2', '7');
+        res.write(frame(g, 'task-state', makeTask(51, 1, gc.runtime.TaskStatus.running)));
+        res.write(frame(g, 'task-state', makeTask(52, 1, gc.runtime.TaskStatus.running)));
+        res.write(synced(2));
+        return;
+      }
+      res.writeHead(404).end();
+    });
+    g = client(server.url);
+    /** @type {gc.runtime.Task[]} */
+    let followed = [];
+    g.on('task:event', () => (followed = g?.tasks.followed() ?? []));
+    await waitFor(() => followed.length === 2);
+    assert.deepEqual(
+      followed.map((t) => t.task_id),
+      [51, 52],
+    );
+    followed.pop();
+    assert.equal(g.tasks.followed().length, 2, 'a copy');
+
+    stream?.write(frame(g, 'task-complete', makeTask(51, 1, gc.runtime.TaskStatus.ended)));
+    await waitFor(() => g?.tasks.followed().length === 1);
+    assert.equal(g.tasks.followed()[0].task_id, 52);
+
+    g.tasks.disconnect();
+    assert.deepEqual(g.tasks.followed(), []);
   });
 
   it('reports every change of the stream as task:stream', async () => {
