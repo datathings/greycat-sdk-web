@@ -2,6 +2,7 @@ import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent } from './poll.js';
+import { HOLD_EVENTS } from './internal.js';
 import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
@@ -489,7 +490,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   // `init` waits for the stream to open below, and a resumed stream sends its `state`
   // frames right after, so they may arrive before `init` returns. They are held until the
   // caller of `init` could attach its listeners.
-  const release = g.tasks.holdEvents();
+  const release = g.tasks[HOLD_EVENTS]();
   if (taskEvents) {
     g.tasks.connect();
   }

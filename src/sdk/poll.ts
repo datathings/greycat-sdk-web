@@ -1,6 +1,7 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
 import { errorFrames } from './utils/error.js';
+import { HOLD_EVENTS } from './internal.js';
 import { TaskStream, type TaskEvent, type TaskStreamChange, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
@@ -227,10 +228,12 @@ export class TaskPoller {
   /** The `pagehide` and `pageshow` listeners of {@link #followPage} are installed. */
   #following = false;
   /**
-   * Frames received while {@link holdEvents} holds them, in order, each with the id of the
+   * Frames received while {@link HOLD_EVENTS} holds them, in order, each with the id of the
    * stream it came on. `undefined` when frames are applied as they come.
    */
   #held: { streamId: string | undefined; apply: () => void }[] | undefined;
+  /** How many holds of {@link HOLD_EVENTS} are not released yet. */
+  #holds = 0;
 
   constructor(g: GreyCat) {
     this.#g = g;
@@ -402,18 +405,27 @@ export class TaskPoller {
 
   /**
    * Holds the frames of the stream until the returned function is called, then applies
-   * them in order, and the ones of a stream closed in the meantime are dropped. `init`
-   * holds them while it runs and releases them on a later macrotask, after the caller's
-   * `await init()` went on, so a listener attached right after it sees every frame. Without
-   * it, a resumed stream would send its `state` frames before the caller could listen.
+   * them in order, and the ones of a stream closed in the meantime are dropped. Holds nest:
+   * the frames wait until every hold is released, and a release counts once however often
+   * it is called. `init` holds them while it runs and releases them on a later macrotask,
+   * after the caller's `await init()` went on, so a listener attached right after it sees
+   * every frame. Without it, a resumed stream would send its `state` frames before the
+   * caller could listen.
    */
-  holdEvents(): () => void {
+  [HOLD_EVENTS](): () => void {
+    this.#holds += 1;
     this.#held ??= [];
-    const held = this.#held;
+    let released = false;
     return () => {
-      if (this.#held !== held) {
+      if (released) {
         return;
       }
+      released = true;
+      this.#holds -= 1;
+      if (this.#holds > 0) {
+        return;
+      }
+      const held = this.#held ?? [];
       this.#held = undefined;
       for (const { streamId, apply } of held) {
         if (streamId === this.#stream.id) {

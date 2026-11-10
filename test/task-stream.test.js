@@ -3,6 +3,7 @@ import { readFile } from 'node:fs/promises';
 import { describe, before, afterEach, it } from 'node:test';
 
 import '@greycat/web/sdk';
+import { HOLD_EVENTS } from '../dist/sdk/lib/internal.js';
 import {
   STREAM,
   answer,
@@ -629,6 +630,42 @@ describe('task stream', () => {
     assert.deepEqual(
       g.tasks.followed().map((t) => t.task_id),
       [41],
+    );
+  });
+
+  it('applies held frames once every hold is released, dropping those of a stream closed meanwhile', async () => {
+    server = await fakeServer((req, res) => {
+      if (req.url !== STREAM) {
+        res.writeHead(404).end();
+        return;
+      }
+      const streams = /** @type {NonNullable<typeof server>} */ (server).count;
+      openStream(res, `${streams}`, '7');
+      res.write(frame(g, 'task-state', makeTask(70 + streams, 1, gc.runtime.TaskStatus.running)));
+      res.write(synced(1));
+    });
+    g = client(server.url, { taskEvents: false });
+    /** @type {unknown[]} */
+    const events = [];
+    g.on('task:event', (e) => events.push([e.kind, e.task.task_id]));
+    const outer = g.tasks[HOLD_EVENTS]();
+    const inner = g.tasks[HOLD_EVENTS]();
+    g.tasks.connect();
+    assert.equal(await g.tasks.opened(1000), true);
+    await new Promise((r) => setTimeout(r, 50));
+    // the stream closes before the frames are released, and the next one resumes it
+    server.drop();
+    await waitFor(() => g?.tasks.streamId === '2');
+    await new Promise((r) => setTimeout(r, 50));
+
+    inner();
+    inner();
+    assert.deepEqual(events, [], 'held while one hold is left');
+    outer();
+    assert.deepEqual(events, [['state', 72]], 'only the frames of the open stream');
+    assert.deepEqual(
+      g.tasks.followed().map((t) => t.task_id),
+      [72],
     );
   });
 
