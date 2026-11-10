@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { readFile } from 'node:fs/promises';
 import { describe, before, afterEach, it } from 'node:test';
 
 import '@greycat/web/sdk';
@@ -42,7 +43,7 @@ describe('task stream', () => {
     server = undefined;
   });
 
-  /** @param {string} url @param {{ token?: string, taskEvents?: boolean, pauseWhenHidden?: boolean }} [extra] */
+  /** @param {string} url @param {{ token?: string, taskEvents?: boolean, pauseWhenHidden?: boolean, name?: string }} [extra] */
   function client(url, extra = {}) {
     return gc.sdk.initWithAbi({
       abi,
@@ -574,6 +575,35 @@ describe('task stream', () => {
       await waitFor(() => g?.tasks.streamId === '2');
       assert.deepEqual(resumes, [undefined, undefined]);
     });
+  });
+
+  it('delivers to a listener attached right after init the states a resumed stream sends at once', async () => {
+    const helper = client('http://127.0.0.1:1', { taskEvents: false, name: 'helper' });
+    const abiBytes = await readFile(new URL('./abi.bin', import.meta.url));
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        openStream(res, '2', '7');
+        res.write(frame(helper, 'task-state', makeTask(41, 1, gc.runtime.TaskStatus.running)));
+        res.write(synced(1));
+        return;
+      }
+      if (req.url === '/runtime::Runtime::abi') {
+        res.writeHead(200, { 'content-type': 'application/octet-stream' }).end(abiBytes);
+        return;
+      }
+      if (req.url === '/runtime::Identity::permissions') {
+        answer(helper, res, ['api']);
+        return;
+      }
+      res.writeHead(404).end();
+    });
+    g = /** @type {gc.sdk.GreyCat} */ (await gc.sdk.init({ url: new URL(server.url), identityWorld: false }));
+    /** @type {unknown[]} */
+    const events = [];
+    g.on('task:event', (e) => events.push([e.kind, e.task.task_id]));
+    assert.equal(g.tasks.streamState, 'open');
+    await waitFor(() => events.length === 1);
+    assert.deepEqual(events, [['state', 41]]);
   });
 
   it('reports every change of the stream as task:stream', async () => {

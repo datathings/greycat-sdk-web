@@ -173,6 +173,10 @@ tracked or not:
 | `complete` | the task ended, whatever its final status |
 | `state` | the stream took the task over from the stream it resumed, with its current state, final or not |
 
+Frames that arrive while `init` runs (a resumed stream sends its `state`
+frames as soon as it opens) are held and delivered once `init` returned, so a
+listener attached right after `await init()` sees every frame.
+
 Plain calls do not show up, since the instance names the stream only in the
 calls it spawns. Neither do the calls of other instances, tabs or scripts,
 even logged in as the same user.

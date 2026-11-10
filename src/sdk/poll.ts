@@ -226,6 +226,11 @@ export class TaskPoller {
   #left = false;
   /** The `pagehide` and `pageshow` listeners of {@link #followPage} are installed. */
   #following = false;
+  /**
+   * Frames received while {@link holdEvents} holds them, in order, each with the id of the
+   * stream it came on. `undefined` when frames are applied as they come.
+   */
+  #held: { streamId: string | undefined; apply: () => void }[] | undefined;
 
   constructor(g: GreyCat) {
     this.#g = g;
@@ -388,6 +393,38 @@ export class TaskPoller {
     if (!this.#left) {
       this.#stream.connect();
     }
+  }
+
+  /**
+   * Holds the frames of the stream until the returned function is called, then applies
+   * them in order, and the ones of a stream closed in the meantime are dropped. `init`
+   * holds them while it runs and releases them on a later macrotask, after the caller's
+   * `await init()` went on, so a listener attached right after it sees every frame. Without
+   * it, a resumed stream would send its `state` frames before the caller could listen.
+   */
+  holdEvents(): () => void {
+    this.#held ??= [];
+    const held = this.#held;
+    return () => {
+      if (this.#held !== held) {
+        return;
+      }
+      this.#held = undefined;
+      for (const { streamId, apply } of held) {
+        if (streamId === this.#stream.id) {
+          apply();
+        }
+      }
+    };
+  }
+
+  /** Queues `apply` if frames are held, and tells whether it was. */
+  #hold(apply: () => void): boolean {
+    if (this.#held === undefined) {
+      return false;
+    }
+    this.#held.push({ streamId: this.#stream.id, apply });
+    return true;
   }
 
   /**
@@ -586,6 +623,9 @@ export class TaskPoller {
    * ended while no stream was open is not taken over, and the lookup settles it.
    */
   #onStreamSynced = (): void => {
+    if (this.#hold(this.#onStreamSynced)) {
+      return;
+    }
     for (const [key, pending] of this.#pending) {
       if (this.#covered.has(key)) {
         this.#unpoll(pending);
@@ -602,6 +642,9 @@ export class TaskPoller {
   };
 
   #onStreamEvent = (event: TaskEvent): void => {
+    if (this.#hold(() => this.#onStreamEvent(event))) {
+      return;
+    }
     // every frame the server pushes, tracked or not
     this.#g.emit('task:event', event);
     const key = TaskPoller.#key(event.task.task_id);

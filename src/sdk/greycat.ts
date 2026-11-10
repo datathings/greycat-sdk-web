@@ -486,29 +486,38 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   if (pauseWhenHidden) {
     g.tasks.pauseWhenHidden();
   }
+  // `init` waits for the stream to open below, and a resumed stream sends its `state`
+  // frames right after, so they may arrive before `init` returns. They are held until the
+  // caller of `init` could attach its listeners.
+  const release = g.tasks.holdEvents();
   if (taskEvents) {
     g.tasks.connect();
   }
 
-  const [permissions] = await Promise.all([
-    // made before the instance gets its world, so it runs in main
-    gcreg.runtime.Identity.permissions(g).catch(() => {
-      // we probably don't have the permission to access this endpoint
-      return [];
-    }),
-    // an explicit world wins over the identity's default one
-    world === undefined && identityWorld ? g.useIdentityWorld(signal) : undefined,
-    // a task spawned before the stream is open is never reported on it and gets polled
-    // instead, so the first calls of the app wait for it, unless it is slow to come
-    taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
-  ]);
-  g.permissions = permissions;
-  if (world !== undefined) {
-    g.world = world;
-  }
+  try {
+    const [permissions] = await Promise.all([
+      // made before the instance gets its world, so it runs in main
+      gcreg.runtime.Identity.permissions(g).catch(() => {
+        // we probably don't have the permission to access this endpoint
+        return [];
+      }),
+      // an explicit world wins over the identity's default one
+      world === undefined && identityWorld ? g.useIdentityWorld(signal) : undefined,
+      // a task spawned before the stream is open is never reported on it and gets polled
+      // instead, so the first calls of the app wait for it, unless it is slow to come
+      taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
+    ]);
+    g.permissions = permissions;
+    if (world !== undefined) {
+      g.world = world;
+    }
 
-  const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
-  return rich ? { greycat: g, auth: info } : g;
+    const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
+    return rich ? { greycat: g, auth: info } : g;
+  } finally {
+    // a macrotask, which runs after the caller's `await init()` continuation
+    setTimeout(release, 0);
+  }
 }
 
 export function initWithAbi({
