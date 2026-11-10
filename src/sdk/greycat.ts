@@ -407,7 +407,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     unauthorizedHandler,
     abiMismatchHandler,
     taskEvents = true,
-    pauseWhenHidden = false,
+    pauseWhenHidden = true,
     world,
     identityWorld = true,
   } = options;
@@ -528,7 +528,7 @@ export function initWithAbi({
   url = DEFAULT_URL,
   credentials,
   taskEvents = false,
-  pauseWhenHidden = false,
+  pauseWhenHidden = true,
   world,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
