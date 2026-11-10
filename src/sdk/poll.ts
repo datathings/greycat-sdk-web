@@ -289,8 +289,9 @@ export class TaskPoller {
   /**
    * Opens the task event stream (`GET /runtime::Task::events`). `init` does this unless
    * `taskEvents: false`; call it on an `initWithAbi` instance. Dropped connections
-   * reconnect on their own; a server without the endpoint is left alone and polling
-   * serves the session.
+   * reconnect on their own. A server without the endpoint, or that refuses the caller, is
+   * left alone until {@link reconnect}, a new token or a `disconnect()` and `connect()`, and
+   * polling serves the session.
    */
   connect(): void {
     this.#wanted = true;
@@ -303,12 +304,14 @@ export class TaskPoller {
   }
 
   /**
-   * The page is hidden and {@link pauseWhenHidden} closed the stream for it. Nothing is
-   * polled then: the stream reopened on return resumes the closed one, takes over its tasks
-   * and sends their state, and the tasks it does not take over are polled from there.
+   * The page is hidden, {@link pauseWhenHidden} closed the stream for it, and that stream
+   * can be resumed. Nothing is polled then: the stream reopened on return resumes the closed
+   * one, takes over its tasks and sends their state, and the tasks it does not take over are
+   * polled from there. Without a stream to resume (none opened yet, a core that cannot
+   * resume one, a server that refused it), the tracked tasks are polled while hidden.
    */
   get #paused(): boolean {
-    return this.#hidden && this.#wanted;
+    return this.#hidden && this.#wanted && this.#stream.resumable;
   }
 
   /**
@@ -354,10 +357,12 @@ export class TaskPoller {
    * the page is visible, with `enabled` (the default). A browser shares six connections per
    * origin between all its tabs over HTTP/1.1, and a hidden tab then leaves its own to the
    * others. In the meantime nothing is polled, and a `wait` stays pending. Once the page is
-   * visible, the new stream resumes the closed one and takes over its running tasks, and
-   * the tracked tasks it does not take over are polled. A core that cannot resume a stream
-   * takes over none, and those tasks are then polled until they end. Does nothing outside
-   * a browser. `init` calls it for the `pauseWhenHidden` option.
+   * visible, the new stream resumes the closed one and takes over its live tasks, and the
+   * tracked tasks it does not take over are polled. When there is no stream to resume (none
+   * was open yet, a core that cannot resume one), the tracked tasks are polled while the
+   * page is hidden. A server that refused the stream is not asked again when the page is
+   * visible, and its tasks are polled throughout. Does nothing outside a browser. `init`
+   * calls it for the `pauseWhenHidden` option.
    */
   pauseWhenHidden(enabled = true): void {
     if (typeof document === 'undefined') {
@@ -454,6 +459,7 @@ export class TaskPoller {
   disconnect(): void {
     this.#wanted = false;
     this.#stream.disconnect();
+    this.#stream.allowRetry();
     this.#streamGone();
   }
 
@@ -465,6 +471,7 @@ export class TaskPoller {
    */
   reconnect(): void {
     this.#stream.forget();
+    this.#stream.allowRetry();
     if (!this.#wanted) {
       return;
     }

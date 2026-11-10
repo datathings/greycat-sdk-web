@@ -68,7 +68,7 @@ resolves to it. Options:
 | `auth`, `credentials` | see [auth.md](auth.md) |
 | `world`, `identityWorld` | the world every call runs in; unset, the identity's default one unless `identityWorld: false` (see [worlds.md](worlds.md)) |
 | `taskEvents` | keep a task event stream open, `true` by default; see [tasks.md](tasks.md) |
-| `pauseWhenHidden` | close that stream while the page is hidden, `true` by default (see [tasks.md](tasks.md#node-and-browsers)) |
+| `pauseWhenHidden` | close that stream while the page is hidden, `true` by default. A hidden page polls nothing while it has a stream to resume, and polls its tasks otherwise (see [tasks.md](tasks.md#node-and-browsers)) |
 | `pollFrequency` | cadence of the polling fallback in ms, `100` |
 | `unauthorizedHandler`, `abiMismatchHandler` | see [auth.md](auth.md) |
 | `cache` | an ETag cache for the ABI and call responses |

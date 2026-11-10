@@ -89,8 +89,9 @@ export type TaskStreamHandlers = {
  *
  * Frames are requested as GCB (`Accept: application/octet-stream`, base64 in the `data:`
  * line) and decoded with the instance's ABI, so they yield the same `runtime::Task`
- * objects an RPC does. Lost connections are retried with a growing delay; a server that
- * does not offer the endpoint (older core, Windows) or refuses the caller is not retried.
+ * objects an RPC does. Lost connections are retried with a growing delay. A server that
+ * does not offer the endpoint (older core, Windows) or refuses the caller is not asked
+ * again until {@link allowRetry}.
  */
 export class TaskStream {
   #g: GreyCat;
@@ -115,6 +116,11 @@ export class TaskStream {
    * resume a stream.
    */
   #held: string | undefined;
+  /**
+   * The server answered that it has no stream for this caller, so {@link connect} does not
+   * ask again until {@link allowRetry}.
+   */
+  #refused = false;
   #point: ResumePoint;
 
   constructor(g: GreyCat, handlers: TaskStreamHandlers) {
@@ -125,6 +131,15 @@ export class TaskStream {
 
   get state(): TaskStreamState {
     return this.#state;
+  }
+
+  /**
+   * Whether the next connect may resume the stream this instance opened last, and take over
+   * its tasks: that stream reported a run, it was not forgotten, and the server did not
+   * refuse a stream since.
+   */
+  get resumable(): boolean {
+    return this.#held !== undefined && !this.#refused;
   }
 
   /** The id of the open stream, to name in the `sse` header of a call, or `undefined` unless open. */
@@ -162,10 +177,13 @@ export class TaskStream {
     }
   }
 
-  /** Opens the stream, or does nothing if it is open or being opened. */
+  /**
+   * Opens the stream, or does nothing if it is open or being opened, or if the server
+   * refused it (see {@link allowRetry}).
+   */
   connect(): void {
     this.#wanted = true;
-    if (this.#state === 'connecting' || this.#state === 'open') {
+    if (this.#state === 'connecting' || this.#state === 'open' || this.#refused) {
       return;
     }
     clearTimeout(this.#retry);
@@ -181,6 +199,11 @@ export class TaskStream {
   forget(): void {
     this.#held = undefined;
     this.#point.write(undefined);
+  }
+
+  /** Lets the next {@link connect} ask a server that refused the stream again. */
+  allowRetry(): void {
+    this.#refused = false;
   }
 
   /**
@@ -251,13 +274,13 @@ export class TaskStream {
     if (res.status === 401 || res.status === 403) {
       // not for this caller: polling reports the same status and runs the handler
       await res.body?.cancel().catch(() => {});
-      this.#dropped(ctrl, false);
+      this.#refuse(ctrl);
       return;
     }
     if (res.status === 404 || res.status === 400 || res.status === 501 || res.status === 503) {
       // the server has no stream to offer (older core, Windows): polling for the session
       await res.body?.cancel().catch(() => {});
-      this.#dropped(ctrl, false);
+      this.#refuse(ctrl);
       return;
     }
     // anything else that is not a stream is retried; that includes a 429 from a server
@@ -404,6 +427,14 @@ export class TaskStream {
     this.#handlers.onOpen(id);
     this.#handlers.onChange({ state: 'open', id });
     this.#settleWaiters(true);
+  }
+
+  /** The server refused the attempt identified by `ctrl`, which is not retried. */
+  #refuse(ctrl: AbortController): void {
+    if (this.#ctrl === ctrl) {
+      this.#refused = true;
+    }
+    this.#dropped(ctrl, false);
   }
 
   /**

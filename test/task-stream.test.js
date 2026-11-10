@@ -761,6 +761,79 @@ describe('task stream', () => {
     }
   });
 
+  /**
+   * A document whose visibility the test sets with the returned function, `hidden` at first.
+   * @param {boolean} hidden
+   */
+  function visibility(hidden) {
+    const doc = Object.assign(new EventTarget(), { hidden });
+    /** @type {any} */ (globalThis).document = doc;
+    /** @param {boolean} value */
+    return (value) => {
+      doc.hidden = value;
+      doc.dispatchEvent(new Event('visibilitychange'));
+    };
+  }
+
+  it('polls a hidden page whose stream was refused, and does not ask for it again once visible', async () => {
+    const show = visibility(false);
+    try {
+      let streams = 0;
+      let polls = 0;
+      server = await fakeServer((req, res) => {
+        if (req.url === STREAM) {
+          streams += 1;
+          if (streams === 1) {
+            openStream(res, '1', '7');
+          } else {
+            // a server that no longer offers the stream
+            res.writeHead(503).end();
+          }
+          return;
+        }
+        polls += 1;
+        answer(g, res, [makeTask(61, 1, polls < 3 ? gc.runtime.TaskStatus.running : gc.runtime.TaskStatus.ended)]);
+      });
+      g = client(server.url, { pauseWhenHidden: true });
+      assert.equal(await g.tasks.opened(1000), true);
+      server.drop();
+      await waitFor(() => streams === 2 && g?.tasks.streamState === 'closed');
+
+      show(true);
+      assert.equal((await g.tasks.wait(61, 20)).status.key, 'ended');
+      show(false);
+      await new Promise((r) => setTimeout(r, 100));
+      assert.equal(streams, 2, 'a refused stream is not asked for again');
+
+      g.tasks.reconnect();
+      await waitFor(() => streams === 3);
+    } finally {
+      delete (/** @type {any} */ (globalThis).document);
+    }
+  });
+
+  it('polls a page hidden before its stream ever opened', async () => {
+    visibility(true);
+    try {
+      let streams = 0;
+      let polls = 0;
+      server = await fakeServer((req, res) => {
+        if (req.url === STREAM) {
+          streams += 1;
+          openStream(res, '1', '7');
+          return;
+        }
+        polls += 1;
+        answer(g, res, [makeTask(62, 1, polls < 3 ? gc.runtime.TaskStatus.running : gc.runtime.TaskStatus.ended)]);
+      });
+      g = client(server.url, { pauseWhenHidden: true });
+      assert.equal((await g.tasks.wait(62, 20)).status.key, 'ended');
+      assert.equal(streams, 0);
+    } finally {
+      delete (/** @type {any} */ (globalThis).document);
+    }
+  });
+
   it('closes the stream when the page is left and reopens it back from the back/forward cache', async () => {
     const win = new EventTarget();
     /** @type {any} */ (globalThis).window = win;

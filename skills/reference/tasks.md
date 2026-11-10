@@ -110,7 +110,8 @@ A dropped stream reconnects after 1 s, then 5, 10, 20, and every 30 s, and the
 new stream resumes the old one (see below). Silence longer than 45 s counts as
 a drop (the server pings every 15 s). A
 server with no stream to offer (older core, Windows, an anonymous session on a
-server that requires a login) is not retried: polling serves the session. A
+server that requires a login) is not asked again until `tasks.reconnect()`, a
+new token, or a `disconnect()` and `connect()`: polling serves the session. A
 server past its `max_sse` or `max_sse_per_user` cap answers 429 and is retried.
 
 | Property | What it tells |
@@ -219,7 +220,11 @@ its original). Share `gc.$.default` rather than creating instances per component
 A hidden tab closes its stream and leaves the connection to the others, unless
 `init({ pauseWhenHidden: false })`. Nothing is polled while the page is hidden,
 and a `wait` stays pending until the page is visible again. The stream opened
-on return resumes the closed one and reports its running tasks from there.
+on return resumes the closed one and reports its live tasks from there. A page
+with no stream to resume polls its tracked tasks while hidden instead, so a
+`wait` still settles: no stream was open yet, the core sends no run, or the
+server refused the stream. A refused stream is not asked for again when the
+page is visible.
 
 ## Controlling the stream
 

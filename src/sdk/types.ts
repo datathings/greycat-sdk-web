@@ -168,8 +168,10 @@ export interface Options {
    * visible, so a hidden tab leaves its connection to the others (a browser shares six per
    * origin between all its tabs over HTTP/1.1). Nothing is polled in the meantime, and the
    * stream opened on return resumes the closed one, so it goes on reporting the tasks
-   * spawned before the pause. Ignored outside a browser. Defaults to `true`, see
-   * `greycat.tasks.pauseWhenHidden()`.
+   * spawned before the pause. A page with no stream to resume (none opened yet, a core
+   * that cannot resume one, a server that refused it) polls its tracked tasks while hidden
+   * instead, and a refused stream is not asked for again on return. Ignored outside a
+   * browser. Defaults to `true`, see `greycat.tasks.pauseWhenHidden()`.
    */
   pauseWhenHidden?: boolean;
   /**
