@@ -82,9 +82,10 @@ export type TaskStreamHandlers = {
  * `sse-resume` header as `<run>:<id>`, the run of the server and the id its `connected`
  * frame carried. The server then sends a `task-state` frame for each task it moved, and a
  * `synced` frame once done. A server started again since (another run), or a previous
- * stream still open, moves nothing. A reconnect after the connection dropped adds `; claim`,
- * which has the server close the previous stream if it still holds it open. Only the
- * instance that opened that stream claims it, so nothing else is using it.
+ * stream still open, moves nothing. A reconnect of the stream the instance itself opened last
+ * (after a drop, or once a hidden page is visible again) adds `; claim`, which has the
+ * server close that stream if it still holds it open. Only the instance that opened that
+ * stream claims it, so nothing else is using it.
  *
  * Frames are requested as GCB (`Accept: application/octet-stream`, base64 in the `data:`
  * line) and decoded with the instance's ABI, so they yield the same `runtime::Task`
@@ -293,12 +294,15 @@ export class TaskStream {
    * The `sse-resume` header of a connect attempt, or `undefined` to open a fresh stream.
    *
    * A retry claims the stream this instance held. Any other attempt resumes the stream
-   * recorded for the tab, which the last page of the tab to open one wrote, and never
-   * claims it: a page restored from the back/forward cache must resume the stream of the
-   * page that followed it in the tab, not its own older one. A tab opened by `window.open`
-   * starts with a copy of the record of its opener, whose stream may be paused (its page is
-   * hidden by the new tab) but still in use, so a recorded stream that another live instance
-   * says it holds is not resumed.
+   * recorded for the tab, which the last page of the tab to open one wrote: a page restored
+   * from the back/forward cache must resume the stream of the page that followed it in the
+   * tab, not its own older one. That record is claimed only when it is the stream this
+   * instance held (the return of a hidden page, a page restored before another page of the
+   * tab opened a stream), since the server may not have seen that connection close yet and
+   * would then move nothing. A record of another page is never claimed. A tab opened by
+   * `window.open` starts with a copy of the record of its opener, whose stream may be paused
+   * (its page is hidden by the new tab) but still in use, so a recorded stream that another
+   * live instance says it holds is not resumed.
    */
   async #resumeHeader(retry: boolean): Promise<string | undefined> {
     if (retry && this.#held !== undefined) {
@@ -308,7 +312,10 @@ export class TaskStream {
     if (recorded === undefined) {
       return undefined;
     }
-    if (recorded !== this.#held && (await this.#point.isHeld(recorded, HOLDER_WAIT_MS))) {
+    if (recorded === this.#held) {
+      return `${recorded}; claim`;
+    }
+    if (await this.#point.isHeld(recorded, HOLDER_WAIT_MS)) {
       this.#point.write(undefined);
       return undefined;
     }

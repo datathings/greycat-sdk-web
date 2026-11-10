@@ -434,6 +434,33 @@ describe('task stream', () => {
       assert.equal(recorded(g), '7:2');
     });
 
+    it('claims its own stream back from the back/forward cache, never one another page took', async () => {
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      /** @param {boolean} persisted */
+      const pageshow = (persisted) => Object.assign(new Event('pageshow'), { persisted });
+      const first = page();
+      g = client(s.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      first.dispatchEvent(new Event('pagehide'));
+      first.dispatchEvent(pageshow(true));
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.deepEqual(resumes, [undefined, '7:1; claim'], 'the record is still its own');
+
+      first.dispatchEvent(new Event('pagehide'));
+      // the next page of the tab resumes the stream and records its own
+      const second = page();
+      const next = client(s.url);
+      others.push(next);
+      assert.equal(await next.tasks.opened(1000), true);
+      second.dispatchEvent(new Event('pagehide'));
+      assert.equal(recorded(next), '7:3');
+
+      first.dispatchEvent(pageshow(true));
+      await waitFor(() => g?.tasks.streamId === '4');
+      assert.deepEqual(resumes, [undefined, '7:1; claim', '7:2', '7:3']);
+    });
+
     it('claims its own stream when it reconnects after a drop', async () => {
       const { server: s, resumes } = await resumingServer();
       server = s;
@@ -524,7 +551,7 @@ describe('task stream', () => {
 
         show(false);
         assert.equal((await ended).status.key, 'ended');
-        assert.deepEqual(resumes, [undefined, '7:1'], 'its own stream, closed by the pause, is not claimed');
+        assert.deepEqual(resumes, [undefined, '7:1; claim'], 'its own stream, closed by the pause, is claimed');
         await new Promise((r) => setTimeout(r, 100));
         polled.length = 0;
         await new Promise((r) => setTimeout(r, 200));

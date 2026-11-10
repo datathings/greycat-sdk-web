@@ -141,8 +141,11 @@ Which stream is resumed:
 - In a browser, every other connect (a reload, the next page of the tab, the
   return of a hidden page, a page back from the back/forward cache) resumes
   the stream recorded for the tab in `sessionStorage`, keyed by the API URL
-  and the instance name, written at every `connected`. It never claims it, so
-  a stream the server still holds open is not taken over.
+  and the instance name, written at every `connected`. It claims that stream
+  only when it is the one the instance itself opened last (a hidden page
+  back, a page restored before another page of the tab opened a stream). A
+  stream recorded by another page is never claimed, so one the server still
+  holds open is not taken over.
 - A tab opened with `window.open` starts with a copy of that record. Before it
   resumes a recorded stream other than its own, the instance asks on a
   `BroadcastChannel` whether a live instance holds it and waits 75 ms. An
