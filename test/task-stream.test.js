@@ -2,7 +2,18 @@ import assert from 'node:assert/strict';
 import { describe, before, afterEach, it } from 'node:test';
 
 import '@greycat/web/sdk';
-import { STREAM, answer, fakeServer, frame, loadAbi, makeTask, openStream, waitFor } from './fake-server.js';
+import {
+  STREAM,
+  answer,
+  fakeServer,
+  frame,
+  loadAbi,
+  makeTask,
+  openStream,
+  polledIds,
+  synced,
+  waitFor,
+} from './fake-server.js';
 
 /**
  * The task event stream against a fake server, for what a real one cannot be made to do
@@ -133,7 +144,9 @@ describe('task stream', () => {
       g.call('runtime::Identity::current_id'),
       g.call('runtime::Identity::current_id'),
     ]);
-    assert.ok(results.every((r) => r.status === 'rejected' && r.reason instanceof gc.sdk.HttpError && r.reason.status === 401));
+    assert.ok(
+      results.every((r) => r.status === 'rejected' && r.reason instanceof gc.sdk.HttpError && r.reason.status === 401),
+    );
     assert.deepEqual(lost, [{ status: 401, route: 'runtime::Identity::current_id' }]);
     assert.equal(handled, 1);
     assert.equal(g.token, undefined);
@@ -247,6 +260,117 @@ describe('task stream', () => {
     await waitFor(() => g?.tasks.streamId === '2');
     assert.equal((await done).status.key, 'ended');
     assert.equal(pollsSinceReopen, 2);
+  });
+
+  it('follows the tasks a resumed stream took over, and polls the others once synced', async () => {
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    /** @type {number[][]} */
+    const polled = [];
+    let ended = false;
+    server = await fakeServer(async (req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res, '2', '7');
+        return;
+      }
+      const ids = await polledIds(g, req);
+      polled.push(ids);
+      const status = ended ? gc.runtime.TaskStatus.ended : gc.runtime.TaskStatus.running;
+      answer(
+        g,
+        res,
+        ids.map((id) => makeTask(id, 1, status)),
+      );
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const settled = g.tasks.wait(21, 20);
+    const covered = g.tasks.wait(22, 20);
+    const other = g.tasks.wait(23, 20);
+    await waitFor(() => polled.some((ids) => ids.length === 3));
+
+    // a task that ended while it moved is settled by its state
+    stream?.write(frame(g, 'task-state', makeTask(21, 1, gc.runtime.TaskStatus.ended)));
+    stream?.write(frame(g, 'task-state', makeTask(22, 1, gc.runtime.TaskStatus.running)));
+    assert.equal((await settled).status.key, 'ended');
+    stream?.write(synced(2));
+    await new Promise((r) => setTimeout(r, 100));
+    polled.length = 0;
+    await waitFor(() => polled.length >= 3);
+    assert.ok(
+      polled.every((ids) => ids.length === 1 && ids[0] === 23),
+      `only the task the stream did not take over is polled: ${JSON.stringify(polled)}`,
+    );
+
+    stream?.write(frame(g, 'task-complete', makeTask(22, 1, gc.runtime.TaskStatus.ended)));
+    assert.equal((await covered).status.key, 'ended');
+    ended = true;
+    assert.equal((await other).status.key, 'ended');
+  });
+
+  it('hands the state a resumed stream sent over to a later consumer, without a lookup', async () => {
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res, '2', '7');
+        res.write(frame(g, 'task-state', makeTask(24, 1, gc.runtime.TaskStatus.running)));
+        res.write(synced(1));
+        return;
+      }
+      polls += 1;
+      answer(g, res, [makeTask(24, 1, gc.runtime.TaskStatus.running)]);
+    });
+    g = client(server.url);
+    /** @type {gc.runtime.Task[]} */
+    const states = [];
+    g.on('task:event', (e) => {
+      if (e.kind === 'state') {
+        states.push(e.task);
+      }
+    });
+    await waitFor(() => states.length === 1);
+    /** @type {number[]} */
+    const progress = [];
+    g.tasks.subscribe(24, (t) => progress.push(t.progress ?? -1));
+    await waitFor(() => progress.length === 1);
+    assert.deepEqual(progress, [0.5]);
+    const done = g.tasks.wait(24, 20);
+    stream?.write(frame(g, 'task-complete', makeTask(24, 1, gc.runtime.TaskStatus.ended)));
+    assert.equal((await done).status.key, 'ended');
+    assert.equal(polls, 0);
+  });
+
+  it('keeps polling a task taken over by a stream until the stream is synced', async () => {
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res, '2', '7');
+        return;
+      }
+      polls += 1;
+      answer(g, res, [makeTask(25, 1, gc.runtime.TaskStatus.running)]);
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const done = g.tasks.wait(25, 20);
+    await waitFor(() => polls > 0);
+    stream?.write(frame(g, 'task-state', makeTask(25, 1, gc.runtime.TaskStatus.running)));
+    const before = polls;
+    await waitFor(() => polls >= before + 3);
+    stream?.write(synced(1));
+    await new Promise((r) => setTimeout(r, 100));
+    const after = polls;
+    await new Promise((r) => setTimeout(r, 200));
+    assert.equal(polls, after, 'synced stops the polling');
+    stream?.write(frame(g, 'task-complete', makeTask(25, 1, gc.runtime.TaskStatus.ended)));
+    assert.equal((await done).status.key, 'ended');
   });
 
   it('reports every change of the stream as task:stream', async () => {

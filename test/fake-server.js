@@ -52,13 +52,41 @@ export async function fakeServer(handler) {
 }
 
 /**
- * Opens a stream whose id is `id`.
+ * Opens a stream whose id is `id`, as a core that can resume streams when given the `run`
+ * of the server.
  * @param {http.ServerResponse} res
  * @param {string} [id]
+ * @param {string} [run]
  */
-export function openStream(res, id = '1') {
+export function openStream(res, id = '1', run = undefined) {
   res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-  res.write(`event: connected\ndata: ${id}\n\n`);
+  res.write(run === undefined ? `event: connected\ndata: ${id}\n\n` : `event: connected\nrun: ${run}\ndata: ${id}\n\n`);
+}
+
+/**
+ * The `synced` frame that ends the `task-state` frames of a resumed stream.
+ * @param {number} count
+ */
+export function synced(count) {
+  return `event: synced\ndata: ${count}\n\n`;
+}
+
+/**
+ * The ids a `runtime::Task::tasks` request asks for.
+ * @param {gc.sdk.GreyCat | undefined} g
+ * @param {http.IncomingMessage} req
+ * @returns {Promise<number[]>}
+ */
+export async function polledIds(g, req) {
+  /** @type {Buffer[]} */
+  const chunks = [];
+  for await (const chunk of req) {
+    chunks.push(chunk);
+  }
+  const body = Buffer.concat(chunks);
+  const buf = body.buffer.slice(body.byteOffset, body.byteOffset + body.byteLength);
+  const ids = /** @type {gc.sdk.GreyCat} */ (g).deserializeWithHeader(buf);
+  return /** @type {(number | bigint)[]} */ (ids).map(Number);
 }
 
 /**

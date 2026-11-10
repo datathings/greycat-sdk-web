@@ -23,9 +23,11 @@ const RETRY_DELAYS_MS = [1_000, 5_000, 10_000, 20_000, 30_000];
  *  - `breakpoint`: it paused on a `breakpoint`, its status is `breakpoint`,
  *  - `resumed`: it goes on after a breakpoint, its status is back to what it was (`running`,
  *    or `await` when one of its `await` jobs paused),
- *  - `complete`: it ended, whatever its final status.
+ *  - `complete`: it ended, whatever its final status,
+ *  - `state`: its current state, final or not, sent once by a stream that resumed a previous
+ *    one, for each task it took over from it.
  */
-export type TaskEventKind = 'started' | 'progress' | 'breakpoint' | 'resumed' | 'complete';
+export type TaskEventKind = 'started' | 'progress' | 'breakpoint' | 'resumed' | 'complete' | 'state';
 
 /** A decoded frame of the task event stream. */
 export type TaskEvent = {
@@ -40,6 +42,7 @@ const TASK_EVENTS: ReadonlyMap<string, TaskEventKind> = new Map([
   ['task-breakpoint', 'breakpoint'],
   ['task-resumed', 'resumed'],
   ['task-complete', 'complete'],
+  ['task-state', 'state'],
 ]);
 
 /** Where the stream stands after a change, and its id while it is open. */
@@ -53,6 +56,12 @@ export type TaskStreamHandlers = {
   onOpen(id: string): void;
   /** A frame that carries a task, decoded. */
   onEvent(event: TaskEvent): void;
+  /**
+   * The server sent the `state` of every task the stream took over (`count` of them), and
+   * reports the tasks of the previous stream from here on. A core that cannot resume a
+   * stream never sends it.
+   */
+  onSynced(count: number): void;
   /** The stream dropped, or a connect attempt failed; a retry may be scheduled. */
   onClose(): void;
   /** The state changed, called after `onOpen` or `onClose`. */
@@ -268,6 +277,13 @@ export class TaskStream {
     }
     if (event === 'connected') {
       this.#connected(data);
+      return;
+    }
+    if (event === 'synced') {
+      if (this.#state === 'open') {
+        const count = Number.parseInt(data, 10);
+        this.#handlers.onSynced(Number.isNaN(count) ? 0 : count);
+      }
       return;
     }
     const kind = TASK_EVENTS.get(event);

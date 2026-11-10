@@ -188,9 +188,11 @@ const MAX_BOUND = 1024;
  *
  * The stream only reports the tasks of the calls that named it. The instance names the
  * open stream in every call it spawns, and the tracker follows those tasks on it, from
- * their start to their end. Every other tracked task is polled: one spawned by another
- * instance, tab or page load, one of another user, one spawned while the stream was not
- * open, or bound to a stream that has since closed. Polling refreshes those tasks in one
+ * their start to their end. A stream that resumes a previous one takes over the running
+ * tasks of that one and sends their current state first, and the tracker follows them on
+ * it too. Every other tracked task is polled: one spawned by another instance or tab, one
+ * of another user, one spawned while the stream was not open, or one bound to a stream
+ * that closed and was not resumed. Polling refreshes those tasks in one
  * batched `runtime::Task::tasks(ids)` call per tick, at the fastest cadence any consumer
  * requested. Consumers pick a style:
  *
@@ -211,6 +213,11 @@ export class TaskPoller {
    * stream opens or goes, since a new stream reports none of the calls that named the old one.
    */
   #bound: Set<TaskId> = new Set();
+  /**
+   * The latest state of the running tasks the open stream took over from a previous one (its
+   * `state` frames), a subset of {@link #bound}. Emptied with it.
+   */
+  #covered: Map<TaskId, gc.runtime.Task> = new Map();
   /** The `visibilitychange` listener installed by {@link pauseWhenHidden}. */
   #visibility: (() => void) | undefined;
   /** The page is hidden and {@link pauseWhenHidden} closed the stream for it. */
@@ -226,6 +233,7 @@ export class TaskPoller {
     this.#stream = new TaskStream(g, {
       onOpen: this.#onStreamOpen,
       onEvent: this.#onStreamEvent,
+      onSynced: this.#onStreamSynced,
       onClose: this.#onStreamClose,
       onChange: this.#onStreamChange,
     });
@@ -408,11 +416,16 @@ export class TaskPoller {
     if (streamId !== this.#stream.id) {
       return;
     }
-    if (this.#bound.size >= MAX_BOUND) {
+    this.#bindKey(TaskPoller.#key(id));
+  }
+
+  #bindKey(key: TaskId): void {
+    if (this.#bound.size >= MAX_BOUND && !this.#bound.has(key)) {
       const [oldest] = this.#bound;
       this.#bound.delete(oldest);
+      this.#covered.delete(oldest);
     }
-    this.#bound.add(TaskPoller.#key(id));
+    this.#bound.add(key);
   }
 
   /**
@@ -475,7 +488,17 @@ export class TaskPoller {
     if (!pending) {
       pending = { id, listeners: new Set(), waiters: 0, pollId: -1, frequency, updated: false };
       this.#pending.set(key, pending);
-      if (this.#bound.has(key)) {
+      const known = this.#covered.get(key);
+      if (known !== undefined) {
+        // the stream sent the state of this task when it took it over, and every change
+        // since, so that state is current. It is handed over once the consumer is in.
+        const created = pending;
+        queueMicrotask(() => {
+          if (this.#pending.get(key) === created && !created.updated) {
+            this.#handle(created, known);
+          }
+        });
+      } else if (this.#bound.has(key)) {
         // the stream reports this task, but only from now on. A look tells whether it
         // already ended, or reported something before it was tracked.
         void this.#snapshot(key, pending);
@@ -527,9 +550,27 @@ export class TaskPoller {
     }
   }
 
-  /** A new stream reports none of the tasks tracked so far, so they stay polled. */
+  /**
+   * A new stream reports none of the tasks tracked so far, so they stay polled. A stream
+   * that resumed a previous one then sends the `state` of the tasks it took over, and its
+   * `synced` frame stops the polling of those.
+   */
   #onStreamOpen = (): void => {
     this.#bound.clear();
+    this.#covered.clear();
+  };
+
+  /**
+   * Every task the stream took over has had its `state` frame, and the tracked ones among
+   * them are followed on the stream alone. Any other tracked task stays polled: one that
+   * ended while no stream was open is not taken over, and the lookup settles it.
+   */
+  #onStreamSynced = (): void => {
+    for (const [key, pending] of this.#pending) {
+      if (this.#covered.has(key)) {
+        this.#unpoll(pending);
+      }
+    }
   };
 
   #onStreamClose = (): void => {
@@ -544,8 +585,14 @@ export class TaskPoller {
     // every frame the server pushes, tracked or not
     this.#g.emit('task:event', event);
     const key = TaskPoller.#key(event.task.task_id);
-    if (event.kind === 'complete') {
+    if (event.kind === 'complete' || event.task.isTerminal()) {
       this.#bound.delete(key);
+      this.#covered.delete(key);
+    } else if (event.kind === 'state') {
+      this.#bindKey(key);
+      this.#covered.set(key, event.task);
+    } else if (this.#covered.has(key)) {
+      this.#covered.set(key, event.task);
     }
     const pending = this.#pending.get(key);
     if (pending !== undefined) {
@@ -556,6 +603,7 @@ export class TaskPoller {
   /** The stream closed or is about to reopen, and the tasks it followed are polled from now on. */
   #streamGone(): void {
     this.#bound.clear();
+    this.#covered.clear();
     for (const pending of this.#pending.values()) {
       if (pending.pollId === -1) {
         pending.pollId = this.#poller.register(pending.frequency);
