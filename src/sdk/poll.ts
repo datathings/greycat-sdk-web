@@ -290,9 +290,20 @@ export class TaskPoller {
   connect(): void {
     this.#wanted = true;
     this.#followPage();
-    if (!this.#hidden && !this.#left) {
+    if (this.#hidden) {
+      this.#streamGone();
+    } else if (!this.#left) {
       this.#stream.connect();
     }
+  }
+
+  /**
+   * The page is hidden and {@link pauseWhenHidden} closed the stream for it. Nothing is
+   * polled then: the stream reopened on return resumes the closed one, takes over its tasks
+   * and sends their state, and the tasks it does not take over are polled from there.
+   */
+  get #paused(): boolean {
+    return this.#hidden && this.#wanted;
   }
 
   /**
@@ -337,9 +348,11 @@ export class TaskPoller {
    * Closes the stream while the page is hidden (`document.hidden`) and opens it again once
    * the page is visible, with `enabled` (the default). A browser shares six connections per
    * origin between all its tabs over HTTP/1.1, and a hidden tab then leaves its own to the
-   * others. In the meantime, every tracked task is polled, and the ones spawned before the
-   * pause stay polled until they end, since the new stream does not report them. Does
-   * nothing outside a browser. `init` calls it for the `pauseWhenHidden` option.
+   * others. In the meantime nothing is polled, and a `wait` stays pending. Once the page is
+   * visible, the new stream resumes the closed one and takes over its running tasks, and
+   * the tracked tasks it does not take over are polled. A core that cannot resume a stream
+   * takes over none, and those tasks are then polled until they end. Does nothing outside
+   * a browser. `init` calls it for the `pauseWhenHidden` option.
    */
   pauseWhenHidden(enabled = true): void {
     if (typeof document === 'undefined') {
@@ -368,7 +381,11 @@ export class TaskPoller {
     if (hidden) {
       this.#stream.disconnect();
       this.#streamGone();
-    } else if (!this.#left) {
+      return;
+    }
+    // polled until the stream says which tasks it took over
+    this.#streamGone();
+    if (!this.#left) {
       this.#stream.connect();
     }
   }
@@ -505,7 +522,7 @@ export class TaskPoller {
         // the stream reports this task, but only from now on. A look tells whether it
         // already ended, or reported something before it was tracked.
         void this.#snapshot(key, pending);
-      } else {
+      } else if (!this.#paused) {
         // each consumer registers its own cadence: `Poll` runs at the min of all
         // live registrations and stops itself once the last one is unregistered.
         pending.pollId = this.#poller.register(frequency);
@@ -603,12 +620,18 @@ export class TaskPoller {
     }
   };
 
-  /** The stream closed or is about to reopen, and the tasks it followed are polled from now on. */
+  /**
+   * The stream closed or is about to reopen, and the tasks it followed are polled from now
+   * on, unless the stream is {@link #paused}, which stops every poll.
+   */
   #streamGone(): void {
     this.#bound.clear();
     this.#covered.clear();
+    const paused = this.#paused;
     for (const pending of this.#pending.values()) {
-      if (pending.pollId === -1) {
+      if (paused) {
+        this.#unpoll(pending);
+      } else if (pending.pollId === -1) {
         pending.pollId = this.#poller.register(pending.frequency);
       }
     }
@@ -647,7 +670,7 @@ export class TaskPoller {
       [task] = await this.#fetch([key]);
     } catch (err) {
       console.warn(`[TaskPoller] snapshot of task '${key}' failed, polling it`, err);
-      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1) {
+      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1 && !this.#paused) {
         pending.pollId = this.#poller.register(pending.frequency);
       }
       return;

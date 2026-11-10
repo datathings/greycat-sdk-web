@@ -473,6 +473,69 @@ describe('task stream', () => {
       assert.deepEqual(resumes, [undefined, undefined, '7:2; claim']);
     });
 
+    it('polls nothing while the page is hidden, and resumes the stream once visible', async () => {
+      page();
+      const doc = Object.assign(new EventTarget(), { hidden: false });
+      /** @type {any} */ (globalThis).document = doc;
+      /** @param {boolean} hidden */
+      const show = (hidden) => {
+        doc.hidden = hidden;
+        doc.dispatchEvent(new Event('visibilitychange'));
+      };
+      try {
+        /** @type {(string | undefined)[]} */
+        const resumes = [];
+        /** @type {import('node:http').ServerResponse | undefined} */
+        let stream;
+        /** @type {number[][]} */
+        const polled = [];
+        server = await fakeServer(async (req, res) => {
+          if (req.url === STREAM) {
+            stream = res;
+            const header = req.headers['sse-resume'];
+            resumes.push(Array.isArray(header) ? header.join(',') : header);
+            openStream(res, `${resumes.length}`, '7');
+            if (header !== undefined) {
+              res.write(frame(g, 'task-state', makeTask(31, 1, gc.runtime.TaskStatus.running)));
+              res.write(synced(1));
+            }
+            return;
+          }
+          const ids = await polledIds(g, req);
+          polled.push(ids);
+          answer(
+            g,
+            res,
+            ids.map((id) => makeTask(id, 1, id === 32 ? gc.runtime.TaskStatus.ended : gc.runtime.TaskStatus.running)),
+          );
+        });
+        g = client(server.url, { pauseWhenHidden: true });
+        assert.equal(await g.tasks.opened(1000), true);
+        const resumed = g.tasks.wait(31, 20);
+        await waitFor(() => polled.length > 0);
+
+        show(true);
+        const ended = g.tasks.wait(32, 20);
+        await new Promise((r) => setTimeout(r, 50));
+        const before = polled.length;
+        await new Promise((r) => setTimeout(r, 200));
+        assert.equal(polled.length, before, 'nothing is polled while hidden');
+        assert.equal(g.isPollingTasks(), false);
+
+        show(false);
+        assert.equal((await ended).status.key, 'ended');
+        assert.deepEqual(resumes, [undefined, '7:1'], 'its own stream, closed by the pause, is not claimed');
+        await new Promise((r) => setTimeout(r, 100));
+        polled.length = 0;
+        await new Promise((r) => setTimeout(r, 200));
+        assert.deepEqual(polled, [], 'the task the stream took over is not polled');
+        stream?.write(frame(g, 'task-complete', makeTask(31, 1, gc.runtime.TaskStatus.ended)));
+        assert.equal((await resumed).status.key, 'ended');
+      } finally {
+        delete (/** @type {any} */ (globalThis).document);
+      }
+    });
+
     it('resumes nothing with a core that sends no run', async () => {
       page();
       const { server: s, resumes } = await resumingServer(null);
