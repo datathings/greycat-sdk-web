@@ -489,6 +489,25 @@ describe('task stream', () => {
       assert.equal(recorded(g), '7:2');
     });
 
+    it('resumes only its own stream where no instance can be asked who holds the recorded one', async () => {
+      page();
+      const channel = globalThis.BroadcastChannel;
+      delete (/** @type {any} */ (globalThis).BroadcastChannel);
+      try {
+        const { server: s, resumes } = await resumingServer();
+        server = s;
+        // a record copied from the opener of the tab
+        sessionStorage.setItem(`greycat:task-stream:default@${s.url}`, '7:5');
+        g = client(s.url);
+        assert.equal(await g.tasks.opened(1000), true);
+        s.drop();
+        await waitFor(() => g?.tasks.streamId === '2');
+        assert.deepEqual(resumes, [undefined, '7:1; claim']);
+      } finally {
+        globalThis.BroadcastChannel = channel;
+      }
+    });
+
     it('resumes nothing after a change of credentials', async () => {
       page();
       const { server: s, resumes } = await resumingServer();

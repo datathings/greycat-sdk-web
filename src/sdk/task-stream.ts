@@ -333,9 +333,10 @@ export class TaskStream {
    * instance held (the return of a hidden page, a page restored before another page of the
    * tab opened a stream), since the server may not have seen that connection close yet and
    * would then move nothing. A record of another page is never claimed. A tab opened by
-   * `window.open` starts with a copy of the record of its opener, whose stream may be paused
-   * (its page is hidden by the new tab) but still in use, so a recorded stream that another
-   * live instance says it holds is not resumed.
+   * `window.open`, or duplicated, starts with a copy of the record of its opener, whose stream
+   * may be paused (its page is hidden by the new tab) but still in use, so a recorded stream
+   * that another live instance says it holds is not resumed, nor any recorded stream of
+   * another page where no instance can be asked.
    */
   async #resumeHeader(retry: boolean): Promise<string | undefined> {
     if (retry && this.#held !== undefined) {
@@ -559,11 +560,16 @@ class ResumePoint {
     }
   }
 
-  /** Whether another live instance answers, within `waitMs`, that it holds the stream `value`. */
+  /**
+   * Whether another live instance answers, within `waitMs`, that it holds the stream `value`.
+   * `true` when there is no channel to ask on (a browser without `BroadcastChannel`), since a
+   * tab opened from another one, or duplicated, would otherwise take over the tasks of a stream
+   * its opener still uses.
+   */
   isHeld(value: string, waitMs: number): Promise<boolean> {
     const channel = this.#open();
     if (channel === undefined) {
-      return Promise.resolve(false);
+      return Promise.resolve(true);
     }
     return new Promise((resolve) => {
       const done = (held: boolean) => {

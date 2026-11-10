@@ -154,7 +154,9 @@ Which stream is resumed:
   resumes a recorded stream other than its own, the instance asks on a
   `BroadcastChannel` whether a live instance holds it and waits 75 ms. An
   answer (the opener, even with its stream paused) makes it open a fresh
-  stream instead.
+  stream instead. A browser without `BroadcastChannel` cannot ask, so there
+  an instance resumes only the stream it opened itself, and a reload or the
+  next page of the tab opens a fresh one.
 
 Nothing is resumed after a change of credentials (`login`, `logout`, a 401 on
 any request or on the stream itself, a cookie session included, a new `token`,
