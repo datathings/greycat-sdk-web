@@ -373,6 +373,119 @@ describe('task stream', () => {
     assert.equal((await done).status.key, 'ended');
   });
 
+  describe('resume', () => {
+    /** @type {gc.sdk.GreyCat[]} */
+    let others = [];
+
+    afterEach(() => {
+      for (const other of others) {
+        other.tasks.disconnect();
+      }
+      others = [];
+      sessionStorage.clear();
+      delete (/** @type {any} */ (globalThis).window);
+    });
+
+    /** A page whose `pagehide` and `pageshow` the test fires. */
+    function page() {
+      const win = new EventTarget();
+      /** @type {any} */ (globalThis).window = win;
+      return win;
+    }
+
+    /**
+     * A server opening stream `n` as the `n`th stream request, in run `run`, and recording
+     * the `sse-resume` header of each. A `null` run is a core that cannot resume a stream.
+     * @param {string | null} run
+     */
+    async function resumingServer(run = '7') {
+      /** @type {(string | undefined)[]} */
+      const resumes = [];
+      const s = await fakeServer((req, res) => {
+        if (req.url !== STREAM) {
+          res.writeHead(404).end();
+          return;
+        }
+        const header = req.headers['sse-resume'];
+        resumes.push(Array.isArray(header) ? header.join(',') : header);
+        openStream(res, `${resumes.length}`, run ?? undefined);
+        res.write(synced(0));
+      });
+      return { server: s, resumes };
+    }
+
+    /** @param {gc.sdk.GreyCat} instance */
+    const recorded = (instance) => sessionStorage.getItem(`greycat:task-stream:default@${instance.api}`);
+
+    it('records the run and id of the stream, and resumes it on the next page of the tab', async () => {
+      const win = page();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      const first = client(s.url);
+      others.push(first);
+      assert.equal(await first.tasks.opened(1000), true);
+      assert.equal(recorded(first), '7:1');
+
+      // the page is left for another one of the same tab
+      win.dispatchEvent(new Event('pagehide'));
+      g = client(s.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.deepEqual(resumes, [undefined, '7:1'], 'an id read from the tab is never claimed');
+      assert.equal(recorded(g), '7:2');
+    });
+
+    it('claims its own stream when it reconnects after a drop', async () => {
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      g = client(s.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      s.drop();
+      await waitFor(() => g?.tasks.streamId === '2');
+      assert.deepEqual(resumes, [undefined, '7:1; claim']);
+    });
+
+    it('opens a fresh stream when another live instance holds the recorded one', async () => {
+      page();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      // the opener of a tab whose record the new tab copied, paused but still in use
+      const opener = client(s.url);
+      others.push(opener);
+      assert.equal(await opener.tasks.opened(1000), true);
+      opener.tasks.disconnect();
+
+      g = client(s.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.deepEqual(resumes, [undefined, undefined]);
+      assert.equal(recorded(g), '7:2');
+    });
+
+    it('resumes nothing after a change of credentials', async () => {
+      page();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      g = client(s.url, { token: 'first' });
+      assert.equal(await g.tasks.opened(1000), true);
+      g.token = 'second';
+      await waitFor(() => g?.tasks.streamId === '2');
+      s.drop();
+      await waitFor(() => g?.tasks.streamId === '3');
+      assert.deepEqual(resumes, [undefined, undefined, '7:2; claim']);
+    });
+
+    it('resumes nothing with a core that sends no run', async () => {
+      page();
+      const { server: s, resumes } = await resumingServer(null);
+      server = s;
+      g = client(s.url);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(recorded(g), null);
+      s.drop();
+      await waitFor(() => g?.tasks.streamId === '2');
+      assert.deepEqual(resumes, [undefined, undefined]);
+    });
+  });
+
   it('reports every change of the stream as task:stream', async () => {
     server = await fakeServer((req, res) => {
       if (req.url !== STREAM) {

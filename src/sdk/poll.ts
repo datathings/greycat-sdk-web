@@ -321,6 +321,7 @@ export class TaskPoller {
       return;
     }
     this.#left = left;
+    this.#stream.pageLeft(left);
     if (!this.#wanted) {
       return;
     }
@@ -394,9 +395,11 @@ export class TaskPoller {
   /**
    * Closes the stream and opens it again with the instance's current credentials, if it
    * was asked for. Assigning `token` does this on its own; call it after a cookie login
-   * or logout, which the instance cannot see.
+   * or logout, which the instance cannot see. The new stream is a fresh one, which takes
+   * over no task of the previous login.
    */
   reconnect(): void {
+    this.#stream.forget();
     if (!this.#wanted) {
       return;
     }
