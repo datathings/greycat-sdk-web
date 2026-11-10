@@ -923,6 +923,58 @@ describe('task stream', () => {
     assert.deepEqual(g.tasks.followed(), []);
   });
 
+  it('settles a task whose state frame is terminal, and leaves it out of followed()', async () => {
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        openStream(res, '2', '7');
+        res.write(frame(g, 'task-state', makeTask(81, 1, gc.runtime.TaskStatus.cancelled)));
+        res.write(frame(g, 'task-state', makeTask(82, 1, gc.runtime.TaskStatus.running)));
+        res.write(synced(2));
+        return;
+      }
+      answer(g, res, [makeTask(81, 1, gc.runtime.TaskStatus.running)]);
+    });
+    g = client(server.url, { taskEvents: false });
+    /** @type {unknown[]} */
+    const events = [];
+    g.on('task:event', (e) => events.push([e.kind, e.task.task_id]));
+    const cancelled = g.tasks.wait(81, 20);
+    g.tasks.connect();
+    await assert.rejects(cancelled, (err) => err instanceof gc.sdk.TaskError && err.reason === 'cancelled');
+    await waitFor(() => events.length === 2);
+    assert.deepEqual(events, [
+      ['state', 81],
+      ['state', 82],
+    ]);
+    assert.deepEqual(
+      g.tasks.followed().map((t) => t.task_id),
+      [82],
+    );
+  });
+
+  it('forgets the oldest followed task past the bound', async () => {
+    const count = 1025;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        openStream(res, '2', '7');
+        for (let i = 0; i < count; i++) {
+          res.write(frame(g, 'task-state', makeTask(1000 + i, 1, gc.runtime.TaskStatus.running)));
+        }
+        res.write(synced(count));
+        return;
+      }
+      res.writeHead(404).end();
+    });
+    g = client(server.url);
+    let states = 0;
+    g.on('task:event', () => (states += 1));
+    await waitFor(() => states === count);
+    const followed = g.tasks.followed().map((t) => t.task_id);
+    assert.equal(followed.length, 1024);
+    assert.equal(followed[0], 1001);
+    assert.equal(followed.at(-1), 1000 + count - 1);
+  });
+
   it('reports every change of the stream as task:stream', async () => {
     server = await fakeServer((req, res) => {
       if (req.url !== STREAM) {
