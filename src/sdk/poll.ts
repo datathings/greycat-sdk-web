@@ -609,7 +609,13 @@ export class TaskPoller {
   }
 
   #poll = async (): Promise<void> => {
-    const ids = [...this.#pending.keys()];
+    // the tasks the stream follows are left to it
+    const ids: TaskId[] = [];
+    for (const [key, pending] of this.#pending) {
+      if (pending.pollId !== -1) {
+        ids.push(key);
+      }
+    }
     if (ids.length === 0) {
       return;
     }
