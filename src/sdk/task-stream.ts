@@ -77,8 +77,9 @@ export type TaskStreamHandlers = {
  * progress, pauses on a breakpoint and ends. Calls that name no stream, or another one,
  * are not reported. A reconnect opens a stream with a new id.
  *
- * A reconnect resumes the previous stream, so the new one takes over the running tasks the
- * old one reported (see {@link ResumePoint}). The request names the previous stream in its
+ * A reconnect resumes the previous stream, so the new one takes over the tasks spawned on
+ * the old one that have not ended, whatever their status (queued, running, in `await`,
+ * paused on a breakpoint), but not their `await` jobs (see {@link ResumePoint}). The request names the previous stream in its
  * `sse-resume` header as `<run>:<id>`, the run of the server and the id its `connected`
  * frame carried. The server then sends a `task-state` frame for each task it moved, and a
  * `synced` frame once done. A server started again since (another run), or a previous

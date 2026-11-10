@@ -128,9 +128,10 @@ Every new stream of an instance has a new id. To keep following the tasks of
 the previous one, the instance asks the server to resume it: the request names
 it in its `sse-resume` header as `<run>:<id>`, where the run is the number the
 server sends with the id in its `connected` frame and changes at every server
-start. The server moves to the new stream the running tasks of the same user
-spawned on the old one, sends a `task-state` frame with the current state of
-each, then a `synced` frame. From there the tracker follows those tasks on the
+start. The server moves to the new stream the tasks of the same user spawned
+on the old one that have not ended, whatever their status (queued, running,
+in `await`, paused on a breakpoint), but not their `await` jobs. It sends a
+`task-state` frame with the current state of each, then a `synced` frame. From there the tracker follows those tasks on the
 stream, and polls only the tracked tasks it did not take over: a task that
 ended while no stream was open is not taken over, and its lookup settles it.
 Until `synced` arrives every tracked task not bound to the stream is polled.
@@ -150,7 +151,8 @@ Which stream is resumed:
   holds open is not taken over. A page that may not use `sessionStorage` (a
   sandboxed iframe, site data blocked) records nothing and opens a fresh
   stream on those connects.
-- A tab opened with `window.open` starts with a copy of that record. Before it
+- A tab opened with `window.open`, or duplicated by the browser, starts with a
+  copy of that record. Before it
   resumes a recorded stream other than its own, the instance asks on a
   `BroadcastChannel` whether a live instance holds it and waits 75 ms. An
   answer (the opener, even with its stream paused) makes it open a fresh
@@ -184,9 +186,10 @@ Frames that arrive while `init` runs (a resumed stream sends its `state`
 frames as soon as it opens) are held and delivered once `init` returned, so a
 listener attached right after `await init()` sees every frame.
 
-`greycat.tasks.followed()` returns the running tasks the stream took over from
-the stream it resumed, each in the latest state the stream reported, as a new
-array. A task leaves it once it ends, and it empties when the stream closes. A
+`greycat.tasks.followed()` returns the tasks the stream took over from the
+stream it resumed, each in the latest state the stream reported. The array is
+new at each call, but its `Task` objects are shared with the `task:event`
+listeners and with later calls, not copied. A task leaves it once it ends, and it empties when the stream closes. A
 view that mounts long after `init` reads it once and subscribes to
 `task:event` in the same synchronous step, so no frame falls in between:
 

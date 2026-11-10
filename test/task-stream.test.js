@@ -888,7 +888,7 @@ describe('task stream', () => {
       [51, 52],
     );
     followed.pop();
-    assert.equal(g.tasks.followed().length, 2, 'a copy');
+    assert.equal(g.tasks.followed().length, 2, 'a new array');
 
     stream?.write(frame(g, 'task-complete', makeTask(51, 1, gc.runtime.TaskStatus.ended)));
     await waitFor(() => g?.tasks.followed().length === 1);

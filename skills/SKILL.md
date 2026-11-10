@@ -75,8 +75,8 @@ const done = await greycat.tasks.wait(task.task_id);         // settles over the
 - **The task event stream only reports what the instance spawned on it.**
   Calls name it in their `sse` header, and it is how the SDK follows them
   without polling. A reconnect, a reload or a page change in the same tab
-  resumes the previous stream and keeps its running tasks. Any other task is
-  polled. Listing every task the login may
+  resumes the previous stream and keeps following its tasks that have not
+  ended. Any other task is polled. Listing every task the login may
   see is done with `runtime::Task::running` and `runtime::Task::history`.
 - **An open task event stream keeps a Node process alive.** End scripts and
   tests with `greycat.tasks.disconnect()`, or init with `taskEvents: false`.

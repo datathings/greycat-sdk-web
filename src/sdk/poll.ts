@@ -189,9 +189,9 @@ const MAX_BOUND = 1024;
  *
  * The stream only reports the tasks of the calls that named it. The instance names the
  * open stream in every call it spawns, and the tracker follows those tasks on it, from
- * their start to their end. A stream that resumes a previous one takes over the running
- * tasks of that one and sends their current state first, and the tracker follows them on
- * it too. Every other tracked task is polled: one spawned by another instance or tab, one
+ * their start to their end. A stream that resumes a previous one takes over the tasks of
+ * that one that have not ended, whatever their status, and sends their current state
+ * first, and the tracker follows them on it too. Every other tracked task is polled: one spawned by another instance or tab, one
  * of another user, one spawned while the stream was not open, or one bound to a stream
  * that closed and was not resumed. Polling refreshes those tasks in one
  * batched `runtime::Task::tasks(ids)` call per tick, at the fastest cadence any consumer
@@ -215,7 +215,7 @@ export class TaskPoller {
    */
   #bound: Set<TaskId> = new Set();
   /**
-   * The latest state of the running tasks the open stream took over from a previous one (its
+   * The latest state of the live tasks the open stream took over from a previous one (its
    * `state` frames), a subset of {@link #bound}. Emptied with it.
    */
   #covered: Map<TaskId, gc.runtime.Task> = new Map();
@@ -496,7 +496,9 @@ export class TaskPoller {
 
   /**
    * The tasks the stream follows since it took them over from the stream it resumed, each
-   * in the latest state it reported, as a copy. A task leaves the list once it ends, and
+   * in the latest state it reported. The array is new at each call, but its `Task` objects
+   * are the ones the stream decoded, shared with the `task:event` listeners and with later
+   * calls: change one and they all see it. A task leaves the list once it ends, and
    * the list empties when the stream closes. A view mounted long after `init` reads it
    * once, then listens to `task:event` for what follows, since nothing reaches the
    * instance between the two when both happen in the same synchronous step.
