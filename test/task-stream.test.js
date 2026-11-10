@@ -386,6 +386,7 @@ describe('task stream', () => {
       others = [];
       sessionStorage.clear();
       delete (/** @type {any} */ (globalThis).window);
+      delete (/** @type {any} */ (globalThis).document);
     });
 
     /** A page whose `pagehide` and `pageshow` the test fires. */
@@ -414,6 +415,16 @@ describe('task stream', () => {
         res.write(synced(0));
       });
       return { server: s, resumes };
+    }
+
+    /**
+     * An instance of another page, created next to the current one. In a browser each page
+     * has a registry of its own, so the new instance does not replace the current one.
+     * @param {string} url
+     */
+    function otherPage(url) {
+      delete gc.$.default;
+      return client(url);
     }
 
     /** @param {gc.sdk.GreyCat} instance */
@@ -452,7 +463,7 @@ describe('task stream', () => {
       first.dispatchEvent(new Event('pagehide'));
       // the next page of the tab resumes the stream and records its own
       const second = page();
-      const next = client(s.url);
+      const next = otherPage(s.url);
       others.push(next);
       assert.equal(await next.tasks.opened(1000), true);
       second.dispatchEvent(new Event('pagehide'));
@@ -461,6 +472,120 @@ describe('task stream', () => {
       first.dispatchEvent(pageshow(true));
       await waitFor(() => g?.tasks.streamId === '4');
       assert.deepEqual(resumes, [undefined, '7:1; claim', '7:2', '7:3']);
+    });
+
+    /**
+     * An event target that counts the listeners added to it and not removed since.
+     * @template {EventTarget} T
+     * @param {T} target
+     */
+    function counted(target) {
+      let count = 0;
+      const add = target.addEventListener.bind(target);
+      const remove = target.removeEventListener.bind(target);
+      target.addEventListener = (...args) => {
+        count += 1;
+        add(...args);
+      };
+      target.removeEventListener = (...args) => {
+        count -= 1;
+        remove(...args);
+      };
+      return { target, listeners: () => count };
+    }
+
+    /** A counted window and a visible counted document, set as the globals. */
+    function countedPage() {
+      const win = counted(new EventTarget());
+      const doc = counted(Object.assign(new EventTarget(), { hidden: false }));
+      /** @type {any} */ (globalThis).window = win.target;
+      /** @type {any} */ (globalThis).document = doc.target;
+      return { win, doc };
+    }
+
+    /**
+     * Whether an instance answers, within 100ms, that it holds the stream `value` of `key`.
+     * @param {string} key
+     * @param {string} value
+     * @returns {Promise<boolean>}
+     */
+    function answers(key, value) {
+      const channel = new BroadcastChannel(key);
+      return new Promise((resolve) => {
+        const timer = setTimeout(() => {
+          channel.close();
+          resolve(false);
+        }, 100);
+        channel.onmessage = (/** @type {MessageEvent} */ event) => {
+          if (event.data.holds === value) {
+            clearTimeout(timer);
+            channel.close();
+            resolve(true);
+          }
+        };
+        channel.postMessage({ who: value });
+      });
+    }
+
+    it('disconnects the instance a new one registered under the same name replaces', async () => {
+      const first = countedPage();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      const replaced = client(s.url, { pauseWhenHidden: true });
+      others.push(replaced);
+      assert.equal(await replaced.tasks.opened(1000), true);
+      const key = `greycat:task-stream:default@${replaced.api}`;
+      assert.equal(await answers(key, '7:1'), true);
+      assert.deepEqual([first.win.listeners(), first.doc.listeners()], [2, 1]);
+
+      countedPage();
+      g = client(s.url);
+      assert.equal(replaced.tasks.streamState, 'idle');
+      assert.deepEqual([first.win.listeners(), first.doc.listeners()], [0, 0], 'no listener is left behind');
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.deepEqual(resumes, [undefined, '7:1'], 'the replaced instance no longer says it holds its stream');
+    });
+
+    it('keeps the tracker a registered clone shares when its original is replaced', async () => {
+      page();
+      const { server: s } = await resumingServer();
+      server = s;
+      const original = client(s.url);
+      others.push(original);
+      assert.equal(await original.tasks.opened(1000), true);
+      const copy = original.clone('copy');
+      try {
+        g = client(s.url);
+        assert.equal(copy.tasks, original.tasks);
+        assert.equal(original.tasks.streamState, 'open');
+      } finally {
+        gc.sdk.unregister('copy');
+      }
+    });
+
+    it('installs its listeners and answers for its stream again when it connects after a disconnect', async () => {
+      const { win, doc } = countedPage();
+      const { server: s, resumes } = await resumingServer();
+      server = s;
+      g = client(s.url, { pauseWhenHidden: true });
+      assert.equal(await g.tasks.opened(1000), true);
+      const key = `greycat:task-stream:default@${g.api}`;
+
+      g.tasks.disconnect();
+      assert.deepEqual([win.listeners(), doc.listeners()], [0, 0]);
+      assert.equal(await answers(key, '7:1'), false);
+
+      g.tasks.connect();
+      assert.deepEqual([win.listeners(), doc.listeners()], [2, 1]);
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.equal(await answers(key, '7:2'), true);
+      doc.target.hidden = true;
+      doc.target.dispatchEvent(new Event('visibilitychange'));
+      assert.equal(g.tasks.streamState, 'idle', 'paused while hidden again');
+      doc.target.hidden = false;
+      doc.target.dispatchEvent(new Event('visibilitychange'));
+      assert.equal(await g.tasks.opened(1000), true);
+      assert.deepEqual(resumes, [undefined, '7:1; claim', '7:2; claim']);
     });
 
     it('claims its own stream when it reconnects after a drop', async () => {
@@ -475,18 +600,28 @@ describe('task stream', () => {
 
     it('opens a fresh stream when another live instance holds the recorded one', async () => {
       page();
-      const { server: s, resumes } = await resumingServer();
-      server = s;
-      // the opener of a tab whose record the new tab copied, paused but still in use
-      const opener = client(s.url);
-      others.push(opener);
-      assert.equal(await opener.tasks.opened(1000), true);
-      opener.tasks.disconnect();
+      const doc = Object.assign(new EventTarget(), { hidden: false });
+      /** @type {any} */ (globalThis).document = doc;
+      try {
+        const { server: s, resumes } = await resumingServer();
+        server = s;
+        // the opener of a tab whose record the new tab copied, paused but still in use
+        const opener = client(s.url, { pauseWhenHidden: true });
+        others.push(opener);
+        assert.equal(await opener.tasks.opened(1000), true);
+        doc.hidden = true;
+        doc.dispatchEvent(new Event('visibilitychange'));
+        assert.equal(opener.tasks.streamState, 'idle');
 
-      g = client(s.url);
-      assert.equal(await g.tasks.opened(1000), true);
-      assert.deepEqual(resumes, [undefined, undefined]);
-      assert.equal(recorded(g), '7:2');
+        // the document of the new tab, which is visible
+        /** @type {any} */ (globalThis).document = Object.assign(new EventTarget(), { hidden: false });
+        g = otherPage(s.url);
+        assert.equal(await g.tasks.opened(1000), true);
+        assert.deepEqual(resumes, [undefined, undefined]);
+        assert.equal(recorded(g), '7:2');
+      } finally {
+        delete (/** @type {any} */ (globalThis).document);
+      }
     });
 
     it('resumes only its own stream where no instance can be asked who holds the recorded one', async () => {

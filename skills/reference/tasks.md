@@ -235,7 +235,7 @@ page is visible.
 | --- | --- |
 | `init({ taskEvents: false })` | never open a stream; polling only |
 | `greycat.tasks.connect()` | open it (an `initWithAbi` instance, or after `disconnect`) |
-| `greycat.tasks.disconnect()` | close it and stop reconnecting; tracked tasks fall back to polling |
+| `greycat.tasks.disconnect()` | close it and stop reconnecting; tracked tasks fall back to polling. It also removes the page listeners and stops answering other tabs for the stream, until the next `connect()`. Registering another instance under the same name does this to the one it replaces (see [setup.md](setup.md#instances)) |
 | `greycat.tasks.reconnect()` | close and reopen with the current credentials, if it was asked for |
 | `greycat.tasks.pauseWhenHidden(enabled)` | close it while the page is hidden, what the `pauseWhenHidden` option of `init` turns on (on by default) |
 | `await greycat.tasks.opened(timeoutMs)` | `true` once it is open, `false` if the attempt fails, nothing is opening it, or the time runs out |

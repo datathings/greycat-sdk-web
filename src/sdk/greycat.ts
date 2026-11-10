@@ -36,9 +36,24 @@ import {
 } from './openid.js';
 /**
  * Registers a GreyCat instance in the map of all known instances: `gc.$`
+ *
+ * The instance registered as `name` before stops following tasks: its task tracker is
+ * disconnected (see `TaskPoller.disconnect`), unless a registered instance still shares it,
+ * as a clone shares the one of its original. It can still make calls.
  */
 export function register(name: string, greycat: GreyCat): void {
+  const replaced = $[name];
   $[name] = greycat;
+  if (replaced === undefined || replaced === greycat) {
+    return;
+  }
+  const tasks = replaced.tasks;
+  for (const other of Object.values($)) {
+    if (other.tasks === tasks) {
+      return;
+    }
+  }
+  tasks.disconnect();
 }
 
 /**

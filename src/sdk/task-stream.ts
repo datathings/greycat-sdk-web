@@ -201,6 +201,14 @@ export class TaskStream {
     this.#point.write(undefined);
   }
 
+  /**
+   * Stops answering other instances for the stream this instance held, and closes the
+   * channel it answers on. The next stream that opens answers again.
+   */
+  release(): void {
+    this.#point.close();
+  }
+
   /** Lets the next {@link connect} ask a server that refused the stream again. */
   allowRetry(): void {
     this.#refused = false;
@@ -547,6 +555,13 @@ class ResumePoint {
     if (value !== undefined) {
       this.#open();
     }
+  }
+
+  /** Closes the channel, which the next {@link write} of a record or {@link isHeld} opens again. */
+  close(): void {
+    this.#suspended = false;
+    this.#channel?.close();
+    this.#channel = undefined;
   }
 
   /** Closes the channel while `suspended`, and opens it again after. */

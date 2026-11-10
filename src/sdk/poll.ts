@@ -219,14 +219,19 @@ export class TaskPoller {
    * `state` frames), a subset of {@link #bound}. Emptied with it.
    */
   #covered: Map<TaskId, gc.runtime.Task> = new Map();
-  /** The `visibilitychange` listener installed by {@link pauseWhenHidden}. */
-  #visibility: (() => void) | undefined;
+  /** {@link pauseWhenHidden} is on. */
+  #pauseOnHide = false;
+  /**
+   * The `visibilitychange` listener of {@link pauseWhenHidden}, installed while it is on,
+   * except after {@link disconnect} until the next {@link connect}.
+   */
+  #visibility: { target: Document; listener: () => void } | undefined;
   /** The page is hidden and {@link pauseWhenHidden} closed the stream for it. */
   #hidden = false;
   /** The page was left, maybe into the back/forward cache, and {@link #followPage} closed the stream for it. */
   #left = false;
-  /** The `pagehide` and `pageshow` listeners of {@link #followPage} are installed. */
-  #following = false;
+  /** The `pagehide` and `pageshow` listeners of {@link #followPage}, installed from {@link connect} to {@link disconnect}. */
+  #page: { target: Window; hide: () => void; show: (event: PageTransitionEvent) => void } | undefined;
   /**
    * Frames received while {@link HOLD_EVENTS} holds them, in order, each with the id of the
    * stream it came on. `undefined` when frames are applied as they come.
@@ -253,7 +258,7 @@ export class TaskPoller {
    */
   fork(g: GreyCat): TaskPoller {
     const tasks = new TaskPoller(g);
-    if (this.#visibility !== undefined) {
+    if (this.#pauseOnHide) {
       tasks.pauseWhenHidden();
     }
     if (this.#wanted) {
@@ -299,6 +304,9 @@ export class TaskPoller {
   connect(): void {
     this.#wanted = true;
     this.#followPage();
+    if (this.#pauseOnHide) {
+      this.#watchVisibility();
+    }
     if (this.#hidden) {
       this.#streamGone();
     } else if (!this.#left) {
@@ -326,16 +334,30 @@ export class TaskPoller {
    * it also keeps the page eligible for that cache. Does nothing outside a browser.
    */
   #followPage(): void {
-    if (this.#following || typeof window === 'undefined') {
+    if (this.#page !== undefined || typeof window === 'undefined') {
       return;
     }
-    this.#following = true;
-    window.addEventListener('pagehide', () => this.#onLeft(true));
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted) {
-        this.#onLeft(false);
-      }
-    });
+    this.#page = {
+      target: window,
+      hide: () => this.#onLeft(true),
+      show: (event) => {
+        if (event.persisted) {
+          this.#onLeft(false);
+        }
+      },
+    };
+    this.#page.target.addEventListener('pagehide', this.#page.hide);
+    this.#page.target.addEventListener('pageshow', this.#page.show);
+  }
+
+  #unfollowPage(): void {
+    if (this.#page === undefined) {
+      return;
+    }
+    this.#page.target.removeEventListener('pagehide', this.#page.hide);
+    this.#page.target.removeEventListener('pageshow', this.#page.show);
+    this.#page = undefined;
+    this.#left = false;
   }
 
   #onLeft(left: boolean): void {
@@ -371,16 +393,31 @@ export class TaskPoller {
     if (typeof document === 'undefined') {
       return;
     }
-    const listener = this.#visibility;
-    if (enabled && listener === undefined) {
-      this.#visibility = () => this.#onVisibility(document.hidden);
-      document.addEventListener('visibilitychange', this.#visibility);
-      this.#onVisibility(document.hidden);
-    } else if (!enabled && listener !== undefined) {
-      document.removeEventListener('visibilitychange', listener);
-      this.#visibility = undefined;
+    this.#pauseOnHide = enabled;
+    if (enabled) {
+      this.#watchVisibility();
+    } else {
+      this.#unwatchVisibility();
       this.#onVisibility(false);
     }
+  }
+
+  #watchVisibility(): void {
+    if (this.#visibility !== undefined || typeof document === 'undefined') {
+      return;
+    }
+    const target = document;
+    this.#visibility = { target, listener: () => this.#onVisibility(target.hidden) };
+    target.addEventListener('visibilitychange', this.#visibility.listener);
+    this.#onVisibility(target.hidden);
+  }
+
+  #unwatchVisibility(): void {
+    if (this.#visibility === undefined) {
+      return;
+    }
+    this.#visibility.target.removeEventListener('visibilitychange', this.#visibility.listener);
+    this.#visibility = undefined;
   }
 
   #onVisibility(hidden: boolean): void {
@@ -479,12 +516,17 @@ export class TaskPoller {
 
   /**
    * Closes the event stream and stops reconnecting; tracked tasks fall back to polling.
-   * A Node process holding a stream does not exit on its own: call this when done.
+   * The instance also stops answering other tabs for its stream, and removes its `pagehide`,
+   * `pageshow` and `visibilitychange` listeners, which {@link connect} installs again. A Node
+   * process holding a stream does not exit on its own: call this when done.
    */
   disconnect(): void {
     this.#wanted = false;
     this.#stream.disconnect();
+    this.#stream.release();
     this.#stream.allowRetry();
+    this.#unfollowPage();
+    this.#unwatchVisibility();
     this.#streamGone();
   }
 

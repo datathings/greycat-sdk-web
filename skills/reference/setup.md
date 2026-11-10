@@ -92,6 +92,11 @@ the tasks it spawns are emitted on the original, until a token of its own
 gives it a tracker of its own. `setDebugId(id)` on it routes its calls through
 the debugger, which is what the explorer does per debugger session.
 
+An `init`, `initWithAbi` or `clone` under a name already in `gc.$` replaces the
+instance registered there, which stops following tasks: its task tracker is
+disconnected (no stream, no page listeners), unless a registered clone still
+shares it. The replaced instance can still make plain calls.
+
 `gc.sdk.initWithAbi({ abi, module, exports, url, token })` builds an instance
 from an ABI already at hand, with no network at construction: tests, workers,
 tooling. It opens no task event stream unless `taskEvents: true`.
