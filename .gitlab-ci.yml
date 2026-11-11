@@ -26,10 +26,23 @@ before_script:
 # "image" field of .devcontainer/devcontainer.json and pulled only
 # when it is not already present locally; otherwise the locally cached image
 # is reused.
+#
+# `greycat install` in the container needs GREYCAT_REGISTRY_TOKEN (a group
+# variable) to download libraries that are not anonymously readable. `-e NAME`
+# without a value forwards it from the job, so the token never shows in the
+# echoed command.
 .docker_build:
   script: &docker_build_script
     - export GREYCAT_DEV_IMAGE=$(grep -o '"image"[[:space:]]*:[[:space:]]*"[^"]*"' ${CI_PROJECT_DIR}/.devcontainer/devcontainer.json | sed -E 's/.*"image"[[:space:]]*:[[:space:]]*"([^"]+)".*/\1/')
     - docker image inspect "${GREYCAT_DEV_IMAGE}" >/dev/null 2>&1 || docker pull "${GREYCAT_DEV_IMAGE}"
+
+# The jobs that run on the runner itself, not in the devcontainer image, use the
+# greycat their project pins, installed in the job's own GREYCAT_HOME.
+.host_greycat:
+  script: &host_greycat
+    - export GREYCAT_HOME="${CI_PROJECT_DIR}/.greycat"
+    - export PATH="${GREYCAT_HOME}/bin:${PATH}"
+    - ./script/host_greycat.sh
 
 x64-linux:
   stage: build
@@ -39,7 +52,7 @@ x64-linux:
     - *docker_build_script
     - export GREYCAT_TARGET="x64-linux"
     - export CFLAGS="-march=x86-64-v3 -O3"
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     - ./script/test.sh
 
 arm64-linux:
@@ -52,7 +65,7 @@ arm64-linux:
     OPENSSL_TARGET: linux-aarch64
   script:
     - *docker_build_script
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     #- ./script/test.sh
 
 arm64-apple:
@@ -64,6 +77,7 @@ arm64-apple:
     CFLAGS: "-target arm64-apple-macos15.4 -DHAVE_STRCHRNUL -mmacosx-version-min=15.4"
     OPENSSL_TARGET: darwin64-arm64-cc
   script:
+    - *host_greycat
     - ./script/build.sh
     - ./script/test.sh
 
@@ -77,7 +91,7 @@ x64-windows:
     OPENSSL_TARGET: mingw64
   script:
     - *docker_build_script
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
 
 x64-linux-pack:
   stage: pack
@@ -93,7 +107,7 @@ x64-linux-pack:
     CFLAGS: "-march=x86-64-v3"
   script:
     - *docker_build_script
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     - ./script/pack.sh
   artifacts:
     paths: [dist]
@@ -114,7 +128,7 @@ arm64-linux-pack:
     OPENSSL_TARGET: linux-aarch64
   script:
     - *docker_build_script
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build.sh
     - ./script/pack.sh
   artifacts:
     paths: [dist]
@@ -134,6 +148,7 @@ arm64-apple-pack:
     CFLAGS: "--target=arm64-apple-macos11"
     OPENSSL_TARGET: darwin64-arm64-cc
   script:
+    - *host_greycat
     - ./script/build.sh
     - ./script/pack.sh
   artifacts:
@@ -156,7 +171,7 @@ x64-windows-pack:
     CMAKE_TOOLCHAIN_FILE: /opt/x86_64-w64-mingw32ucrt.cmake
   script:
     - *docker_build_script
-    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
+    - docker run --rm -v "${DEPS_ROOT}:${DEPS_ROOT}:z" -v "${CI_PROJECT_DIR}:/project:z" -e CI="true" -e CI_JOB_TOKEN="${CI_JOB_TOKEN}" -e GREYCAT_REGISTRY_TOKEN -e CROSS="${CROSS}" -e DEPS_ROOT="${DEPS_ROOT}" -e PROJECT_VERSION="${PROJECT_VERSION}" -e CFLAGS="${CFLAGS}" -e GREYCAT_TARGET=${GREYCAT_TARGET} "${GREYCAT_DEV_IMAGE}" /project/script/build_win.sh
     - ./script/pack.sh
   artifacts:
     paths: [dist]
@@ -188,6 +203,7 @@ noarch:
       when: never
     - when: on_success
   script:
+    - *host_greycat
     - ./script/build.sh
     - ./script/test.sh
 
@@ -201,6 +217,7 @@ noarch-publish:
       when: on_success
     - when: manual
   script:
+    - *host_greycat
     - ./script/build.sh
     - ./script/pack.sh
     - ./script/publish.sh

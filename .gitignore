@@ -18,6 +18,7 @@ node_modules/
 /project.gcp
 /project.d.ts
 /.env
+/.greycat/
 /build/
 /build-asan/
 /dist/
