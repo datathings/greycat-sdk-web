@@ -1,4 +1,4 @@
-import { highlight } from '../../utils.js';
+import { highlight, truncateText } from '../../utils.js';
 import { css } from '../common.js';
 import { GuiElement } from '../element.js';
 import style from './logs.css?inline';
@@ -9,49 +9,66 @@ const COL_COUNT = HEADERS.length;
 const BUFFER_ROWS = 5;
 const MIN_COL_WIDTH = 24;
 
-/** One record of the GreyCat log stream, a `runtime::Log` written as a JSON line. */
-type LogRecord = {
-  level?: string;
-  time?: string;
-  user_id?: number | null;
-  task_id?: number | null;
-  job_id?: number | null;
-  src?: string | null;
-  data?: unknown;
-};
-
 /**
- * Converts an ISO-8601 time to epoch microseconds, keeping the microseconds that
- * `Date.parse` drops. Returns `null` when the string is not a time.
+ * Most characters of a record shown in its detail. Laying out text can take tens of
+ * milliseconds per kilobyte when it mixes scripts (CJK, emoji) that need font fallback, so a
+ * whole record of unknown content could freeze the page. The full record is one Copy or
+ * Download away.
  */
-function isoToMicros(iso: string): number | null {
-  const ms = Date.parse(iso);
-  if (isNaN(ms)) return null;
-  const fraction = /\.(\d+)/.exec(iso)?.[1] ?? '';
-  return ms * 1000 + Number(fraction.padEnd(6, '0').slice(3, 6));
+const DETAIL_MAX_CHARS = 16 * 1024;
+/** Most characters of a record's data in its row, which shows a single line anyway. */
+const CELL_MAX_CHARS = 512;
+/**
+ * Most bytes read backwards to fill the view without finding a row to show (a filter that
+ * matches nothing), before the view asks the user whether to read on.
+ */
+const FILL_BUDGET = 16 * 1024 * 1024;
+/** Most bytes of records held at once, the side away from the view being dropped past it. */
+const MAX_LOADED_BYTES = 64 * 1024 * 1024;
+/** Longest stretch of the main thread a filter run takes before it yields. */
+const FILTER_SLICE_MS = 8;
+
+/** A loaded record and what the view keeps about it. */
+interface Row {
+  rec: gc.sdk.LogRecordRef;
+  /** The start of `rec.data`, for its cell. */
+  cell: string;
+  /** The text filter `matched` was computed for. */
+  filter: string | null;
+  matched: boolean;
 }
 
-function cell(value: unknown): string {
-  return value === null || value === undefined ? '' : String(value);
+function toRow(rec: gc.sdk.LogRecordRef): Row {
+  return { rec, cell: truncateText(rec.data, CELL_MAX_CHARS), filter: null, matched: false };
 }
 
-/**
- * Parses one line of the log stream into the cells of a row, in `HEADERS` order.
- *
- * The time cell holds epoch microseconds so it sorts as a number and prints in the
- * instance's time zone. `data` is kept as JSON unless it is a plain string. A line
- * that is not JSON ends up whole in the data cell.
- */
-function parseLine(line: string): string[] {
-  let rec: LogRecord;
-  try {
-    rec = JSON.parse(line) as LogRecord;
-  } catch {
-    return ['', '', '', '', '', '', line];
+/** A column's value, as a number for the numeric columns so they sort as numbers. */
+function sortValue(row: Row, col: number): string | number | null {
+  const r = row.rec;
+  switch (col) {
+    case 0:
+      return r.level;
+    case 1:
+      return r.time;
+    case 2:
+      return r.user_id;
+    case 3:
+      return r.task_id;
+    case 4:
+      return r.job_id;
+    case 5:
+      return r.src;
+    default:
+      return r.data;
   }
-  const time = rec.time ? (isoToMicros(rec.time) ?? rec.time) : '';
-  const data = typeof rec.data === 'string' ? rec.data : rec.data == null ? '' : JSON.stringify(rec.data);
-  return [cell(rec.level), cell(time), cell(rec.user_id), cell(rec.task_id), cell(rec.job_id), cell(rec.src), data];
+}
+
+function escapeRegExp(s: string): string {
+  return s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
+
+function idCell(v: number | null): string {
+  return v === null ? '' : String(v);
 }
 
 export class GuiLogs extends GuiElement {
@@ -60,26 +77,38 @@ export class GuiLogs extends GuiElement {
   private _filepath = 'root/streams/log.ndjson';
   private _chunkSize = 64 * 1024;
   private _greycat: gc.sdk.GreyCat = gc.$.default;
+  private _reader!: gc.sdk.LogStreamReader;
 
-  // Data state
-  private _allRows: string[][] = [];
+  // Data state, `_allRows` in file order (oldest first)
+  private _allRows: Row[] = [];
   private _filteredIndices: number[] = [];
   private _isLoading = false;
   private _totalFileSize = 0;
   private _loadHeadOffset = 0;
   private _loadTailOffset = 0;
-  private _leadingPartialLine = '';
-  private _trailingPartialLine = '';
+  /** Bumped by each `_init`, so the loads of a previous file are dropped. */
+  private _generation = 0;
+  private _filling = false;
+  /** Set when a fill is asked for while one runs, which then starts over. */
+  private _fillAgain = false;
+  /** Bytes read backwards since the last load that brought a row to show. */
+  private _fillScanned = 0;
 
   // Filter/sort state
   private _levelFilter = new Set<string>(LOG_LEVELS);
   private _textFilter = '';
+  private _textRegExp: RegExp | null = null;
+  /** Bumped by each change of the text filter, so a sliced run of an older one stops. */
+  private _filterRun = 0;
+  /** Set while a sliced run tests the loaded rows against a new text filter. */
+  private _filterPending = false;
   private _sortColumn = -1;
   private _sortAsc = true;
 
   // Virtual scroll state
   private _rowHeight = 0;
   private _prevFromRowIdx = -1;
+  private _expandedRow: Row | null = null;
   private _expandedFi = -1;
   private _expandedExtraHeight = 0;
 
@@ -91,10 +120,14 @@ export class GuiLogs extends GuiElement {
   private _scroller!: HTMLDivElement;
   private _logContainer!: HTMLDivElement;
   private _emptyState!: HTMLDivElement;
+  private _moreEl!: HTMLDivElement;
+  private _moreText!: HTMLSpanElement;
   private _scrubberBar!: HTMLDivElement;
   private _scrubberLoaded!: HTMLDivElement;
   private _scrubberThumb!: HTMLDivElement;
   private _rowPool: HTMLDivElement[] = [];
+  /** The row each element of `_rowPool` shows. */
+  private _poolRows: (Row | null)[] = [];
   private _sortIndicators: HTMLSpanElement[] = [];
   private _debounceTimer: ReturnType<typeof setTimeout> | undefined;
   private _scrubberDragging = false;
@@ -142,6 +175,7 @@ export class GuiLogs extends GuiElement {
     this._resizeObserver = new ResizeObserver(() => {
       this._prevFromRowIdx = -1;
       this._renderVisible();
+      void this._fill();
     });
     this._resizeObserver.observe(this._logContainer);
 
@@ -179,77 +213,85 @@ export class GuiLogs extends GuiElement {
   }
 
   private async _init(): Promise<void> {
-    this._allRows.length = 0;
-    this._filteredIndices = [];
-    this._leadingPartialLine = '';
-    this._trailingPartialLine = '';
-    this._expandedFi = -1;
-    this._expandedExtraHeight = 0;
+    const generation = ++this._generation;
+    this._reader = new gc.sdk.LogStreamReader(this._greycat, this._filepath, { chunkBytes: this._chunkSize });
+    this._clearRows();
 
-    this._totalFileSize = await this._discoverFileSize();
-    this._loadHeadOffset = this._totalFileSize;
-    this._loadTailOffset = this._totalFileSize;
+    const size = await this._reader.size();
+    if (generation !== this._generation) return;
+    this._totalFileSize = size;
+    this._loadHeadOffset = size;
+    this._loadTailOffset = size;
 
-    await this._loadPreviousChunk();
+    await this._fill(true);
   }
 
-  // --- File size discovery ---
-  private async _discoverFileSize(): Promise<number> {
-    const res = await this._greycat.getFileResponse(this._filepath);
-    const cl = res.headers.get('content-length');
-    const size = cl ? parseInt(cl, 10) : 0;
-    if (size > 0) {
-      await res.body?.cancel();
-      return size;
+  private _clearRows(): void {
+    this._allRows = [];
+    this._filteredIndices = [];
+    this._expandedRow = null;
+    this._expandedFi = -1;
+    this._expandedExtraHeight = 0;
+    this._fillScanned = 0;
+  }
+
+  // --- Filling the view ---
+
+  /** Whether fewer loaded rows lie below the viewport than it takes to fill it. */
+  private _needsOlderRows(): boolean {
+    const rowHeight = this._rowHeight || 24;
+    const wanted = Math.ceil((this._logContainer.clientHeight || 600) / rowHeight) + 2 * BUFFER_ROWS;
+    const from = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
+    return this._filteredIndices.length - from < wanted;
+  }
+
+  /**
+   * Loads older records until the view is full, the start of the file is reached, or
+   * `FILL_BUDGET` bytes were read without a row to show. `fresh` starts a new budget, as an
+   * explicit request of the user does.
+   */
+  private async _fill(fresh = false): Promise<void> {
+    if (fresh) this._fillScanned = 0;
+    if (this._filling) {
+      this._fillAgain = true;
+      return;
     }
-    const text = await res.text();
-    return new TextEncoder().encode(text).length;
+    this._filling = true;
+    try {
+      do {
+        this._fillAgain = false;
+        while (this._loadHeadOffset > 0 && this._fillScanned < FILL_BUDGET && this._needsOlderRows()) {
+          if (!(await this._loadPreviousChunk())) break;
+        }
+      } while (this._fillAgain);
+    } finally {
+      this._filling = false;
+      this._renderVisible();
+    }
   }
 
   // --- Backward chunk loading ---
   private async _loadPreviousChunk(): Promise<boolean> {
     if (this._isLoading || this._loadHeadOffset <= 0) return false;
     this._isLoading = true;
+    const generation = this._generation;
     try {
-      const chunkStart = Math.max(0, this._loadHeadOffset - this._chunkSize);
-      const chunkSize = this._loadHeadOffset - chunkStart;
-      const text = (await this._greycat.getFile(this._filepath, chunkStart, chunkSize)) as string;
+      const head = this._loadHeadOffset;
+      const page = await this._reader.before(head, { maxBytes: this._chunkSize });
+      if (generation !== this._generation) return false;
 
-      if (typeof text !== 'string' || text.length === 0) {
-        this._loadHeadOffset = 0;
-        return false;
+      const rows = page.records.map(toRow);
+      if (head === this._loadTailOffset) {
+        // nothing loaded yet: what follows the last complete record is left out
+        this._loadTailOffset = page.end;
       }
+      this._loadHeadOffset = page.start;
+      this._allRows = rows.concat(this._allRows);
 
-      const fullText = text + this._leadingPartialLine;
-      const lines = fullText.split('\n');
-      if (chunkStart > 0) {
-        this._leadingPartialLine = lines.shift() ?? '';
-      } else {
-        this._leadingPartialLine = '';
-      }
-
-      const newRows: string[][] = [];
-      for (const line of lines) {
-        if (line.length === 0) continue;
-        newRows.push(parseLine(line));
-      }
-
-      this._allRows.splice(0, 0, ...newRows);
-      this._loadHeadOffset = chunkStart;
-
-      if (chunkStart === 0 && this._leadingPartialLine.length > 0) {
-        this._allRows.splice(0, 0, parseLine(this._leadingPartialLine));
-        this._leadingPartialLine = '';
-      }
-
-      if (this._expandedFi >= 0) {
-        this._expandedFi += newRows.length;
-      }
-
-      this._rebuildFilteredIndices();
-      this._updateStatus();
-      this._prevFromRowIdx = -1;
-      this._renderVisible();
+      const shown = rows.filter((r) => this._isShown(r)).length;
+      this._fillScanned = shown > 0 ? 0 : this._fillScanned + (head - page.start);
+      this._dropNewest();
+      this._afterRowsChanged();
       return true;
     } finally {
       this._isLoading = false;
@@ -260,37 +302,18 @@ export class GuiLogs extends GuiElement {
   private async _loadNextChunk(): Promise<boolean> {
     if (this._isLoading || this._loadTailOffset >= this._totalFileSize) return false;
     this._isLoading = true;
+    const generation = this._generation;
     try {
-      const chunkSize = Math.min(this._chunkSize, this._totalFileSize - this._loadTailOffset);
-      const text = (await this._greycat.getFile(this._filepath, this._loadTailOffset, chunkSize)) as string;
+      const page = await this._reader.after(this._loadTailOffset, {
+        maxBytes: this._chunkSize,
+        size: this._totalFileSize,
+      });
+      if (generation !== this._generation || page.records.length === 0) return false;
 
-      if (typeof text !== 'string' || text.length === 0) {
-        this._loadTailOffset = this._totalFileSize;
-        return false;
-      }
-
-      const fullText = this._trailingPartialLine + text;
-      const lines = fullText.split('\n');
-      const bytesRead = new TextEncoder().encode(text).length;
-      if (this._loadTailOffset + bytesRead < this._totalFileSize) {
-        this._trailingPartialLine = lines.pop() ?? '';
-      } else {
-        this._trailingPartialLine = '';
-      }
-
-      const newRows: string[][] = [];
-      for (const line of lines) {
-        if (line.length === 0) continue;
-        newRows.push(parseLine(line));
-      }
-
-      this._allRows.push(...newRows);
-      this._loadTailOffset += bytesRead;
-
-      this._rebuildFilteredIndices();
-      this._updateStatus();
-      this._prevFromRowIdx = -1;
-      this._renderVisible();
+      this._allRows = this._allRows.concat(page.records.map(toRow));
+      this._loadTailOffset = page.end;
+      this._dropOldest();
+      this._afterRowsChanged();
       return true;
     } finally {
       this._isLoading = false;
@@ -299,44 +322,180 @@ export class GuiLogs extends GuiElement {
 
   // --- Jump to arbitrary offset ---
   private async _jumpToOffset(targetByteOffset: number): Promise<void> {
-    this._allRows.length = 0;
-    this._filteredIndices = [];
-    this._expandedFi = -1;
-    this._expandedExtraHeight = 0;
-    this._leadingPartialLine = '';
-    this._trailingPartialLine = '';
-
-    this._loadHeadOffset = Math.min(this._totalFileSize, Math.floor(targetByteOffset) + this._chunkSize);
+    this._generation++;
+    this._isLoading = false;
+    this._clearRows();
+    this._loadHeadOffset = Math.min(this._totalFileSize, Math.floor(targetByteOffset));
     this._loadTailOffset = this._loadHeadOffset;
-
-    await this._loadPreviousChunk();
+    this._logContainer.scrollTop = 0;
+    await this._fill(true);
     this._logContainer.scrollTop = this._getRowTop(0);
   }
 
+  // --- Loaded window ---
+
+  /**
+   * Drops the newest rows past `MAX_LOADED_BYTES`, never one shown in or near the viewport. Only
+   * in file order: a sorted view has no side away from the view.
+   */
+  private _dropNewest(): void {
+    if (this._sortColumn >= 0 || this._loadTailOffset - this._loadHeadOffset <= MAX_LOADED_BYTES) return;
+    // newest-first, the rows above the viewport are the first filtered ones
+    const keepAbove = Math.max(0, this._fiFromScrollTop(this._logContainer.scrollTop) - 2 * BUFFER_ROWS);
+    let shownDropped = 0;
+    let n = 0;
+    let tail = this._loadTailOffset;
+    while (n < this._allRows.length - 1 && tail - this._loadHeadOffset > MAX_LOADED_BYTES) {
+      const row = this._allRows[this._allRows.length - 1 - n];
+      if (this._isShown(row)) {
+        if (shownDropped + 1 > keepAbove) break;
+        shownDropped++;
+      }
+      tail = row.rec.start;
+      n++;
+    }
+    if (n === 0) return;
+    this._keepScrollAnchor(() => {
+      this._allRows = this._allRows.slice(0, this._allRows.length - n);
+      this._loadTailOffset = tail;
+    });
+  }
+
+  /** Drops the oldest rows past `MAX_LOADED_BYTES`, never one shown in or near the viewport. */
+  private _dropOldest(): void {
+    if (this._sortColumn >= 0 || this._loadTailOffset - this._loadHeadOffset <= MAX_LOADED_BYTES) return;
+    const rowHeight = this._rowHeight || 24;
+    const keepBelow =
+      this._fiFromScrollTop(this._logContainer.scrollTop) +
+      Math.ceil(this._logContainer.clientHeight / rowHeight) +
+      2 * BUFFER_ROWS;
+    const shownTotal = this._filteredIndices.length;
+    let shownDropped = 0;
+    let n = 0;
+    let head = this._loadHeadOffset;
+    while (n < this._allRows.length - 1 && this._loadTailOffset - head > MAX_LOADED_BYTES) {
+      const row = this._allRows[n];
+      if (this._isShown(row)) {
+        if (shownTotal - (shownDropped + 1) < keepBelow) break;
+        shownDropped++;
+      }
+      head = this._allRows[n + 1].rec.start;
+      n++;
+    }
+    if (n === 0) return;
+    this._keepScrollAnchor(() => {
+      this._allRows = this._allRows.slice(n);
+      this._loadHeadOffset = head;
+    });
+  }
+
+  /** Runs `change` on the loaded rows, keeping the first visible row where it was on screen. */
+  private _keepScrollAnchor(change: () => void): void {
+    const from = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
+    const anchorIdx = this._filteredIndices[from];
+    const anchor = anchorIdx === undefined ? null : this._allRows[anchorIdx];
+    const delta = this._logContainer.scrollTop - this._getRowTop(from);
+    change();
+    this._rebuildFilteredIndices();
+    if (anchor === null) return;
+    const fi = this._filteredIndices.findIndex((i) => this._allRows[i] === anchor);
+    if (fi >= 0) {
+      this._scroller.style.height = `${this._getTotalHeight()}px`;
+      this._logContainer.scrollTop = this._getRowTop(fi) + delta;
+    }
+  }
+
   // --- Filtering ---
+
+  /** Whether `row` passes the level and text filters. */
+  private _isShown(row: Row): boolean {
+    // a line that is not a record has no level and is never filtered out by one
+    if (row.rec.level !== '' && !this._levelFilter.has(row.rec.level)) return false;
+    return this._matchesText(row);
+  }
+
+  /**
+   * Whether `row` matches the text filter, remembered per row until the filter changes. While a
+   * sliced run is testing the loaded rows, a row it has not reached yet counts as not matching,
+   * so that no load tests them all at once in the meantime.
+   */
+  private _matchesText(row: Row, testNow = false): boolean {
+    const re = this._textRegExp;
+    if (re === null) return true;
+    if (row.filter !== this._textFilter) {
+      if (this._filterPending && !testNow) return false;
+      const r = row.rec;
+      row.matched =
+        re.test(r.data) ||
+        re.test(r.level) ||
+        (r.src !== null && re.test(r.src)) ||
+        re.test(idCell(r.user_id)) ||
+        re.test(idCell(r.task_id)) ||
+        re.test(idCell(r.job_id));
+      row.filter = this._textFilter;
+    }
+    return row.matched;
+  }
+
+  /**
+   * Applies a new text filter. Testing every loaded row may take a while on large logs, so it
+   * runs in slices that yield to the browser, and a newer filter stops it.
+   */
+  private async _setTextFilter(text: string): Promise<void> {
+    const run = ++this._filterRun;
+    this._textFilter = text;
+    this._textRegExp = text.length > 0 ? new RegExp(escapeRegExp(text), 'i') : null;
+    this._filterPending = true;
+    const rows = this._allRows;
+    let i = 0;
+    while (i < rows.length) {
+      const until = performance.now() + FILTER_SLICE_MS;
+      while (i < rows.length && performance.now() < until) {
+        this._matchesText(rows[i], true);
+        i++;
+      }
+      if (i < rows.length) {
+        await new Promise((r) => setTimeout(r, 0));
+        if (run !== this._filterRun) return;
+      }
+    }
+    // the rows loaded during the run are few, the rebuild tests them at once
+    this._filterPending = false;
+    this._onFilterChanged();
+  }
+
+  private _onFilterChanged(): void {
+    this._expandedRow = null;
+    this._expandedExtraHeight = 0;
+    this._rebuildFilteredIndices();
+    this._prevFromRowIdx = -1;
+    this._updateStatus();
+    this._renderVisible();
+    void this._fill(true);
+  }
+
+  private _afterRowsChanged(): void {
+    this._rebuildFilteredIndices();
+    this._updateStatus();
+    this._prevFromRowIdx = -1;
+    this._renderVisible();
+  }
+
   private _rebuildFilteredIndices(): void {
     this._filteredIndices = [];
-    const lower = this._textFilter.toLowerCase();
     for (let i = 0; i < this._allRows.length; i++) {
-      const row = this._allRows[i];
-      // a line that did not parse has no level and is never filtered out by one
-      if (row[0] !== '' && !this._levelFilter.has(row[0])) continue;
-      if (lower.length > 0) {
-        let match = false;
-        for (let c = 0; c < row.length; c++) {
-          if (row[c].toLowerCase().includes(lower)) {
-            match = true;
-            break;
-          }
-        }
-        if (!match) continue;
-      }
-      this._filteredIndices.push(i);
+      if (this._isShown(this._allRows[i])) this._filteredIndices.push(i);
     }
     if (this._sortColumn >= 0) {
       this._applySortToFiltered();
     } else {
       this._filteredIndices.reverse();
+    }
+    this._expandedFi =
+      this._expandedRow === null ? -1 : this._filteredIndices.findIndex((i) => this._allRows[i] === this._expandedRow);
+    if (this._expandedFi < 0) {
+      this._expandedRow = null;
+      this._expandedExtraHeight = 0;
     }
   }
 
@@ -344,14 +503,16 @@ export class GuiLogs extends GuiElement {
     const col = this._sortColumn;
     const asc = this._sortAsc;
     this._filteredIndices.sort((a, b) => {
-      const va = this._allRows[a][col] ?? '';
-      const vb = this._allRows[b][col] ?? '';
-      if (col <= 3) {
-        const na = Number(va);
-        const nb = Number(vb);
-        if (!isNaN(na) && !isNaN(nb)) return asc ? na - nb : nb - na;
+      const va = sortValue(this._allRows[a], col);
+      const vb = sortValue(this._allRows[b], col);
+      let cmp: number;
+      if (typeof va === 'number' && typeof vb === 'number') {
+        cmp = va - vb;
+      } else if (va === null || vb === null) {
+        cmp = va === vb ? 0 : va === null ? -1 : 1;
+      } else {
+        cmp = String(va).localeCompare(String(vb));
       }
-      const cmp = va.localeCompare(vb);
       return asc ? cmp : -cmp;
     });
   }
@@ -361,14 +522,12 @@ export class GuiLogs extends GuiElement {
     return this._loadHeadOffset <= 0 && this._loadTailOffset >= this._totalFileSize;
   }
 
-  private _formatTime(raw: string): string {
-    if (!raw) return '';
-    const n = Number(raw);
-    if (isNaN(n)) return raw;
+  private _formatTime(micros: number | null): string {
+    if (micros === null) return '';
     try {
-      return this._greycat.printTime(gc.core.time.create(n));
+      return this._greycat.printTime(gc.core.time.create(micros));
     } catch {
-      return raw;
+      return String(micros);
     }
   }
 
@@ -460,7 +619,25 @@ export class GuiLogs extends GuiElement {
     const fromRowIdx = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
     this._renderRows(fromRowIdx);
     this._updateScrubber();
-    this._emptyState.style.display = this._filteredIndices.length === 0 && !this._isFullyLoaded() ? '' : 'none';
+    this._updateStatus();
+    this._renderMore();
+  }
+
+  /**
+   * Tells why no more rows show below the loaded ones: the whole file was read, or the fill
+   * stopped after `FILL_BUDGET` bytes without a match and waits for the user.
+   */
+  private _renderMore(): void {
+    const stalled = this._loadHeadOffset > 0 && this._fillScanned >= FILL_BUDGET && !this._filling;
+    const none = this._filteredIndices.length === 0 && !this._filling && !this._isLoading;
+    this._emptyState.style.display = none && !stalled && this._loadHeadOffset <= 0 ? '' : 'none';
+    if (stalled) {
+      this._moreText.textContent = `No row to show in the last ${gc.sdk.humanSize(this._fillScanned, 0)} read.`;
+      this._moreEl.style.top = `${this._getRowTop(this._filteredIndices.length)}px`;
+      this._moreEl.style.display = '';
+    } else {
+      this._moreEl.style.display = 'none';
+    }
   }
 
   private _renderRows(fromRowIdx: number): void {
@@ -471,55 +648,73 @@ export class GuiLogs extends GuiElement {
 
     let rendered = 0;
     for (let fi = start; fi < end; fi++) {
-      const row = this._getOrCreateRow(rendered);
-      const entry = this._allRows[this._filteredIndices[fi]];
-      row.style.top = `${this._getRowTop(fi)}px`;
-      row.style.display = '';
+      const el = this._getOrCreateRow(rendered);
+      const row = this._allRows[this._filteredIndices[fi]];
+      const rec = row.rec;
+      el.style.top = `${this._getRowTop(fi)}px`;
+      el.style.display = '';
 
-      const lvl = entry[0] || '';
+      const lvl = rec.level;
       const isExpanded = fi === this._expandedFi;
-      row.className = `log-row level-${lvl}${fi % 2 === 0 ? ' even' : ''}${isExpanded ? ' expanded' : ''}`;
+      el.className = `log-row level-${lvl}${fi % 2 === 0 ? ' even' : ''}${isExpanded ? ' expanded' : ''}`;
 
-      const cellRow = row.children[0] as HTMLDivElement;
-      const detailWrap = row.children[1] as HTMLDivElement;
+      const cellRow = el.children[0] as HTMLDivElement;
+      const detailWrap = el.children[1] as HTMLDivElement;
       const detail = detailWrap.querySelector('.log-row-detail') as HTMLPreElement;
+      const note = detailWrap.querySelector('.log-row-detail-note') as HTMLDivElement;
 
       const cells = cellRow.children;
-      const levelCell = cells[0] as HTMLSpanElement;
-      levelCell.textContent = lvl;
-      levelCell.className = `log-cell level-${lvl}`;
-      const timeCell = cells[1] as HTMLSpanElement;
-      timeCell.textContent = this._formatTime(entry[1]);
-      timeCell.className = 'log-cell col-time';
-      for (let c = 2; c < COL_COUNT; c++) {
+      const values = [
+        lvl,
+        this._formatTime(rec.time),
+        idCell(rec.user_id),
+        idCell(rec.task_id),
+        idCell(rec.job_id),
+        rec.src ?? '',
+        row.cell,
+      ];
+      for (let c = 0; c < COL_COUNT; c++) {
         const cell = cells[c] as HTMLSpanElement;
-        cell.textContent = entry[c] || '';
-        cell.className = c === 5 ? 'log-cell col-tag' : c === COL_COUNT - 1 ? 'log-cell col-data' : 'log-cell';
+        cell.textContent = values[c];
+        cell.className =
+          c === 0
+            ? `log-cell level-${lvl}`
+            : c === 1
+              ? 'log-cell col-time'
+              : c === 5
+                ? 'log-cell col-tag'
+                : c === COL_COUNT - 1
+                  ? 'log-cell col-data'
+                  : 'log-cell';
       }
 
+      // the detail is rebuilt only when the row it shows changes, as it may hold 16 KiB of text
+      const shownBefore = this._poolRows[rendered];
+      this._poolRows[rendered] = row;
       if (isExpanded) {
-        detail.innerHTML = '';
-        detail.appendChild(highlight(entry[COL_COUNT - 1]));
+        if (shownBefore !== row || detail.childNodes.length === 0) {
+          detail.replaceChildren(highlight(rec.data, DETAIL_MAX_CHARS));
+          const cut = rec.partial || rec.data.length > DETAIL_MAX_CHARS;
+          note.textContent = cut
+            ? `Showing the start of this ${gc.sdk.humanSize(rec.end - rec.start)} record. Copy or download it whole.`
+            : '';
+          note.style.display = cut ? '' : 'none';
+        }
         detailWrap.style.display = '';
-        row.style.height = '';
+        el.style.height = '';
       } else {
         detailWrap.style.display = 'none';
-        detail.innerHTML = '';
-        row.style.height = `${this._rowHeight}px`;
+        detail.replaceChildren();
+        el.style.height = `${this._rowHeight}px`;
       }
 
-      const capturedFi = fi;
       // Only the summary line toggles, so the detail stays open while its text is selected.
       cellRow.onclick = () => {
         // a drag that selects text ends with a click, which must not toggle the row
         if (!(getSelection()?.isCollapsed ?? true)) return;
-        if (this._expandedFi === capturedFi) {
-          this._expandedFi = -1;
-          this._expandedExtraHeight = 0;
-        } else {
-          this._expandedFi = capturedFi;
-          this._expandedExtraHeight = 0;
-        }
+        this._expandedRow = this._expandedRow === row ? null : row;
+        this._expandedExtraHeight = 0;
+        this._rebuildFilteredIndices();
         this._prevFromRowIdx = -1;
         this._renderVisible();
         if (this._expandedFi >= 0) {
@@ -542,6 +737,7 @@ export class GuiLogs extends GuiElement {
 
     for (let i = rendered; i < this._rowPool.length; i++) {
       this._rowPool[i].style.display = 'none';
+      this._poolRows[i] = null;
     }
   }
 
@@ -550,6 +746,13 @@ export class GuiLogs extends GuiElement {
       if (row.style.display !== 'none' && row.classList.contains('expanded')) return row;
     }
     return null;
+  }
+
+  /** The whole `data` of the record shown by the `idx`-th element of the pool. */
+  private async _fullData(idx: number): Promise<{ rec: gc.sdk.LogRecordRef; data: string } | null> {
+    const row = this._poolRows[idx];
+    if (!row) return null;
+    return { rec: row.rec, data: await this._reader.fullData(row.rec) };
   }
 
   private _getOrCreateRow(idx: number): HTMLDivElement {
@@ -569,23 +772,48 @@ export class GuiLogs extends GuiElement {
     detailWrap.style.display = 'none';
     const detail = document.createElement('pre');
     detail.className = 'log-row-detail';
+    const note = document.createElement('div');
+    note.className = 'log-row-detail-note';
+    note.style.display = 'none';
+
     const copyBtn = document.createElement('button');
-    copyBtn.className = 'detail-copy-btn';
-    copyBtn.title = 'Copy to clipboard';
+    copyBtn.className = 'detail-btn';
+    copyBtn.title = 'Copy the whole record to the clipboard';
     copyBtn.textContent = 'Copy';
-    copyBtn.addEventListener('click', (e) => {
+    copyBtn.addEventListener('click', async (e) => {
       e.stopPropagation();
-      navigator.clipboard.writeText(detail.textContent ?? '').then(() => {
-        copyBtn.textContent = 'Copied!';
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy';
-        }, 1500);
-      });
+      const full = await this._fullData(idx);
+      if (full === null) return;
+      await navigator.clipboard.writeText(full.data);
+      copyBtn.textContent = 'Copied';
+      setTimeout(() => {
+        copyBtn.textContent = 'Copy';
+      }, 1500);
     });
-    detailWrap.appendChild(copyBtn);
-    detailWrap.appendChild(detail);
+
+    const downloadBtn = document.createElement('button');
+    downloadBtn.className = 'detail-btn';
+    downloadBtn.title = 'Download the whole record';
+    downloadBtn.textContent = 'Download';
+    downloadBtn.addEventListener('click', async (e) => {
+      e.stopPropagation();
+      const full = await this._fullData(idx);
+      if (full === null) return;
+      const url = URL.createObjectURL(new Blob([full.data], { type: 'text/plain;charset=utf-8' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `log-${full.rec.task_id ?? 'server'}-${full.rec.start}.txt`;
+      a.click();
+      setTimeout(() => URL.revokeObjectURL(url), 1000);
+    });
+
+    const actions = document.createElement('div');
+    actions.className = 'detail-actions';
+    actions.append(copyBtn, downloadBtn);
+    detailWrap.append(actions, detail, note);
     row.appendChild(detailWrap);
     this._rowPool.push(row);
+    this._poolRows.push(null);
     this._viewport.appendChild(row);
     return row;
   }
@@ -664,24 +892,12 @@ export class GuiLogs extends GuiElement {
         clearable
         onsl-clear={() => {
           clearTimeout(this._debounceTimer);
-          this._textFilter = '';
-          this._rebuildFilteredIndices();
-          this._expandedFi = -1;
-          this._expandedExtraHeight = 0;
-          this._prevFromRowIdx = -1;
-          this._updateStatus();
-          this._renderVisible();
+          void this._setTextFilter('');
         }}
         oninput={() => {
           clearTimeout(this._debounceTimer);
           this._debounceTimer = setTimeout(() => {
-            this._textFilter = (this._searchInput as unknown as { value: string }).value;
-            this._rebuildFilteredIndices();
-            this._expandedFi = -1;
-            this._expandedExtraHeight = 0;
-            this._prevFromRowIdx = -1;
-            this._updateStatus();
-            this._renderVisible();
+            void this._setTextFilter((this._searchInput as unknown as { value: string }).value);
           }, 200);
         }}
       />
@@ -699,12 +915,7 @@ export class GuiLogs extends GuiElement {
               this._levelFilter.add(name);
               btn.classList.add('active');
             }
-            this._rebuildFilteredIndices();
-            this._expandedFi = -1;
-            this._expandedExtraHeight = 0;
-            this._prevFromRowIdx = -1;
-            this._updateStatus();
-            this._renderVisible();
+            this._onFilterChanged();
           }}
         >
           {name}
@@ -733,7 +944,7 @@ export class GuiLogs extends GuiElement {
               this._sortAsc = true;
             }
             for (let j = 0; j < this._sortIndicators.length; j++) {
-              this._sortIndicators[j].textContent = j === this._sortColumn ? (this._sortAsc ? '\u25B2' : '\u25BC') : '';
+              this._sortIndicators[j].textContent = j === this._sortColumn ? (this._sortAsc ? '▲' : '▼') : '';
             }
             this._rebuildFilteredIndices();
             this._prevFromRowIdx = -1;
@@ -759,18 +970,25 @@ export class GuiLogs extends GuiElement {
       this._headerRow.appendChild(cell);
     }
 
-    this._emptyState = (
-      <div className="log-empty-state">
-        No matching logs in the loaded portion of the file. Try scrolling or clicking the scrubber to load more data.
+    this._emptyState = (<div className="log-empty-state">No matching logs.</div>) as HTMLDivElement;
+    this._emptyState.style.display = 'none';
+
+    this._moreText = (<span />) as HTMLSpanElement;
+    this._moreEl = (
+      <div className="log-more">
+        {this._moreText}
+        <button className="detail-btn" onclick={() => void this._fill(true)}>
+          Read older records
+        </button>
       </div>
     ) as HTMLDivElement;
-    this._emptyState.style.display = 'none';
+    this._moreEl.style.display = 'none';
 
     this._viewport = (<div className="log-viewport" />) as HTMLDivElement;
     this._scroller = (
       <div style="visibility:hidden;width:100%;pointer-events:none;position:absolute;top:0;left:0;" />
     ) as HTMLDivElement;
-    this._viewport.appendChild(this._scroller);
+    this._viewport.append(this._scroller, this._moreEl);
 
     this._logContainer = (
       <div className="log-container">
@@ -782,16 +1000,11 @@ export class GuiLogs extends GuiElement {
 
     this._logContainer.addEventListener('scroll', () => {
       const fromRowIdx = this._rowHeight > 0 ? this._fiFromScrollTop(this._logContainer.scrollTop) : 0;
-      if (this._loadHeadOffset > 0 && this._filteredIndices.length > 0) {
-        const visibleEnd = fromRowIdx + Math.ceil(this._logContainer.clientHeight / (this._rowHeight || 30));
-        if (visibleEnd >= this._filteredIndices.length - BUFFER_ROWS * 2) {
-          this._loadPreviousChunk();
-        }
+      if (this._needsOlderRows()) {
+        void this._fill();
       }
-      if (this._loadTailOffset < this._totalFileSize && this._filteredIndices.length > 0) {
-        if (fromRowIdx <= BUFFER_ROWS * 2) {
-          this._loadNextChunk();
-        }
+      if (this._loadTailOffset < this._totalFileSize && fromRowIdx <= BUFFER_ROWS * 2) {
+        void this._loadNextChunk();
       }
       if (fromRowIdx !== this._prevFromRowIdx) {
         this._prevFromRowIdx = fromRowIdx;
@@ -822,9 +1035,9 @@ export class GuiLogs extends GuiElement {
           this._filteredIndices.length - 1,
           Math.max(0, Math.floor(posInLoaded * this._filteredIndices.length)),
         );
-        const entry = this._allRows[this._filteredIndices[fi]];
-        if (entry) {
-          this._scrubberBar.title = `${this._formatTime(entry[1])}\nRow ${fi + 1} / ${this._filteredIndices.length}\nFile: ${filePct}%`;
+        const row = this._allRows[this._filteredIndices[fi]];
+        if (row) {
+          this._scrubberBar.title = `${this._formatTime(row.rec.time)}\nRow ${fi + 1} / ${this._filteredIndices.length}\nFile: ${filePct}%`;
         }
       } else {
         this._scrubberBar.title = `Not loaded yet\nFile: ${filePct}%\nClick to load`;

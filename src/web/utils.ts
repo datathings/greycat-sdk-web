@@ -370,26 +370,40 @@ export function highlightJSON(obj: unknown, depth: number, el: Node): void {
   }
 }
 
-export function highlightGCL(raw: string): Node {
+/**
+ * Highlights GreyCat's textual form of a value, indenting its braces. Stops once `maxChars`
+ * characters are emitted, ending the output with `...`.
+ */
+export function highlightGCL(raw: string, maxChars = Infinity): Node {
   const frag = document.createDocumentFragment();
   let depth = 0;
   let i = 0;
   const len = raw.length;
+  // every character emitted counts, so the budget holds the indentation too
+  let emitted = 0;
+  const add = (node: Node) => {
+    emitted += node.textContent?.length ?? 0;
+    frag.appendChild(node);
+  };
   while (i < len) {
+    if (emitted >= maxChars) {
+      frag.appendChild(document.createTextNode('\n...'));
+      break;
+    }
     const ch = raw[i];
     if (ch === '{' || ch === '[') {
-      frag.appendChild(span('tok-brace', ch));
+      add(span('tok-brace', ch));
       depth++;
-      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
+      add(document.createTextNode('\n' + '  '.repeat(depth)));
       i++;
     } else if (ch === '}' || ch === ']') {
       depth = Math.max(0, depth - 1);
-      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
-      frag.appendChild(span('tok-brace', ch));
+      add(document.createTextNode('\n' + '  '.repeat(depth)));
+      add(span('tok-brace', ch));
       i++;
     } else if (ch === ',') {
-      frag.appendChild(span('tok-brace', ','));
-      frag.appendChild(document.createTextNode('\n' + '  '.repeat(depth)));
+      add(span('tok-brace', ','));
+      add(document.createTextNode('\n' + '  '.repeat(depth)));
       i++;
     } else if (ch === '"') {
       let end = i + 1;
@@ -398,57 +412,86 @@ export function highlightGCL(raw: string): Node {
         end++;
       }
       end++;
-      frag.appendChild(span('tok-str', raw.substring(i, end)));
+      add(span('tok-str', raw.substring(i, end)));
       i = end;
     } else if (ch === ':') {
-      frag.appendChild(span('tok-brace', ':'));
+      add(span('tok-brace', ':'));
       i++;
     } else if (ch === '-' || (ch >= '0' && ch <= '9')) {
       let end = i + 1;
       while (end < len && /[\d.eE+-]/.test(raw[end])) end++;
-      frag.appendChild(span('tok-num', raw.substring(i, end)));
+      add(span('tok-num', raw.substring(i, end)));
       i = end;
     } else if (raw.substring(i, i + 4) === 'null') {
-      frag.appendChild(span('tok-null', 'null'));
+      add(span('tok-null', 'null'));
       i += 4;
     } else if (raw.substring(i, i + 4) === 'true') {
-      frag.appendChild(span('tok-bool', 'true'));
+      add(span('tok-bool', 'true'));
       i += 4;
     } else if (raw.substring(i, i + 5) === 'false') {
-      frag.appendChild(span('tok-bool', 'false'));
+      add(span('tok-bool', 'false'));
       i += 5;
     } else if (/[A-Z]/.test(ch)) {
       let end = i + 1;
       while (end < len && raw[end] !== '{' && raw[end] !== ',' && raw[end] !== '}' && raw[end] !== ']') end++;
-      frag.appendChild(span('tok-type', raw.substring(i, end)));
+      add(span('tok-type', raw.substring(i, end)));
       i = end;
     } else if (/[a-z_]/.test(ch)) {
       let end = i + 1;
       while (end < len && /[a-zA-Z0-9_]/.test(raw[end])) end++;
-      frag.appendChild(span('tok-key', raw.substring(i, end)));
+      add(span('tok-key', raw.substring(i, end)));
       i = end;
     } else {
-      frag.appendChild(document.createTextNode(ch));
+      add(document.createTextNode(ch));
       i++;
     }
   }
   return frag;
 }
 
-export function highlight(raw: string): Node {
+/**
+ * `text` cut to at most `maxChars` UTF-16 code units, never between the two halves of a
+ * surrogate pair.
+ */
+export function truncateText(text: string, maxChars: number): string {
+  if (text.length <= maxChars) return text;
+  let cut = Math.max(0, maxChars);
+  const last = text.charCodeAt(cut - 1);
+  if (last >= 0xd800 && last <= 0xdbff) cut--;
+  return text.slice(0, cut);
+}
+
+/**
+ * Highlights a value written as JSON (indented), as GreyCat's textual form of a value, or else
+ * shows it as plain text.
+ *
+ * `maxChars` bounds the text it renders, since laying out a large text can freeze the page for
+ * seconds (a megabyte of mixed scripts takes tens). JSON is indented only when the indented text
+ * fits in it. Past it, the output is cut and ends with `...`.
+ */
+export function highlight(raw: string, maxChars = Infinity): Node {
   const frag = document.createDocumentFragment();
   if (!raw) {
     return frag;
   }
-  try {
-    const parsed = JSON.parse(raw);
-    highlightJSON(parsed, 0, frag);
+  if (raw.length > maxChars) {
+    frag.appendChild(document.createTextNode(`${truncateText(raw, maxChars)}\n...`));
     return frag;
+  }
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
   } catch {
     if (raw.includes('{') || raw.includes('[')) {
-      return highlightGCL(raw);
+      return highlightGCL(raw, maxChars);
     }
     frag.appendChild(document.createTextNode(raw));
     return frag;
   }
+  if (maxChars !== Infinity && JSON.stringify(parsed, null, 2).length > maxChars) {
+    frag.appendChild(document.createTextNode(raw));
+    return frag;
+  }
+  highlightJSON(parsed, 0, frag);
+  return frag;
 }

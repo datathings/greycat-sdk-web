@@ -288,24 +288,49 @@
   background: light-dark(rgba(0, 0, 0, 0.03), rgba(0, 0, 0, 0.25));
 }
 
-.detail-copy-btn {
+.detail-actions {
   position: absolute;
   top: 6px;
   right: 6px;
+  display: flex;
+  gap: 4px;
+  z-index: 1;
+}
+
+.detail-btn {
   background: light-dark(rgba(0, 0, 0, 0.06), rgba(255, 255, 255, 0.1));
   border: 1px solid light-dark(rgba(0, 0, 0, 0.15), rgba(255, 255, 255, 0.15));
   border-radius: 4px;
   color: var(--text-muted);
   cursor: pointer;
-  font-size: var(--sl-font-size-large);
+  font-size: var(--sl-font-size-small);
   padding: 4px 8px;
   line-height: 1;
-  z-index: 1;
 }
 
-.detail-copy-btn:hover {
+.detail-btn:hover {
   background: light-dark(rgba(0, 0, 0, 0.12), rgba(255, 255, 255, 0.2));
   color: light-dark(#000, #fff);
+}
+
+.log-row-detail-note {
+  padding: 0 12px 8px calc(var(--spacing) + 3px);
+  color: var(--text-muted);
+  font-size: var(--sl-font-size-x-small);
+}
+
+/* Shown below the loaded rows when filling the view stopped without a row to show */
+.log-more {
+  position: absolute;
+  left: 0;
+  right: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 8px;
+  color: var(--text-muted);
+  font-size: var(--sl-font-size-small);
 }
 
 .log-row-detail {
