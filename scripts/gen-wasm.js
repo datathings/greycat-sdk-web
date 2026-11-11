@@ -4,9 +4,9 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { inflateRawSync } from 'node:zlib';
 
-const REGISTRY = process.env.GREYCAT_REGISTRY ?? 'https://get.greycat.io';
-/** `std` is published under the `core` path on the registry. */
-const LIB_PATH = 'core';
+/** The registry `script/publish.sh` publishes to. `std` is public, so reading it takes no token. */
+const REGISTRY = process.env.REGISTRY_URL ?? 'https://registry.greycat.io';
+const LIBRARY = 'std';
 const TARGET = 'wasm32';
 /** Path of the wasm inside the package, exposed by the runtime at `/std/greycat.wasm`. */
 const ENTRY = 'lib/std/webroot/std/greycat.wasm';
@@ -14,13 +14,8 @@ const OUTPUT_PATH = 'dist/greycat.wasm';
 const CACHE_DIR = join(tmpdir(), 'greycat-wasm');
 
 const version = process.env.GREYCAT_STD_VERSION ?? readVersionPin('project.gcl');
-const [, minor, branch] = /^(\d+\.\d+)\.\d+-(.+)$/.exec(version) ?? [];
-if (!branch) {
-  throw new Error(`Unable to parse std version '${version}' as '<major>.<minor>.<patch>-<branch>'`);
-}
-const url = `${REGISTRY}/files/${LIB_PATH}/${branch}/${minor}/${TARGET}/${version}.zip`;
-
-const zip = await download(url);
+const artifact = await resolveArtifact(version);
+const zip = await download(artifact);
 mkdirSync('dist', { recursive: true });
 writeFileSync(OUTPUT_PATH, unzipEntry(zip, ENTRY));
 
@@ -34,19 +29,48 @@ function readVersionPin(project) {
   return match[1];
 }
 
-/** Fetches `url`, caching the payload by URL so repeated builds stay offline. */
-async function download(url) {
-  const cached = join(CACHE_DIR, `${createHash('sha256').update(url).digest('hex')}.zip`);
+/** The `wasm32` artifact of `std` at `version`, as `registry::resolve` describes it: `{ url, sha256 }`. */
+async function resolveArtifact(version) {
+  const res = await fetch(`${REGISTRY}/registry::resolve`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify([LIBRARY, version, TARGET]),
+  });
+  if (!res.ok) {
+    throw new Error(`Failed to resolve ${LIBRARY} ${version} on ${REGISTRY}: ${res.status} ${res.statusText}`);
+  }
+  const result = await res.json();
+  if (result.status !== 'ok') {
+    throw new Error(`Cannot resolve ${LIBRARY} ${version} on ${REGISTRY}: ${result.status}`);
+  }
+  const found = result.artifacts.find((a) => a.target === TARGET);
+  if (!found) {
+    throw new Error(`${LIBRARY} ${version} has no ${TARGET} artifact on ${REGISTRY}`);
+  }
+  return found;
+}
+
+/**
+ * Fetches the archive of `artifact` and checks it against its sha256. A published version never
+ * changes, so the archive is cached by its sha256 and repeated builds stay offline.
+ */
+async function download(artifact) {
+  const cached = join(CACHE_DIR, `${artifact.sha256}.zip`);
   try {
     return readFileSync(cached);
   } catch {
     // not cached yet
   }
+  const url = `${REGISTRY}${artifact.url}`;
   const res = await fetch(url);
   if (!res.ok) {
     throw new Error(`Failed to download ${url}: ${res.status} ${res.statusText}`);
   }
   const body = Buffer.from(await res.arrayBuffer());
+  const sha256 = createHash('sha256').update(body).digest('hex');
+  if (sha256 !== artifact.sha256) {
+    throw new Error(`${url} has sha256 ${sha256}, the registry announced ${artifact.sha256}`);
+  }
   mkdirSync(CACHE_DIR, { recursive: true });
   writeFileSync(cached, body);
   return body;
@@ -77,8 +101,7 @@ function unzipEntry(zip, name) {
     if (entry === name) {
       // The local header carries its own name/extra lengths, which may differ
       // from the central directory ones.
-      const dataStart =
-        localOffset + 30 + zip.readUInt16LE(localOffset + 26) + zip.readUInt16LE(localOffset + 28);
+      const dataStart = localOffset + 30 + zip.readUInt16LE(localOffset + 26) + zip.readUInt16LE(localOffset + 28);
       const data = zip.subarray(dataStart, dataStart + compressedSize);
       if (method === 0) {
         return data;
