@@ -4625,6 +4625,16 @@ declare namespace gc {
        * the header, or naming a stream of another user, is not reported, so watching every task is
        * done with `running`, `history` and `live`. The `data:` line of each task frame is the `Task`
        * in JSON. Comment lines (`: ping`) keep the connection alive.
+       *
+       * The `connected` frame also carries a `run: <n>` line, the number of this server run, which
+       * changes at every start. A stream opened with the request header `sse-resume: <run>:<id>`
+       * takes over the tasks bound to the id `<id>` of the same run: the live root tasks of the
+       * caller whose call named it move to the new stream, each reported by one `event: task-state` frame
+       * with its current `Task`, and then report there. Tasks only move from a closed stream. With
+       * `sse-resume: <run>:<id>; claim`, a stream `<id>` the server still holds open is closed first.
+       * Every stream then sends `event: synced`, whose `data:` is the number of tasks moved. A task
+       * that ended while no stream was open is not reported, and is found with `tasks`. A resume of
+       * another run, or of another user's stream, moves nothing.
        */
       static events: (($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal) => Promise<unknown>) & {
         spawn($g?: gc.sdk.GreyCat, $signal?: globalThis.AbortSignal, $taskClass?: gc.runtime.TaskClass.Field): Promise<gc.runtime.Task<unknown>>;
