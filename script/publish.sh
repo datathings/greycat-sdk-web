@@ -31,6 +31,11 @@ cd "${DIR}/.."
 : "${CI_COMMIT_REF_NAME:?CI_COMMIT_REF_NAME is required}"
 
 base="${REGISTRY_URL:-https://registry.greycat.io}"
+
+# curl retries a timeout and a 408, 429, 500, 502, 503 or 504 answer. Every call
+# below is safe to repeat: staging a file again replaces it, and publishing the
+# same files again answers the stored version.
+retry=(--retry 3)
 token="$REGISTRY_GC_CI_TOKEN"
 branch="$CI_COMMIT_REF_NAME"
 version="${PROJECT_VERSION%%-*}-${branch}"
@@ -47,7 +52,7 @@ esac
 # A token the server does not accept is not an error: the request is served as
 # the anonymous identity, id 0. Refusing that here gives a clear message rather
 # than a 401 from the first upload.
-if ! identity=$(curl -fsS -X POST -H "Authorization: $token" \
+if ! identity=$(curl -fsS "${retry[@]}" -X POST -H "Authorization: $token" \
   -H 'Content-Type: application/json' -d '[]' \
   "$base/runtime::Identity::current"); then
   echo "publish: cannot reach $base" >&2
@@ -71,7 +76,7 @@ for libdir in dist/*/; do
     # name the registry serves it under.
     target=$(basename "$(dirname "$file")")
     sha=$(sha256sum "$file" | cut -d ' ' -f 1)
-    if ! curl -fsS -o /dev/null -X PUT -H "Authorization: $token" -T "$file" \
+    if ! curl -fsS "${retry[@]}" -o /dev/null -X PUT -H "Authorization: $token" -T "$file" \
       "$base/registry::upload?kind=lib&name=$lib&version=$version&filename=$target.zip"; then
       echo "publish: staging $lib $target.zip failed" >&2
       exit 1
@@ -88,7 +93,7 @@ for libdir in dist/*/; do
   # `readme` is null, so the registry reads lib/<lib>/README.md out of the
   # archive. Publishing the very same files again answers the stored version,
   # so a re-run job succeeds.
-  response=$(curl -sS -w '\n%{http_code}' -X POST -H "Authorization: $token" \
+  response=$(curl -sS "${retry[@]}" -w '\n%{http_code}' -X POST -H "Authorization: $token" \
     -H 'Content-Type: application/json' \
     -d "[\"lib\",\"$lib\",\"$version\",[$entries],null]" \
     "$base/registry::publish")
