@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
-import { describe, before, afterEach, it } from 'node:test';
+import { describe, before, after, afterEach, it } from 'node:test';
 
 import '@greycat/web/sdk';
 import { HOLD_EVENTS } from '../dist/sdk/lib/internal.js';
@@ -378,6 +378,19 @@ describe('task stream', () => {
   describe('resume', () => {
     /** @type {gc.sdk.GreyCat[]} */
     let others = [];
+
+    // Node before 25 has no Web Storage, so the page gets an in-memory one.
+    const ownStorage = typeof globalThis.sessionStorage === 'undefined';
+    before(() => {
+      if (ownStorage) {
+        /** @type {any} */ (globalThis).sessionStorage = new MemoryStorage();
+      }
+    });
+    after(() => {
+      if (ownStorage) {
+        delete (/** @type {any} */ (globalThis).sessionStorage);
+      }
+    });
 
     afterEach(() => {
       for (const other of others) {
@@ -1172,3 +1185,31 @@ describe('task stream', () => {
     }
   });
 });
+
+/** The part of the Web Storage API the SDK and these tests use, held in memory. */
+class MemoryStorage {
+  /** @type {Map<string, string>} */
+  #items = new Map();
+
+  /** @param {string} key */
+  getItem(key) {
+    return this.#items.get(key) ?? null;
+  }
+
+  /**
+   * @param {string} key
+   * @param {string} value
+   */
+  setItem(key, value) {
+    this.#items.set(key, String(value));
+  }
+
+  /** @param {string} key */
+  removeItem(key) {
+    this.#items.delete(key);
+  }
+
+  clear() {
+    this.#items.clear();
+  }
+}
