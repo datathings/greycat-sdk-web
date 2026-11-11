@@ -68,7 +68,7 @@ resolves to it. Options:
 | `auth`, `credentials` | see [auth.md](auth.md) |
 | `world`, `identityWorld` | the world every call runs in; unset, the identity's default one unless `identityWorld: false` (see [worlds.md](worlds.md)) |
 | `taskEvents` | keep a task event stream open, `true` by default; see [tasks.md](tasks.md) |
-| `pauseWhenHidden` | close that stream while the page is hidden, `false` by default (see [tasks.md](tasks.md)) |
+| `pauseWhenHidden` | close that stream while the page is hidden, `true` by default. A hidden page polls nothing while it has a stream to resume, and polls its tasks otherwise (see [tasks.md](tasks.md#node-and-browsers)) |
 | `pollFrequency` | cadence of the polling fallback in ms, `100` |
 | `unauthorizedHandler`, `abiMismatchHandler` | see [auth.md](auth.md) |
 | `cache` | an ETag cache for the ABI and call responses |
@@ -93,6 +93,11 @@ gives it a tracker of its own. `setDebugId(id)` on it routes its calls through
 the debugger, which is what the explorer does per debugger session. For an
 instance in another world, `greycat.inWorld(name)` makes and keeps the clone
 (see [worlds.md](worlds.md)).
+
+An `init`, `initWithAbi` or `clone` under a name already in `gc.$` replaces the
+instance registered there, which stops following tasks: its task tracker is
+disconnected (no stream, no page listeners), unless a registered clone still
+shares it. The replaced instance can still make plain calls.
 
 `gc.sdk.initWithAbi({ abi, module, exports, url, token })` builds an instance
 from an ABI already at hand, with no network at construction: tests, workers,

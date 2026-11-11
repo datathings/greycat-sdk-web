@@ -5,6 +5,7 @@
 - Tracking a task: wait, subscribe, await, spawnAwait
 - Errors and events
 - How updates arrive: the event stream and the polling fallback
+- Resuming the stream
 - Listening to the stream: `task:event`
 - Credentials and the stream
 - Node and browsers
@@ -44,7 +45,8 @@ const same = await greycat.spawnAwait('shop::rebuild_index', [], { onprogress })
 
 A task is watched only while one of these holds it. A task the instance
 spawned and never waits on reaches it only through `task:event`, and only if
-the stream was open when it was spawned.
+the stream was open when it was spawned or took it over since (see
+[Resuming the stream](#resuming-the-stream)).
 
 ## Errors and events
 
@@ -99,21 +101,21 @@ those tasks from start to end. Frames carry the task as GCB, decoded like a
 call result. While the stream is open, an update of such a task reaches the
 listener as the server reports it and no request is made.
 
-The tracker polls every other task: one spawned by another instance, tab,
-page load or script, one of another user, one spawned while the stream was not
-open, or one spawned on a stream that has since closed. It polls
+The tracker polls every other task: one spawned by another instance, tab or
+script, one of another user, one spawned while the stream was not open, or one
+spawned on a stream that closed and that no new stream took over. It polls
 `runtime::Task::tasks(ids)` in one batched request per tick, at the fastest
 cadence a consumer asked for: `pollEvery` in the task options, else
 `pollFrequency` from `init` (100 ms). A task the stream reports gets one
 snapshot when it starts being tracked, so a task that already ended still
 settles. Consumers see the same behaviour either way.
 
-A dropped stream reconnects after 1 s, then 5, 10, 20, and every 30 s. The new
-stream has a new id and reports none of the tasks spawned on the old one, so
-those are polled until they end. Silence longer than 45 s counts as a drop
-(the server pings every 15 s). A
+A dropped stream reconnects after 1 s, then 5, 10, 20, and every 30 s, and the
+new stream resumes the old one (see below). Silence longer than 45 s counts as
+a drop (the server pings every 15 s). A
 server with no stream to offer (older core, Windows, an anonymous session on a
-server that requires a login) is not retried: polling serves the session. A
+server that requires a login) is not asked again until `tasks.reconnect()`, a
+new token, or a `disconnect()` and `connect()`: polling serves the session. A
 server past its `max_sse` or `max_sse_per_user` cap answers 429 and is retried.
 
 | Property | What it tells |
@@ -121,12 +123,59 @@ server past its `max_sse` or `max_sse_per_user` cap answers 429 and is retried.
 | `greycat.tasks.transport` | `'stream'` or `'poll'` |
 | `greycat.tasks.streamState` | `idle`, `connecting` (until the server sent the id), `open` or `closed` |
 | `greycat.tasks.streamId` | the id of the open stream, a decimal string since it may not fit a `number` |
+| `greycat.tasks.followed()` | the tasks the stream took over from the one it resumed, in their latest state (see [Listening to the stream](#listening-to-the-stream-taskevent)) |
 | `greycat.isPollingTasks()` | whether the fallback has something to poll right now |
+
+## Resuming the stream
+
+Every new stream of an instance has a new id. To keep following the tasks of
+the previous one, the instance asks the server to resume it: the request names
+it in its `sse-resume` header as `<run>:<id>`, where the run is the number the
+server sends with the id in its `connected` frame and changes at every server
+start. The server moves to the new stream the tasks of the same user spawned
+on the old one that have not ended, whatever their status (queued, running,
+in `await`, paused on a breakpoint), but not their `await` jobs. It sends a
+`task-state` frame with the current state of each, then a `synced` frame. From there the tracker follows those tasks on the
+stream, and polls only the tracked tasks it did not take over: a task that
+ended while no stream was open is not taken over, and its lookup settles it.
+Until `synced` arrives every tracked task not bound to the stream is polled.
+
+Which stream is resumed:
+
+- A reconnect after a drop or a failed attempt resumes the stream the instance
+  last opened, and adds `; claim`, which has the server close that stream
+  first if it still holds it open. Node scripts get this too.
+- In a browser, every other connect (a reload, the next page of the tab, the
+  return of a hidden page, a page back from the back/forward cache) resumes
+  the stream recorded for the tab in `sessionStorage`, keyed by the API URL
+  and the instance name, written at every `connected`. It claims that stream
+  only when it is the one the instance itself opened last (a hidden page
+  back, a page restored before another page of the tab opened a stream). A
+  stream recorded by another page is never claimed, so one the server still
+  holds open is not taken over. A page that may not use `sessionStorage` (a
+  sandboxed iframe, site data blocked) records nothing and opens a fresh
+  stream on those connects.
+- A tab opened with `window.open`, or duplicated by the browser, starts with a
+  copy of that record. Before it
+  resumes a recorded stream other than its own, the instance asks on a
+  `BroadcastChannel` whether a live instance holds it and waits 75 ms. An
+  answer (the opener, even with its stream paused) makes it open a fresh
+  stream instead. A browser without `BroadcastChannel` cannot ask, so there
+  an instance resumes only the stream it opened itself, and a reload or the
+  next page of the tab opens a fresh one.
+
+Nothing is resumed after a change of credentials (`login`, `logout`, a 401 on
+any request or on the stream itself, a cookie session included, a new `token`,
+`tasks.reconnect()`), which clears the record, after a server
+restart, or with a core that sends no run in its `connected` frame: the new
+stream then takes over no task, and the tracked ones are polled until they
+end.
 
 ## Listening to the stream: `task:event`
 
 `task:event` carries `{ kind, task }` for every frame, so for every task the
-instance spawned while the stream was open, tracked or not:
+instance spawned while the stream was open or that the stream took over,
+tracked or not:
 
 | `kind` | When |
 | --- | --- |
@@ -135,6 +184,23 @@ instance spawned while the stream was open, tracked or not:
 | `breakpoint` | the task paused on a `breakpoint`, its status is `breakpoint` |
 | `resumed` | the task goes on after a breakpoint, its status is back to what it was (`running`, or `await` when one of its `await` jobs paused) |
 | `complete` | the task ended, whatever its final status |
+| `state` | the stream took the task over from the stream it resumed, with its current state, final or not |
+
+Frames that arrive while `init` runs (a resumed stream sends its `state`
+frames as soon as it opens) are held and delivered once `init` returned, so a
+listener attached right after `await init()` sees every frame.
+
+`greycat.tasks.followed()` returns the tasks the stream took over from the
+stream it resumed, each in the latest state the stream reported. The array is
+new at each call, but its `Task` objects are shared with the `task:event`
+listeners and with later calls, not copied. A task leaves it once it ends, and it empties when the stream closes. A
+view that mounts long after `init` reads it once and subscribes to
+`task:event` in the same synchronous step, so no frame falls in between:
+
+```ts
+const rows = new Map(greycat.tasks.followed().map((t) => [t.task_id, t]));
+greycat.on('task:event', ({ task }) => rows.set(task.task_id, task));
+```
 
 Plain calls do not show up, since the instance names the stream only in the
 calls it spawns. Neither do the calls of other instances, tabs or scripts,
@@ -161,10 +227,14 @@ An open stream keeps a Node process alive. A script or a test that called
 A browser allows six connections per origin over HTTP/1.1, shared by all its
 tabs, and each instance holds one for its stream (a clone shares the stream of
 its original). Share `gc.$.default` rather than creating instances per component.
-With `init({ pauseWhenHidden: true })`, a hidden tab closes its stream and
-leaves the connection to the others. Its tracked tasks are polled in the
-meantime, and the ones spawned before the pause stay polled until they end,
-since the stream reopened on return reports none of them.
+A hidden tab closes its stream and leaves the connection to the others, unless
+`init({ pauseWhenHidden: false })`. Nothing is polled while the page is hidden,
+and a `wait` stays pending until the page is visible again. The stream opened
+on return resumes the closed one and reports its live tasks from there. A page
+with no stream to resume polls its tracked tasks while hidden instead, so a
+`wait` still settles: no stream was open yet, the core sends no run, or the
+server refused the stream. A refused stream is not asked for again when the
+page is visible.
 
 ## Controlling the stream
 
@@ -172,7 +242,7 @@ since the stream reopened on return reports none of them.
 | --- | --- |
 | `init({ taskEvents: false })` | never open a stream; polling only |
 | `greycat.tasks.connect()` | open it (an `initWithAbi` instance, or after `disconnect`) |
-| `greycat.tasks.disconnect()` | close it and stop reconnecting; tracked tasks fall back to polling |
+| `greycat.tasks.disconnect()` | close it and stop reconnecting; tracked tasks fall back to polling. It also removes the page listeners and stops answering other tabs for the stream, until the next `connect()`. Registering another instance under the same name does this to the one it replaces (see [setup.md](setup.md#instances)) |
 | `greycat.tasks.reconnect()` | close and reopen with the current credentials, if it was asked for |
-| `greycat.tasks.pauseWhenHidden(enabled)` | close it while the page is hidden, what the `pauseWhenHidden` option of `init` turns on |
+| `greycat.tasks.pauseWhenHidden(enabled)` | close it while the page is hidden, what the `pauseWhenHidden` option of `init` turns on (on by default) |
 | `await greycat.tasks.opened(timeoutMs)` | `true` once it is open, `false` if the attempt fails, nothing is opening it, or the time runs out |

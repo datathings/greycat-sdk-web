@@ -13,6 +13,8 @@ export type TaskStreamState = 'idle' | 'connecting' | 'open' | 'closed';
 const WATCHDOG_MS = 45_000;
 /** Delays before each reconnect attempt; the last one repeats. */
 const RETRY_DELAYS_MS = [1_000, 5_000, 10_000, 20_000, 30_000];
+/** How long an instance waits for another one to say it holds the stream it is about to resume. */
+const HOLDER_WAIT_MS = 75;
 
 /**
  * What a frame of the task event stream reports about a task:
@@ -23,9 +25,11 @@ const RETRY_DELAYS_MS = [1_000, 5_000, 10_000, 20_000, 30_000];
  *  - `breakpoint`: it paused on a `breakpoint`, its status is `breakpoint`,
  *  - `resumed`: it goes on after a breakpoint, its status is back to what it was (`running`,
  *    or `await` when one of its `await` jobs paused),
- *  - `complete`: it ended, whatever its final status.
+ *  - `complete`: it ended, whatever its final status,
+ *  - `state`: its current state, final or not, sent once by a stream that resumed a previous
+ *    one, for each task it took over from it.
  */
-export type TaskEventKind = 'started' | 'progress' | 'breakpoint' | 'resumed' | 'complete';
+export type TaskEventKind = 'started' | 'progress' | 'breakpoint' | 'resumed' | 'complete' | 'state';
 
 /** A decoded frame of the task event stream. */
 export type TaskEvent = {
@@ -40,6 +44,7 @@ const TASK_EVENTS: ReadonlyMap<string, TaskEventKind> = new Map([
   ['task-breakpoint', 'breakpoint'],
   ['task-resumed', 'resumed'],
   ['task-complete', 'complete'],
+  ['task-state', 'state'],
 ]);
 
 /** Where the stream stands after a change, and its id while it is open. */
@@ -53,6 +58,12 @@ export type TaskStreamHandlers = {
   onOpen(id: string): void;
   /** A frame that carries a task, decoded. */
   onEvent(event: TaskEvent): void;
+  /**
+   * The server sent the `state` of every task the stream took over (`count` of them), and
+   * reports the tasks of the previous stream from here on. A core that cannot resume a
+   * stream never sends it.
+   */
+  onSynced(count: number): void;
   /** The stream dropped, or a connect attempt failed; a retry may be scheduled. */
   onClose(): void;
   /** The state changed, called after `onOpen` or `onClose`. */
@@ -66,10 +77,22 @@ export type TaskStreamHandlers = {
  * progress, pauses on a breakpoint and ends. Calls that name no stream, or another one,
  * are not reported. A reconnect opens a stream with a new id.
  *
+ * A reconnect resumes the previous stream, so the new one takes over the tasks spawned on
+ * the old one that have not ended, whatever their status (queued, running, in `await`,
+ * paused on a breakpoint), but not their `await` jobs (see {@link ResumePoint}). The request names the previous stream in its
+ * `sse-resume` header as `<run>:<id>`, the run of the server and the id its `connected`
+ * frame carried. The server then sends a `task-state` frame for each task it moved, and a
+ * `synced` frame once done. A server started again since (another run), or a previous
+ * stream still open, moves nothing. A reconnect of the stream the instance itself opened last
+ * (after a drop, or once a hidden page is visible again) adds `; claim`, which has the
+ * server close that stream if it still holds it open. Only the instance that opened that
+ * stream claims it, so nothing else is using it.
+ *
  * Frames are requested as GCB (`Accept: application/octet-stream`, base64 in the `data:`
  * line) and decoded with the instance's ABI, so they yield the same `runtime::Task`
- * objects an RPC does. Lost connections are retried with a growing delay; a server that
- * does not offer the endpoint (older core, Windows) or refuses the caller is not retried.
+ * objects an RPC does. Lost connections are retried with a growing delay. A server that
+ * does not offer the endpoint (older core, Windows) or refuses the caller is not asked
+ * again until {@link allowRetry}.
  */
 export class TaskStream {
   #g: GreyCat;
@@ -87,14 +110,37 @@ export class TaskStream {
   #id: string | undefined;
   /** Callers of {@link opened} waiting for the outcome of the current attempt. */
   #waiters: Set<(open: boolean) => void> = new Set();
+  /**
+   * `<run>:<id>` of the last stream this instance opened, kept while the stream is closed for
+   * a pause or a retry, so that a retry can claim it and other tabs learn it is taken.
+   * `undefined` before the first one, after {@link forget}, and with a core that cannot
+   * resume a stream.
+   */
+  #held: string | undefined;
+  /**
+   * The server answered that it has no stream for this caller, so {@link connect} does not
+   * ask again until {@link allowRetry}.
+   */
+  #refused = false;
+  #point: ResumePoint;
 
   constructor(g: GreyCat, handlers: TaskStreamHandlers) {
     this.#g = g;
     this.#handlers = handlers;
+    this.#point = new ResumePoint(`greycat:task-stream:${g.name}@${g.api}`, () => this.#held);
   }
 
   get state(): TaskStreamState {
     return this.#state;
+  }
+
+  /**
+   * Whether the next connect may resume the stream this instance opened last, and take over
+   * its tasks: that stream reported a run, it was not forgotten, and the server did not
+   * refuse a stream since.
+   */
+  get resumable(): boolean {
+    return this.#held !== undefined && !this.#refused;
   }
 
   /** The id of the open stream, to name in the `sse` header of a call, or `undefined` unless open. */
@@ -132,16 +178,49 @@ export class TaskStream {
     }
   }
 
-  /** Opens the stream, or does nothing if it is open or being opened. */
+  /**
+   * Opens the stream, or does nothing if it is open or being opened, or if the server
+   * refused it (see {@link allowRetry}).
+   */
   connect(): void {
     this.#wanted = true;
-    if (this.#state === 'connecting' || this.#state === 'open') {
+    if (this.#state === 'connecting' || this.#state === 'open' || this.#refused) {
       return;
     }
     clearTimeout(this.#retry);
     this.#retry = undefined;
     this.#attempt = 0;
-    void this.#run();
+    void this.#run(false);
+  }
+
+  /**
+   * Drops the stream to resume, so the next connect opens a fresh one. For a change of
+   * credentials, since the tasks of the previous stream belong to the previous login.
+   */
+  forget(): void {
+    this.#held = undefined;
+    this.#point.write(undefined);
+  }
+
+  /**
+   * Stops answering other instances for the stream this instance held, and closes the
+   * channel it answers on. The next stream that opens answers again.
+   */
+  release(): void {
+    this.#point.close();
+  }
+
+  /** Lets the next {@link connect} ask a server that refused the stream again. */
+  allowRetry(): void {
+    this.#refused = false;
+  }
+
+  /**
+   * The page was left (`pagehide`) or came back from the back/forward cache (`pageshow`).
+   * A page left stops answering for its stream, and keeps no channel open in the cache.
+   */
+  pageLeft(left: boolean): void {
+    this.#point.suspend(left);
   }
 
   /** Closes the stream and cancels any pending retry. */
@@ -164,14 +243,28 @@ export class TaskStream {
     this.#handlers.onChange({ state, id: this.#id });
   }
 
-  async #run(): Promise<void> {
+  /** @param retry the stream dropped or the last attempt failed, and the previous stream may be claimed */
+  async #run(retry: boolean): Promise<void> {
     this.#setState('connecting');
     const ctrl = new AbortController();
     this.#ctrl = ctrl;
 
+    let resume: string | undefined;
+    try {
+      resume = await this.#resumeHeader(retry, ctrl);
+    } catch {
+      // the record could not be read, so a fresh stream
+      resume = undefined;
+    }
+    if (ctrl.signal.aborted) {
+      return;
+    }
     const headers: HeadersInit = { accept: 'application/octet-stream' };
     if (this.#g.token) {
       headers['Authorization'] = this.#g.token;
+    }
+    if (resume !== undefined) {
+      headers['sse-resume'] = resume;
     }
     let res: Response;
     try {
@@ -188,15 +281,19 @@ export class TaskStream {
       return;
     }
     if (res.status === 401 || res.status === 403) {
-      // not for this caller: polling reports the same status and runs the handler
+      // not for this caller: polling reports the same status and runs the handler. The
+      // stream to resume belongs to a login the server no longer accepts.
       await res.body?.cancel().catch(() => {});
-      this.#dropped(ctrl, false);
+      if (this.#ctrl === ctrl) {
+        this.forget();
+      }
+      this.#refuse(ctrl);
       return;
     }
     if (res.status === 404 || res.status === 400 || res.status === 501 || res.status === 503) {
       // the server has no stream to offer (older core, Windows): polling for the session
       await res.body?.cancel().catch(() => {});
-      this.#dropped(ctrl, false);
+      this.#refuse(ctrl);
       return;
     }
     // anything else that is not a stream is retried; that includes a 429 from a server
@@ -236,6 +333,44 @@ export class TaskStream {
   }
 
   /**
+   * The `sse-resume` header of the connect attempt `ctrl`, or `undefined` to open a fresh
+   * stream.
+   *
+   * A retry claims the stream this instance held. Any other attempt resumes the stream
+   * recorded for the tab, which the last page of the tab to open one wrote: a page restored
+   * from the back/forward cache must resume the stream of the page that followed it in the
+   * tab, not its own older one. That record is claimed only when it is the stream this
+   * instance held (the return of a hidden page, a page restored before another page of the
+   * tab opened a stream), since the server may not have seen that connection close yet and
+   * would then move nothing. A record of another page is never claimed. A tab opened by
+   * `window.open`, or duplicated, starts with a copy of the record of its opener, whose stream
+   * may be paused (its page is hidden by the new tab) but still in use, so a recorded stream
+   * that another live instance says it holds is not resumed, nor any recorded stream of
+   * another page where no instance can be asked.
+   */
+  async #resumeHeader(retry: boolean, ctrl: AbortController): Promise<string | undefined> {
+    if (retry && this.#held !== undefined) {
+      return `${this.#held}; claim`;
+    }
+    const recorded = this.#point.read();
+    if (recorded === undefined) {
+      return undefined;
+    }
+    if (recorded === this.#held) {
+      return `${recorded}; claim`;
+    }
+    if (await this.#point.isHeld(recorded, HOLDER_WAIT_MS)) {
+      // an attempt given up during the wait leaves the record alone, which by now may be
+      // the one of the stream a newer attempt opened
+      if (!ctrl.signal.aborted) {
+        this.#point.write(undefined);
+      }
+      return undefined;
+    }
+    return recorded;
+  }
+
+  /**
    * Dispatches every complete frame in `text` and returns what is left of a partial one.
    * Stops once `ctrl` is no longer the current connection, since a handler may close or
    * restart the stream and the rest of the chunk then belongs to credentials that are gone.
@@ -258,16 +393,26 @@ export class TaskStream {
   #frame(raw: string): void {
     let event = 'message';
     let data = '';
+    let run: string | undefined;
     for (const line of raw.split('\n')) {
       if (line.startsWith('event:')) {
         event = line.slice(6).trim();
       } else if (line.startsWith('data:')) {
         data += (data === '' ? '' : '\n') + line.slice(5).trim();
+      } else if (line.startsWith('run:')) {
+        run = line.slice(4).trim();
       }
       // comments (`: ping`) and unknown fields are ignored
     }
     if (event === 'connected') {
-      this.#connected(data);
+      this.#connected(data, run);
+      return;
+    }
+    if (event === 'synced') {
+      if (this.#state === 'open') {
+        const count = Number.parseInt(data, 10);
+        this.#handlers.onSynced(Number.isNaN(count) ? 0 : count);
+      }
       return;
     }
     const kind = TASK_EVENTS.get(event);
@@ -284,17 +429,31 @@ export class TaskStream {
     this.#handlers.onEvent({ kind, task: task as gc.runtime.Task });
   }
 
-  /** Reads the `connected` frame, whose `data:` is the id of the stream in plain text whatever the `Accept`. */
-  #connected(id: string): void {
+  /**
+   * Reads the `connected` frame, whose `data:` is the id of the stream in plain text whatever
+   * the `Accept`, and whose `run:` is the run of the server, a number that changes at every
+   * start of the server. A core that cannot resume a stream sends no `run:`.
+   */
+  #connected(id: string, run: string | undefined): void {
     if (id === '' || this.#state !== 'connecting') {
       return;
     }
     this.#id = id;
+    this.#held = run === undefined || run === '' ? undefined : `${run}:${id}`;
+    this.#point.write(this.#held);
     this.#state = 'open';
     this.#attempt = 0;
     this.#handlers.onOpen(id);
     this.#handlers.onChange({ state: 'open', id });
     this.#settleWaiters(true);
+  }
+
+  /** The server refused the attempt identified by `ctrl`, which is not retried. */
+  #refuse(ctrl: AbortController): void {
+    if (this.#ctrl === ctrl) {
+      this.#refused = true;
+    }
+    this.#dropped(ctrl, false);
   }
 
   /**
@@ -321,9 +480,177 @@ export class TaskStream {
     this.#attempt += 1;
     this.#retry = setTimeout(() => {
       this.#retry = undefined;
-      void this.#run();
+      void this.#run(true);
     }, delay);
     unref(this.#retry);
+  }
+}
+
+/** A message on the channel of a {@link ResumePoint}. */
+type HolderMessage = { who: string } | { holds: string };
+
+/**
+ * Where an instance records the stream to resume, and how it learns whether another
+ * instance still uses it. Does nothing outside a browser, nor where the page may not use
+ * `sessionStorage`.
+ *
+ * The record (`<run>:<id>`) lives in `sessionStorage` under `key`, so it survives a reload
+ * and a page change in the same tab, and is cleared with the tab. Live instances of every
+ * tab of the origin share a `BroadcastChannel` named `key`: an instance about to resume a
+ * recorded stream asks who holds it, and an instance answers for the stream it holds, even
+ * while its stream is paused. The channel is closed while the page is left, so a page in
+ * the back/forward cache answers nothing and keeps no channel open there.
+ */
+class ResumePoint {
+  #key: string;
+  #holds: () => string | undefined;
+  /** The `sessionStorage` of the page, `undefined` outside a browser or where it is blocked. */
+  #storage: Storage | undefined;
+  #channel: BroadcastChannel | undefined;
+  #suspended = false;
+  /** Callers of {@link isHeld} waiting for an answer. */
+  #asking: Set<(message: HolderMessage) => void> = new Set();
+
+  constructor(key: string, holds: () => string | undefined) {
+    this.#key = key;
+    this.#holds = holds;
+    this.#storage = ResumePoint.#sessionStorage();
+  }
+
+  /**
+   * The `sessionStorage` of the page, or `undefined`. Reading it throws a `SecurityError`
+   * where the page may not use it (a sandboxed iframe without `allow-same-origin`, site data
+   * blocked by the user).
+   */
+  static #sessionStorage(): Storage | undefined {
+    if (typeof window === 'undefined') {
+      return undefined;
+    }
+    try {
+      return globalThis.sessionStorage ?? undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  read(): string | undefined {
+    if (this.#storage === undefined) {
+      return undefined;
+    }
+    try {
+      return this.#storage.getItem(this.#key) ?? undefined;
+    } catch {
+      return undefined;
+    }
+  }
+
+  /** Records `value`, or clears the record when `undefined`, and answers for it from now on. */
+  write(value: string | undefined): void {
+    if (this.#storage === undefined) {
+      return;
+    }
+    try {
+      if (value === undefined) {
+        this.#storage.removeItem(this.#key);
+      } else {
+        this.#storage.setItem(this.#key, value);
+      }
+    } catch {
+      // storage disabled or full: the next page load opens a fresh stream
+    }
+    if (value !== undefined) {
+      this.#open();
+    }
+  }
+
+  /** Closes the channel, which the next {@link write} of a record or {@link isHeld} opens again. */
+  close(): void {
+    this.#suspended = false;
+    this.#channel?.close();
+    this.#channel = undefined;
+  }
+
+  /** Closes the channel while `suspended`, and opens it again after. */
+  suspend(suspended: boolean): void {
+    this.#suspended = suspended;
+    if (suspended) {
+      this.#channel?.close();
+      this.#channel = undefined;
+    } else if (this.#holds() !== undefined) {
+      this.#open();
+    }
+  }
+
+  /**
+   * Whether another live instance answers, within `waitMs`, that it holds the stream `value`.
+   * `true` when there is no channel to ask on (a browser without `BroadcastChannel`), since a
+   * tab opened from another one, or duplicated, would otherwise take over the tasks of a stream
+   * its opener still uses.
+   */
+  isHeld(value: string, waitMs: number): Promise<boolean> {
+    const channel = this.#open();
+    if (channel === undefined) {
+      return Promise.resolve(true);
+    }
+    return new Promise((resolve) => {
+      const done = (held: boolean) => {
+        clearTimeout(timer);
+        this.#asking.delete(listener);
+        resolve(held);
+      };
+      const listener = (message: HolderMessage) => {
+        if ('holds' in message && message.holds === value) {
+          done(true);
+        }
+      };
+      const timer = setTimeout(() => done(false), waitMs);
+      unref(timer);
+      this.#asking.add(listener);
+      this.#post(channel, { who: value });
+    });
+  }
+
+  #open(): BroadcastChannel | undefined {
+    if (this.#channel !== undefined) {
+      return this.#channel;
+    }
+    if (this.#suspended || this.#storage === undefined || typeof BroadcastChannel === 'undefined') {
+      return undefined;
+    }
+    let channel: BroadcastChannel;
+    try {
+      channel = new BroadcastChannel(this.#key);
+    } catch {
+      return undefined;
+    }
+    channel.onmessage = (event: MessageEvent<HolderMessage>) => this.#receive(channel, event.data);
+    (channel as { unref?: () => void }).unref?.();
+    this.#channel = channel;
+    return channel;
+  }
+
+  #receive(channel: BroadcastChannel, message: HolderMessage): void {
+    if (typeof message !== 'object' || message === null) {
+      return;
+    }
+    if ('who' in message) {
+      const held = this.#holds();
+      if (held !== undefined && held === message.who) {
+        this.#post(channel, { holds: held });
+      }
+      return;
+    }
+    for (const listener of this.#asking) {
+      listener(message);
+    }
+  }
+
+  #post(channel: BroadcastChannel, message: HolderMessage): void {
+    try {
+      channel.postMessage(message);
+    } catch {
+      // closed in the meantime
+    }
   }
 }
 

@@ -1,6 +1,7 @@
 import { gcreg } from './registry.js';
 import type { GreyCat } from './greycat.js';
 import { errorFrames } from './utils/error.js';
+import { FORGET_STREAM, HOLD_EVENTS } from './internal.js';
 import { TaskStream, type TaskEvent, type TaskStreamChange, type TaskStreamState } from './task-stream.js';
 
 type SyncRun = () => void;
@@ -206,9 +207,11 @@ const MAX_BOUND = 1024;
  *
  * The stream only reports the tasks of the calls that named it. The instance names the
  * open stream in every call it spawns, and the tracker follows those tasks on it, from
- * their start to their end. Every other tracked task is polled: one spawned by another
- * instance, tab or page load, one of another user, one spawned while the stream was not
- * open, or bound to a stream that has since closed. Polling refreshes those tasks in one
+ * their start to their end. A stream that resumes a previous one takes over the tasks of
+ * that one that have not ended, whatever their status, and sends their current state
+ * first, and the tracker follows them on it too. Every other tracked task is polled: one spawned by another instance or tab, one
+ * of another user, one spawned while the stream was not open, or one bound to a stream
+ * that closed and was not resumed. Polling refreshes those tasks in one
  * batched `runtime::Task::tasks(ids)` call per tick, at the fastest cadence any consumer
  * requested. Consumers pick a style:
  *
@@ -229,14 +232,31 @@ export class TaskPoller {
    * stream opens or goes, since a new stream reports none of the calls that named the old one.
    */
   #bound: Set<TaskId> = new Set();
-  /** The `visibilitychange` listener installed by {@link pauseWhenHidden}. */
-  #visibility: (() => void) | undefined;
+  /**
+   * The latest state of the live tasks the open stream took over from a previous one (its
+   * `state` frames), a subset of {@link #bound}. Emptied with it.
+   */
+  #covered: Map<TaskId, gc.runtime.Task> = new Map();
+  /** {@link pauseWhenHidden} is on. */
+  #pauseOnHide = false;
+  /**
+   * The `visibilitychange` listener of {@link pauseWhenHidden}, installed while it is on,
+   * except after {@link disconnect} until the next {@link connect}.
+   */
+  #visibility: { target: Document; listener: () => void } | undefined;
   /** The page is hidden and {@link pauseWhenHidden} closed the stream for it. */
   #hidden = false;
   /** The page was left, maybe into the back/forward cache, and {@link #followPage} closed the stream for it. */
   #left = false;
-  /** The `pagehide` and `pageshow` listeners of {@link #followPage} are installed. */
-  #following = false;
+  /** The `pagehide` and `pageshow` listeners of {@link #followPage}, installed from {@link connect} to {@link disconnect}. */
+  #page: { target: Window; hide: () => void; show: (event: PageTransitionEvent) => void } | undefined;
+  /**
+   * Frames received while {@link HOLD_EVENTS} holds them, in order, each with the id of the
+   * stream it came on. `undefined` when frames are applied as they come.
+   */
+  #held: { streamId: string | undefined; apply: () => void }[] | undefined;
+  /** How many holds of {@link HOLD_EVENTS} are not released yet. */
+  #holds = 0;
 
   constructor(g: GreyCat) {
     this.#g = g;
@@ -244,6 +264,7 @@ export class TaskPoller {
     this.#stream = new TaskStream(g, {
       onOpen: this.#onStreamOpen,
       onEvent: this.#onStreamEvent,
+      onSynced: this.#onStreamSynced,
       onClose: this.#onStreamClose,
       onChange: this.#onStreamChange,
     });
@@ -255,7 +276,7 @@ export class TaskPoller {
    */
   fork(g: GreyCat): TaskPoller {
     const tasks = new TaskPoller(g);
-    if (this.#visibility !== undefined) {
+    if (this.#pauseOnHide) {
       tasks.pauseWhenHidden();
     }
     if (this.#wanted) {
@@ -294,15 +315,32 @@ export class TaskPoller {
   /**
    * Opens the task event stream (`GET /runtime::Task::events`). `init` does this unless
    * `taskEvents: false`; call it on an `initWithAbi` instance. Dropped connections
-   * reconnect on their own; a server without the endpoint is left alone and polling
-   * serves the session.
+   * reconnect on their own. A server without the endpoint, or that refuses the caller, is
+   * left alone until {@link reconnect}, a new token or a `disconnect()` and `connect()`, and
+   * polling serves the session.
    */
   connect(): void {
     this.#wanted = true;
     this.#followPage();
-    if (!this.#hidden && !this.#left) {
+    if (this.#pauseOnHide) {
+      this.#watchVisibility();
+    }
+    if (this.#hidden) {
+      this.#streamGone();
+    } else if (!this.#left) {
       this.#stream.connect();
     }
+  }
+
+  /**
+   * The page is hidden, {@link pauseWhenHidden} closed the stream for it, and that stream
+   * can be resumed. Nothing is polled then: the stream reopened on return resumes the closed
+   * one, takes over its tasks and sends their state, and the tasks it does not take over are
+   * polled from there. Without a stream to resume (none opened yet, a core that cannot
+   * resume one, a server that refused it), the tracked tasks are polled while hidden.
+   */
+  get #paused(): boolean {
+    return this.#hidden && this.#wanted && this.#stream.resumable;
   }
 
   /**
@@ -314,16 +352,30 @@ export class TaskPoller {
    * it also keeps the page eligible for that cache. Does nothing outside a browser.
    */
   #followPage(): void {
-    if (this.#following || typeof window === 'undefined') {
+    if (this.#page !== undefined || typeof window === 'undefined') {
       return;
     }
-    this.#following = true;
-    window.addEventListener('pagehide', () => this.#onLeft(true));
-    window.addEventListener('pageshow', (event) => {
-      if (event.persisted) {
-        this.#onLeft(false);
-      }
-    });
+    this.#page = {
+      target: window,
+      hide: () => this.#onLeft(true),
+      show: (event) => {
+        if (event.persisted) {
+          this.#onLeft(false);
+        }
+      },
+    };
+    this.#page.target.addEventListener('pagehide', this.#page.hide);
+    this.#page.target.addEventListener('pageshow', this.#page.show);
+  }
+
+  #unfollowPage(): void {
+    if (this.#page === undefined) {
+      return;
+    }
+    this.#page.target.removeEventListener('pagehide', this.#page.hide);
+    this.#page.target.removeEventListener('pageshow', this.#page.show);
+    this.#page = undefined;
+    this.#left = false;
   }
 
   #onLeft(left: boolean): void {
@@ -331,6 +383,7 @@ export class TaskPoller {
       return;
     }
     this.#left = left;
+    this.#stream.pageLeft(left);
     if (!this.#wanted) {
       return;
     }
@@ -346,24 +399,43 @@ export class TaskPoller {
    * Closes the stream while the page is hidden (`document.hidden`) and opens it again once
    * the page is visible, with `enabled` (the default). A browser shares six connections per
    * origin between all its tabs over HTTP/1.1, and a hidden tab then leaves its own to the
-   * others. In the meantime, every tracked task is polled, and the ones spawned before the
-   * pause stay polled until they end, since the new stream does not report them. Does
-   * nothing outside a browser. `init` calls it for the `pauseWhenHidden` option.
+   * others. In the meantime nothing is polled, and a `wait` stays pending. Once the page is
+   * visible, the new stream resumes the closed one and takes over its live tasks, and the
+   * tracked tasks it does not take over are polled. When there is no stream to resume (none
+   * was open yet, a core that cannot resume one), the tracked tasks are polled while the
+   * page is hidden. A server that refused the stream is not asked again when the page is
+   * visible, and its tasks are polled throughout. Does nothing outside a browser. `init`
+   * calls it for the `pauseWhenHidden` option.
    */
   pauseWhenHidden(enabled = true): void {
     if (typeof document === 'undefined') {
       return;
     }
-    const listener = this.#visibility;
-    if (enabled && listener === undefined) {
-      this.#visibility = () => this.#onVisibility(document.hidden);
-      document.addEventListener('visibilitychange', this.#visibility);
-      this.#onVisibility(document.hidden);
-    } else if (!enabled && listener !== undefined) {
-      document.removeEventListener('visibilitychange', listener);
-      this.#visibility = undefined;
+    this.#pauseOnHide = enabled;
+    if (enabled) {
+      this.#watchVisibility();
+    } else {
+      this.#unwatchVisibility();
       this.#onVisibility(false);
     }
+  }
+
+  #watchVisibility(): void {
+    if (this.#visibility !== undefined || typeof document === 'undefined') {
+      return;
+    }
+    const target = document;
+    this.#visibility = { target, listener: () => this.#onVisibility(target.hidden) };
+    target.addEventListener('visibilitychange', this.#visibility.listener);
+    this.#onVisibility(target.hidden);
+  }
+
+  #unwatchVisibility(): void {
+    if (this.#visibility === undefined) {
+      return;
+    }
+    this.#visibility.target.removeEventListener('visibilitychange', this.#visibility.listener);
+    this.#visibility = undefined;
   }
 
   #onVisibility(hidden: boolean): void {
@@ -377,9 +449,80 @@ export class TaskPoller {
     if (hidden) {
       this.#stream.disconnect();
       this.#streamGone();
-    } else if (!this.#left) {
+      return;
+    }
+    // polled until the stream says which tasks it took over
+    this.#streamGone();
+    if (!this.#left) {
       this.#stream.connect();
     }
+  }
+
+  /**
+   * Holds the frames of the stream until the returned function is called, then applies
+   * them in order, and the ones of a stream closed in the meantime are dropped. Holds nest:
+   * the frames wait until every hold is released, and a release counts once however often
+   * it is called. `init` holds them while it runs and releases them on a later macrotask,
+   * after the caller's `await init()` went on, so a listener attached right after it sees
+   * every frame. Without it, a resumed stream would send its `state` frames before the
+   * caller could listen.
+   */
+  [HOLD_EVENTS](): () => void {
+    this.#holds += 1;
+    this.#held ??= [];
+    let released = false;
+    return () => {
+      if (released) {
+        return;
+      }
+      released = true;
+      this.#holds -= 1;
+      if (this.#holds > 0) {
+        return;
+      }
+      const held = this.#held ?? [];
+      this.#held = undefined;
+      for (const { streamId, apply } of held) {
+        if (streamId === this.#stream.id) {
+          apply();
+        }
+      }
+    };
+  }
+
+  /**
+   * Drops the stream to resume, so the next connect opens a fresh one, without touching the
+   * stream itself. For a 401, whose login is gone even when the instance holds no token. A
+   * page hidden with nothing left to resume polls its tasks from now on.
+   */
+  [FORGET_STREAM](): void {
+    const paused = this.#paused;
+    this.#stream.forget();
+    if (paused) {
+      this.#streamGone();
+    }
+  }
+
+  /** Queues `apply` if frames are held, and tells whether it was. */
+  #hold(apply: () => void): boolean {
+    if (this.#held === undefined) {
+      return false;
+    }
+    this.#held.push({ streamId: this.#stream.id, apply });
+    return true;
+  }
+
+  /**
+   * The tasks the stream follows since it took them over from the stream it resumed, each
+   * in the latest state it reported. The array is new at each call, but its `Task` objects
+   * are the ones the stream decoded, shared with the `task:event` listeners and with later
+   * calls: change one and they all see it. A task leaves the list once it ends, and
+   * the list empties when the stream closes. A view mounted long after `init` reads it
+   * once, then listens to `task:event` for what follows, since nothing reaches the
+   * instance between the two when both happen in the same synchronous step.
+   */
+  followed(): gc.runtime.Task[] {
+    return [...this.#covered.values()];
   }
 
   /**
@@ -393,20 +536,29 @@ export class TaskPoller {
 
   /**
    * Closes the event stream and stops reconnecting; tracked tasks fall back to polling.
-   * A Node process holding a stream does not exit on its own: call this when done.
+   * The instance also stops answering other tabs for its stream, and removes its `pagehide`,
+   * `pageshow` and `visibilitychange` listeners, which {@link connect} installs again. A Node
+   * process holding a stream does not exit on its own: call this when done.
    */
   disconnect(): void {
     this.#wanted = false;
     this.#stream.disconnect();
+    this.#stream.release();
+    this.#stream.allowRetry();
+    this.#unfollowPage();
+    this.#unwatchVisibility();
     this.#streamGone();
   }
 
   /**
    * Closes the stream and opens it again with the instance's current credentials, if it
    * was asked for. Assigning `token` does this on its own; call it after a cookie login
-   * or logout, which the instance cannot see.
+   * or logout, which the instance cannot see. The new stream is a fresh one, which takes
+   * over no task of the previous login.
    */
   reconnect(): void {
+    this.#stream.forget();
+    this.#stream.allowRetry();
     if (!this.#wanted) {
       return;
     }
@@ -426,11 +578,16 @@ export class TaskPoller {
     if (streamId !== this.#stream.id) {
       return;
     }
-    if (this.#bound.size >= MAX_BOUND) {
+    this.#bindKey(TaskPoller.#key(id));
+  }
+
+  #bindKey(key: TaskId): void {
+    if (this.#bound.size >= MAX_BOUND && !this.#bound.has(key)) {
       const [oldest] = this.#bound;
       this.#bound.delete(oldest);
+      this.#covered.delete(oldest);
     }
-    this.#bound.add(TaskPoller.#key(id));
+    this.#bound.add(key);
   }
 
   /**
@@ -493,11 +650,21 @@ export class TaskPoller {
     if (!pending) {
       pending = { id, listeners: new Set(), waiters: 0, pollId: -1, frequency, updated: false };
       this.#pending.set(key, pending);
-      if (this.#bound.has(key)) {
+      const known = this.#covered.get(key);
+      if (known !== undefined) {
+        // the stream sent the state of this task when it took it over, and every change
+        // since, so that state is current. It is handed over once the consumer is in.
+        const created = pending;
+        queueMicrotask(() => {
+          if (this.#pending.get(key) === created && !created.updated) {
+            this.#handle(created, known);
+          }
+        });
+      } else if (this.#bound.has(key)) {
         // the stream reports this task, but only from now on. A look tells whether it
         // already ended, or reported something before it was tracked.
         void this.#snapshot(key, pending);
-      } else {
+      } else if (!this.#paused) {
         // each consumer registers its own cadence: `Poll` runs at the min of all
         // live registrations and stops itself once the last one is unregistered.
         pending.pollId = this.#poller.register(frequency);
@@ -545,9 +712,30 @@ export class TaskPoller {
     }
   }
 
-  /** A new stream reports none of the tasks tracked so far, so they stay polled. */
+  /**
+   * A new stream reports none of the tasks tracked so far, so they stay polled. A stream
+   * that resumed a previous one then sends the `state` of the tasks it took over, and its
+   * `synced` frame stops the polling of those.
+   */
   #onStreamOpen = (): void => {
     this.#bound.clear();
+    this.#covered.clear();
+  };
+
+  /**
+   * Every task the stream took over has had its `state` frame, and the tracked ones among
+   * them are followed on the stream alone. Any other tracked task stays polled: one that
+   * ended while no stream was open is not taken over, and the lookup settles it.
+   */
+  #onStreamSynced = (): void => {
+    if (this.#hold(this.#onStreamSynced)) {
+      return;
+    }
+    for (const [key, pending] of this.#pending) {
+      if (this.#covered.has(key)) {
+        this.#unpoll(pending);
+      }
+    }
   };
 
   #onStreamClose = (): void => {
@@ -559,23 +747,39 @@ export class TaskPoller {
   };
 
   #onStreamEvent = (event: TaskEvent): void => {
-    // every frame the server pushes, tracked or not
-    this.#g.emit('task:event', event);
-    const key = TaskPoller.#key(event.task.task_id);
-    if (event.kind === 'complete') {
-      this.#bound.delete(key);
+    if (this.#hold(() => this.#onStreamEvent(event))) {
+      return;
     }
+    const key = TaskPoller.#key(event.task.task_id);
+    if (event.kind === 'complete' || event.task.isTerminal()) {
+      this.#bound.delete(key);
+      this.#covered.delete(key);
+    } else if (event.kind === 'state') {
+      this.#bindKey(key);
+      this.#covered.set(key, event.task);
+    } else if (this.#covered.has(key)) {
+      this.#covered.set(key, event.task);
+    }
+    // every frame the server pushes, tracked or not, once `followed()` includes it
+    this.#g.emit('task:event', event);
     const pending = this.#pending.get(key);
     if (pending !== undefined) {
       this.#handle(pending, event.task);
     }
   };
 
-  /** The stream closed or is about to reopen, and the tasks it followed are polled from now on. */
+  /**
+   * The stream closed or is about to reopen, and the tasks it followed are polled from now
+   * on, unless the stream is {@link #paused}, which stops every poll.
+   */
   #streamGone(): void {
     this.#bound.clear();
+    this.#covered.clear();
+    const paused = this.#paused;
     for (const pending of this.#pending.values()) {
-      if (pending.pollId === -1) {
+      if (paused) {
+        this.#unpoll(pending);
+      } else if (pending.pollId === -1) {
         pending.pollId = this.#poller.register(pending.frequency);
       }
     }
@@ -614,7 +818,7 @@ export class TaskPoller {
       [task] = await this.#fetch([key]);
     } catch (err) {
       console.warn(`[TaskPoller] snapshot of task '${key}' failed, polling it`, err);
-      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1) {
+      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1 && !this.#paused) {
         pending.pollId = this.#poller.register(pending.frequency);
       }
       return;
@@ -627,7 +831,13 @@ export class TaskPoller {
   }
 
   #poll = async (): Promise<void> => {
-    const ids = [...this.#pending.keys()];
+    // the tasks the stream follows are left to it
+    const ids: TaskId[] = [];
+    for (const [key, pending] of this.#pending) {
+      if (pending.pollId !== -1) {
+        ids.push(key);
+      }
+    }
     if (ids.length === 0) {
       return;
     }

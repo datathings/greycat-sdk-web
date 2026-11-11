@@ -2,6 +2,7 @@ import { $, gcreg, type GreyCatWasm, type GreyCatWasmExports } from './registry.
 import { compileWasm, loadPackagedWasm } from './wasm.js';
 import { Emitter, type EmitterCallback, type EmitterDisposable } from './emitter.js';
 import { TaskPoller, TaskError, TaskId, TaskListener, TaskSettleEvent, taskResult } from './poll.js';
+import { FORGET_STREAM, HOLD_EVENTS } from './internal.js';
 import type { TaskEvent, TaskStreamChange } from './task-stream.js';
 import { Abi, AbiType, AbiAttribute, AbiFunction, AbiTypeEvol } from './abi.js';
 import { AbiReader, AbiWriter } from './io.js';
@@ -35,9 +36,24 @@ import {
 } from './openid.js';
 /**
  * Registers a GreyCat instance in the map of all known instances: `gc.$`
+ *
+ * The instance registered as `name` before stops following tasks: its task tracker is
+ * disconnected (see `TaskPoller.disconnect`), unless a registered instance still shares it,
+ * as a clone shares the one of its original. It can still make calls.
  */
 export function register(name: string, greycat: GreyCat): void {
+  const replaced = $[name];
   $[name] = greycat;
+  if (replaced === undefined || replaced === greycat) {
+    return;
+  }
+  const tasks = replaced.tasks;
+  for (const other of Object.values($)) {
+    if (other.tasks === tasks) {
+      return;
+    }
+  }
+  tasks.disconnect();
 }
 
 /**
@@ -407,7 +423,7 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
     unauthorizedHandler,
     abiMismatchHandler,
     taskEvents = true,
-    pauseWhenHidden = false,
+    pauseWhenHidden = true,
     world,
     identityWorld = true,
   } = options;
@@ -486,29 +502,38 @@ async function initImpl(options: WithoutAbiOptions): Promise<GreyCat | Ready<unk
   if (pauseWhenHidden) {
     g.tasks.pauseWhenHidden();
   }
+  // `init` waits for the stream to open below, and a resumed stream sends its `state`
+  // frames right after, so they may arrive before `init` returns. They are held until the
+  // caller of `init` could attach its listeners.
+  const release = g.tasks[HOLD_EVENTS]();
   if (taskEvents) {
     g.tasks.connect();
   }
 
-  const [permissions] = await Promise.all([
-    // made before the instance gets its world, so it runs in main
-    gcreg.runtime.Identity.permissions(g).catch(() => {
-      // we probably don't have the permission to access this endpoint
-      return [];
-    }),
-    // an explicit world wins over the identity's default one
-    world === undefined && identityWorld ? g.useIdentityWorld(signal) : undefined,
-    // a task spawned before the stream is open is never reported on it and gets polled
-    // instead, so the first calls of the app wait for it, unless it is slow to come
-    taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
-  ]);
-  g.permissions = permissions;
-  if (world !== undefined) {
-    g.world = world;
-  }
+  try {
+    const [permissions] = await Promise.all([
+      // made before the instance gets its world, so it runs in main
+      gcreg.runtime.Identity.permissions(g).catch(() => {
+        // we probably don't have the permission to access this endpoint
+        return [];
+      }),
+      // an explicit world wins over the identity's default one
+      world === undefined && identityWorld ? g.useIdentityWorld(signal) : undefined,
+      // a task spawned before the stream is open is never reported on it and gets polled
+      // instead, so the first calls of the app wait for it, unless it is slow to come
+      taskEvents ? g.tasks.opened(STREAM_OPEN_TIMEOUT_MS) : undefined,
+    ]);
+    g.permissions = permissions;
+    if (world !== undefined) {
+      g.world = world;
+    }
 
-  const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
-  return rich ? { greycat: g, auth: info } : g;
+    const rich = !!auth && ('authenticate' in auth || 'openid' in auth || 'openidPkce' in auth);
+    return rich ? { greycat: g, auth: info } : g;
+  } finally {
+    // a macrotask, which runs after the caller's `await init()` continuation
+    setTimeout(release, 0);
+  }
 }
 
 export function initWithAbi({
@@ -528,7 +553,7 @@ export function initWithAbi({
   url = DEFAULT_URL,
   credentials,
   taskEvents = false,
-  pauseWhenHidden = false,
+  pauseWhenHidden = true,
   world,
 }: WithAbiOptions): GreyCat {
   const g = new GreyCat(
@@ -909,14 +934,18 @@ export class GreyCat extends Emitter<GreyCatEvents> {
 
   /**
    * Records that `route` answered 401: the login is gone. The token is dropped, which
-   * closes the task event stream, and `auth:lost` fires once per lost login, so a burst
+   * closes the task event stream, the stream to resume is forgotten whatever the token
+   * was, and `auth:lost` fires once per lost login, so a burst
    * of failing requests reads as one event; a session without a token (anonymous, or a
-   * cookie) has nothing to drop, so it fires at most once a second. Returns the error to
+   * cookie) has no token to drop, so it fires at most once a second. Returns the error to
    * throw. Public for transports the instance does not run itself, like the upload XHR.
    */
   unauthorized(route: string, message = 'unauthorized'): HttpError {
     this.logger(this.name, 401, route);
     const hadToken = this.#token !== undefined;
+    // a cookie session has no token, so the setter forgets nothing, yet its stream belongs to
+    // the lost login too
+    this.#tasks[FORGET_STREAM]();
     this.token = undefined;
     const now = Date.now();
     if (hadToken || now - this.#lostAt > 1000) {
