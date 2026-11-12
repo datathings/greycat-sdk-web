@@ -191,13 +191,13 @@ type Pending = {
   pollId: number;
   /** the fastest cadence any consumer asked for */
   frequency: number;
-  /** at least one snapshot was handled; a late one-off snapshot must not go backwards */
+  /** at least one snapshot was handled, so a late handover of the stream's last frame must not go backwards */
   updated: boolean;
 };
 
 /**
- * How many bound tasks are remembered at most. A task forgotten early is polled instead of
- * followed on the stream, which is slower but still correct.
+ * How many bound tasks, and how many last frames, are remembered at most. A task forgotten
+ * early is polled instead of followed on the stream, which is slower but still correct.
  */
 const MAX_BOUND = 1024;
 
@@ -207,7 +207,8 @@ const MAX_BOUND = 1024;
  *
  * The stream only reports the tasks of the calls that named it. The instance names the
  * open stream in every call it spawns, and the tracker follows those tasks on it, from
- * their start to their end. A stream that resumes a previous one takes over the tasks of
+ * their start to their end, without a request. It keeps the frames that come before the
+ * call answers, so a task that started or even ended by then is not missed. A stream that resumes a previous one takes over the tasks of
  * that one that have not ended, whatever their status, and sends their current state
  * first, and the tracker follows them on it too. Every other tracked task is polled: one spawned by another instance or tab, one
  * of another user, one spawned while the stream was not open, or one bound to a stream
@@ -228,10 +229,19 @@ export class TaskPoller {
   /** `connect()` was called and `disconnect()` was not since. */
   #wanted = false;
   /**
-   * Tasks spawned by a call that named the open stream, oldest first. Emptied whenever the
-   * stream opens or goes, since a new stream reports none of the calls that named the old one.
+   * Tasks spawned by a call that named the open stream, oldest first, that have not ended.
+   * Emptied whenever the stream opens or goes, since a new stream reports none of the calls
+   * that named the old one. A task here with no frame in {@link #latest} has had none yet,
+   * so the stream reports its every change from its first one, and nothing needs to look it up.
    */
   #bound: Set<TaskId> = new Set();
+  /**
+   * The last frame the open stream sent for each task, least recently updated first, the
+   * frames of ended tasks included. Emptied with {@link #bound}. The stream only reports
+   * the calls of this instance, so a frame that comes before its call answered, and so
+   * before {@link bind} ran, is kept here for the consumer that tracks the task next.
+   */
+  #latest: Map<TaskId, gc.runtime.Task> = new Map();
   /**
    * The latest state of the live tasks the open stream took over from a previous one (its
    * `state` frames), a subset of {@link #bound}. Emptied with it.
@@ -582,12 +592,33 @@ export class TaskPoller {
   }
 
   #bindKey(key: TaskId): void {
+    // a task that ended before its call answered has no frame left to come
+    if (this.#latest.get(key)?.isTerminal()) {
+      return;
+    }
     if (this.#bound.size >= MAX_BOUND && !this.#bound.has(key)) {
       const [oldest] = this.#bound;
-      this.#bound.delete(oldest);
-      this.#covered.delete(oldest);
+      this.#forget(oldest);
     }
     this.#bound.add(key);
+  }
+
+  /** Keeps `task` as the last frame of `key`, the most recently updated one. */
+  #remember(key: TaskId, task: gc.runtime.Task): void {
+    if (!this.#latest.delete(key) && this.#latest.size >= MAX_BOUND) {
+      // a bound task must not lose a frame it got and stay bound, which would wait for a
+      // frame already gone, so the oldest is forgotten altogether
+      const [oldest] = this.#latest.keys();
+      this.#forget(oldest);
+    }
+    this.#latest.set(key, task);
+  }
+
+  /** Stops following `key` on the stream, which polls it the next time it is tracked. */
+  #forget(key: TaskId): void {
+    this.#bound.delete(key);
+    this.#covered.delete(key);
+    this.#latest.delete(key);
   }
 
   /**
@@ -650,21 +681,21 @@ export class TaskPoller {
     if (!pending) {
       pending = { id, listeners: new Set(), waiters: 0, pollId: -1, frequency, updated: false };
       this.#pending.set(key, pending);
-      const known = this.#covered.get(key);
+      const known = this.#latest.get(key);
       if (known !== undefined) {
-        // the stream sent the state of this task when it took it over, and every change
-        // since, so that state is current. It is handed over once the consumer is in.
+        // the stream reported this task before it was tracked: its first frame, or the
+        // state of a task it took over, and every change since. The last frame is current,
+        // and handed over once the consumer is in.
         const created = pending;
         queueMicrotask(() => {
           if (this.#pending.get(key) === created && !created.updated) {
             this.#handle(created, known);
           }
         });
-      } else if (this.#bound.has(key)) {
-        // the stream reports this task, but only from now on. A look tells whether it
-        // already ended, or reported something before it was tracked.
-        void this.#snapshot(key, pending);
-      } else if (!this.#paused) {
+      }
+      // a bound task gets its next frame on the stream, and an ended one settles on its last
+      const followed = this.#bound.has(key) || known?.isTerminal() === true;
+      if (!followed && !this.#paused) {
         // each consumer registers its own cadence: `Poll` runs at the min of all
         // live registrations and stops itself once the last one is unregistered.
         pending.pollId = this.#poller.register(frequency);
@@ -720,6 +751,7 @@ export class TaskPoller {
   #onStreamOpen = (): void => {
     this.#bound.clear();
     this.#covered.clear();
+    this.#latest.clear();
   };
 
   /**
@@ -751,6 +783,7 @@ export class TaskPoller {
       return;
     }
     const key = TaskPoller.#key(event.task.task_id);
+    this.#remember(key, event.task);
     if (event.kind === 'complete' || event.task.isTerminal()) {
       this.#bound.delete(key);
       this.#covered.delete(key);
@@ -775,6 +808,7 @@ export class TaskPoller {
   #streamGone(): void {
     this.#bound.clear();
     this.#covered.clear();
+    this.#latest.clear();
     const paused = this.#paused;
     for (const pending of this.#pending.values()) {
       if (paused) {
@@ -809,25 +843,6 @@ export class TaskPoller {
     } finally {
       this.#g.registerLogger(logger);
     }
-  }
-
-  /** One-off look at a task the stream reports, when it starts being tracked. */
-  async #snapshot(key: TaskId, pending: Pending): Promise<void> {
-    let task: gc.runtime.Task | null;
-    try {
-      [task] = await this.#fetch([key]);
-    } catch (err) {
-      console.warn(`[TaskPoller] snapshot of task '${key}' failed, polling it`, err);
-      if (this.#pending.get(key) === pending && !pending.updated && pending.pollId === -1 && !this.#paused) {
-        pending.pollId = this.#poller.register(pending.frequency);
-      }
-      return;
-    }
-    // gone, or already brought up to date by the stream in the meantime
-    if (this.#pending.get(key) !== pending || pending.updated) {
-      return;
-    }
-    this.#handle(pending, task);
   }
 
   #poll = async (): Promise<void> => {

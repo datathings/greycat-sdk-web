@@ -192,7 +192,7 @@ describe('task stream', () => {
         }, 300);
         return;
       }
-      // the snapshot a bound task gets when it starts being tracked
+      // a task the stream reports is never looked up
       polls += 1;
       answer(g, res, [makeTask(id, 1, gc.runtime.TaskStatus.running)]);
     });
@@ -207,8 +207,115 @@ describe('task stream', () => {
     assert.equal(named, streamId);
     assert.equal(done.status.key, 'ended');
     assert.equal(done.progress, 1);
-    assert.equal(polls, 1, 'only the snapshot');
+    assert.equal(polls, 0);
     assert.deepEqual(events, [['complete', id]], 'every frame is also emitted as task:event');
+  });
+
+  it('settles a task whose frames all came before its call answered, without a lookup', async () => {
+    const id = 10;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res);
+        return;
+      }
+      if (req.url === '/tests::slow') {
+        stream?.write(frame(g, 'task-started', makeTask(id, 1, gc.runtime.TaskStatus.running)));
+        stream?.write(frame(g, 'task-complete', makeTask(id, 1, gc.runtime.TaskStatus.ended)));
+        setTimeout(() => answer(g, res, makeTask(id, 1, gc.runtime.TaskStatus.waiting)), 200);
+        return;
+      }
+      polls += 1;
+      answer(g, res, [makeTask(id, 1, gc.runtime.TaskStatus.running)]);
+    });
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    /** @type {unknown[]} */
+    const events = [];
+    g.on('task:event', (e) => events.push([e.kind, e.task.task_id]));
+    const task = await g.spawn('tests::slow', [1, 1]);
+    assert.deepEqual(events, [
+      ['started', id],
+      ['complete', id],
+    ]);
+    const done = await g.tasks.wait(task.task_id, 20);
+    assert.equal(done.status.key, 'ended');
+    assert.equal(polls, 0);
+  });
+
+  it('hands the progress reported before the task was tracked to its subscriber', async () => {
+    const id = 11;
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res);
+        return;
+      }
+      if (req.url === '/tests::slow') {
+        stream?.write(frame(g, 'task-progress', makeTask(id, 1, gc.runtime.TaskStatus.running)));
+        setTimeout(() => answer(g, res, makeTask(id, 1, gc.runtime.TaskStatus.waiting)), 200);
+        return;
+      }
+      polls += 1;
+      answer(g, res, [makeTask(id, 1, gc.runtime.TaskStatus.running)]);
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const task = await g.spawn('tests::slow', [1, 1]);
+    /** @type {unknown[]} */
+    const seen = [];
+    const off = g.tasks.subscribe(task.task_id, (t) => seen.push([t.status.key, t.progress]), 20);
+    try {
+      await waitFor(() => seen.length === 1);
+      assert.deepEqual(seen, [['running', 0.5]]);
+      stream?.write(frame(g, 'task-complete', makeTask(id, 1, gc.runtime.TaskStatus.ended)));
+      await waitFor(() => seen.length === 2);
+      assert.deepEqual(seen[1], ['ended', 1]);
+    } finally {
+      off();
+    }
+    assert.equal(polls, 0);
+  });
+
+  it('sends no request for a burst of tasks spawned and waited on', async () => {
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let stream;
+    let next = 100;
+    let polls = 0;
+    server = await fakeServer((req, res) => {
+      if (req.url === STREAM) {
+        stream = res;
+        openStream(res);
+        return;
+      }
+      if (req.url === '/tests::slow') {
+        const id = next++;
+        answer(g, res, makeTask(id, 1, gc.runtime.TaskStatus.waiting));
+        setTimeout(() => stream?.write(frame(g, 'task-complete', makeTask(id, 1, gc.runtime.TaskStatus.ended))), 50);
+        return;
+      }
+      polls += 1;
+      answer(g, res, []);
+    });
+    g = client(server.url);
+    assert.equal(await g.tasks.opened(1000), true);
+    const done = await Promise.all(
+      [1, 2, 3, 4, 5].map(async () => {
+        const task = await /** @type {gc.sdk.GreyCat} */ (g).spawn('tests::slow', [1, 1]);
+        return /** @type {gc.sdk.GreyCat} */ (g).tasks.wait(task.task_id, 20);
+      }),
+    );
+    assert.deepEqual(
+      done.map((t) => t.status.key),
+      ['ended', 'ended', 'ended', 'ended', 'ended'],
+    );
+    assert.equal(polls, 0);
   });
 
   it('polls a task it did not spawn while the stream is open', async () => {
@@ -1022,15 +1129,19 @@ describe('task stream', () => {
     const streamAuths = [];
     /** @type {unknown} */
     let named;
+    /** @type {import('node:http').ServerResponse | undefined} */
+    let first;
     server = await fakeServer((req, res) => {
       if (req.url === STREAM) {
         streamAuths.push(req.headers.authorization);
+        first ??= res;
         openStream(res, `${streamAuths.length}`);
         return;
       }
       if (req.url === '/tests::slow') {
         named = req.headers.sse;
         answer(g, res, makeTask(7, 1, gc.runtime.TaskStatus.waiting));
+        setTimeout(() => first?.write(frame(g, 'task-complete', makeTask(7, 1, gc.runtime.TaskStatus.ended))), 50);
         return;
       }
       answer(g, res, [makeTask(7, 1, gc.runtime.TaskStatus.ended)]);
