@@ -8,9 +8,12 @@
 # registry verifies each sha256 before anything becomes visible. A version is
 # immutable, so a target missing here cannot be added to it later.
 #
-# REGISTRY_GC_CI_TOKEN is a personal access token of the publishing identity,
+# GREYCAT_REGISTRY_TOKEN is a personal access token of the publishing identity,
 # which owns every package it creates. REGISTRY_URL points at another registry
-# (a local one, a staging one).
+# (a local one, a staging one). REGISTRY_TIER names the tier a library this
+# publish creates lands in, the community tier when unset. A library that exists
+# already stays in its own tier, and naming another one is refused. Publishing
+# into any tier but community takes a publish grant on that tier.
 #
 # The version is <M.m.p>-<branch>, from PROJECT_VERSION and CI_COMMIT_REF_NAME.
 # The branch is the ref being built, which on a tagged or detached checkout is
@@ -26,7 +29,7 @@ done
 DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 cd "${DIR}/.."
 
-: "${REGISTRY_GC_CI_TOKEN:?REGISTRY_GC_CI_TOKEN is required (registry publish token)}"
+: "${GREYCAT_REGISTRY_TOKEN:?GREYCAT_REGISTRY_TOKEN is required (registry publish token)}"
 : "${PROJECT_VERSION:?PROJECT_VERSION is required}"
 : "${CI_COMMIT_REF_NAME:?CI_COMMIT_REF_NAME is required}"
 
@@ -36,7 +39,11 @@ base="${REGISTRY_URL:-https://registry.greycat.io}"
 # below is safe to repeat: staging a file again replaces it, and publishing the
 # same files again answers the stored version.
 retry=(--retry 3)
-token="$REGISTRY_GC_CI_TOKEN"
+token="$GREYCAT_REGISTRY_TOKEN"
+tier=null
+if [ -n "${REGISTRY_TIER:-}" ]; then
+  tier="\"$REGISTRY_TIER\""
+fi
 branch="$CI_COMMIT_REF_NAME"
 version="${PROJECT_VERSION%%-*}-${branch}"
 
@@ -60,7 +67,7 @@ if ! identity=$(curl -fsS "${retry[@]}" -X POST -H "Authorization: $token" \
 fi
 user_id=$(printf '%s' "$identity" | grep -o '"id":[0-9]*' | head -n 1 | cut -d ':' -f 2 || true)
 if [ -z "$user_id" ] || [ "$user_id" = "0" ]; then
-  echo "publish: REGISTRY_GC_CI_TOKEN was not accepted by $base" >&2
+  echo "publish: GREYCAT_REGISTRY_TOKEN was not accepted by $base" >&2
   exit 1
 fi
 
@@ -95,7 +102,7 @@ for libdir in dist/*/; do
   # so a re-run job succeeds.
   response=$(curl -sS "${retry[@]}" -w '\n%{http_code}' -X POST -H "Authorization: $token" \
     -H 'Content-Type: application/json' \
-    -d "[\"lib\",\"$lib\",\"$version\",[$entries],null]" \
+    -d "[\"lib\",\"$lib\",\"$version\",[$entries],null,$tier]" \
     "$base/registry::publish")
   code="${response##*$'\n'}"
   if [ "$code" != "200" ]; then
@@ -116,5 +123,5 @@ fi
 # the job.
 if [ -f post-publish.sh ]; then
   echo "Post-publish"
-  REGISTRY_URL="$base" REGISTRY_GC_CI_TOKEN="$token" ./post-publish.sh
+  REGISTRY_URL="$base" GREYCAT_REGISTRY_TOKEN="$token" ./post-publish.sh
 fi
