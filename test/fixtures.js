@@ -67,6 +67,16 @@ export const fixtures = [
     check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeSet,
   },
   {
+    name: 'nodeIndexSet<String, int>',
+    check: (/** @type {unknown} */ v) => v instanceof gc.core.nodeIndexSet && gc.sdk.isNode(v),
+  },
+  {
+    name: 'Box<nodeIndexSet<String, int>>',
+    expected: { _type: 'tests::Box<core::nodeIndexSet<core::String,core::int>>' },
+    partial: ['_type'],
+    check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeIndexSet,
+  },
+  {
     name: 'Error oops',
     expected: { _type: 'core::Error', message: 'oops', stack: [] },
   },

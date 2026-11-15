@@ -443,6 +443,10 @@ export class AbiReader extends Reader implements Iterable<unknown> {
       const ty = r.abi.types[r.abi.core.node_index];
       return ty.ctor.load(r, ty);
     },
+    [PrimitiveType.node_index_set]: (r) => {
+      const ty = r.abi.types[r.abi.core.node_index_set];
+      return ty.ctor.load(r, ty);
+    },
     [PrimitiveType.node_list]: (r) => {
       const ty = r.abi.types[r.abi.core.node_list];
       return ty.ctor.load(r, ty);

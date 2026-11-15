@@ -12,6 +12,7 @@ export * from './Map.js';
 export * from './node.js';
 export * from './nodeGeo.js';
 export * from './nodeIndex.js';
+export * from './nodeIndexSet.js';
 export * from './nodeList.js';
 export * from './nodeSet.js';
 export * from './nodeTime.js';
