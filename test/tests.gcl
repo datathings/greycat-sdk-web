@@ -179,3 +179,35 @@ fn task_class(): TaskClass {
 fn world(): String {
     return World::current();
 }
+
+/// A counter, for the calls of an exposed method on an instance.
+type Counter {
+    n: int;
+
+    /// `n` plus `k`, called on the instance passed as `this`.
+    @expose
+    fn add(k: int): int {
+        return this.n + k;
+    }
+
+    /// A counter at `n`, called on the type, without a receiver.
+    @expose
+    static fn create(n: int): Counter {
+        return Counter { n: n };
+    }
+}
+
+/// A base type whose exposed method runs the override of the receiver's type.
+abstract type Shape {
+    @expose
+    abstract fn name(): String;
+}
+
+/// A square, which overrides `Shape::name`.
+type Square extends Shape {
+    side: float;
+
+    fn name(): String {
+        return "square";
+    }
+}

@@ -353,6 +353,7 @@ export class Abi {
       const return_type = cursor.read_vu32();
       const flags = cursor.read_u8();
       const return_nullable = (flags & 1) !== 0;
+      const is_static = (flags & (1 << 2)) !== 0;
 
       const lib_name = this.symbols[lib];
       const module_name = this.symbols[module];
@@ -382,6 +383,7 @@ export class Abi {
         this.types[return_type],
         return_nullable,
         this.type_by_fqn.get(args_type_name)!,
+        is_static,
       );
       this.fn_by_fqn.set(fqn, this.functions[i]);
     }
@@ -1003,6 +1005,12 @@ export class AbiFunction {
     readonly return_type: AbiType,
     readonly return_type_nullable: boolean,
     readonly args_type: AbiType,
+    /**
+     * Whether the function is declared `static`. A function of a `type` that is not static is a
+     * method, called on a receiver: `serialize` and the server take it as the first argument,
+     * before the parameters, and the SDK installs the function on the prototype of its type.
+     */
+    readonly is_static: boolean = false,
   ) {}
 
   /**
@@ -1013,7 +1021,8 @@ export class AbiFunction {
   }
 
   /**
-   * Serializes the given `args` following this functions parameters signature
+   * Serializes the given `args` following this functions parameters signature, the receiver of a
+   * method (see `is_static`) first
    * @param abi
    * @param args
    * @returns
@@ -1022,10 +1031,15 @@ export class AbiFunction {
     const writer = new AbiWriter(this.abi, capacity);
     writer.headers();
     if (args && args.length > 0) {
+      // a method's receiver comes first, an instance of its type or of a subtype
+      const this_args = this.type !== undefined && !this.is_static ? 1 : 0;
       for (let i = 0; i < args.length; i++) {
-        const param = this.params[i];
         const arg = args[i];
-        writer.serialize(arg, param.type);
+        if (i < this_args) {
+          writer.serialize(arg);
+        } else {
+          writer.serialize(arg, this.params[i - this_args].type);
+        }
       }
     }
     return writer.buffer.buffer;

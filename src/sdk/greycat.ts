@@ -63,15 +63,32 @@ export function unregister(name: string): void {
   delete $[name];
 }
 
+/** How many `extends` lead from `type` up to the type at `ancestor`: 0 for itself, -1 when it is not one. */
+function supertype_depth(types: readonly AbiType[], type: AbiType, ancestor: number): number {
+  let depth = 0;
+  for (let t: AbiType | undefined = type; t; t = t.super_type === 0 ? undefined : types[t.super_type]) {
+    if (t.offset === ancestor) {
+      return depth;
+    }
+    depth++;
+  }
+  return -1;
+}
+
 function initialize_functions(name: string, g: GreyCat): void {
+  // per class, the depth of the type whose method was installed under each name
+  const methods = new Map<object, Map<string, number>>();
   for (const fn of g.abi.functions) {
+    // a method is called on a receiver, sent first, then one argument per parameter
+    const is_method = fn.type !== undefined && !fn.is_static;
+    const arity = fn.params.length + (is_method ? 1 : 0);
     const call = (...args: unknown[]) => {
-      const args_ = new Array(fn.params.length);
-      for (let i = 0; i < fn.params.length; i++) {
+      const args_ = new Array(arity);
+      for (let i = 0; i < arity; i++) {
         args_[i] = args[i];
       }
-      const g = (args[fn.params.length] as GreyCat | undefined) ?? $[name];
-      const signal = args[fn.params.length + 1] as AbortSignal | undefined;
+      const g = (args[arity] as GreyCat | undefined) ?? $[name];
+      const signal = args[arity + 1] as AbortSignal | undefined;
       return g.call(fn.fqn, args_, signal);
     };
     Object.defineProperty(call, 'name', {
@@ -80,13 +97,13 @@ function initialize_functions(name: string, g: GreyCat): void {
       enumerable: false,
     });
     const spawn = (...args: unknown[]) => {
-      const args_ = new Array(fn.params.length);
-      for (let i = 0; i < fn.params.length; i++) {
+      const args_ = new Array(arity);
+      for (let i = 0; i < arity; i++) {
         args_[i] = args[i];
       }
-      const g = (args[fn.params.length] as GreyCat | undefined) ?? $[name];
-      const signal = args[fn.params.length + 1] as AbortSignal | undefined;
-      const taskClass = args[fn.params.length + 2] as TaskClass | undefined;
+      const g = (args[arity] as GreyCat | undefined) ?? $[name];
+      const signal = args[arity + 1] as AbortSignal | undefined;
+      const taskClass = args[arity + 2] as TaskClass | undefined;
       return g.spawn(fn.fqn, args_, signal, taskClass);
     };
     Object.defineProperty(spawn, 'name', {
@@ -95,6 +112,40 @@ function initialize_functions(name: string, g: GreyCat): void {
       enumerable: false,
     });
     Object.defineProperty(call, 'spawn', { value: spawn });
+    if (is_method) {
+      // `obj.fn(...params)` calls the method on `obj`, which the server binds as `this` and
+      // dispatches to the override of its type. The classes do not mirror the GCL hierarchy, so the
+      // method goes on its type and on every subtype, the closest declaring type winning as in GCL.
+      const declaring = g.abi.type_by_fqn.get(`${fn.module}::${fn.type}`);
+      if (declaring) {
+        for (const type of g.abi.types) {
+          const depth = supertype_depth(g.abi.types, type, declaring.offset);
+          if (depth === -1 || !type.ctor) {
+            continue;
+          }
+          let installed = methods.get(type.ctor);
+          if (!installed) {
+            installed = new Map();
+            methods.set(type.ctor, installed);
+          }
+          if ((installed.get(fn.name) ?? Infinity) <= depth) {
+            continue;
+          }
+          installed.set(fn.name, depth);
+          // a getter, so that `obj.fn.spawn(...)` knows its receiver too
+          Object.defineProperty(type.ctor.prototype, fn.name, {
+            get(this: unknown) {
+              const method = (...args: unknown[]) => call(this, ...args);
+              Object.defineProperty(method, 'name', { value: fn.name, writable: false, enumerable: false });
+              Object.defineProperty(method, 'spawn', { value: (...args: unknown[]) => spawn(this, ...args) });
+              return method;
+            },
+            configurable: true,
+            enumerable: false,
+          });
+        }
+      }
+    }
     // oxlint-disable-next-line typescript/no-explicit-any
     const globalGc = gcreg as any;
     if (!globalGc[fn.module]) {
@@ -104,7 +155,12 @@ function initialize_functions(name: string, g: GreyCat): void {
       if (!globalGc[fn.module][fn.type]) {
         globalGc[fn.module][fn.type] = {};
       }
-      globalGc[fn.module][fn.type][fn.name] = call;
+      // defined, not assigned: a class's own `name` and `length` are read-only, and a function may
+      // bear those names; a non-configurable one (`prototype`) stays the class's
+      const holder = globalGc[fn.module][fn.type];
+      if (Object.getOwnPropertyDescriptor(holder, fn.name)?.configurable !== false) {
+        Object.defineProperty(holder, fn.name, { value: call, writable: true, configurable: true, enumerable: true });
+      }
     } else {
       globalGc[fn.module][fn.name] = call;
       if (globalGc[fn.name] === undefined) {
