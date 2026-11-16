@@ -1737,6 +1737,14 @@ export class GreyCat extends Emitter<GreyCatEvents> {
     return this.abi.createNodeGeo(value);
   }
 
+  createNodeGeoSet(value: bigint): gc.core.nodeGeoSet {
+    return this.abi.createNodeGeoSet(value);
+  }
+
+  createNodeTimeSet(value: bigint): gc.core.nodeTimeSet {
+    return this.abi.createNodeTimeSet(value);
+  }
+
   createNodeTime(value: bigint): gc.core.nodeTime {
     return this.abi.createNodeTime(value);
   }

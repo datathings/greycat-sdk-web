@@ -48,25 +48,27 @@ export const PrimitiveType = {
   float: 4,
   node: 5,
   node_time: 6,
-  node_set: 7,
-  node_index: 8,
-  node_index_set: 9,
-  node_list: 10,
-  node_geo: 11,
-  geo: 12,
-  time: 13,
-  duration: 14,
-  cubic: 15,
-  enum: 16,
-  object: 17,
-  block_ref: 18,
-  block_inline: 19,
-  function: 20,
-  undefined: 21,
-  type: 22,
-  field: 23,
-  stringlit: 24,
-  error: 25,
+  node_time_set: 7,
+  node_set: 8,
+  node_index: 9,
+  node_index_set: 10,
+  node_list: 11,
+  node_geo: 12,
+  node_geo_set: 13,
+  geo: 14,
+  time: 15,
+  duration: 16,
+  cubic: 17,
+  enum: 18,
+  object: 19,
+  block_ref: 20,
+  block_inline: 21,
+  function: 22,
+  undefined: 23,
+  type: 24,
+  field: 25,
+  stringlit: 26,
+  error: 27,
 } as const;
 
 export const PrimitiveTypeName = {
@@ -77,25 +79,27 @@ export const PrimitiveTypeName = {
   4: 'float',
   5: 'node',
   6: 'node_time',
-  7: 'node_set',
-  8: 'node_index',
-  9: 'node_index_set',
-  10: 'node_list',
-  11: 'node_geo',
-  12: 'geo',
-  13: 'time',
-  14: 'duration',
-  15: 'cubic',
-  16: 'enum',
-  17: 'object',
-  18: 'block_ref',
-  19: 'block_inline',
-  20: 'function',
-  21: 'undefined',
-  22: 'type',
-  23: 'field',
-  24: 'stringlit',
-  25: 'error',
+  7: 'node_time_set',
+  8: 'node_set',
+  9: 'node_index',
+  10: 'node_index_set',
+  11: 'node_list',
+  12: 'node_geo',
+  13: 'node_geo_set',
+  14: 'geo',
+  15: 'time',
+  16: 'duration',
+  17: 'cubic',
+  18: 'enum',
+  19: 'object',
+  20: 'block_ref',
+  21: 'block_inline',
+  22: 'function',
+  23: 'undefined',
+  24: 'type',
+  25: 'field',
+  26: 'stringlit',
+  27: 'error',
 } as const;
 
 export type PrimitiveType = ExtractValues<typeof PrimitiveType>;
@@ -346,6 +350,9 @@ export function primitiveType(type: AbiType): PrimitiveType {
   if (type.offset === type.abi.core.node_time || type.generic_abi_type === type.abi.core.node_time) {
     return PrimitiveType.node_time;
   }
+  if (type.offset === type.abi.core.node_time_set || type.generic_abi_type === type.abi.core.node_time_set) {
+    return PrimitiveType.node_time_set;
+  }
   if (type.offset === type.abi.core.node_set || type.generic_abi_type === type.abi.core.node_set) {
     return PrimitiveType.node_set;
   }
@@ -360,6 +367,9 @@ export function primitiveType(type: AbiType): PrimitiveType {
   }
   if (type.offset === type.abi.core.node_geo || type.generic_abi_type === type.abi.core.node_geo) {
     return PrimitiveType.node_geo;
+  }
+  if (type.offset === type.abi.core.node_geo_set || type.generic_abi_type === type.abi.core.node_geo_set) {
+    return PrimitiveType.node_geo_set;
   }
   if (type.offset === type.abi.core.geo) {
     return PrimitiveType.geo;

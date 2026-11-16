@@ -164,20 +164,24 @@ export function isNode(
 ): value is
   | gc.core.node
   | gc.core.nodeTime
+  | gc.core.nodeTimeSet
   | gc.core.nodeList
   | gc.core.nodeIndex
   | gc.core.nodeIndexSet
   | gc.core.nodeSet
-  | gc.core.nodeGeo {
+  | gc.core.nodeGeo
+  | gc.core.nodeGeoSet {
   // the `std_n` classes are shared by every instance, and `instanceof` on them is the native check
   return (
     value instanceof std_n_core.node ||
     value instanceof std_n_core.nodeTime ||
+    value instanceof std_n_core.nodeTimeSet ||
     value instanceof std_n_core.nodeList ||
     value instanceof std_n_core.nodeIndex ||
     value instanceof std_n_core.nodeIndexSet ||
     value instanceof std_n_core.nodeSet ||
-    value instanceof std_n_core.nodeGeo
+    value instanceof std_n_core.nodeGeo ||
+    value instanceof std_n_core.nodeGeoSet
   );
 }
 

@@ -18,8 +18,10 @@ class AbiCoreBuilder {
   public node_index_set = 0;
   public node_set = 0;
   public node_time = 0;
+  public node_time_set = 0;
   public node = 0;
   public node_geo = 0;
+  public node_geo_set = 0;
   public array = 0;
   public map = 0;
   public cubic = 0;
@@ -48,8 +50,10 @@ class AbiCoreBuilder {
       this.node_index_set,
       this.node_set,
       this.node_time,
+      this.node_time_set,
       this.node,
       this.node_geo,
+      this.node_geo_set,
       this.array,
       this.map,
       this.cubic,
@@ -81,8 +85,10 @@ export class AbiCore {
     readonly node_index_set: number,
     readonly node_set: number,
     readonly node_time: number,
+    readonly node_time_set: number,
     readonly node: number,
     readonly node_geo: number,
+    readonly node_geo_set: number,
     readonly array: number,
     readonly map: number,
     readonly cubic: number,
@@ -270,11 +276,17 @@ export class Abi {
           case 'nodeTime':
             core.node_time = i;
             break;
+          case 'nodeTimeSet':
+            core.node_time_set = i;
+            break;
           case 'nodeList':
             core.node_list = i;
             break;
           case 'nodeGeo':
             core.node_geo = i;
+            break;
+          case 'nodeGeoSet':
+            core.node_geo_set = i;
             break;
           case 'nodeIndex':
             core.node_index = i;
@@ -449,6 +461,12 @@ export class Abi {
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
         }
+        case this.core.node_time_set: {
+          type.ctor = create_monomorphic_class(type, gcreg.core.nodeTimeSet);
+          // oxlint-disable-next-line typescript/no-explicit-any
+          (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
+          break;
+        }
         case this.core.node_list: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeList);
           // oxlint-disable-next-line typescript/no-explicit-any
@@ -475,6 +493,12 @@ export class Abi {
         }
         case this.core.node_geo: {
           type.ctor = create_monomorphic_class(type, gcreg.core.nodeGeo);
+          // oxlint-disable-next-line typescript/no-explicit-any
+          (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
+          break;
+        }
+        case this.core.node_geo_set: {
+          type.ctor = create_monomorphic_class(type, gcreg.core.nodeGeoSet);
           // oxlint-disable-next-line typescript/no-explicit-any
           (gcreg as any)[this.symbols[type.module]][this.symbols[type.symbol]] = type.ctor;
           break;
@@ -558,6 +582,16 @@ export class Abi {
   createNodeGeo(value: bigint) {
     const t = this.types[this.core.node_geo];
     return new t.ctor(value) as gc.core.nodeGeo;
+  }
+
+  createNodeGeoSet(value: bigint) {
+    const t = this.types[this.core.node_geo_set];
+    return new t.ctor(value) as gc.core.nodeGeoSet;
+  }
+
+  createNodeTimeSet(value: bigint) {
+    const t = this.types[this.core.node_time_set];
+    return new t.ctor(value) as gc.core.nodeTimeSet;
   }
 
   createNodeTime(value: bigint) {

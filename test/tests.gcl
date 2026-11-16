@@ -89,6 +89,10 @@ fn write_fixtures() {
     w(Box<nodeSet<int>> { value: nodeSet<int> {} });
     w(nodeIndexSet<String, int> {});
     w(Box<nodeIndexSet<String, int>> { value: nodeIndexSet<String, int> {} });
+    w(nodeTimeSet<int> {});
+    w(Box<nodeTimeSet<int>> { value: nodeTimeSet<int> {} });
+    w(nodeGeoSet<int> {});
+    w(Box<nodeGeoSet<int>> { value: nodeGeoSet<int> {} });
 
     // error
     w(Error { message: "oops", stack: Array<ErrorFrame> {} });

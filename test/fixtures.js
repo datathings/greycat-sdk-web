@@ -77,6 +77,26 @@ export const fixtures = [
     check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeIndexSet,
   },
   {
+    name: 'nodeTimeSet<int>',
+    check: (/** @type {unknown} */ v) => v instanceof gc.core.nodeTimeSet && gc.sdk.isNode(v),
+  },
+  {
+    name: 'Box<nodeTimeSet<int>>',
+    expected: { _type: 'tests::Box<core::nodeTimeSet<core::int>>' },
+    partial: ['_type'],
+    check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeTimeSet,
+  },
+  {
+    name: 'nodeGeoSet<int>',
+    check: (/** @type {unknown} */ v) => v instanceof gc.core.nodeGeoSet && gc.sdk.isNode(v),
+  },
+  {
+    name: 'Box<nodeGeoSet<int>>',
+    expected: { _type: 'tests::Box<core::nodeGeoSet<core::int>>' },
+    partial: ['_type'],
+    check: (/** @type {any} */ v) => v.value instanceof gc.core.nodeGeoSet,
+  },
+  {
     name: 'Error oops',
     expected: { _type: 'core::Error', message: 'oops', stack: [] },
   },

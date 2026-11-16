@@ -34,8 +34,8 @@ function assertThrown(err, id) {
   assert.strictEqual(
     err.stack,
     `TaskError: task '${id}' failed: failed with 42\n` +
-      `    at fail_with (tests.gcl:142:33)\n` +
-      `    at nested_boom (tests.gcl:148:18)\n`,
+      `    at fail_with (tests.gcl:146:33)\n` +
+      `    at nested_boom (tests.gcl:152:18)\n`,
   );
 }
 

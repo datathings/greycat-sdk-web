@@ -435,6 +435,10 @@ export class AbiReader extends Reader implements Iterable<unknown> {
       const ty = r.abi.types[r.abi.core.node_time];
       return ty.ctor.load(r, ty);
     },
+    [PrimitiveType.node_time_set]: (r) => {
+      const ty = r.abi.types[r.abi.core.node_time_set];
+      return ty.ctor.load(r, ty);
+    },
     [PrimitiveType.node_set]: (r) => {
       const ty = r.abi.types[r.abi.core.node_set];
       return ty.ctor.load(r, ty);
@@ -453,6 +457,10 @@ export class AbiReader extends Reader implements Iterable<unknown> {
     },
     [PrimitiveType.node_geo]: (r) => {
       const ty = r.abi.types[r.abi.core.node_geo];
+      return ty.ctor.load(r, ty);
+    },
+    [PrimitiveType.node_geo_set]: (r) => {
+      const ty = r.abi.types[r.abi.core.node_geo_set];
       return ty.ctor.load(r, ty);
     },
     [PrimitiveType.geo]: (r) => {
