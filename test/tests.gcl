@@ -24,7 +24,7 @@ fn main() {
 }
 
 fn w(value: any?) {
-    var i = *w_idx ?? 0;
+    var i = (*w_idx) ?? 0;
     GcbWriter { path: "test/fixtures/${i}.gcb" }.write(value);
     w_idx.set(i + 1);
 }
