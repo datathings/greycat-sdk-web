@@ -41,6 +41,16 @@ else
   fi
 fi
 
+# The API reference is the same on every target, so one job writes it: the
+# x64-linux pack of a native library, or the only pack of a noarch one.
+# publish.sh sends it as a targetless artifact. `greycat doc` refuses a package
+# with a doc lint error and writes nothing, which fails the pack.
+if [ "$target" = "x64-linux" ] || [ "$target" = "noarch" ]; then
+  docdir="${PROJECT_DIR}/dist/$lib/${CI_COMMIT_REF_NAME}/${PROJECT_VERSION_MAJOR_MINOR}"
+  mkdir -p "$docdir"
+  greycat doc --lib "$lib" --package-version "${PROJECT_VERSION%%-*}-${CI_COMMIT_REF_NAME}" --out "$docdir/doc.json" .
+fi
+
 echo "Packing $lib ($target)"
 mkdir -p "${PROJECT_DIR}/dist/$lib/${CI_COMMIT_REF_NAME}/${PROJECT_VERSION_MAJOR_MINOR}/${target}"
 zipname="${PROJECT_DIR}/dist/$lib/${CI_COMMIT_REF_NAME}/${PROJECT_VERSION_MAJOR_MINOR}/${target}/${PROJECT_VERSION}.zip"

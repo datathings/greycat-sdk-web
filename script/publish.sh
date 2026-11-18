@@ -97,6 +97,21 @@ for libdir in dist/*/; do
     continue
   fi
 
+  # The API reference pack.sh wrote goes in as a targetless artifact. The
+  # registry publishes it to the docs and reads the version's dependencies out
+  # of it.
+  doc=$(find "$libdir" -type f -name doc.json -print -quit)
+  if [ -n "$doc" ]; then
+    sha=$(sha256sum "$doc" | cut -d ' ' -f 1)
+    if ! curl -fsS "${retry[@]}" -o /dev/null -X PUT -H "Authorization: $token" -T "$doc" \
+      "$base/registry::upload?kind=lib&name=$lib&version=$version&filename=doc.json"; then
+      echo "publish: staging $lib doc.json failed" >&2
+      exit 1
+    fi
+    entries="$entries,{\"filename\":\"doc.json\",\"target\":null,\"sha256\":\"$sha\"}"
+    echo "publish: staged $lib doc.json"
+  fi
+
   # `readme` is null, so the registry reads lib/<lib>/README.md out of the
   # archive. Publishing the very same files again answers the stored version,
   # so a re-run job succeeds.
