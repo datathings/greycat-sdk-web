@@ -107,7 +107,3 @@ fn complex_object() {
 ```
 
 :::
-
-The resulting view will look like:
-
-![gui-object to display any object](./assets/object.png)

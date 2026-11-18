@@ -1,7 +1,5 @@
 # `<gui-chart />`
 
-![Chart](assets/core_chart.png)
-
 ## Usage
 
 ::: code-group

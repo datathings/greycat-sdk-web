@@ -1,8 +1,6 @@
 # `<gui-table />`
 
-> Virtualized table component for [`core::Table`](/libs/std/core/type.Table.html)
-
-![Table](assets/core_table.png)
+> Virtualized table component for [`core::Table`]
 
 ## Usage
 

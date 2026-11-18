@@ -1,7 +1,5 @@
 # `<gui-heatmap />`
 
-![Heatmap](assets/heatmap.png)
-
 ## Example of a table from the backend
 
 ```ts
