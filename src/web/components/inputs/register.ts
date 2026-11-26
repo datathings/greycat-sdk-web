@@ -21,9 +21,13 @@ import {
   GuiInputMap,
   GuiInputNode,
   GuiInputNodeGeo,
+  GuiInputNodeGeoSet,
   GuiInputNodeIndex,
+  GuiInputNodeIndexSet,
   GuiInputNodeList,
+  GuiInputNodeSet,
   GuiInputNodeTime,
+  GuiInputNodeTimeSet,
   GuiInputNull,
   GuiInputNumber,
   GuiInputObject,
@@ -50,6 +54,10 @@ registerCustomElement('gui-input-node-time', GuiInputNodeTime);
 registerCustomElement('gui-input-node-index', GuiInputNodeIndex);
 registerCustomElement('gui-input-node-list', GuiInputNodeList);
 registerCustomElement('gui-input-node-geo', GuiInputNodeGeo);
+registerCustomElement('gui-input-node-time-set', GuiInputNodeTimeSet);
+registerCustomElement('gui-input-node-set', GuiInputNodeSet);
+registerCustomElement('gui-input-node-index-set', GuiInputNodeIndexSet);
+registerCustomElement('gui-input-node-geo-set', GuiInputNodeGeoSet);
 registerCustomElement('gui-input-geo', GuiInputGeo);
 registerCustomElement('gui-input-fnptr', GuiInputFnPtr);
 registerCustomElement('gui-input-unsupported', GuiInputUnsupported);

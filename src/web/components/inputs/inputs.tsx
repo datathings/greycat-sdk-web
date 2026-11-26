@@ -2078,8 +2078,15 @@ export class GuiInputMap extends GuiInputElement<Map<unknown, unknown> | gc.core
   }
 }
 
-export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
+/**
+ * Edits a node of any kind as its id, in a `gui-input-string`. A subclass names the node type
+ * through {@link GuiInputNodeRef.create}.
+ */
+export abstract class GuiInputNodeRef<T extends { value: bigint }> extends GuiInputElement<T | null> {
   input: GuiInputString;
+
+  /** Builds the node of id `id`. */
+  protected abstract create(id: bigint): T;
 
   constructor() {
     super();
@@ -2097,10 +2104,10 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
     this.shadowRoot.appendChild(this.input);
   }
 
-  get value(): gc.core.node | null {
+  get value(): T | null {
     if (this.input.value !== null) {
       try {
-        return gc.core.node.create(BigInt(this.input.value));
+        return this.create(BigInt(this.input.value));
       } catch {
         return null;
       }
@@ -2108,7 +2115,7 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
     return null;
   }
 
-  set value(value: gc.core.node | null | undefined) {
+  set value(value: T | null | undefined) {
     if (value === null || value === undefined) {
       this.input.value = null;
     } else {
@@ -2166,358 +2173,59 @@ export class GuiInputNode extends GuiInputElement<gc.core.node | null> {
   }
 }
 
-export class GuiInputNodeIndex extends GuiInputElement<gc.core.nodeIndex | null> {
-  input: GuiInputString;
-
-  constructor() {
-    super();
-
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    this.input.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-
-    this.shadowRoot.appendChild(this.input);
-  }
-
-  get value(): gc.core.nodeIndex | null {
-    if (this.input.value !== null) {
-      try {
-        return gc.core.nodeIndex.create(BigInt(this.input.value));
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  set value(value: gc.core.nodeIndex | null | undefined) {
-    if (value === null || value === undefined) {
-      this.input.value = null;
-    } else {
-      this.input.value = `${value.value}`;
-    }
-  }
-
-  override get name() {
-    return this.input.name;
-  }
-  override set name(name: string) {
-    this.input.name = name;
-  }
-  override get autocomplete() {
-    return this.input.autocomplete;
-  }
-  override set autocomplete(value: string) {
-    this.input.autocomplete = value;
-  }
-  override get placeholder(): string {
-    return this.input.placeholder;
-  }
-  override set placeholder(value: string) {
-    this.input.placeholder = value;
-  }
-  override get label() {
-    return this.input.label;
-  }
-  override set label(label: string) {
-    this.input.label = label;
-  }
-  override get helpText() {
-    return this.input.helpText;
-  }
-  override set helpText(helpText: string) {
-    this.input.helpText = helpText;
-  }
-  override get required() {
-    return this.input.required;
-  }
-  override set required(required: boolean) {
-    this.input.required = required;
-  }
-  override get disabled() {
-    return this.input.disabled;
-  }
-  override set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
-  }
-  override get size() {
-    return this.input.size;
-  }
-  override set size(size: sl.SlInput['size']) {
-    this.input.size = size;
+export class GuiInputNode extends GuiInputNodeRef<gc.core.node> {
+  protected create(id: bigint): gc.core.node {
+    return gc.core.node.create(id);
   }
 }
 
-export class GuiInputNodeTime extends GuiInputElement<gc.core.nodeTime | null> {
-  input: GuiInputString;
-
-  constructor() {
-    super();
-
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    this.input.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-
-    this.shadowRoot.appendChild(this.input);
-  }
-
-  get value(): gc.core.nodeTime | null {
-    if (this.input.value !== null) {
-      try {
-        return gc.core.nodeTime.create(BigInt(this.input.value));
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  set value(value: gc.core.nodeTime | null | undefined) {
-    if (value === null || value === undefined) {
-      this.input.value = null;
-    } else {
-      this.input.value = `${value.value}`;
-    }
-  }
-
-  override get name() {
-    return this.input.name;
-  }
-  override set name(name: string) {
-    this.input.name = name;
-  }
-  override get autocomplete() {
-    return this.input.autocomplete;
-  }
-  override set autocomplete(value: string) {
-    this.input.autocomplete = value;
-  }
-  override get placeholder(): string {
-    return this.input.placeholder;
-  }
-  override set placeholder(value: string) {
-    this.input.placeholder = value;
-  }
-  override get label() {
-    return this.input.label;
-  }
-  override set label(label: string) {
-    this.input.label = label;
-  }
-  override get helpText() {
-    return this.input.helpText;
-  }
-  override set helpText(helpText: string) {
-    this.input.helpText = helpText;
-  }
-  override get required() {
-    return this.input.required;
-  }
-  override set required(required: boolean) {
-    this.input.required = required;
-  }
-  override get disabled() {
-    return this.input.disabled;
-  }
-  override set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
-  }
-  override get size() {
-    return this.input.size;
-  }
-  override set size(size: sl.SlInput['size']) {
-    this.input.size = size;
+export class GuiInputNodeTime extends GuiInputNodeRef<gc.core.nodeTime> {
+  protected create(id: bigint): gc.core.nodeTime {
+    return gc.core.nodeTime.create(id);
   }
 }
 
-export class GuiInputNodeList extends GuiInputElement<gc.core.nodeList | null> {
-  input: GuiInputString;
-
-  constructor() {
-    super();
-
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    this.input.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-
-    this.shadowRoot.appendChild(this.input);
-  }
-
-  get value(): gc.core.nodeList | null {
-    if (this.input.value !== null) {
-      try {
-        return gc.core.nodeList.create(BigInt(this.input.value));
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  set value(value: gc.core.nodeList | null | undefined) {
-    if (value === null || value === undefined) {
-      this.input.value = null;
-    } else {
-      this.input.value = `${value.value}`;
-    }
-  }
-
-  override get name() {
-    return this.input.name;
-  }
-  override set name(name: string) {
-    this.input.name = name;
-  }
-  override get autocomplete() {
-    return this.input.autocomplete;
-  }
-  override set autocomplete(value: string) {
-    this.input.autocomplete = value;
-  }
-  override get placeholder(): string {
-    return this.input.placeholder;
-  }
-  override set placeholder(value: string) {
-    this.input.placeholder = value;
-  }
-  override get label() {
-    return this.input.label;
-  }
-  override set label(label: string) {
-    this.input.label = label;
-  }
-  override get helpText() {
-    return this.input.helpText;
-  }
-  override set helpText(helpText: string) {
-    this.input.helpText = helpText;
-  }
-  override get required() {
-    return this.input.required;
-  }
-  override set required(required: boolean) {
-    this.input.required = required;
-  }
-  override get disabled() {
-    return this.input.disabled;
-  }
-  override set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
-  }
-  override get size() {
-    return this.input.size;
-  }
-  override set size(size: sl.SlInput['size']) {
-    this.input.size = size;
+export class GuiInputNodeTimeSet extends GuiInputNodeRef<gc.core.nodeTimeSet> {
+  protected create(id: bigint): gc.core.nodeTimeSet {
+    return gc.core.nodeTimeSet.create(id);
   }
 }
 
-export class GuiInputNodeGeo extends GuiInputElement<gc.core.nodeGeo | null> {
-  input: GuiInputString;
-
-  constructor() {
-    super();
-
-    this.input = document.createElement('gui-input-string');
-    this.input.addEventListener('gui-change', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiChangeEvent(this.value));
-    });
-    this.input.addEventListener('gui-input', (ev) => {
-      ev.stopPropagation();
-      this.dispatchEvent(new GuiInputEvent(this.value));
-    });
-
-    this.shadowRoot.appendChild(this.input);
-  }
-
-  get value(): gc.core.nodeGeo | null {
-    if (this.input.value !== null) {
-      try {
-        return gc.core.nodeGeo.create(BigInt(this.input.value));
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  }
-
-  set value(value: gc.core.nodeGeo | null | undefined) {
-    if (value === null || value === undefined) {
-      this.input.value = null;
-    } else {
-      this.input.value = `${value.value}`;
-    }
-  }
-
-  override get name() {
-    return this.input.name;
-  }
-  override set name(name: string) {
-    this.input.name = name;
-  }
-  override get autocomplete() {
-    return this.input.autocomplete;
-  }
-  override set autocomplete(value: string) {
-    this.input.autocomplete = value;
-  }
-  override get placeholder(): string {
-    return this.input.placeholder;
-  }
-  override set placeholder(value: string) {
-    this.input.placeholder = value;
-  }
-  override get label() {
-    return this.input.label;
-  }
-  override set label(label: string) {
-    this.input.label = label;
-  }
-  override get helpText() {
-    return this.input.helpText;
-  }
-  override set helpText(helpText: string) {
-    this.input.helpText = helpText;
-  }
-  override get required() {
-    return this.input.required;
-  }
-  override set required(required: boolean) {
-    this.input.required = required;
-  }
-  override get disabled() {
-    return this.input.disabled;
-  }
-  override set disabled(disabled: boolean) {
-    this.input.disabled = disabled;
-  }
-  override get size() {
-    return this.input.size;
-  }
-  override set size(size: sl.SlInput['size']) {
-    this.input.size = size;
+export class GuiInputNodeSet extends GuiInputNodeRef<gc.core.nodeSet> {
+  protected create(id: bigint): gc.core.nodeSet {
+    return gc.core.nodeSet.create(id);
   }
 }
 
+export class GuiInputNodeIndex extends GuiInputNodeRef<gc.core.nodeIndex> {
+  protected create(id: bigint): gc.core.nodeIndex {
+    return gc.core.nodeIndex.create(id);
+  }
+}
+
+export class GuiInputNodeIndexSet extends GuiInputNodeRef<gc.core.nodeIndexSet> {
+  protected create(id: bigint): gc.core.nodeIndexSet {
+    return gc.core.nodeIndexSet.create(id);
+  }
+}
+
+export class GuiInputNodeList extends GuiInputNodeRef<gc.core.nodeList> {
+  protected create(id: bigint): gc.core.nodeList {
+    return gc.core.nodeList.create(id);
+  }
+}
+
+export class GuiInputNodeGeo extends GuiInputNodeRef<gc.core.nodeGeo> {
+  protected create(id: bigint): gc.core.nodeGeo {
+    return gc.core.nodeGeo.create(id);
+  }
+}
+
+export class GuiInputNodeGeoSet extends GuiInputNodeRef<gc.core.nodeGeoSet> {
+  protected create(id: bigint): gc.core.nodeGeoSet {
+    return gc.core.nodeGeoSet.create(id);
+  }
+}
 export class GuiInputGeo extends GuiInputElement<gc.core.geo | null> {
   static override styles = [...GuiInputElement.styles, css(GeoStyle)];
 
@@ -2773,6 +2481,14 @@ declare global {
     'gui-input-node-time': GuiInputNodeTime;
     /** @see {@link GuiInputNodeGeo} */
     'gui-input-node-geo': GuiInputNodeGeo;
+    /** @see {@link GuiInputNodeTimeSet} */
+    'gui-input-node-time-set': GuiInputNodeTimeSet;
+    /** @see {@link GuiInputNodeSet} */
+    'gui-input-node-set': GuiInputNodeSet;
+    /** @see {@link GuiInputNodeIndexSet} */
+    'gui-input-node-index-set': GuiInputNodeIndexSet;
+    /** @see {@link GuiInputNodeGeoSet} */
+    'gui-input-node-geo-set': GuiInputNodeGeoSet;
     /** @see {@link GuiInputGeo} */
     'gui-input-geo': GuiInputGeo;
     /** @see {@link GuiInputFnPtr} */
@@ -2833,6 +2549,14 @@ declare global {
         'gui-input-node-list': GreyCat.Element<GuiInputNodeList, GuiInputEventMap>;
         /** @see {@link GuiInputNodeGeo} */
         'gui-input-node-geo': GreyCat.Element<GuiInputNodeGeo, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeTimeSet} */
+        'gui-input-node-time-set': GreyCat.Element<GuiInputNodeTimeSet, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeSet} */
+        'gui-input-node-set': GreyCat.Element<GuiInputNodeSet, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeIndexSet} */
+        'gui-input-node-index-set': GreyCat.Element<GuiInputNodeIndexSet, GuiInputEventMap>;
+        /** @see {@link GuiInputNodeGeoSet} */
+        'gui-input-node-geo-set': GreyCat.Element<GuiInputNodeGeoSet, GuiInputEventMap>;
         /** @see {@link GuiInputGeo} */
         'gui-input-geo': GreyCat.Element<GuiInputGeo, GuiInputEventMap>;
         /** @see {@link GuiInputFnPtr} */

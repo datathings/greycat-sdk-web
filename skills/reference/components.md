@@ -106,8 +106,11 @@ and map it in one call.
 
 `gui-input` picks the editor for a value or a type: `gui-input-string`,
 `-number`, `-bool`, `-time`, `-duration`, `-geo`, `-enum`, `-array`, `-map`,
-`-object`, `-node`, `-node-time`, `-node-list`, `-node-index`, `-node-geo`,
-`-fn`, `-fnptr`, `-field`, `-type`, `-any`, `-null`, `-unsupported`.
+`-object`, `-node`, `-node-time`, `-node-time-set`, `-node-set`, `-node-list`,
+`-node-index`, `-node-index-set`, `-node-geo`, `-node-geo-set`, `-fn`, `-fnptr`,
+`-field`, `-type`, `-any`, `-null`, `-unsupported`. A node input edits the id
+of the node. Its class extends `GuiInputNodeRef`, which a custom node input
+extends too, naming its node type in `create(id)`.
 `gui-input-object` builds a form from the ABI type, so a `createFrom`-shaped
 object comes out of it. `GuiInputFactory` maps types to input elements the
 way `GuiFactory` maps them to renderers.

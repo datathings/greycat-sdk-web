@@ -15,5 +15,9 @@ registerFactoryMapping('core::nodeTime', 'gui-value');
 registerFactoryMapping('core::nodeIndex', 'gui-value');
 registerFactoryMapping('core::nodeGeo', 'gui-value');
 registerFactoryMapping('core::nodeList', 'gui-value');
+registerFactoryMapping('core::nodeTimeSet', 'gui-value');
+registerFactoryMapping('core::nodeSet', 'gui-value');
+registerFactoryMapping('core::nodeIndexSet', 'gui-value');
+registerFactoryMapping('core::nodeGeoSet', 'gui-value');
 
 export * from './index.js';

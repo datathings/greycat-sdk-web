@@ -591,33 +591,10 @@ export class GuiInputFactory extends GuiElement {
       }
       return input;
     }
-    if (type.offset === abi.core.node || type.generic_abi_type === abi.core.node) {
+    const nodeInput = nodeInputTag(type);
+    if (nodeInput) {
       if (!input) {
-        input = document.createElement('gui-input-node');
-      }
-      return input;
-    }
-    if (type.offset === abi.core.node_time || type.generic_abi_type === abi.core.node_time) {
-      if (!input) {
-        input = document.createElement('gui-input-node-time');
-      }
-      return input;
-    }
-    if (type.offset === abi.core.node_list || type.generic_abi_type === abi.core.node_list) {
-      if (!input) {
-        input = document.createElement('gui-input-node-list');
-      }
-      return input;
-    }
-    if (type.offset === abi.core.node_index || type.generic_abi_type === abi.core.node_index) {
-      if (!input) {
-        input = document.createElement('gui-input-node-index');
-      }
-      return input;
-    }
-    if (type.offset === abi.core.node_geo || type.generic_abi_type === abi.core.node_geo) {
-      if (!input) {
-        input = document.createElement('gui-input-node-geo');
+        input = document.createElement(nodeInput);
       }
       return input;
     }
@@ -626,6 +603,30 @@ export class GuiInputFactory extends GuiElement {
     }
     return input;
   }
+}
+
+type NodeInputTag = Extract<keyof HTMLElementTagNameMap, `gui-input-node${string}`>;
+
+/** The input element of a node type, itself or the generic type it specialises, if it is one. */
+function nodeInputTag(type: gc.sdk.AbiType): NodeInputTag | undefined {
+  const core = type.abi.core;
+  const tags: [number, NodeInputTag][] = [
+    [core.node, 'gui-input-node'],
+    [core.node_time, 'gui-input-node-time'],
+    [core.node_time_set, 'gui-input-node-time-set'],
+    [core.node_set, 'gui-input-node-set'],
+    [core.node_list, 'gui-input-node-list'],
+    [core.node_index, 'gui-input-node-index'],
+    [core.node_index_set, 'gui-input-node-index-set'],
+    [core.node_geo, 'gui-input-node-geo'],
+    [core.node_geo_set, 'gui-input-node-geo-set'],
+  ];
+  for (const [offset, tag] of tags) {
+    if (type.offset === offset || type.generic_abi_type === offset) {
+      return tag;
+    }
+  }
+  return undefined;
 }
 
 const TAG_NAME_REGEX = /[^a-z0-9-]+|^[^a-z]+/g;
